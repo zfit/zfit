@@ -16,5 +16,6 @@ Submodules
    zfit.z.math
    zfit.z.random
    zfit.z.tools
+   zfit.z.unstable
    zfit.z.wrapping_tf
    zfit.z.zextension

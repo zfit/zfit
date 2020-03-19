@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>exception &#8212; zfit 0.4.4.dev1+g9951953 documentation</title>
+    <title>exception &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -68,7 +68,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../intro/space.html">Space, Observable and Range</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../intro/space.html#definitions">Definitions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#defining-limits">Defining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#using-the-limits">Using the limits</a></li>
 </ul>
 </li>
 </ul>
@@ -127,65 +129,66 @@
 <li class="toctree-l2"><a class="reference internal" href="../project/changelog.html">Changelog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id6">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id7">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id12">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id13">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id13">Major Features and Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id15">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id20">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id21">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id25">Requirement changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id26">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id31">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id32">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id36">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id38">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id38">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#improvements">Improvements</a></li>
 </ul>
@@ -215,16 +218,17 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.core.coordinates.html">coordinates</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.data.html">data</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.dependents.html">dependents</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.dimension.html">dimension</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.integration.html">integration</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="zfit.core.limits.html">limits</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.loss.html">loss</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.operations.html">operations</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.parameter.html">parameter</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.core.space.html">space</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.testing.html">testing</a></li>
 </ul>
 </li>
@@ -271,8 +275,10 @@
 <li class="toctree-l6 current"><a class="current reference internal" href="#">exception</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.execution.html">execution</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.util.legacy.html">legacy</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.logging.html">logging</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.util.warnings.html">warnings</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.ztyping.html">ztyping</a></li>
 </ul>
 </li>
@@ -284,6 +290,7 @@
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -295,6 +302,7 @@
 <li class="toctree-l3"><a class="reference internal" href="zfit.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.dimension.html">dimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.minimize.html">minimize</a></li>
@@ -320,6 +328,7 @@
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -393,6 +402,42 @@ set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 <dl class="exception">
+<dt id="zfit.util.exception.AxesAmbiguousError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">AxesAmbiguousError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#AxesAmbiguousError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.AxesAmbiguousError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IntentionAmbiguousError" title="zfit.util.exception.IntentionAmbiguousError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IntentionAmbiguousError</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.AxesAmbiguousError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.AxesAmbiguousError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.AxesAmbiguousError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.AxesAmbiguousError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.AxesIncompatibleError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">AxesIncompatibleError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#AxesIncompatibleError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.AxesIncompatibleError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IncompatibleError" title="zfit.util.exception.IncompatibleError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IncompatibleError</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.AxesIncompatibleError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.AxesIncompatibleError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.AxesIncompatibleError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.AxesIncompatibleError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
 <dt id="zfit.util.exception.AxesNotSpecifiedError">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">AxesNotSpecifiedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#AxesNotSpecifiedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.AxesNotSpecifiedError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.NotSpecifiedError" title="zfit.util.exception.NotSpecifiedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.NotSpecifiedError</span></code></a></p>
@@ -404,24 +449,6 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="method">
 <dt id="zfit.util.exception.AxesNotSpecifiedError.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.AxesNotSpecifiedError.with_traceback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception.with_traceback(tb) –
-set self.__traceback__ to tb and return self.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="exception">
-<dt id="zfit.util.exception.AxesNotUnambiguousError">
-<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">AxesNotUnambiguousError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#AxesNotUnambiguousError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.AxesNotUnambiguousError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IntentionNotUnambiguousError" title="zfit.util.exception.IntentionNotUnambiguousError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IntentionNotUnambiguousError</span></code></a></p>
-<dl class="attribute">
-<dt id="zfit.util.exception.AxesNotUnambiguousError.args">
-<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.AxesNotUnambiguousError.args" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.util.exception.AxesNotUnambiguousError.with_traceback">
-<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.AxesNotUnambiguousError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -447,6 +474,24 @@ set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 <dl class="exception">
+<dt id="zfit.util.exception.BehaviorUnderDiscussion">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">BehaviorUnderDiscussion</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#BehaviorUnderDiscussion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.BehaviorUnderDiscussion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.BehaviorUnderDiscussion.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.BehaviorUnderDiscussion.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.BehaviorUnderDiscussion.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.BehaviorUnderDiscussion.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
 <dt id="zfit.util.exception.BreakingAPIChangeError">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">BreakingAPIChangeError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#BreakingAPIChangeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.BreakingAPIChangeError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
@@ -458,6 +503,24 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="method">
 <dt id="zfit.util.exception.BreakingAPIChangeError.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.BreakingAPIChangeError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.CannotConvertToNumpyError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">CannotConvertToNumpyError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#CannotConvertToNumpyError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.CannotConvertToNumpyError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.CannotConvertToNumpyError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.CannotConvertToNumpyError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.CannotConvertToNumpyError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.CannotConvertToNumpyError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -483,6 +546,60 @@ set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 <dl class="exception">
+<dt id="zfit.util.exception.CoordinatesIncompatibleError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">CoordinatesIncompatibleError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#CoordinatesIncompatibleError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.CoordinatesIncompatibleError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IncompatibleError" title="zfit.util.exception.IncompatibleError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IncompatibleError</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.CoordinatesIncompatibleError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.CoordinatesIncompatibleError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.CoordinatesIncompatibleError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.CoordinatesIncompatibleError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.CoordinatesUnderdefinedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">CoordinatesUnderdefinedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#CoordinatesUnderdefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.CoordinatesUnderdefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.UnderdefinedError" title="zfit.util.exception.UnderdefinedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.UnderdefinedError</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.CoordinatesUnderdefinedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.CoordinatesUnderdefinedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.CoordinatesUnderdefinedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.CoordinatesUnderdefinedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.DataIsBatchedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">DataIsBatchedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#DataIsBatchedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.DataIsBatchedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.DataIsBatchedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.DataIsBatchedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.DataIsBatchedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.DataIsBatchedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
 <dt id="zfit.util.exception.ExtendedPDFError">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">ExtendedPDFError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#ExtendedPDFError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.ExtendedPDFError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
@@ -494,6 +611,24 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="method">
 <dt id="zfit.util.exception.ExtendedPDFError.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.ExtendedPDFError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.IllegalInGraphModeError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">IllegalInGraphModeError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#IllegalInGraphModeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.IllegalInGraphModeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.IllegalInGraphModeError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.IllegalInGraphModeError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.IllegalInGraphModeError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.IllegalInGraphModeError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -519,17 +654,35 @@ set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="zfit.util.exception.IntentionNotUnambiguousError">
-<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">IntentionNotUnambiguousError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#IntentionNotUnambiguousError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.IntentionNotUnambiguousError" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.exception.IntentionAmbiguousError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">IntentionAmbiguousError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#IntentionAmbiguousError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.IntentionAmbiguousError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <dl class="attribute">
-<dt id="zfit.util.exception.IntentionNotUnambiguousError.args">
-<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.IntentionNotUnambiguousError.args" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.exception.IntentionAmbiguousError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.IntentionAmbiguousError.args" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="zfit.util.exception.IntentionNotUnambiguousError.with_traceback">
-<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.IntentionNotUnambiguousError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.exception.IntentionAmbiguousError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.IntentionAmbiguousError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.InvalidLimitSubspaceError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">InvalidLimitSubspaceError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#InvalidLimitSubspaceError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.InvalidLimitSubspaceError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.InvalidLimitSubspaceError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.InvalidLimitSubspaceError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.InvalidLimitSubspaceError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.InvalidLimitSubspaceError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -682,24 +835,6 @@ set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="zfit.util.exception.NoSessionSpecifiedError">
-<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">NoSessionSpecifiedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#NoSessionSpecifiedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.NoSessionSpecifiedError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
-<dl class="attribute">
-<dt id="zfit.util.exception.NoSessionSpecifiedError.args">
-<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.NoSessionSpecifiedError.args" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="zfit.util.exception.NoSessionSpecifiedError.with_traceback">
-<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.NoSessionSpecifiedError.with_traceback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception.with_traceback(tb) –
-set self.__traceback__ to tb and return self.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="exception">
 <dt id="zfit.util.exception.NormRangeNotImplementedError">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">NormRangeNotImplementedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#NormRangeNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.NormRangeNotImplementedError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
@@ -730,6 +865,24 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="method">
 <dt id="zfit.util.exception.NormRangeNotSpecifiedError.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.NormRangeNotSpecifiedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.NormRangeUnderdefinedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">NormRangeUnderdefinedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#NormRangeUnderdefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.NormRangeUnderdefinedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.UnderdefinedError" title="zfit.util.exception.UnderdefinedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.UnderdefinedError</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.NormRangeUnderdefinedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.NormRangeUnderdefinedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.NormRangeUnderdefinedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.NormRangeUnderdefinedError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -791,6 +944,24 @@ set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 <dl class="exception">
+<dt id="zfit.util.exception.NumberOfEventsIncompatibleError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">NumberOfEventsIncompatibleError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#NumberOfEventsIncompatibleError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.NumberOfEventsIncompatibleError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.ShapeIncompatibleError" title="zfit.util.exception.ShapeIncompatibleError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.ShapeIncompatibleError</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.NumberOfEventsIncompatibleError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.NumberOfEventsIncompatibleError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.NumberOfEventsIncompatibleError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.NumberOfEventsIncompatibleError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
 <dt id="zfit.util.exception.ObsIncompatibleError">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">ObsIncompatibleError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#ObsIncompatibleError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.ObsIncompatibleError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IncompatibleError" title="zfit.util.exception.IncompatibleError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IncompatibleError</span></code></a></p>
@@ -827,9 +998,27 @@ set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 <dl class="exception">
+<dt id="zfit.util.exception.OperationNotAllowedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">OperationNotAllowedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#OperationNotAllowedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.OperationNotAllowedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.OperationNotAllowedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.OperationNotAllowedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.OperationNotAllowedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.OperationNotAllowedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
 <dt id="zfit.util.exception.OverdefinedError">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">OverdefinedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#OverdefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.OverdefinedError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IntentionNotUnambiguousError" title="zfit.util.exception.IntentionNotUnambiguousError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IntentionNotUnambiguousError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IntentionAmbiguousError" title="zfit.util.exception.IntentionAmbiguousError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IntentionAmbiguousError</span></code></a></p>
 <dl class="attribute">
 <dt id="zfit.util.exception.OverdefinedError.args">
 <code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.OverdefinedError.args" title="Permalink to this definition">¶</a></dt>
@@ -856,6 +1045,24 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="method">
 <dt id="zfit.util.exception.PDFCompatibilityError.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.PDFCompatibilityError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.ParameterNotIndependentError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">ParameterNotIndependentError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#ParameterNotIndependentError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.ParameterNotIndependentError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.ParameterNotIndependentError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.ParameterNotIndependentError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.ParameterNotIndependentError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.ParameterNotIndependentError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -919,7 +1126,7 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="exception">
 <dt id="zfit.util.exception.UnderdefinedError">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">UnderdefinedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#UnderdefinedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.UnderdefinedError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IntentionNotUnambiguousError" title="zfit.util.exception.IntentionNotUnambiguousError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IntentionNotUnambiguousError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IntentionAmbiguousError" title="zfit.util.exception.IntentionAmbiguousError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IntentionAmbiguousError</span></code></a></p>
 <dl class="attribute">
 <dt id="zfit.util.exception.UnderdefinedError.args">
 <code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.UnderdefinedError.args" title="Permalink to this definition">¶</a></dt>

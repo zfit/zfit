@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.basic &#8212; zfit 0.4.4.dev1+g9951953 documentation</title>
+    <title>zfit.models.basic &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -66,7 +66,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#defining-limits">Defining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
 </ul>
 </li>
 </ul>
@@ -125,65 +127,66 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id6">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id7">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id13">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Major Features and Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id15">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id20">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id21">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id25">Requirement changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id26">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id31">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id32">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id36">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id38">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
 </ul>
@@ -213,16 +216,17 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.limits.html">limits</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
 </ul>
 </li>
@@ -269,8 +273,10 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
 </ul>
 </li>
@@ -282,6 +288,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -293,6 +300,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -318,6 +326,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -373,24 +382,18 @@
 <span class="sd">build larger models.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="c1">#  Copyright (c) 2019 zfit</span>
+<span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">mt</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Any</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-
-
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WorkInProgressError</span>
-<span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="kn">import</span> <span class="n">TemporarilySet</span>
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..core.limits</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">ANY_UPPER</span>
 <span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="kn">import</span> <span class="n">BasePDF</span>
+<span class="kn">from</span> <span class="nn">..core.space</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">ANY_UPPER</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">warn_advanced_feature</span>
 
 <span class="n">infinity</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">inf</span>
 
@@ -414,7 +417,7 @@
 
 
 <span class="n">CustomGaussOLD</span><span class="o">.</span><span class="n">register_analytic_integral</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">_gauss_integral_from_inf_to_inf</span><span class="p">,</span>
-                                          <span class="n">limits</span><span class="o">=</span><span class="n">Space</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">infinity</span><span class="p">,</span> <span class="n">infinity</span><span class="p">),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)))</span>
+                                          <span class="n">limits</span><span class="o">=</span><span class="n">Space</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">infinity</span><span class="p">,</span> <span class="n">infinity</span><span class="p">),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,)))</span>
 
 
 <div class="viewcode-block" id="Exponential"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.models.basic.Exponential">[docs]</a><span class="k">class</span> <span class="nc">Exponential</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
@@ -435,120 +438,129 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="n">lambda_</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_data_shift</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">has_limits</span><span class="p">:</span>
+            <span class="n">warn_advanced_feature</span><span class="p">(</span><span class="s2">&quot;Exponential pdf relies on a shift of the input towards 0 to keep the numerical &quot;</span>
+                                  <span class="sa">f</span><span class="s2">&quot;stability high. The space </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="si">}</span><span class="s2"> does not have limits set and no shift&quot;</span>
+                                  <span class="sa">f</span><span class="s2">&quot; will occure. To set it manually, set _numerics_data_shift to the expected&quot;</span>
+                                  <span class="sa">f</span><span class="s2">&quot; average values given to this function _in case you want things to be set_.&quot;</span>
+                                  <span class="sa">f</span><span class="s2">&quot;If this sounds unfamiliar, regard this as an error and use a normalization range.&quot;</span><span class="p">,</span>
+                                  <span class="n">identifier</span><span class="o">=</span><span class="s1">&#39;exp_shift&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="n">lambda_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;lambda&#39;</span><span class="p">]</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_shifted_exp</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lambda_</span><span class="o">=</span><span class="n">lambda_</span><span class="p">)</span>  <span class="c1"># Don&#39;t use exp! will overflow.</span>
+        <span class="n">probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_shifted_exp</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lambda_</span><span class="o">=</span><span class="n">lambda_</span><span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_all_finite</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Exponendial pdf </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> has non valid values. This is likely caused&quot;</span>
+                                              <span class="sa">f</span><span class="s2">&quot;by numerical problems: if the exponential is too steep, this will&quot;</span>
+                                              <span class="sa">f</span><span class="s2">&quot;yield NaNs or infs. Make sure that your lambda is small enough and/or&quot;</span>
+                                              <span class="sa">f</span><span class="s2">&quot; the initial space is in the same&quot;</span>
+                                              <span class="sa">f</span><span class="s2">&quot; region as your data (and norm_range, if explicitly set differently).&quot;</span>
+                                              <span class="sa">f</span><span class="s2">&quot; If this issue still persists, please oben an issue on Github:&quot;</span>
+                                              <span class="sa">f</span><span class="s2">&quot;https://github.com/zfit/zfit&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">probs</span>  <span class="c1"># Don&#39;t use exp! will overflow.</span>
 
     <span class="k">def</span> <span class="nf">_numerics_shifted_exp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">lambda_</span><span class="p">):</span>  <span class="c1"># needed due to overflow in exp otherwise, prevents by shift</span>
         <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">lambda_</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_data_shift</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_set_numerics_data_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
-        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
-        <span class="n">lower_val</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">lower</span><span class="p">])</span>
-        <span class="n">upper_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">upper</span><span class="p">])</span>
+        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">limits</span><span class="p">:</span>
+            <span class="n">low</span><span class="p">,</span> <span class="n">up</span> <span class="o">=</span> <span class="n">limit</span><span class="o">.</span><span class="n">rect_limits_np</span>
+            <span class="n">lower</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">low</span><span class="p">)</span>
+            <span class="n">upper</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">up</span><span class="p">)</span>
+        <span class="n">lower_val</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
+        <span class="n">upper_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
 
         <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">upper_val</span> <span class="o">+</span> <span class="n">lower_val</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstable</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># removing the last dimension</span>
 
-        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lower_val</span> <span class="o">-</span> <span class="n">value</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">upper_val</span> <span class="o">-</span> <span class="n">value</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">710</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Boundaries can be too wide for exponential (assuming lambda ~ 1), expect `inf` in exp(x) and `NaN`s.&quot;</span>
-                <span class="s2">&quot;(upper - lower) * lambda should be smaller than 1400 roughly&quot;</span><span class="p">,</span>
-                <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="c1"># if max(abs(lower_val - value), abs(upper_val - value)) &gt; 710:</span>
+        <span class="c1">#     warnings.warn(</span>
+        <span class="c1">#         &quot;Boundaries can be too wide for exponential (assuming lambda ~ 1), expect `inf` in exp(x) and `NaN`s.&quot;</span>
+        <span class="c1">#         &quot;(upper - lower) * lambda should be smaller than 1400 roughly&quot;,</span>
+        <span class="c1">#         category=RuntimeWarning)</span>
 
-        <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_data_shift</span> <span class="o">=</span> <span class="n">value</span>
-
-        <span class="k">def</span> <span class="nf">getter</span><span class="p">():</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_data_shift</span>
-
-        <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">getter</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_data_shift</span> <span class="o">=</span> <span class="n">value</span></div>
 
     <span class="c1"># All hooks are needed to set the right shift when &quot;entering&quot; the pdf. The norm range is taken where both are</span>
     <span class="c1"># available. No special need needs to be taken for sampling (it samples from the correct region, the limits, and</span>
     <span class="c1"># uses the predictions by the `unnormalized_prob` -&gt; that is shifted correctly</span>
-    <span class="k">def</span> <span class="nf">_single_hook_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_integrate&#39;</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_integrate</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;_hook_analytic_integrate&quot;</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_numeric_integrate&#39;</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_partial_integrate&#39;</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_partial_analytic_integrate&#39;</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;_hook_partial_numeric_integrate&#39;</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_normalization</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">component_norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">component_norm_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">component_norm_range</span><span class="p">):</span>
-                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_unnormalized_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">component_norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_unnormalized_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">component_norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_log_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">norm_range</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_log_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_numerics_data_shift</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
-
-    <span class="c1"># def _log_pdf(self, x, norm_range: Space):</span>
-    <span class="c1">#     lambda_ = self.params[&#39;lambda&#39;]</span>
-    <span class="c1">#     x = z.unstack_x(x)</span>
-    <span class="c1">#     func = x * lambda_</span>
-    <span class="c1">#     if norm_range.n_limits &gt; 1:</span>
-    <span class="c1">#         raise DueToLazynessNotImplementedError(</span>
-    <span class="c1">#             &quot;Not implemented, it&#39;s more of a hack. I Should implement log_pdf and &quot;</span>
-    <span class="c1">#             &quot;norm probarly&quot;)</span>
-    <span class="c1">#     (lower,), (upper,) = norm_range.limits</span>
-    <span class="c1">#     lower = lower[0]</span>
-    <span class="c1">#     upper = upper[0]</span>
+    <span class="c1"># def _single_hook_integrate(self, limits, norm_range, name=&#39;_hook_integrate&#39;):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=limits):</span>
+    <span class="c1">#         return super()._single_hook_integrate(limits, norm_range, name)</span>
     <span class="c1">#</span>
-    <span class="c1">#     assert False, &quot;WIP, add log integral&quot;</span>
+    <span class="c1"># def _single_hook_analytic_integrate(self, limits, norm_range, name=&quot;_hook_analytic_integrate&quot;):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=limits):</span>
+    <span class="c1">#         return super()._single_hook_analytic_integrate(limits, norm_range, name)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def _single_hook_numeric_integrate(self, limits, norm_range, name=&#39;_hook_numeric_integrate&#39;):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=limits):</span>
+    <span class="c1">#         return super()._single_hook_numeric_integrate(limits, norm_range, name)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def _single_hook_partial_integrate(self, x, limits, norm_range, name=&#39;_hook_partial_integrate&#39;):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=limits):</span>
+    <span class="c1">#         return super()._single_hook_partial_integrate(x, limits, norm_range, name)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name=&#39;_hook_partial_analytic_integrate&#39;):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=limits):</span>
+    <span class="c1">#         return super()._single_hook_partial_analytic_integrate(x, limits, norm_range, name)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name=&#39;_hook_partial_numeric_integrate&#39;):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=limits):</span>
+    <span class="c1">#         return super()._single_hook_partial_numeric_integrate(x, limits, norm_range, name)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def _single_hook_normalization(self, limits, name):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=limits):</span>
+    <span class="c1">#         return super()._single_hook_normalization(limits, name)</span>
+    <span class="c1">#</span>
+    <span class="c1"># # TODO: remove component_norm_range? But needed for integral?</span>
+    <span class="c1"># def _single_hook_unnormalized_pdf(self, x, name):</span>
+    <span class="c1">#     if component_norm_range.limits_are_false:</span>
+    <span class="c1">#         component_norm_range = self.space</span>
+    <span class="c1">#     if component_norm_range.limits_are_set:</span>
+    <span class="c1">#         with self._set_numerics_data_shift(limits=component_norm_range):</span>
+    <span class="c1">#             return super()._single_hook_unnormalized_pdf(x, name)</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         return super()._single_hook_unnormalized_pdf(x, name)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def _single_hook_pdf(self, x, norm_range, name):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=norm_range):</span>
+    <span class="c1">#         return super()._single_hook_pdf(x, norm_range, name)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def _single_hook_log_pdf(self, x, norm_range, name):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=norm_range):</span>
+    <span class="c1">#         return super()._single_hook_log_pdf(x, norm_range, name)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def _single_hook_sample(self, n, limits, name):</span>
+    <span class="c1">#     with self._set_numerics_data_shift(limits=limits):</span>
+    <span class="c1">#         return super()._single_hook_sample(n, limits, name)</span>
 
 
 <span class="k">def</span> <span class="nf">_exp_integral_from_any_to_any</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
     <span class="n">lambda_</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;lambda&#39;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">raw_integral</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">_numerics_shifted_exp</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lambda_</span><span class="o">=</span><span class="n">lambda_</span><span class="p">)</span> <span class="o">/</span> <span class="n">lambda_</span>  <span class="c1"># needed due to overflow in exp otherwise</span>
-
-    <span class="p">(</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
-    <span class="k">if</span> <span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span> <span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">rect_limits_np</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">([</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">])):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="n">integral</span> <span class="o">=</span> <span class="n">_exp_integral_func_shifting</span><span class="p">(</span><span class="n">lambd</span><span class="o">=</span><span class="n">lambda_</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">upper</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">integral</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_exp_integral_func_shifting</span><span class="p">(</span><span class="n">lambd</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">raw_integral</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">_numerics_shifted_exp</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lambda_</span><span class="o">=</span><span class="n">lambd</span><span class="p">)</span> <span class="o">/</span> <span class="n">lambd</span>  <span class="c1"># needed due to overflow in exp otherwise</span>
+
     <span class="n">lower_int</span> <span class="o">=</span> <span class="n">raw_integral</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">lower</span><span class="p">))</span>
     <span class="n">upper_int</span> <span class="o">=</span> <span class="n">raw_integral</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">upper</span><span class="p">))</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">upper_int</span> <span class="o">-</span> <span class="n">lower_int</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">integral</span> <span class="o">=</span> <span class="p">(</span><span class="n">upper_int</span> <span class="o">-</span> <span class="n">lower_int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">integral</span>
 
 
-<span class="c1"># Exponential.register_inverse_analytic_integral()</span>
+<span class="c1"># Exponential.register_inverse_analytic_integral()  # TODO: register icdf for exponential</span>
 
 
-<span class="n">limits</span> <span class="o">=</span> <span class="n">Space</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">ANY_UPPER</span><span class="p">))</span>
+<span class="n">limits</span> <span class="o">=</span> <span class="n">Space</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">ANY_UPPER</span><span class="p">))</span>
 <span class="n">Exponential</span><span class="o">.</span><span class="n">register_analytic_integral</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">_exp_integral_from_any_to_any</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 </pre></div>
 

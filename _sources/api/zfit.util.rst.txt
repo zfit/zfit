@@ -19,6 +19,8 @@ Submodules
    zfit.util.exception
    zfit.util.execution
    zfit.util.graph
+   zfit.util.legacy
    zfit.util.logging
    zfit.util.temporary
+   zfit.util.warnings
    zfit.util.ztyping

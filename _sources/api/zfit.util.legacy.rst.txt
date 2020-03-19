@@ -1,7 +1,7 @@
-limits
+legacy
 ======
 
-.. automodule:: zfit.core.limits
+.. automodule:: zfit.util.legacy
    :members:
    :undoc-members:
    :show-inheritance:

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.basemodel &#8212; zfit 0.4.4.dev1+g9951953 documentation</title>
+    <title>zfit.core.basemodel &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -66,7 +66,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#defining-limits">Defining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
 </ul>
 </li>
 </ul>
@@ -125,65 +127,66 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id6">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id7">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id13">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Major Features and Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id15">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id20">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id21">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id25">Requirement changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id26">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id31">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id32">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id36">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id38">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
 </ul>
@@ -213,16 +216,17 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.limits.html">limits</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
 </ul>
 </li>
@@ -269,8 +273,10 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
 </ul>
 </li>
@@ -282,6 +288,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -293,6 +300,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -318,6 +326,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -387,16 +396,17 @@
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="kn">import</span> <span class="n">BaseNumeric</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Sampler</span><span class="p">,</span> <span class="n">SampleData</span>
 <span class="kn">from</span> <span class="nn">.dimension</span> <span class="kn">import</span> <span class="n">BaseDimensional</span>
-<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitData</span>
-<span class="kn">from</span> <span class="nn">.limits</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">convert_to_space</span><span class="p">,</span> <span class="n">no_norm_range</span><span class="p">,</span> <span class="n">supports</span>
+<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitSpace</span>
 <span class="kn">from</span> <span class="nn">.sample</span> <span class="kn">import</span> <span class="n">UniformSampleAndWeights</span>
+<span class="kn">from</span> <span class="nn">.space</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">convert_to_space</span><span class="p">,</span> <span class="n">no_norm_range</span><span class="p">,</span> <span class="n">supports</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span>
 <span class="kn">from</span> <span class="nn">..core.integration</span> <span class="kn">import</span> <span class="n">Integration</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">container</span> <span class="k">as</span> <span class="n">zcontainer</span><span class="p">,</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">Cachable</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">BasePDFSubclassingError</span><span class="p">,</span> <span class="n">MultipleLimitsNotImplementedError</span><span class="p">,</span> <span class="n">NormRangeNotImplementedError</span><span class="p">,</span>
-                              <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="n">SubclassingError</span><span class="p">,</span> <span class="p">)</span>
+                              <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="n">SubclassingError</span><span class="p">,</span> <span class="n">CannotConvertToNumpyError</span><span class="p">,</span> <span class="n">WorkInProgressError</span><span class="p">,</span>
+                              <span class="n">SpaceIncompatibleError</span><span class="p">)</span>
 
 <span class="n">_BaseModel_USER_IMPL_METHODS_TO_CHECK</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -521,11 +531,11 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitSpace</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space</span>
 
     <span class="k">def</span> <span class="nf">_check_set_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">Space</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">):</span>
             <span class="n">obs</span> <span class="o">=</span> <span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_n_obs</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_space</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">with_autofill_axes</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -601,20 +611,16 @@
 <span class="sd">            Union[:py:class:`~zfit.Space`, False]:</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">norm_range</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">Space</span><span class="p">)</span> <span class="ow">and</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">norm_range</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits_are_set</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">none_is_error</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Normalization range `norm_range` has to be specified when calling </span><span class="si">{name}</span><span class="s2"> or&quot;</span>
                                  <span class="s2">&quot;a default normalization range has to be set. Currently, both are None&quot;</span>
                                  <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">caller_name</span><span class="p">))</span>
-            <span class="c1"># else:</span>
-            <span class="c1">#     norm_range = False</span>
-        <span class="c1"># if norm_range is False and not convert_false:</span>
-        <span class="c1">#     return False</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_sort_space</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_input_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">none_is_error</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">Space</span><span class="p">)</span> <span class="ow">and</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">limits</span><span class="o">.</span><span class="n">has_limits</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">none_is_error</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The `limits` have to be specified when calling </span><span class="si">{name}</span><span class="s2"> and not be None&quot;</span>
                                  <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">caller_name</span><span class="p">))</span>
@@ -623,9 +629,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_sort_space</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BaseModel.convert_sort_space"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.convert_sort_space">[docs]</a>    <span class="k">def</span> <span class="nf">convert_sort_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                           <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.Space` and sort them according to</span>
+<div class="viewcode-block" id="BaseModel.convert_sort_space"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.convert_sort_space">[docs]</a>    <span class="k">def</span> <span class="nf">convert_sort_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                           <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                           <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ZfitSpace</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to</span>
 <span class="sd">        own `obs`.</span>
 
 <span class="sd">        Args:</span>
@@ -638,11 +645,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># for simple limits to convert them</span>
             <span class="n">obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SpaceIncompatibleError</span><span class="p">(</span><span class="s2">&quot;The given space </span><span class="si">{obs}</span><span class="s2"> is not compatible with the obs of the pdfs</span><span class="si">{self.obs}</span><span class="s2">;&quot;</span>
+                                         <span class="s2">&quot; they are disjoint.&quot;</span><span class="p">)</span>
         <span class="n">space</span> <span class="o">=</span> <span class="n">convert_to_space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 
-        <span class="n">self_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>
-        <span class="k">if</span> <span class="n">self_space</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">space</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">with_obs_axes</span><span class="p">(</span><span class="n">self_space</span><span class="o">.</span><span class="n">get_obs_axes</span><span class="p">(),</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># e.g. not the first call</span>
+            <span class="n">space</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">with_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">space</span></div>
 
     <span class="c1"># Integrals</span>
@@ -651,14 +660,14 @@
     <span class="k">def</span> <span class="nf">_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    <span class="c1"># @z.function</span>
-<div class="viewcode-block" id="BaseModel.integrate"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.integrate">[docs]</a>    <span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Integrate the function over `limits` (normalized over `norm_range` if not False).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over</span>
-<span class="sd">            norm_range (tuple, :py:class:`~zfit.Space`): the limits to normalize over or False to integrate the</span>
+<span class="sd">            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over</span>
+<span class="sd">            norm_range (tuple, :py:class:`~zfit.ZfitSpace`): the limits to normalize over or False to integrate the</span>
 <span class="sd">                unnormalized probability</span>
 <span class="sd">            name (str): name of the operation shown in the :py:class:`tf.Graph`</span>
 
@@ -668,15 +677,16 @@
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
         <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">integral</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">integral</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span> <span class="o">==</span> <span class="p">[]:</span>
-                <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Error in integral creation, should return an integral &quot;</span>
-                                             <span class="s2">&quot;with shape () (resp. [] as list), current shape &quot;</span>
-                                             <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">. If you registered an analytic integral which is used&quot;</span>
-                                             <span class="s2">&quot;now, make sure to return a scalar and not a tensor &quot;</span>
-                                             <span class="s2">&quot;(typically: shape is (1,) insead of () -&gt; return tensor[0] &quot;</span>
-                                             <span class="s2">&quot;instead of tensor)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">integral</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()))</span>
-        <span class="k">return</span> <span class="n">integral</span></div>
+        <span class="c1"># TODO: allow integral values as arrays?</span>
+        <span class="c1"># if isinstance(integral, tf.Tensor):</span>
+        <span class="c1">#     if not integral.shape.as_list() == []:</span>
+        <span class="c1">#         raise ShapeIncompatibleError(&quot;Error in integral creation, should return an integral &quot;</span>
+        <span class="c1">#                                      &quot;with shape () (resp. [] as list), current shape &quot;</span>
+        <span class="c1">#                                      &quot;{}. If you registered an analytic integral which is used&quot;</span>
+        <span class="c1">#                                      &quot;now, make sure to return a scalar and not a tensor &quot;</span>
+        <span class="c1">#                                      &quot;(typically: shape is (1,) insead of () -&gt; return tensor[0] &quot;</span>
+        <span class="c1">#                                      &quot;instead of tensor)&quot;.format(integral.shape.as_list()))</span>
+        <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_single_hook_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -698,25 +708,25 @@
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MultipleLimitsNotImplementedError</span><span class="p">:</span>
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="p">:</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_call_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">]):</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_fallback_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="n">axes</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">axes</span>
         <span class="n">max_axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analytic_integral</span><span class="o">.</span><span class="n">get_max_axes</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
 
         <span class="n">integral</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">max_axes</span> <span class="ow">and</span> <span class="n">integral</span><span class="p">:</span>  <span class="c1"># TODO improve handling of available analytic integrals</span>
+        <span class="k">if</span> <span class="n">max_axes</span> <span class="ow">and</span> <span class="n">integral</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO improve handling of available analytic integrals</span>
             <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
                 <span class="k">def</span> <span class="nf">part_int</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                     <span class="sd">&quot;&quot;&quot;Temporary partial integration function.&quot;&quot;&quot;</span>
@@ -740,8 +750,8 @@
 
 <span class="sd">                    * x (:py:class:`~zfit.core.interfaces.ZfitData`, None): the data for the remaining axes in a partial</span>
 <span class="sd">                        integral. If it is not a partial integral, this will be None.</span>
-<span class="sd">                    * limits (:py:class:`~zfit.Space`): the limits to integrate over.</span>
-<span class="sd">                    * norm_range (:py:class:`~zfit.Space`, None): Normalization range of the integral.</span>
+<span class="sd">                    * limits (:py:class:`~zfit.ZfitSpace`): the limits to integrate over.</span>
+<span class="sd">                    * norm_range (:py:class:`~zfit.ZfitSpace`, None): Normalization range of the integral.</span>
 <span class="sd">                        If not `supports_supports_norm_range`, this will be None.</span>
 <span class="sd">                    * params (Dict[param_name, :py:class:`zfit.Parameters`]): The parameters of the model.</span>
 <span class="sd">                    * model (:py:class:`~zfit.core.interfaces.ZfitModel`):The model that is being integrated.</span>
@@ -780,8 +790,8 @@
         <span class="sd">&quot;&quot;&quot;Analytical integration over function and raise Error if not possible.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over</span>
-<span class="sd">            norm_range (tuple, :py:class:`~zfit.Space`, `False`): the limits to normalize over</span>
+<span class="sd">            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over</span>
+<span class="sd">            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, `False`): the limits to normalize over</span>
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
@@ -827,16 +837,15 @@
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MultipleLimitsNotImplementedError</span><span class="p">:</span>
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="p">:</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_call_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">]):</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_fallback_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analytic_integral</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span>
@@ -851,8 +860,8 @@
         <span class="sd">&quot;&quot;&quot;Numerical integration over the model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over</span>
-<span class="sd">            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over</span>
+<span class="sd">            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over</span>
+<span class="sd">            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over</span>
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
@@ -874,7 +883,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">NormRangeNotImplementedError</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Internal: the caught Error should not be raised.&quot;</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits_are_false</span><span class="p">,</span> <span class="s2">&quot;Internal: the caught Error should not be raised.&quot;</span>
             <span class="n">unnormalized_integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="n">normalization</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                                            <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_normalization&quot;</span><span class="p">)</span>
@@ -886,17 +895,16 @@
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MultipleLimitsNotImplementedError</span><span class="p">:</span>
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="p">:</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_call_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">]):</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_fallback_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_numeric_integrate</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_func_to_integrate</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
@@ -905,8 +913,8 @@
     <span class="k">def</span> <span class="nf">_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="c1"># @z.function</span>
-<div class="viewcode-block" id="BaseModel.partial_integrate"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.partial_integrate">[docs]</a>    <span class="k">def</span> <span class="nf">partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
                           <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                           <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;partial_integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeReturn</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Partially integrate the function over the `limits` and evaluate it at `x`.</span>
@@ -916,8 +924,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (numerical): The value at which the partially integrated function will be evaluated</span>
-<span class="sd">            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes</span>
-<span class="sd">            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes</span>
+<span class="sd">            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over. Can contain only some axes</span>
+<span class="sd">            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over. Has to have all axes</span>
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
@@ -926,7 +934,7 @@
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_sort_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">x</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_single_hook_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -939,7 +947,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">NormRangeNotImplementedError</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Internal: the caught Error should not be raised.&quot;</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits_are_false</span><span class="p">,</span> <span class="s2">&quot;Internal: the caught Error should not be raised.&quot;</span>
             <span class="n">unnormalized_integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="n">normalization</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="n">unnormalized_integral</span> <span class="o">/</span> <span class="n">normalization</span>
@@ -950,22 +958,22 @@
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MultipleLimitsNotImplementedError</span><span class="p">:</span>
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">sub_limit</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sub_limit</span> <span class="ow">in</span> <span class="n">limits</span><span class="p">:</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">sub_limit</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_call_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">]):</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_fallback_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">Space</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fallback_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ZfitSpace</span><span class="p">):</span>
         <span class="n">max_axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analytic_integral</span><span class="o">.</span><span class="n">get_max_axes</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">max_axes</span><span class="p">:</span>
             <span class="n">sublimits</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">get_subspace</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="n">max_axes</span><span class="p">)</span>
@@ -988,8 +996,8 @@
     <span class="k">def</span> <span class="nf">_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="c1"># @z.function</span>
-<div class="viewcode-block" id="BaseModel.partial_analytic_integrate"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.partial_analytic_integrate">[docs]</a>    <span class="k">def</span> <span class="nf">partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
                                    <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                                    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;partial_analytic_integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeReturn</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Do analytical partial integration of the function over the `limits` and evaluate it at `x`.</span>
@@ -999,8 +1007,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (numerical): The value at which the partially integrated function will be evaluated</span>
-<span class="sd">            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes</span>
-<span class="sd">            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes</span>
+<span class="sd">            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over. Can contain only some axes</span>
+<span class="sd">            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over. Has to have all axes</span>
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
@@ -1016,7 +1024,7 @@
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_sort_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">x</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -1028,7 +1036,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">NormRangeNotImplementedError</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Internal: the caught Error should not be raised.&quot;</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits_are_false</span><span class="p">,</span> <span class="s2">&quot;Internal: the caught Error should not be raised.&quot;</span>
             <span class="n">unnormalized_integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                                                             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1048,7 +1056,7 @@
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MultipleLimitsNotImplementedError</span><span class="p">:</span>
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="p">:</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span>
                                                                        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -1056,10 +1064,9 @@
         <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_call_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">]):</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_fallback_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analytic_integral</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span>
@@ -1069,8 +1076,8 @@
     <span class="k">def</span> <span class="nf">_partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="c1"># @z.function</span>
-<div class="viewcode-block" id="BaseModel.partial_numeric_integrate"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.partial_numeric_integrate">[docs]</a>    <span class="k">def</span> <span class="nf">partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
                                   <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                                   <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;partial_numeric_integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Force numerical partial integration of the function over the `limits` and evaluate it at `x`.</span>
@@ -1080,8 +1087,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (numerical): The value at which the partially integrated function will be evaluated</span>
-<span class="sd">            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes</span>
-<span class="sd">            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes</span>
+<span class="sd">            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over. Can contain only some axes</span>
+<span class="sd">            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over. Has to have all axes</span>
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
@@ -1090,7 +1097,7 @@
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_sort_x</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">x</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_single_hook_partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -1104,7 +1111,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">NormRangeNotImplementedError</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Internal: the caught Error should not be raised.&quot;</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits_are_false</span><span class="p">,</span> <span class="s2">&quot;Internal: the caught Error should not be raised.&quot;</span>
             <span class="n">unnormalized_integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                                                            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="n">unnormalized_integral</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
@@ -1115,23 +1122,22 @@
             <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MultipleLimitsNotImplementedError</span><span class="p">:</span>
             <span class="n">integrals</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sub_limits</span> <span class="ow">in</span> <span class="n">limits</span><span class="p">:</span>
                 <span class="n">integrals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">sub_limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span>
                                                                       <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
             <span class="n">integral</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">integrals</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">integral</span>
 
     <span class="k">def</span> <span class="nf">_call_partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">]):</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_fallback_partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_numeric_integrate</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_func_to_integrate</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
 
     <span class="nd">@no_norm_range</span>
-    <span class="c1"># @z.function</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_auto_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">overwrite_options</span><span class="p">):</span>
         <span class="n">integration_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n_axes</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span>
                                    <span class="c1"># auto from self</span>
@@ -1189,10 +1195,10 @@
 
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits_are_set</span><span class="p">:</span>
             <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>  <span class="c1"># TODO(Mayou36): clean up, better norm_range?</span>
-            <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">InvalidArgumentError</span><span class="p">(</span><span class="s2">&quot;limits are False/None, have to be specified&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">limits</span><span class="o">.</span><span class="n">has_limits</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limits are False/None, have to be specified&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">fixed_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
@@ -1209,7 +1215,7 @@
 
         <span class="k">return</span> <span class="n">sample_data</span></div>
 
-    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_create_sampler_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="c1"># limits = self._check_input_limits(limits=limits, caller_name=name, none_is_error=True)</span>
         <span class="c1"># needed to be able to change the number of events in resampling</span>
@@ -1233,7 +1239,7 @@
 <span class="sd">                or a valid string. Currently implemented:</span>
 
 <span class="sd">                    - &#39;extended&#39;: samples `poisson(yield)` from each pdf that is extended.</span>
-<span class="sd">            limits (tuple, :py:class:`~zfit.Space`): In which region to sample in</span>
+<span class="sd">            limits (tuple, :py:class:`~zfit.ZfitSpace`): In which region to sample in</span>
 <span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
@@ -1246,17 +1252,17 @@
 <span class="sd">            InvalidArgumentError: if n is not specified and pdf is not extended.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">n</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
             <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
 
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits_are_set</span><span class="p">:</span>
             <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span>
-            <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">limits</span><span class="o">.</span><span class="n">has_limits</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">InvalidArgumentError</span><span class="p">(</span><span class="s2">&quot;limits are False/None, have to be specified&quot;</span><span class="p">)</span>
         <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">caller_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">none_is_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+        <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model_sampling&#39;</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">run_tf</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
             <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">sample</span>
@@ -1282,35 +1288,38 @@
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;MultipleLimits auto handling in sample currently not supported.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_call_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">]):</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analytic_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analytic_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_analytic_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">):</span>  <span class="c1"># TODO(Mayou36) implement multiple limits sampling</span>
+    <span class="k">def</span> <span class="nf">_analytic_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ZfitSpace</span><span class="p">):</span>  <span class="c1"># TODO(Mayou36) implement multiple limits sampling</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO(Mayou36): create proper analytic sampling</span>
         <span class="k">if</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-        <span class="p">(</span><span class="n">lower_bound</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper_bound</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">rect_limits_np</span>
+        <span class="k">except</span> <span class="n">CannotConvertToNumpyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">WorkInProgressError</span><span class="p">(</span><span class="s2">&quot;Currently, analytic sampling with Tensors not supported.&quot;</span>
+                                      <span class="s2">&quot; Needs implementation of analytic integrals with Tensors.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
         <span class="n">neg_infinities</span> <span class="o">=</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">((</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),)</span> <span class="o">*</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">),)</span>  <span class="c1"># py34 change float(&quot;inf&quot;) to math.inf</span>
         <span class="c1"># to the cdf to get the limits for the inverse analytic integral</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">lower_prob_lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_norm_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">Space</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">neg_infinities</span><span class="p">,</span>
-                                                                                          <span class="p">(</span><span class="n">lower_bound</span><span class="p">,)),</span>
-                                                                                  <span class="n">axes</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">axes</span><span class="p">),</span>
+            <span class="n">lower_prob_lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_norm_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">Space</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">neg_infinities</span><span class="p">,</span>
+                                                                                <span class="p">(</span><span class="n">lower_bound</span><span class="p">,)),</span>
+                                                                        <span class="n">axes</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">axes</span><span class="p">),</span>
                                                            <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-            <span class="n">upper_prob_lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_norm_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">Space</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">neg_infinities</span><span class="p">,</span>
-                                                                                          <span class="p">(</span><span class="n">upper_bound</span><span class="p">,)),</span>
-                                                                                  <span class="n">axes</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">axes</span><span class="p">),</span>
+            <span class="n">upper_prob_lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_norm_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">Space</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">neg_infinities</span><span class="p">,</span>
+                                                                                <span class="p">(</span><span class="n">upper_bound</span><span class="p">,)),</span>
+                                                                        <span class="n">axes</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">axes</span><span class="p">),</span>
                                                            <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;analytic sampling not possible because the analytic integral is not&quot;</span>
                                       <span class="s2">&quot; implemented for the boundaries:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">limits</span><span class="p">))</span>
-        <span class="n">prob_sample</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">),</span> <span class="n">minval</span><span class="o">=</span><span class="n">lower_prob_lim</span><span class="p">,</span>
+        <span class="n">prob_sample</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">),</span> <span class="n">minval</span><span class="o">=</span><span class="n">lower_prob_lim</span><span class="p">,</span>
                                        <span class="n">maxval</span><span class="o">=</span><span class="n">upper_prob_lim</span><span class="p">)</span>
         <span class="c1"># with self._convert_sort_x(prob_sample) as x:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">prob_sample</span>
@@ -1322,14 +1331,6 @@
                                               <span class="n">prob_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
                                               <span class="n">sample_and_weights_factory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sample_and_weights</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sample</span>
-
-    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
-    <span class="k">def</span> <span class="nf">_name_scope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Helper function to standardize op scope.&quot;&quot;&quot;</span>
-
-        <span class="c1"># with tf.name_scope(self.name):</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">([]</span> <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">values</span><span class="p">))</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">scope</span>
 
 <div class="viewcode-block" id="BaseModel.register_additional_repr"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.register_additional_repr">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">register_additional_repr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

@@ -1,0 +1,8 @@
+space
+=====
+
+.. automodule:: zfit.core.space
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

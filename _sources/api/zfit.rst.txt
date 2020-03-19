@@ -25,6 +25,7 @@ Submodules
 
    zfit.constraint
    zfit.data
+   zfit.dimension
    zfit.func
    zfit.loss
    zfit.minimize

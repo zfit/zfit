@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.z.zextension &#8212; zfit 0.4.4.dev1+g9951953 documentation</title>
+    <title>zfit.z.zextension &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -66,7 +66,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#defining-limits">Defining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
 </ul>
 </li>
 </ul>
@@ -125,65 +127,66 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id6">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id7">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id13">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Major Features and Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id15">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id20">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id21">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id25">Requirement changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id26">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id31">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id32">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id36">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id38">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
 </ul>
@@ -213,16 +216,17 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.limits.html">limits</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
 </ul>
 </li>
@@ -269,8 +273,10 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
 </ul>
 </li>
@@ -282,6 +288,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -293,6 +300,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -318,6 +326,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -369,7 +378,6 @@
       
   <h1>Source code for zfit.z.zextension</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
-<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">_mt</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
@@ -379,9 +387,11 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">BreakingAPIChangeError</span>
+<span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">warn_advanced_feature</span>
 
 
-<div class="viewcode-block" id="constant"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.constant">[docs]</a><span class="k">def</span> <span class="nf">constant</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Const&quot;</span><span class="p">,</span> <span class="n">verify_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="constant"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.constant">[docs]</a><span class="k">def</span> <span class="nf">constant</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Const&quot;</span><span class="p">,</span> <span class="n">verify_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="c1"># TODO(tf2): remove this legacy thing below</span>
     <span class="k">if</span> <span class="n">verify_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;&#39;verify_shape&#39; is not a valid argument anymore. It&#39;s always true. Please remove.&quot;</span><span class="p">)</span>
@@ -391,19 +401,19 @@
 <span class="n">pi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">_mt</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="to_complex"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.to_complex">[docs]</a><span class="k">def</span> <span class="nf">to_complex</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">):</span>
+<div class="viewcode-block" id="to_complex"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.to_complex">[docs]</a><span class="k">def</span> <span class="nf">to_complex</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="to_real"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.to_real">[docs]</a><span class="k">def</span> <span class="nf">to_real</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+<div class="viewcode-block" id="to_real"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.to_real">[docs]</a><span class="k">def</span> <span class="nf">to_real</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="abs_square"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.abs_square">[docs]</a><span class="k">def</span> <span class="nf">abs_square</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="abs_square"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.abs_square">[docs]</a><span class="k">def</span> <span class="nf">abs_square</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="nth_pow"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.nth_pow">[docs]</a><span class="k">def</span> <span class="nf">nth_pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="nth_pow"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.nth_pow">[docs]</a><span class="k">def</span> <span class="nf">nth_pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calculate the nth power of the complex Tensor x.</span>
 
 <span class="sd">    Args:</span>
@@ -420,7 +430,7 @@
     <span class="k">return</span> <span class="n">power</span></div>
 
 
-<div class="viewcode-block" id="unstack_x"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.unstack_x">[docs]</a><span class="k">def</span> <span class="nf">unstack_x</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">always_list</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;unstack_x&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="unstack_x"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.unstack_x">[docs]</a><span class="k">def</span> <span class="nf">unstack_x</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">always_list</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;unstack_x&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Unstack a Data object and return a list of (or a single) tensors in the right order.</span>
 
 <span class="sd">    Args:</span>
@@ -446,18 +456,18 @@
     <span class="k">return</span> <span class="n">unstacked_x</span></div>
 
 
-<div class="viewcode-block" id="stack_x"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.stack_x">[docs]</a><span class="k">def</span> <span class="nf">stack_x</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;stack_x&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="stack_x"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.stack_x">[docs]</a><span class="k">def</span> <span class="nf">stack_x</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;stack_x&quot;</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <span class="c1"># random sampling</span>
 
 
-<div class="viewcode-block" id="convert_to_tensor"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.convert_to_tensor">[docs]</a><span class="k">def</span> <span class="nf">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_to_tensor"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.convert_to_tensor">[docs]</a><span class="k">def</span> <span class="nf">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">preferred_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype_hint</span><span class="o">=</span><span class="n">preferred_dtype</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="safe_where"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.safe_where">[docs]</a><span class="k">def</span> <span class="nf">safe_where</span><span class="p">(</span><span class="n">condition</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">safe_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+<div class="viewcode-block" id="safe_where"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.safe_where">[docs]</a><span class="k">def</span> <span class="nf">safe_where</span><span class="p">(</span><span class="n">condition</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">safe_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
                <span class="n">value_safer</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones_like</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Like :py:func:`tf.where` but fixes gradient `NaN` if func produces `NaN` with certain `values`.</span>
 
@@ -481,14 +491,14 @@
     <span class="k">return</span> <span class="n">result</span></div>
 
 
-<div class="viewcode-block" id="run_no_nan"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.run_no_nan">[docs]</a><span class="k">def</span> <span class="nf">run_no_nan</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="run_no_nan"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.run_no_nan">[docs]</a><span class="k">def</span> <span class="nf">run_no_nan</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">zfit.core.data</span> <span class="kn">import</span> <span class="n">Data</span>
 
     <span class="n">value_with_nans</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value_with_nans</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex128</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">complex64</span><span class="p">):</span>
         <span class="n">value_with_nans</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">value_with_nans</span><span class="p">)</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">value_with_nans</span><span class="p">)</span>  <span class="c1"># we care only about NaN or not</span>
     <span class="n">finite_bools</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">is_finite</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value_with_nans</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
-    <span class="n">finite_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">finite_bools</span><span class="p">)</span>
+    <span class="n">finite_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">finite_bools</span><span class="p">)</span>
     <span class="n">new_x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="n">finite_indices</span><span class="p">)</span>
     <span class="n">new_x</span> <span class="o">=</span> <span class="n">Data</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">tensor</span><span class="o">=</span><span class="n">new_x</span><span class="p">)</span>
     <span class="n">vals_no_nan</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">new_x</span><span class="p">)</span>
@@ -497,16 +507,28 @@
     <span class="k">return</span> <span class="n">result</span></div>
 
 
-<div class="viewcode-block" id="FunctionWrapperRegistry"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.FunctionWrapperRegistry">[docs]</a><span class="k">class</span> <span class="nc">FunctionWrapperRegistry</span><span class="p">:</span>
-    <span class="n">wrapped_functions</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="viewcode-block" id="FunctionWrapperRegistry"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.FunctionWrapperRegistry">[docs]</a><span class="k">class</span> <span class="nc">FunctionWrapperRegistry</span><span class="p">:</span>
+    <span class="n">all_wrapped_functions</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">registries</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">do_jit</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">allow_jit</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">_DEFAULT_DO_JIT_TYPES</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">_DEFAULT_DO_JIT_TYPES</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="kc">None</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;sample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;model_sampling&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;zfit_tensor&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;tensor&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">})</span>
 
-<div class="viewcode-block" id="FunctionWrapperRegistry.check_wrapped_functions_registered"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.FunctionWrapperRegistry.check_wrapped_functions_registered">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">check_wrapped_functions_registered</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">all</span><span class="p">((</span><span class="n">func</span><span class="o">.</span><span class="n">zfit_graph_cache_registered</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">wrapped_functions</span><span class="p">))</span></div>
+    <span class="n">do_jit_types</span> <span class="o">=</span> <span class="n">_DEFAULT_DO_JIT_TYPES</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_user</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="FunctionWrapperRegistry.all_wrapped_functions_registered"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.FunctionWrapperRegistry.all_wrapped_functions_registered">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">all_wrapped_functions_registered</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">((</span><span class="n">func</span><span class="o">.</span><span class="n">zfit_graph_cache_registered</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">all_wrapped_functions</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wraps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_user</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;`tf.function`-like decorator with additional cache-invalidation functionality.</span>
 
 <span class="sd">        Args:</span>
@@ -514,47 +536,49 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initial_user_kwargs</span> <span class="o">=</span> <span class="n">kwargs_user</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">registries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrapped_func</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wraps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_jit_types</span><span class="p">:</span>
+            <span class="c1"># raise RuntimeError(f&quot;Currently custom &#39;wraps&#39; category ({wraps}) not allowed, set explicitly in `do_jit_types`&quot;)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">do_jit_types</span><span class="p">[</span><span class="n">wraps</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wraps</span> <span class="o">=</span> <span class="n">wraps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function_cache</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_user_kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">currently_traced</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-<div class="viewcode-block" id="FunctionWrapperRegistry.reset"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basepdf.FunctionWrapperRegistry.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_user</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">do_jit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_jit_types</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">wraps</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_jit</span>
+
+<div class="viewcode-block" id="FunctionWrapperRegistry.reset"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.FunctionWrapperRegistry.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_user</span><span class="p">):</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">autograph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">experimental_relax_shapes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_user_kwargs</span><span class="p">)</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs_user</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">tf_function</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">function_cache</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span></div>
+        <span class="k">for</span> <span class="n">cache</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_cache</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="n">wrapped_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tf_function</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="n">cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_cache</span><span class="p">[</span><span class="n">func</span><span class="p">]</span>
         <span class="kn">from</span> <span class="nn">zfit.util.cache</span> <span class="kn">import</span> <span class="n">FunctionCacheHolder</span>
 
-        <span class="k">def</span> <span class="nf">call_correct_signature</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">args</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">kwargs</span> <span class="o">!=</span> <span class="p">{}:</span>
-                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">args</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">kwargs</span> <span class="o">==</span> <span class="p">{}:</span>
-                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">args</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">kwargs</span> <span class="o">==</span> <span class="p">{}:</span>
-                <span class="k">return</span> <span class="n">func</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">args</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">kwargs</span> <span class="o">!=</span> <span class="p">{}:</span>
-                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
         <span class="k">def</span> <span class="nf">concrete_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_jit</span> <span class="ow">or</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">currently_traced</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">call_correct_signature</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_wrapped_functions_registered</span><span class="p">()</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">currently_traced</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
             <span class="k">nonlocal</span> <span class="n">wrapped_func</span>
             <span class="n">function_holder</span> <span class="o">=</span> <span class="n">FunctionCacheHolder</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">wrapped_func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
 
-            <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">function_holder</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
                 <span class="n">func_holder_index</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">function_holder</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># not in cache</span>
-                <span class="n">cache</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">function_holder</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
                 <span class="n">func_holder_cached</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">func_holder_index</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">func_holder_cached</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
                     <span class="n">function_holder</span> <span class="o">=</span> <span class="n">func_holder_cached</span>
@@ -562,30 +586,52 @@
                     <span class="n">wrapped_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tf_function</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>  <span class="c1"># update nonlocal wrapped function</span>
                     <span class="n">function_holder</span> <span class="o">=</span> <span class="n">FunctionCacheHolder</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">wrapped_func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
                     <span class="n">cache</span><span class="p">[</span><span class="n">func_holder_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">function_holder</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cache</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">function_holder</span><span class="p">)</span>
             <span class="n">func_to_run</span> <span class="o">=</span> <span class="n">function_holder</span><span class="o">.</span><span class="n">wrapped_func</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">call_correct_signature</span><span class="p">(</span><span class="n">func_to_run</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">currently_traced</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">func_to_run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">currently_traced</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">result</span>
 
+        <span class="n">concrete_func</span><span class="o">.</span><span class="n">zfit_graph_cache_registered</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">concrete_func</span></div>
 
 
-<span class="n">FunctionWrapperRegistry2</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">FunctionWrapperRegistry</span><span class="p">)</span>
+<div class="viewcode-block" id="function_factory"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.function_factory">[docs]</a><span class="k">def</span> <span class="nf">function_factory</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">wrapper</span> <span class="o">=</span> <span class="n">FunctionWrapperRegistry</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">wrapper</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">func</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All argument have to be key-word only. `func` must not be used&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">FunctionWrapperRegistry</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<span class="n">tf_function</span> <span class="o">=</span> <span class="n">FunctionWrapperRegistry</span><span class="p">()</span>
 
-<span class="n">function_tf</span> <span class="o">=</span> <span class="n">FunctionWrapperRegistry2</span><span class="p">()</span>  <span class="c1"># for only tensorflow inside</span>
-<span class="n">function_sampling</span> <span class="o">=</span> <span class="n">tf_function</span>
+<span class="n">tf_function</span> <span class="o">=</span> <span class="n">function_factory</span>
+
+
+<span class="c1"># legacy, remove 0.6</span>
+<div class="viewcode-block" id="function_tf_input"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.function_tf_input">[docs]</a><span class="k">def</span> <span class="nf">function_tf_input</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="n">BreakingAPIChangeError</span><span class="p">(</span><span class="s2">&quot;This function has been removed. Use `z.function(wraps=&#39;zfit_tensor&#39;) or your&quot;</span>
+                                 <span class="s2">&quot;own category&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># legacy, remove 0.6</span>
+<div class="viewcode-block" id="function_sampling"><a class="viewcode-back" href="../../../api/zfit.z.zextension.html#zfit.core.basefunc.function_sampling">[docs]</a><span class="k">def</span> <span class="nf">function_sampling</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="n">BreakingAPIChangeError</span><span class="p">(</span><span class="s2">&quot;This function has been removed. Use `z.function(wraps=&#39;zfit_sampling&#39;) or your&quot;</span>
+                                 <span class="s2">&quot;own category&quot;</span><span class="p">)</span></div>
 
 
 <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">py_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">Tout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">settings</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;numerical_grad&#39;</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Running a py_function without using the numerical gradient will result in wrong gradient&quot;</span>
-                           <span class="s2">&quot; calculation. Will be more fine-grained in the future. To switch to numerical calculation&quot;</span>
-                           <span class="s2">&quot; (even if the gradients are not calculated at all), do&quot;</span>
-                           <span class="s2">&quot; `zfit.settings.options[&#39;numerical_grad&#39;] = True`&quot;</span><span class="p">)</span>
+        <span class="n">warn_advanced_feature</span><span class="p">(</span><span class="s2">&quot;Using py_function without numerical gradients. If the Python code does not contain any&quot;</span>
+                              <span class="s2">&quot; parametrization by `zfit.Parameter` or similar, this can work out. Otherwise, in case&quot;</span>
+                              <span class="s2">&quot; it depends on those, you may want to set `zfit.run.set_mode(autograd=False)`.&quot;</span><span class="p">,</span>
+                              <span class="n">identifier</span><span class="o">=</span><span class="s2">&quot;py_func_autograd&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">inp</span><span class="o">=</span><span class="n">inp</span><span class="p">,</span> <span class="n">Tout</span><span class="o">=</span><span class="n">Tout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 </pre></div>

@@ -30,14 +30,25 @@ with or without limits.
 *(for advanced usage only, can be skipped on first read)*
 **Axis**: integer defining the axes *internally* of a model. There is always a mapping of observables <-> axes *once inside a model*.
 
-**Limit** The range on a certain axis. Typically defines an interval.
+**Limit** The range on a certain axis. Typically defines an interval. In fact, there are two times of limits:
+ * **rectangular**: This type is the usual limit as e.g. ``(-2, 5)`` for a simple, 1 dimensional interval. It is
+   rectangular. This can either be given as ``limits`` of a :py:class:`~zfit.Space` or as ``rect_limits``.
+ * **functional**: In order to define arbitrary limits, a function can be used that receives a tensor-like
+   object ``x`` and returns ``True`` on every position that is inside the limits, ``False`` for every value outside.
+   When a functional limit is given, rectangular limits that contain the functional limit as a subset **must** be
+   defined as well.
 
-Since every object has a well defined domain, it is possible to combine them in an unambiguous way
+
+Since every object has a well defined domain, it is possible to combine them in an unambiguous way.
+While not enforced, a space should usually be created with limits that define the default space of an object.
+This correspond for example to the default normalization range ``norm_range`` or sampling range.
 
 .. code:: python
 
-    obs1 = zfit.Space(['x', 'y'])
-    obs2 = zfit.Space(['z', 'y'])
+    lower1, upper1 = [0, 1], [2, 3]
+    lower2, upper2 = [-4, 1], [10, 3]
+    obs1 = zfit.Space(['x', 'y'], limits=(lower1, upper2))
+    obs2 = zfit.Space(['z', 'y'], limits=(lower2, upper2))
 
     model1 = zfit.pdf.Gauss(obs=obs1, ...)
     model2 = zfit.pdf.Gauss(obs=obs2, ...)
@@ -46,6 +57,8 @@ Since every object has a well defined domain, it is possible to combine them in 
     product = model1 * model2
     # OR, equivalently
     product = zfit.pdf.ProductPDF([model1, model2])
+
+    assert obs1 * obs2 = product.space
 
 The ``product`` is now defined in the space with observables `['x', 'y', 'z']`. Any :py:class:`~zfit.Data` object
 to be combined with ``product`` has to be specified in the same space.
@@ -75,48 +88,49 @@ two intervals) or combination (increase the dimensionality) are also possible.
 
     added_limits = simple_limit1 + simple_limit2
 
-In this case, `added_limits` is now a :py:class:`~zfit.Space` with observable `'obs1'` defined in the intervals
+In this case, `added_limits` is now a :py:class:`zfit.Space` with observable `'obs1'` defined in the intervals
 (-5, 1) and (3, 7.5). This can be useful, *e.g.*, when fitting in two regions.
-An example of the product of different :py:class:`~zfit.Space` instances has been shown before as ``combined_obs``.
+An example of the product of different :py:class:`zfit.Space` instances has been shown before as ``combined_obs``.
 
+Functional limits
+'''''''''''''''''
 
-Defining limits
-'''''''''''''''
+Limits can be defined by a function that returns whether a value is inside the boundaries or not **and** rectangular
+limits (note that specifying `rect_limit` does *not* enforce them, the function itself has to take care of that).
 
-To define simple, 1-dimensional limits, a tuple with two numbers is enough. For anything more complicated,
-the definition works as follows:
+This example specifies the bounds between (-4, 0.5) with the `limit_fn` (which, in this simple case, could be better
+achieved by directly specifying them as rectangular limits).
 
 .. code:: python
 
-    first_limit_lower = (low_1_obs1, low_1_obs2,...)
-    first_limit_upper = (up_1_obs1, up_1_obs2,...)
+    def limit_fn(x):
+        x = z.unstack_x(x)
+        inside_lower = tf.greater_equal(x, -4)
+        inside_upper = tf.less_equal(x, 0.5)
+        inside = tf.logical_and(inside_lower, inside_upper)
+        return inside
 
-    second_limit_lower = (low_2_obs1, low_2_obs2,...)
-    second_limit_upper = (up_2_obs1, up_2_obs2,...)
+    space = zfit.Space(obs='obs1', limits=limit_fn, rect_limits=(-5, 1))
 
-    ...
 
-    lower = (first_limit_lower, second_limit_lower, ...)
-    upper = (first_limit_upper, second_limit_upper, ...)
+Combining limits
+''''''''''''''''
 
-    limits = (lower, upper)
-
-    space1 = zfit.Space(obs=['obs1', 'obs2', ...], limits=limits)
-
-This defines the area from
-
-* `low_1_obs1` to `up_1_obs1` in the first observable `'obs1'`;
-* `low_1_obs2` to `up_1_obs2` in the second observable `'obs2'`;
-* ...
-
-the area from
-
-* `low_2_obs1` to `up_2_obs1` in the first observable `'obs1'`;
-* `low_2_obs2` to `up_2_obs2` in the second observable `'obs2'`;
-* ...
-
-and so on.
+To define simple, 1-dimensional limits, a tuple with two numbers or a functional limit in 1 dimension is enough. For anything more complicated,
+the operators product `*` or addition `+` respectively their functional API :py:func:`zfit.dimension.combine_spaces`
+and :py:func:`zfit.dimension.add_spaces` can be used.
 
 
 A working code example of :py:class:`~zfit.Space` handling is provided in `spaces.py` in
-:doc:`examples <../examples/spaces.py>`.
+:doc:`examples <../../examples/spaces.py>`.
+
+
+Using the limits
+'''''''''''''''''
+
+To use the limits of any object, the methods :py:meth`~zfit.Space.inside` (to test if values are inside or outside of the boundaries)
+and :py:meth`~zfit.Space.filter` can be used.
+
+The rectangular limits can also direclty be accessed by ``rect_limits``, ``rect_lower`` or ``rect_upper``. The returned shape is of
+`(n_events, n_obs)`, for the lower respectively upper limit (``rect_limits`` is a tuple of `(lower, upper)`).
+This should be used with caution and only if the rectangular limits are desired.

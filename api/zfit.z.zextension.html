@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zextension &#8212; zfit 0.4.4.dev1+g9951953 documentation</title>
+    <title>zextension &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -68,7 +68,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../intro/space.html">Space, Observable and Range</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../intro/space.html#definitions">Definitions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#defining-limits">Defining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#using-the-limits">Using the limits</a></li>
 </ul>
 </li>
 </ul>
@@ -127,65 +129,66 @@
 <li class="toctree-l2"><a class="reference internal" href="../project/changelog.html">Changelog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id6">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id7">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id12">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id13">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id13">Major Features and Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id15">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id20">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id21">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id25">Requirement changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id26">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id31">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id32">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id36">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id38">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id38">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#improvements">Improvements</a></li>
 </ul>
@@ -215,16 +218,17 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.core.coordinates.html">coordinates</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.data.html">data</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.dependents.html">dependents</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.dimension.html">dimension</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.integration.html">integration</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="zfit.core.limits.html">limits</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.loss.html">loss</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.operations.html">operations</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.parameter.html">parameter</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.core.space.html">space</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.testing.html">testing</a></li>
 </ul>
 </li>
@@ -271,8 +275,10 @@
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.exception.html">exception</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.execution.html">execution</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.util.legacy.html">legacy</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.logging.html">logging</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.util.warnings.html">warnings</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.ztyping.html">ztyping</a></li>
 </ul>
 </li>
@@ -284,6 +290,7 @@
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l6 current"><a class="current reference internal" href="#">zextension</a></li>
 </ul>
@@ -295,6 +302,7 @@
 <li class="toctree-l3"><a class="reference internal" href="zfit.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.dimension.html">dimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.minimize.html">minimize</a></li>
@@ -320,6 +328,7 @@
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">zextension</a></li>
 </ul>
@@ -376,7 +385,7 @@
 <span id="zextension"></span><h1>zextension<a class="headerlink" href="#module-zfit.z.zextension" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="zfit.z.zextension.FunctionWrapperRegistry">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">FunctionWrapperRegistry</code><span class="sig-paren">(</span><em class="sig-param">**kwargs_user</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#FunctionWrapperRegistry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">FunctionWrapperRegistry</code><span class="sig-paren">(</span><em class="sig-param">wraps=None</em>, <em class="sig-param">**kwargs_user</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#FunctionWrapperRegistry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p><cite>tf.function</cite>-like decorator with additional cache-invalidation functionality.</p>
 <dl class="field-list simple">
@@ -384,19 +393,34 @@
 <dd class="field-odd"><p><strong>**kwargs_user</strong> – arguments to <cite>tf.function</cite></p>
 </dd>
 </dl>
+<dl class="attribute">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.all_wrapped_functions">
+<code class="sig-name descname">all_wrapped_functions</code><em class="property"> = []</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.all_wrapped_functions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
-<dt id="zfit.z.zextension.FunctionWrapperRegistry.check_wrapped_functions_registered">
-<em class="property">classmethod </em><code class="sig-name descname">check_wrapped_functions_registered</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#FunctionWrapperRegistry.check_wrapped_functions_registered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.check_wrapped_functions_registered" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.all_wrapped_functions_registered">
+<em class="property">classmethod </em><code class="sig-name descname">all_wrapped_functions_registered</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#FunctionWrapperRegistry.all_wrapped_functions_registered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.all_wrapped_functions_registered" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.allow_jit">
+<code class="sig-name descname">allow_jit</code><em class="property"> = True</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.allow_jit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="zfit.z.zextension.FunctionWrapperRegistry.do_jit">
-<code class="sig-name descname">do_jit</code><em class="property"> = True</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.do_jit" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">do_jit</code><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.do_jit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.do_jit_types">
+<code class="sig-name descname">do_jit_types</code><em class="property"> = defaultdict(&lt;function FunctionWrapperRegistry.&lt;lambda&gt;&gt;, {None: True, 'model': True, 'loss': True, 'sample': True, 'model_sampling': True, 'zfit_tensor': True, 'tensor': True})</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.do_jit_types" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="zfit.z.zextension.FunctionWrapperRegistry.registries">
-<code class="sig-name descname">registries</code><em class="property"> = [&lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;]</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.registries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">registries</code><em class="property"> = [&lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;]</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.registries" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -404,17 +428,6 @@
 <code class="sig-name descname">reset</code><span class="sig-paren">(</span><em class="sig-param">**kwargs_user</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#FunctionWrapperRegistry.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.reset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="zfit.z.zextension.FunctionWrapperRegistry.wrapped_functions">
-<code class="sig-name descname">wrapped_functions</code><em class="property"> = []</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.wrapped_functions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="attribute">
-<dt id="zfit.z.zextension.FunctionWrapperRegistry2">
-<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">FunctionWrapperRegistry2</code><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry2" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#zfit.z.zextension.FunctionWrapperRegistry" title="zfit.z.zextension.FunctionWrapperRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.z.zextension.FunctionWrapperRegistry</span></code></a></p>
 </dd></dl>
 
 <dl class="function">
@@ -430,6 +443,21 @@
 <dl class="function">
 <dt id="zfit.z.zextension.convert_to_tensor">
 <code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">convert_to_tensor</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">dtype=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">preferred_dtype=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#convert_to_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.convert_to_tensor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.z.zextension.function_factory">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">function_factory</code><span class="sig-paren">(</span><em class="sig-param">func=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#function_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.function_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.z.zextension.function_sampling">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">function_sampling</code><span class="sig-paren">(</span><em class="sig-param">*_</em>, <em class="sig-param">**__</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#function_sampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.function_sampling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.z.zextension.function_tf_input">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">function_tf_input</code><span class="sig-paren">(</span><em class="sig-param">*_</em>, <em class="sig-param">**__</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#function_tf_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.function_tf_input" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -483,6 +511,11 @@ to <cite>func(value_safer(values))</cite>.</p></li>
 <dl class="function">
 <dt id="zfit.z.zextension.stack_x">
 <code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">stack_x</code><span class="sig-paren">(</span><em class="sig-param">values</em>, <em class="sig-param">axis: int = -1</em>, <em class="sig-param">name: str = 'stack_x'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#stack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.stack_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.z.zextension.tf_function">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">tf_function</code><span class="sig-paren">(</span><em class="sig-param">func=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.z.zextension.tf_function" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>integration &#8212; zfit 0.4.4.dev1+g9951953 documentation</title>
+    <title>integration &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -68,7 +68,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../intro/space.html">Space, Observable and Range</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../intro/space.html#definitions">Definitions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#defining-limits">Defining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#using-the-limits">Using the limits</a></li>
 </ul>
 </li>
 </ul>
@@ -127,65 +129,66 @@
 <li class="toctree-l2"><a class="reference internal" href="../project/changelog.html">Changelog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id6">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id7">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id12">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id13">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id13">Major Features and Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id15">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id20">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id21">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id25">Requirement changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id26">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id31">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id32">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id36">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id38">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id38">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#improvements">Improvements</a></li>
 </ul>
@@ -215,16 +218,17 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.core.coordinates.html">coordinates</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.data.html">data</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.dependents.html">dependents</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.dimension.html">dimension</a></li>
 <li class="toctree-l6 current"><a class="current reference internal" href="#">integration</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="zfit.core.limits.html">limits</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.loss.html">loss</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.operations.html">operations</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.parameter.html">parameter</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.core.space.html">space</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.testing.html">testing</a></li>
 </ul>
 </li>
@@ -271,8 +275,10 @@
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.exception.html">exception</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.execution.html">execution</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.util.legacy.html">legacy</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.logging.html">logging</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.util.warnings.html">warnings</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.ztyping.html">ztyping</a></li>
 </ul>
 </li>
@@ -284,6 +290,7 @@
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -295,6 +302,7 @@
 <li class="toctree-l3"><a class="reference internal" href="zfit.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.dimension.html">dimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.minimize.html">minimize</a></li>
@@ -320,6 +328,7 @@
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -407,7 +416,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
+<li><p><strong>limits</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – </p></li>
 <li><p><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -429,7 +438,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<em>numeric</em>) – If a partial integration is made, x are the value to be evaluated for the partial
 integrated function. If a full integration is performed, this should be <cite>None</cite>.</p></li>
-<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits to integrate</p></li>
+<li><p><strong>limits</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – The limits to integrate</p></li>
 <li><p><strong>axes</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>]</em>) – The dimensions to integrate over</p></li>
 <li><p><strong>norm_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – <a href="#id1"><span class="problematic" id="id2">|norm_range_arg_descr|</span></a></p></li>
 <li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – The parameters of the function</p></li>
@@ -471,7 +480,7 @@ priority is taken (usually around 0-100).</p></li>
 
 <dl class="class">
 <dt id="zfit.core.integration.Integral">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">Integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, limits: zfit.core.limits.Space, priority: Union[int, float]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#Integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.Integral" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.integration.</code><code class="sig-name descname">Integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, limits: zfit.core.interfaces.ZfitSpace, priority: Union[int, float]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#Integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.Integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A lightweight holder for the integral function.</p>
 </dd></dl>
@@ -498,47 +507,35 @@ priority is taken (usually around 0-100).</p></li>
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.axes">
 <em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.axes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the axes.</p>
+<dd><p>Return the axes, integer based identifier(indices) for the coordinate system.</p>
 </dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.integration.PartialIntegralSampleData.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.n_obs">
 <em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.n_obs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the number of observables.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="zfit.core.integration.PartialIntegralSampleData.name">
-<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Name prepended to all ops created by this <cite>model</cite>.</p>
+<dd><p>Return the number of observables, the dimensionality. Corresponds to the last dimension.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.obs">
 <em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.obs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the observables.</p>
+<dd><p>Return the observables, string identifier for the coordinate system.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.sort_by_axes">
-<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param">axes</em>, <em class="sig-param">allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param">axes</em>, <em class="sig-param">allow_superset: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.sort_by_obs">
-<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param">obs</em>, <em class="sig-param">allow_superset: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.sort_by_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param">obs</em>, <em class="sig-param">allow_superset: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/integration.html#PartialIntegralSampleData.sort_by_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.core.integration.PartialIntegralSampleData.space" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.core.integration.PartialIntegralSampleData.unstack_x">
@@ -575,7 +572,7 @@ priority is taken (usually around 0-100).</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>callable</em>) – The function to be integrated over</p></li>
-<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits of the integral</p></li>
+<li><p><strong>limits</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – The limits of the integral</p></li>
 <li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>)</em>) – The row to integrate over. None means integration over all value</p></li>
 <li><p><strong>x</strong> (<em>numeric</em>) – If a partial integration is performed, this are the value where x will be evaluated.</p></li>
 <li><p><strong>n_axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – the number of total dimensions (old?)</p></li>

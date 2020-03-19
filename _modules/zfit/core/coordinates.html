@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>zfit.core.coordinates &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-2.3.2/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+        <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
+          zfit</a>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="divider-vertical"></li>
+            
+                <li><a href="../../../getting_started.html">Getting started</a></li>
+                <li><a href="../../../introduction.html">Intro</a></li>
+                <li><a href="../../../project.html">Project</a></li>
+                <li><a href="../../../API.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Overview <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-did-just-happen">What did just happen?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">zfit introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/model.html">Building a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#custom-pdf">Custom PDF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#tensor-sampling">Tensor sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/data.html">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/loss.html">Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#adding-constraints">Adding constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/minimize.html">Minimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project.html">zfit Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#stable-release">Stable release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#from-sources">From sources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/upgrade_guide.html">Upgrade guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/upgrade_guide.html#dependents">Dependents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental-features">Experimental Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Major Features and Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id39">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id40">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id41">0.0.1 (2018-03-22)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html">Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#authors">Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.html">zfit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.core.html">core</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.core.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basefunc.html">basefunc</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basemodel.html">basemodel</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.baseobject.html">baseobject</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basepdf.html">basepdf</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimizers.html">minimizers</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.minimizers.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.base_tf.html">base_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.interface.html">interface</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.models.html">models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.models.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basefunctor.html">basefunctor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basic.html">basic</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.dist_tfp.html">dist_tfp</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functions.html">functions</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functor.html">functor</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.physics.html">physics</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.polynomials.html">polynomials</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.special.html">special</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.util.html">util</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.util.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.cache.html">cache</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.checks.html">checks</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.container.html">container</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.diverse.html">diverse</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.param.html">param</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.sample.html">sample</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body span12 content" role="main">
+      
+  <h1>Source code for zfit.core.coordinates</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
+<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitOrderableDimensional</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitDimensional</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">OverdefinedError</span><span class="p">,</span> <span class="n">CoordinatesUnderdefinedError</span><span class="p">,</span> <span class="n">CoordinatesIncompatibleError</span><span class="p">,</span> \
+    <span class="n">AxesIncompatibleError</span><span class="p">,</span> <span class="n">ObsIncompatibleError</span><span class="p">,</span> <span class="n">WorkInProgressError</span><span class="p">,</span> <span class="n">IntentionAmbiguousError</span>
+
+
+<div class="viewcode-block" id="Coordinates"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates">[docs]</a><span class="k">class</span> <span class="nc">Coordinates</span><span class="p">(</span><span class="n">ZfitOrderableDimensional</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">n_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_convert_obs_axes</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obs</span> <span class="o">=</span> <span class="n">obs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span> <span class="o">=</span> <span class="n">axes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_obs</span> <span class="o">=</span> <span class="n">n_obs</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_convert_obs_axes</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">ZfitOrderableDimensional</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">OverdefinedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot use </span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s2">, a&quot;</span>
+                                       <span class="s2">&quot; ZfitOrderableDimensional as obs with axes not None&quot;</span>
+                                       <span class="s2">&quot; (currently, please open an issue if desired)&quot;</span><span class="p">)</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="n">obs</span>
+            <span class="k">return</span> <span class="n">coord</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">coord</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span> <span class="n">coord</span><span class="o">.</span><span class="n">n_obs</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_obs_str</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">convert_to_axes</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CoordinatesUnderdefinedError</span><span class="p">(</span><span class="s2">&quot;Neither obs nor axes specified&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Axes have to be int. Currently: </span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">n_obs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ob</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Observables have to be strings. Currently: </span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">n_obs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">CoordinatesIncompatibleError</span><span class="p">(</span><span class="s2">&quot;obs and axes do not have the same length.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">obs</span> <span class="ow">or</span> <span class="n">axes</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">CoordinatesUnderdefinedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Neither obs </span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s2"> nor axes </span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2"> are defined.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">n_obs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">obs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeReturn</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the observables, string identifier for the coordinate system.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">axes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeReturn</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the axes, integer based identifier(indices) for the coordinate system.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_axes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of observables, the dimensionality. Corresponds to the last dimension.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_obs</span>
+
+<div class="viewcode-block" id="Coordinates.with_obs"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.with_obs">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">obs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">],</span>
+                 <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                 <span class="n">allow_subset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Coordinates&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a new instance that has `obs`; sorted by or set or dropped.</span>
+
+<span class="sd">        The behavior is as follows:</span>
+
+<span class="sd">         * obs are already set:</span>
+<span class="sd">           * input obs are None: the observables will be dropped. If no axes are set, an error</span>
+<span class="sd">             will be raised, as no coordinates will be assigned to this instance anymore.</span>
+<span class="sd">           * input obs are not None: the instance will be sorted by the incoming obs. If axes or other</span>
+<span class="sd">             objects have an associated order (e.g. data, limits,...), they will be reordered as well.</span>
+<span class="sd">             If a strict subset is given (and allow_subset is True), only a subset will be returned.</span>
+<span class="sd">             This can be used to take a subspace of limits, data etc.</span>
+<span class="sd">             If a strict superset is given (and allow_superset is True), the obs will be sorted accordingly as</span>
+<span class="sd">             if the obs not contained in the instances obs were not in the input obs.</span>
+<span class="sd">         * obs are not set:</span>
+<span class="sd">           * if the input obs are None, the same object is returned.</span>
+<span class="sd">           * if the input obs are not None, they will be set as-is and now correspond to the already</span>
+<span class="sd">             existing axes in the object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obs: Observables to sort/associate this instance with</span>
+<span class="sd">            allow_superset: if False and a strict superset of the own observables is given, an error</span>
+<span class="sd">            is raised.</span>
+<span class="sd">            allow_subset:if False and a strict subset of the own observables is given, an error</span>
+<span class="sd">            is raised.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            object: a copy of the object with the new ordering/observables</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes</span>
+<span class="sd">            ObsIncompatibleError: if `obs` is a superset and allow_superset is False or a subset and</span>
+<span class="sd">                allow_allow_subset is False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_obs_str</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># drop obs, check if there are axes</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AxesIncompatibleError</span><span class="p">(</span><span class="s2">&quot;cannot remove obs (using None) for a Space without axes&quot;</span><span class="p">)</span>
+            <span class="n">new_coords</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">obs</span> <span class="o">=</span> <span class="n">_convert_obs_to_str</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">new_coords</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ObsIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The requested obs </span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s2"> are not compatible with the current obs &quot;</span>
+                                               <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">):</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_superset</span> <span class="ow">and</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">-</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">ObsIncompatibleError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Obs </span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s2"> are a superset of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s2">, not allowed according to flag.&quot;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_subset</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">ObsIncompatibleError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Obs </span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s2"> are a subset of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s2">, not allowed according to flag.&quot;</span><span class="p">)</span>
+                <span class="n">new_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reorder_indices</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+                <span class="n">new_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reorder_obs</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">new_indices</span><span class="p">)</span>
+                <span class="n">new_axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reorder_axes</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">new_indices</span><span class="p">)</span>
+                <span class="n">new_coords</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="n">new_obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">new_axes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_coords</span></div>
+
+<div class="viewcode-block" id="Coordinates.with_axes"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.with_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                  <span class="n">axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">],</span>
+                  <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                  <span class="n">allow_subset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Coordinates&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a new instance that has `axes`; sorted by or set or dropped.</span>
+
+<span class="sd">            The behavior is as follows:</span>
+
+<span class="sd">             * axes are already set:</span>
+<span class="sd">               * input axes are None: the axes will be dropped. If no observables are set, an error</span>
+<span class="sd">                 will be raised, as no coordinates will be assigned to this instance anymore.</span>
+<span class="sd">               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other</span>
+<span class="sd">                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.</span>
+<span class="sd">                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can</span>
+<span class="sd">                 be used to retrieve a subspace of limits, data etc.</span>
+<span class="sd">                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as</span>
+<span class="sd">                 if the axes not contained in the instances axes were not present in the input axes.</span>
+<span class="sd">             * axes are not set:</span>
+<span class="sd">               * if the input axes are None, the same object is returned.</span>
+<span class="sd">               * if the input axes are not None, they will be set as-is and now correspond to the already</span>
+<span class="sd">                 existing obs in the object.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                axes: Axes to sort/associate this instance with</span>
+<span class="sd">                allow_superset: if False and a strict superset of the own axeservables is given, an error</span>
+<span class="sd">                is raised.</span>
+<span class="sd">                allow_subset:if False and a strict subset of the own axeservables is given, an error</span>
+<span class="sd">                is raised.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                object: a copy of the object with the new ordering/axes</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes</span>
+<span class="sd">            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and</span>
+<span class="sd">                allow_allow_subset is False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">convert_to_axes</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># drop axes</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CoordinatesUnderdefinedError</span><span class="p">(</span><span class="s2">&quot;Cannot remove axes (using None) for a Space without obs&quot;</span><span class="p">)</span>
+            <span class="n">new_coords</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">axes</span> <span class="o">=</span> <span class="n">_convert_axes_to_int</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">AxesIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trying to set axes </span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2"> to object with obs </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">new_coords</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">AxesIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The requested axes </span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2"> are not compatible with the current axes &quot;</span>
+                                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_superset</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">AxesIncompatibleError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Axes </span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2"> are a superset of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="si">}</span><span class="s2">, not allowed according to flag.&quot;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_subset</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">AxesIncompatibleError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Axes </span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2"> are a subset of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="si">}</span><span class="s2">, not allowed according to flag.&quot;</span><span class="p">)</span>
+                <span class="n">new_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reorder_indices</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+                <span class="n">new_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reorder_obs</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">new_indices</span><span class="p">)</span>
+                <span class="n">new_axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reorder_axes</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">new_indices</span><span class="p">)</span>
+                <span class="n">new_coords</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="n">new_obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">new_axes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_coords</span></div>
+
+<div class="viewcode-block" id="Coordinates.with_autofill_axes"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.with_autofill_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_autofill_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitOrderableDimensional&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).</span>
+
+<span class="sd">        This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or</span>
+<span class="sd">        similar. `overwrite` allows to remove the axis first in case there are already some set.</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            object.obs -&gt; (&#39;x&#39;, &#39;z&#39;, &#39;y&#39;)</span>
+<span class="sd">            object.axes -&gt; None</span>
+
+<span class="sd">            object.with_autofill_axes()</span>
+
+<span class="sd">            object.obs -&gt; (&#39;x&#39;, &#39;z&#39;, &#39;y&#39;)</span>
+<span class="sd">            object.axes -&gt; (0, 1, 2)</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.</span>
+<span class="sd">                If axes is already set and `overwrite` is False, raise an error.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            object: the object with the new axes</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AxesIncompatibleError: if the axes are already set and `overwrite` is False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AxesIncompatibleError</span><span class="p">(</span><span class="s2">&quot;overwrite is not allowed but axes are already set.&quot;</span><span class="p">)</span>
+        <span class="n">new_coords</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">new_coords</span></div>
+
+    <span class="k">def</span> <span class="nf">_reorder_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeReturn</span><span class="p">:</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span>
+        <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">obs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obs</span>
+
+    <span class="k">def</span> <span class="nf">_reorder_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeReturn</span><span class="p">:</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span>
+        <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">axes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">axes</span>
+
+<div class="viewcode-block" id="Coordinates.get_reorder_indices"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.get_reorder_indices">[docs]</a>    <span class="k">def</span> <span class="nf">get_reorder_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                            <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obs: Observables that the instances obs should be ordered to. Does not reorder, but just</span>
+<span class="sd">                return the indices that could be used to reorder.</span>
+<span class="sd">            axes: Axes that the instances obs should be ordered to. Does not reorder, but just</span>
+<span class="sd">                return the indices that could be used to reorder.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple(int): New indices that would reorder the instances obs to be obs respectively axes.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CoordinatesUnderdefinedError: If neither `obs` nor `axes` is given</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obs_none</span> <span class="o">=</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="n">axes_none</span> <span class="o">=</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span>
+
+        <span class="n">obs_is_defined</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">obs_none</span>
+        <span class="n">axes_is_defined</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">axes_none</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">obs_is_defined</span> <span class="ow">or</span> <span class="n">axes_is_defined</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">CoordinatesUnderdefinedError</span><span class="p">(</span>
+                <span class="s2">&quot;Neither the `obs` (argument and on instance) nor `axes` (argument and on instance) are defined.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">obs_is_defined</span><span class="p">:</span>
+            <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obs</span> <span class="k">if</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">axes</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">]</span>
+
+        <span class="n">new_indices</span> <span class="o">=</span> <span class="n">_reorder_indices</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">new</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_indices</span></div>
+
+<div class="viewcode-block" id="Coordinates.reorder_x"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.reorder_x">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                  <span class="o">*</span><span class="p">,</span>
+                  <span class="n">x_obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                  <span class="n">x_axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                  <span class="n">func_obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                  <span class="n">func_axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span>
+                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeReturnNoData</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.</span>
+
+<span class="sd">        There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.</span>
+<span class="sd">        If x_obs or x_axes is given, then this is assumed to be the obs resp. the axes of x and x will be reordered</span>
+<span class="sd">        according to `self.obs` resp. `self.axes`.</span>
+
+<span class="sd">        If func_obs resp. func_axes is given, then x is assumed to have `self.obs` resp. `self.axes` and will be</span>
+<span class="sd">        reordered to align with a function ordered with `func_obs` resp. `func_axes`.</span>
+
+<span class="sd">        Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes</span>
+<span class="sd">            x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the</span>
+<span class="sd">                latter.</span>
+<span class="sd">            x_axes: Axes associated with x.</span>
+<span class="sd">            func_obs: Observables associated with a function that x will be given to. Reorders x accordingly and assumes</span>
+<span class="sd">                self.obs to be the obs of x. If both, `func_obs` and `func_axes` are given, this has precedency over the</span>
+<span class="sd">                latter.</span>
+<span class="sd">            func_axes: Axe associated with a function that x will be given to. Reorders x accordingly and assumes</span>
+<span class="sd">                self.axes to be the axes of x.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tensor-like: the reordered array-like object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x_reorder</span> <span class="o">=</span> <span class="n">x_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">x_axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">func_reorder</span> <span class="o">=</span> <span class="n">func_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">func_axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">x_reorder</span> <span class="o">^</span> <span class="n">func_reorder</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either specify `x_obs/axes` or `func_obs/axes`, not both.&quot;</span><span class="p">)</span>
+        <span class="n">obs_defined</span> <span class="o">=</span> <span class="n">x_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">func_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">axes_defined</span> <span class="o">=</span> <span class="n">x_axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">func_axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">obs_defined</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x_reorder</span><span class="p">:</span>
+                <span class="n">coord_old</span> <span class="o">=</span> <span class="n">x_obs</span>
+                <span class="n">coord_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span>
+            <span class="k">elif</span> <span class="n">func_reorder</span><span class="p">:</span>
+                <span class="n">coord_new</span> <span class="o">=</span> <span class="n">func_obs</span>
+                <span class="n">coord_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;bug, should never be reached&#39;</span>
+
+
+
+        <span class="k">elif</span> <span class="n">axes_defined</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x_reorder</span><span class="p">:</span>
+                <span class="n">coord_old</span> <span class="o">=</span> <span class="n">x_axes</span>
+                <span class="n">coord_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span>
+            <span class="k">elif</span> <span class="n">func_reorder</span><span class="p">:</span>
+                <span class="n">coord_new</span> <span class="o">=</span> <span class="n">func_axes</span>
+                <span class="n">coord_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;bug, should never be reached&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Obs and self.obs or axes and self. axes not properly defined. Can only reorder on defined&quot;</span>
+                             <span class="s2">&quot; coordinates.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">coord_old</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">obs</span> <span class="k">if</span> <span class="n">obs_defined</span> <span class="k">else</span> <span class="n">x</span><span class="o">.</span><span class="n">axes</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">IntentionAmbiguousError</span><span class="p">(</span><span class="s2">&quot;`reorder_x` is supposed to assume that the obs/axes of the given `x` are&quot;</span>
+                                          <span class="s2">&quot; either the one from the Space itself or the ones given. x is a ZfitData&quot;</span>
+                                          <span class="sa">f</span><span class="s2">&quot; object that has obs/axes themselves </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">obs</span> <span class="k">if</span> <span class="n">obs_defined</span> <span class="k">else</span> <span class="n">x</span><span class="o">.</span><span class="n">axes</span><span class="si">}</span><span class="s2">&quot;</span>
+                                          <span class="sa">f</span><span class="s2">&quot; which do not coincied with the assumed obs/axes </span><span class="si">{</span><span class="n">coord_old</span><span class="si">}</span><span class="s2">. Use&quot;</span>
+                                          <span class="sa">f</span><span class="s2">&quot; x.value() to get the pure tensor out or rather sort Data accordingly&quot;</span>
+                                          <span class="sa">f</span><span class="s2">&quot; (sort_by...).&quot;</span><span class="p">)</span>
+        <span class="n">new_indices</span> <span class="o">=</span> <span class="n">_reorder_indices</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="n">coord_old</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">coord_new</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstable</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="n">new_indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Coordinates</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="n">obs_equal</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">axes_equal</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">obs_equal</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">axes_equal</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+        <span class="n">equal</span> <span class="o">=</span> <span class="n">obs_equal</span> <span class="ow">or</span> <span class="n">axes_equal</span>
+        <span class="k">return</span> <span class="n">equal</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">42</span>  <span class="c1"># always check with equal...  maybe change in future, use dict that checks for different things.</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;zfit Coordinates obs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s2">, axes=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<span class="k">def</span> <span class="nf">_convert_axes_to_int</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">):</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">axes</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">axes</span>
+
+
+<span class="k">def</span> <span class="nf">_convert_obs_to_str</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">):</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">obs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">obs</span>
+
+
+<span class="k">def</span> <span class="nf">_reorder_indices</span><span class="p">(</span><span class="n">old</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">],</span> <span class="n">new</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="n">new_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">old</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">new</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_indices</span>
+
+
+<div class="viewcode-block" id="convert_to_axes"><a class="viewcode-back" href="../../../api/zfit.core.coordinates.html#zfit.core.coordinates.convert_to_axes">[docs]</a><span class="k">def</span> <span class="nf">convert_to_axes</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if axes is None.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">        TypeError: if the axes are not int</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">axes</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="n">container</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">ZfitDimensional</span><span class="p">):</span>
+        <span class="n">new_axes</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">axes</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">new_axes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Axes have to be int, not </span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2"> as in </span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">container</span><span class="p">(</span><span class="n">new_axes</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert_to_obs_str"><a class="viewcode-back" href="../../../api/zfit.core.coordinates.html#zfit.core.coordinates.convert_to_obs_str">[docs]</a><span class="k">def</span> <span class="nf">convert_to_obs_str</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if obs is None.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: if the observable is not a string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obs</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">ZfitDimensional</span><span class="p">):</span>
+        <span class="n">new_obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">obs</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="n">container</span><span class="p">)</span>
+        <span class="n">new_obs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ob</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Observables have to be string, not </span><span class="si">{</span><span class="n">ob</span><span class="si">}</span><span class="s2"> as in </span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_obs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ob</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">container</span><span class="p">(</span><span class="n">new_obs</span><span class="p">)</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright Copyright 2018, zfit.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

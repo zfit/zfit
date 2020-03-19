@@ -82,18 +82,7 @@ Let's consider a second crystal ball with the same mean position and width, but 
     >>> # New crystal Ball function defined in the same observable range
     >>> model_cb2 = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a2, n=n2)
 
-We can now combine these two PDFs to create a double Crystal Ball with a single mean and width, either using arithmetic operations
-
-.. code-block:: pycon
-
-    >>> # First needs to define a parameters that represent
-    >>> # the relative fraction between the two PDFs
-    >>> frac = zfit.Parameter("frac", 0.5, 0, 1)
-
-    >>> # Two different ways to combine
-    >>> double_cb = frac * model_cb + model_cb2
-
-Or through the :py:class:`zfit.pdf.SumPDF` class:
+We can now combine these two PDFs to create a double Crystal Ball with a single mean and width through the :py:class:`zfit.pdf.SumPDF` class:
 
 .. code-block:: pycon
 
@@ -154,8 +143,7 @@ An extended PDF can be easily implemented in zfit in two ways:
 
     >>> # Extended PDF using a predefined method
     >>> extended_gauss_method = gauss.create_extended(yieldGauss)
-    >>> # Or simply with a Python syntax of multiplying a PDF with the parameter
-    >>> extended_gauss_python = yieldGauss * gauss
+
 
 
 Custom PDF

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.sample &#8212; zfit 0.4.4.dev1+g9951953 documentation</title>
+    <title>zfit.core.sample &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -66,7 +66,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#defining-limits">Defining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
 </ul>
 </li>
 </ul>
@@ -125,65 +127,66 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id6">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id7">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id13">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Major Features and Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id15">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id20">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id21">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id25">Requirement changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id26">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id31">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id32">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id36">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id38">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
 </ul>
@@ -213,16 +216,17 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.limits.html">limits</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
 </ul>
 </li>
@@ -269,8 +273,10 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
 </ul>
 </li>
@@ -282,6 +288,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -293,6 +300,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -318,6 +326,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -383,7 +392,7 @@
 <span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="kn">import</span> <span class="n">WorkInProgressError</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
-<span class="kn">from</span> <span class="nn">.limits</span> <span class="kn">import</span> <span class="n">Space</span>
+<span class="kn">from</span> <span class="nn">.space</span> <span class="kn">import</span> <span class="n">Space</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
 
 
@@ -392,17 +401,19 @@
         <span class="n">rnd_samples</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">thresholds_unscaled_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">,))</span>
-
-        <span class="k">for</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span> <span class="n">area</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">limits</span><span class="o">.</span><span class="n">iter_areas</span><span class="p">(</span><span class="n">rel</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
-            <span class="n">n_partial_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
-                <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">*</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">area</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>  <span class="c1"># TODO(Mayou36): split right!</span>
-
-            <span class="n">lower</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-            <span class="n">upper</span> <span class="o">=</span> <span class="n">ztf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">EventSpace</span><span class="p">):</span>
-                <span class="n">lower</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">lower</span><span class="p">)</span>
-                <span class="n">upper</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">upper</span><span class="p">)</span>
+        <span class="n">n_produced</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">space</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">limits</span><span class="p">):</span>
+            <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">rect_limits</span>  <span class="c1"># TODO: remove new space</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">limits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">n_partial_to_produce</span> <span class="o">=</span> <span class="n">n_to_produce</span> <span class="o">-</span> <span class="n">n_produced</span>  <span class="c1"># to prevent roundoff errors, shortcut for 1 space</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">EventSpace</span><span class="p">):</span>
+                    <span class="n">frac</span> <span class="o">=</span> <span class="mf">1.</span>  <span class="c1"># TODO(Mayou36): remove hack for Eventspace</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">tot_area</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">rect_area</span><span class="p">()</span>
+                    <span class="n">frac</span> <span class="o">=</span> <span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">rect_area</span><span class="p">()</span> <span class="o">/</span> <span class="n">tot_area</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">n_partial_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+                    <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">*</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">frac</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>  <span class="c1"># TODO(Mayou36): split right!</span>
 
             <span class="n">sample_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_partial_to_produce</span><span class="p">,</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
                                              <span class="c1"># + 1 dim for the function value</span>
@@ -414,6 +425,7 @@
             <span class="c1">#     return rnd_sample, thresholds_unscaled</span>
             <span class="n">rnd_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">)</span>
             <span class="n">thresholds_unscaled_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thresholds_unscaled</span><span class="p">)</span>
+            <span class="n">n_produced</span> <span class="o">+=</span> <span class="n">n_partial_to_produce</span>
 
         <span class="n">rnd_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rnd_samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">thresholds_unscaled_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -425,11 +437,12 @@
 <div class="viewcode-block" id="EventSpace"><a class="viewcode-back" href="../../../api/zfit.core.sample.html#zfit.core.sample.EventSpace">[docs]</a><span class="k">class</span> <span class="nc">EventSpace</span><span class="p">(</span><span class="n">Space</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;EXPERIMENTAL SPACE CLASS!&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span>
                  <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Space&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Limits cannot be None for EventSpaces (currently)&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_limits_tensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_factory</span> <span class="o">=</span> <span class="n">factory</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
@@ -485,7 +498,7 @@
         <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+<span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;sample&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">accept_reject_sample</span><span class="p">(</span><span class="n">prob</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">,</span>
                          <span class="n">sample_and_weights_factory</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">UniformSampleAndWeights</span><span class="p">,</span>
                          <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">prob_max</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -530,15 +543,13 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        tf.Tensor:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">multiple_limits</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="n">multiple_limits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">limits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
 
     <span class="n">sample_and_weights</span> <span class="o">=</span> <span class="n">sample_and_weights_factory</span><span class="p">()</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
-        <span class="n">assert_valid_n_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">assert_non_negative</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-        <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">assert_valid_n_op</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">deps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_non_negative</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
     <span class="c1"># whether we may produce more then n, we normally do (except for EventSpace which is not a generator)</span>
     <span class="c1"># we cannot cut inside the while loop as soon as we have produced enough because we may sample from</span>
     <span class="c1"># multiple limits and therefore need to randomly remove events, otherwise we are biased because the</span>
@@ -548,29 +559,25 @@
     <span class="c1"># for fixed limits in EventSpace we need to know which indices have been successfully sampled. Therefore this</span>
     <span class="c1"># can be None (if not needed) or a boolean tensor with the size `n`</span>
     <span class="n">initial_is_sampled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="s2">&quot;EMPTY&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">EventSpace</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">limits</span><span class="o">.</span><span class="n">is_generator</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">EventSpace</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">limits</span><span class="o">.</span><span class="n">is_generator</span><span class="p">)</span> <span class="ow">or</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_events</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">dynamic_array_shape</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
-            <span class="n">assert_n_matches_limits_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">limits</span><span class="o">.</span><span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n</span><span class="p">)</span>
-            <span class="n">tfdeps</span> <span class="o">=</span> <span class="p">[</span><span class="n">assert_n_matches_limits_op</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tfdeps</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">tfdeps</span><span class="p">):</span>  <span class="c1"># TODO(Mayou36): good check? could be 1d</span>
-            <span class="n">initial_is_sampled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,))</span>
-        <span class="n">efficiency_estimation</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># generate exactly n</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">deps</span><span class="p">):</span>
-        <span class="n">inital_n_produced</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="n">initial_n_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">n</span><span class="p">]):</span>
-            <span class="n">sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="n">dynamic_array_shape</span><span class="p">,</span>
-                                    <span class="n">clear_after_read</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># we read only once at end to tensor</span>
-                                    <span class="n">element_shape</span><span class="o">=</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,))</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">n_events</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 
-    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+        <span class="n">initial_is_sampled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,))</span>
+        <span class="n">efficiency_estimation</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># generate exactly n</span>
+
+    <span class="n">inital_n_produced</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">initial_n_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="n">dynamic_array_shape</span><span class="p">,</span>
+                            <span class="n">clear_after_read</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># we read only once at end to tensor</span>
+                            <span class="n">element_shape</span><span class="o">=</span><span class="p">(</span><span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,))</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;tensor&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">not_enough_produced</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">n_produced</span><span class="p">,</span> <span class="n">n_total_drawn</span><span class="p">,</span> <span class="n">eff</span><span class="p">,</span> <span class="n">is_sampled</span><span class="p">,</span> <span class="n">weights_scaling</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n_produced</span><span class="p">)</span>
 
-    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;tensor&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">sample_body</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">n_produced</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_total_drawn</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">eff</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">is_sampled</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights_scaling</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
         <span class="n">eff</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">=</span><span class="p">[</span><span class="n">eff</span><span class="p">,</span> <span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)])</span>
 
@@ -581,11 +588,10 @@
 
         <span class="n">do_print</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_verbosity</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">5</span>
         <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
-            <span class="n">print_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Number of samples to produce:&quot;</span><span class="p">,</span> <span class="n">n_to_produce</span><span class="p">,</span> <span class="s2">&quot; with efficiency &quot;</span><span class="p">,</span> <span class="n">eff</span><span class="p">,</span>
-                                <span class="s2">&quot; with total produced &quot;</span><span class="p">,</span> <span class="n">n_produced</span><span class="p">,</span> <span class="s2">&quot; and total drawn &quot;</span><span class="p">,</span> <span class="n">n_total_drawn</span><span class="p">,</span>
-                                <span class="s2">&quot; with weights scaling&quot;</span><span class="p">,</span> <span class="n">weights_scaling</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">print_op</span><span class="p">]</span> <span class="k">if</span> <span class="n">do_print</span> <span class="k">else</span> <span class="p">[]):</span>
-            <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Number of samples to produce:&quot;</span><span class="p">,</span> <span class="n">n_to_produce</span><span class="p">,</span> <span class="s2">&quot; with efficiency &quot;</span><span class="p">,</span> <span class="n">eff</span><span class="p">,</span>
+                     <span class="s2">&quot; with total produced &quot;</span><span class="p">,</span> <span class="n">n_produced</span><span class="p">,</span> <span class="s2">&quot; and total drawn &quot;</span><span class="p">,</span> <span class="n">n_total_drawn</span><span class="p">,</span>
+                     <span class="s2">&quot; with weights scaling&quot;</span><span class="p">,</span> <span class="n">weights_scaling</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">dynamic_array_shape</span><span class="p">:</span>
             <span class="c1"># TODO: move all this fixed numbers out into settings</span>
             <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">/</span> <span class="n">eff</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span>  <span class="c1"># just to make sure</span>
@@ -601,10 +607,10 @@
             <span class="k">if</span> <span class="n">multiple_limits</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">WorkInProgressError</span><span class="p">(</span><span class="s2">&quot;Multiple limits for fixed event space not yet implemented&quot;</span><span class="p">)</span>
             <span class="n">is_not_sampled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">is_sampled</span><span class="p">)</span>
-            <span class="p">(</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
-            <span class="n">lower</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">low</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">is_not_sampled</span><span class="p">)</span> <span class="k">for</span> <span class="n">low</span> <span class="ow">in</span> <span class="n">lower</span><span class="p">)</span>
-            <span class="n">upper</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">up</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">is_not_sampled</span><span class="p">)</span> <span class="k">for</span> <span class="n">up</span> <span class="ow">in</span> <span class="n">upper</span><span class="p">)</span>
-            <span class="n">new_limits</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">with_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">((</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)))</span>
+            <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">_rect_limits_tf</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">lower</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">is_not_sampled</span><span class="p">)</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">upper</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">is_not_sampled</span><span class="p">)</span>
+            <span class="n">new_limits</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">with_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">))</span>
             <span class="n">draw_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_not_sampled</span><span class="p">)</span>
 
         <span class="n">rnd_sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights_max</span><span class="p">,</span> <span class="n">n_drawn</span> <span class="o">=</span> <span class="n">sample_and_weights</span><span class="p">(</span>
@@ -613,31 +619,19 @@
             <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
         <span class="n">n_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">n_drawn</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
-            <span class="n">assert_op_n_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">assert_non_negative</span><span class="p">(</span><span class="n">n_drawn</span><span class="p">)</span>
-            <span class="n">tfdeps</span> <span class="o">=</span> <span class="p">[</span><span class="n">assert_op_n_drawn</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tfdeps</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">tfdeps</span><span class="p">):</span>
-            <span class="n">n_total_drawn</span> <span class="o">+=</span> <span class="n">n_drawn</span>
-
-            <span class="n">probabilities</span> <span class="o">=</span> <span class="n">prob</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_non_negative</span><span class="p">(</span><span class="n">n_drawn</span><span class="p">)</span>
+        <span class="n">n_total_drawn</span> <span class="o">+=</span> <span class="n">n_drawn</span>
+        <span class="n">probabilities</span> <span class="o">=</span> <span class="n">prob</span><span class="p">(</span><span class="n">rnd_sample</span><span class="p">)</span>
         <span class="n">shape_rnd_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">rnd_sample</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
-            <span class="n">assert_prob_rnd_sample_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">probabilities</span><span class="p">),</span> <span class="n">shape_rnd_sample</span><span class="p">)</span>
-            <span class="n">tfdeps</span> <span class="o">=</span> <span class="p">[</span><span class="n">assert_prob_rnd_sample_op</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tfdeps</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># assert_weights_rnd_sample_op = tf.assert_equal(tf.shape(weights), shape_rnd_sample)</span>
-        <span class="c1"># print_op = tf.print(&quot;shapes: &quot;, tf.shape(weights), shape_rnd_sample, &quot;shapes end&quot;)</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">tfdeps</span><span class="p">):</span>
-            <span class="n">probabilities</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">probabilities</span><span class="p">),</span> <span class="n">shape_rnd_sample</span><span class="p">)</span>
+
+        <span class="n">probabilities</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">prob_max</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">weights_max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO(performance): estimate prob_max, after enough estimations -&gt; fix it?</span>
             <span class="c1"># TODO(Mayou36): This control dependency is needed because otherwise the max won&#39;t be determined</span>
             <span class="c1"># correctly. A bug report on will be filled (WIP).</span>
             <span class="c1"># The behavior is very odd: if we do not force a kind of copy, the `reduce_max` returns</span>
             <span class="c1"># a value smaller by a factor of 1e-14</span>
-            <span class="c1"># with tf.control_dependencies([probabilities]):</span>
             <span class="c1"># UPDATE: this works now? Was it just a one-time bug?</span>
 
             <span class="c1"># safety margin, predicting future, improve for small samples?</span>
@@ -645,9 +639,7 @@
             <span class="n">weights_clipped</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">weights_maximum</span> <span class="o">*</span> <span class="mf">1e-5</span><span class="p">)</span>
             <span class="c1"># prob_weights_ratio = probabilities / weights</span>
             <span class="n">prob_weights_ratio</span> <span class="o">=</span> <span class="n">probabilities</span> <span class="o">/</span> <span class="n">weights_clipped</span>
-            <span class="c1"># min_prob_weights_ratio = tf.reduce_min(prob_weights_ratio)</span>
             <span class="n">max_prob_weights_ratio</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">=</span><span class="n">prob_weights_ratio</span><span class="p">)</span>
-            <span class="n">ratio_threshold</span> <span class="o">=</span> <span class="mf">50000000.</span>
             <span class="c1"># clipping means that we don&#39;t scale more for a certain threshold</span>
             <span class="c1"># to properly account for very small numbers, the thresholds should be scaled to match the ratio</span>
             <span class="c1"># but if a weight of a sample is very low (compared to the other weights), this would force the acceptance</span>
@@ -660,7 +652,6 @@
             <span class="n">weights_scaling</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">weights_scaling</span><span class="p">,</span> <span class="n">max_prob_weights_ratio_clipped</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-2</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">weights_scaling</span> <span class="o">=</span> <span class="n">prob_max</span> <span class="o">/</span> <span class="n">weights_max</span>
-            <span class="n">min_prob_weights_ratio</span> <span class="o">=</span> <span class="n">weights_scaling</span>
 
         <span class="n">weights_scaled</span> <span class="o">=</span> <span class="n">weights_scaling</span> <span class="o">*</span> <span class="n">weights</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>  <span class="c1"># numerical epsilon</span>
         <span class="n">random_thresholds</span> <span class="o">=</span> <span class="n">thresholds_unscaled</span> <span class="o">*</span> <span class="n">weights_scaled</span>
@@ -669,23 +660,22 @@
             <span class="n">failed_weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">weights_scaled</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">invalid_probs_weights</span><span class="p">)</span>
             <span class="n">failed_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">invalid_probs_weights</span><span class="p">)</span>
 
-            <span class="k">def</span> <span class="nf">bias_print</span><span class="p">():</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;HACK WARNING: if the following is NOT empty, your sampling _may_ be biased.&quot;</span>
-                         <span class="s2">&quot; Failed weights:&quot;</span><span class="p">,</span> <span class="n">failed_weights</span><span class="p">,</span> <span class="s2">&quot; failed probs&quot;</span><span class="p">,</span> <span class="n">failed_probs</span><span class="p">)</span>
+            <span class="c1"># def bias_print():</span>
+            <span class="c1">#     tf.print(&quot;HACK WARNING: if the following is NOT empty, your sampling _may_ be biased.&quot;</span>
+            <span class="c1">#              &quot; Failed weights:&quot;, failed_weights, &quot; failed probs&quot;, failed_probs)</span>
 
             <span class="c1"># tf.cond(tf.not_equal(tf.shape(input=failed_weights), [0]), bias_print, lambda: None)</span>
 
-            <span class="n">assert_no_failed_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">failed_weights</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="c1"># assert_op = [print_op]</span>
-            <span class="n">assert_op</span> <span class="o">=</span> <span class="p">[</span><span class="n">assert_no_failed_probs</span><span class="p">]</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">failed_weights</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
             <span class="c1"># for weights scaled more then ratio_threshold</span>
-            <span class="c1"># assert_op = [tf.assert_greater_equal(x=weights_scaled, y=probabilities,</span>
-            <span class="c1">#                                      data=[tf.shape(failed_weights), failed_weights, failed_probs],</span>
-            <span class="c1">#                                      message=&quot;Not all weights are &gt;= probs so the sampling &quot;</span>
-            <span class="c1">#                                              &quot;will be biased. If a custom `sample_and_weights` &quot;</span>
-            <span class="c1">#                                              &quot;was used, make sure that either the shape of the &quot;</span>
-            <span class="c1">#                                              &quot;custom sampler (resp. it&#39;s weights) overlap better &quot;</span>
-            <span class="c1">#                                              &quot;or decrease the `max_weight`&quot;)]</span>
+            <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_greater_equal</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">weights_scaled</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span>
+                                                  <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Not all weights are &gt;= probs so the sampling &quot;</span>
+                                                          <span class="s2">&quot;will be biased. If a custom `sample_and_weights` &quot;</span>
+                                                          <span class="s2">&quot;was used, make sure that either the shape of the &quot;</span>
+                                                          <span class="s2">&quot;custom sampler (resp. it&#39;s weights) overlap better &quot;</span>
+                                                          <span class="s2">&quot;or decrease the `max_weight`&quot;</span><span class="p">)</span>
             <span class="c1">#</span>
             <span class="c1"># # check disabled (below not added to deps)</span>
             <span class="c1"># assert_scaling_op = tf.assert_less(weights_scaling / min_prob_weights_ratio, z.constant(ratio_threshold),</span>
@@ -696,10 +686,8 @@
             <span class="c1">#                                    f&quot;Use importance sampling or, to disable this check, do&quot;</span>
             <span class="c1">#                                    f&quot;zfit.run.numeric_checks = False&quot;)</span>
             <span class="c1"># assert_op.append(assert_scaling_op)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">assert_op</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">(</span><span class="n">assert_op</span><span class="p">):</span>
-            <span class="n">take_or_not</span> <span class="o">=</span> <span class="n">probabilities</span> <span class="o">&gt;</span> <span class="n">random_thresholds</span>
+
+        <span class="n">take_or_not</span> <span class="o">=</span> <span class="n">probabilities</span> <span class="o">&gt;</span> <span class="n">random_thresholds</span>
         <span class="n">take_or_not</span> <span class="o">=</span> <span class="n">take_or_not</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">take_or_not</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">take_or_not</span>
         <span class="n">filtered_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">rnd_sample</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">take_or_not</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -717,6 +705,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">n_produced</span><span class="p">,</span> <span class="n">n_produced_new</span><span class="p">)</span>
 
+        <span class="c1"># TODO: pack into tf.function to speedup considerable the eager sampling? Is bottleneck currently</span>
         <span class="n">sample_new</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">filtered_sample</span><span class="p">)</span>
 
         <span class="c1"># efficiency (estimate) of how many samples we get</span>

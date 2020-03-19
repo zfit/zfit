@@ -1,0 +1,8 @@
+coordinates
+===========
+
+.. automodule:: zfit.core.coordinates
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

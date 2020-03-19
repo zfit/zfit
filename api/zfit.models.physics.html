@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>physics &#8212; zfit 0.4.4.dev1+g9951953 documentation</title>
+    <title>physics &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -68,7 +68,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../intro/space.html">Space, Observable and Range</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../intro/space.html#definitions">Definitions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#defining-limits">Defining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#using-the-limits">Using the limits</a></li>
 </ul>
 </li>
 </ul>
@@ -127,65 +129,66 @@
 <li class="toctree-l2"><a class="reference internal" href="../project/changelog.html">Changelog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id6">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id7">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id12">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id13">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id13">Major Features and Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id15">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id20">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id21">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id25">Requirement changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id26">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id31">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id32">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id36">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id38">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id38">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#improvements">Improvements</a></li>
 </ul>
@@ -215,16 +218,17 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.core.coordinates.html">coordinates</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.data.html">data</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.dependents.html">dependents</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.dimension.html">dimension</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.integration.html">integration</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="zfit.core.limits.html">limits</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.loss.html">loss</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.operations.html">operations</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.parameter.html">parameter</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.core.space.html">space</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.core.testing.html">testing</a></li>
 </ul>
 </li>
@@ -271,8 +275,10 @@
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.exception.html">exception</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.execution.html">execution</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.util.legacy.html">legacy</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.logging.html">logging</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.util.warnings.html">warnings</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.util.ztyping.html">ztyping</a></li>
 </ul>
 </li>
@@ -284,6 +290,7 @@
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l6"><a class="reference internal" href="zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -295,6 +302,7 @@
 <li class="toctree-l3"><a class="reference internal" href="zfit.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.dimension.html">dimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.minimize.html">minimize</a></li>
@@ -320,6 +328,7 @@
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -429,8 +438,8 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <cite>False</cite>) – the limits to normalize over</p></li>
+<li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, <cite>False</cite>) – the limits to normalize over</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -453,7 +462,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.apply_yield">
-<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param">value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.CrystalBall.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param">value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.CrystalBall.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -483,13 +492,13 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.axes">
 <em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.models.physics.CrystalBall.axes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the axes.</p>
+<dd><p>Return the axes, integer based identifier(indices) for the coordinate system.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.convert_sort_space">
-<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.models.physics.CrystalBall.convert_sort_space" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, axes: Union[int, Iterable[int]] = None, limits: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.interfaces.ZfitSpace]<a class="headerlink" href="#zfit.models.physics.CrystalBall.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -547,7 +556,7 @@ arguments to override with new value.</p>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.create_projection_pdf">
-<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param">limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.physics.CrystalBall.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param">limits_to_integrate: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.physics.CrystalBall.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <dl class="field-list simple">
@@ -664,27 +673,18 @@ been created with when it resamples.</p></li>
 
 <dl class="attribute">
 <dt id="zfit.models.physics.CrystalBall.graph_caching_methods">
-<code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.models.physics.CrystalBall.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">graph_caching_methods</code><em class="property"> = [&lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;]</em><a class="headerlink" href="#zfit.models.physics.CrystalBall.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.physics.CrystalBall.instances">
+<code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.models.physics.CrystalBall.instances" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.integrate">
-<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.CrystalBall.integrate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
-unnormalized probability</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of the operation shown in the <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Graph</span></code></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>py:class`tf.Tensor`: the integral value as a scalar with shape ()</p>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.integrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.is_extended">
@@ -724,7 +724,7 @@ unnormalized probability</p></li>
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.n_obs">
 <em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.models.physics.CrystalBall.n_obs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the number of observables.</p>
+<dd><p>Return the number of observables, the dimensionality. Corresponds to the last dimension.</p>
 </dd></dl>
 
 <dl class="method">
@@ -774,8 +774,8 @@ unnormalized probability</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over</p></li>
+<li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, False) – the limits to normalize over</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -791,13 +791,8 @@ unnormalized probability</p></li>
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.obs">
 <em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.models.physics.CrystalBall.obs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the observables.</p>
+<dd><p>Return the observables, string identifier for the coordinate system.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="zfit.models.physics.CrystalBall.old_graph_caching_methods">
-<code class="sig-name descname">old_graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.models.physics.CrystalBall.old_graph_caching_methods" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.params">
@@ -806,83 +801,18 @@ unnormalized probability</p></li>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.partial_analytic_integrate">
-<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.Data]<a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do analytical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
-<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
-to the dimensions of <cite>norm_range</cite> (if not False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Tensor</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.8)"><strong>NotImplementedError</strong></a> – if the <em>analytic</em> integral (over this limits) is not implemented</p></li>
-<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
-    means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
-    integral over the limits = norm_range is not available.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.partial_integrate">
-<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.Data]<a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_integrate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
-<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
-to the dimensions of <cite>norm_range</cite> (if not False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Tensor</p>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.partial_numeric_integrate">
-<code class="sig-name descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Force numerical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
-<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
-to the dimensions of <cite>norm_range</cite> (if not False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Tensor</p>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-name descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.pdf">
@@ -919,9 +849,9 @@ The signature has to be the following:</p>
 </dd>
 </dl>
 </li>
-<li><p>limits (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>): the limits to integrate over.</p></li>
+<li><p>limits (<code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>): the limits to integrate over.</p></li>
 <li><dl class="simple">
-<dt>norm_range (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, None): Normalization range of the integral.</dt><dd><p>If not <cite>supports_supports_norm_range</cite>, this will be None.</p>
+<dt>norm_range (<code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, None): Normalization range of the integral.</dt><dd><p>If not <cite>supports_supports_norm_range</cite>, this will be None.</p>
 </dd>
 </dl>
 </li>
@@ -993,7 +923,7 @@ or a valid string. Currently implemented:</p>
 </ul>
 </div></blockquote>
 </p></li>
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
+<li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – In which region to sample in</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -1013,7 +943,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param">norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param">norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1025,12 +955,11 @@ or a valid string. Currently implemented:</p>
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.models.physics.CrystalBall.space" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.CrystalBall.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.CrystalBall.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.CrystalBall.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1129,8 +1058,8 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <cite>False</cite>) – the limits to normalize over</p></li>
+<li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, <cite>False</cite>) – the limits to normalize over</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -1153,7 +1082,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.apply_yield">
-<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param">value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.DoubleCB.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param">value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.DoubleCB.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1183,13 +1112,13 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.axes">
 <em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.models.physics.DoubleCB.axes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the axes.</p>
+<dd><p>Return the axes, integer based identifier(indices) for the coordinate system.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.convert_sort_space">
-<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, limits: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.limits.Space]<a class="headerlink" href="#zfit.models.physics.DoubleCB.convert_sort_space" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> and sort them according to
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, axes: Union[int, Iterable[int]] = None, limits: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.interfaces.ZfitSpace]<a class="headerlink" href="#zfit.models.physics.DoubleCB.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1247,7 +1176,7 @@ arguments to override with new value.</p>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.create_projection_pdf">
-<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param">limits_to_integrate: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.physics.DoubleCB.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param">limits_to_integrate: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.physics.DoubleCB.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <dl class="field-list simple">
@@ -1364,27 +1293,18 @@ been created with when it resamples.</p></li>
 
 <dl class="attribute">
 <dt id="zfit.models.physics.DoubleCB.graph_caching_methods">
-<code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.models.physics.DoubleCB.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">graph_caching_methods</code><em class="property"> = [&lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;]</em><a class="headerlink" href="#zfit.models.physics.DoubleCB.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.models.physics.DoubleCB.instances">
+<code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.models.physics.DoubleCB.instances" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.integrate">
-<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.DoubleCB.integrate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
-unnormalized probability</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of the operation shown in the <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Graph</span></code></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>py:class`tf.Tensor`: the integral value as a scalar with shape ()</p>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.integrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.is_extended">
@@ -1424,7 +1344,7 @@ unnormalized probability</p></li>
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.n_obs">
 <em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.models.physics.DoubleCB.n_obs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the number of observables.</p>
+<dd><p>Return the number of observables, the dimensionality. Corresponds to the last dimension.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1474,8 +1394,8 @@ unnormalized probability</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over</p></li>
+<li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, False) – the limits to normalize over</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -1491,13 +1411,8 @@ unnormalized probability</p></li>
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.obs">
 <em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.models.physics.DoubleCB.obs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the observables.</p>
+<dd><p>Return the observables, string identifier for the coordinate system.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="zfit.models.physics.DoubleCB.old_graph_caching_methods">
-<code class="sig-name descname">old_graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.models.physics.DoubleCB.old_graph_caching_methods" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.params">
@@ -1506,83 +1421,18 @@ unnormalized probability</p></li>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.partial_analytic_integrate">
-<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.Data]<a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do analytical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
-<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
-to the dimensions of <cite>norm_range</cite> (if not False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Tensor</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.8)"><strong>NotImplementedError</strong></a> – if the <em>analytic</em> integral (over this limits) is not implemented</p></li>
-<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
-    means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
-    integral over the limits = norm_range is not available.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.partial_integrate">
-<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, zfit.Data]<a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_integrate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
-<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
-to the dimensions of <cite>norm_range</cite> (if not False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Tensor</p>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.partial_numeric_integrate">
-<code class="sig-name descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Force numerical partial integration of the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
-<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
-to the dimensions of <cite>norm_range</cite> (if not False)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
-<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Tensor</p>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-name descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.pdf">
@@ -1619,9 +1469,9 @@ The signature has to be the following:</p>
 </dd>
 </dl>
 </li>
-<li><p>limits (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>): the limits to integrate over.</p></li>
+<li><p>limits (<code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>): the limits to integrate over.</p></li>
 <li><dl class="simple">
-<dt>norm_range (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, None): Normalization range of the integral.</dt><dd><p>If not <cite>supports_supports_norm_range</cite>, this will be None.</p>
+<dt>norm_range (<code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, None): Normalization range of the integral.</dt><dd><p>If not <cite>supports_supports_norm_range</cite>, this will be None.</p>
 </dd>
 </dl>
 </li>
@@ -1693,7 +1543,7 @@ or a valid string. Currently implemented:</p>
 </ul>
 </div></blockquote>
 </p></li>
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – In which region to sample in</p></li>
+<li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – In which region to sample in</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -1713,7 +1563,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param">norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param">norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1725,12 +1575,11 @@ or a valid string. Currently implemented:</p>
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.models.physics.DoubleCB.space" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> object that defines the dimensionality of the object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="zfit.models.physics.DoubleCB.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.DoubleCB.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.physics.DoubleCB.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1769,6 +1618,11 @@ or a valid string. Currently implemented:</p>
 <dl class="function">
 <dt id="zfit.models.physics.crystalball_integral">
 <code class="sig-prename descclassname">zfit.models.physics.</code><code class="sig-name descname">crystalball_integral</code><span class="sig-paren">(</span><em class="sig-param">limits</em>, <em class="sig-param">params</em>, <em class="sig-param">model</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/physics.html#crystalball_integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.physics.crystalball_integral" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.models.physics.crystalball_integral_func">
+<code class="sig-prename descclassname">zfit.models.physics.</code><code class="sig-name descname">crystalball_integral_func</code><span class="sig-paren">(</span><em class="sig-param">mu</em>, <em class="sig-param">sigma</em>, <em class="sig-param">alpha</em>, <em class="sig-param">n</em>, <em class="sig-param">lower</em>, <em class="sig-param">upper</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/physics.html#crystalball_integral_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.physics.crystalball_integral_func" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">

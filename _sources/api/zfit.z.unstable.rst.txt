@@ -1,0 +1,8 @@
+unstable
+========
+
+.. automodule:: zfit.z.unstable
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

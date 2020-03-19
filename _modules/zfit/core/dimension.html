@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.dimension &#8212; zfit 0.4.4.dev1+g9951953 documentation</title>
+    <title>zfit.core.dimension &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -66,7 +66,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#defining-limits">Defining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
 </ul>
 </li>
 </ul>
@@ -125,65 +127,66 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id6">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id7">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id13">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Major Features and Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id15">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id20">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id21">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id25">Requirement changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id26">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id31">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id32">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id36">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id38">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
 </ul>
@@ -213,16 +216,17 @@
 </ul>
 </li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.limits.html">limits</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
 </ul>
 </li>
@@ -269,8 +273,10 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
 </ul>
 </li>
@@ -282,6 +288,7 @@
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -293,6 +300,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -318,6 +326,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
 </ul>
@@ -370,14 +379,12 @@
   <h1>Source code for zfit.core.dimension</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
-<span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Set</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">zfit</span>
-<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">SpaceIncompatibleError</span><span class="p">,</span> <span class="n">LimitsIncompatibleError</span><span class="p">,</span>
-                                 <span class="n">LimitsNotSpecifiedError</span><span class="p">,</span> <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">SpaceIncompatibleError</span><span class="p">,</span> <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitDimensional</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
@@ -409,8 +416,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">n_obs</span></div>
 
 
-<div class="viewcode-block" id="get_same_obs"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.get_same_obs">[docs]</a><span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">get_same_obs</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
+<div class="viewcode-block" id="get_same_obs"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.get_same_obs">[docs]</a><span class="k">def</span> <span class="nf">get_same_obs</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
     <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">))]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ob</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">other_ob</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]):</span>
@@ -422,61 +428,6 @@
     <span class="n">deps</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">deps</span></div>
-
-
-<div class="viewcode-block" id="is_combinable"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.is_combinable">[docs]</a><span class="k">def</span> <span class="nf">is_combinable</span><span class="p">(</span><span class="n">spaces</span><span class="p">):</span>
-    <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="add_spaces"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.add_spaces">[docs]</a><span class="k">def</span> <span class="nf">add_spaces</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Space&quot;</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Add two spaces and merge their limits if possible or return False.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        spaces (Iterable[:py:class:`~zfit.Space`]):</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Union[None, :py:class:`~zfit.Space`, bool]:</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        LimitsIncompatibleError: if limits of the `spaces` cannot be merged because they overlap</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">spaces</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">spaces</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spaces</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need at least two spaces to be added.&quot;</span><span class="p">)</span>  <span class="c1"># TODO: allow? usecase?</span>
-    <span class="n">obs</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="n">obs1</span> <span class="o">=</span> <span class="n">spaces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">obs</span>
-    <span class="n">spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span> <span class="o">==</span> <span class="n">obs1</span> <span class="k">else</span> <span class="n">space</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">limits_overlap</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span> <span class="n">allow_exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">LimitsIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Limits of spaces overlap, cannot merge spaces.&quot;</span><span class="p">)</span>
-
-    <span class="n">lowers</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">uppers</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="k">for</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">other_lower</span><span class="p">,</span> <span class="n">other_upper</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lowers</span><span class="p">,</span> <span class="n">uppers</span><span class="p">):</span>
-                <span class="n">lower_same</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">other_lower</span><span class="p">)</span>
-                <span class="n">upper_same</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">other_upper</span><span class="p">)</span>
-                <span class="k">assert</span> <span class="ow">not</span> <span class="n">lower_same</span> <span class="o">^</span> <span class="n">upper_same</span><span class="p">,</span> <span class="s2">&quot;Bug, please report as issue. limits_overlap did not catch right.&quot;</span>
-                <span class="k">if</span> <span class="n">lower_same</span> <span class="ow">and</span> <span class="n">upper_same</span><span class="p">:</span>
-                    <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">lowers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
-                <span class="n">uppers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
-    <span class="n">lowers</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">lowers</span><span class="p">)</span>
-    <span class="n">uppers</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">uppers</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lowers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">limits</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">limits</span> <span class="o">=</span> <span class="n">lowers</span><span class="p">,</span> <span class="n">uppers</span>
-    <span class="n">new_space</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">spaces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">new_space</span></div>
 
 
 <div class="viewcode-block" id="limits_overlap"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.limits_overlap">[docs]</a><span class="k">def</span> <span class="nf">limits_overlap</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">,</span> <span class="n">allow_exact_match</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -503,21 +454,22 @@
         <span class="n">lowers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">uppers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span> <span class="ow">or</span> <span class="n">obs</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">space</span><span class="o">.</span><span class="n">has_limits</span> <span class="ow">or</span> <span class="n">obs</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">index</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">iter_limits</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-                <span class="n">low</span> <span class="o">=</span> <span class="n">lower</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-                <span class="n">up</span> <span class="o">=</span> <span class="n">upper</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">spa</span> <span class="ow">in</span> <span class="n">space</span><span class="p">:</span>
+                <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">rect_limits</span>  <span class="c1"># TODO: new space</span>
+                <span class="n">low</span> <span class="o">=</span> <span class="n">lower</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span>
+                <span class="n">up</span> <span class="o">=</span> <span class="n">upper</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span>
 
                 <span class="k">for</span> <span class="n">other_lower</span><span class="p">,</span> <span class="n">other_upper</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lowers</span><span class="p">,</span> <span class="n">uppers</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">allow_exact_match</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">other_lower</span><span class="p">,</span> <span class="n">low</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">other_upper</span><span class="p">,</span> <span class="n">up</span><span class="p">):</span>
                         <span class="k">continue</span>
                     <span class="c1"># TODO(Mayou36): tolerance? add global flags?</span>
-                    <span class="n">low_overlaps</span> <span class="o">=</span> <span class="n">other_lower</span> <span class="o">-</span> <span class="n">eps</span> <span class="o">&lt;</span> <span class="n">low</span> <span class="o">&lt;</span> <span class="n">other_upper</span> <span class="o">-</span> <span class="n">eps</span>
-                    <span class="n">up_overlaps</span> <span class="o">=</span> <span class="n">other_lower</span> <span class="o">+</span> <span class="n">eps</span> <span class="o">&lt;</span> <span class="n">up</span> <span class="o">&lt;</span> <span class="n">other_upper</span> <span class="o">+</span> <span class="n">eps</span>
+                    <span class="n">low_overlaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">other_lower</span> <span class="o">-</span> <span class="n">eps</span> <span class="o">&lt;</span> <span class="n">low</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">low</span> <span class="o">&lt;</span> <span class="n">other_upper</span> <span class="o">-</span> <span class="n">eps</span><span class="p">)</span>
+                    <span class="n">up_overlaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">other_lower</span> <span class="o">+</span> <span class="n">eps</span> <span class="o">&lt;</span> <span class="n">up</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">up</span> <span class="o">&lt;</span> <span class="n">other_upper</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
                     <span class="n">overlap</span> <span class="o">=</span> <span class="n">low_overlaps</span> <span class="ow">or</span> <span class="n">up_overlaps</span>
                     <span class="k">if</span> <span class="n">overlap</span><span class="p">:</span>
                         <span class="k">return</span> <span class="kc">True</span>
@@ -526,7 +478,7 @@
     <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="common_obs"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.common_obs">[docs]</a><span class="k">def</span> <span class="nf">common_obs</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="common_obs"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.common_obs">[docs]</a><span class="k">def</span> <span class="nf">common_obs</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Extract the union of `obs` from `spaces` in the order of `spaces`.</span>
 
 <span class="sd">    For example:</span>
@@ -540,7 +492,7 @@
 <span class="sd">        spaces (): :py:class:`~zfit.Space`s to extract the obs from</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        List[str]: The observables as `str`</span>
+<span class="sd">        List[str]: The observables as `str` or False if not every space has observables</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">spaces</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">spaces</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
     <span class="n">all_obs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -551,111 +503,54 @@
     <span class="k">return</span> <span class="n">all_obs</span></div>
 
 
-<div class="viewcode-block" id="limits_consistent"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.limits_consistent">[docs]</a><span class="k">def</span> <span class="nf">limits_consistent</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Space&quot;</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Check if space limits are the *exact* same in each obs they are defined and therefore are compatible.</span>
+<div class="viewcode-block" id="common_axes"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.common_axes">[docs]</a><span class="k">def</span> <span class="nf">common_axes</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Extract the union of `axes` from `spaces` in the order of `spaces`.</span>
 
-<span class="sd">    In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),</span>
-<span class="sd">    to be consistent with this limits, other limits have to have (in this obs) also the limits</span>
-<span class="sd">    from -1 to 1 and from 2 to 3. Only having the limit -1 to 1 _or_ 2 to 3 is considered _not_ consistent.</span>
+<span class="sd">    For example:</span>
+<span class="sd">        | space1.axes: [1, 3]</span>
+<span class="sd">        | space2.axes: [2, 3, 1]</span>
+<span class="sd">        | space3.axes: [2]</span>
 
-<span class="sd">    This function is useful to check if several spaces with *different* observables can be _combined_.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        spaces (List[zfit.Space]):</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        bool:</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">new_space</span> <span class="o">=</span> <span class="n">combine_spaces</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">LimitsIncompatibleError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">new_space</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="combine_spaces"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.combine_spaces">[docs]</a><span class="k">def</span> <span class="nf">combine_spaces</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Space&quot;</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Combine spaces with different `obs` and `limits` to one `space`.</span>
-
-<span class="sd">    Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination</span>
-<span class="sd">    is not unambiguous and `False` is returned</span>
+<span class="sd">        returns [1, 3, 2]</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        spaces (List[:py:class:`~zfit.Space`]):</span>
+<span class="sd">        spaces (): :py:class:`~zfit.Space`s to extract the axes from</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        `zfit.Space` or False: Returns False if the limits don&#39;t coincide in one or more obs. Otherwise</span>
-<span class="sd">            return the :py:class:`~zfit.Space` with all obs from `spaces` sorted by the order of `spaces` and with the</span>
-<span class="sd">            combined limits.</span>
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: if only one space is given</span>
-<span class="sd">        LimitsIncompatibleError: If the limits of one or more spaces (or within a space) overlap</span>
-<span class="sd">        LimitsNotSpecifiedError: If the limits for one or more obs but not all are None.</span>
+<span class="sd">        List[int] or False: The axes as int or False if not every space has axes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">spaces</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">spaces</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
-    <span class="c1"># if len(spaces) &lt;= 1:</span>
-    <span class="c1">#     return spaces</span>
-    <span class="c1"># raise ValueError(&quot;Need at least two spaces to test limit consistency.&quot;)  # TODO: allow? usecase?</span>
-
-    <span class="n">all_obs</span> <span class="o">=</span> <span class="n">common_obs</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">)</span>
-    <span class="n">all_lower</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">all_upper</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">spaces</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">all_obs</span><span class="p">)</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">)</span>
-
-    <span class="c1"># create the lower and upper limits with all obs replacing missing dims with None</span>
-    <span class="c1"># With this, all limits have the same length</span>
-    <span class="k">if</span> <span class="n">limits_overlap</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span> <span class="n">allow_exact_match</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">LimitsIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Limits overlap&quot;</span><span class="p">)</span>
-
+    <span class="n">all_axes</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">lowers</span><span class="p">,</span> <span class="n">uppers</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span>
-        <span class="n">lower</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">low</span><span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ob</span><span class="p">)]</span> <span class="k">for</span> <span class="n">low</span> <span class="ow">in</span> <span class="n">lowers</span><span class="p">)</span> <span class="k">if</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">all_obs</span><span class="p">]</span>
-        <span class="n">upper</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">up</span><span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ob</span><span class="p">)]</span> <span class="k">for</span> <span class="n">up</span> <span class="ow">in</span> <span class="n">uppers</span><span class="p">)</span> <span class="k">if</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">all_obs</span><span class="p">]</span>
-        <span class="n">all_lower</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
-        <span class="n">all_upper</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">space</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_axes</span><span class="p">:</span>
+                <span class="n">all_axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">all_axes</span></div>
 
-    <span class="k">def</span> <span class="nf">check_extract_limits</span><span class="p">(</span><span class="n">limits_spaces</span><span class="p">):</span>
-        <span class="n">new_limits</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">limits_spaces</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_obs</span><span class="p">):</span>
-            <span class="n">current_limit</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">limits_spaces</span><span class="p">:</span>
-                <span class="n">lim</span> <span class="o">=</span> <span class="n">limit</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+<div class="viewcode-block" id="obs_subsets"><a class="viewcode-back" href="../../../api/zfit.core.dimension.html#zfit.core.dimension.obs_subsets">[docs]</a><span class="k">def</span> <span class="nf">obs_subsets</span><span class="p">(</span><span class="n">dimensionals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitDimensional</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">ZfitDimensional</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Split `dimensionals` into the smallest subgroup of obs and return a dict.</span>
 
-                <span class="k">if</span> <span class="n">lim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">current_limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">current_limit</span> <span class="o">=</span> <span class="n">lim</span>
-                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">current_limit</span><span class="p">,</span> <span class="n">lim</span><span class="p">):</span>
-                        <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">current_limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">LimitsNotSpecifiedError</span><span class="p">(</span><span class="s2">&quot;Limits in obs </span><span class="si">{}</span><span class="s2"> are not specified&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obs</span><span class="p">))</span>
-                <span class="n">new_limits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_limit</span><span class="p">)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        dimensionals: An Iterable containing two or more ZfitDimensional that should be split into the smallest subset.</span>
 
-        <span class="n">n_limits</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lim</span><span class="p">)</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">new_limits</span><span class="p">)))</span>
-        <span class="n">new_limits_comb</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_limits</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">new_limits</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">limit</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_limits</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">limit</span><span class="p">))):</span>
-                    <span class="n">new_limits_comb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lim</span><span class="p">)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: dict with the keys being sets of observables and the values, an iterable, containing the ZfitDimensional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">obs_dims</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">dimensionals</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">obs_dims</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">obs</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">dim</span><span class="o">.</span><span class="n">obs</span><span class="p">):</span>
+                <span class="n">union</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">dim</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
+                <span class="n">obs_dims</span><span class="p">[</span><span class="n">union</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs_dims</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+                <span class="n">obs_dims</span><span class="p">[</span><span class="n">union</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+                <span class="k">break</span>  <span class="c1"># we had a match, go to the next dim</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">obs_dims</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">dim</span><span class="o">.</span><span class="n">obs</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span><span class="p">]</span>
 
-        <span class="n">new_limits</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span> <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">new_limits_comb</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">new_limits</span>
-
-    <span class="n">new_lower</span> <span class="o">=</span> <span class="n">check_extract_limits</span><span class="p">(</span><span class="n">all_lower</span><span class="p">)</span>
-    <span class="n">new_upper</span> <span class="o">=</span> <span class="n">check_extract_limits</span><span class="p">(</span><span class="n">all_upper</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">new_lower</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">new_upper</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;Bug, please report issue. either both are defined or None.&quot;</span>
-    <span class="k">if</span> <span class="n">new_lower</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">limits</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">elif</span> <span class="n">new_lower</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">limits</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_lower</span><span class="p">,</span> <span class="n">new_upper</span><span class="p">)</span>
-    <span class="n">new_space</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">all_obs</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">new_space</span></div>
+    <span class="k">return</span> <span class="n">obs_dims</span></div>
 </pre></div>
 
     </div>
