@@ -210,8 +210,10 @@ class FunctionWrapperRegistry:
             else:
                 cache.append(function_holder)
             func_to_run = function_holder.wrapped_func
-            result = func_to_run(*args, **kwargs)
-            self.currently_traced.remove(func)
+            try:
+                result = func_to_run(*args, **kwargs)
+            finally:
+                self.currently_traced.remove(func)
             return result
 
         concrete_func.zfit_graph_cache_registered = False
