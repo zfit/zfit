@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from typing import Iterable
 
@@ -25,5 +25,5 @@ def poisson(n=None, pdfs: Iterable[ZfitPDF] = None):
     else:
         yield_ = n
 
-    poisson_term = z.random_poisson(lam=yield_)
+    poisson_term = z.random.poisson(lam=yield_)
     return poisson_term
