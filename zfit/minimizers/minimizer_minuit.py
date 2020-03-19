@@ -72,7 +72,7 @@ class Minuit(BaseMinimizer, Cachable):
             raise ValueError("The following options are not (yet) supported: {}".format(minimizer_options))
 
         # create Minuit compatible names
-        limits = tuple(tuple((param.lower_limit, param.upper_limit)) for param in params)
+        limits = tuple(tuple((param.lower, param.upper)) for param in params)
         errors = tuple(param.step_size for param in params)
         start_values = [p.numpy() for p in params]
         limits = [(low.numpy(), up.numpy()) for low, up in limits]

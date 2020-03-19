@@ -1,10 +1,11 @@
+#  Copyright (c) 2020 zfit
+
 from typing import Callable, Any
 
 
 class TemporarilySet:
 
-    def __init__(self, value: Any, setter: Callable, getter: Callable, setter_args=None, setter_kwargs=None,
-                 getter_args=None, getter_kwargs=None):
+    def __init__(self, value: Any, setter: Callable, getter: Callable):
         """Temporarily set `value` with `setter` and reset to the old value after leaving the context.
 
          This class can be used to have a setter that can permanently set a value *as well as* just
@@ -43,24 +44,16 @@ class TemporarilySet:
                 `setter(value, *setter_args, **setter_kwargs)`
             getter (Callable): The getter function with a signature that is compatible to the call:
                 `getter(*getter_args, **getter_kwargs)`
-            setter_args (List): A list of arguments given to the setter
-            setter_kwargs (Dict): A dict of keyword-arguments given to the setter
-            getter_args (List): A list of arguments given to the getter
-            getter_kwargs (Dict): A dict of keyword-arguments given to the getter
          """
         self.setter = setter
-        self.setter_args = [] if setter_args is None else setter_args
-        self.setter_kwargs = {} if setter_kwargs is None else setter_kwargs
-        self.getter_args = [] if getter_args is None else getter_args
-        self.getter_kwargs = {} if getter_kwargs is None else getter_kwargs
         self.getter = getter
         self.value = value
 
-        self.old_value = self.getter(*self.getter_args, **self.getter_kwargs)
-        self.setter(self.value, *self.setter_args, **self.setter_kwargs)
+        self.old_value = self.getter()
+        self.setter(self.value)
 
     def __enter__(self):
         return self.value
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.setter(self.old_value, *self.setter_args, **self.setter_kwargs)
+        self.setter(self.old_value)

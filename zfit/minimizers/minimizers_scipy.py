@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
 import copy
@@ -32,7 +32,7 @@ class Scipy(BaseMinimizer):
         def try_run(obj):
             return obj.numpy()
 
-        var_to_bounds = {p.name: (try_run(p.lower_limit), try_run(p.upper_limit)) for p in var_list}
+        var_to_bounds = {p.name: (try_run(p.lower), try_run(p.upper)) for p in var_list}
         # TODO(Mayou36): inefficient for toys, rewrite ScipyOptimizerInterface?
         minimizer = ScipyOptimizerInterface(loss=loss, var_list=var_list,
                                             var_to_bounds=var_to_bounds,

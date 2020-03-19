@@ -23,7 +23,7 @@ def setup_function():
 
 
 def teardown_function():
-    ZfitParameterMixin._existing_names.clear()
+    ZfitParameterMixin._existing_params.clear()
 
     clear_graph_cache()
 
