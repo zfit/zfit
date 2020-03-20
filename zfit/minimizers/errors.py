@@ -166,7 +166,7 @@ def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
         `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which
             contains two keys 'lower' and 'upper', holding the calculated errors.
             Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
-        `FitResult` or `None`: a fit result is returned when a new minimumis found during the loss scan
+        `FitResult` or `None`: a fit result is returned when a new minimum is found during the loss scan
     """
 
     params = convert_to_container(params)
