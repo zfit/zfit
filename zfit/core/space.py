@@ -29,8 +29,8 @@ from ..util.exception import (AxesNotSpecifiedError, IntentionAmbiguousError, Li
                               OverdefinedError, BreakingAPIChangeError, LimitsIncompatibleError, SpaceIncompatibleError,
                               ObsIncompatibleError, AxesIncompatibleError, ShapeIncompatibleError,
                               IllegalInGraphModeError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError,
-                              InvalidLimitSubspaceError, CannotConvertToNumpyError, BehaviorUnderDiscussion,
-                              LimitsNotSpecifiedError, NumberOfEventsIncompatibleError)
+                              InvalidLimitSubspaceError, CannotConvertToNumpyError, LimitsNotSpecifiedError,
+                              NumberOfEventsIncompatibleError)
 
 
 class LimitRangeDefinition:
@@ -278,7 +278,7 @@ class Limit(ZfitLimit):
         lower = self._sanitize_rect_limit(lower)
         upper = self._sanitize_rect_limit(upper)
 
-        # vectors means more then one n_events, in the first dim
+        # vectors means more than one n_events, in the first dim
         if not self._experimental_allow_vectors:
             lower_nevents = tf.get_static_value(lower.shape[0])
             upper_nevents = tf.get_static_value(upper.shape[0])
@@ -1119,18 +1119,21 @@ class Space(BaseSpace):
         input_limits = limit
         if isinstance(input_limits, Space):
             space = input_limits
-            input_limits = space.get_limits()
-            if obs and not obs == space.obs:
-                raise ObsIncompatibleError(f"Observables given ({obs}) do not coincide with the"
-                                           f" observables from the space ({space.obs}) given as limits")
-            else:
-                obs = space.obs
 
-            if axes and not axes == space.axes:
-                raise AxesIncompatibleError(f"Axes given ({axes}) do not coincide with the"
-                                            f" axes from the space ({space.axes}) given as limits")
-            else:
-                axes = space.axes
+            # get the subset of obs/axes, then drop the other coord if not given
+            if obs and not axes:
+                space = space.with_obs(obs, allow_subset=True, allow_superset=True)
+                space = space.with_axes(None)
+            elif not obs and axes:
+                space = space.with_axes(axes, allow_subset=True, allow_superset=True)
+                space = space.with_obs(None)
+            elif obs and axes:
+                coords = Coordinates(obs=obs, axes=axes)
+                space = space.with_coords(coords, allow_superset=True, allow_subset=True)
+            input_limits = space.get_limits()
+
+            obs = space.obs
+            axes = space.axes
         if not isinstance(input_limits, dict) and not isinstance(rect_limits, dict):
             # if not input_limits and rect_limits:
             #     input_limits = rect_limits
@@ -1153,12 +1156,6 @@ class Space(BaseSpace):
         if not 'axes' in input_limits and not 'obs' in input_limits:
             raise ValueError("Probably internal error: wrong format of limits_dict")
 
-        if obs and 'obs' in input_limits:
-            input_limits['obs'] = extract_limits_from_dict(input_limits, obs=obs)
-
-        if axes and 'axes' in input_limits:
-            input_limits['axes'] = extract_limits_from_dict(input_limits, axes=axes)
-
         # check if obs is in the limits dict. If not, copy it from the axes
         if obs:
             if 'obs' in input_limits:
@@ -1167,6 +1164,8 @@ class Space(BaseSpace):
                 obs_limit_dict = {}
                 for axes_lim, lim in input_limits['axes'].items():
                     obs_coords = tuple(obs[axes.index(ax)] for ax in axes_lim)
+                    if isinstance(lim, ZfitOrderableDimensional):
+                        lim = lim.with_coords(self.space)
                     obs_limit_dict[obs_coords] = lim
             limits_dict['obs'] = obs_limit_dict
 
@@ -1177,6 +1176,8 @@ class Space(BaseSpace):
                 axes_limit_dict = {}
                 for obs_lim, lim in input_limits['obs'].items():
                     axes_coords = tuple(axes[obs.index(ob)] for ob in obs_lim)
+                    if isinstance(lim, ZfitOrderableDimensional):
+                        lim = lim.with_coords(self.space)
                     axes_limit_dict[axes_coords] = lim
             limits_dict['axes'] = axes_limit_dict
 
@@ -1186,27 +1187,8 @@ class Space(BaseSpace):
         if not obs and 'obs' in limits_dict:
             limits_dict.pop('obs')
 
-        # TODO: extend input processing
+        # TODO: extend input processing?
         return limits_dict
-
-        # replace = {} if replace is None else replace
-        # if limit is NOT_SPECIFIED or limit is None:
-        #     return None
-        # if (isinstance(limit, tuple) and limit == ()) or (isinstance(limit, np.ndarray) and limit.size == 0):
-        #     raise ValueError("Currently, () is not supported as limits. Should this be default for None?")
-        # shape = shape_np_tf(limit)
-        # if shape == ():
-        #     limit = ((limit,),)
-        #
-        # shape = shape_np_tf(limit[0])
-        # if shape == ():
-        #     raise ValueError("Shape of limit {} wrong.".format(limit))
-        #
-        # # replace
-        # if replace:
-        #     limit = tuple(tuple(replace.get(l, l) for l in lim) for lim in limit)
-        #
-        # return limit
 
     def get_limits(self,
                    obs: ztyping.ObsTypeInput = None,
@@ -1228,7 +1210,10 @@ class Space(BaseSpace):
             else:
                 return_dict['axes'] = self._limits_dict['axes'].copy()
         else:
-            return_dict = extract_limits_from_dict(self._limits_dict, obs=obs, axes=axes)
+            if obs:
+                return_dict['obs'] = extract_limits_from_dict(self._limits_dict, obs=obs)
+            if axes:
+                return_dict['axes'] = extract_limits_from_dict(self._limits_dict, axes=axes)
         return return_dict
 
     @property
@@ -1695,58 +1680,31 @@ class Space(BaseSpace):
             CoordinatesIncompatibleError: if `coords` is a superset and allow_superset is False or a subset and
                 allow_allow_subset is False
         """
-        new_space_obs = None
-        new_space_axes = None
         if self.obs is not None and coords.obs is not None:
-            coords_obs = self.coords.with_obs(coords.obs, allow_superset=allow_superset, allow_subset=allow_subset)
-            if coords_obs.axes is not None and coords.axes is not None:
-                if coords_obs.axes != coords.axes:
-                    pass
-                    # raise BehaviorUnderDiscussion(f"The reordered axes of self {coords.axes} and the new coordinates"
-                    #                               f" {coords_obs.axes} do not agree.")
             new_space_obs = self.with_obs(coords.obs, allow_superset=allow_superset, allow_subset=allow_subset)
-            if coords.axes is not None:
-                if coords_obs.axes is not None and coords.axes is not None and (coords_obs.axes != coords.axes):
-                    axes_to_set = None  # drop since it's not clear what to use
-                else:
-                    # filter in case there are super/subsets
-                    coords_axes = coords.with_obs(self.obs, allow_superset=allow_superset,
-                                                  allow_subset=allow_subset).with_obs(coords.obs,
-                                                                                      allow_superset=allow_superset,
-                                                                                      allow_subset=allow_subset)
 
-                    axes_to_set = coords_axes.axes
-                new_space_obs = new_space_obs.with_axes(axes_to_set)  # are the same or self.axes is None
+            if coords.axes is not None:  # use this axes: first drop the other one
+                if new_space_obs.axes is not None:
+                    new_space_obs = new_space_obs.with_axes(None)
+                # filter in case there are super/subsets
+                coords_axes = coords.with_obs(new_space_obs.obs, allow_superset=allow_superset,
+                                              allow_subset=allow_subset)
+                new_space_obs = new_space_obs.with_axes(coords_axes.axes)  # are the same or self.axes is None
+            new_space = new_space_obs
 
-        elif self.axes is not None and coords.axes is not None:  # TODO: is elif fine? do obs if obs are there?
-            coords_axes = self.coords.with_axes(coords.axes, allow_superset=allow_superset, allow_subset=allow_subset)
-            if coords_axes.obs is not None and coords.obs is not None:
-                if coords_axes.obs != coords.obs:
-                    raise BehaviorUnderDiscussion(f"The reordered obs of self {coords_axes} and the new coordinates"
-                                                  f" {coords_axes.obs} do not agree.")
+
+        elif self.axes is not None and coords.axes is not None:
             new_space_axes = self.with_axes(coords.axes, allow_superset=allow_superset, allow_subset=allow_subset)
             if coords.obs is not None:
                 # filter in case there are super/subsets
-                coords_obs = coords.with_axes(self.axes, allow_superset=allow_superset,
-                                              allow_subset=allow_subset).with_axes(coords.axes,
-                                                                                   allow_superset=allow_superset,
-                                                                                   allow_subset=allow_subset)
+                coords_obs = coords.with_axes(new_space_axes.axes, allow_superset=allow_superset,
+                                              allow_subset=allow_subset)
                 new_space_axes = new_space_axes.with_obs(coords_obs.obs)
-
-        if new_space_obs is not None and new_space_axes is not None:
-            if new_space_obs.axes != new_space_axes.axes or new_space_obs.obs != new_space_axes.obs:
-                raise CoordinatesIncompatibleError(f"Cannot use Coordinates {coords} to get a subspace of {self}"
-                                                   f" because the obs and axes assignement does not agree."
-                                                   f" The ordering of the axes with respect to the obs"
-                                                   f" is different.")
-        if new_space_obs is None and new_space_axes is None:
+            new_space = new_space_axes
+        else:
             raise CoordinatesUnderdefinedError(f"Neither the axes nor the obs are specified in both objects"
                                                f" {self} and {coords}")
 
-        new_space = new_space_obs if new_space_axes is None else new_space_axes
-        if new_space is None:
-            raise CoordinatesIncompatibleError(f"Cannot use Coordinates {coords} to get a subspace of {self}"
-                                               f" because neither obs nor axes are specified in both.")
 
         return new_space
 
@@ -1809,10 +1767,10 @@ class Space(BaseSpace):
         obs = self._check_convert_input_obs(obs=obs, allow_none=True)
         axes = self._check_convert_input_axes(axes=axes, allow_none=True)
         if obs is not None:
-            limits_dict = {'obs': self.get_limits(obs=obs)}
+            limits_dict = self.get_limits(obs=obs)
             new_coords = self.coords.with_obs(obs, allow_subset=True, allow_superset=True)
         else:
-            limits_dict = {'axes': self.get_limits(axes=axes)}
+            limits_dict = self.get_limits(axes=axes)
             new_coords = self.coords.with_axes(axes=axes, allow_subset=True, allow_superset=True)
         new_space = type(self)(obs=new_coords, limits=limits_dict)
         return new_space
@@ -1939,6 +1897,11 @@ def extract_limits_from_dict(limits_dict, obs=None, axes=None):
         if not coord_intersec:  # this limit does not contain any requested obs
             continue
         if coord_intersec == frozenset(key_coords):
+            if isinstance(limit, ZfitOrderableDimensional):  # drop coordinates if given
+                if obs_in_use:
+                    limit = limit.with_axes(None)
+                else:
+                    limit = limit.with_obs(None)
             limits_to_eval[key_coords] = limit
         else:
             coord_limit = [coord for coord in key_coords if coord in coord_intersec]
@@ -1948,6 +1911,11 @@ def extract_limits_from_dict(limits_dict, obs=None, axes=None):
             except InvalidLimitSubspaceError:
                 raise InvalidLimitSubspaceError(f"Cannot extract {coord_intersec} from limit {limit}.")
             sublimit_coord = limit.obs if obs_in_use else limit.axes
+            if isinstance(sublimit, ZfitOrderableDimensional):  # drop coordinates if given
+                if obs_in_use:
+                    sublimit = sublimit.with_axes(None)
+                else:
+                    sublimit = sublimit.with_obs(None)
             limits_to_eval[sublimit_coord] = sublimit
             coords_to_extract -= coord_intersec
     return limits_to_eval
@@ -2480,7 +2448,6 @@ class MultiSpace(BaseSpace):
     def area(self) -> float:
         return self.rect_area()
 
-    # @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area of the space.")
     def with_obs(self,
                  obs: Optional[ztyping.ObsTypeInput],
                  allow_superset: bool = True,
