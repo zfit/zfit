@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.space &#8212; zfit 0.4.4.dev97+g717025b documentation</title>
+    <title>zfit.core.space &#8212; zfit 0.4.4.dev100+g4e30720 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev97</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev100</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -408,8 +408,8 @@
                               <span class="n">OverdefinedError</span><span class="p">,</span> <span class="n">BreakingAPIChangeError</span><span class="p">,</span> <span class="n">LimitsIncompatibleError</span><span class="p">,</span> <span class="n">SpaceIncompatibleError</span><span class="p">,</span>
                               <span class="n">ObsIncompatibleError</span><span class="p">,</span> <span class="n">AxesIncompatibleError</span><span class="p">,</span> <span class="n">ShapeIncompatibleError</span><span class="p">,</span>
                               <span class="n">IllegalInGraphModeError</span><span class="p">,</span> <span class="n">CoordinatesUnderdefinedError</span><span class="p">,</span> <span class="n">CoordinatesIncompatibleError</span><span class="p">,</span>
-                              <span class="n">InvalidLimitSubspaceError</span><span class="p">,</span> <span class="n">CannotConvertToNumpyError</span><span class="p">,</span> <span class="n">BehaviorUnderDiscussion</span><span class="p">,</span>
-                              <span class="n">LimitsNotSpecifiedError</span><span class="p">,</span> <span class="n">NumberOfEventsIncompatibleError</span><span class="p">)</span>
+                              <span class="n">InvalidLimitSubspaceError</span><span class="p">,</span> <span class="n">CannotConvertToNumpyError</span><span class="p">,</span> <span class="n">LimitsNotSpecifiedError</span><span class="p">,</span>
+                              <span class="n">NumberOfEventsIncompatibleError</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="LimitRangeDefinition"><a class="viewcode-back" href="../../../api/zfit.core.space.html#zfit.LimitRangeDefinition">[docs]</a><span class="k">class</span> <span class="nc">LimitRangeDefinition</span><span class="p">:</span>
@@ -657,7 +657,7 @@
         <span class="n">lower</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_rect_limit</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
         <span class="n">upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_rect_limit</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
 
-        <span class="c1"># vectors means more then one n_events, in the first dim</span>
+        <span class="c1"># vectors means more than one n_events, in the first dim</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_experimental_allow_vectors</span><span class="p">:</span>
             <span class="n">lower_nevents</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_static_value</span><span class="p">(</span><span class="n">lower</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">upper_nevents</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_static_value</span><span class="p">(</span><span class="n">upper</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -1498,18 +1498,21 @@
         <span class="n">input_limits</span> <span class="o">=</span> <span class="n">limit</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_limits</span><span class="p">,</span> <span class="n">Space</span><span class="p">):</span>
             <span class="n">space</span> <span class="o">=</span> <span class="n">input_limits</span>
-            <span class="n">input_limits</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">get_limits</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">obs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">obs</span> <span class="o">==</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ObsIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Observables given (</span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s2">) do not coincide with the&quot;</span>
-                                           <span class="sa">f</span><span class="s2">&quot; observables from the space (</span><span class="si">{</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s2">) given as limits&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">obs</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span>
 
-            <span class="k">if</span> <span class="n">axes</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">axes</span> <span class="o">==</span> <span class="n">space</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">AxesIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Axes given (</span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2">) do not coincide with the&quot;</span>
-                                            <span class="sa">f</span><span class="s2">&quot; axes from the space (</span><span class="si">{</span><span class="n">space</span><span class="o">.</span><span class="n">axes</span><span class="si">}</span><span class="s2">) given as limits&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">axes</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">axes</span>
+            <span class="c1"># get the subset of obs/axes, then drop the other coord if not given</span>
+            <span class="k">if</span> <span class="n">obs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">axes</span><span class="p">:</span>
+                <span class="n">space</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">space</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">obs</span> <span class="ow">and</span> <span class="n">axes</span><span class="p">:</span>
+                <span class="n">space</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">space</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">obs</span> <span class="ow">and</span> <span class="n">axes</span><span class="p">:</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="n">Coordinates</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+                <span class="n">space</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">with_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">input_limits</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">get_limits</span><span class="p">()</span>
+
+            <span class="n">obs</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">obs</span>
+            <span class="n">axes</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">axes</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_limits</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rect_limits</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="c1"># if not input_limits and rect_limits:</span>
             <span class="c1">#     input_limits = rect_limits</span>
@@ -1532,12 +1535,6 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;axes&#39;</span> <span class="ow">in</span> <span class="n">input_limits</span> <span class="ow">and</span> <span class="ow">not</span> <span class="s1">&#39;obs&#39;</span> <span class="ow">in</span> <span class="n">input_limits</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Probably internal error: wrong format of limits_dict&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">obs</span> <span class="ow">and</span> <span class="s1">&#39;obs&#39;</span> <span class="ow">in</span> <span class="n">input_limits</span><span class="p">:</span>
-            <span class="n">input_limits</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_limits_from_dict</span><span class="p">(</span><span class="n">input_limits</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">axes</span> <span class="ow">and</span> <span class="s1">&#39;axes&#39;</span> <span class="ow">in</span> <span class="n">input_limits</span><span class="p">:</span>
-            <span class="n">input_limits</span><span class="p">[</span><span class="s1">&#39;axes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_limits_from_dict</span><span class="p">(</span><span class="n">input_limits</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
-
         <span class="c1"># check if obs is in the limits dict. If not, copy it from the axes</span>
         <span class="k">if</span> <span class="n">obs</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;obs&#39;</span> <span class="ow">in</span> <span class="n">input_limits</span><span class="p">:</span>
@@ -1546,6 +1543,8 @@
                 <span class="n">obs_limit_dict</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="k">for</span> <span class="n">axes_lim</span><span class="p">,</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">input_limits</span><span class="p">[</span><span class="s1">&#39;axes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">obs_coords</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="n">axes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ax</span><span class="p">)]</span> <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes_lim</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lim</span><span class="p">,</span> <span class="n">ZfitOrderableDimensional</span><span class="p">):</span>
+                        <span class="n">lim</span> <span class="o">=</span> <span class="n">lim</span><span class="o">.</span><span class="n">with_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">)</span>
                     <span class="n">obs_limit_dict</span><span class="p">[</span><span class="n">obs_coords</span><span class="p">]</span> <span class="o">=</span> <span class="n">lim</span>
             <span class="n">limits_dict</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs_limit_dict</span>
 
@@ -1556,6 +1555,8 @@
                 <span class="n">axes_limit_dict</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="k">for</span> <span class="n">obs_lim</span><span class="p">,</span> <span class="n">lim</span> <span class="ow">in</span> <span class="n">input_limits</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">axes_coords</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ob</span><span class="p">)]</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">obs_lim</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lim</span><span class="p">,</span> <span class="n">ZfitOrderableDimensional</span><span class="p">):</span>
+                        <span class="n">lim</span> <span class="o">=</span> <span class="n">lim</span><span class="o">.</span><span class="n">with_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">)</span>
                     <span class="n">axes_limit_dict</span><span class="p">[</span><span class="n">axes_coords</span><span class="p">]</span> <span class="o">=</span> <span class="n">lim</span>
             <span class="n">limits_dict</span><span class="p">[</span><span class="s1">&#39;axes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">axes_limit_dict</span>
 
@@ -1565,27 +1566,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">obs</span> <span class="ow">and</span> <span class="s1">&#39;obs&#39;</span> <span class="ow">in</span> <span class="n">limits_dict</span><span class="p">:</span>
             <span class="n">limits_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;obs&#39;</span><span class="p">)</span>
 
-        <span class="c1"># TODO: extend input processing</span>
+        <span class="c1"># TODO: extend input processing?</span>
         <span class="k">return</span> <span class="n">limits_dict</span>
-
-        <span class="c1"># replace = {} if replace is None else replace</span>
-        <span class="c1"># if limit is NOT_SPECIFIED or limit is None:</span>
-        <span class="c1">#     return None</span>
-        <span class="c1"># if (isinstance(limit, tuple) and limit == ()) or (isinstance(limit, np.ndarray) and limit.size == 0):</span>
-        <span class="c1">#     raise ValueError(&quot;Currently, () is not supported as limits. Should this be default for None?&quot;)</span>
-        <span class="c1"># shape = shape_np_tf(limit)</span>
-        <span class="c1"># if shape == ():</span>
-        <span class="c1">#     limit = ((limit,),)</span>
-        <span class="c1">#</span>
-        <span class="c1"># shape = shape_np_tf(limit[0])</span>
-        <span class="c1"># if shape == ():</span>
-        <span class="c1">#     raise ValueError(&quot;Shape of limit {} wrong.&quot;.format(limit))</span>
-        <span class="c1">#</span>
-        <span class="c1"># # replace</span>
-        <span class="c1"># if replace:</span>
-        <span class="c1">#     limit = tuple(tuple(replace.get(l, l) for l in lim) for lim in limit)</span>
-        <span class="c1">#</span>
-        <span class="c1"># return limit</span>
 
 <div class="viewcode-block" id="Space.get_limits"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.Space.get_limits">[docs]</a>    <span class="k">def</span> <span class="nf">get_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                    <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1607,7 +1589,10 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;axes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_dict</span><span class="p">[</span><span class="s1">&#39;axes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">return_dict</span> <span class="o">=</span> <span class="n">extract_limits_from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_limits_dict</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obs</span><span class="p">:</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_limits_from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_limits_dict</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">axes</span><span class="p">:</span>
+                <span class="n">return_dict</span><span class="p">[</span><span class="s1">&#39;axes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_limits_from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_limits_dict</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">return_dict</span></div>
 
     <span class="nd">@property</span>
@@ -2074,58 +2059,31 @@
 <span class="sd">            CoordinatesIncompatibleError: if `coords` is a superset and allow_superset is False or a subset and</span>
 <span class="sd">                allow_allow_subset is False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">new_space_obs</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">new_space_axes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coords</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">coords_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">coords_obs</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coords</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">coords_obs</span><span class="o">.</span><span class="n">axes</span> <span class="o">!=</span> <span class="n">coords</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
-                    <span class="k">pass</span>
-                    <span class="c1"># raise BehaviorUnderDiscussion(f&quot;The reordered axes of self {coords.axes} and the new coordinates&quot;</span>
-                    <span class="c1">#                               f&quot; {coords_obs.axes} do not agree.&quot;)</span>
             <span class="n">new_space_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">coords_obs</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coords</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">coords_obs</span><span class="o">.</span><span class="n">axes</span> <span class="o">!=</span> <span class="n">coords</span><span class="o">.</span><span class="n">axes</span><span class="p">):</span>
-                    <span class="n">axes_to_set</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># drop since it&#39;s not clear what to use</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># filter in case there are super/subsets</span>
-                    <span class="n">coords_axes</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span>
-                                                  <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span>
-                                                                                      <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span>
-                                                                                      <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span>
 
-                    <span class="n">axes_to_set</span> <span class="o">=</span> <span class="n">coords_axes</span><span class="o">.</span><span class="n">axes</span>
-                <span class="n">new_space_obs</span> <span class="o">=</span> <span class="n">new_space_obs</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="n">axes_to_set</span><span class="p">)</span>  <span class="c1"># are the same or self.axes is None</span>
+            <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># use this axes: first drop the other one</span>
+                <span class="k">if</span> <span class="n">new_space_obs</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">new_space_obs</span> <span class="o">=</span> <span class="n">new_space_obs</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="c1"># filter in case there are super/subsets</span>
+                <span class="n">coords_axes</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">new_space_obs</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span>
+                                              <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span>
+                <span class="n">new_space_obs</span> <span class="o">=</span> <span class="n">new_space_obs</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="n">coords_axes</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>  <span class="c1"># are the same or self.axes is None</span>
+            <span class="n">new_space</span> <span class="o">=</span> <span class="n">new_space_obs</span>
 
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coords</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO: is elif fine? do obs if obs are there?</span>
-            <span class="n">coords_axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">coords_axes</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coords</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">coords_axes</span><span class="o">.</span><span class="n">obs</span> <span class="o">!=</span> <span class="n">coords</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">BehaviorUnderDiscussion</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The reordered obs of self </span><span class="si">{</span><span class="n">coords_axes</span><span class="si">}</span><span class="s2"> and the new coordinates&quot;</span>
-                                                  <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">coords_axes</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s2"> do not agree.&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coords</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">new_space_axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># filter in case there are super/subsets</span>
-                <span class="n">coords_obs</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span>
-                                              <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span>
-                                                                                   <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span>
-                                                                                   <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span>
+                <span class="n">coords_obs</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="n">new_space_axes</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="n">allow_superset</span><span class="p">,</span>
+                                              <span class="n">allow_subset</span><span class="o">=</span><span class="n">allow_subset</span><span class="p">)</span>
                 <span class="n">new_space_axes</span> <span class="o">=</span> <span class="n">new_space_axes</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">coords_obs</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">new_space_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">new_space_axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">new_space_obs</span><span class="o">.</span><span class="n">axes</span> <span class="o">!=</span> <span class="n">new_space_axes</span><span class="o">.</span><span class="n">axes</span> <span class="ow">or</span> <span class="n">new_space_obs</span><span class="o">.</span><span class="n">obs</span> <span class="o">!=</span> <span class="n">new_space_axes</span><span class="o">.</span><span class="n">obs</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">CoordinatesIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot use Coordinates </span><span class="si">{</span><span class="n">coords</span><span class="si">}</span><span class="s2"> to get a subspace of </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span>
-                                                   <span class="sa">f</span><span class="s2">&quot; because the obs and axes assignement does not agree.&quot;</span>
-                                                   <span class="sa">f</span><span class="s2">&quot; The ordering of the axes with respect to the obs&quot;</span>
-                                                   <span class="sa">f</span><span class="s2">&quot; is different.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">new_space_obs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">new_space_axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_space</span> <span class="o">=</span> <span class="n">new_space_axes</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CoordinatesUnderdefinedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Neither the axes nor the obs are specified in both objects&quot;</span>
                                                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">coords</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="n">new_space</span> <span class="o">=</span> <span class="n">new_space_obs</span> <span class="k">if</span> <span class="n">new_space_axes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">new_space_axes</span>
-        <span class="k">if</span> <span class="n">new_space</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">CoordinatesIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot use Coordinates </span><span class="si">{</span><span class="n">coords</span><span class="si">}</span><span class="s2"> to get a subspace of </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span>
-                                               <span class="sa">f</span><span class="s2">&quot; because neither obs nor axes are specified in both.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">new_space</span></div>
 
@@ -2188,10 +2146,10 @@
         <span class="n">obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_convert_input_obs</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">axes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_convert_input_axes</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">limits_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;obs&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_limits</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)}</span>
+            <span class="n">limits_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_limits</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
             <span class="n">new_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">limits_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;axes&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_limits</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)}</span>
+            <span class="n">limits_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_limits</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
             <span class="n">new_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_superset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">new_space</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="n">new_coords</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_space</span></div>
@@ -2318,6 +2276,11 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">coord_intersec</span><span class="p">:</span>  <span class="c1"># this limit does not contain any requested obs</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="n">coord_intersec</span> <span class="o">==</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">key_coords</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">ZfitOrderableDimensional</span><span class="p">):</span>  <span class="c1"># drop coordinates if given</span>
+                <span class="k">if</span> <span class="n">obs_in_use</span><span class="p">:</span>
+                    <span class="n">limit</span> <span class="o">=</span> <span class="n">limit</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">limit</span> <span class="o">=</span> <span class="n">limit</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">limits_to_eval</span><span class="p">[</span><span class="n">key_coords</span><span class="p">]</span> <span class="o">=</span> <span class="n">limit</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">coord_limit</span> <span class="o">=</span> <span class="p">[</span><span class="n">coord</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">key_coords</span> <span class="k">if</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">coord_intersec</span><span class="p">]</span>
@@ -2327,6 +2290,11 @@
             <span class="k">except</span> <span class="n">InvalidLimitSubspaceError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">InvalidLimitSubspaceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot extract </span><span class="si">{</span><span class="n">coord_intersec</span><span class="si">}</span><span class="s2"> from limit </span><span class="si">{</span><span class="n">limit</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
             <span class="n">sublimit_coord</span> <span class="o">=</span> <span class="n">limit</span><span class="o">.</span><span class="n">obs</span> <span class="k">if</span> <span class="n">obs_in_use</span> <span class="k">else</span> <span class="n">limit</span><span class="o">.</span><span class="n">axes</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sublimit</span><span class="p">,</span> <span class="n">ZfitOrderableDimensional</span><span class="p">):</span>  <span class="c1"># drop coordinates if given</span>
+                <span class="k">if</span> <span class="n">obs_in_use</span><span class="p">:</span>
+                    <span class="n">sublimit</span> <span class="o">=</span> <span class="n">sublimit</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sublimit</span> <span class="o">=</span> <span class="n">sublimit</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">limits_to_eval</span><span class="p">[</span><span class="n">sublimit_coord</span><span class="p">]</span> <span class="o">=</span> <span class="n">sublimit</span>
             <span class="n">coords_to_extract</span> <span class="o">-=</span> <span class="n">coord_intersec</span>
     <span class="k">return</span> <span class="n">limits_to_eval</span></div>
@@ -2859,7 +2827,6 @@
     <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rect_area</span><span class="p">()</span></div>
 
-    <span class="c1"># @deprecated(date=None, instructions=&quot;Use rect_area to obtain the rectangular area of the space.&quot;)</span>
 <div class="viewcode-block" id="MultiSpace.with_obs"><a class="viewcode-back" href="../../../api/zfit.core.space.html#zfit.MultiSpace.with_obs">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">obs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">],</span>
                  <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
