@@ -132,7 +132,7 @@ def warn_or_fail_not_rect(func):
     return wrapped_func
 
 
-@z.function_tf_input
+@z.function(wraps='tensor', experimental_relax_shapes=True)
 def calculate_rect_area(rect_limits):
     lower, upper = rect_limits
     diff = upper - lower
@@ -140,12 +140,12 @@ def calculate_rect_area(rect_limits):
     return area
 
 
-@z.function_tf_input
+@z.function(wraps='tensor', experimental_relax_shapes=True)
 def inside_rect_limits(x, rect_limits):
     if not x.shape.ndims > 1:
         raise ValueError("x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
                          " structures is (nevents, n_obs).")
-    lower, upper = rect_limits
+    lower, upper = z.unstack_x(rect_limits, axis=0)
     lower = z.convert_to_tensor(lower)
     upper = z.convert_to_tensor(upper)
     below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=-1)  # if all obs inside
@@ -154,7 +154,7 @@ def inside_rect_limits(x, rect_limits):
     return inside
 
 
-@z.function_tf_input
+@z.function(wraps='tensor', experimental_relax_shapes=True)
 def filter_rect_limits(x, rect_limits, axis=None):
     return tf.boolean_mask(tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits, axis=axis))
 
@@ -372,7 +372,7 @@ class Limit(ZfitLimit):
             return rect_limits
         lower = z.convert_to_tensor(rect_limits[0])
         upper = z.convert_to_tensor(rect_limits[1])
-        return lower, upper
+        return z.convert_to_tensor((lower, upper))
 
     @property
     def rect_limits_np(self) -> ztyping.RectLimitsNPReturnType:
@@ -417,7 +417,7 @@ class Limit(ZfitLimit):
 
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
         """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
-        return calculate_rect_area(rect_limits=self.rect_limits)
+        return calculate_rect_area(rect_limits=self._rect_limits_tf)
 
     def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturnNoData:
         """Test if `x` is inside the limits.
@@ -445,7 +445,7 @@ class Limit(ZfitLimit):
     def _inside(self, x, guarantee_limits):
         del guarantee_limits
         if self.has_rect_limits:
-            return inside_rect_limits(x, rect_limits=self.rect_limits)
+            return inside_rect_limits(x, rect_limits=self._rect_limits_tf)
         else:
             return self._limit_fn(x)
 
@@ -1337,7 +1337,7 @@ class Space(BaseSpace):
 
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
         """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
-        return calculate_rect_area(rect_limits=self.rect_limits)
+        return calculate_rect_area(rect_limits=self._rect_limits_tf)
 
     @property
     def rect_limits_are_tensors(self) -> bool:

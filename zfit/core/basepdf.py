@@ -60,7 +60,7 @@ import tensorflow as tf
 
 from zfit import z
 from zfit.core.sample import extended_sampling
-from zfit.util.cache import invalidates_cache
+from zfit.util.cache import invalidate_graph
 from .basemodel import BaseModel
 from .interfaces import ZfitPDF, ZfitParameter
 from .parameter import Parameter, convert_to_parameter
@@ -188,7 +188,7 @@ class BasePDF(ZfitPDF, BaseModel):
             norm_range = self.space
         return norm_range
 
-    @invalidates_cache
+    @invalidate_graph
     def set_norm_range(self, norm_range: ztyping.LimitsTypeInput):
         """Set the normalization range (temporarily if used with contextmanager).
 
@@ -294,7 +294,7 @@ class BasePDF(ZfitPDF, BaseModel):
         raise NotImplementedError
 
     # @func_simple
-    @z.function
+    @z.function(wraps='model')
     def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None,
             name: str = "model") -> ztyping.XType:
         """Probability density function, normalized over `norm_range`.
@@ -402,7 +402,7 @@ class BasePDF(ZfitPDF, BaseModel):
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    @invalidates_cache
+    @invalidate_graph
     def _set_yield_inplace(self, value: Union[ZfitParameter, float, None]):
         """Make the model extended by setting a yield.
 

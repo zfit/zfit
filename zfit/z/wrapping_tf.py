@@ -5,8 +5,7 @@ from typing import Any
 
 
 import tensorflow as tf
-
-
+from tensorflow_core.python import deprecated
 
 from .tools import _auto_upcast
 from . import zextension
@@ -28,14 +27,17 @@ def convert_to_tensor(value, dtype=ztypes.float, name=None, preferred_dtype=ztyp
     return tf.convert_to_tensor(value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype)
 
 
+@deprecated(None, "Use z.random.normal instead.")
 def random_normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, name=None):
     return tf.random.normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name)
 
 
+@deprecated(None, "Use z.random.uniform instead.")
 def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
     return tf.random.uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
 
 
+@deprecated(None, "Use z.random.poisson instead.")
 def random_poisson(lam: Any, shape: Any, dtype: tf.DType = ztypes.float, seed: Any = None, name: Any = None):
     return tf.random.poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)
 

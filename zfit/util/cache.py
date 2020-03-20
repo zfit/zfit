@@ -101,7 +101,7 @@ class Cachable(ZfitCachable):
 
     def __init__(self, *args, **kwargs):
         self._cache = {}
-        self._cachers = {}
+        self._cachers = weakref.WeakKeyDictionary()
         self.reset_cache_self()
         self.instances.add(self)
         super().__init__(*args, **kwargs)
@@ -169,7 +169,7 @@ class Cachable(ZfitCachable):
             cacher.reset_cache(reseter=self)
 
 
-def invalidates_cache(func):
+def invalidate_graph(func):
     @functools.wraps(func)
     def wrapped_func(*args, **kwargs):
         self = args[0]
@@ -229,15 +229,13 @@ class FunctionCacheHolder(Cachable):
         cachables_values = convert_to_container(cachables_mapping.values(), container=list)
         cachables_all = cachables + cachables_values
         self.immutable_representation = self.create_immutable(cachables, cachables_mapping)
+        # self._hash_value = hash(self.immutable_representation)
         super().__init__()  # resets the cache
         self.add_cache_dependents(cachables_all)
         self.is_valid = True  # needed to make the cache valid again
 
     def reset_cache_self(self):
         self.is_valid = False
-        # if self.parent_cache and self.delete_from_cache:
-        #     with suppress(KeyError):
-        #         del self.parent_cache[self.caching_func]
 
     def create_immutable(self, args, kwargs):
         """Create a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`
@@ -267,6 +265,8 @@ class FunctionCacheHolder(Cachable):
                 obj = (id(obj),)
             elif tf.is_tensor(obj):
                 obj = self.IS_TENSOR
+            elif isinstance(obj, np.ndarray):
+                obj = (obj,) if sum(obj.shape) < 20 else id(obj)
             combined_cleaned.append(obj)
 
         return tuple(combined_cleaned)
@@ -292,20 +292,20 @@ class FunctionCacheHolder(Cachable):
         return f"<FunctionCacheHolder: {self.python_func}, valid={self.is_valid}>"
 
 
-def clear_caches():
-    from zfit.z.zextension import FunctionWrapperRegistry, FunctionWrapperRegistry2
-    for func_registry in [FunctionWrapperRegistry, FunctionWrapperRegistry2]:
-        for registry in func_registry.registries:
-            for all_meth in registry.function_cache.values():
-                for wrapped_meth in all_meth:
-                    wrapped_meth = wrapped_meth.wrapped_func
-                    wrapped_meth._created_variables = None
-                    wrapped_meth._stateful_fn = None
-                    wrapped_meth._stateless_fn = None
-                    wrapped_meth._descriptor_cache.clear()
+def clear_graph_cache():
+    from zfit.z.zextension import FunctionWrapperRegistry
 
-        for registry in func_registry.registries:
-            registry.reset()
+    for registry in FunctionWrapperRegistry.registries:
+        for all_meth in registry.function_cache.values():
+            for wrapped_meth in all_meth:
+                wrapped_meth = wrapped_meth.wrapped_func
+                wrapped_meth._created_variables = None
+                wrapped_meth._stateful_fn = None
+                wrapped_meth._stateless_fn = None
+                wrapped_meth._descriptor_cache.clear()
+
+    for registry in FunctionWrapperRegistry.registries:
+        registry.reset()
     for instance in Cachable.instances:
         instance.reset_cache('global')
     # Cachable.graph_caching_methods.clear()
