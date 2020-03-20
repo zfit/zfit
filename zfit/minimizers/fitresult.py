@@ -232,7 +232,7 @@ class FitResult(ZfitResult):
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.0) -> OrderedDict:
-        """Calculate and set for `params` the asymmetric error using the set error method.
+        r"""Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
                 params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the

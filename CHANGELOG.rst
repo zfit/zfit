@@ -6,7 +6,7 @@ Changelog
 Develop
 =======
 
-Complete refactoring of Spaces. New behavior with extended. SumPDF refactoring
+Complete refactoring of Spaces. New behavior with extended. SumPDF refactoring. Improved graph building
 
 
 
@@ -37,6 +37,19 @@ Major Features and Improvements
      *Only* if *all* pdfs are extended **and** no fracs are given, the sumpdf will be using the yields as
      normalized fracs and be extended.
 
+ - Improved graph building and `z.function
+   - the `z.function` can now, as with `tf.function`, be used either as a decorator without arguments or
+     as a decorator with arguments. They are the same as in `tf.function`, except of a few additional ones.
+   - `zfit.run.set_mode` allows to set the policy for whether everything is run in eager mode (`graph=False`),
+     everything in graph, or most of it (`graph=True`) or an optimized variant, doing graph building only with
+     losses but not just models (e.g. `pdf` won't trigger a graph build, `loss.value()` will) with `graph='auto'`.
+   - The graph cache can be cleaned manually using `zfit.run.clear_graph_cache` in order to prevent slowness
+     in repeated tasks.
+ - Switch for numerical gradients has been added as well in `zfit.run.set_mode(autograd=True/False)`.
+ - Resetting to the default can be done with `zfit.run.set_mode_default()`
+ - Improved stability of minimizer by adding penalty (currently in `Minuit`) as default. To have a
+   better behavior with toys (e.g. never fail on NaNs but return an invalid `FitResult`), use the
+   `DefaultToyStrategy` in `zfit.mnimize`.
 
 Breaking changes
 ------------------
@@ -59,19 +72,10 @@ Bug fixes and small changes
  - add :py:func:`zfit.param.set_values` method that allows to set the values of multiple
    parameters with one command. Can, as the `set_value` method be used with a context manager.
  - wrong size of weights when applying cuts in a dataset
+ - `with_coords` did drop axes/obs
+ - Fix function not traced when an error was raised during first trace
 
 
-Experimental Features
----------------------
-This features are EXPERIMENTAL and can fail/be removed any time without further notice.
-Feedback to this functionalities is very welcome!
- - for debugging, it can be easier to run the code in eager mode, as if it were Numpy.
-   This can be activated via `zfit.run.experimental_enable_eager(True/False)`.
- - zfit can get slow with certain repeated tasks, such as fits to many different datasets.
-   Either enabling eager (see above) can help or by cleaning the graph caches with
-   `zfit.run.experimental_clear_caches()`.
- - moved experimental flag `zfit.loss.experimental_loss_penalty_nan()`, which adds a penalty to the loss in case the value is
-   nan. Can help with the optimisation.
 
 
 

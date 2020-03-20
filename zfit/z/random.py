@@ -1,6 +1,6 @@
 #  Copyright (c) 2020 zfit
 
-from typing import Union, Iterable
+from typing import Union, Iterable, Any
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -8,6 +8,8 @@ import tensorflow_probability as tfp
 from .zextension import tf_function as function
 
 __all__ = ["counts_multinomial"]
+
+from ..settings import ztypes
 
 
 def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union[float, tf.Tensor]] = None,
@@ -49,3 +51,15 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
         return counts
 
     return wrapped_func(dtype, logits, probs, total_count)
+
+
+def normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, name=None):
+    return tf.random.normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name)
+
+
+def uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
+    return tf.random.uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
+
+
+def poisson(lam: Any, shape: Any, dtype: tf.DType = ztypes.float, seed: Any = None, name: Any = None):
+    return tf.random.poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)

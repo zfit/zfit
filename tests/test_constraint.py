@@ -27,7 +27,7 @@ def true_nll_gaussian(x, mu, sigma):
 
 def true_gauss_constr_value(x, mu, sigma):
     logpdf = lambda x, loc, scale: scipy.stats.norm.logpdf(x, loc=loc, scale=scale)
-    return -np.sum(logpdf(x_, loc=mu, scale=sigma) for x_, mu, sigma in zip(x, mu, sigma))
+    return -np.sum([logpdf(x_, loc=mu, scale=sigma) for x_, mu, sigma in zip(x, mu, sigma)])
 
 
 def true_multinormal_constr_value(x, mean, cov):

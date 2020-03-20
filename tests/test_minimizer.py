@@ -61,7 +61,7 @@ obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
               + zfit.Space(obs='obs1', limits=(2.1, 9.1)))
 
 
-@pytest.mark.order4
+# @pytest.mark.run(order=4)
 @pytest.mark.parametrize("chunksize", [3000, 100000])
 @pytest.mark.parametrize("num_grad", [False, True])
 @pytest.mark.parametrize("spaces", [obs1, obs1_split])
@@ -83,7 +83,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
     minimizer = minimizer_class(**minimizer_kwargs)
 
     # Currently not working, stop the test here. Memory leak?
-    if isinstance(minimizer, BFGS) and num_grad and zfit.run.experimental_is_eager:
+    if isinstance(minimizer, BFGS) and num_grad and not zfit.run.mode['graph']:
         return
 
     result = minimizer.minimize(loss=loss)

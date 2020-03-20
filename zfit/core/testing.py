@@ -12,7 +12,7 @@ import tensorflow as tf
 
 from .interfaces import ZfitPDF
 from .parameter import ZfitParameterMixin
-from ..util.cache import clear_caches
+from ..util.cache import clear_graph_cache
 from ..util.container import convert_to_container
 
 __all__ = ["tester", "setup_function", "teardown_function"]
@@ -25,8 +25,7 @@ def setup_function():
 def teardown_function():
     ZfitParameterMixin._existing_params.clear()
 
-    clear_caches()
-    # tf.compat.v1.reset_default_graph()
+    clear_graph_cache()
 
 
 class BaseTester:

@@ -119,7 +119,7 @@ class EventSpace(Space):
         return id(self)
 
 
-@z.function
+@z.function(wraps='sample')
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
                          sample_and_weights_factory: Callable = UniformSampleAndWeights,
                          dtype=ztypes.float, prob_max: Union[None, int] = None,
@@ -194,11 +194,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                             clear_after_read=True,  # we read only once at end to tensor
                             element_shape=(limits.n_obs,))
 
-    @z.function
+    @z.function(wraps='tensor')
     def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling):
         return tf.greater(n, n_produced)
 
-    @z.function
+    @z.function(wraps='tensor')
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.):
         eff = tf.reduce_max(input_tensor=[eff, ztf.to_real(1e-6)])
 

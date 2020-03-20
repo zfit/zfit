@@ -21,7 +21,7 @@ from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
 from ..core.baseobject import BaseNumeric
 from ..settings import ztypes, run
 from ..util import ztyping
-from ..util.cache import invalidates_cache
+from ..util.cache import invalidate_graph
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
     WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError
 from ..util.temporary import TemporarilySet
@@ -410,7 +410,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         return limit
 
     @lower.setter
-    @invalidates_cache
+    @invalidate_graph
     def lower(self, value):
         if value is None and self._lower_limit_neg_inf is None:
             self._lower_limit_neg_inf = tf.cast(-np.infty, dtype=ztypes.float)
@@ -424,7 +424,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         return limit
 
     @upper.setter
-    @invalidates_cache
+    @invalidate_graph
     def upper(self, value):
         if value is None and self._upper_limit_neg_inf is None:
             self._upper_limit_neg_inf = tf.cast(np.infty, dtype=ztypes.float)
@@ -516,7 +516,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             #             raise ValueError("Could not set step size. Is NaN.")
             #     # step_size = z.to_real(step_size)
             #     self.step_size = step_size
-            step_size = z.convert_to_tensor(self.DEFAULT_STEP_SIZE)
+            step_size = self.DEFAULT_STEP_SIZE
+        step_size = z.convert_to_tensor(step_size)
         return step_size
 
     @step_size.setter

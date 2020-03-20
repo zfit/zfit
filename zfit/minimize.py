@@ -8,6 +8,7 @@ from .minimizers.minimizer_minuit import Minuit
 from .minimizers.minimizer_tfp import BFGS
 from .minimizers.minimizers_scipy import Scipy
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
+from .minimizers.baseminimizer import DefaultStrategy, DefaultToyStrategy
 
 
 @deprecated(None, "Use zfit.minimize.Adam instead.")
@@ -27,4 +28,5 @@ class ScipyMinimizer(Scipy):
 
 __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
            "WrapOptimizer",
-           "Adam", "Minuit", "Scipy", "BFGS"]
+           "Adam", "Minuit", "Scipy", "BFGS",
+           "DefaultStrategy", "DefaultToyStrategy"]

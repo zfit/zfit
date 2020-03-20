@@ -7,8 +7,7 @@ from zfit.core.coordinates import Coordinates
 from zfit.core.space import Space, Limit, ANY
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import CoordinatesUnderdefinedError, AxesIncompatibleError, ObsIncompatibleError, \
-    LimitsIncompatibleError
+from zfit.util.exception import CoordinatesUnderdefinedError, LimitsIncompatibleError
 
 setup_func_general = setup_function
 teardown_func_general = teardown_function
@@ -97,12 +96,12 @@ def test_extract_limits():
     }
     space = Space(obs1 + obs2 + obs3, limits_dict)
 
-    extracted_limits = space.get_limits(obs1)
-    assert list(extracted_limits.values())[0] is space1
-    extracted_limits = space.get_limits(obs2)
-    assert list(extracted_limits.values())[0] is limit2
-    extracted_limits = space.get_limits(obs3)
-    assert list(extracted_limits.values())[0] is space3
+    extracted_limits = space.get_limits(obs1)['obs']
+    assert list(extracted_limits.values())[0] == space1
+    extracted_limits = space.get_limits(obs2)['obs']
+    assert list(extracted_limits.values())[0] == limit2
+    extracted_limits = space.get_limits(obs3)['obs']
+    assert list(extracted_limits.values())[0] == space3
 
     extracted_limits = space.get_limits(obs3[0])
     # assert list(extracted_limits.values())[0] == limits3_dict[obs3[0]]
@@ -149,14 +148,6 @@ def space_factory(*args, limits=None, **kwargs):
     else:
         space = zfit.Space(*args, limits=limits, **kwargs)
         return space
-
-
-def test_limits_from_space_error():
-    with pytest.raises(AxesIncompatibleError):
-        _ = Space(obs1, limits=limits1space, axes=axes2)
-
-    with pytest.raises(ObsIncompatibleError):
-        _ = Space(obs2, limits=limits1space, axes=axes1)
 
 
 @pytest.mark.parametrize('limits', limits_to_test)
@@ -209,12 +200,12 @@ def test_with_coords(limits):
     assert space == space2
 
     space = space_used.with_coords(coords2mixed)
-    assert space.axes is None
+    assert space.axes == coords2mixed.axes
     assert space.obs == coords2mixed.obs
 
     space = space_used.with_coords(coords1mixed)
     assert space.obs == coords1mixed.obs
-    assert space.axes is None
+    assert space.axes == coords1mixed.axes
 
     space = space_used.with_coords(coords2axes)
     assert space == space2
@@ -285,7 +276,7 @@ def test_with_obs(limits):
     space = space_used.with_obs(obs2)
     if using_space_as_lim:
 
-        assert space == space2
+        assert space == space2mixed
     else:
         assert space == space2mixed
 
@@ -319,7 +310,7 @@ def test_with_axes(limits):
 
     space = space_used.with_axes(axes2)
     if using_space_as_lim:
-        assert space == space2
+        assert space == space1mixed
     else:
         assert space == space1mixed
 
