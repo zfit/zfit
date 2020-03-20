@@ -5,6 +5,7 @@ from typing import List
 
 import iminuit
 import numpy as np
+import tensorflow as tf
 
 from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_gradients
 from .fitresult import FitResult
@@ -90,39 +91,54 @@ class Minuit(BaseMinimizer, Cachable):
             params_name = [param.name for param in params]
 
         current_loss = None
+        nan_counter = 0
 
         def func(values):
-            nonlocal current_loss
+            nonlocal current_loss, nan_counter
             self._update_params(params=params, values=values)
             do_print = self.verbosity > 8
 
+            is_nan = False
+
             try:
                 loss_evaluated = loss.value().numpy()
+            except tf.errors.InvalidArgumentError:
+                is_nan = True
+                loss_evaluated = "invalid, error occured"
             except:
                 loss_evaluated = "invalid, error occured"
                 raise
             finally:
                 if do_print:
                     print_params(params, values, loss_evaluated)
-            if np.isnan(loss_evaluated):
+            is_nan = is_nan or np.isnan(loss_evaluated)
+            if is_nan:
+                nan_counter += 1
                 info_values = {}
                 info_values['loss'] = loss_evaluated
                 info_values['old_loss'] = current_loss
+                info_values['nan_counter'] = nan_counter
                 loss_evaluated = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
                                                             values=info_values)
             else:
+                nan_counter = 0
                 current_loss = loss_evaluated
             return loss_evaluated
 
         def grad_func(values):
-            nonlocal current_loss
+            nonlocal current_loss, nan_counter
             self._update_params(params=params, values=values)
             do_print = self.verbosity > 8
+            is_nan = False
 
             try:
                 loss_value, gradients = loss.value_gradients(params=params)
                 loss_value = loss_value.numpy()
                 gradients_values = [float(g.numpy()) for g in gradients]
+            except tf.errors.InvalidArgumentError:
+                is_nan = True
+                loss_value = "invalid, error occured"
+                gradients_values = ["invalid"] * len(params)
             except:
                 gradients_values = ["invalid"] * len(params)
                 raise
@@ -130,14 +146,18 @@ class Minuit(BaseMinimizer, Cachable):
                 if do_print:
                     print_gradients(params, values, gradients_values, loss=loss_value)
 
-            if any(np.isnan(gradients_values)):
+            is_nan = is_nan or any(np.isnan(gradients_values))
+            if is_nan:
+                nan_counter += 1
                 info_values = {}
                 info_values['loss'] = loss_value
                 info_values['old_loss'] = current_loss
+                info_values['nan_counter'] = nan_counter
                 # but loss value not needed here
                 loss_value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
                                                         values=info_values)
             else:
+                nan_counter = 0
                 current_loss = loss_value
             return gradients_values
 

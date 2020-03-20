@@ -19,8 +19,7 @@ from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
-
-
+from ..util.checks import ZfitNotImplemented
 
 
 class FailMinimizeNaN(Exception):
@@ -47,7 +46,8 @@ class BaseStrategy(ZfitStrategy):
 
     def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
                       values: Mapping = None) -> float:
-        print("The minimization failed due to NaNs being produced in the loss. This is most probably caused by negative"
+        print("The minimization failed due to too many NaNs being produced in the loss."
+              "This is most probably caused by negative"
               " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
               " problem. Also check your model (if custom) for problems. For more information,"
               " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
@@ -71,21 +71,45 @@ class ToyStrategyFail(BaseStrategy):
         raise FailMinimizeNaN()
 
 
-class DefaultStrategy(BaseStrategy):
+class PushbackStrategy(BaseStrategy):
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._nan_penalty = 10000
+    def __init__(self, nan_penalty: Union[float, int] = 100, nan_tolerance: int = 30, **kwargs):
+        """Pushback by adding `nan_penalty * counter` to the loss if NaNs are encountered.
+
+        The counter indicates how many NaNs occurred in a row. The `nan_tolerance` is the upper limit, if this is
+        exceeded, the fallback will be used and an error is raised.
+        Args:
+            nan_penalty: Value to add to the previous loss in order to penalize the step taken
+            nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.
+        """
+        super().__init__(**kwargs)
+        self.nan_penalty = nan_penalty
+        self.nan_tolerance = nan_tolerance
 
     def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
-                     values: Mapping = None) -> float:
-        import zfit
-        if zfit.loss._experimental_loss_penalty_nan:
+                      values: Mapping = None) -> float:
+        assert 'nan_counter' in values, "'nan_counter' not in values, minimizer not correctly implemented"
+        nan_counter = values['nan_counter']
+        if nan_counter < self.nan_tolerance:
             last_loss = values.get('old_loss')
-            loss_evaluated = last_loss + self._nan_penalty if last_loss is not None else values.get('loss')
+            if last_loss is not None:
+
+                loss_evaluated = last_loss + self.nan_penalty * nan_counter
+            else:
+                loss_evaluated = values.get('loss')
             return loss_evaluated
         else:
             super()._minimize_nan(loss=loss, params=params, minimizer=minimizer, values=values)
+
+
+DefaultStrategy = PushbackStrategy
+
+
+class DefaultToyStrategy(DefaultStrategy, ToyStrategyFail):
+    """Same as `DefaultStrategy`, but does not raise an error on full failure, instead return an invalid FitResult.
+
+    This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a
+    failure instead of rising an error."""
 
 
 class BaseMinimizer(ZfitMinimizer):

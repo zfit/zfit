@@ -47,6 +47,9 @@ Major Features and Improvements
      in repeated tasks.
  - Switch for numerical gradients has been added as well in `zfit.run.set_mode(autograd=True/False)`.
  - Resetting to the default can be done with `zfit.run.set_mode_default()`
+ - Improved stability of minimizer by adding penalty (currently in `Minuit`) as default. To have a
+   better behavior with toys (e.g. never fail on NaNs but return an invalid `FitResult`), use the
+   `DefaultToyStrategy` in `zfit.mnimize`.
 
 Breaking changes
 ------------------
@@ -73,12 +76,6 @@ Bug fixes and small changes
  - Fix function not traced when an error was raised during first trace
 
 
-Experimental Features
----------------------
-This features are EXPERIMENTAL and can fail/be removed any time without further notice.
-Feedback to this functionalities is very welcome!
- - moved experimental flag `zfit.loss.experimental_loss_penalty_nan()`, which adds a penalty to the loss in case the value is
-   nan. Can help with the optimisation.
 
 
 
