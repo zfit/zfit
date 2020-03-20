@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.4.4.dev100+g4e30720 documentation</title>
+    <title>Changelog &#8212; zfit 0.4.4.dev102+g48db218 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev100</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -131,7 +131,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#major-features-and-improvements">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#thanks">Thanks</a></li>
 </ul>
@@ -355,7 +354,6 @@
 <li><a class="reference internal" href="#major-features-and-improvements">Major Features and Improvements</a></li>
 <li><a class="reference internal" href="#breaking-changes">Breaking changes</a></li>
 <li><a class="reference internal" href="#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
-<li><a class="reference internal" href="#experimental-features">Experimental Features</a></li>
 <li><a class="reference internal" href="#requirement-changes">Requirement changes</a></li>
 <li><a class="reference internal" href="#thanks">Thanks</a></li>
 </ul>
@@ -499,6 +497,9 @@ in repeated tasks.</p></li>
 </li>
 <li><p>Switch for numerical gradients has been added as well in <cite>zfit.run.set_mode(autograd=True/False)</cite>.</p></li>
 <li><p>Resetting to the default can be done with <cite>zfit.run.set_mode_default()</cite></p></li>
+<li><p>Improved stability of minimizer by adding penalty (currently in <cite>Minuit</cite>) as default. To have a
+better behavior with toys (e.g. never fail on NaNs but return an invalid <cite>FitResult</cite>), use the
+<cite>DefaultToyStrategy</cite> in <cite>zfit.mnimize</cite>.</p></li>
 </ul>
 </div></blockquote>
 </div>
@@ -530,17 +531,6 @@ parameters with one command. Can, as the <cite>set_value</cite> method be used w
 <li><p>wrong size of weights when applying cuts in a dataset</p></li>
 <li><p><cite>with_coords</cite> did drop axes/obs</p></li>
 <li><p>Fix function not traced when an error was raised during first trace</p></li>
-</ul>
-</div></blockquote>
-</div>
-<div class="section" id="experimental-features">
-<h3>Experimental Features<a class="headerlink" href="#experimental-features" title="Permalink to this headline">¶</a></h3>
-<p>This features are EXPERIMENTAL and can fail/be removed any time without further notice.
-Feedback to this functionalities is very welcome!</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>moved experimental flag <cite>zfit.loss.experimental_loss_penalty_nan()</cite>, which adds a penalty to the loss in case the value is
-nan. Can help with the optimisation.</p></li>
 </ul>
 </div></blockquote>
 </div>

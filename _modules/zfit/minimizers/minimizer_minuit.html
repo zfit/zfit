@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.4.dev100+g4e30720 documentation</title>
+    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.4.dev102+g48db218 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev100</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -129,7 +129,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
@@ -384,6 +383,7 @@
 
 <span class="kn">import</span> <span class="nn">iminuit</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">.baseminimizer</span> <span class="kn">import</span> <span class="n">BaseMinimizer</span><span class="p">,</span> <span class="n">ZfitStrategy</span><span class="p">,</span> <span class="n">print_params</span><span class="p">,</span> <span class="n">print_gradients</span>
 <span class="kn">from</span> <span class="nn">.fitresult</span> <span class="kn">import</span> <span class="n">FitResult</span>
@@ -469,39 +469,54 @@
             <span class="n">params_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
 
         <span class="n">current_loss</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">nan_counter</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-            <span class="k">nonlocal</span> <span class="n">current_loss</span>
+            <span class="k">nonlocal</span> <span class="n">current_loss</span><span class="p">,</span> <span class="n">nan_counter</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
             <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">8</span>
 
+            <span class="n">is_nan</span> <span class="o">=</span> <span class="kc">False</span>
+
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">InvalidArgumentError</span><span class="p">:</span>
+                <span class="n">is_nan</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="s2">&quot;invalid, error occured&quot;</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="s2">&quot;invalid, error occured&quot;</span>
                 <span class="k">raise</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
                     <span class="n">print_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">loss_evaluated</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss_evaluated</span><span class="p">):</span>
+            <span class="n">is_nan</span> <span class="o">=</span> <span class="n">is_nan</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss_evaluated</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_nan</span><span class="p">:</span>
+                <span class="n">nan_counter</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">info_values</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loss_evaluated</span>
                 <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;old_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_loss</span>
+                <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;nan_counter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nan_counter</span>
                 <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="n">minimizer</span><span class="p">,</span>
                                                             <span class="n">values</span><span class="o">=</span><span class="n">info_values</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="n">nan_counter</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="n">current_loss</span> <span class="o">=</span> <span class="n">loss_evaluated</span>
             <span class="k">return</span> <span class="n">loss_evaluated</span>
 
         <span class="k">def</span> <span class="nf">grad_func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
-            <span class="k">nonlocal</span> <span class="n">current_loss</span>
+            <span class="k">nonlocal</span> <span class="n">current_loss</span><span class="p">,</span> <span class="n">nan_counter</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
             <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">8</span>
+            <span class="n">is_nan</span> <span class="o">=</span> <span class="kc">False</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">loss_value</span><span class="p">,</span> <span class="n">gradients</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">value_gradients</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
                 <span class="n">loss_value</span> <span class="o">=</span> <span class="n">loss_value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
                 <span class="n">gradients_values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">]</span>
+            <span class="k">except</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">InvalidArgumentError</span><span class="p">:</span>
+                <span class="n">is_nan</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">loss_value</span> <span class="o">=</span> <span class="s2">&quot;invalid, error occured&quot;</span>
+                <span class="n">gradients_values</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;invalid&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="n">gradients_values</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;invalid&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
                 <span class="k">raise</span>
@@ -509,14 +524,18 @@
                 <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
                     <span class="n">print_gradients</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">gradients_values</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss_value</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">gradients_values</span><span class="p">)):</span>
+            <span class="n">is_nan</span> <span class="o">=</span> <span class="n">is_nan</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">gradients_values</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">is_nan</span><span class="p">:</span>
+                <span class="n">nan_counter</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">info_values</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loss_value</span>
                 <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;old_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_loss</span>
+                <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;nan_counter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nan_counter</span>
                 <span class="c1"># but loss value not needed here</span>
                 <span class="n">loss_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="n">minimizer</span><span class="p">,</span>
                                                         <span class="n">values</span><span class="o">=</span><span class="n">info_values</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="n">nan_counter</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="n">current_loss</span> <span class="o">=</span> <span class="n">loss_value</span>
             <span class="k">return</span> <span class="n">gradients_values</span>
 

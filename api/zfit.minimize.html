@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>minimize &#8212; zfit 0.4.4.dev100+g4e30720 documentation</title>
+    <title>minimize &#8212; zfit 0.4.4.dev102+g48db218 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev100</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -131,7 +131,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
 </ul>
@@ -754,6 +753,31 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 <dl class="method">
 <dt id="zfit.minimize.BFGS.tolerance">
 <em class="property">property </em><code class="sig-name descname">tolerance</code><a class="headerlink" href="#zfit.minimize.BFGS.tolerance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="zfit.minimize.DefaultStrategy">
+<code class="sig-prename descclassname">zfit.minimize.</code><code class="sig-name descname">DefaultStrategy</code><a class="headerlink" href="#zfit.minimize.DefaultStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.PushbackStrategy" title="zfit.minimizers.baseminimizer.PushbackStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.PushbackStrategy</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="zfit.minimize.DefaultToyStrategy">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimize.</code><code class="sig-name descname">DefaultToyStrategy</code><span class="sig-paren">(</span><em class="sig-param">nan_penalty: Union[float</em>, <em class="sig-param">int] = 100</em>, <em class="sig-param">nan_tolerance: int = 30</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#DefaultToyStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.DefaultToyStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.PushbackStrategy" title="zfit.minimizers.baseminimizer.PushbackStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.PushbackStrategy</span></code></a>, <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.ToyStrategyFail" title="zfit.minimizers.baseminimizer.ToyStrategyFail"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.ToyStrategyFail</span></code></a></p>
+<p>Same as <cite>DefaultStrategy</cite>, but does not raise an error on full failure, instead return an invalid FitResult.</p>
+<p>This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a
+failure instead of rising an error.</p>
+<p>Pushback by adding <cite>nan_penalty * counter</cite> to the loss if NaNs are encountered.</p>
+<p>The counter indicates how many NaNs occurred in a row. The <cite>nan_tolerance</cite> is the upper limit, if this is
+exceeded, the fallback will be used and an error is raised.
+:param nan_penalty: Value to add to the previous loss in order to penalize the step taken
+:param nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.</p>
+<dl class="method">
+<dt id="zfit.minimize.DefaultToyStrategy.minimize_nan">
+<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#zfit.minimize.DefaultToyStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

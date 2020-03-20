@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.4.4.dev100+g4e30720 documentation</title>
+    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.4.4.dev102+g48db218 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev100</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -129,7 +129,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental-features">Experimental Features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
@@ -398,8 +397,7 @@
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-
-
+<span class="kn">from</span> <span class="nn">..util.checks</span> <span class="kn">import</span> <span class="n">ZfitNotImplemented</span>
 
 
 <div class="viewcode-block" id="FailMinimizeNaN"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.FailMinimizeNaN">[docs]</a><span class="k">class</span> <span class="nc">FailMinimizeNaN</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -426,7 +424,8 @@
 
     <span class="k">def</span> <span class="nf">_minimize_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">minimizer</span><span class="p">:</span> <span class="n">ZfitMinimizer</span><span class="p">,</span>
                       <span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The minimization failed due to NaNs being produced in the loss. This is most probably caused by negative&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The minimization failed due to too many NaNs being produced in the loss.&quot;</span>
+              <span class="s2">&quot;This is most probably caused by negative&quot;</span>
               <span class="s2">&quot; values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this&quot;</span>
               <span class="s2">&quot; problem. Also check your model (if custom) for problems. For more information,&quot;</span>
               <span class="s2">&quot; visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization&quot;</span><span class="p">)</span>
@@ -450,21 +449,45 @@
         <span class="k">raise</span> <span class="n">FailMinimizeNaN</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="DefaultStrategy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.DefaultStrategy">[docs]</a><span class="k">class</span> <span class="nc">DefaultStrategy</span><span class="p">(</span><span class="n">BaseStrategy</span><span class="p">):</span>
+<div class="viewcode-block" id="PushbackStrategy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.PushbackStrategy">[docs]</a><span class="k">class</span> <span class="nc">PushbackStrategy</span><span class="p">(</span><span class="n">BaseStrategy</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_nan_penalty</span> <span class="o">=</span> <span class="mi">10000</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nan_penalty</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">nan_tolerance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pushback by adding `nan_penalty * counter` to the loss if NaNs are encountered.</span>
+
+<span class="sd">        The counter indicates how many NaNs occurred in a row. The `nan_tolerance` is the upper limit, if this is</span>
+<span class="sd">        exceeded, the fallback will be used and an error is raised.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            nan_penalty: Value to add to the previous loss in order to penalize the step taken</span>
+<span class="sd">            nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nan_penalty</span> <span class="o">=</span> <span class="n">nan_penalty</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nan_tolerance</span> <span class="o">=</span> <span class="n">nan_tolerance</span>
 
     <span class="k">def</span> <span class="nf">_minimize_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">minimizer</span><span class="p">:</span> <span class="n">ZfitMinimizer</span><span class="p">,</span>
-                     <span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">zfit</span>
-        <span class="k">if</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">_experimental_loss_penalty_nan</span><span class="p">:</span>
+                      <span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="s1">&#39;nan_counter&#39;</span> <span class="ow">in</span> <span class="n">values</span><span class="p">,</span> <span class="s2">&quot;&#39;nan_counter&#39; not in values, minimizer not correctly implemented&quot;</span>
+        <span class="n">nan_counter</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s1">&#39;nan_counter&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">nan_counter</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nan_tolerance</span><span class="p">:</span>
             <span class="n">last_loss</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;old_loss&#39;</span><span class="p">)</span>
-            <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="n">last_loss</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nan_penalty</span> <span class="k">if</span> <span class="n">last_loss</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">last_loss</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="n">last_loss</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nan_penalty</span> <span class="o">*</span> <span class="n">nan_counter</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">loss_evaluated</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">)</span></div>
+
+
+<span class="n">DefaultStrategy</span> <span class="o">=</span> <span class="n">PushbackStrategy</span>
+
+
+<div class="viewcode-block" id="DefaultToyStrategy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.DefaultToyStrategy">[docs]</a><span class="k">class</span> <span class="nc">DefaultToyStrategy</span><span class="p">(</span><span class="n">DefaultStrategy</span><span class="p">,</span> <span class="n">ToyStrategyFail</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Same as `DefaultStrategy`, but does not raise an error on full failure, instead return an invalid FitResult.</span>
+
+<span class="sd">    This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a</span>
+<span class="sd">    failure instead of rising an error.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="BaseMinimizer"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.BaseMinimizer">[docs]</a><span class="k">class</span> <span class="nc">BaseMinimizer</span><span class="p">(</span><span class="n">ZfitMinimizer</span><span class="p">):</span>
