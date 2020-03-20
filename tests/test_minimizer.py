@@ -76,7 +76,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
     obs = spaces
     loss, true_minimum, (mu_param, sigma_param, lambda_param) = create_loss(obs1=obs)
 
-    parameter_tolerance = 0.04
+    parameter_tolerance = 0.06
     max_distance_to_min = 10.
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs

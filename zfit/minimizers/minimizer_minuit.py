@@ -154,8 +154,8 @@ class Minuit(BaseMinimizer, Cachable):
                 info_values['old_loss'] = current_loss
                 info_values['nan_counter'] = nan_counter
                 # but loss value not needed here
-                loss_value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
-                                                        values=info_values)
+                _ = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
+                                               values=info_values)
             else:
                 nan_counter = 0
                 current_loss = loss_value

@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .baseminimizer import BaseMinimizer, print_gradients, ZfitStrategy
+from .baseminimizer import BaseMinimizer, print_gradients, ZfitStrategy, print_params
 from .fitresult import FitResult
 from .. import z
 
@@ -34,9 +34,12 @@ class BFGS(BaseMinimizer):
     def _minimize(self, loss, params):
         minimizer_fn = tfp.optimizer.bfgs_minimize
         params = tuple(params)
-        do_print = self.verbosity > 5
+        do_print = self.verbosity > 8
 
-        @z.function
+        current_loss = None
+        nan_counter = 0
+
+        # @z.function
         def update_params_value_grad(loss, params, values):
             for param, value in zip(params, tf.unstack(values, axis=0)):
                 param.set_value(value)
@@ -44,13 +47,37 @@ class BFGS(BaseMinimizer):
             return gradients, value
 
         def to_minimize_func(values):
-            gradients, value = update_params_value_grad(loss, params, values)
-            if do_print:
-                print_gradients(params, values.numpy(), [float(g.numpy()) for g in gradients])
+            nonlocal current_loss, nan_counter
+            do_print = self.verbosity > 8
 
+            is_nan = False
+
+            try:
+                gradients, value = update_params_value_grad(loss, params, values)
+
+            except tf.errors.InvalidArgumentError:
+                is_nan = True
+                value = "invalid, error occured"
+            except:
+                value = "invalid, error occured"
+                raise
+            finally:
+                if do_print:
+                    print_gradients(params, values.numpy(), [float(g.numpy()) for g in gradients], loss=value.numpy())
             loss_evaluated = value.numpy()
-            if np.isnan(loss_evaluated):
-                self.strategy.minimize_nan(loss=loss, params=params, minimizer=None, values=loss_evaluated)
+            is_nan = is_nan or np.isnan(loss_evaluated)
+            if is_nan:
+                nan_counter += 1
+                info_values = {}
+                info_values['loss'] = value.numpy()
+                info_values['old_loss'] = current_loss
+                info_values['nan_counter'] = nan_counter
+                value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
+                                                   values=info_values)
+            else:
+                nan_counter = 0
+                current_loss = value
+
             gradients = tf.stack(gradients)
             return value, gradients
 
@@ -65,7 +92,6 @@ class BFGS(BaseMinimizer):
             max_iterations=self.max_calls
         )
         minimizer_kwargs.update(self.options)
-
         result = minimizer_fn(to_minimize_func,
                               **minimizer_kwargs)
 
