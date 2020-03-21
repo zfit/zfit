@@ -144,9 +144,8 @@ def test_prod_gauss_nd_mixed():
         true_prob = [gauss1.pdf(values[:, 3])]
         true_prob += [gauss2.pdf(values[:, 0])]
         true_prob += [gauss3.pdf(values[:, 2])]
-        true_prob += [prod_gauss_3d.pdf(values[:, 0:3],
-                                        norm_range=Space(limits=(((-5,) * 3,), ((4,) * 3,)),
-                                                         obs=['obs1', 'obs2', 'obs3']))]
+        true_prob += [prod_gauss_3d.pdf(values[:, 0:3], norm_range=Space(limits=(((-5,) * 3,), ((4,) * 3,)),
+                                                                         obs=['obs1', 'obs2', 'obs3']))]
         return tf.math.reduce_prod(true_prob, axis=0)
 
     true_unnormalized_probs = probs_4d(values=test_values)

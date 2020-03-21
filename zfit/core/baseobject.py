@@ -54,16 +54,7 @@ class BaseObject(ZfitObject):
         return new_object
 
     def _copy(self, deep, name, overwrite_params):  # TODO(Mayou36) L: representation?
-        if deep:
-            raise NotImplementedError("Unfortunately, this feature is not implemented.")
-        if name is None:
-            name = self.name + "_copy"  # TODO: improve name mangling
-        # params = self.parameters.copy()
-        raise RuntimeError("This copy should not be used.")
-
-        # params.update(overwrite_params)
-        # new_object = type(self)(name=name, **params)
-        # return new_object
+        raise NotImplementedError("This copy should not be used.")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(self, type(other)):

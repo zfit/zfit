@@ -20,6 +20,7 @@ from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
 from ..util.checks import ZfitNotImplemented
+from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError
 
 
 class FailMinimizeNaN(Exception):
@@ -224,7 +225,7 @@ class BaseMinimizer(ZfitMinimizer):
         Returns:
 
         Raises:
-            NotImplementedError: if the `step` method is not implemented in the minimizer.
+            MinimizeStepNotImplementedError: if the `step` method is not implemented in the minimizer.
         """
         params = self._check_input_params(loss, params)
 
@@ -257,10 +258,10 @@ class BaseMinimizer(ZfitMinimizer):
     def _call_minimize(self, loss, params):
         try:
             return self._minimize(loss=loss, params=params)
-        except NotImplementedError as error:
+        except MinimizeNotImplementedError as error:
             try:
                 return self._minimize_with_step(loss=loss, params=params)
-            except NotImplementedError:
+            except MinimizeStepNotImplementedError:
                 raise error
 
     def _minimize_with_step(self, loss, params):  # TODO improve
@@ -272,7 +273,7 @@ class BaseMinimizer(ZfitMinimizer):
         def step_fn(loss, params):
             try:
                 self._step_tf(loss=loss.value, params=params)
-            except NotImplementedError:
+            except MinimizeStepNotImplementedError:
                 self.step(loss, params)
             return loss.value()
 
@@ -304,6 +305,15 @@ class BaseMinimizer(ZfitMinimizer):
 
     def copy(self):
         return copy.copy(self)
+
+    def _minimize(self, loss, params):
+        raise MinimizeNotImplementedError
+
+    def _step_tf(self, loss, params):
+        raise MinimizeStepNotImplementedError
+
+    def _step(self, loss, params):
+        raise MinimizeStepNotImplementedError
 
 
 def print_params(params, values, loss=None):

@@ -39,7 +39,7 @@ def test_not_allowed():
         ext_pdf1 + pdf2
     with pytest.raises(BreakingAPIChangeError):
         param2 * pdf1
-    with pytest.raises(ValueError):
+    with pytest.raises(NotImplementedError):
         param1 + func1
     with pytest.raises(NotImplementedError):
         func1 + param1

@@ -19,7 +19,7 @@ import tensorflow as tf
 
 
 from zfit import z
-from zfit.util.exception import OverdefinedError
+from ..util.exception import OverdefinedError, VectorizedLimitsNotImplementedError
 from ..util import ztyping
 from ..settings import ztypes
 from ..core.basepdf import BasePDF
@@ -29,6 +29,7 @@ from ..core.parameter import convert_to_parameter
 from ..core.space import Space
 
 
+@supports()
 def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeInput):
     """Sample analytically with a `tfd.Distribution` within the limits. No preprocessing.
 
@@ -40,15 +41,16 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     Returns:
         `tf.Tensor` (n, n_obs): The sampled data with the number of samples and the number of observables.
     """
-    if limits.n_limits > 1:
-        raise NotImplementedError
     lower_bound, upper_bound = limits.rect_limits
     lower_prob_lim = dist.cdf(lower_bound)
     upper_prob_lim = dist.cdf(upper_bound)
 
-    prob_sample = z.random_uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
+    shape = (n, 1)
+    prob_sample = z.random.uniform(shape=shape, minval=lower_prob_lim,
                                    maxval=upper_prob_lim)
+    prob_sample.set_shape((None, 1))
     sample = dist.quantile(prob_sample)
+    sample.set_shape((None, limits.n_obs))
     return sample
 
 
@@ -91,20 +93,17 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
         value = x.value()
+        # value = z.unstack_x(x)  # TODO: use this? change shaping below?
         probs = tf.reshape(self.distribution.prob(value=value, name="unnormalized_pdf"), shape=(-1,))
         return probs  # TODO batch shape just removed
 
-    # TODO: register integral
+    # TODO: register integral?
     @supports()
     def _analytic_integrate(self, limits, norm_range):
         lower, upper = limits._rect_limits_tf
         lower = z.unstack_x(lower)
         upper = z.unstack_x(upper)
         tf.debugging.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
-        # if np.all(-np.array(lower) == np.array(upper)) and np.all(np.array(upper) == np.infty):
-        #     return z.to_real(1.)  # tfp distributions are normalized to 1
-        # lower = z.to_real(lower[0], dtype=self.dtype)
-        # upper = z.to_real(upper[0], dtype=self.dtype)
         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
         return integral
 
