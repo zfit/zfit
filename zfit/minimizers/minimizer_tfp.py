@@ -72,7 +72,7 @@ class BFGS(BaseMinimizer):
                 info_values['loss'] = value.numpy()
                 info_values['old_loss'] = current_loss
                 info_values['nan_counter'] = nan_counter
-                value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
+                value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=self,
                                                    values=info_values)
             else:
                 nan_counter = 0
