@@ -50,6 +50,7 @@ Major Features and Improvements
  - Improved stability of minimizer by adding penalty (currently in `Minuit`) as default. To have a
    better behavior with toys (e.g. never fail on NaNs but return an invalid `FitResult`), use the
    `DefaultToyStrategy` in `zfit.mnimize`.
+ - Exceptions are now publicly available in `zfit.exception`
 
 Breaking changes
 ------------------
@@ -74,9 +75,7 @@ Bug fixes and small changes
  - wrong size of weights when applying cuts in a dataset
  - `with_coords` did drop axes/obs
  - Fix function not traced when an error was raised during first trace
-
-
-
+ - MultipleLimits support for analytic integrals
 
 
 Requirement changes

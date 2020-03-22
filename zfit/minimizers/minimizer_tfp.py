@@ -51,17 +51,22 @@ class BFGS(BaseMinimizer):
             do_print = self.verbosity > 8
 
             is_nan = False
-
+            gradients = None
+            value = None
             try:
                 gradients, value = update_params_value_grad(loss, params, values)
 
             except tf.errors.InvalidArgumentError:
+                err = 'NaNs'
                 is_nan = True
-                value = "invalid, error occured"
             except:
-                value = "invalid, error occured"
+                err = 'unknonw error'
                 raise
             finally:
+                if value is None:
+                    value = f"invalid, {err}"
+                if gradients is None:
+                    gradients = [f"invalid, {err}"] * len(params)
                 if do_print:
                     print_gradients(params, values.numpy(), [float(g.numpy()) for g in gradients], loss=value.numpy())
             loss_evaluated = value.numpy()
