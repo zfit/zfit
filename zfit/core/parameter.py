@@ -1,5 +1,6 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2020 zfit
+import abc
 import functools
 from collections import OrderedDict
 from contextlib import suppress
@@ -23,7 +24,7 @@ from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import invalidate_graph
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
-    WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError
+    WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError, FunctionNotImplementedError
 from ..util.temporary import TemporarilySet
 
 
@@ -115,6 +116,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
                                     dtype=self.dtype)
 
     @property
+    @abc.abstractmethod
     def name(self):
         raise NotImplementedError
 
@@ -314,28 +316,28 @@ class ZfitParameterMixin(BaseNumeric):
     def __add__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(NotImplementedError):
+            with suppress(FunctionNotImplementedError):
                 return operations.add(self, other)
         return super().__add__(other)
 
     def __radd__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(NotImplementedError):
+            with suppress(FunctionNotImplementedError):
                 return operations.add(other, self)
         return super().__radd__(other)
 
     def __mul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(NotImplementedError):
+            with suppress(FunctionNotImplementedError):
                 return operations.multiply(self, other)
         return super().__mul__(other)
 
     def __rmul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(NotImplementedError):
+            with suppress(FunctionNotImplementedError):
                 return operations.multiply(other, self)
         return super().__rmul__(other)
 

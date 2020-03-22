@@ -403,7 +403,7 @@ def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) ->
     for pdf in pdfs:
         n = tf.random.poisson(lam=pdf.get_yield(), shape=(), dtype=ztypes.float)
         n = tf.cast(n, dtype=tf.int64)
-        sample = pdf._single_hook_sample(limits=limits, n=n, name="extended_sampling")
+        sample = pdf._single_hook_sample(limits=limits, n=n)
         # sample.set_shape((n, limits.n_obs))
         samples.append(sample)
 

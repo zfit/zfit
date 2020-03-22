@@ -67,9 +67,9 @@ class SumFunc(BaseFunctorFunc):
 
     @supports()
     def _analytic_integrate(self, limits, norm_range):
-        # below may raises NotImplementedError, that's fine. We don't wanna catch that.
+        # below may raises AnalyticIntegralNotImplementedError, that's fine. We don't wanna catch that.
         integrals = [func.analytic_integrate(limits=limits, norm_range=norm_range) for func in self.funcs]
-        return tf.accumulate_n(integrals)
+        return tf.math.accumulate_n(integrals)
 
 
 class ProdFunc(BaseFunctorFunc):
@@ -77,10 +77,9 @@ class ProdFunc(BaseFunctorFunc):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
     def _func(self, x):
-        value = self.funcs[0].func(x)
-        for func in self.funcs[1:]:
-            value *= func.func(x)
-        return value
+        funcs = [func.func(x) for func in self.funcs]
+        product = tf.reduce_prod(funcs, axis=0)
+        return product
 
 
 class ZFunc(SimpleModelSubclassMixin, BaseFunc):

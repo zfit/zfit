@@ -20,7 +20,7 @@ from zfit.util.temporary import TemporarilySet
 from .space import convert_to_space, Space, supports
 from ..settings import ztypes
 from ..util import ztyping
-from ..util.exception import WorkInProgressError
+from ..util.exception import WorkInProgressError, AnalyticIntegralNotImplementedError
 
 
 @supports()
@@ -471,7 +471,7 @@ class AnalyticIntegral:
             Union[tf.Tensor, float]:
 
         Raises:
-            NotImplementedError: If the requested integral is not available.
+            AnalyticIntegralNotImplementedError: If the requested integral is not available.
         """
         if axes is None:
             axes = limits.axes
@@ -479,11 +479,11 @@ class AnalyticIntegral:
         integral_holder = self._integrals.get(axes)
         # limits = convert_to_space(axes=self.axes, limits=limits)
         if integral_holder is None:
-            raise NotImplementedError("Analytic integral is not available for axes {}".format(axes))
+            raise AnalyticIntegralNotImplementedError(f"Analytic integral is not available for axes {axes}")
         integral_fn = self.get_max_integral(limits=limits)
         if integral_fn is None:
-            raise NotImplementedError(
-                "Integral is available for axes {}, but not for limits {}".format(axes, limits))
+            raise AnalyticIntegralNotImplementedError(
+                f"Integral is available for axes {axes}, but not for limits {limits}")
 
         if x is None:
             try:

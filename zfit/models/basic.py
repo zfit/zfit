@@ -14,6 +14,7 @@ from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.space import Space, ANY_LOWER, ANY_UPPER
 from ..util import ztyping
+from ..util.exception import AnalyticIntegralNotImplementedError
 from ..util.warnings import warn_advanced_feature
 
 infinity = mt.inf
@@ -162,7 +163,7 @@ def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params['lambda']
     lower, upper = limits.rect_limits_np
     if any(np.isinf([lower, upper])):
-        raise NotImplementedError
+        raise AnalyticIntegralNotImplementedError
 
     integral = _exp_integral_func_shifting(lambd=lambda_, lower=lower, upper=upper, model=model)
     return integral[0]

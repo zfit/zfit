@@ -219,8 +219,8 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         try:
             return self._loss_func(model=self.model, data=self.data, fit_range=self.fit_range,
                                    constraints=self.constraints)
-        except NotImplementedError:
-            raise NotImplementedError("_loss_func not properly defined!")
+        except NotImplementedError as error:
+            raise NotImplementedError("_loss_func not properly defined!") from error
 
     def __add__(self, other):
         if not isinstance(other, BaseLoss):

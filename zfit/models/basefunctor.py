@@ -104,7 +104,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
                 norm_range = self.norm_range
             except AttributeError:
                 raise NormRangeNotSpecifiedError("The normalization range is `None`, no default norm_range is set")
-        return self._check_input_norm_range(norm_range=norm_range, caller_name=caller_name, none_is_error=none_is_error)
+        return self._check_input_norm_range(norm_range=norm_range, none_is_error=none_is_error)
 
 
 def _extract_common_obs(obs: Tuple[Union[Tuple[str], Space]]) -> Tuple[str]:
