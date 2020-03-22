@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.integration &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>zfit.core.integration &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -300,6 +300,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -398,7 +399,7 @@
 <span class="kn">from</span> <span class="nn">.space</span> <span class="kn">import</span> <span class="n">convert_to_space</span><span class="p">,</span> <span class="n">Space</span><span class="p">,</span> <span class="n">supports</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WorkInProgressError</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WorkInProgressError</span><span class="p">,</span> <span class="n">AnalyticIntegralNotImplementedError</span>
 
 
 <div class="viewcode-block" id="auto_integrate"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.auto_integrate">[docs]</a><span class="nd">@supports</span><span class="p">()</span>
@@ -849,7 +850,7 @@
 <span class="sd">            Union[tf.Tensor, float]:</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            NotImplementedError: If the requested integral is not available.</span>
+<span class="sd">            AnalyticIntegralNotImplementedError: If the requested integral is not available.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">axes</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">axes</span>
@@ -857,11 +858,11 @@
         <span class="n">integral_holder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_integrals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
         <span class="c1"># limits = convert_to_space(axes=self.axes, limits=limits)</span>
         <span class="k">if</span> <span class="n">integral_holder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Analytic integral is not available for axes </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">axes</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">AnalyticIntegralNotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Analytic integral is not available for axes </span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">integral_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_integral</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">integral_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s2">&quot;Integral is available for axes </span><span class="si">{}</span><span class="s2">, but not for limits </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">limits</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">AnalyticIntegralNotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Integral is available for axes </span><span class="si">{</span><span class="n">axes</span><span class="si">}</span><span class="s2">, but not for limits </span><span class="si">{</span><span class="n">limits</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>

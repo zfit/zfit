@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.sample &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>zfit.core.sample &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -300,6 +300,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -781,7 +782,7 @@
     <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="n">pdfs</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">lam</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">get_yield</span><span class="p">(),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-        <span class="n">sample</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;extended_sampling&quot;</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">_single_hook_sample</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
         <span class="c1"># sample.set_shape((n, limits.n_obs))</span>
         <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
 

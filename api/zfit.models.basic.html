@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>basic &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>basic &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -302,6 +302,7 @@
 <li class="toctree-l4"><a class="reference internal" href="zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.minimize.html">minimize</a></li>
@@ -409,14 +410,13 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.models.basic.CustomGaussOLD.analytic_integrate">
-<code class="sig-name descname">analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analytical integration over function and raise Error if not possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – the limits to integrate over</p></li>
 <li><p><strong>norm_range</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, <cite>False</cite>) – the limits to normalize over</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -427,8 +427,8 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.8)"><strong>NotImplementedError</strong></a> – If no analytical integral is available (for this limits).</p></li>
-<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
+<li><p><a class="reference internal" href="zfit.exception.html#zfit.exception.AnalyticIntegralNotImplementedError" title="zfit.exception.AnalyticIntegralNotImplementedError"><strong>AnalyticIntegralNotImplementedError</strong></a> – If no analytical integral is available (for this limits).</p></li>
+<li><p><a class="reference internal" href="zfit.exception.html#zfit.exception.NormRangeNotImplementedError" title="zfit.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
     means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
     integral over the limits = norm_range is not available.</p></li>
 </ul>
@@ -550,7 +550,7 @@ arguments to override with new value.</p>
 
 <dl class="method">
 <dt id="zfit.models.basic.CustomGaussOLD.create_sampler">
-<code class="sig-name descname">create_sampler</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True, name: str = 'create_sampler'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.create_sampler" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_sampler</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.create_sampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
 <blockquote>
 <div><p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
@@ -567,14 +567,13 @@ or a valid string. Currently implemented:</p>
 </ul>
 </div></blockquote>
 </p></li>
-<li><p><strong>(</strong><strong>)</strong> (<em>name</em>) – From which space to sample.</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>fixed_params</em>) – From which space to sample.</p></li>
 <li><p><strong>(</strong><strong>)</strong> – A list of <cite>Parameters</cite> that will be fixed during several <cite>resample</cite> calls.
 If True, all are fixed, if False, all are floating. If a <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> is not fixed and
 its
 value gets updated (e.g. by a <cite>Parameter.set_value()</cite> call), this will be reflected in
 <cite>resample</cite>. If fixed, the Parameter will still have the same value as the <cite>Sampler</cite> has
 been created with when it resamples.</p></li>
-<li><p><strong>(</strong><strong>)</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -678,14 +677,13 @@ been created with when it resamples.</p></li>
 
 <dl class="method">
 <dt id="zfit.models.basic.CustomGaussOLD.log_pdf">
-<code class="sig-name descname">log_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'log_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.log_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">log_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.log_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log probability density function normalized over <cite>norm_range</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -725,14 +723,11 @@ been created with when it resamples.</p></li>
 
 <dl class="method">
 <dt id="zfit.models.basic.CustomGaussOLD.normalization">
-<code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.normalization" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.normalization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the normalization of the function (usually the integral over <cite>limits</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits on where to normalize over</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits on where to normalize over</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the normalization value</p>
@@ -745,14 +740,13 @@ been created with when it resamples.</p></li>
 
 <dl class="method">
 <dt id="zfit.models.basic.CustomGaussOLD.numeric_integrate">
-<code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.numeric_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Numerical integration over the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – the limits to integrate over</p></li>
 <li><p><strong>norm_range</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, False) – the limits to normalize over</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -884,7 +878,7 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 
 <dl class="method">
 <dt id="zfit.models.basic.CustomGaussOLD.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.sample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
 <p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
 If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
@@ -900,7 +894,6 @@ or a valid string. Currently implemented:</p>
 </div></blockquote>
 </p></li>
 <li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – In which region to sample in</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -935,7 +928,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="method">
 <dt id="zfit.models.basic.CustomGaussOLD.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -943,7 +936,6 @@ or a valid string. Currently implemented:</p>
 <li><p><strong>x</strong> (<em>numerical</em>) – The value, have to be convertible to a Tensor</p></li>
 <li><p><strong>component_norm_range</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The normalization range for the components. Needed for</p></li>
 <li><p><strong>composition</strong> (<em>certain</em>) – pdfs.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1009,14 +1001,13 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="method">
 <dt id="zfit.models.basic.Exponential.analytic_integrate">
-<code class="sig-name descname">analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'analytic_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analytical integration over function and raise Error if not possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – the limits to integrate over</p></li>
 <li><p><strong>norm_range</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, <cite>False</cite>) – the limits to normalize over</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1027,8 +1018,8 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.8)"><strong>NotImplementedError</strong></a> – If no analytical integral is available (for this limits).</p></li>
-<li><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError" title="zfit.util.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
+<li><p><a class="reference internal" href="zfit.exception.html#zfit.exception.AnalyticIntegralNotImplementedError" title="zfit.exception.AnalyticIntegralNotImplementedError"><strong>AnalyticIntegralNotImplementedError</strong></a> – If no analytical integral is available (for this limits).</p></li>
+<li><p><a class="reference internal" href="zfit.exception.html#zfit.exception.NormRangeNotImplementedError" title="zfit.exception.NormRangeNotImplementedError"><strong>NormRangeNotImplementedError</strong></a> – if the <em>norm_range</em> argument is not supported. This
     means that no analytical normalization is available, explicitly: the <strong>analytical</strong>
     integral over the limits = norm_range is not available.</p></li>
 </ul>
@@ -1150,7 +1141,7 @@ arguments to override with new value.</p>
 
 <dl class="method">
 <dt id="zfit.models.basic.Exponential.create_sampler">
-<code class="sig-name descname">create_sampler</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True, name: str = 'create_sampler'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="headerlink" href="#zfit.models.basic.Exponential.create_sampler" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_sampler</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="headerlink" href="#zfit.models.basic.Exponential.create_sampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
 <blockquote>
 <div><p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
@@ -1167,14 +1158,13 @@ or a valid string. Currently implemented:</p>
 </ul>
 </div></blockquote>
 </p></li>
-<li><p><strong>(</strong><strong>)</strong> (<em>name</em>) – From which space to sample.</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>fixed_params</em>) – From which space to sample.</p></li>
 <li><p><strong>(</strong><strong>)</strong> – A list of <cite>Parameters</cite> that will be fixed during several <cite>resample</cite> calls.
 If True, all are fixed, if False, all are floating. If a <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> is not fixed and
 its
 value gets updated (e.g. by a <cite>Parameter.set_value()</cite> call), this will be reflected in
 <cite>resample</cite>. If fixed, the Parameter will still have the same value as the <cite>Sampler</cite> has
 been created with when it resamples.</p></li>
-<li><p><strong>(</strong><strong>)</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1278,14 +1268,13 @@ been created with when it resamples.</p></li>
 
 <dl class="method">
 <dt id="zfit.models.basic.Exponential.log_pdf">
-<code class="sig-name descname">log_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'log_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.log_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">log_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.log_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log probability density function normalized over <cite>norm_range</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<em>numerical</em>) – <cite>float</cite> or <cite>double</cite> <cite>Tensor</cite>.</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> to normalize over</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Prepended to names of ops created by this function.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1325,14 +1314,11 @@ been created with when it resamples.</p></li>
 
 <dl class="method">
 <dt id="zfit.models.basic.Exponential.normalization">
-<code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.normalization" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.normalization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the normalization of the function (usually the integral over <cite>limits</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits on where to normalize over</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The limits on where to normalize over</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the normalization value</p>
@@ -1345,14 +1331,13 @@ been created with when it resamples.</p></li>
 
 <dl class="method">
 <dt id="zfit.models.basic.Exponential.numeric_integrate">
-<code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'numeric_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.numeric_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Numerical integration over the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – the limits to integrate over</p></li>
 <li><p><strong>norm_range</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>, False) – the limits to normalize over</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1484,7 +1469,7 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 
 <dl class="method">
 <dt id="zfit.models.basic.Exponential.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'sample'</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="headerlink" href="#zfit.models.basic.Exponential.sample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="headerlink" href="#zfit.models.basic.Exponential.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
 <p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
 If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
@@ -1500,7 +1485,6 @@ or a valid string. Currently implemented:</p>
 </div></blockquote>
 </p></li>
 <li><p><strong>limits</strong> (tuple, <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>) – In which region to sample in</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1535,7 +1519,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="method">
 <dt id="zfit.models.basic.Exponential.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, name: str = 'unnormalized_pdf'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1543,7 +1527,6 @@ or a valid string. Currently implemented:</p>
 <li><p><strong>x</strong> (<em>numerical</em>) – The value, have to be convertible to a Tensor</p></li>
 <li><p><strong>component_norm_range</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The normalization range for the components. Needed for</p></li>
 <li><p><strong>composition</strong> (<em>certain</em>) – pdfs.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

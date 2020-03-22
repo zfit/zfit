@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -300,6 +300,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -398,6 +399,7 @@
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.checks</span> <span class="kn">import</span> <span class="n">ZfitNotImplemented</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">MinimizeNotImplementedError</span><span class="p">,</span> <span class="n">MinimizeStepNotImplementedError</span>
 
 
 <div class="viewcode-block" id="FailMinimizeNaN"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.FailMinimizeNaN">[docs]</a><span class="k">class</span> <span class="nc">FailMinimizeNaN</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -602,7 +604,7 @@
 <span class="sd">        Returns:</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            NotImplementedError: if the `step` method is not implemented in the minimizer.</span>
+<span class="sd">            MinimizeStepNotImplementedError: if the `step` method is not implemented in the minimizer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_params</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
 
@@ -635,10 +637,10 @@
     <span class="k">def</span> <span class="nf">_call_minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">NotImplementedError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">MinimizeNotImplementedError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minimize_with_step</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="k">except</span> <span class="n">MinimizeStepNotImplementedError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">error</span>
 
     <span class="k">def</span> <span class="nf">_minimize_with_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>  <span class="c1"># TODO improve</span>
@@ -650,7 +652,7 @@
         <span class="k">def</span> <span class="nf">step_fn</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_step_tf</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="k">except</span> <span class="n">MinimizeStepNotImplementedError</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
 
@@ -681,7 +683,16 @@
                          <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
 
 <div class="viewcode-block" id="BaseMinimizer.copy"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.BaseMinimizer.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MinimizeNotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_step_tf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MinimizeStepNotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">MinimizeStepNotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="print_params"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.print_params">[docs]</a><span class="k">def</span> <span class="nf">print_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

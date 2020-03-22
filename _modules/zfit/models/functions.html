@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.functions &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>zfit.models.functions &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -300,6 +300,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -445,9 +446,9 @@
 
     <span class="nd">@supports</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
-        <span class="c1"># below may raises NotImplementedError, that&#39;s fine. We don&#39;t wanna catch that.</span>
+        <span class="c1"># below may raises AnalyticIntegralNotImplementedError, that&#39;s fine. We don&#39;t wanna catch that.</span>
         <span class="n">integrals</span> <span class="o">=</span> <span class="p">[</span><span class="n">func</span><span class="o">.</span><span class="n">analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">accumulate_n</span><span class="p">(</span><span class="n">integrals</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">accumulate_n</span><span class="p">(</span><span class="n">integrals</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ProdFunc"><a class="viewcode-back" href="../../../api/zfit.models.functions.html#zfit.func.ProdFunc">[docs]</a><span class="k">class</span> <span class="nc">ProdFunc</span><span class="p">(</span><span class="n">BaseFunctorFunc</span><span class="p">):</span>
@@ -455,10 +456,9 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">funcs</span><span class="o">=</span><span class="n">funcs</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-            <span class="n">value</span> <span class="o">*=</span> <span class="n">func</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">value</span></div>
+        <span class="n">funcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">func</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcs</span><span class="p">]</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">funcs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">product</span></div>
 
 
 <div class="viewcode-block" id="ZFunc"><a class="viewcode-back" href="../../../api/zfit.models.functions.html#zfit.func.ZFunc">[docs]</a><span class="k">class</span> <span class="nc">ZFunc</span><span class="p">(</span><span class="n">SimpleModelSubclassMixin</span><span class="p">,</span> <span class="n">BaseFunc</span><span class="p">):</span>

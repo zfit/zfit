@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>interfaces &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>interfaces &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -302,6 +302,7 @@
 <li class="toctree-l4"><a class="reference internal" href="zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.minimize.html">minimize</a></li>
@@ -549,7 +550,7 @@ unnormalized probability</p></li>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitFunc.partial_integrate">
-<em class="property">abstract </em><code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.partial_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -559,7 +560,6 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -790,7 +790,7 @@ converge.</p>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.IllegalInGraphModeError" title="zfit.util.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -808,7 +808,7 @@ converge.</p>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.IllegalInGraphModeError" title="zfit.util.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -826,7 +826,7 @@ converge.</p>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.IllegalInGraphModeError" title="zfit.util.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -945,7 +945,7 @@ dimension equal to n_obs.</p></li>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.IllegalInGraphModeError" title="zfit.util.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+<dd class="field-even"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1238,7 +1238,7 @@ unnormalized probability</p></li>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitModel.partial_integrate">
-<em class="property">abstract </em><code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitModel.partial_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitModel.partial_integrate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.partial_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -1248,7 +1248,6 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1649,7 +1648,7 @@ unnormalized probability</p></li>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitPDF.normalization">
-<em class="property">abstract </em><code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], name: str = 'normalization'</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, numpy.array]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.normalization" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]</em><span class="sig-paren">)</span> &#x2192; Union[tensorflow.python.framework.ops.Tensor, numpy.array]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.normalization" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1665,7 +1664,7 @@ unnormalized probability</p></li>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitPDF.partial_integrate">
-<em class="property">abstract </em><code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'partial_integrate'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.partial_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
 <p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
 to the dimensions of <cite>norm_range</cite> (if not False)</p>
@@ -1675,7 +1674,6 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
 <li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
 <li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1689,7 +1687,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="method">
 <dt id="zfit.core.interfaces.ZfitPDF.pdf">
-<em class="property">abstract </em><code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, name: str = 'model'</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.pdf" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitPDF.pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.pdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1824,7 +1822,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.IllegalInGraphModeError" title="zfit.util.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1842,7 +1840,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.IllegalInGraphModeError" title="zfit.util.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1872,7 +1870,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.IllegalInGraphModeError" title="zfit.util.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2027,7 +2025,7 @@ dimension equal to n_obs.</p></li>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.IllegalInGraphModeError" title="zfit.util.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+<dd class="field-even"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>exception &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>exception &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -302,6 +302,7 @@
 <li class="toctree-l4"><a class="reference internal" href="zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="zfit.minimize.html">minimize</a></li>
@@ -401,6 +402,63 @@ set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 <dl class="exception">
+<dt id="zfit.util.exception.AnalyticIntegralNotImplementedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">AnalyticIntegralNotImplementedError</code><span class="sig-paren">(</span><em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#AnalyticIntegralNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.AnalyticIntegralNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.AnalyticNotImplementedError" title="zfit.util.exception.AnalyticNotImplementedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.AnalyticNotImplementedError</span></code></a></p>
+<p>If an analytic integral is not provided.</p>
+<dl class="attribute">
+<dt id="zfit.util.exception.AnalyticIntegralNotImplementedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.AnalyticIntegralNotImplementedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.AnalyticIntegralNotImplementedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.AnalyticIntegralNotImplementedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.AnalyticNotImplementedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">AnalyticNotImplementedError</code><span class="sig-paren">(</span><em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#AnalyticNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.AnalyticNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.ZfitNotImplementedError" title="zfit.util.exception.ZfitNotImplementedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.ZfitNotImplementedError</span></code></a></p>
+<p>General exception if an analytic way is not implemented</p>
+<dl class="attribute">
+<dt id="zfit.util.exception.AnalyticNotImplementedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.AnalyticNotImplementedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.AnalyticNotImplementedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.AnalyticNotImplementedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.AnalyticSamplingNotImplementedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">AnalyticSamplingNotImplementedError</code><span class="sig-paren">(</span><em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#AnalyticSamplingNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.AnalyticSamplingNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.AnalyticNotImplementedError" title="zfit.util.exception.AnalyticNotImplementedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.AnalyticNotImplementedError</span></code></a></p>
+<p>If analytic sampling from a distribution is not possible.</p>
+<dl class="attribute">
+<dt id="zfit.util.exception.AnalyticSamplingNotImplementedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.AnalyticSamplingNotImplementedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.AnalyticSamplingNotImplementedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.AnalyticSamplingNotImplementedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
 <dt id="zfit.util.exception.AxesAmbiguousError">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">AxesAmbiguousError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#AxesAmbiguousError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.AxesAmbiguousError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.IntentionAmbiguousError" title="zfit.util.exception.IntentionAmbiguousError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.IntentionAmbiguousError</span></code></a></p>
@@ -492,7 +550,7 @@ set self.__traceback__ to tb and return self.</p>
 
 <dl class="exception">
 <dt id="zfit.util.exception.BreakingAPIChangeError">
-<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">BreakingAPIChangeError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#BreakingAPIChangeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.BreakingAPIChangeError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">BreakingAPIChangeError</code><span class="sig-paren">(</span><em class="sig-param">msg</em>, <em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#BreakingAPIChangeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.BreakingAPIChangeError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <dl class="attribute">
 <dt id="zfit.util.exception.BreakingAPIChangeError.args">
@@ -610,6 +668,26 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="method">
 <dt id="zfit.util.exception.ExtendedPDFError.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.ExtendedPDFError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.FunctionNotImplementedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">FunctionNotImplementedError</code><span class="sig-paren">(</span><em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#FunctionNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.FunctionNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.ZfitNotImplementedError" title="zfit.util.exception.ZfitNotImplementedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.ZfitNotImplementedError</span></code></a></p>
+<p>Any function, e.g. in a BaseModel, that not implemented and a fallback should be called.</p>
+<p>Preferably use more specific exceptions</p>
+<dl class="attribute">
+<dt id="zfit.util.exception.FunctionNotImplementedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.FunctionNotImplementedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.FunctionNotImplementedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.FunctionNotImplementedError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -772,6 +850,44 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="method">
 <dt id="zfit.util.exception.LogicalUndefinedOperationError.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.LogicalUndefinedOperationError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.MinimizeNotImplementedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">MinimizeNotImplementedError</code><span class="sig-paren">(</span><em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#MinimizeNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.MinimizeNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.FunctionNotImplementedError" title="zfit.util.exception.FunctionNotImplementedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.FunctionNotImplementedError</span></code></a></p>
+<p>The <cite>minimize</cite> function of a minimizer is not implemented.</p>
+<dl class="attribute">
+<dt id="zfit.util.exception.MinimizeNotImplementedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.MinimizeNotImplementedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.MinimizeNotImplementedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.MinimizeNotImplementedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.MinimizeStepNotImplementedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">MinimizeStepNotImplementedError</code><span class="sig-paren">(</span><em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#MinimizeStepNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.MinimizeStepNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.FunctionNotImplementedError" title="zfit.util.exception.FunctionNotImplementedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.FunctionNotImplementedError</span></code></a></p>
+<p>The <cite>step</cite> function of a minimizer is not implemented.</p>
+<dl class="attribute">
+<dt id="zfit.util.exception.MinimizeStepNotImplementedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.MinimizeStepNotImplementedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.MinimizeStepNotImplementedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.MinimizeStepNotImplementedError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -1105,6 +1221,25 @@ set self.__traceback__ to tb and return self.</p>
 </dd></dl>
 
 <dl class="exception">
+<dt id="zfit.util.exception.SpecificFunctionNotImplementedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">SpecificFunctionNotImplementedError</code><span class="sig-paren">(</span><em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#SpecificFunctionNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.SpecificFunctionNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.exception.FunctionNotImplementedError" title="zfit.util.exception.FunctionNotImplementedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.exception.FunctionNotImplementedError</span></code></a></p>
+<p>If a specific function, e.g. by the user is not implemented</p>
+<dl class="attribute">
+<dt id="zfit.util.exception.SpecificFunctionNotImplementedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.SpecificFunctionNotImplementedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.SpecificFunctionNotImplementedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.SpecificFunctionNotImplementedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
 <dt id="zfit.util.exception.SubclassingError">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">SubclassingError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#SubclassingError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.SubclassingError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
@@ -1134,6 +1269,25 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="method">
 <dt id="zfit.util.exception.UnderdefinedError.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.UnderdefinedError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.VectorizedLimitsNotImplementedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">VectorizedLimitsNotImplementedError</code><a class="reference internal" href="../_modules/zfit/util/exception.html#VectorizedLimitsNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.VectorizedLimitsNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Indicates that a function does not support vectorized (n_events &gt; 1) limits in a <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>.</p>
+<dl class="attribute">
+<dt id="zfit.util.exception.VectorizedLimitsNotImplementedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.VectorizedLimitsNotImplementedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.VectorizedLimitsNotImplementedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.VectorizedLimitsNotImplementedError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -1171,6 +1325,24 @@ set self.__traceback__ to tb and return self.</p>
 <dl class="method">
 <dt id="zfit.util.exception.WorkInProgressError.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.WorkInProgressError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="zfit.util.exception.ZfitNotImplementedError">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.util.exception.</code><code class="sig-name descname">ZfitNotImplementedError</code><span class="sig-paren">(</span><em class="sig-param">*args: object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/exception.html#ZfitNotImplementedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.exception.ZfitNotImplementedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a></p>
+<dl class="attribute">
+<dt id="zfit.util.exception.ZfitNotImplementedError.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.util.exception.ZfitNotImplementedError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.util.exception.ZfitNotImplementedError.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.exception.ZfitNotImplementedError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>

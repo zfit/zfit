@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.interfaces &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>zfit.core.interfaces &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -300,6 +300,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -389,26 +390,14 @@
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 
 
-<div class="viewcode-block" id="ZfitObject"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject">[docs]</a><span class="k">class</span> <span class="nc">ZfitObject</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>  <span class="c1"># TODO(Mayou36): upgrade to tf2</span>
-    <span class="c1"># @property</span>
-    <span class="c1"># def name(self) -&gt; str:</span>
-    <span class="c1">#     &quot;&quot;&quot;Name prepended to all ops created by this `model`.&quot;&quot;&quot;</span>
-    <span class="c1">#     raise NotImplementedError</span>
+<div class="viewcode-block" id="ZfitObject"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject">[docs]</a><span class="k">class</span> <span class="nc">ZfitObject</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
 
+    <span class="c1"># TODO: make abstractmethod?</span>
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-    <span class="c1"># def copy(self, deep: bool = False, **overwrite_params) -&gt; &quot;ZfitObject&quot;:</span>
-    <span class="c1">#     raise NotImplementedError</span>
-
 
 <div class="viewcode-block" id="ZfitDimensional"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitDimensional">[docs]</a><span class="k">class</span> <span class="nc">ZfitDimensional</span><span class="p">(</span><span class="n">ZfitObject</span><span class="p">):</span>
-
-    <span class="c1"># @property</span>
-    <span class="c1"># @abstractmethod</span>
-    <span class="c1"># def space(self) -&gt; &quot;zfit.Space&quot;:</span>
-    <span class="c1">#     &quot;&quot;&quot;Return the :py:class:`~zfit.Space` object that defines the dimensionality of the object.&quot;&quot;&quot;</span>
-    <span class="c1">#     raise NotImplementedError</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
@@ -1206,8 +1195,8 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="ZfitModel.partial_integrate"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel.partial_integrate">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                          <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;partial_integrate&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
+                          <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Partially integrate the function over the `limits` and evaluate it at `x`.</span>
 
 <span class="sd">        Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal</span>
@@ -1217,7 +1206,6 @@
 <span class="sd">            x (numerical): The value at which the partially integrated function will be evaluated</span>
 <span class="sd">            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes</span>
 <span class="sd">            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes</span>
-<span class="sd">            name (str):</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Tensor: the value of the partially integrated function evaluated at `x`.</span>
@@ -1262,7 +1250,7 @@
 <div class="viewcode-block" id="ZfitPDF"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF">[docs]</a><span class="k">class</span> <span class="nc">ZfitPDF</span><span class="p">(</span><span class="n">ZfitModel</span><span class="p">):</span>
 
 <div class="viewcode-block" id="ZfitPDF.pdf"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF.pdf">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;model&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
     <span class="nd">@property</span>
@@ -1283,7 +1271,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="ZfitPDF.normalization"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF.normalization">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;normalization&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalTypeReturn</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalTypeReturn</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="ZfitPDF.as_func"><a class="viewcode-back" href="../../../api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF.as_func">[docs]</a>    <span class="nd">@abstractmethod</span>

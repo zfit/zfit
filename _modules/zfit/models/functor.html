@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.functor &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>zfit.models.functor &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -300,6 +300,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -399,7 +400,8 @@
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ModelIncompatibleError</span><span class="p">,</span> <span class="n">ObsIncompatibleError</span><span class="p">,</span> <span class="n">NormRangeUnderdefinedError</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ModelIncompatibleError</span><span class="p">,</span> <span class="n">ObsIncompatibleError</span><span class="p">,</span> <span class="n">NormRangeUnderdefinedError</span><span class="p">,</span>
+                              <span class="n">AnalyticIntegralNotImplementedError</span><span class="p">,</span> <span class="n">SpecificFunctionNotImplementedError</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">warn_advanced_feature</span>
 <span class="kn">from</span> <span class="nn">..z.random</span> <span class="kn">import</span> <span class="n">counts_multinomial</span>
 
@@ -594,12 +596,6 @@
         <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
         <span class="n">prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">accumulate_n</span><span class="p">([</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">frac</span> <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)])</span>
         <span class="k">return</span> <span class="n">prob</span>
-        <span class="c1"># raise NotImplementedError</span>
-        <span class="c1"># pdfs = self.pdfs</span>
-        <span class="c1"># fracs = self.fracs</span>
-        <span class="c1"># func = tf.accumulate_n(</span>
-        <span class="c1">#     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])</span>
-        <span class="c1"># return func</span>
 
     <span class="c1"># TODO(SUM): remove the below? Not needed anymore?</span>
     <span class="c1"># def _set_yield(self, value: Union[Parameter, None]):</span>
@@ -631,15 +627,13 @@
     <span class="k">def</span> <span class="nf">_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="n">pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
         <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
-        <span class="c1"># TODO(SUM): why was this needed?</span>
-        <span class="c1"># assert norm_range not in (None, False), &quot;Bug, who requested an unnormalized integral?&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">integrals</span> <span class="o">=</span> <span class="p">[</span><span class="n">frac</span> <span class="o">*</span> <span class="n">pdf</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>  <span class="c1"># do NOT propagate the norm_range!</span>
+            <span class="n">integrals</span> <span class="o">=</span> <span class="p">[</span><span class="n">frac</span> <span class="o">*</span> <span class="n">pdf</span><span class="o">.</span><span class="n">analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>  <span class="c1"># do NOT propagate the norm_range!</span>
                          <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)]</span>
-        <span class="k">except</span> <span class="ne">NotImplementedError</span> <span class="k">as</span> <span class="n">original_error</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;analytic_integrate of pdf </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not implemented in this&quot;</span>
-                                      <span class="sa">f</span><span class="s2">&quot; SumPDF, as at least one sub-pdf does not implement it.&quot;</span>
-                                      <span class="sa">f</span><span class="s2">&quot;Original message:</span><span class="se">\n</span><span class="si">{</span><span class="n">original_error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">AnalyticIntegralNotImplementedError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AnalyticIntegralNotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;analytic_integrate of pdf </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not implemented in this&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; SumPDF, as at least one sub-pdf does not implement it.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">error</span>
 
         <span class="c1"># TODO(SUM): change the below? broadcast integrals?</span>
         <span class="c1"># integral = tf.reduce_sum(input_tensor=integrals)</span>
@@ -652,8 +646,8 @@
         <span class="n">pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
         <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
 
-        <span class="n">partial_integral</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>  <span class="c1"># do NOT propagate the norm_range!</span>
-                            <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)]</span>
+        <span class="n">partial_integral</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span> <span class="o">*</span> <span class="n">frac</span>  <span class="c1"># do NOT propagate the norm_range!</span>
+                            <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)]</span>
         <span class="n">partial_integral</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">accumulate_n</span><span class="p">(</span><span class="n">partial_integral</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">partial_integral</span>
 
@@ -662,13 +656,13 @@
         <span class="n">pdfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
         <span class="n">fracs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fracs</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">partial_integral</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>  <span class="c1"># do NOT propagate the norm_range!</span>
-                                <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)]</span>
-        <span class="k">except</span> <span class="ne">NotImplementedError</span> <span class="k">as</span> <span class="n">original_error</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;partial_analytic_integrate of pdf </span><span class="si">{name}</span><span class="s2"> is not implemented in this&quot;</span>
-                                      <span class="s2">&quot; SumPDF, as at least one sub-pdf does not implement it.&quot;</span>
-                                      <span class="s2">&quot;Original message:</span><span class="se">\n</span><span class="si">{error}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                                                                          <span class="n">error</span><span class="o">=</span><span class="n">original_error</span><span class="p">))</span>
+            <span class="n">partial_integral</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span> <span class="o">*</span> <span class="n">frac</span>
+                                <span class="c1"># do NOT propagate the norm_range!</span>
+                                <span class="k">for</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">fracs</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="n">AnalyticIntegralNotImplementedError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AnalyticIntegralNotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;partial_analytic_integrate of pdf </span><span class="si">{name}</span><span class="s2"> is not implemented in this&quot;</span>
+                <span class="s2">&quot; SumPDF, as at least one sub-pdf does not implement it.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">error</span>
         <span class="n">partial_integral</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">accumulate_n</span><span class="p">(</span><span class="n">partial_integral</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">partial_integral</span>
 
@@ -704,7 +698,7 @@
             <span class="n">probs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_prod</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">=</span><span class="n">probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+            <span class="k">raise</span> <span class="n">SpecificFunctionNotImplementedError</span></div>
 </pre></div>
 
     </div>

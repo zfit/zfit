@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.exception &#8212; zfit 0.4.4.dev102+g81eedf9 documentation</title>
+    <title>zfit.util.exception &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev102</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -300,6 +300,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
@@ -379,196 +380,248 @@
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="c1"># TODO: improve errors of models. Generate more general error, inherit and use more specific?</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 
-<div class="viewcode-block" id="PDFCompatibilityError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.PDFCompatibilityError">[docs]</a><span class="k">class</span> <span class="nc">PDFCompatibilityError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="PDFCompatibilityError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.PDFCompatibilityError">[docs]</a><span class="k">class</span> <span class="nc">PDFCompatibilityError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="LogicalUndefinedOperationError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.LogicalUndefinedOperationError">[docs]</a><span class="k">class</span> <span class="nc">LogicalUndefinedOperationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="LogicalUndefinedOperationError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.LogicalUndefinedOperationError">[docs]</a><span class="k">class</span> <span class="nc">LogicalUndefinedOperationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="OperationNotAllowedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.OperationNotAllowedError">[docs]</a><span class="k">class</span> <span class="nc">OperationNotAllowedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="OperationNotAllowedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.OperationNotAllowedError">[docs]</a><span class="k">class</span> <span class="nc">OperationNotAllowedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ExtendedPDFError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.ExtendedPDFError">[docs]</a><span class="k">class</span> <span class="nc">ExtendedPDFError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="ExtendedPDFError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.ExtendedPDFError">[docs]</a><span class="k">class</span> <span class="nc">ExtendedPDFError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="AlreadyExtendedPDFError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.AlreadyExtendedPDFError">[docs]</a><span class="k">class</span> <span class="nc">AlreadyExtendedPDFError</span><span class="p">(</span><span class="n">ExtendedPDFError</span><span class="p">):</span>
+<div class="viewcode-block" id="AlreadyExtendedPDFError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.AlreadyExtendedPDFError">[docs]</a><span class="k">class</span> <span class="nc">AlreadyExtendedPDFError</span><span class="p">(</span><span class="n">ExtendedPDFError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="NotExtendedPDFError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.NotExtendedPDFError">[docs]</a><span class="k">class</span> <span class="nc">NotExtendedPDFError</span><span class="p">(</span><span class="n">ExtendedPDFError</span><span class="p">):</span>
+<div class="viewcode-block" id="NotExtendedPDFError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.NotExtendedPDFError">[docs]</a><span class="k">class</span> <span class="nc">NotExtendedPDFError</span><span class="p">(</span><span class="n">ExtendedPDFError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ConversionError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.ConversionError">[docs]</a><span class="k">class</span> <span class="nc">ConversionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="ConversionError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.ConversionError">[docs]</a><span class="k">class</span> <span class="nc">ConversionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="SubclassingError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.SubclassingError">[docs]</a><span class="k">class</span> <span class="nc">SubclassingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="SubclassingError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.SubclassingError">[docs]</a><span class="k">class</span> <span class="nc">SubclassingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="BasePDFSubclassingError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.BasePDFSubclassingError">[docs]</a><span class="k">class</span> <span class="nc">BasePDFSubclassingError</span><span class="p">(</span><span class="n">SubclassingError</span><span class="p">):</span>
+<div class="viewcode-block" id="BasePDFSubclassingError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.BasePDFSubclassingError">[docs]</a><span class="k">class</span> <span class="nc">BasePDFSubclassingError</span><span class="p">(</span><span class="n">SubclassingError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="IntentionAmbiguousError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.IntentionAmbiguousError">[docs]</a><span class="k">class</span> <span class="nc">IntentionAmbiguousError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="IntentionAmbiguousError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.IntentionAmbiguousError">[docs]</a><span class="k">class</span> <span class="nc">IntentionAmbiguousError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="UnderdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.UnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">UnderdefinedError</span><span class="p">(</span><span class="n">IntentionAmbiguousError</span><span class="p">):</span>
+<div class="viewcode-block" id="UnderdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.UnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">UnderdefinedError</span><span class="p">(</span><span class="n">IntentionAmbiguousError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="LimitsUnderdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.LimitsUnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">LimitsUnderdefinedError</span><span class="p">(</span><span class="n">UnderdefinedError</span><span class="p">):</span>
+<div class="viewcode-block" id="LimitsUnderdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.LimitsUnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">LimitsUnderdefinedError</span><span class="p">(</span><span class="n">UnderdefinedError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="NormRangeUnderdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.NormRangeUnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">NormRangeUnderdefinedError</span><span class="p">(</span><span class="n">UnderdefinedError</span><span class="p">):</span>
+<div class="viewcode-block" id="NormRangeUnderdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.NormRangeUnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">NormRangeUnderdefinedError</span><span class="p">(</span><span class="n">UnderdefinedError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="OverdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.OverdefinedError">[docs]</a><span class="k">class</span> <span class="nc">OverdefinedError</span><span class="p">(</span><span class="n">IntentionAmbiguousError</span><span class="p">):</span>
+<div class="viewcode-block" id="OverdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.OverdefinedError">[docs]</a><span class="k">class</span> <span class="nc">OverdefinedError</span><span class="p">(</span><span class="n">IntentionAmbiguousError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="LimitsOverdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.LimitsOverdefinedError">[docs]</a><span class="k">class</span> <span class="nc">LimitsOverdefinedError</span><span class="p">(</span><span class="n">OverdefinedError</span><span class="p">):</span>
+<div class="viewcode-block" id="LimitsOverdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.LimitsOverdefinedError">[docs]</a><span class="k">class</span> <span class="nc">LimitsOverdefinedError</span><span class="p">(</span><span class="n">OverdefinedError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="CoordinatesUnderdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.CoordinatesUnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">CoordinatesUnderdefinedError</span><span class="p">(</span><span class="n">UnderdefinedError</span><span class="p">):</span>
+<div class="viewcode-block" id="CoordinatesUnderdefinedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.CoordinatesUnderdefinedError">[docs]</a><span class="k">class</span> <span class="nc">CoordinatesUnderdefinedError</span><span class="p">(</span><span class="n">UnderdefinedError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="AxesAmbiguousError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.AxesAmbiguousError">[docs]</a><span class="k">class</span> <span class="nc">AxesAmbiguousError</span><span class="p">(</span><span class="n">IntentionAmbiguousError</span><span class="p">):</span>
+<div class="viewcode-block" id="AxesAmbiguousError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.AxesAmbiguousError">[docs]</a><span class="k">class</span> <span class="nc">AxesAmbiguousError</span><span class="p">(</span><span class="n">IntentionAmbiguousError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="NotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.NotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">NotSpecifiedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="NotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.NotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">NotSpecifiedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="LimitsNotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.LimitsNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">LimitsNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
+<div class="viewcode-block" id="LimitsNotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.LimitsNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">LimitsNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="NormRangeNotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.NormRangeNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">NormRangeNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
+<div class="viewcode-block" id="NormRangeNotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.NormRangeNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">NormRangeNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="AxesNotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.AxesNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">AxesNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
+<div class="viewcode-block" id="AxesNotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.AxesNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">AxesNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ObsNotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.ObsNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">ObsNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
+<div class="viewcode-block" id="ObsNotSpecifiedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.ObsNotSpecifiedError">[docs]</a><span class="k">class</span> <span class="nc">ObsNotSpecifiedError</span><span class="p">(</span><span class="n">NotSpecifiedError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
 <span class="c1"># Parameter Errors</span>
-<div class="viewcode-block" id="NameAlreadyTakenError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.NameAlreadyTakenError">[docs]</a><span class="k">class</span> <span class="nc">NameAlreadyTakenError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="NameAlreadyTakenError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.NameAlreadyTakenError">[docs]</a><span class="k">class</span> <span class="nc">NameAlreadyTakenError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
 <span class="c1"># Operation errors</span>
-<div class="viewcode-block" id="IncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.IncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">IncompatibleError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="IncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.IncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">IncompatibleError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ShapeIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.ShapeIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ShapeIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+<div class="viewcode-block" id="ShapeIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.ShapeIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ShapeIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ObsIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.ObsIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ObsIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+<div class="viewcode-block" id="ObsIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.ObsIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ObsIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="AxesIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.AxesIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">AxesIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+<div class="viewcode-block" id="AxesIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.AxesIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">AxesIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="CoordinatesIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.CoordinatesIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">CoordinatesIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+<div class="viewcode-block" id="CoordinatesIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.CoordinatesIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">CoordinatesIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="SpaceIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.SpaceIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">SpaceIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+<div class="viewcode-block" id="SpaceIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.SpaceIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">SpaceIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="LimitsIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.LimitsIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">LimitsIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+<div class="viewcode-block" id="LimitsIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.LimitsIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">LimitsIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="NumberOfEventsIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.NumberOfEventsIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">NumberOfEventsIncompatibleError</span><span class="p">(</span><span class="n">ShapeIncompatibleError</span><span class="p">):</span>
+<div class="viewcode-block" id="NumberOfEventsIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.NumberOfEventsIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">NumberOfEventsIncompatibleError</span><span class="p">(</span><span class="n">ShapeIncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="InvalidLimitSubspaceError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.InvalidLimitSubspaceError">[docs]</a><span class="k">class</span> <span class="nc">InvalidLimitSubspaceError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="InvalidLimitSubspaceError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.InvalidLimitSubspaceError">[docs]</a><span class="k">class</span> <span class="nc">InvalidLimitSubspaceError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ModelIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.ModelIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ModelIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelIncompatibleError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.ModelIncompatibleError">[docs]</a><span class="k">class</span> <span class="nc">ModelIncompatibleError</span><span class="p">(</span><span class="n">IncompatibleError</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
 <span class="c1"># Data errors</span>
-<div class="viewcode-block" id="WeightsNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.WeightsNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">WeightsNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="WeightsNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.WeightsNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">WeightsNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="DataIsBatchedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.DataIsBatchedError">[docs]</a><span class="k">class</span> <span class="nc">DataIsBatchedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="DataIsBatchedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.DataIsBatchedError">[docs]</a><span class="k">class</span> <span class="nc">DataIsBatchedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
 <span class="c1"># Parameter errors</span>
-<div class="viewcode-block" id="ParameterNotIndependentError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.ParameterNotIndependentError">[docs]</a><span class="k">class</span> <span class="nc">ParameterNotIndependentError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="ParameterNotIndependentError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.ParameterNotIndependentError">[docs]</a><span class="k">class</span> <span class="nc">ParameterNotIndependentError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
 <span class="c1"># Minimizer errors</span>
 
-<div class="viewcode-block" id="NotMinimizedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.NotMinimizedError">[docs]</a><span class="k">class</span> <span class="nc">NotMinimizedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="NotMinimizedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.NotMinimizedError">[docs]</a><span class="k">class</span> <span class="nc">NotMinimizedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
 <span class="c1"># Runtime Errors</span>
 
 
-<div class="viewcode-block" id="IllegalInGraphModeError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.IllegalInGraphModeError">[docs]</a><span class="k">class</span> <span class="nc">IllegalInGraphModeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="IllegalInGraphModeError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.IllegalInGraphModeError">[docs]</a><span class="k">class</span> <span class="nc">IllegalInGraphModeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="CannotConvertToNumpyError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.CannotConvertToNumpyError">[docs]</a><span class="k">class</span> <span class="nc">CannotConvertToNumpyError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="CannotConvertToNumpyError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.CannotConvertToNumpyError">[docs]</a><span class="k">class</span> <span class="nc">CannotConvertToNumpyError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="c1"># Baseclass to steer execution</span>
+<div class="viewcode-block" id="ZfitNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.ZfitNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">ZfitNotImplementedError</span><span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">ZfitNotImplementedError</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Prefer to use a more specific subclass. See in `zfit.exceptions`&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FunctionNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.FunctionNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">FunctionNotImplementedError</span><span class="p">(</span><span class="n">ZfitNotImplementedError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Any function, e.g. in a BaseModel, that not implemented and a fallback should be called.</span>
+
+<span class="sd">    Preferably use more specific exceptions</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="SpecificFunctionNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.SpecificFunctionNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">SpecificFunctionNotImplementedError</span><span class="p">(</span><span class="n">FunctionNotImplementedError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If a specific function, e.g. by the user is not implemented&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="MinimizeNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.MinimizeNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">MinimizeNotImplementedError</span><span class="p">(</span><span class="n">FunctionNotImplementedError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The `minimize` function of a minimizer is not implemented.&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="MinimizeStepNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.MinimizeStepNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">MinimizeStepNotImplementedError</span><span class="p">(</span><span class="n">FunctionNotImplementedError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The `step` function of a minimizer is not implemented.&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="AnalyticNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.AnalyticNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">AnalyticNotImplementedError</span><span class="p">(</span><span class="n">ZfitNotImplementedError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;General exception if an analytic way is not implemented&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="AnalyticIntegralNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.AnalyticIntegralNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">AnalyticIntegralNotImplementedError</span><span class="p">(</span><span class="n">AnalyticNotImplementedError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If an analytic integral is not provided.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AnalyticSamplingNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.AnalyticSamplingNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">AnalyticSamplingNotImplementedError</span><span class="p">(</span><span class="n">AnalyticNotImplementedError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If analytic sampling from a distribution is not possible.&quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 
 <span class="c1"># PDF class internal handling errors</span>
-<div class="viewcode-block" id="NormRangeNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.NormRangeNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">NormRangeNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="NormRangeNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.NormRangeNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">NormRangeNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Indicates that a function does not support the normalization range argument `norm_range`.&quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MultipleLimitsNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.MultipleLimitsNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">MultipleLimitsNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="MultipleLimitsNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.MultipleLimitsNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">MultipleLimitsNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Indicates that a function does not support several limits in a :py:class:`~zfit.Space`.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="VectorizedLimitsNotImplementedError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.VectorizedLimitsNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">VectorizedLimitsNotImplementedError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Indicates that a function does not support vectorized (n_events &gt; 1) limits in a :py:class:`~zfit.Space`.&quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 
 <span class="c1"># Developer verbose messages</span>
 
-<div class="viewcode-block" id="WorkInProgressError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.WorkInProgressError">[docs]</a><span class="k">class</span> <span class="nc">WorkInProgressError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkInProgressError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.WorkInProgressError">[docs]</a><span class="k">class</span> <span class="nc">WorkInProgressError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Only for developing purpose! Does not serve as a &#39;real&#39; Exception.&quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="BreakingAPIChangeError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.BreakingAPIChangeError">[docs]</a><span class="k">class</span> <span class="nc">BreakingAPIChangeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+<div class="viewcode-block" id="BreakingAPIChangeError"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.BreakingAPIChangeError">[docs]</a><span class="k">class</span> <span class="nc">BreakingAPIChangeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">default_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;This item has been removed due to an API change. Instruction to update:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                       <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">default_msg</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BehaviorUnderDiscussion"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.util.exception.BehaviorUnderDiscussion">[docs]</a><span class="k">class</span> <span class="nc">BehaviorUnderDiscussion</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="BehaviorUnderDiscussion"><a class="viewcode-back" href="../../../api/zfit.util.exception.html#zfit.exception.BehaviorUnderDiscussion">[docs]</a><span class="k">class</span> <span class="nc">BehaviorUnderDiscussion</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">default_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The behavior of the following is currently under discussion and ideas are well needed. &quot;</span>
