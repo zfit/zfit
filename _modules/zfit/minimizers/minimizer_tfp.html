@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.minimizer_tfp &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
+    <title>zfit.minimizers.minimizer_tfp &#8212; zfit 0.4.4.dev103+g928c2fa documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -430,17 +430,22 @@
             <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">8</span>
 
             <span class="n">is_nan</span> <span class="o">=</span> <span class="kc">False</span>
-
+            <span class="n">gradients</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">gradients</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">update_params_value_grad</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
 
             <span class="k">except</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">InvalidArgumentError</span><span class="p">:</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="s1">&#39;NaNs&#39;</span>
                 <span class="n">is_nan</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;invalid, error occured&quot;</span>
             <span class="k">except</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;invalid, error occured&quot;</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="s1">&#39;unknonw error&#39;</span>
                 <span class="k">raise</span>
             <span class="k">finally</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;invalid, </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">gradients</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">gradients</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;invalid, </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
                     <span class="n">print_gradients</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">],</span> <span class="n">loss</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
             <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>

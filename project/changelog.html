@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.4.4.dev103+g066dd99 documentation</title>
+    <title>Changelog &#8212; zfit 0.4.4.dev103+g928c2fa documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -501,6 +501,7 @@ in repeated tasks.</p></li>
 <li><p>Improved stability of minimizer by adding penalty (currently in <cite>Minuit</cite>) as default. To have a
 better behavior with toys (e.g. never fail on NaNs but return an invalid <cite>FitResult</cite>), use the
 <cite>DefaultToyStrategy</cite> in <cite>zfit.mnimize</cite>.</p></li>
+<li><p>Exceptions are now publicly available in <cite>zfit.exception</cite></p></li>
 </ul>
 </div></blockquote>
 </div>
@@ -532,6 +533,7 @@ parameters with one command. Can, as the <cite>set_value</cite> method be used w
 <li><p>wrong size of weights when applying cuts in a dataset</p></li>
 <li><p><cite>with_coords</cite> did drop axes/obs</p></li>
 <li><p>Fix function not traced when an error was raised during first trace</p></li>
+<li><p>MultipleLimits support for analytic integrals</p></li>
 </ul>
 </div></blockquote>
 </div>
