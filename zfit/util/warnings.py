@@ -25,12 +25,16 @@ class AdvancedFeatureWarning(UserWarning):
     pass
 
 
+warned = set()
+
+
 def warn_advanced_feature(message, identifier):
     from .. import settings
 
-    if settings.advanced_warnings[identifier] and settings.advanced_warnings.all:
+    if settings.advanced_warnings[identifier] and settings.advanced_warnings.all and identifier not in warned:
+        warned.add(identifier)
         warnings.warn(
-            "Either you're using an advanced feature OR causing unwanted behavior. "
-            "To turn this warning off, use `zfit.settings.advanced_warnings.{identifier}` = False`\n"
-            " or 'all' (dangerous) with `zfit.settings.advanced_warnings.all = False"
+            f"Either you're using an advanced feature OR causing unwanted behavior. "
+            f"To turn this warning off, use `zfit.settings.advanced_warnings.{identifier}` = False`\n"
+            f" or 'all' (dangerous) with `zfit.settings.advanced_warnings.all = False"
             + message, category=AdvancedFeatureWarning, stacklevel=2)
