@@ -35,6 +35,6 @@ def warn_advanced_feature(message, identifier):
         warned.add(identifier)
         warnings.warn(
             f"Either you're using an advanced feature OR causing unwanted behavior. "
-            f"To turn this warning off, use `zfit.settings.advanced_warnings.{identifier}` = False`\n"
-            f" or 'all' (dangerous) with `zfit.settings.advanced_warnings.all = False"
+            f"To turn this warning off, use `zfit.settings.advanced_warnings.{identifier}` = False` "
+            f" or 'all' (dangerous) with `zfit.settings.advanced_warnings.all = False\n"
             + message, category=AdvancedFeatureWarning, stacklevel=2)
