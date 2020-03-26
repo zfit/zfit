@@ -4,13 +4,15 @@ import itertools
 from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
 
+import colored
 import numpy as np
 import tableformatter as tafo
-from colorama import Back, Style
+from colorama import Style
 from ordered_set import OrderedSet
 
 from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
+from ..settings import run
 from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
 from ..util.ztyping import ParamsTypeOpt
@@ -314,9 +316,9 @@ class FitResult(ZfitResult):
         return method(result=self, params=params)
 
     def __str__(self):
-        string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of {self.loss} with {self.minimizer}\n'
+        string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n'
         string += tafo.generate_table(
-            [[color_red_if_false(self.converged), format_value(self.edm, highprec=False),
+            [[color_on_bool(self.converged), format_value(self.edm, highprec=False),
               format_value(self.fmin)]],
             ['converged', 'edm', 'min value'],
             # grid_style=tafo.SparseGrid()
@@ -381,16 +383,19 @@ def format_value(value, highprec=True):
     return value
 
 
-def color_red_if_false(value):
-    if not value:
-        value_add = Back.RED
+def color_on_bool(value, on_true=colored.bg(10), on_false=colored.bg(9)):
+    if not value and on_false:
+        value_add = on_false
+    elif value and on_true:
+        value_add = on_true
     else:
-        value_add = ""
+        value_add = ''
     value = value_add + str(value)
     return value
 
 
 class ParamHolder(dict):  # no UserDict, we only want to change the __str__
+
     def __str__(self) -> str:
         order_keys = ['value', 'hesse']
         keys = OrderedSet()
@@ -403,9 +408,10 @@ class ParamHolder(dict):  # no UserDict, we only want to change the __str__
         for param, pdict in self.items():
             row = [param.name]
             row.extend(format_value(pdict.get(key, ' ')) for key in order_keys)
+            row.append(color_on_bool(run(param.at_limit), on_true=colored.bg('light_red'), on_false=False))
             rows.append(row)
 
-        order_keys = ['name'] + list(order_keys)
+        order_keys = ['name'] + list(order_keys) + ['at limit']
 
         return tafo.generate_table(rows, order_keys,
-                                   grid_style=tafo.AlternatingRowGrid(Back.LIGHTWHITE_EX, Back.WHITE))
+                                   grid_style=tafo.AlternatingRowGrid(colored.bg(15), colored.bg(254)))
