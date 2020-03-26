@@ -51,6 +51,7 @@ Major Features and Improvements
    better behavior with toys (e.g. never fail on NaNs but return an invalid `FitResult`), use the
    `DefaultToyStrategy` in `zfit.mnimize`.
  - Exceptions are now publicly available in `zfit.exception`
+ - Added nice printout for `FitResult` and `FitResult.params`.
 
 Breaking changes
 ------------------
@@ -76,13 +77,14 @@ Bug fixes and small changes
  - `with_coords` did drop axes/obs
  - Fix function not traced when an error was raised during first trace
  - MultipleLimits support for analytic integrals
+ - `zfit.param.set_values(..)` now also can use a `FitResult` as `values` argument to set the values
+   from.
 
 
 Requirement changes
 -------------------
  - remove the outdated typing module
-
-
+ - add tableformatter, colored, colorama for colored table printout
 
 Thanks
 ------

@@ -19,7 +19,6 @@ from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
-from ..util.checks import ZfitNotImplemented
 from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError
 
 
@@ -53,6 +52,9 @@ class BaseStrategy(ZfitStrategy):
               " problem. Also check your model (if custom) for problems. For more information,"
               " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
         raise FailMinimizeNaN()
+
+    def __str__(self) -> str:
+        return repr(self.__class__)[:-2].split(".")[-1]
 
 
 class ToyStrategyFail(BaseStrategy):
@@ -120,13 +122,12 @@ class BaseMinimizer(ZfitMinimizer):
     attribute (dict) `minimizer.minimizer_options`
 
     """
-    _DEFAULT_name = "BaseMinimizer"
     _DEFAULT_TOLERANCE = 1e-3
 
     def __init__(self, name, tolerance, verbosity, minimizer_options, strategy=None, **kwargs):
         super().__init__(**kwargs)
         if name is None:
-            name = self._DEFAULT_name
+            name = repr(self.__class__)[:-2].split(".")[-1]
         if strategy is None:
             strategy = DefaultStrategy()
         if not isinstance(strategy, ZfitStrategy):
@@ -314,6 +315,10 @@ class BaseMinimizer(ZfitMinimizer):
 
     def _step(self, loss, params):
         raise MinimizeStepNotImplementedError
+
+    def __str__(self) -> str:
+        string = f'<{self.name} strategy={self.strategy} tolerance={self.tolerance}>'
+        return string
 
 
 def print_params(params, values, loss=None):
