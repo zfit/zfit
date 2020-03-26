@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.4.4.dev103+gf973902 documentation</title>
+    <title>Changelog &#8212; zfit 0.4.4.dev107+gccae2fe documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev107</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -502,6 +502,7 @@ in repeated tasks.</p></li>
 better behavior with toys (e.g. never fail on NaNs but return an invalid <cite>FitResult</cite>), use the
 <cite>DefaultToyStrategy</cite> in <cite>zfit.mnimize</cite>.</p></li>
 <li><p>Exceptions are now publicly available in <cite>zfit.exception</cite></p></li>
+<li><p>Added nice printout for <cite>FitResult</cite> and <cite>FitResult.params</cite>.</p></li>
 </ul>
 </div></blockquote>
 </div>
@@ -534,6 +535,8 @@ parameters with one command. Can, as the <cite>set_value</cite> method be used w
 <li><p><cite>with_coords</cite> did drop axes/obs</p></li>
 <li><p>Fix function not traced when an error was raised during first trace</p></li>
 <li><p>MultipleLimits support for analytic integrals</p></li>
+<li><p><cite>zfit.param.set_values(..)</cite> now also can use a <cite>FitResult</cite> as <cite>values</cite> argument to set the values
+from.</p></li>
 </ul>
 </div></blockquote>
 </div>
@@ -542,6 +545,7 @@ parameters with one command. Can, as the <cite>set_value</cite> method be used w
 <blockquote>
 <div><ul class="simple">
 <li><p>remove the outdated typing module</p></li>
+<li><p>add tableformatter, colored, colorama for colored table printout</p></li>
 </ul>
 </div></blockquote>
 </div>

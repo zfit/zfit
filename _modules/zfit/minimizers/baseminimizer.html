@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.4.4.dev103+gf973902 documentation</title>
+    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.4.4.dev107+gccae2fe documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev107</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -398,7 +398,6 @@
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..util.checks</span> <span class="kn">import</span> <span class="n">ZfitNotImplemented</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">MinimizeNotImplementedError</span><span class="p">,</span> <span class="n">MinimizeStepNotImplementedError</span>
 
 
@@ -431,7 +430,10 @@
               <span class="s2">&quot; values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this&quot;</span>
               <span class="s2">&quot; problem. Also check your model (if custom) for problems. For more information,&quot;</span>
               <span class="s2">&quot; visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="n">FailMinimizeNaN</span><span class="p">()</span></div>
+        <span class="k">raise</span> <span class="n">FailMinimizeNaN</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ToyStrategyFail"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.ToyStrategyFail">[docs]</a><span class="k">class</span> <span class="nc">ToyStrategyFail</span><span class="p">(</span><span class="n">BaseStrategy</span><span class="p">):</span>
@@ -499,13 +501,12 @@
 <span class="sd">    attribute (dict) `minimizer.minimizer_options`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_DEFAULT_name</span> <span class="o">=</span> <span class="s2">&quot;BaseMinimizer&quot;</span>
     <span class="n">_DEFAULT_TOLERANCE</span> <span class="o">=</span> <span class="mf">1e-3</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">,</span> <span class="n">minimizer_options</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_name</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">strategy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">strategy</span> <span class="o">=</span> <span class="n">DefaultStrategy</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span> <span class="n">ZfitStrategy</span><span class="p">):</span>
@@ -692,7 +693,11 @@
         <span class="k">raise</span> <span class="n">MinimizeStepNotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">MinimizeStepNotImplementedError</span></div>
+        <span class="k">raise</span> <span class="n">MinimizeStepNotImplementedError</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> strategy=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="si">}</span><span class="s1"> tolerance=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+        <span class="k">return</span> <span class="n">string</span></div>
 
 
 <div class="viewcode-block" id="print_params"><a class="viewcode-back" href="../../../api/zfit.minimizers.baseminimizer.html#zfit.minimize.print_params">[docs]</a><span class="k">def</span> <span class="nf">print_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

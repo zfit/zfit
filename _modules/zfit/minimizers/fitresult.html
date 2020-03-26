@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.fitresult &#8212; zfit 0.4.4.dev103+gf973902 documentation</title>
+    <title>zfit.minimizers.fitresult &#8212; zfit 0.4.4.dev107+gccae2fe documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev107</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -383,14 +383,18 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 
+<span class="kn">import</span> <span class="nn">colored</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tableformatter</span> <span class="k">as</span> <span class="nn">tafo</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Style</span>
+<span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
 
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">ZfitResult</span>
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WeightsNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">..util.ztyping</span> <span class="kn">import</span> <span class="n">ParamsTypeOpt</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">settings</span>
 
 
 <span class="k">def</span> <span class="nf">_minos_minuit</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
@@ -491,7 +495,7 @@
         <span class="c1"># self.param_hesse = OrderedDict((p, {}) for p in params)</span>
 
     <span class="k">def</span> <span class="nf">_input_convert_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">ParamHolder</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">params</span>
 
     <span class="k">def</span> <span class="nf">_get_uncached_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="p">):</span>
@@ -688,7 +692,19 @@
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following method is not a valid, implemented method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;FitResult&#39;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">NORMAL</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; of</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">with</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">minimizer</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="n">tafo</span><span class="o">.</span><span class="n">generate_table</span><span class="p">(</span>
+            <span class="p">[[</span><span class="n">color_on_bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">),</span> <span class="n">format_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edm</span><span class="p">,</span> <span class="n">highprec</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+              <span class="n">format_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmin</span><span class="p">)]],</span>
+            <span class="p">[</span><span class="s1">&#39;converged&#39;</span><span class="p">,</span> <span class="s1">&#39;edm&#39;</span><span class="p">,</span> <span class="s1">&#39;min value&#39;</span><span class="p">],</span>
+            <span class="c1"># grid_style=tafo.SparseGrid()</span>
+        <span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="s2">&quot;Parameters</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">string</span></div>
 
 
 <div class="viewcode-block" id="dict_to_matrix"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.dict_to_matrix">[docs]</a><span class="k">def</span> <span class="nf">dict_to_matrix</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">matrix_dict</span><span class="p">):</span>
@@ -720,27 +736,64 @@
 
     <span class="k">return</span> <span class="n">matrix_dict</span></div>
 
-<span class="c1"># def set_error_method(self, method):</span>
-<span class="c1">#     if isinstance(method, str):</span>
-<span class="c1">#         try:</span>
-<span class="c1">#             method = self._error_methods[method]</span>
-<span class="c1">#         except AttributeError:</span>
-<span class="c1">#             raise AttributeError(&quot;The error method &#39;{}&#39; is not registered with the minimizer.&quot;.format(method))</span>
-<span class="c1">#     elif callable(method):</span>
-<span class="c1">#         self._current_error_method = method</span>
-<span class="c1">#     else:</span>
-<span class="c1">#         raise ValueError(&quot;Method {} is neither a valid method name nor a callable function.&quot;.format(method))</span>
-<span class="c1">#</span>
-<span class="c1"># def set_error_options(self, replace: bool = False, **options):</span>
-<span class="c1">#     &quot;&quot;&quot;Specify the options for the `error` calculation.</span>
-<span class="c1">#</span>
-<span class="c1">#     Args:</span>
-<span class="c1">#         replace (bool): If True, replace the current options. If False, only update</span>
-<span class="c1">#             (add/overwrite existing).</span>
-<span class="c1">#         **options (keyword arguments): The keyword arguments that will be given to `error`.</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#         self._current_error_options = {}</span>
-<span class="c1">#     self._current_error_options.update(options)</span>
+
+<div class="viewcode-block" id="format_value"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.format_value">[docs]</a><span class="k">def</span> <span class="nf">format_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">highprec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">iminuit</span>
+        <span class="n">m_error_class</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">MError</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">m_error_class</span> <span class="o">=</span> <span class="nb">dict</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">m_error_class</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="s1">&#39;error&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+/- </span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">&gt; 6.2g</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;lower&#39;</span> <span class="ow">in</span> <span class="n">value</span> <span class="ow">and</span> <span class="s1">&#39;upper&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;lower&#39;</span><span class="p">]</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;upper&#39;</span><span class="p">]</span>
+            <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lower</span><span class="si">:</span><span class="s2"> &gt;+6.2g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">upper</span><span class="si">:</span><span class="s2"> &gt;+6.2g</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">lower</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">9</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">lower</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">lower</span> <span class="o">+</span> <span class="n">upper</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">highprec</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">&gt; 6.4g</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">&gt; 6.2g</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="color_on_bool"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.color_on_bool">[docs]</a><span class="k">def</span> <span class="nf">color_on_bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">on_true</span><span class="o">=</span><span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">on_false</span><span class="o">=</span><span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">9</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">on_false</span><span class="p">:</span>
+        <span class="n">value_add</span> <span class="o">=</span> <span class="n">on_false</span>
+    <span class="k">elif</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">on_true</span><span class="p">:</span>
+        <span class="n">value_add</span> <span class="o">=</span> <span class="n">on_true</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">value_add</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value_add</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="ParamHolder"><a class="viewcode-back" href="../../../api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.ParamHolder">[docs]</a><span class="k">class</span> <span class="nc">ParamHolder</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>  <span class="c1"># no UserDict, we only want to change the __str__</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">order_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;hesse&#39;</span><span class="p">]</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">pdict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">keys</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">OrderedSet</span><span class="p">(</span><span class="n">pdict</span><span class="p">))</span>
+        <span class="n">order_keys</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">([</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order_keys</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
+        <span class="n">order_keys</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">pdict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">format_value</span><span class="p">(</span><span class="n">pdict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order_keys</span><span class="p">)</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">color_on_bool</span><span class="p">(</span><span class="n">run</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">at_limit</span><span class="p">),</span> <span class="n">on_true</span><span class="o">=</span><span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="s1">&#39;light_red&#39;</span><span class="p">),</span> <span class="n">on_false</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="n">order_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">order_keys</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;at limit&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">tafo</span><span class="o">.</span><span class="n">generate_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">order_keys</span><span class="p">,</span>
+                                   <span class="n">grid_style</span><span class="o">=</span><span class="n">tafo</span><span class="o">.</span><span class="n">AlternatingRowGrid</span><span class="p">(</span><span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">15</span><span class="p">),</span> <span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">254</span><span class="p">)))</span></div>
 </pre></div>
 
     </div>

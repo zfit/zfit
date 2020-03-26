@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>fitresult &#8212; zfit 0.4.4.dev103+gf973902 documentation</title>
+    <title>fitresult &#8212; zfit 0.4.4.dev107+gccae2fe documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev107</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -557,9 +557,89 @@ error_a is the hessian error.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="zfit.minimizers.fitresult.ParamHolder">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.fitresult.</code><code class="sig-name descname">ParamHolder</code><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#ParamHolder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.clear">
+<code class="sig-name descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None.  Remove all items from D.<a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a shallow copy of D<a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.fromkeys">
+<code class="sig-name descname">fromkeys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.fromkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new dictionary with keys from iterable and values set to value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.items">
+<code class="sig-name descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a set-like object providing a view on D's items<a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.keys">
+<code class="sig-name descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a set-like object providing a view on D's keys<a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.pop">
+<code class="sig-name descname">pop</code><span class="sig-paren">(</span><em class="sig-param">k</em><span class="optional">[</span>, <em class="sig-param">d</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; v, remove specified key and return the corresponding value.<a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>If key is not found, d is returned if given, otherwise KeyError is raised</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.popitem">
+<code class="sig-name descname">popitem</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; (k, v), remove and return some (key, value) pair as a<a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.popitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>2-tuple; but raise KeyError if D is empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.setdefault">
+<code class="sig-name descname">setdefault</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.setdefault" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert key with a value of default if key is not in the dictionary.</p>
+<p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param">E</em>, <span class="optional">]</span><em class="sig-param">**F</em><span class="sig-paren">)</span> &#x2192; None.  Update D from dict/iterable E and F.<a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+In either case, this is followed by: for k in F:  D[k] = F[k]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="zfit.minimizers.fitresult.ParamHolder.values">
+<code class="sig-name descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; an object providing a view on D's values<a class="headerlink" href="#zfit.minimizers.fitresult.ParamHolder.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="zfit.minimizers.fitresult.color_on_bool">
+<code class="sig-prename descclassname">zfit.minimizers.fitresult.</code><code class="sig-name descname">color_on_bool</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">on_true='\x1b[48;5;10m'</em>, <em class="sig-param">on_false='\x1b[48;5;9m'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#color_on_bool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.color_on_bool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="zfit.minimizers.fitresult.dict_to_matrix">
 <code class="sig-prename descclassname">zfit.minimizers.fitresult.</code><code class="sig-name descname">dict_to_matrix</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">matrix_dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#dict_to_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.dict_to_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="zfit.minimizers.fitresult.format_value">
+<code class="sig-prename descclassname">zfit.minimizers.fitresult.</code><code class="sig-name descname">format_value</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">highprec=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#format_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.format_value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">

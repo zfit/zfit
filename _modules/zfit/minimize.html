@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimize &#8212; zfit 0.4.4.dev103+gf973902 documentation</title>
+    <title>zfit.minimize &#8212; zfit 0.4.4.dev107+gccae2fe documentation</title>
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../index.html"><img src="../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev103</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev107</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -378,16 +378,14 @@
       
   <h1>Source code for zfit.minimize</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">deprecated</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># TF &lt; 2.2</span>
-    <span class="kn">from</span> <span class="nn">tensorflow_core.python</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
+
+<span class="kn">from</span> <span class="nn">.minimizers.baseminimizer</span> <span class="kn">import</span> <span class="n">DefaultStrategy</span><span class="p">,</span> <span class="n">DefaultToyStrategy</span>
 <span class="kn">from</span> <span class="nn">.minimizers.minimizer_minuit</span> <span class="kn">import</span> <span class="n">Minuit</span>
 <span class="kn">from</span> <span class="nn">.minimizers.minimizer_tfp</span> <span class="kn">import</span> <span class="n">BFGS</span>
 <span class="kn">from</span> <span class="nn">.minimizers.minimizers_scipy</span> <span class="kn">import</span> <span class="n">Scipy</span>
 <span class="kn">from</span> <span class="nn">.minimizers.optimizers_tf</span> <span class="kn">import</span> <span class="n">Adam</span><span class="p">,</span> <span class="n">WrapOptimizer</span>
-<span class="kn">from</span> <span class="nn">.minimizers.baseminimizer</span> <span class="kn">import</span> <span class="n">DefaultStrategy</span><span class="p">,</span> <span class="n">DefaultToyStrategy</span>
+<span class="kn">from</span> <span class="nn">.util.legacy</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 
 <div class="viewcode-block" id="AdamMinimizer"><a class="viewcode-back" href="../../api/zfit.minimize.html#zfit.minimize.AdamMinimizer">[docs]</a><span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Use zfit.minimize.Adam instead.&quot;</span><span class="p">)</span>
