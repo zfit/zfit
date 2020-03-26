@@ -5,13 +5,15 @@ from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
 
 import numpy as np
+import tableformatter as tafo
+from colorama import Back, Style
+from ordered_set import OrderedSet
 
 from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
 from ..util.ztyping import ParamsTypeOpt
-from .. import settings
 
 
 def _minos_minuit(result, params, sigma=1.0):
@@ -112,7 +114,7 @@ class FitResult(ZfitResult):
         # self.param_hesse = OrderedDict((p, {}) for p in params)
 
     def _input_convert_params(self, params):
-        params = OrderedDict((p, {"value": v}) for p, v in params.items())
+        params = ParamHolder((p, {"value": v}) for p, v in params.items())
         return params
 
     def _get_uncached_params(self, params, method_name):
@@ -311,6 +313,18 @@ class FitResult(ZfitResult):
         params = list(self.params.keys())
         return method(result=self, params=params)
 
+    def __str__(self):
+        string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of {self.loss} with {self.minimizer}\n'
+        string += tafo.generate_table(
+            [[color_red_if_false(self.converged), format_value(self.edm, highprec=False),
+              format_value(self.fmin)]],
+            ['converged', 'edm', 'min value'],
+            # grid_style=tafo.SparseGrid()
+        )
+        string += Style.BRIGHT + "Parameters\n"
+        string += str(self.params)
+        return string
+
 
 def dict_to_matrix(params, matrix_dict):
     nparams = len(params)
@@ -341,24 +355,57 @@ def matrix_to_dict(params, matrix):
 
     return matrix_dict
 
-# def set_error_method(self, method):
-#     if isinstance(method, str):
-#         try:
-#             method = self._error_methods[method]
-#         except AttributeError:
-#             raise AttributeError("The error method '{}' is not registered with the minimizer.".format(method))
-#     elif callable(method):
-#         self._current_error_method = method
-#     else:
-#         raise ValueError("Method {} is neither a valid method name nor a callable function.".format(method))
-#
-# def set_error_options(self, replace: bool = False, **options):
-#     """Specify the options for the `error` calculation.
-#
-#     Args:
-#         replace (bool): If True, replace the current options. If False, only update
-#             (add/overwrite existing).
-#         **options (keyword arguments): The keyword arguments that will be given to `error`.
-#     """
-#         self._current_error_options = {}
-#     self._current_error_options.update(options)
+
+def format_value(value, highprec=True):
+    try:
+        import iminuit
+        m_error_class = iminuit.util.MError
+    except ImportError:
+        m_error_class = dict
+    if isinstance(value, (dict, m_error_class)):
+        if 'error' in value:
+            value = value['error']
+            value = f"+/- {value:> 6.2g}"
+        if 'lower' in value and 'upper' in value:
+            lower = value['lower']
+            upper = value['upper']
+            lower, upper = f"{lower: >+6.2g}", f"{upper: >+6.2g}"
+            lower += " " * (9 - len(lower))
+            value = lower + upper
+
+    if isinstance(value, float):
+        if highprec:
+            value = f"{value:> 6.4g}"
+        else:
+            value = f"{value:> 6.2g}"
+    return value
+
+
+def color_red_if_false(value):
+    if not value:
+        value_add = Back.RED
+    else:
+        value_add = ""
+    value = value_add + str(value)
+    return value
+
+
+class ParamHolder(dict):  # no UserDict, we only want to change the __str__
+    def __str__(self) -> str:
+        order_keys = ['value', 'hesse']
+        keys = OrderedSet()
+        for pdict in self.values():
+            keys.update(OrderedSet(pdict))
+        order_keys = OrderedSet([key for key in order_keys if key in keys])
+        order_keys.update(keys)
+
+        rows = []
+        for param, pdict in self.items():
+            row = [param.name]
+            row.extend(format_value(pdict.get(key, ' ')) for key in order_keys)
+            rows.append(row)
+
+        order_keys = ['name'] + list(order_keys)
+
+        return tafo.generate_table(rows, order_keys,
+                                   grid_style=tafo.AlternatingRowGrid(Back.LIGHTWHITE_EX, Back.WHITE))

@@ -9,7 +9,7 @@ from typing import List, Union, Optional
 
 import numpy as np
 import tensorflow as tf
-from tensorflow_core.python import deprecated
+from .legacy import deprecated
 
 from .container import DotDict, is_container
 
