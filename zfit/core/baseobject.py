@@ -7,7 +7,7 @@ from typing import List
 import tensorflow as tf
 
 from zfit.core.dependents import BaseDependentsMixin
-from .interfaces import ZfitObject, ZfitNumeric
+from .interfaces import ZfitObject, ZfitNumericParametrized
 from ..util import ztyping
 from ..util.cache import Cachable
 from ..util.container import DotDict
@@ -71,7 +71,7 @@ class BaseObject(ZfitObject):
         return object.__hash__(self)
 
 
-class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumeric, BaseObject):
+class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumericParametrized, BaseObject):
 
     def __init__(self, name, params, **kwargs):
         if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?
