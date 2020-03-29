@@ -219,8 +219,8 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         try:
             return self._loss_func(model=self.model, data=self.data, fit_range=self.fit_range,
                                    constraints=self.constraints)
-        except NotImplementedError:
-            raise NotImplementedError("_loss_func not properly defined!")
+        except NotImplementedError as error:
+            raise NotImplementedError("_loss_func not properly defined!") from error
 
     def __add__(self, other):
         if not isinstance(other, BaseLoss):
@@ -266,6 +266,31 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         else:
             result = automatic_value_gradients_hessian(self.value, params=params, hessian=hessian)
         return result
+
+    def __repr__(self) -> str:
+        class_name = repr(self.__class__)[:-2].split(".")[-1]
+        string = f'<{class_name} ' \
+                 f'model={one_two_many([model.name for model in self.model])} ' \
+                 f'data={one_two_many([data.name for data in self.data])} ' \
+                 f'constraints={one_two_many(self.constraints, many="True")} ' \
+                 f'>'
+        return string
+
+    def __str__(self) -> str:
+        class_name = repr(self.__class__)[:-2].split(".")[-1]
+        string = f'<{class_name}' \
+                 f' model={one_two_many([model for model in self.model])}' \
+                 f' data={one_two_many([data for data in self.data])}' \
+                 f' constraints={one_two_many(self.constraints, many="True")}' \
+                 f'>'
+        return string
+
+
+def one_two_many(values, n=3, many='multiple'):
+    values = convert_to_container(values)
+    if len(values) > n:
+        values = many
+    return values
 
 
 class CachedLoss(BaseLoss):

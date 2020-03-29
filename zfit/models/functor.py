@@ -21,7 +21,8 @@ from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (ModelIncompatibleError, ObsIncompatibleError, NormRangeUnderdefinedError)
+from ..util.exception import (ModelIncompatibleError, ObsIncompatibleError, NormRangeUnderdefinedError,
+                              AnalyticIntegralNotImplementedError, SpecificFunctionNotImplementedError)
 from ..util.warnings import warn_advanced_feature
 from ..z.random import counts_multinomial
 
@@ -216,12 +217,6 @@ class SumPDF(BaseFunctor):
         fracs = self.params.values()
         prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
         return prob
-        # raise NotImplementedError
-        # pdfs = self.pdfs
-        # fracs = self.fracs
-        # func = tf.accumulate_n(
-        #     [scale * pdf.unnormalized_pdf(x) for pdf, scale in zip(pdfs, fracs)])
-        # return func
 
     # TODO(SUM): remove the below? Not needed anymore?
     # def _set_yield(self, value: Union[Parameter, None]):
@@ -253,15 +248,13 @@ class SumPDF(BaseFunctor):
     def _analytic_integrate(self, limits, norm_range):
         pdfs = self.pdfs
         fracs = self.fracs
-        # TODO(SUM): why was this needed?
-        # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         try:
-            integrals = [frac * pdf.integrate(limits=limits)  # do NOT propagate the norm_range!
+            integrals = [frac * pdf.analytic_integrate(limits=limits)  # do NOT propagate the norm_range!
                          for pdf, frac in zip(pdfs, fracs)]
-        except NotImplementedError as original_error:
-            raise NotImplementedError(f"analytic_integrate of pdf {self.name} is not implemented in this"
-                                      f" SumPDF, as at least one sub-pdf does not implement it."
-                                      f"Original message:\n{original_error}")
+        except AnalyticIntegralNotImplementedError as error:
+            raise AnalyticIntegralNotImplementedError(
+                f"analytic_integrate of pdf {self.name} is not implemented in this"
+                f" SumPDF, as at least one sub-pdf does not implement it.") from error
 
         # TODO(SUM): change the below? broadcast integrals?
         # integral = tf.reduce_sum(input_tensor=integrals)
@@ -274,8 +267,8 @@ class SumPDF(BaseFunctor):
         pdfs = self.pdfs
         fracs = self.fracs
 
-        partial_integral = [pdf.partial_integrate(x=x, limits=limits)  # do NOT propagate the norm_range!
-                            for pdf in zip(pdfs, fracs)]
+        partial_integral = [pdf.partial_integrate(x=x, limits=limits) * frac  # do NOT propagate the norm_range!
+                            for pdf, frac in zip(pdfs, fracs)]
         partial_integral = tf.math.accumulate_n(partial_integral)
         return partial_integral
 
@@ -284,13 +277,13 @@ class SumPDF(BaseFunctor):
         pdfs = self.pdfs
         fracs = self.fracs
         try:
-            partial_integral = [pdf.partial_analytic_integrate(x=x, limits=limits)  # do NOT propagate the norm_range!
-                                for pdf in zip(pdfs, fracs)]
-        except NotImplementedError as original_error:
-            raise NotImplementedError("partial_analytic_integrate of pdf {name} is not implemented in this"
-                                      " SumPDF, as at least one sub-pdf does not implement it."
-                                      "Original message:\n{error}".format(name=self.name,
-                                                                          error=original_error))
+            partial_integral = [pdf.partial_analytic_integrate(x=x, limits=limits) * frac
+                                # do NOT propagate the norm_range!
+                                for pdf, frac in zip(pdfs, fracs)]
+        except AnalyticIntegralNotImplementedError as error:
+            raise AnalyticIntegralNotImplementedError(
+                "partial_analytic_integrate of pdf {name} is not implemented in this"
+                " SumPDF, as at least one sub-pdf does not implement it.") from error
         partial_integral = tf.math.accumulate_n(partial_integral)
         return partial_integral
 
@@ -326,4 +319,4 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disase
             probs = [pdf.pdf(x=x) for pdf in self.pdfs]
             return tf.reduce_prod(input_tensor=probs, axis=0)
         else:
-            raise NotImplementedError
+            raise SpecificFunctionNotImplementedError

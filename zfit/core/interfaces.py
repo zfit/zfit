@@ -11,26 +11,14 @@ import zfit
 from ..util import ztyping
 
 
-class ZfitObject(abc.ABC):  # TODO(Mayou36): upgrade to tf2
-    # @property
-    # def name(self) -> str:
-    #     """Name prepended to all ops created by this `model`."""
-    #     raise NotImplementedError
+class ZfitObject(abc.ABC):
 
+    # TODO: make abstractmethod?
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError
 
-    # def copy(self, deep: bool = False, **overwrite_params) -> "ZfitObject":
-    #     raise NotImplementedError
-
 
 class ZfitDimensional(ZfitObject):
-
-    # @property
-    # @abstractmethod
-    # def space(self) -> "zfit.Space":
-    #     """Return the :py:class:`~zfit.Space` object that defines the dimensionality of the object."""
-    #     raise NotImplementedError
 
     @property
     @abstractmethod
@@ -828,8 +816,8 @@ class ZfitModel(ZfitNumeric, ZfitDimensional):
         raise NotImplementedError
 
     @abstractmethod
-    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
-                          name: str = "partial_integrate") -> ztyping.XType:
+    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType,
+                          norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
@@ -839,7 +827,6 @@ class ZfitModel(ZfitNumeric, ZfitDimensional):
             x (numerical): The value at which the partially integrated function will be evaluated
             limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes
             norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes
-            name (str):
 
         Returns:
             Tensor: the value of the partially integrated function evaluated at `x`.
@@ -884,7 +871,7 @@ class ZfitFunc(ZfitModel):
 class ZfitPDF(ZfitModel):
 
     @abstractmethod
-    def pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, name: str = "model") -> ztyping.XType:
+    def pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         raise NotImplementedError
 
     @property
@@ -905,7 +892,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abstractmethod
-    def normalization(self, limits: ztyping.LimitsType, name: str = "normalization") -> ztyping.NumericalTypeReturn:
+    def normalization(self, limits: ztyping.LimitsType) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
     @abstractmethod

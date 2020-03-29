@@ -1,5 +1,5 @@
 #  Copyright (c) 2020 zfit
-
+from functools import wraps
 from typing import Union, Iterable, Any
 
 import tensorflow as tf
@@ -53,13 +53,16 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
     return wrapped_func(dtype, logits, probs, total_count)
 
 
+@wraps(tf.random.normal)
 def normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, name=None):
     return tf.random.normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name)
 
 
+@wraps(tf.random.uniform)
 def uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
     return tf.random.uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
 
 
+@wraps(tf.random.poisson)
 def poisson(lam: Any, shape: Any, dtype: tf.DType = ztypes.float, seed: Any = None, name: Any = None):
     return tf.random.poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)

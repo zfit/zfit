@@ -6,6 +6,7 @@ import scipy.stats
 import zfit
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.util.exception import SpecificFunctionNotImplementedError
 
 
 def create_gaussians(yields):
@@ -70,7 +71,7 @@ def test_sampling():
 
         @zfit.supports()
         def _sample(self, n, limits):
-            raise NotImplementedError  # fallback to the default sampling
+            raise SpecificFunctionNotImplementedError  # fallback to the default sampling
 
     sample_size = 100000
     tolerance = 0.1
@@ -102,15 +103,15 @@ def test_integrate():
 
         @zfit.supports()
         def _integrate(self, limits, norm_range):
-            raise NotImplementedError  # fallback to the default sampling
+            raise SpecificFunctionNotImplementedError  # fallback to the default sampling
 
         @zfit.supports()
         def _analytic_integrate(self, limits, norm_range):
-            raise NotImplementedError
+            raise SpecificFunctionNotImplementedError
 
         @zfit.supports()
         def _numeric_integrate(self, limits, norm_range):
-            raise NotImplementedError
+            raise SpecificFunctionNotImplementedError
 
     mu1, mu2 = 0, 1.7
     frac = 0.7

@@ -8,6 +8,7 @@ from zfit import z, Space
 # noinspection PyUnresolvedReferences
 from zfit.core.space import Limit
 from zfit.core.testing import setup_function, teardown_function
+from zfit.util.exception import AnalyticSamplingNotImplementedError
 
 setup_func_general = setup_function
 teardown_func_general = teardown_function
@@ -30,19 +31,19 @@ mu_true = 1.5
 sigma_true = 1.2
 low, high = -3.8, 2.9
 
-obs1 = 'obs1'
+obs1 = zfit.Space('obs1', (low, high))
 
 
 class GaussNoAnalyticSampling(zfit.pdf.Gauss):
 
     def _analytic_sample(self, n, limits: Space):
-        raise NotImplementedError  # HACK do make importance sampling work
+        raise AnalyticSamplingNotImplementedError  # HACK do make importance sampling work
 
 
 class UniformNoAnalyticSampling(zfit.pdf.Uniform):
 
     def _analytic_sample(self, n, limits: Space):
-        raise NotImplementedError  # HACK do make importance sampling work
+        raise AnalyticSamplingNotImplementedError  # HACK do make importance sampling work
 
 
 def create_gauss1():
@@ -78,6 +79,32 @@ def create_test_gauss1():
 
 
 gaussian_dists = [lambda: create_gauss1(), lambda: create_test_gauss1()]
+
+
+@pytest.mark.flaky(2)  # sampling
+@pytest.mark.parametrize('gauss_factory', gaussian_dists)
+def test_multiple_limits_sampling(gauss_factory):
+    gauss, mu, sigma = gauss_factory()
+
+    low = mu_true - 6 * sigma_true
+    high = mu_true + 6 * sigma_true
+    low1 = low
+    low2 = up1 = (high - low) / 5
+    up2 = high
+    obs11 = zfit.Space(obs1.obs, (low1, up1))
+    obs12 = zfit.Space(obs1.obs, (low2, up2))
+    obs_split = obs11 + obs12
+    obs = zfit.Space(obs1.obs, (low, high))
+
+    n = 50000
+    sample1 = gauss.sample(n=n, limits=obs)
+    sample2 = gauss.sample(n=n, limits=obs_split)
+
+    rel_tolerance = 1e-2
+    assert np.mean(sample1.value()) == pytest.approx(mu_true, rel_tolerance)
+    assert np.std(sample1.value()) == pytest.approx(sigma_true, rel_tolerance)
+    assert np.mean(sample2.value()) == pytest.approx(mu_true, rel_tolerance)
+    assert np.std(sample2.value()) == pytest.approx(sigma_true, rel_tolerance)
 
 
 @pytest.mark.parametrize('gauss_factory', gaussian_dists)
@@ -205,8 +232,7 @@ def test_importance_sampling():
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True
             n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
-            gaussian_sample = gauss_sampler.sample(n=n_to_produce, limits=limits,
-                                                   name='asdf')
+            gaussian_sample = gauss_sampler.sample(n=n_to_produce, limits=limits)
             weights = gauss_sampler.pdf(gaussian_sample)
             weights_max = None
             thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)

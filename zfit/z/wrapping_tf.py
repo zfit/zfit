@@ -3,13 +3,11 @@
 import functools
 from typing import Any
 
-
 import tensorflow as tf
-from tensorflow_core.python import deprecated
 
 from .tools import _auto_upcast
-from . import zextension
 from ..settings import ztypes
+from ..util.legacy import deprecated
 
 
 def log(x, name=None):

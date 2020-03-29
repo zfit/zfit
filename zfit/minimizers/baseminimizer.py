@@ -19,7 +19,7 @@ from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
-from ..util.checks import ZfitNotImplemented
+from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError
 
 
 class FailMinimizeNaN(Exception):
@@ -52,6 +52,9 @@ class BaseStrategy(ZfitStrategy):
               " problem. Also check your model (if custom) for problems. For more information,"
               " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
         raise FailMinimizeNaN()
+
+    def __str__(self) -> str:
+        return repr(self.__class__)[:-2].split(".")[-1]
 
 
 class ToyStrategyFail(BaseStrategy):
@@ -119,13 +122,12 @@ class BaseMinimizer(ZfitMinimizer):
     attribute (dict) `minimizer.minimizer_options`
 
     """
-    _DEFAULT_name = "BaseMinimizer"
     _DEFAULT_TOLERANCE = 1e-3
 
     def __init__(self, name, tolerance, verbosity, minimizer_options, strategy=None, **kwargs):
         super().__init__(**kwargs)
         if name is None:
-            name = self._DEFAULT_name
+            name = repr(self.__class__)[:-2].split(".")[-1]
         if strategy is None:
             strategy = DefaultStrategy()
         if not isinstance(strategy, ZfitStrategy):
@@ -224,7 +226,7 @@ class BaseMinimizer(ZfitMinimizer):
         Returns:
 
         Raises:
-            NotImplementedError: if the `step` method is not implemented in the minimizer.
+            MinimizeStepNotImplementedError: if the `step` method is not implemented in the minimizer.
         """
         params = self._check_input_params(loss, params)
 
@@ -257,10 +259,10 @@ class BaseMinimizer(ZfitMinimizer):
     def _call_minimize(self, loss, params):
         try:
             return self._minimize(loss=loss, params=params)
-        except NotImplementedError as error:
+        except MinimizeNotImplementedError as error:
             try:
                 return self._minimize_with_step(loss=loss, params=params)
-            except NotImplementedError:
+            except MinimizeStepNotImplementedError:
                 raise error
 
     def _minimize_with_step(self, loss, params):  # TODO improve
@@ -272,7 +274,7 @@ class BaseMinimizer(ZfitMinimizer):
         def step_fn(loss, params):
             try:
                 self._step_tf(loss=loss.value, params=params)
-            except NotImplementedError:
+            except MinimizeStepNotImplementedError:
                 self.step(loss, params)
             return loss.value()
 
@@ -304,6 +306,19 @@ class BaseMinimizer(ZfitMinimizer):
 
     def copy(self):
         return copy.copy(self)
+
+    def _minimize(self, loss, params):
+        raise MinimizeNotImplementedError
+
+    def _step_tf(self, loss, params):
+        raise MinimizeStepNotImplementedError
+
+    def _step(self, loss, params):
+        raise MinimizeStepNotImplementedError
+
+    def __str__(self) -> str:
+        string = f'<{self.name} strategy={self.strategy} tolerance={self.tolerance}>'
+        return string
 
 
 def print_params(params, values, loss=None):

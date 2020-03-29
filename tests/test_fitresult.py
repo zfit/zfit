@@ -59,6 +59,29 @@ def create_fitresult(minimizer_class_and_kwargs):
     return ret
 
 
+def test_set_values():
+    fitresult = create_fitresult((zfit.minimize.Minuit, {}, True))
+    result = fitresult['result']
+    param_a = fitresult['a_param']
+    param_b = fitresult['b_param']
+    param_c = fitresult['c_param']
+
+    val_a = fitresult['a']
+    val_b = fitresult['b']
+    val_c = fitresult['c']
+    param_b.set_value(999)
+    param_c.set_value(9999)
+    zfit.param.set_values([param_c, param_b], values=result)
+
+    assert param_a.value() == val_a
+    assert param_b.value() == val_b
+    assert param_c.value() == val_c
+
+    param_d = zfit.Parameter("param_d", 12)
+    with pytest.raises(ValueError):
+        zfit.param.set_values([param_d], result)
+
+
 minimizers = [
     # (zfit.minimize.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
     # (zfit.minimize.Adam, dict(learning_rate=0.5), False),

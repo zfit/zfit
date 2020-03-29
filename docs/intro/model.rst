@@ -178,6 +178,50 @@ With this new PDF one can access the same feature of the predefined PDFs, e.g.
 
     >>> # For instance integral probabilities
     >>> integral = my_gauss.integrate(limits=(-1, 2))
+    >>> probs    = my_gauss.pdf(data,norm_range=(-3, 4))
+
+Finally, we could also improve the description of the PDF by providing a analytical integral for the
+    >>> obs = zfit.Space("obs1", limits=(-4, 4))
+
+    >>> mean = zfit.Parameter("mean", 1.)
+    >>> std  = zfit.Parameter("std", 1.)
+    >>> my_gauss = MyGauss(obs='obs1', mean=mean, std=std)
+
+    >>> # For instance integral probabilities
+    >>> integral = my_gauss.integrate(limits=(-1, 2))
+    >>> probs    = my_gauss.pdf(data,norm_range=(-3, 4))
+
+Finally, we could also improve the description of the PDF by providing a analytical integral for the
+    >>> obs = zfit.Space("obs1", limits=(-4, 4))
+
+    >>> mean = zfit.Parameter("mean", 1.)
+    >>> std  = zfit.Parameter("std", 1.)
+    >>> my_gauss = MyGauss(obs='obs1', mean=mean, std=std)
+
+    >>> # For instance integral probabilities
+    >>> integral = my_gauss.integrate(limits=(-1, 2))
+    >>> probs    = my_gauss.pdf(data,norm_range=(-3, 4))
+
+Finally, we could also improve the description of the PDF by providing a analytical integral for the
+    >>> obs = zfit.Space("obs1", limits=(-4, 4))
+
+    >>> mean = zfit.Parameter("mean", 1.)
+    >>> std  = zfit.Parameter("std", 1.)
+    >>> my_gauss = MyGauss(obs='obs1', mean=mean, std=std)
+
+    >>> # For instance integral probabilities
+    >>> integral = my_gauss.integrate(limits=(-1, 2))
+    >>> probs    = my_gauss.pdf(data,norm_range=(-3, 4))
+
+Finally, we could also improve the description of the PDF by providing a analytical integral for the
+    >>> obs = zfit.Space("obs1", limits=(-4, 4))
+
+    >>> mean = zfit.Parameter("mean", 1.)
+    >>> std  = zfit.Parameter("std", 1.)
+    >>> my_gauss = MyGauss(obs='obs1', mean=mean, std=std)
+
+    >>> # For instance integral probabilities
+    >>> integral = my_gauss.integrate(limits=(-1, 2))
     >>> probs    = my_gauss.pdf(data, norm_range=(-3, 4))
 
 Finally, we could also improve the description of the PDF by providing a analytical integral for the ``MyGauss`` PDF:
@@ -230,6 +274,82 @@ A typical example of toys would therefore look like
 
     >>> # create a model depending on mu, sigma
 
+        >>> sampler = model.create_sampler(n=1000,fixed_params=True)
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+
+        >>> minimizer = zfit.minimize.Minuit()
+
+        >>> for run_number in n_runs:
+        ...    # initialize the parameters randomly
+        ...    sampler.resample()  # now the resampling gets executed
+        ...
+        ...    mu.set_value(np.random.normal())
+        ...    sigma.set_value(abs(np.random.normal()))
+        ...
+        ...    result = minimizer.minimize(nll)
+        ...
+        ...    # safe the result, collect the values, calculate errors...
+
+    Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
+    arguments to
+
+        >>> sampler = model.create_sampler(n=1000,fixed_params=True)
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+
+        >>> minimizer = zfit.minimize.Minuit()
+
+        >>> for run_number in n_runs:
+        ...    # initialize the parameters randomly
+        ...    sampler.resample()  # now the resampling gets executed
+        ...
+        ...    mu.set_value(np.random.normal())
+        ...    sigma.set_value(abs(np.random.normal()))
+        ...
+        ...    result = minimizer.minimize(nll)
+        ...
+        ...    # safe the result, collect the values, calculate errors...
+
+    Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
+    arguments to
+
+        >>> sampler = model.create_sampler(n=1000,fixed_params=True)
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+
+        >>> minimizer = zfit.minimize.Minuit()
+
+        >>> for run_number in n_runs:
+        ...    # initialize the parameters randomly
+        ...    sampler.resample()  # now the resampling gets executed
+        ...
+        ...    mu.set_value(np.random.normal())
+        ...    sigma.set_value(abs(np.random.normal()))
+        ...
+        ...    result = minimizer.minimize(nll)
+        ...
+        ...    # safe the result, collect the values, calculate errors...
+
+    Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
+    arguments to
+
+        >>> sampler = model.create_sampler(n=1000,fixed_params=True)
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+
+        >>> minimizer = zfit.minimize.Minuit()
+
+        >>> for run_number in n_runs:
+        ...    # initialize the parameters randomly
+        ...    sampler.resample()  # now the resampling gets executed
+        ...
+        ...    mu.set_value(np.random.normal())
+        ...    sigma.set_value(abs(np.random.normal()))
+        ...
+        ...    result = minimizer.minimize(nll)
+        ...
+        ...    # safe the result, collect the values, calculate errors...
+
+    Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
+    arguments to
+
     >>> sampler = model.create_sampler(n=1000, fixed_params=True)
     >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
 
@@ -256,6 +376,50 @@ To give another, though not very useful example:
 .. code:: pycon
 
     >>> # create a model depending on mu1, sigma1, mu2, sigma2
+
+        >>> sampler = model.create_sampler(n=1000,fixed_params=[mu1, mu2])
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+
+        >>> sampler.resample()  # now it sampled
+
+        >>> # do something with nll
+        >>> minimizer.minimize(nll)  # minimize
+
+        >>> sampler.resample()
+        >>> # note that the nll, being dependent on
+
+        >>> sampler = model.create_sampler(n=1000,fixed_params=[mu1, mu2])
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+
+        >>> sampler.resample()  # now it sampled
+
+        >>> # do something with nll
+        >>> minimizer.minimize(nll)  # minimize
+
+        >>> sampler.resample()
+        >>> # note that the nll, being dependent on
+
+        >>> sampler = model.create_sampler(n=1000,fixed_params=[mu1, mu2])
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+
+        >>> sampler.resample()  # now it sampled
+
+        >>> # do something with nll
+        >>> minimizer.minimize(nll)  # minimize
+
+        >>> sampler.resample()
+        >>> # note that the nll, being dependent on
+
+        >>> sampler = model.create_sampler(n=1000,fixed_params=[mu1, mu2])
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
+
+        >>> sampler.resample()  # now it sampled
+
+        >>> # do something with nll
+        >>> minimizer.minimize(nll)  # minimize
+
+        >>> sampler.resample()
+        >>> # note that the nll, being dependent on
 
     >>> sampler = model.create_sampler(n=1000, fixed_params=[mu1, mu2])
     >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)
@@ -287,6 +451,90 @@ then sampling of the observed values might be needed to obtain an unbiased sampl
 .. code:: pycon
 
     >>> # same model depending on mu1, sigma1, mu2, sigma2
+
+        >>> from contextlib import ExitStack
+
+        >>> constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]
+        ...                                                 mu=[sigma1, sigma2],
+        ...                                                 sigma=[0.1, 0.05])
+
+        >>> n_samples = 1000
+
+        >>> sampler = model.create_sampler(n=n_samples,fixed_params=[mu1, mu2])
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)
+
+        >>> constr_values = constraint.sample(n=n_samples)
+
+        >>> for i in range(n_samples):
+        ...     sampler.resample()
+        ...     # do something with nll
+        ...     with ExitStack() as stack:
+        ...         for x, v in constr.items():
+        ...             stack.enter_context(x.set_value(v))
+        ...         minimizer.minimize(nll)  # minimize
+
+        >>> from contextlib import ExitStack
+
+        >>> constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]
+        ...                                                 mu=[sigma1, sigma2],
+        ...                                                 sigma=[0.1, 0.05])
+
+        >>> n_samples = 1000
+
+        >>> sampler = model.create_sampler(n=n_samples,fixed_params=[mu1, mu2])
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)
+
+        >>> constr_values = constraint.sample(n=n_samples)
+
+        >>> for i in range(n_samples):
+        ...     sampler.resample()
+        ...     # do something with nll
+        ...     with ExitStack() as stack:
+        ...         for x, v in constr.items():
+        ...             stack.enter_context(x.set_value(v))
+        ...         minimizer.minimize(nll)  # minimize
+
+        >>> from contextlib import ExitStack
+
+        >>> constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]
+        ...                                                 mu=[sigma1, sigma2],
+        ...                                                 sigma=[0.1, 0.05])
+
+        >>> n_samples = 1000
+
+        >>> sampler = model.create_sampler(n=n_samples,fixed_params=[mu1, mu2])
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)
+
+        >>> constr_values = constraint.sample(n=n_samples)
+
+        >>> for i in range(n_samples):
+        ...     sampler.resample()
+        ...     # do something with nll
+        ...     with ExitStack() as stack:
+        ...         for x, v in constr.items():
+        ...             stack.enter_context(x.set_value(v))
+        ...         minimizer.minimize(nll)  # minimize
+
+        >>> from contextlib import ExitStack
+
+        >>> constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]
+        ...                                                 mu=[sigma1, sigma2],
+        ...                                                 sigma=[0.1, 0.05])
+
+        >>> n_samples = 1000
+
+        >>> sampler = model.create_sampler(n=n_samples,fixed_params=[mu1, mu2])
+        >>> nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)
+
+        >>> constr_values = constraint.sample(n=n_samples)
+
+        >>> for i in range(n_samples):
+        ...     sampler.resample()
+        ...     # do something with nll
+        ...     with ExitStack() as stack:
+        ...         for x, v in constr.items():
+        ...             stack.enter_context(x.set_value(v))
+        ...         minimizer.minimize(nll)  # minimize
 
     >>> from contextlib import ExitStack
 
