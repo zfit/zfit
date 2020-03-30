@@ -1,6 +1,6 @@
 ---
 name: BehaviorUnderDiscussion
-about: If you've encountered a BehaviorUnderDiscussion
+about: If the code raises a BehaviorUnderDiscussion error
 title: "[BEHAVIOR]"
 labels: discussion
 assignees: mayou36
