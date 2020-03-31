@@ -85,7 +85,7 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
             """
             if v not in cache:
                 cache[v] = pll(minimizer, loss, param, v) - fmin - errordef
-                if cache[v] < -errordef:
+                if cache[v] < -errordef - minimizer.tolerance:
                     raise NewMinimum("A new is minimum found.")
 
             return cache[v]
