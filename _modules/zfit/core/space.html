@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.space &#8212; zfit 0.4.4.dev107+g9febd78 documentation</title>
+    <title>zfit.core.space &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -676,6 +676,11 @@
         <span class="k">if</span> <span class="n">n_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">lower_nobs</span> <span class="o">==</span> <span class="n">n_obs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inferred last dimension (</span><span class="si">{</span><span class="n">lower_nobs</span><span class="si">}</span><span class="s2">) does not coincide with &quot;</span>
                                          <span class="sa">f</span><span class="s2">&quot;given n_obs (</span><span class="si">{</span><span class="n">n_obs</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">is_range_definition</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span> <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)):</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">assert_greater</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;All upper limits have to be larger than the lower limits and are&quot;</span>
+                                                    <span class="s2">&quot; given as (lower, upper). Maybe (upper, lower) was entered?&quot;</span><span class="p">)</span>
+
         <span class="n">n_obs</span> <span class="o">=</span> <span class="n">lower_nobs</span>  <span class="c1"># in case it was None</span>
         <span class="n">rect_limits</span> <span class="o">=</span> <span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span>
 
@@ -2083,7 +2088,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CoordinatesUnderdefinedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Neither the axes nor the obs are specified in both objects&quot;</span>
                                                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">coords</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
 
         <span class="k">return</span> <span class="n">new_space</span></div>
 
