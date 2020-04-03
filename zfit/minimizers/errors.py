@@ -29,12 +29,6 @@ def pll(minimizer, loss, params, values) -> float:
     return minimum.fmin
 
 
-def set_params_to_result(params, result):
-    """Set parameters values to the values in the fitted value in the result."""
-    for param in params:
-        param.set_value(result.params[param]["value"])
-
-
 def get_crossing_value(result, params, direction, sigma, rootf, rtol):
     """Find the crossing point between the profiled loss function, for given parameters, and the value of
     `errordef` for a given direction (positive / negative).
@@ -49,7 +43,7 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
     minimizer.tolerance = minimizer.tolerance * 0.5
     rtol *= errordef
 
-    set_params_to_result(all_params, result)
+    set_values(all_params, result)
 
     covariance = result.covariance(as_dict=True)
 
