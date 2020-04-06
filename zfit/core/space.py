@@ -297,6 +297,11 @@ class Limit(ZfitLimit):
         if n_obs is not None and not lower_nobs == n_obs:
             raise ShapeIncompatibleError(f"Inferred last dimension ({lower_nobs}) does not coincide with "
                                          f"given n_obs ({n_obs})")
+
+        if not any(is_range_definition(limit) for limit in (lower, upper)):
+            tf.assert_greater(upper, lower, message="All upper limits have to be larger than the lower limits and are"
+                                                    " given as (lower, upper). Maybe (upper, lower) was entered?")
+
         n_obs = lower_nobs  # in case it was None
         rect_limits = (lower, upper)
 
@@ -1704,7 +1709,6 @@ class Space(BaseSpace):
         else:
             raise CoordinatesUnderdefinedError(f"Neither the axes nor the obs are specified in both objects"
                                                f" {self} and {coords}")
-
 
         return new_space
 

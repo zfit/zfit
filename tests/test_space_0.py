@@ -211,7 +211,7 @@ def test_dimensions():
     with pytest.raises(LimitsIncompatibleError):
         _ = Space(obs='obs1', limits=(((1,), (2,)), ((2,), (3,))))
 
-    space = Space(obs=['obs1', 'obs2'], limits=(((1, 5),), ((2, 3),)))
+    space = Space(obs=['obs1', 'obs2'], limits=(((1, 5),), ((2, 13),)))
     assert space.n_obs == 2
     with pytest.raises(RuntimeError):
         space.limit1d

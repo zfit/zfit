@@ -1,5 +1,6 @@
 #  Copyright (c) 2020 zfit
 import pytest
+import tensorflow as tf
 
 import zfit
 from zfit import z
@@ -52,9 +53,9 @@ limits2func = limits1func.with_obs(obs2)
 limits3 = ([11, 12, 13, 14, 15], [31, 41, 51, 61, 71])
 limits4 = ([13, 12, 14, 15, 11], [51, 41, 61, 71, 31])
 
-limits1vector = ([[-21, -11, 91, 11, 21], [-22, -12, 92, 12, 22], [-23, -13, 93, 13, 23]],
+limits1vector = ([[-21, -11, -91, 11, 21], [-22, -12, -92, 12, 22], [-23, -13, -93, 13, 23]],
                  [[31, 41, 51, 61, 71], [32, 42, 52, 62, 72], [33, 43, 53, 63, 73]])
-limits2vector = ([[91, -11, 11, 21, -21], [92, -12, 12, 22, -22], [93, -13, 13, 23, -23]],
+limits2vector = ([[-91, -11, 11, 21, -21], [-92, -12, 12, 22, -22], [-93, -13, 13, 23, -23]],
                  [[51, 41, 61, 71, 31], [52, 42, 62, 72, 32], [53, 43, 63, 73, 33]])
 
 limits1tf = (z.convert_to_tensor([-2, -1, 0, 1, 2]), z.convert_to_tensor([3, 4, 5, 6, 7]))
@@ -78,6 +79,11 @@ limits_to_test = [
     [{'multi': [limits1any, limits2any]}, {'multi': [limits1any, limits2any]}],
     [{'multi': [limits1, limits2any]}, {'multi': [limits1any, limits2]}],
 ]
+
+
+def test_illegal_bounds():
+    with pytest.raises(tf.errors.InvalidArgumentError):
+        _ = zfit.Space(['obs1', 'obs2'], ([-1, 4], [2, 3]))
 
 
 def test_extract_limits():
@@ -388,11 +394,11 @@ def test_space_add(limits):
 def test_combine_spaces():
     shift = 30
 
-    lower1, upper1 = [0, 1], [2, 3]
-    lower1b, upper1b = [0 + shift, 1 + shift], [2 + shift, 3 + shift]
-    lower2, upper2 = [-4, 1], [10, 3]
-    lower2b, upper2b = [-4 + shift, 1 + shift], [10 + shift, 3 + shift]
-    lower3, upper3 = [9, 1, 0], [11, 3, 2]
+    lower1, upper1 = [0, 1], [14, 13]
+    lower1b, upper1b = [0 + shift, 1 + shift], [14 + shift, 13 + shift]
+    lower2, upper2 = [-4, 1], [10, 13]
+    lower2b, upper2b = [-4 + shift, 1 + shift], [10 + shift, 13 + shift]
+    lower3, upper3 = [9, 1, 0], [11, 13, 14]
     obs1 = ['x', 'y']
     space1a = zfit.Space(obs1, limits=(lower1, upper1))
     space1b = zfit.Space(obs1, limits=(lower1b, upper1b))
