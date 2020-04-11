@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>execution &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
+    <title>execution &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -383,34 +383,34 @@
       
   <div class="section" id="module-zfit.util.execution">
 <span id="execution"></span><h1>execution<a class="headerlink" href="#module-zfit.util.execution" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.util.execution.RunManager">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.util.execution.</code><code class="sig-name descname">RunManager</code><span class="sig-paren">(</span><em class="sig-param">n_cpu='auto'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.util.execution.</code><code class="sig-name descname">RunManager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_cpu</span><span class="o">=</span><span class="default_value">'auto'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Handle the resources and runtime specific options. The <cite>run</cite> method is equivalent to <cite>sess.run</cite></p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.util.execution.RunManager.DEFAULT_MODE">
 <code class="sig-name descname">DEFAULT_MODE</code><em class="property"> = {'autograd': True, 'graph': 'auto'}</em><a class="headerlink" href="#zfit.util.execution.RunManager.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.aquire_cpu">
-<code class="sig-name descname">aquire_cpu</code><span class="sig-paren">(</span><em class="sig-param">max_cpu: int = -1</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.aquire_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.aquire_cpu" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">aquire_cpu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_cpu</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">- 1</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.aquire_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.aquire_cpu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.assert_executing_eagerly">
 <code class="sig-name descname">assert_executing_eagerly</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.assert_executing_eagerly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.assert_executing_eagerly" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assert that the execution is eager and Python side effects are taken into account.</p>
 <p>This can be placed inside a model _in case python side-effects are <a href="#id1"><span class="problematic" id="id2">necessary_</span></a> and no other way is possible.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.chunksize">
 <em class="property">property </em><code class="sig-name descname">chunksize</code><a class="headerlink" href="#zfit.util.execution.RunManager.chunksize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.clear_graph_cache">
 <code class="sig-name descname">clear_graph_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.clear_graph_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.clear_graph_cache" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear all generated graphs and effectively reset. Should not affect execution, only performance.</p>
@@ -422,9 +422,9 @@ the already scanned ranges are not needed anymore.</p>
 any side-effects other than that.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.current_policy_autograd">
-<code class="sig-name descname">current_policy_autograd</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_autograd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_autograd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">current_policy_autograd</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_autograd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_autograd" title="Permalink to this definition">¶</a></dt>
 <dd><p>The current policy for using the automatic gradient or falling back to the numerical</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -436,9 +436,9 @@ any side-effects other than that.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.current_policy_graph">
-<code class="sig-name descname">current_policy_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[bool, str]<a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_graph" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">current_policy_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the current policy for graph building.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -450,7 +450,7 @@ any side-effects other than that.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.experimental_clear_caches">
 <code class="sig-name descname">experimental_clear_caches</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.experimental_clear_caches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_clear_caches" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED! Use <cite>clear_graph_caches</cite> instead. (deprecated)</p>
@@ -459,9 +459,9 @@ Instructions for updating:
 Use clear_graph_caches instead.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.experimental_enable_eager">
-<em class="property">static </em><code class="sig-name descname">experimental_enable_eager</code><span class="sig-paren">(</span><em class="sig-param">eager: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.experimental_enable_eager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_enable_eager" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">experimental_enable_eager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eager</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.experimental_enable_eager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_enable_eager" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECEATED! Enable eager makes tensorflow run like numpy. Useful for debugging. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -470,7 +470,7 @@ Use <cite>set_mode(graph=False)</cite></p>
 <p>This can BREAK in the future.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.experimental_is_eager">
 <em class="property">property </em><code class="sig-name descname">experimental_is_eager</code><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_is_eager" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
@@ -479,19 +479,19 @@ Instructions for updating:
 Use <cite>current_policy_graph() is False</cite></p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.mode">
 <em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#zfit.util.execution.RunManager.mode" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.n_cpu">
 <em class="property">property </em><code class="sig-name descname">n_cpu</code><a class="headerlink" href="#zfit.util.execution.RunManager.n_cpu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.set_cpus_explicit">
-<code class="sig-name descname">set_cpus_explicit</code><span class="sig-paren">(</span><em class="sig-param">intra: int</em>, <em class="sig-param">inter: int</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_cpus_explicit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_cpus_explicit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_cpus_explicit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intra</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">inter</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_cpus_explicit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_cpus_explicit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the number of threads (cpus) used for inter-op and intra-op parallelism</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -505,9 +505,9 @@ independently in parallel.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.set_mode">
-<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param">graph: Union[bool</em>, <em class="sig-param">str</em>, <em class="sig-param">dict</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">autograd: Optional[bool] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="p">:</span> <span class="n">Union[bool, str, dict, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">autograd</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the policy for graph building and the usage of automatic vs numerical gradients.</p>
 <p>zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
 An interactive tutorial can be found at <a class="reference external" href="https://github.com/zfit/zfit-tutorials">https://github.com/zfit/zfit-tutorials</a></p>
@@ -634,15 +634,15 @@ instead. If any non-constant Python (numpy, scipy,…) code is used inside, this
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.set_mode_default">
 <code class="sig-name descname">set_mode_default</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_mode_default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_mode_default" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset the mode to the default of <cite>graph</cite> = ‘auto’ and <cite>autograd</cite> = True.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.set_n_cpu">
-<code class="sig-name descname">set_n_cpu</code><span class="sig-paren">(</span><em class="sig-param">n_cpu: Union[str</em>, <em class="sig-param">int] = 'auto'</em>, <em class="sig-param">strict: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_n_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_n_cpu" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_n_cpu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_cpu</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'auto'</span></em>, <em class="sig-param"><span class="n">strict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_n_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_n_cpu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the number of cpus to be used by zfit. For more control, use <cite>set_cpus_explicit</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -656,9 +656,9 @@ instead. If any non-constant Python (numpy, scipy,…) code is used inside, this
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="zfit.util.execution.eval_object">
-<code class="sig-prename descclassname">zfit.util.execution.</code><code class="sig-name descname">eval_object</code><span class="sig-paren">(</span><em class="sig-param">obj: object</em><span class="sig-paren">)</span> &#x2192; object<a class="reference internal" href="../_modules/zfit/util/execution.html#eval_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.eval_object" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.util.execution.</code><code class="sig-name descname">eval_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><a class="reference internal" href="../_modules/zfit/util/execution.html#eval_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.eval_object" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -683,7 +683,7 @@ instead. If any non-constant Python (numpy, scipy,…) code is used inside, this
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
     </p>
   </div>
 </footer>

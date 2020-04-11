@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>dimension &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
+    <title>dimension &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -383,9 +383,9 @@
       
   <div class="section" id="module-zfit.dimension">
 <span id="dimension"></span><h1>dimension<a class="headerlink" href="#module-zfit.dimension" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.dimension.Space">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.dimension.</code><code class="sig-name descname">Space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space, None] = None, limits: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, axes=None, rect_limits=None, name: Optional[str] = 'Space'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.dimension.</code><code class="sig-name descname">Space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rect_limits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'Space'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.space.html#zfit.core.space.BaseSpace" title="zfit.core.space.BaseSpace"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.space.BaseSpace</span></code></a></p>
 <p>Define a space with the name (<cite>obs</cite>) of the axes (and it’s number) and possibly it’s limits.</p>
 <p>A space can be thought of as coordinates, possibly with the definition of a range (limits). For most use-cases,
@@ -421,29 +421,29 @@ allows for certain optimizations inside.</p>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.dimension.Space.ANY">
 <code class="sig-name descname">ANY</code><em class="property"> = &lt;Any&gt;</em><a class="headerlink" href="#zfit.dimension.Space.ANY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.dimension.Space.ANY_LOWER">
 <code class="sig-name descname">ANY_LOWER</code><em class="property"> = &lt;Any Lower Limit&gt;</em><a class="headerlink" href="#zfit.dimension.Space.ANY_LOWER" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.dimension.Space.ANY_UPPER">
 <code class="sig-name descname">ANY_UPPER</code><em class="property"> = &lt;Any Upper Limit&gt;</em><a class="headerlink" href="#zfit.dimension.Space.ANY_UPPER" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.dimension.Space.AUTO_FILL">
 <code class="sig-name descname">AUTO_FILL</code><em class="property"> = &lt;object object&gt;</em><a class="headerlink" href="#zfit.dimension.Space.AUTO_FILL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.__eq__">
-<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param">other: object</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#zfit.dimension.Space.__eq__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#zfit.dimension.Space.__eq__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compares two Limits for equality without graph mode allowed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -458,9 +458,9 @@ allows for certain optimizations inside.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.__le__">
-<code class="sig-name descname">__le__</code><span class="sig-paren">(</span><em class="sig-param">other: object</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#zfit.dimension.Space.__le__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__le__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#zfit.dimension.Space.__le__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.</p>
 <p>This can be used to determine whether a fitting range specification can handle another limit.</p>
 <dl class="field-list simple">
@@ -476,9 +476,9 @@ allows for certain optimizations inside.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.add">
-<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">*other: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.dimension.Space.add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">other</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.dimension.Space.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the limits of the spaces. Only works for the same obs.</p>
 <p>In case the observables are different, the order of the first space is taken.</p>
 <dl class="field-list simple">
@@ -494,21 +494,21 @@ allows for certain optimizations inside.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.area">
-<code class="sig-name descname">area</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space.area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.area" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">area</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space.area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.area" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.axes">
 <em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.dimension.Space.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The axes (“obs with int”) the space is defined in.</p>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.combine">
-<code class="sig-name descname">combine</code><span class="sig-paren">(</span><em class="sig-param">*other: Union[zfit.Space, Iterable[zfit.Space]]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitSpace<a class="headerlink" href="#zfit.dimension.Space.combine" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">combine</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">other</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><a class="headerlink" href="#zfit.dimension.Space.combine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Combine spaces with different obs (but consistent limits).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -523,9 +523,9 @@ allows for certain optimizations inside.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">**overwrite_kwargs</em><span class="sig-paren">)</span> &#x2192; zfit.core.space.Space<a class="reference internal" href="../_modules/zfit/core/space.html#Space.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">overwrite_kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><a class="reference internal" href="../_modules/zfit/core/space.html#Space.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> using the current attributes and overwriting with
 <cite>overwrite_overwrite_kwargs</cite>.</p>
 <dl class="field-list simple">
@@ -542,9 +542,9 @@ current one.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.equal">
-<code class="sig-name descname">equal</code><span class="sig-paren">(</span><em class="sig-param">other: object</em>, <em class="sig-param">allow_graph: bool</em><span class="sig-paren">)</span> &#x2192; Union[bool, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.dimension.Space.equal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a></span></em>, <em class="sig-param"><span class="n">allow_graph</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.dimension.Space.equal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compare the limits on equality. For ANY objects, this also returns true.</p>
 <p>If called inside a graph context <em>and</em> the limits are tensors, this will return a symbolic <cite>tf.Tensor</cite>.</p>
 <dl class="field-list simple">
@@ -560,9 +560,9 @@ current one.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.filter">
-<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], guarantee_limits: bool = False, axis: Optional[int] = None</em><span class="sig-paren">)</span> &#x2192; Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.dimension.Space.filter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>zfit.Data<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">guarantee_limits</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">axis</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.dimension.Space.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter <cite>x</cite> by removing the elements along <cite>axis</cite> that are not inside the limits.</p>
 <p>This is similar to <cite>tf.boolean_mask</cite>.</p>
 <dl class="field-list simple">
@@ -587,9 +587,9 @@ specified <cite>axis</cite>) is removed. The shape is expected to have the last 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.from_axes">
-<em class="property">classmethod </em><code class="sig-name descname">from_axes</code><span class="sig-paren">(</span><em class="sig-param">axes: Union[int, Iterable[int]], limits: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, rect_limits=None, name: str = None</em><span class="sig-paren">)</span> &#x2192; zfit.Space<a class="reference internal" href="../_modules/zfit/core/space.html#Space.from_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.from_axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rect_limits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><a class="reference internal" href="../_modules/zfit/core/space.html#Space.from_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.from_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a space from <cite>axes</cite> instead of from <cite>obs</cite>. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -609,19 +609,19 @@ Use directly the class to create a Space. E.g. zfit.Space(axes=(0, 1), …)</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.get_limits">
-<code class="sig-name descname">get_limits</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Union[Dict[str, Union[Dict[Tuple[int], zfit.core.interfaces.ZfitLimit], Dict[Tuple[str], zfit.core.interfaces.ZfitLimit]]], Dict[Tuple[int], zfit.core.interfaces.ZfitLimit], Dict[Tuple[str], zfit.core.interfaces.ZfitLimit]]<a class="reference internal" href="../_modules/zfit/core/space.html#Space.get_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.get_limits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_limits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Union<span class="p">[</span>Dict<span class="p">[</span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">]</span><span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space.get_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.get_limits" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.get_obs_axes">
-<code class="sig-name descname">get_obs_axes</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space.get_obs_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.get_obs_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_obs_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space.get_obs_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.get_obs_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.get_reorder_indices">
-<code class="sig-name descname">get_reorder_indices</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[int]<a class="headerlink" href="#zfit.dimension.Space.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reorder_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><a class="headerlink" href="#zfit.dimension.Space.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indices that would order the instances obs as <cite>obs</cite> respectively the instances axes as <cite>axes</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -644,7 +644,7 @@ return the indices that could be used to reorder.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.get_sublimits">
 <code class="sig-name descname">get_sublimits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.dimension.Space.get_sublimits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Splits itself into multiple sublimits with smaller n_obs.</p>
@@ -659,9 +659,9 @@ return the indices that could be used to reorder.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.get_subspace">
-<code class="sig-name descname">get_subspace</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None, name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.space.Space<a class="reference internal" href="../_modules/zfit/core/space.html#Space.get_subspace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.get_subspace" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_subspace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><a class="reference internal" href="../_modules/zfit/core/space.html#Space.get_subspace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.get_subspace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> consisting of only a subset of the <cite>obs</cite>/<cite>axes</cite> (only one allowed).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -680,7 +680,7 @@ return the indices that could be used to reorder.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.has_limits">
 <em class="property">property </em><code class="sig-name descname">has_limits</code><a class="headerlink" href="#zfit.dimension.Space.has_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether there are limits set and they are not false.</p>
@@ -694,15 +694,15 @@ return the indices that could be used to reorder.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.has_rect_limits">
 <em class="property">property </em><code class="sig-name descname">has_rect_limits</code><a class="headerlink" href="#zfit.dimension.Space.has_rect_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>If there are limits and whether they are rectangular.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.inside">
-<code class="sig-name descname">inside</code><span class="sig-paren">(</span><em class="sig-param">x: Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data], guarantee_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.core.data.Data]<a class="headerlink" href="#zfit.dimension.Space.inside" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">inside</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>zfit.Data<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">guarantee_limits</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span><a class="reference internal" href="zfit.core.data.html#zfit.core.data.Data" title="zfit.core.data.Data">zfit.core.data.Data</a><span class="p">]</span><a class="headerlink" href="#zfit.dimension.Space.inside" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test if <cite>x</cite> is inside the limits.</p>
 <p>This function should be used to test if values are inside the limits. If the given x is already inside
 the rectangular limits, e.g. because it was sampled from within them</p>
@@ -727,7 +727,7 @@ dimension equal to n_obs.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.iter_limits">
 <em class="property">property </em><code class="sig-name descname">iter_limits</code><a class="headerlink" href="#zfit.dimension.Space.iter_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>REMOVED.Return the limits, either as <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> objects or as pure limits-tuple. (deprecated)</p>
@@ -753,9 +753,9 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.less_equal">
-<code class="sig-name descname">less_equal</code><span class="sig-paren">(</span><em class="sig-param">other</em>, <em class="sig-param">allow_graph</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.dimension.Space.less_equal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">less_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em>, <em class="sig-param"><span class="n">allow_graph</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.dimension.Space.less_equal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.</p>
 <p>This can be used to determine whether a fitting range specification can handle another limit.</p>
 <p>If called inside a graph context <em>and</em> the limits are tensors, this will return a symbolic <cite>tf.Tensor</cite>.</p>
@@ -778,12 +778,12 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.limit1d">
 <em class="property">property </em><code class="sig-name descname">limit1d</code><a class="headerlink" href="#zfit.dimension.Space.limit1d" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.limit2d">
 <em class="property">property </em><code class="sig-name descname">limit2d</code><a class="headerlink" href="#zfit.dimension.Space.limit2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
@@ -792,12 +792,12 @@ Instructions for updating:
 Depreceated, use .rect_limits or .inside to check if a value is inside or userect_limits to receive the rectangular limits.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.limits">
 <em class="property">property </em><code class="sig-name descname">limits</code><a class="headerlink" href="#zfit.dimension.Space.limits" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.limits1d">
 <em class="property">property </em><code class="sig-name descname">limits1d</code><a class="headerlink" href="#zfit.dimension.Space.limits1d" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the tuple(low_1, …, low_n, up_1, …, up_n).</p>
@@ -821,7 +821,7 @@ Depreceated, use .rect_limits or .inside to check if a value is inside or userec
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.limits_are_false">
 <em class="property">property </em><code class="sig-name descname">limits_are_false</code><a class="headerlink" href="#zfit.dimension.Space.limits_are_false" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the limits have been set to False, so the object on purpose does not contain limits.</p>
@@ -835,7 +835,7 @@ Depreceated, use .rect_limits or .inside to check if a value is inside or userec
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.limits_are_set">
 <em class="property">property </em><code class="sig-name descname">limits_are_set</code><a class="headerlink" href="#zfit.dimension.Space.limits_are_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the limits have been set to a limit or are False.</p>
@@ -849,12 +849,12 @@ Depreceated, use .rect_limits or .inside to check if a value is inside or userec
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.lower">
 <em class="property">property </em><code class="sig-name descname">lower</code><a class="headerlink" href="#zfit.dimension.Space.lower" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.n_events">
 <em class="property">property </em><code class="sig-name descname">n_events</code><a class="headerlink" href="#zfit.dimension.Space.n_events" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
@@ -864,7 +864,7 @@ int, None: Return the number of events, the dimension of the first shape. If thi
 </div></blockquote>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.n_limits">
 <em class="property">property </em><code class="sig-name descname">n_limits</code><a class="headerlink" href="#zfit.dimension.Space.n_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of different limits.</p>
@@ -875,7 +875,7 @@ int, None: Return the number of events, the dimension of the first shape. If thi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.n_obs">
 <em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.dimension.Space.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables/axes.</p>
@@ -886,31 +886,31 @@ int, None: Return the number of events, the dimension of the first shape. If thi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.dimension.Space.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.obs">
 <em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.dimension.Space.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>The observables (“axes with str”)the space is defined in.</p>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.obs_axes">
 <em class="property">property </em><code class="sig-name descname">obs_axes</code><a class="headerlink" href="#zfit.dimension.Space.obs_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.rect_area">
-<code class="sig-name descname">rect_area</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[float, numpy.ndarray, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/space.html#Space.rect_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.rect_area" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rect_area</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space.rect_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.rect_area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.rect_limits">
 <em class="property">property </em><code class="sig-name descname">rect_limits</code><a class="headerlink" href="#zfit.dimension.Space.rect_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the rectangular limits as <cite>np.ndarray``tf.Tensor</cite> if they are set and not false.</p>
@@ -934,7 +934,7 @@ the method <code class="xref py py-meth docutils literal notranslate"><span clas
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.rect_limits_are_tensors">
 <em class="property">property </em><code class="sig-name descname">rect_limits_are_tensors</code><a class="headerlink" href="#zfit.dimension.Space.rect_limits_are_tensors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the rectangular limits are tensors.</p>
@@ -949,7 +949,7 @@ the method <code class="xref py py-meth docutils literal notranslate"><span clas
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.rect_limits_np">
 <em class="property">property </em><code class="sig-name descname">rect_limits_np</code><a class="headerlink" href="#zfit.dimension.Space.rect_limits_np" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the rectangular limits as <cite>np.ndarray</cite>. Raise error if not possible.</p>
@@ -979,7 +979,7 @@ with <cite>z.unstack_x()</cite> as can be done with data.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.rect_lower">
 <em class="property">property </em><code class="sig-name descname">rect_lower</code><a class="headerlink" href="#zfit.dimension.Space.rect_lower" title="Permalink to this definition">¶</a></dt>
 <dd><p>The lower, rectangular limits, equivalent to <cite>rect_limits[0]</cite> with shape (…, n_obs)</p>
@@ -993,7 +993,7 @@ with <cite>z.unstack_x()</cite> as can be done with data.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.rect_upper">
 <em class="property">property </em><code class="sig-name descname">rect_upper</code><a class="headerlink" href="#zfit.dimension.Space.rect_upper" title="Permalink to this definition">¶</a></dt>
 <dd><p>The upper, rectangular limits, equivalent to <cite>rect_limits[1]</cite> with shape (…, n_obs)</p>
@@ -1007,9 +1007,9 @@ with <cite>z.unstack_x()</cite> as can be done with data.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.reorder_x">
-<code class="sig-name descname">reorder_x</code><span class="sig-paren">(</span><em class="sig-param">x: Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray], *, x_obs: Union[str, Iterable[str], zfit.Space] = None, x_axes: Union[int, Iterable[int]] = None, func_obs: Union[str, Iterable[str], zfit.Space] = None, func_axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/space.html#Space.reorder_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.reorder_x" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reorder_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">]</span></span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">x_obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x_axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space.reorder_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.reorder_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.</p>
 <p>There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.
 If x_obs or x_axes is given, then this is assumed to be the obs resp. the axes of x and x will be reordered
@@ -1040,14 +1040,14 @@ self.axes to be the axes of x.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.upper">
 <em class="property">property </em><code class="sig-name descname">upper</code><a class="headerlink" href="#zfit.dimension.Space.upper" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.with_autofill_axes">
-<code class="sig-name descname">with_autofill_axes</code><span class="sig-paren">(</span><em class="sig-param">overwrite: bool = False</em><span class="sig-paren">)</span> &#x2192; zfit.core.space.Space<a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_autofill_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_autofill_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">overwrite</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_autofill_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).</p>
 <p>This effectively fills with (0, 1, 2,…) and can be used mostly when an object enters a PDF or
 similar. <cite>overwrite</cite> allows to remove the axis first in case there are already some set.</p>
@@ -1077,9 +1077,9 @@ If axes is already set and <cite>overwrite</cite> is False, raise an error.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.with_axes">
-<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param">axes: Union[int, Iterable[int], None], allow_superset: bool = True, allow_subset: bool = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitSpace<a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union[int, Iterable[int], None]</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new instance that has <cite>axes</cite>; sorted by or set or dropped.</p>
 <p>The behavior is as follows:</p>
 <blockquote>
@@ -1133,9 +1133,9 @@ if the axes not contained in the instances axes were not present in the input ax
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.with_coords">
-<code class="sig-name descname">with_coords</code><span class="sig-paren">(</span><em class="sig-param">coords: zfit.core.interfaces.ZfitOrderableDimensional</em>, <em class="sig-param">allow_superset: bool = True</em>, <em class="sig-param">allow_subset: bool = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.space.Space<a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_coords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitOrderableDimensional" title="zfit.core.interfaces.ZfitOrderableDimensional">zfit.core.interfaces.ZfitOrderableDimensional</a></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> with reordered observables and/or axes.</p>
 <p>The behavior is that _at least one coordinate (obs or axes) has to be set in both instances
 (the space itself or in <cite>coords</cite>). If both match, observables is taken as the defining coordinate.
@@ -1168,9 +1168,9 @@ in axes being dropped.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.with_limits">
-<code class="sig-name descname">with_limits</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, rect_limits: Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], None] = None, name: Optional[str] = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitSpace<a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_limits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_limits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rect_limits</span><span class="p">:</span> <span class="n">Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a copy of the space with the new <cite>limits</cite> (and the new <cite>name</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1190,9 +1190,9 @@ or an instance of ZfitLimit.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.with_obs">
-<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space, None], allow_superset: bool = True, allow_subset: bool = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitSpace<a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, None]</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Space that has <cite>obs</cite>; sorted by or set or dropped.</p>
 <p>The behavior is as follows:</p>
 <blockquote>
@@ -1246,16 +1246,16 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Space.with_obs_axes">
-<code class="sig-name descname">with_obs_axes</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_obs_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_obs_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_obs_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#Space.with_obs_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Space.with_obs_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="zfit.dimension.combine_spaces">
-<code class="sig-prename descclassname">zfit.dimension.</code><code class="sig-name descname">combine_spaces</code><span class="sig-paren">(</span><em class="sig-param">*spaces: Iterable[zfit.core.space.Space]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#combine_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.combine_spaces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.dimension.</code><code class="sig-name descname">combine_spaces</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#combine_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.combine_spaces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Combine spaces with different <cite>obs</cite> and <cite>limits</cite> to one <cite>space</cite>.</p>
 <p>Checks if the limits in each obs coincide <em>exactly</em>. If this is not the case, the combination
 is not unambiguous and <cite>False</cite> is returned</p>
@@ -1284,9 +1284,9 @@ combined limits.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="zfit.dimension.add_spaces">
-<code class="sig-prename descclassname">zfit.dimension.</code><code class="sig-name descname">add_spaces</code><span class="sig-paren">(</span><em class="sig-param">*spaces: Iterable[ZfitSpace], name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#add_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.add_spaces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.dimension.</code><code class="sig-name descname">add_spaces</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>ZfitSpace<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/space.html#add_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.add_spaces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add two spaces and merge their limits if possible or return False.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1304,19 +1304,19 @@ combined limits.</p>
 </dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.dimension.Coordinates">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.dimension.</code><code class="sig-name descname">Coordinates</code><span class="sig-paren">(</span><em class="sig-param">obs=None</em>, <em class="sig-param">axes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.dimension.</code><code class="sig-name descname">Coordinates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitOrderableDimensional" title="zfit.core.interfaces.ZfitOrderableDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitOrderableDimensional</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Coordinates.axes">
 <em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.dimension.Coordinates.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes, integer based identifier(indices) for the coordinate system.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Coordinates.get_reorder_indices">
-<code class="sig-name descname">get_reorder_indices</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[int]<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.get_reorder_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reorder_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.get_reorder_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indices that would order the instances obs as <cite>obs</cite> respectively the instances axes as <cite>axes</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1339,21 +1339,21 @@ return the indices that could be used to reorder.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Coordinates.n_obs">
 <em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.dimension.Coordinates.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables, the dimensionality. Corresponds to the last dimension.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Coordinates.obs">
 <em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.dimension.Coordinates.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables, string identifier for the coordinate system.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Coordinates.reorder_x">
-<code class="sig-name descname">reorder_x</code><span class="sig-paren">(</span><em class="sig-param">x: Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray], *, x_obs: Union[str, Iterable[str], zfit.Space] = None, x_axes: Union[int, Iterable[int]] = None, func_obs: Union[str, Iterable[str], zfit.Space] = None, func_axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.reorder_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.reorder_x" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reorder_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">]</span></span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">x_obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x_axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.reorder_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.reorder_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.</p>
 <p>There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.
 If x_obs or x_axes is given, then this is assumed to be the obs resp. the axes of x and x will be reordered
@@ -1384,9 +1384,9 @@ self.axes to be the axes of x.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Coordinates.with_autofill_axes">
-<code class="sig-name descname">with_autofill_axes</code><span class="sig-paren">(</span><em class="sig-param">overwrite: bool = False</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitOrderableDimensional<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_autofill_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_autofill_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">overwrite</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitOrderableDimensional" title="zfit.core.interfaces.ZfitOrderableDimensional">zfit.core.interfaces.ZfitOrderableDimensional</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_autofill_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).</p>
 <p>This effectively fills with (0, 1, 2,…) and can be used mostly when an object enters a PDF or
 similar. <cite>overwrite</cite> allows to remove the axis first in case there are already some set.</p>
@@ -1416,9 +1416,9 @@ If axes is already set and <cite>overwrite</cite> is False, raise an error.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Coordinates.with_axes">
-<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param">axes: Union[int, Iterable[int], None], allow_superset: bool = True, allow_subset: bool = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.coordinates.Coordinates<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.with_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union[int, Iterable[int], None]</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.coordinates.html#zfit.core.coordinates.Coordinates" title="zfit.core.coordinates.Coordinates">zfit.core.coordinates.Coordinates</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.with_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new instance that has <cite>axes</cite>; sorted by or set or dropped.</p>
 <blockquote>
 <div><p>The behavior is as follows:</p>
@@ -1469,9 +1469,9 @@ is raised.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.dimension.Coordinates.with_obs">
-<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space, None], allow_superset: bool = True, allow_subset: bool = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.coordinates.Coordinates<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.with_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, None]</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.coordinates.html#zfit.core.coordinates.Coordinates" title="zfit.core.coordinates.Coordinates">zfit.core.coordinates.Coordinates</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.dimension.Coordinates.with_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new instance that has <cite>obs</cite>; sorted by or set or dropped.</p>
 <p>The behavior is as follows:</p>
 <blockquote>
@@ -1549,7 +1549,7 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
     </p>
   </div>
 </footer>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>param &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
+    <title>param &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -383,13 +383,13 @@
       
   <div class="section" id="module-zfit.param">
 <span id="param"></span><h1>param<a class="headerlink" href="#module-zfit.param" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.param.ConstantParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">ConstantParameter</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">dtype=tf.float64</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ConstantParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ConstantParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">ConstantParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.float64</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ConstantParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ConstantParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.OverloadableMixin" title="zfit.core.parameter.OverloadableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.OverloadableMixin</span></code></a>, <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.ZfitParameterMixin" title="zfit.core.parameter.ZfitParameterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ZfitParameterMixin</span></code></a>, <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.BaseParameter" title="zfit.core.parameter.BaseParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseParameter</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -406,25 +406,25 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.param.ConstantParameter.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">overwrite_params</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject">zfit.core.interfaces.ZfitObject</a><a class="headerlink" href="#zfit.param.ConstantParameter.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.dtype">
 <em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.param.ConstantParameter.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the object</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.floating">
 <em class="property">property </em><code class="sig-name descname">floating</code><a class="headerlink" href="#zfit.param.ConstantParameter.floating" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.get_dependents">
-<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True) -&gt; OrderedSet(['z', 'f', 'i', 't', '.', 'P', 'a', 'r', 'm', 'e']</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -433,9 +433,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.get_params">
-<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.param.ConstantParameter.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union[str, List[str], None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><a class="headerlink" href="#zfit.param.ConstantParameter.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -453,40 +453,40 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.param.ConstantParameter.graph_caching_methods">
 <code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.param.ConstantParameter.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.independent">
 <em class="property">property </em><code class="sig-name descname">independent</code><a class="headerlink" href="#zfit.param.ConstantParameter.independent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.param.ConstantParameter.instances">
 <code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.param.ConstantParameter.instances" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.param.ConstantParameter.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.params">
 <em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.param.ConstantParameter.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.read_value">
 <code class="sig-name descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/parameter.html#ConstantParameter.read_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ConstantParameter.read_value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.register_cacher">
-<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -495,32 +495,32 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.reset_cache_self">
 <code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.shape">
 <em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.param.ConstantParameter.shape" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ConstantParameter.value">
 <code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/parameter.html#ConstantParameter.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ConstantParameter.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.param.Parameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">Parameter</code><span class="sig-paren">(</span><em class="sig-param">name: str, value: Union[int, float, complex, tensorflow.python.framework.ops.Tensor], lower_limit: Union[int, float, complex, tensorflow.python.framework.ops.Tensor, None] = None, upper_limit: Union[int, float, complex, tensorflow.python.framework.ops.Tensor, None] = None, step_size: Union[int, float, complex, tensorflow.python.framework.ops.Tensor, None] = None, floating: bool = True, dtype: tensorflow.python.framework.dtypes.DType = tf.float64, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.Parameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">Parameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">lower_limit</span><span class="p">:</span> <span class="n">Union[int, float, complex, tensorflow.python.framework.ops.Tensor, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">upper_limit</span><span class="p">:</span> <span class="n">Union[int, float, complex, tensorflow.python.framework.ops.Tensor, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">step_size</span><span class="p">:</span> <span class="n">Union[int, float, complex, tensorflow.python.framework.ops.Tensor, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="p">:</span> <span class="n">tensorflow.python.framework.dtypes.DType</span> <span class="o">=</span> <span class="default_value">tf.float64</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.Parameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.ZfitParameterMixin" title="zfit.core.parameter.ZfitParameterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ZfitParameterMixin</span></code></a>, <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.TFBaseVariable" title="zfit.core.parameter.TFBaseVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.TFBaseVariable</span></code></a>, <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.BaseParameter" title="zfit.core.parameter.BaseParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseParameter</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitIndependentParameter" title="zfit.core.interfaces.ZfitIndependentParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitIndependentParameter</span></code></a></p>
 <p>Class for fit parameters, derived from TF Variable class.</p>
 <p>name : name of the parameter,
@@ -528,14 +528,14 @@ value : starting value
 lower_limit : lower limit
 upper_limit : upper limit
 step_size : step size</p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.param.Parameter.DEFAULT_STEP_SIZE">
 <code class="sig-name descname">DEFAULT_STEP_SIZE</code><em class="property"> = 0.001</em><a class="headerlink" href="#zfit.param.Parameter.DEFAULT_STEP_SIZE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.param.Parameter.SaveSliceInfo">
-<em class="property">class </em><code class="sig-name descname">SaveSliceInfo</code><span class="sig-paren">(</span><em class="sig-param">full_name=None</em>, <em class="sig-param">full_shape=None</em>, <em class="sig-param">var_offset=None</em>, <em class="sig-param">var_shape=None</em>, <em class="sig-param">save_slice_info_def=None</em>, <em class="sig-param">import_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.SaveSliceInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SaveSliceInfo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">full_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">full_shape</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">var_offset</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">var_shape</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save_slice_info_def</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">import_scope</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.SaveSliceInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Information on how to save this Variable as a slice.</p>
 <p>Provides internal support for saving variables as slices of a larger
@@ -565,15 +565,15 @@ initializing from protocol buffer.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.SaveSliceInfo.spec">
 <em class="property">property </em><code class="sig-name descname">spec</code><a class="headerlink" href="#zfit.param.Parameter.SaveSliceInfo.spec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the spec string used for saving.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.SaveSliceInfo.to_proto">
-<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param">export_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.SaveSliceInfo.to_proto" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">export_scope</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.SaveSliceInfo.to_proto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a SaveSliceInfoDef() proto.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -588,7 +588,7 @@ in the specified name scope.</p>
 
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.__iter__">
 <code class="sig-name descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.__iter__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dummy method to prevent iteration.</p>
@@ -603,15 +603,15 @@ to infinity.  Declaring this method prevents this unintended behavior.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.__ne__">
-<code class="sig-name descname">__ne__</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.__ne__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__ne__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.__ne__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compares two variables element-wise for equality.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -628,14 +628,14 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.aggregation">
 <em class="property">property </em><code class="sig-name descname">aggregation</code><a class="headerlink" href="#zfit.param.Parameter.aggregation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.assign">
-<code class="sig-name descname">assign</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.assign" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">assign</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">read_value</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.assign" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns a new value to this variable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -656,9 +656,9 @@ mode it will return <cite>None</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.assign_add">
-<code class="sig-name descname">assign_add</code><span class="sig-paren">(</span><em class="sig-param">delta</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.assign_add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">assign_add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">read_value</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.assign_add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a value to this variable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -679,9 +679,9 @@ mode it will return <cite>None</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.assign_sub">
-<code class="sig-name descname">assign_sub</code><span class="sig-paren">(</span><em class="sig-param">delta</em>, <em class="sig-param">use_locking=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">read_value=True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.assign_sub" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">assign_sub</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">read_value</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.assign_sub" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subtracts a value from this variable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -702,7 +702,7 @@ mode it will return <cite>None</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.at_limit">
 <em class="property">property </em><code class="sig-name descname">at_limit</code><a class="headerlink" href="#zfit.param.Parameter.at_limit" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the value is at the limit (or over it).</p>
@@ -717,9 +717,9 @@ mode it will return <cite>None</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.batch_scatter_update">
-<code class="sig-name descname">batch_scatter_update</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.batch_scatter_update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">batch_scatter_update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sparse_delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.batch_scatter_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns <cite>tf.IndexedSlices</cite> to this variable batch-wise.</p>
 <p>Analogous to <cite>batch_gather</cite>. This assumes that this variable and the
 sparse_delta IndexedSlices have a series of leading dimensions that are the
@@ -767,7 +767,7 @@ the scattered subtraction has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.constraint">
 <em class="property">property </em><code class="sig-name descname">constraint</code><a class="headerlink" href="#zfit.param.Parameter.constraint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the constraint function associated with this variable.</p>
@@ -779,14 +779,14 @@ Can be <cite>None</cite> if no constraint was passed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.param.Parameter.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">overwrite_params</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject">zfit.core.interfaces.ZfitObject</a><a class="headerlink" href="#zfit.param.Parameter.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.count_up_to">
-<code class="sig-name descname">count_up_to</code><span class="sig-paren">(</span><em class="sig-param">limit</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.count_up_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">count_up_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limit</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.count_up_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Increments this variable until it reaches <cite>limit</cite>. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -809,31 +809,31 @@ distinct.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.create">
 <em class="property">property </em><code class="sig-name descname">create</code><a class="headerlink" href="#zfit.param.Parameter.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>The op responsible for initializing this variable.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.device">
 <em class="property">property </em><code class="sig-name descname">device</code><a class="headerlink" href="#zfit.param.Parameter.device" title="Permalink to this definition">¶</a></dt>
 <dd><p>The device this variable is on.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.dtype">
 <em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.param.Parameter.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the object</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.eval">
-<code class="sig-name descname">eval</code><span class="sig-paren">(</span><em class="sig-param">session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.eval" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">eval</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">session</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.eval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates and returns the value of this variable.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.experimental_ref">
 <code class="sig-name descname">experimental_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.experimental_ref" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a hashable reference object to this Variable.</p>
@@ -877,26 +877,26 @@ original Variable.</p>
 <span class="pre">`</span></code></p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.floating">
 <em class="property">property </em><code class="sig-name descname">floating</code><a class="headerlink" href="#zfit.param.Parameter.floating" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.from_proto">
-<em class="property">static </em><code class="sig-name descname">from_proto</code><span class="sig-paren">(</span><em class="sig-param">variable_def</em>, <em class="sig-param">import_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.from_proto" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_proto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">variable_def</span></em>, <em class="sig-param"><span class="n">import_scope</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.from_proto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <cite>Variable</cite> object created from <cite>variable_def</cite>.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.gather_nd">
-<code class="sig-name descname">gather_nd</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.gather_nd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gather_nd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">indices</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.gather_nd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the value of this variable sparsely, using <cite>gather_nd</cite>.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.get_dependents">
-<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True) -&gt; OrderedSet(['z', 'f', 'i', 't', '.', 'P', 'a', 'r', 'm', 'e']</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -905,9 +905,9 @@ original Variable.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.get_params">
-<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.param.Parameter.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union[str, List[str], None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><a class="headerlink" href="#zfit.param.Parameter.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -925,30 +925,30 @@ original Variable.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.get_shape">
 <code class="sig-name descname">get_shape</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.get_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias of <cite>Variable.shape</cite>.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.graph">
 <em class="property">property </em><code class="sig-name descname">graph</code><a class="headerlink" href="#zfit.param.Parameter.graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <cite>Graph</cite> of this variable.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.param.Parameter.graph_caching_methods">
 <code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.param.Parameter.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.handle">
 <em class="property">property </em><code class="sig-name descname">handle</code><a class="headerlink" href="#zfit.param.Parameter.handle" title="Permalink to this definition">¶</a></dt>
 <dd><p>The handle by which this variable can be accessed.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.has_limits">
 <em class="property">property </em><code class="sig-name descname">has_limits</code><a class="headerlink" href="#zfit.param.Parameter.has_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the parameter has limits set or not</p>
@@ -959,18 +959,18 @@ original Variable.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.independent">
 <em class="property">property </em><code class="sig-name descname">independent</code><a class="headerlink" href="#zfit.param.Parameter.independent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.initial_value">
 <em class="property">property </em><code class="sig-name descname">initial_value</code><a class="headerlink" href="#zfit.param.Parameter.initial_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the Tensor used as the initial value for the variable.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.initialized_value">
 <code class="sig-name descname">initialized_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.initialized_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value of the initialized variable. (deprecated)</p>
@@ -995,20 +995,20 @@ has run.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.initializer">
 <em class="property">property </em><code class="sig-name descname">initializer</code><a class="headerlink" href="#zfit.param.Parameter.initializer" title="Permalink to this definition">¶</a></dt>
 <dd><p>The op responsible for initializing this variable.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.param.Parameter.instances">
 <code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.param.Parameter.instances" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.is_initialized">
-<code class="sig-name descname">is_initialized</code><span class="sig-paren">(</span><em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.is_initialized" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_initialized</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.is_initialized" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks whether a resource variable has been initialized.</p>
 <p>Outputs boolean scalar indicating whether the tensor has been initialized.</p>
 <dl class="field-list simple">
@@ -1021,9 +1021,9 @@ has run.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.load">
-<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">session</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load new value into this variable. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1062,39 +1062,39 @@ default session is used.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.lower">
 <em class="property">property </em><code class="sig-name descname">lower</code><a class="headerlink" href="#zfit.param.Parameter.lower" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.lower_limit">
 <em class="property">property </em><code class="sig-name descname">lower_limit</code><a class="headerlink" href="#zfit.param.Parameter.lower_limit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.param.Parameter.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.numpy">
 <code class="sig-name descname">numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.numpy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.op">
 <em class="property">property </em><code class="sig-name descname">op</code><a class="headerlink" href="#zfit.param.Parameter.op" title="Permalink to this definition">¶</a></dt>
 <dd><p>The op for this variable.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.params">
 <em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.param.Parameter.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.randomize">
 <code class="sig-name descname">randomize</code><span class="sig-paren">(</span><em class="sig-param">minval: Union[int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">maxval: Union[int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">sampler: Callable = &lt;function random_uniform&gt;</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter.randomize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.Parameter.randomize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the parameter with a randomised value between minval and maxval and return it.</p>
@@ -1115,7 +1115,7 @@ default session is used.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.read_value">
 <code class="sig-name descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter.read_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.Parameter.read_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs an op which reads the value of this variable.</p>
@@ -1128,9 +1128,9 @@ read the value only after some condition is true.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.register_cacher">
-<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1139,20 +1139,20 @@ read the value only after some condition is true.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.reset_cache_self">
 <code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_add">
-<code class="sig-name descname">scatter_add</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sparse_delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds <cite>tf.IndexedSlices</cite> to this variable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1172,9 +1172,9 @@ the scattered addition has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_div">
-<code class="sig-name descname">scatter_div</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_div" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_div</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sparse_delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_div" title="Permalink to this definition">¶</a></dt>
 <dd><p>Divide this variable by <cite>tf.IndexedSlices</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1194,9 +1194,9 @@ the scattered division has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_max">
-<code class="sig-name descname">scatter_max</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_max" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_max</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sparse_delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_max" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates this variable with the max of <cite>tf.IndexedSlices</cite> and itself.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1217,9 +1217,9 @@ the scattered maximization has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_min">
-<code class="sig-name descname">scatter_min</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_min" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_min</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sparse_delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_min" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates this variable with the min of <cite>tf.IndexedSlices</cite> and itself.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1240,9 +1240,9 @@ the scattered minimization has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_mul">
-<code class="sig-name descname">scatter_mul</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_mul" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_mul</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sparse_delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_mul" title="Permalink to this definition">¶</a></dt>
 <dd><p>Multiply this variable by <cite>tf.IndexedSlices</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1262,9 +1262,9 @@ the scattered multiplication has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_nd_add">
-<code class="sig-name descname">scatter_nd_add</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_nd_add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_nd_add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">indices</span></em>, <em class="sig-param"><span class="n">updates</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_nd_add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies sparse addition to individual values or slices in a Variable.</p>
 <p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
 <p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
@@ -1311,9 +1311,9 @@ the scattered subtraction has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_nd_sub">
-<code class="sig-name descname">scatter_nd_sub</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_nd_sub" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_nd_sub</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">indices</span></em>, <em class="sig-param"><span class="n">updates</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_nd_sub" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies sparse subtraction to individual values or slices in a Variable.</p>
 <p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
 <p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
@@ -1360,9 +1360,9 @@ the scattered subtraction has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_nd_update">
-<code class="sig-name descname">scatter_nd_update</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">updates</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_nd_update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_nd_update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">indices</span></em>, <em class="sig-param"><span class="n">updates</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_nd_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies sparse assignment to individual values or slices in a Variable.</p>
 <p><cite>ref</cite> is a <cite>Tensor</cite> with rank <cite>P</cite> and <cite>indices</cite> is a <cite>Tensor</cite> of rank <cite>Q</cite>.</p>
 <p><cite>indices</cite> must be integer tensor, containing indices into <cite>ref</cite>.
@@ -1409,9 +1409,9 @@ the scattered subtraction has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_sub">
-<code class="sig-name descname">scatter_sub</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_sub" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_sub</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sparse_delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_sub" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subtracts <cite>tf.IndexedSlices</cite> from this variable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1431,9 +1431,9 @@ the scattered subtraction has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.scatter_update">
-<code class="sig-name descname">scatter_update</code><span class="sig-paren">(</span><em class="sig-param">sparse_delta</em>, <em class="sig-param">use_locking=False</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sparse_delta</span></em>, <em class="sig-param"><span class="n">use_locking</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.scatter_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns <cite>tf.IndexedSlices</cite> to this variable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1453,15 +1453,15 @@ the scattered subtraction has completed.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.set_shape">
-<code class="sig-name descname">set_shape</code><span class="sig-paren">(</span><em class="sig-param">shape</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.set_shape" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_shape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.set_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unsupported.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.set_value">
-<code class="sig-name descname">set_value</code><span class="sig-paren">(</span><em class="sig-param">value: Union[int, float, complex, tensorflow.python.framework.ops.Tensor]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter.set_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.Parameter.set_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter.set_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.Parameter.set_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> to <cite>value</cite> (temporarily if used in a context manager).</p>
 <p>This operation won’t, compared to the assign, return the read value but an object that <em>can</em> act as a context
 manager.</p>
@@ -1472,19 +1472,19 @@ manager.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.shape">
 <em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.param.Parameter.shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>The shape of this variable.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.sparse_read">
-<code class="sig-name descname">sparse_read</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.sparse_read" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sparse_read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">indices</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.sparse_read" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the value of this variable sparsely, using <cite>gather</cite>.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.step_size">
 <em class="property">property </em><code class="sig-name descname">step_size</code><a class="headerlink" href="#zfit.param.Parameter.step_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Step size of the parameter, the estimated order of magnitude of the uncertainty.</p>
@@ -1501,14 +1501,14 @@ converge.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.synchronization">
 <em class="property">property </em><code class="sig-name descname">synchronization</code><a class="headerlink" href="#zfit.param.Parameter.synchronization" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.to_proto">
-<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param">export_scope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.to_proto" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">export_scope</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.Parameter.to_proto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a <cite>ResourceVariable</cite> to a <cite>VariableDef</cite> protocol buffer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1524,22 +1524,22 @@ in the specified name scope.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.trainable">
 <em class="property">property </em><code class="sig-name descname">trainable</code><a class="headerlink" href="#zfit.param.Parameter.trainable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.upper">
 <em class="property">property </em><code class="sig-name descname">upper</code><a class="headerlink" href="#zfit.param.Parameter.upper" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.upper_limit">
 <em class="property">property </em><code class="sig-name descname">upper_limit</code><a class="headerlink" href="#zfit.param.Parameter.upper_limit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.Parameter.value">
 <code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.Parameter.value" title="Permalink to this definition">¶</a></dt>
 <dd><p>A cached operation which reads the value of this variable.</p>
@@ -1547,13 +1547,13 @@ in the specified name scope.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.param.ComposedParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">ComposedParameter</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value_fn</em>, <em class="sig-param">dependents</em>, <em class="sig-param">dtype=tf.float64</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ComposedParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">ComposedParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value_fn</span></em>, <em class="sig-param"><span class="n">dependents</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.float64</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ComposedParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter" title="zfit.core.parameter.BaseComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseComposedParameter</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1570,25 +1570,25 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.param.ComposedParameter.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">overwrite_params</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject">zfit.core.interfaces.ZfitObject</a><a class="headerlink" href="#zfit.param.ComposedParameter.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.dtype">
 <em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.param.ComposedParameter.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the object</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.floating">
 <em class="property">property </em><code class="sig-name descname">floating</code><a class="headerlink" href="#zfit.param.ComposedParameter.floating" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.get_dependents">
-<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True) -&gt; OrderedSet(['z', 'f', 'i', 't', '.', 'P', 'a', 'r', 'm', 'e']</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1597,9 +1597,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.get_params">
-<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.param.ComposedParameter.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union[str, List[str], None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><a class="headerlink" href="#zfit.param.ComposedParameter.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1617,45 +1617,45 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.param.ComposedParameter.graph_caching_methods">
 <code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.param.ComposedParameter.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.independent">
 <em class="property">property </em><code class="sig-name descname">independent</code><a class="headerlink" href="#zfit.param.ComposedParameter.independent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.param.ComposedParameter.instances">
 <code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.param.ComposedParameter.instances" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.param.ComposedParameter.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.numpy">
 <code class="sig-name descname">numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.numpy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.params">
 <em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.param.ComposedParameter.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.read_value">
 <code class="sig-name descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.read_value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.register_cacher">
-<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1664,36 +1664,36 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.reset_cache_self">
 <code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.shape">
 <em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.param.ComposedParameter.shape" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComposedParameter.value">
 <code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComposedParameter.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.param.ComplexParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">ComplexParameter</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value_fn</em>, <em class="sig-param">dependents</em>, <em class="sig-param">dtype=tf.complex128</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ComplexParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">ComplexParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value_fn</span></em>, <em class="sig-param"><span class="n">dependents</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.complex128</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ComplexParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.ComposedParameter" title="zfit.core.parameter.ComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ComposedParameter</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1710,45 +1710,45 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.arg">
 <em class="property">property </em><code class="sig-name descname">arg</code><a class="headerlink" href="#zfit.param.ComplexParameter.arg" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.conj">
 <em class="property">property </em><code class="sig-name descname">conj</code><a class="headerlink" href="#zfit.param.ComplexParameter.conj" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">deep: bool = False</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**overwrite_params</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitObject<a class="headerlink" href="#zfit.param.ComplexParameter.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">overwrite_params</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject">zfit.core.interfaces.ZfitObject</a><a class="headerlink" href="#zfit.param.ComplexParameter.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.dtype">
 <em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.param.ComplexParameter.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the object</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.floating">
 <em class="property">property </em><code class="sig-name descname">floating</code><a class="headerlink" href="#zfit.param.ComplexParameter.floating" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.from_cartesian">
-<em class="property">static </em><code class="sig-name descname">from_cartesian</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">real</em>, <em class="sig-param">imag</em>, <em class="sig-param">dtype=tf.complex128</em>, <em class="sig-param">floating=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter.from_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ComplexParameter.from_cartesian" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_cartesian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">real</span></em>, <em class="sig-param"><span class="n">imag</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.complex128</span></em>, <em class="sig-param"><span class="n">floating</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter.from_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ComplexParameter.from_cartesian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.from_polar">
-<em class="property">static </em><code class="sig-name descname">from_polar</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">mod</em>, <em class="sig-param">arg</em>, <em class="sig-param">dtype=tf.complex128</em>, <em class="sig-param">floating=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter.from_polar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ComplexParameter.from_polar" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_polar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">mod</span></em>, <em class="sig-param"><span class="n">arg</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.complex128</span></em>, <em class="sig-param"><span class="n">floating</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter.from_polar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ComplexParameter.from_polar" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.get_dependents">
-<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True) -&gt; OrderedSet(['z', 'f', 'i', 't', '.', 'P', 'a', 'r', 'm', 'e']</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1757,9 +1757,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.get_params">
-<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.param.ComplexParameter.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union[str, List[str], None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><a class="headerlink" href="#zfit.param.ComplexParameter.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1777,60 +1777,60 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.param.ComplexParameter.graph_caching_methods">
 <code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.param.ComplexParameter.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.imag">
 <em class="property">property </em><code class="sig-name descname">imag</code><a class="headerlink" href="#zfit.param.ComplexParameter.imag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.independent">
 <em class="property">property </em><code class="sig-name descname">independent</code><a class="headerlink" href="#zfit.param.ComplexParameter.independent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.param.ComplexParameter.instances">
 <code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.param.ComplexParameter.instances" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.mod">
 <em class="property">property </em><code class="sig-name descname">mod</code><a class="headerlink" href="#zfit.param.ComplexParameter.mod" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.param.ComplexParameter.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.numpy">
 <code class="sig-name descname">numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.numpy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.params">
 <em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.param.ComplexParameter.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.read_value">
 <code class="sig-name descname">read_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.read_value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.real">
 <em class="property">property </em><code class="sig-name descname">real</code><a class="headerlink" href="#zfit.param.ComplexParameter.real" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.register_cacher">
-<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1839,32 +1839,32 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.reset_cache_self">
 <code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.shape">
 <em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#zfit.param.ComplexParameter.shape" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.param.ComplexParameter.value">
 <code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ComplexParameter.value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="zfit.param.convert_to_parameter">
-<code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">convert_to_parameter</code><span class="sig-paren">(</span><em class="sig-param">value</em>, <em class="sig-param">name=None</em>, <em class="sig-param">prefer_constant=True</em>, <em class="sig-param">dependents=None</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitParameter<a class="reference internal" href="../_modules/zfit/core/parameter.html#convert_to_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.convert_to_parameter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">convert_to_parameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">prefer_constant</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dependents</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><a class="reference internal" href="../_modules/zfit/core/parameter.html#convert_to_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.convert_to_parameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a <em>numerical</em> to a constant/floating parameter or return if already a parameter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1877,9 +1877,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="zfit.param.set_values">
-<code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">set_values</code><span class="sig-paren">(</span><em class="sig-param">params: Union[zfit.core.parameter.Parameter, Iterable[zfit.core.parameter.Parameter]], values: Union[int, float, complex, tensorflow.python.framework.ops.Tensor, Iterable[Union[int, float, complex, tensorflow.python.framework.ops.Tensor]], zfit.minimizers.interface.ZfitResult]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#set_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.set_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">set_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.Parameter" title="zfit.core.parameter.Parameter">zfit.core.parameter.Parameter</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.Parameter" title="zfit.core.parameter.Parameter">zfit.core.parameter.Parameter</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>Iterable<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitResult" title="zfit.minimizers.interface.ZfitResult">zfit.minimizers.interface.ZfitResult</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#set_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.set_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the values (using a context manager or not) of multiple parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1914,7 +1914,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
     </p>
   </div>
 </footer>

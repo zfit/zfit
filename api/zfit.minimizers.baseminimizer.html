@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>baseminimizer &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
+    <title>baseminimizer &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -384,21 +384,21 @@
   <div class="section" id="module-zfit.minimizers.baseminimizer">
 <span id="baseminimizer"></span><h1>baseminimizer<a class="headerlink" href="#module-zfit.minimizers.baseminimizer" title="Permalink to this headline">¶</a></h1>
 <p>Definition of minimizers, wrappers etc.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">BaseMinimizer</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">tolerance</em>, <em class="sig-param">verbosity</em>, <em class="sig-param">minimizer_options</em>, <em class="sig-param">strategy=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">BaseMinimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">tolerance</span></em>, <em class="sig-param"><span class="n">verbosity</span></em>, <em class="sig-param"><span class="n">minimizer_options</span></em>, <em class="sig-param"><span class="n">strategy</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.interface.ZfitMinimizer</span></code></a></p>
 <p>Minimizer for loss functions.</p>
 <p>Additional <cite>minimizer_options</cite> (given as <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs) can be accessed and changed via the
 attribute (dict) <cite>minimizer.minimizer_options</cite></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer.minimize">
-<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss</em>, <em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span> &#x2192; zfit.minimizers.fitresult.FitResult<a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult" title="zfit.minimizers.fitresult.FitResult">zfit.minimizers.fitresult.FitResult</a><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fully minimize the <cite>loss</cite> with respect to <cite>params</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -417,9 +417,9 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer.step">
-<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param">loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseMinimizer.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a single step in the minimization (if implemented).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -434,33 +434,33 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.BaseMinimizer.tolerance">
 <em class="property">property </em><code class="sig-name descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseMinimizer.tolerance" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.baseminimizer.BaseStrategy">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">BaseStrategy</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.ZfitStrategy" title="zfit.minimizers.baseminimizer.ZfitStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.ZfitStrategy</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.BaseStrategy.minimize_nan">
-<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">minimizer</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer">zfit.minimizers.interface.ZfitMinimizer</a></span></em>, <em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#BaseStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.BaseStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.minimizers.baseminimizer.DefaultStrategy">
 <code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">DefaultStrategy</code><a class="headerlink" href="#zfit.minimizers.baseminimizer.DefaultStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#zfit.minimizers.baseminimizer.PushbackStrategy" title="zfit.minimizers.baseminimizer.PushbackStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.PushbackStrategy</span></code></a></p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.baseminimizer.DefaultToyStrategy">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">DefaultToyStrategy</code><span class="sig-paren">(</span><em class="sig-param">nan_penalty: Union[float</em>, <em class="sig-param">int] = 100</em>, <em class="sig-param">nan_tolerance: int = 30</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#DefaultToyStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.DefaultToyStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">DefaultToyStrategy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nan_penalty</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">nan_tolerance</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">30</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#DefaultToyStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.DefaultToyStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.PushbackStrategy" title="zfit.minimizers.baseminimizer.PushbackStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.PushbackStrategy</span></code></a>, <a class="reference internal" href="#zfit.minimizers.baseminimizer.ToyStrategyFail" title="zfit.minimizers.baseminimizer.ToyStrategyFail"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.ToyStrategyFail</span></code></a></p>
 <p>Same as <cite>DefaultStrategy</cite>, but does not raise an error on full failure, instead return an invalid FitResult.</p>
 <p>This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a
@@ -470,23 +470,23 @@ failure instead of rising an error.</p>
 exceeded, the fallback will be used and an error is raised.
 :param nan_penalty: Value to add to the previous loss in order to penalize the step taken
 :param nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.DefaultToyStrategy.minimize_nan">
-<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#zfit.minimizers.baseminimizer.DefaultToyStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">minimizer</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer">zfit.minimizers.interface.ZfitMinimizer</a></span></em>, <em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><a class="headerlink" href="#zfit.minimizers.baseminimizer.DefaultToyStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="exception">
+<dl class="py exception">
 <dt id="zfit.minimizers.baseminimizer.FailMinimizeNaN">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">FailMinimizeNaN</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#FailMinimizeNaN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.FailMinimizeNaN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.minimizers.baseminimizer.FailMinimizeNaN.args">
 <code class="sig-name descname">args</code><a class="headerlink" href="#zfit.minimizers.baseminimizer.FailMinimizeNaN.args" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.FailMinimizeNaN.with_traceback">
 <code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.baseminimizer.FailMinimizeNaN.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
@@ -495,52 +495,52 @@ set self.__traceback__ to tb and return self.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.baseminimizer.PushbackStrategy">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">PushbackStrategy</code><span class="sig-paren">(</span><em class="sig-param">nan_penalty: Union[float</em>, <em class="sig-param">int] = 100</em>, <em class="sig-param">nan_tolerance: int = 30</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#PushbackStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.PushbackStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">PushbackStrategy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nan_penalty</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">nan_tolerance</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">30</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#PushbackStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.PushbackStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.BaseStrategy" title="zfit.minimizers.baseminimizer.BaseStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseStrategy</span></code></a></p>
 <p>Pushback by adding <cite>nan_penalty * counter</cite> to the loss if NaNs are encountered.</p>
 <p>The counter indicates how many NaNs occurred in a row. The <cite>nan_tolerance</cite> is the upper limit, if this is
 exceeded, the fallback will be used and an error is raised.
 :param nan_penalty: Value to add to the previous loss in order to penalize the step taken
 :param nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.PushbackStrategy.minimize_nan">
-<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#zfit.minimizers.baseminimizer.PushbackStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">minimizer</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer">zfit.minimizers.interface.ZfitMinimizer</a></span></em>, <em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><a class="headerlink" href="#zfit.minimizers.baseminimizer.PushbackStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.baseminimizer.ToyStrategyFail">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">ToyStrategyFail</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ToyStrategyFail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ToyStrategyFail" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.baseminimizer.BaseStrategy" title="zfit.minimizers.baseminimizer.BaseStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseStrategy</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.ToyStrategyFail.minimize_nan">
-<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#zfit.minimizers.baseminimizer.ToyStrategyFail.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">minimizer</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer">zfit.minimizers.interface.ZfitMinimizer</a></span></em>, <em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ToyStrategyFail.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.baseminimizer.ZfitStrategy">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">ZfitStrategy</code><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan">
-<em class="property">abstract </em><code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss, params: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], minimizer: zfit.minimizers.interface.ZfitMinimizer, values: Mapping = None</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">minimize_nan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">minimizer</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer">zfit.minimizers.interface.ZfitMinimizer</a></span></em>, <em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#ZfitStrategy.minimize_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.ZfitStrategy.minimize_nan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="zfit.minimizers.baseminimizer.print_gradients">
-<code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">print_gradients</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">values</em>, <em class="sig-param">gradients</em>, <em class="sig-param">loss=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#print_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.print_gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">print_gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">gradients</span></em>, <em class="sig-param"><span class="n">loss</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#print_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.print_gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="zfit.minimizers.baseminimizer.print_params">
-<code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">print_params</code><span class="sig-paren">(</span><em class="sig-param">params</em>, <em class="sig-param">values</em>, <em class="sig-param">loss=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#print_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.print_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.minimizers.baseminimizer.</code><code class="sig-name descname">print_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">loss</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/baseminimizer.html#print_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.baseminimizer.print_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -565,7 +565,7 @@ exceeded, the fallback will be used and an error is raised.
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
     </p>
   </div>
 </footer>

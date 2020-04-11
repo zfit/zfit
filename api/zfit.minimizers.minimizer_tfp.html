@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>minimizer_tfp &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
+    <title>minimizer_tfp &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -383,9 +383,9 @@
       
   <div class="section" id="module-zfit.minimizers.minimizer_tfp">
 <span id="minimizer-tfp"></span><h1>minimizer_tfp<a class="headerlink" href="#module-zfit.minimizers.minimizer_tfp" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.minimizer_tfp.BFGS">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.minimizer_tfp.</code><code class="sig-name descname">BFGS</code><span class="sig-paren">(</span><em class="sig-param">strategy: zfit.minimizers.baseminimizer.ZfitStrategy = None</em>, <em class="sig-param">tolerance: float = 1e-05</em>, <em class="sig-param">verbosity: int = 5</em>, <em class="sig-param">max_calls: int = 3000</em>, <em class="sig-param">name: str = 'BFGS_TFP'</em>, <em class="sig-param">options: Mapping = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizer_tfp.html#BFGS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGS" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.minimizer_tfp.</code><code class="sig-name descname">BFGS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">strategy</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.ZfitStrategy" title="zfit.minimizers.baseminimizer.ZfitStrategy">zfit.minimizers.baseminimizer.ZfitStrategy</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span> <span class="o">=</span> <span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">verbosity</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">5</span></em>, <em class="sig-param"><span class="n">max_calls</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">3000</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'BFGS_TFP'</span></em>, <em class="sig-param"><span class="n">options</span><span class="p">:</span> <span class="n">Mapping</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizer_tfp.html#BFGS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer" title="zfit.minimizers.baseminimizer.BaseMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseMinimizer</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -399,14 +399,14 @@
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.minimizer_tfp.BFGS.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGS.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.minimizer_tfp.BFGS.minimize">
-<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss</em>, <em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span> &#x2192; zfit.minimizers.fitresult.FitResult<a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGS.minimize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult" title="zfit.minimizers.fitresult.FitResult">zfit.minimizers.fitresult.FitResult</a><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGS.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fully minimize the <cite>loss</cite> with respect to <cite>params</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -425,9 +425,9 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.minimizer_tfp.BFGS.step">
-<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param">loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGS.step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGS.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a single step in the minimization (if implemented).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -442,7 +442,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.minimizer_tfp.BFGS.tolerance">
 <em class="property">property </em><code class="sig-name descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.minimizer_tfp.BFGS.tolerance" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -471,7 +471,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
     </p>
   </div>
 </footer>

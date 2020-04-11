@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>tf_external_optimizer &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
+    <title>tf_external_optimizer &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -384,9 +384,9 @@
   <div class="section" id="module-zfit.minimizers.tf_external_optimizer">
 <span id="tf-external-optimizer"></span><h1>tf_external_optimizer<a class="headerlink" href="#module-zfit.minimizers.tf_external_optimizer" title="Permalink to this headline">¶</a></h1>
 <p>TensorFlow interface for third-party optimizers.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.tf_external_optimizer.</code><code class="sig-name descname">ExternalOptimizerInterface</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">var_list=None</em>, <em class="sig-param">equalities=None</em>, <em class="sig-param">inequalities=None</em>, <em class="sig-param">var_to_bounds=None</em>, <em class="sig-param">**optimizer_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/tf_external_optimizer.html#ExternalOptimizerInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.tf_external_optimizer.</code><code class="sig-name descname">ExternalOptimizerInterface</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span></em>, <em class="sig-param"><span class="n">var_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">equalities</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">inequalities</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">var_to_bounds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">optimizer_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/tf_external_optimizer.html#ExternalOptimizerInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Base class for interfaces with external optimization algorithms.</p>
 <p>Subclass this and implement <cite>_minimize</cite> in order to wrap a new optimization
@@ -431,9 +431,9 @@ than 2, etc.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface.minimize">
-<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param">feed_dict=None</em>, <em class="sig-param">fetches=None</em>, <em class="sig-param">step_callback=None</em>, <em class="sig-param">loss_callback=None</em>, <em class="sig-param">**run_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/tf_external_optimizer.html#ExternalOptimizerInterface.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface.minimize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feed_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fetches</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">step_callback</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">loss_callback</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">run_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/tf_external_optimizer.html#ExternalOptimizerInterface.minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Minimize a scalar <cite>Tensor</cite>.</p>
 <p>Variables subject to optimization are updated in-place at the end of
 optimization.</p>
@@ -460,9 +460,9 @@ are computed, with evaluated fetches supplied as positional arguments.</p></li>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.tf_external_optimizer.</code><code class="sig-name descname">ScipyOptimizerInterface</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">var_list=None</em>, <em class="sig-param">equalities=None</em>, <em class="sig-param">inequalities=None</em>, <em class="sig-param">var_to_bounds=None</em>, <em class="sig-param">**optimizer_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/tf_external_optimizer.html#ScipyOptimizerInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.tf_external_optimizer.</code><code class="sig-name descname">ScipyOptimizerInterface</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span></em>, <em class="sig-param"><span class="n">var_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">equalities</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">inequalities</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">var_to_bounds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">optimizer_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/tf_external_optimizer.html#ScipyOptimizerInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface" title="zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.tf_external_optimizer.ExternalOptimizerInterface</span></code></a></p>
 <p>Wrapper allowing <cite>scipy.optimize.minimize</cite> to operate a <cite>tf.compat.v1.Session</cite>.</p>
 <p>Example:</p>
@@ -549,9 +549,9 @@ than 2, etc.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface.minimize">
-<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param">feed_dict=None</em>, <em class="sig-param">fetches=None</em>, <em class="sig-param">step_callback=None</em>, <em class="sig-param">loss_callback=None</em>, <em class="sig-param">**run_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface.minimize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feed_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fetches</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">step_callback</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">loss_callback</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">run_kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.tf_external_optimizer.ScipyOptimizerInterface.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Minimize a scalar <cite>Tensor</cite>.</p>
 <p>Variables subject to optimization are updated in-place at the end of
 optimization.</p>
@@ -600,7 +600,7 @@ are computed, with evaluated fetches supplied as positional arguments.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
     </p>
   </div>
 </footer>

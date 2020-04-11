@@ -11,6 +11,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    zfit.z.const
    zfit.z.math

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>basic &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
+    <title>basic &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -385,13 +385,13 @@
 <span id="basic"></span><h1>basic<a class="headerlink" href="#module-zfit.models.basic" title="Permalink to this headline">¶</a></h1>
 <p>Basic PDFs are provided here. Gauss, exponential… that can be used together with Functors to
 build larger models.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.models.basic.CustomGaussOLD">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.models.basic.</code><code class="sig-name descname">CustomGaussOLD</code><span class="sig-paren">(</span><em class="sig-param">mu</em>, <em class="sig-param">sigma</em>, <em class="sig-param">obs</em>, <em class="sig-param">name='Gauss'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/basic.html#CustomGaussOLD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.models.basic.</code><code class="sig-name descname">CustomGaussOLD</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mu</span></em>, <em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">obs</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Gauss'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/basic.html#CustomGaussOLD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -408,9 +408,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.analytic_integrate">
-<code class="sig-name descname">analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analytical integration over function and raise Error if not possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -436,9 +436,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.apply_yield">
-<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param">value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -454,9 +454,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.as_func">
-<code class="sig-name descname">as_func</code><span class="sig-paren">(</span><em class="sig-param">norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.as_func" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.as_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <cite>Function</cite> with the function <cite>model(x, norm_range=norm_range)</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -465,15 +465,15 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.axes">
 <em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes, integer based identifier(indices) for the coordinate system.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.convert_sort_space">
-<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, axes: Union[int, Iterable[int]] = None, limits: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.interfaces.ZfitSpace]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -488,9 +488,9 @@ own <cite>obs</cite>.</p>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">**override_parameters</em><span class="sig-paren">)</span> &#x2192; zfit.core.basepdf.BasePDF<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">override_parameters</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF">zfit.core.basepdf.BasePDF</a><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a copy of the model.</p>
 <p>Note: the copy model may continue to depend on the original
 initialization arguments.</p>
@@ -513,9 +513,9 @@ arguments to override with new value.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.create_extended">
-<code class="sig-name descname">create_extended</code><span class="sig-paren">(</span><em class="sig-param">yield_: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], name_addition='_extended'</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.create_extended" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_extended</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">yield_</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name_addition</span><span class="o">=</span><span class="default_value">'_extended'</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.create_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an extended version of this pdf with yield <cite>yield_</cite>. The parameters are shared.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -530,9 +530,9 @@ arguments to override with new value.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.create_projection_pdf">
-<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param">limits_to_integrate: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <dl class="field-list simple">
@@ -548,9 +548,9 @@ arguments to override with new value.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.create_sampler">
-<code class="sig-name descname">create_sampler</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.create_sampler" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_sampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fixed_params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span>List<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">, </span>Tuple<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.data.html#zfit.core.data.Sampler" title="zfit.core.data.Sampler">zfit.core.data.Sampler</a><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.create_sampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
 <blockquote>
 <div><p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
@@ -590,15 +590,15 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.dtype">
 <em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the object</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.get_dependents">
-<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True) -&gt; OrderedSet(['z', 'f', 'i', 't', '.', 'P', 'a', 'r', 'm', 'e']</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -607,9 +607,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.get_params">
-<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union[str, List[str], None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -627,9 +627,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.get_yield">
-<code class="sig-name descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.get_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.Parameter" title="zfit.core.parameter.Parameter">zfit.core.parameter.Parameter</a><span class="p">]</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.get_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the yield (only for extended models).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -641,27 +641,27 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.gradients">
-<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.models.basic.CustomGaussOLD.graph_caching_methods">
 <code class="sig-name descname">graph_caching_methods</code><em class="property"> = [&lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;]</em><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.models.basic.CustomGaussOLD.instances">
 <code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.instances" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.integrate">
-<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.integrate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.is_extended">
 <em class="property">property </em><code class="sig-name descname">is_extended</code><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.is_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flag to tell whether the model is extended or not.</p>
@@ -675,9 +675,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.log_pdf">
-<code class="sig-name descname">log_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.log_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">log_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.log_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log probability density function normalized over <cite>norm_range</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -695,19 +695,19 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.n_obs">
 <em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables, the dimensionality. Corresponds to the last dimension.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.norm_range">
 <em class="property">property </em><code class="sig-name descname">norm_range</code><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the current normalization range. If None and the <a href="#id1"><span class="problematic" id="id2">`</span></a>obs`have limits, they are returned.</p>
@@ -721,9 +721,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.normalization">
-<code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.normalization" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.normalization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the normalization of the function (usually the integral over <cite>limits</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -738,9 +738,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.numeric_integrate">
-<code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.numeric_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Numerical integration over the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -758,40 +758,40 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.obs">
 <em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables, string identifier for the coordinate system.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.params">
 <em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.partial_analytic_integrate">
-<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.partial_integrate">
-<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.partial_integrate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.partial_numeric_integrate">
-<code class="sig-name descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.pdf">
-<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.pdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.register_additional_repr">
-<em class="property">classmethod </em><code class="sig-name descname">register_additional_repr</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.register_additional_repr" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">register_additional_repr</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.register_additional_repr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an additional attribute to add to the repr.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -803,9 +803,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.register_analytic_integral">
-<em class="property">classmethod </em><code class="sig-name descname">register_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: Union[int, float] = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">register_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">priority</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">50</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">supports_norm_range</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">supports_multiple_limits</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an analytic integral with the class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -843,9 +843,9 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.register_cacher">
-<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -854,9 +854,9 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.register_inverse_analytic_integral">
-<em class="property">classmethod </em><code class="sig-name descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -865,20 +865,20 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.reset_cache_self">
 <code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.sample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.data.html#zfit.core.data.SampleData" title="zfit.core.data.SampleData">zfit.core.data.SampleData</a><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
 <p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
 If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
@@ -910,9 +910,9 @@ or a valid string. Currently implemented:</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param">norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -921,14 +921,14 @@ or a valid string. Currently implemented:</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">component_norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -947,9 +947,9 @@ or a valid string. Currently implemented:</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.update_integration_options">
-<code class="sig-name descname">update_integration_options</code><span class="sig-paren">(</span><em class="sig-param">draws_per_dim=None</em>, <em class="sig-param">mc_sampler=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.update_integration_options" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_integration_options</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">draws_per_dim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mc_sampler</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.update_integration_options" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the integration options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -963,9 +963,9 @@ or a valid string. Currently implemented:</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.models.basic.Exponential">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.models.basic.</code><code class="sig-name descname">Exponential</code><span class="sig-paren">(</span><em class="sig-param">lambda_, obs: Union[str, Iterable[str], zfit.Space], name: str = 'Exponential', **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/basic.html#Exponential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.basic.Exponential" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.models.basic.</code><code class="sig-name descname">Exponential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lambda_</span></em>, <em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'Exponential'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/basic.html#Exponential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.basic.Exponential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
 <p>Exponential function exp(lambda * x).</p>
 <p>The function is normalized over a finite range and therefore a pdf. So the PDF is precisely
@@ -980,9 +980,9 @@ defined as <span class="math notranslate nohighlight">\(\frac{ e^{\lambda \cdot 
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param">cache_dependents: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]], allow_non_cachable: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -999,9 +999,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.analytic_integrate">
-<code class="sig-name descname">analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.Exponential.analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analytical integration over function and raise Error if not possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1027,9 +1027,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.apply_yield">
-<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param">value: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = False, log: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.Exponential.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1045,9 +1045,9 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.as_func">
-<code class="sig-name descname">as_func</code><span class="sig-paren">(</span><em class="sig-param">norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = False</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.as_func" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.as_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <cite>Function</cite> with the function <cite>model(x, norm_range=norm_range)</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1056,15 +1056,15 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.axes">
 <em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.models.basic.Exponential.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes, integer based identifier(indices) for the coordinate system.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.convert_sort_space">
-<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None, axes: Union[int, Iterable[int]] = None, limits: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None</em><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.interfaces.ZfitSpace]<a class="headerlink" href="#zfit.models.basic.Exponential.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.basic.Exponential.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -1079,9 +1079,9 @@ own <cite>obs</cite>.</p>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">**override_parameters</em><span class="sig-paren">)</span> &#x2192; zfit.core.basepdf.BasePDF<a class="headerlink" href="#zfit.models.basic.Exponential.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">override_parameters</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF">zfit.core.basepdf.BasePDF</a><a class="headerlink" href="#zfit.models.basic.Exponential.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a copy of the model.</p>
 <p>Note: the copy model may continue to depend on the original
 initialization arguments.</p>
@@ -1104,9 +1104,9 @@ arguments to override with new value.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.create_extended">
-<code class="sig-name descname">create_extended</code><span class="sig-paren">(</span><em class="sig-param">yield_: Union[zfit.core.interfaces.ZfitParameter, int, float, complex, tensorflow.python.framework.ops.Tensor], name_addition='_extended'</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.basic.Exponential.create_extended" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_extended</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">yield_</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name_addition</span><span class="o">=</span><span class="default_value">'_extended'</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.basic.Exponential.create_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an extended version of this pdf with yield <cite>yield_</cite>. The parameters are shared.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1121,9 +1121,9 @@ arguments to override with new value.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.create_projection_pdf">
-<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param">limits_to_integrate: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitPDF<a class="headerlink" href="#zfit.models.basic.Exponential.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.basic.Exponential.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <dl class="field-list simple">
@@ -1139,9 +1139,9 @@ arguments to override with new value.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.create_sampler">
-<code class="sig-name descname">create_sampler</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, fixed_params: Union[bool, List[zfit.core.interfaces.ZfitParameter], Tuple[zfit.core.interfaces.ZfitParameter]] = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.Sampler<a class="headerlink" href="#zfit.models.basic.Exponential.create_sampler" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_sampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fixed_params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span>List<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">, </span>Tuple<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.data.html#zfit.core.data.Sampler" title="zfit.core.data.Sampler">zfit.core.data.Sampler</a><a class="headerlink" href="#zfit.models.basic.Exponential.create_sampler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code> that acts as <cite>Data</cite> but can be resampled, also with changed parameters and n.</p>
 <blockquote>
 <div><p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
@@ -1181,15 +1181,15 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.dtype">
 <em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.models.basic.Exponential.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the object</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.get_dependents">
-<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = True) -&gt; OrderedSet(['z', 'f', 'i', 't', '.', 'P', 'a', 'r', 'm', 'e']</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.get_dependents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.get_dependents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1198,9 +1198,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.get_params">
-<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">only_floating: bool = False, names: Union[str, List[str], None] = None</em><span class="sig-paren">)</span> &#x2192; List[zfit.core.interfaces.ZfitParameter]<a class="headerlink" href="#zfit.models.basic.Exponential.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union[str, List[str], None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><a class="headerlink" href="#zfit.models.basic.Exponential.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1218,9 +1218,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.get_yield">
-<code class="sig-name descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional[zfit.core.parameter.Parameter]<a class="headerlink" href="#zfit.models.basic.Exponential.get_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_yield</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.parameter.html#zfit.core.parameter.Parameter" title="zfit.core.parameter.Parameter">zfit.core.parameter.Parameter</a><span class="p">]</span><a class="headerlink" href="#zfit.models.basic.Exponential.get_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the yield (only for extended models).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1232,27 +1232,27 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.gradients">
-<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.gradients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.gradients" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.models.basic.Exponential.graph_caching_methods">
 <code class="sig-name descname">graph_caching_methods</code><em class="property"> = [&lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;]</em><a class="headerlink" href="#zfit.models.basic.Exponential.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="zfit.models.basic.Exponential.instances">
 <code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.models.basic.Exponential.instances" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.integrate">
-<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.integrate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.is_extended">
 <em class="property">property </em><code class="sig-name descname">is_extended</code><a class="headerlink" href="#zfit.models.basic.Exponential.is_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flag to tell whether the model is extended or not.</p>
@@ -1266,9 +1266,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.log_pdf">
-<code class="sig-name descname">log_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.log_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">log_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.Exponential.log_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log probability density function normalized over <cite>norm_range</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1286,19 +1286,19 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.n_obs">
 <em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.models.basic.Exponential.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables, the dimensionality. Corresponds to the last dimension.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.models.basic.Exponential.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.norm_range">
 <em class="property">property </em><code class="sig-name descname">norm_range</code><a class="headerlink" href="#zfit.models.basic.Exponential.norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the current normalization range. If None and the <a href="#id3"><span class="problematic" id="id4">`</span></a>obs`have limits, they are returned.</p>
@@ -1312,9 +1312,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.normalization">
-<code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.normalization" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normalization</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.Exponential.normalization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the normalization of the function (usually the integral over <cite>limits</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1329,9 +1329,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.numeric_integrate">
-<code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool], norm_range: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.Exponential.numeric_integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Numerical integration over the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1349,40 +1349,40 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.obs">
 <em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.models.basic.Exponential.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables, string identifier for the coordinate system.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.params">
 <em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.models.basic.Exponential.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.partial_analytic_integrate">
-<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_analytic_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.partial_analytic_integrate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.partial_integrate">
-<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.partial_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.partial_integrate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.partial_numeric_integrate">
-<code class="sig-name descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">partial_numeric_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.partial_numeric_integrate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.pdf">
-<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.pdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.register_additional_repr">
-<em class="property">classmethod </em><code class="sig-name descname">register_additional_repr</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.register_additional_repr" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">register_additional_repr</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.register_additional_repr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an additional attribute to add to the repr.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1394,9 +1394,9 @@ been created with when it resamples.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.register_analytic_integral">
-<em class="property">classmethod </em><code class="sig-name descname">register_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None, priority: Union[int, float] = 50, *, supports_norm_range: bool = False, supports_multiple_limits: bool = False</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.basic.Exponential.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">register_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">priority</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">50</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">supports_norm_range</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">supports_multiple_limits</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="headerlink" href="#zfit.models.basic.Exponential.register_analytic_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an analytic integral with the class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1434,9 +1434,9 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.register_cacher">
-<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param">cacher: Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.register_cacher" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1445,9 +1445,9 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.register_inverse_analytic_integral">
-<em class="property">classmethod </em><code class="sig-name descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param">func: Callable</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#zfit.models.basic.Exponential.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">register_inverse_analytic_integral</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="headerlink" href="#zfit.models.basic.Exponential.register_inverse_analytic_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an inverse analytical integral, the inverse (unnormalized) cdf.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1456,20 +1456,20 @@ If <cite>False</cite>, <cite>norm_range</cite> will always be <cite>None</cite> 
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param">reseter: zfit.util.cache.ZfitCachable</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.reset_cache_self">
 <code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.sample">
-<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param">n: Union[int, tensorflow.python.framework.ops.Tensor, str] = None, limits: Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool] = None</em><span class="sig-paren">)</span> &#x2192; zfit.core.data.SampleData<a class="headerlink" href="#zfit.models.basic.Exponential.sample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[Tuple[Tuple[float, …]], Tuple[float, …], bool]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.data.html#zfit.core.data.SampleData" title="zfit.core.data.SampleData">zfit.core.data.SampleData</a><a class="headerlink" href="#zfit.models.basic.Exponential.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample <cite>n</cite> points within <cite>limits</cite> from the model.</p>
 <p>If <cite>limits</cite> is not specified, <cite>space</cite> is used (if the space contains limits).
 If <cite>n</cite> is None and the model is an extended pdf, ‘extended’ is used by default.</p>
@@ -1501,9 +1501,9 @@ or a valid string. Currently implemented:</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param">norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1512,14 +1512,14 @@ or a valid string. Currently implemented:</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.models.basic.Exponential.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param">x: Union[float, tensorflow.python.framework.ops.Tensor], component_norm_range: Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None] = None</em><span class="sig-paren">)</span> &#x2192; Union[float, tensorflow.python.framework.ops.Tensor]<a class="headerlink" href="#zfit.models.basic.Exponential.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">component_norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.basic.Exponential.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1538,9 +1538,9 @@ or a valid string. Currently implemented:</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.models.basic.Exponential.update_integration_options">
-<code class="sig-name descname">update_integration_options</code><span class="sig-paren">(</span><em class="sig-param">draws_per_dim=None</em>, <em class="sig-param">mc_sampler=None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.update_integration_options" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_integration_options</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">draws_per_dim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mc_sampler</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.update_integration_options" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the integration options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1576,7 +1576,7 @@ or a valid string. Currently implemented:</p>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
     </p>
   </div>
 </footer>

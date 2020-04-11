@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>coordinates &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
+    <title>coordinates &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -383,19 +383,19 @@
       
   <div class="section" id="module-zfit.core.coordinates">
 <span id="coordinates"></span><h1>coordinates<a class="headerlink" href="#module-zfit.core.coordinates" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.core.coordinates.Coordinates">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.coordinates.</code><code class="sig-name descname">Coordinates</code><span class="sig-paren">(</span><em class="sig-param">obs=None</em>, <em class="sig-param">axes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.coordinates.</code><code class="sig-name descname">Coordinates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitOrderableDimensional" title="zfit.core.interfaces.ZfitOrderableDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitOrderableDimensional</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.axes">
 <em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.coordinates.Coordinates.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the axes, integer based identifier(indices) for the coordinate system.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.get_reorder_indices">
-<code class="sig-name descname">get_reorder_indices</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space] = None, axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[int]<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.get_reorder_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reorder_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.get_reorder_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indices that would order the instances obs as <cite>obs</cite> respectively the instances axes as <cite>axes</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -418,21 +418,21 @@ return the indices that could be used to reorder.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.n_obs">
 <em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.coordinates.Coordinates.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables, the dimensionality. Corresponds to the last dimension.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.obs">
 <em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.coordinates.Coordinates.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the observables, string identifier for the coordinate system.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.reorder_x">
-<code class="sig-name descname">reorder_x</code><span class="sig-paren">(</span><em class="sig-param">x: Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray], *, x_obs: Union[str, Iterable[str], zfit.Space] = None, x_axes: Union[int, Iterable[int]] = None, func_obs: Union[str, Iterable[str], zfit.Space] = None, func_axes: Union[int, Iterable[int]] = None</em><span class="sig-paren">)</span> &#x2192; Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor]<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.reorder_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.reorder_x" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reorder_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">]</span></span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">x_obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x_axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.reorder_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.reorder_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.</p>
 <p>There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.
 If x_obs or x_axes is given, then this is assumed to be the obs resp. the axes of x and x will be reordered
@@ -463,9 +463,9 @@ self.axes to be the axes of x.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.with_autofill_axes">
-<code class="sig-name descname">with_autofill_axes</code><span class="sig-paren">(</span><em class="sig-param">overwrite: bool = False</em><span class="sig-paren">)</span> &#x2192; zfit.core.interfaces.ZfitOrderableDimensional<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_autofill_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_autofill_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">overwrite</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitOrderableDimensional" title="zfit.core.interfaces.ZfitOrderableDimensional">zfit.core.interfaces.ZfitOrderableDimensional</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_autofill_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).</p>
 <p>This effectively fills with (0, 1, 2,…) and can be used mostly when an object enters a PDF or
 similar. <cite>overwrite</cite> allows to remove the axis first in case there are already some set.</p>
@@ -495,9 +495,9 @@ If axes is already set and <cite>overwrite</cite> is False, raise an error.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.with_axes">
-<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param">axes: Union[int, Iterable[int], None], allow_superset: bool = True, allow_subset: bool = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.coordinates.Coordinates<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union[int, Iterable[int], None]</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#zfit.core.coordinates.Coordinates" title="zfit.core.coordinates.Coordinates">zfit.core.coordinates.Coordinates</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new instance that has <cite>axes</cite>; sorted by or set or dropped.</p>
 <blockquote>
 <div><p>The behavior is as follows:</p>
@@ -548,9 +548,9 @@ is raised.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.with_obs">
-<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param">obs: Union[str, Iterable[str], zfit.Space, None], allow_superset: bool = True, allow_subset: bool = True</em><span class="sig-paren">)</span> &#x2192; zfit.core.coordinates.Coordinates<a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, None]</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#zfit.core.coordinates.Coordinates" title="zfit.core.coordinates.Coordinates">zfit.core.coordinates.Coordinates</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new instance that has <cite>obs</cite>; sorted by or set or dropped.</p>
 <p>The behavior is as follows:</p>
 <blockquote>
@@ -606,7 +606,7 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="zfit.core.coordinates.convert_to_axes">
 <code class="sig-prename descclassname">zfit.core.coordinates.</code><code class="sig-name descname">convert_to_axes</code><span class="sig-paren">(</span><em class="sig-param">axes</em>, <em class="sig-param">container=&lt;class 'tuple'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#convert_to_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.convert_to_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert <cite>obs</cite> to the list of obs, also if it is a <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>. Return None if axes is None.</p>
@@ -616,7 +616,7 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="zfit.core.coordinates.convert_to_obs_str">
 <code class="sig-prename descclassname">zfit.core.coordinates.</code><code class="sig-name descname">convert_to_obs_str</code><span class="sig-paren">(</span><em class="sig-param">obs</em>, <em class="sig-param">container=&lt;class 'tuple'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/coordinates.html#convert_to_obs_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.convert_to_obs_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert <cite>obs</cite> to the list of obs, also if it is a <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code>. Return None if obs is None.</p>
@@ -649,7 +649,7 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
     </p>
   </div>
 </footer>

@@ -11,6 +11,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    zfit.core.basefunc
    zfit.core.basemodel

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>minimizers_scipy &#8212; zfit 0.4.4.dev107+gefc705a documentation</title>
+    <title>minimizers_scipy &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -383,18 +383,18 @@
       
   <div class="section" id="module-zfit.minimizers.minimizers_scipy">
 <span id="minimizers-scipy"></span><h1>minimizers_scipy<a class="headerlink" href="#module-zfit.minimizers.minimizers_scipy" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="zfit.minimizers.minimizers_scipy.Scipy">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.minimizers_scipy.</code><code class="sig-name descname">Scipy</code><span class="sig-paren">(</span><em class="sig-param">minimizer='L-BFGS-B'</em>, <em class="sig-param">tolerance=None</em>, <em class="sig-param">verbosity=5</em>, <em class="sig-param">name=None</em>, <em class="sig-param">**minimizer_options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizers_scipy.html#Scipy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.minimizers_scipy.</code><code class="sig-name descname">Scipy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">minimizer</span><span class="o">=</span><span class="default_value">'L-BFGS-B'</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbosity</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">minimizer_options</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizers_scipy.html#Scipy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer" title="zfit.minimizers.baseminimizer.BaseMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseMinimizer</span></code></a></p>
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.minimizers_scipy.Scipy.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.minimizers_scipy.Scipy.minimize">
-<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param">loss: zfit.core.interfaces.ZfitLoss</em>, <em class="sig-param">params: Optional[Iterable[zfit.core.interfaces.ZfitParameter]] = None</em><span class="sig-paren">)</span> &#x2192; zfit.minimizers.fitresult.FitResult<a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.minimize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult" title="zfit.minimizers.fitresult.FitResult">zfit.minimizers.fitresult.FitResult</a><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fully minimize the <cite>loss</cite> with respect to <cite>params</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -413,9 +413,9 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.minimizers_scipy.Scipy.step">
-<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param">loss, params: Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a single step in the minimization (if implemented).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -430,7 +430,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="zfit.minimizers.minimizers_scipy.Scipy.tolerance">
 <em class="property">property </em><code class="sig-name descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.tolerance" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -459,7 +459,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
     </p>
   </div>
 </footer>
