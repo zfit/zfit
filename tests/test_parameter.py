@@ -10,7 +10,7 @@ from zfit import Parameter, z
 from zfit.core.parameter import ComposedParameter, ComplexParameter
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
+from zfit.util.exception import NameAlreadyTakenError
 
 
 def test_complex_param():
@@ -95,6 +95,11 @@ def test_composed_param():
     #     param_a.assign(value=5.)
     # with pytest.raises(LogicalUndefinedOperationError):
     #     param_a.assign(value=5.)
+
+
+# TODO: add test
+def test_randomize():
+    pass
 
 
 def test_floating_behavior():
