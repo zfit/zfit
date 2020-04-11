@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.parameter &#8212; zfit 0.4.4.dev107+g8d9cc3c documentation</title>
+    <title>zfit.core.parameter &#8212; zfit 0.4.4.dev107+g362eae0 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -943,7 +943,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            `tf.Tensor`: The sampled value</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">run</span><span class="o">.</span><span class="n">experimental_is_eager</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">IllegalInGraphModeError</span><span class="p">(</span><span class="s2">&quot;Randomizing values in a parameter within Graph mode is most probably not&quot;</span>
                                           <span class="s2">&quot; what is &quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">minval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
