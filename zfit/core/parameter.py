@@ -564,7 +564,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         Returns:
             `tf.Tensor`: The sampled value
         """
-        if not run.experimental_is_eager:
+        if not tf.executing_eagerly():
             raise IllegalInGraphModeError("Randomizing values in a parameter within Graph mode is most probably not"
                                           " what is ")
         if minval is None:
