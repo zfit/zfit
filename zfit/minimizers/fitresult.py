@@ -345,6 +345,12 @@ class FitResult(ZfitResult):
         string += str(self.params)
         return string
 
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            p.text(self.__repr__())
+            return
+        p.text(self.__str__())
+
 
 def dict_to_matrix(params, matrix_dict):
     nparams = len(params)
