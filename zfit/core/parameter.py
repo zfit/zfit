@@ -781,7 +781,8 @@ class ComplexParameter(ComposedParameter):
     def conj(self):
         if self._conj is None:
             self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=lambda: tf.math.conj(self),
-                                          dtype=self.dtype, params=self.get_dependents())
+                                          params=self.get_cache_deps(),
+                                          dtype=self.dtype)
         return self._conj
 
     @property

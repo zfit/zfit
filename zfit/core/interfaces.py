@@ -597,8 +597,13 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
 
 class ZfitDependentsMixin:
     @abstractmethod
-    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
+    def get_cache_deps(self, only_floating: bool = True) -> ztyping.DependentsType:
         raise NotImplementedError
+
+    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
+        from zfit.util.exception import BreakingAPIChangeError
+        raise BreakingAPIChangeError
+        return self.get_cache_deps(only_floating=only_floating)
 
 
 class ZfitParametrized(ZfitDependentsMixin, ZfitObject):

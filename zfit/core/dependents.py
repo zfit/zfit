@@ -15,7 +15,7 @@ class BaseDependentsMixin(ZfitDependentsMixin):
     def _get_dependents(self) -> ztyping.DependentsType:
         raise NotImplementedError
 
-    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
+    def get_cache_deps(self, only_floating: bool = True) -> ztyping.DependentsType:
         """Return a set of all independent :py:class:`~zfit.Parameter` that this object depends on.
 
         Args:
@@ -37,6 +37,6 @@ class BaseDependentsMixin(ZfitDependentsMixin):
             set(zfit.Parameter): A set of independent Parameters
         """
         zfit_objects = convert_to_container(zfit_objects)
-        dependents = (obj.get_dependents(only_floating=False) for obj in zfit_objects)
+        dependents = (obj.get_cache_deps(only_floating=False) for obj in zfit_objects)
         dependents_set = OrderedSet(itertools.chain.from_iterable(dependents))  # flatten
         return dependents_set

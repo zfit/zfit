@@ -164,7 +164,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
         if params is None:
-            params = list(self.get_dependents())
+            params = list(self.get_cache_deps())
         else:
             params = convert_to_container(params)
         return self._gradients(params=params)
