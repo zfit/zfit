@@ -20,6 +20,7 @@ def pll(minimizer, loss, params, values) -> float:
     with set_values(params, values):
         for param in params:
             param.floating = False
+
         minimum = minimizer.minimize(loss=loss)
 
     for param in params:
@@ -63,8 +64,7 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
 
             # shift parameters, other than param, using covariance matrix
             ap_value = result.params[ap]["value"]
-            ap_error = covariance[(ap, ap)] ** 0.5
-            ap_value += sigma * direction * covariance[(param, ap)] / ap_error
+            ap_value += sigma * direction * covariance[(param, ap)] * (2 * errordef / param_error**2)**0.5
             ap.set_value(ap_value)
 
         cache = {}
@@ -111,6 +111,7 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
 
             # Check if the `shifted_pll` function has the same sign at the lower and upper bounds.
             # If they have the same sign, the window given to the root finding algorithm is increased.
+
             nsigma = 1.5
             while np.sign(shifted_pll(lower_bound)) == np.sign(shifted_pll(upper_bound)):
                 if direction == -1:
