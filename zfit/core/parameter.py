@@ -705,6 +705,14 @@ class ComposedParameter(BaseComposedParameter):
 
 class ComplexParameter(ComposedParameter):
     def __init__(self, name, value_fn, dependents, dtype=ztypes.complex, **kwargs):
+        """Create a complex parameter.
+
+        .. warning::
+            Use the constructor class methods instead of the __init__() constructor:
+
+            - :py:meth:`ComplexParameter.from_cartesian`
+            - :py:meth:`ComplexParameter.from_polar`
+        """
         super().__init__(name, value_fn=value_fn, dependents=dependents, dtype=dtype, **kwargs)
         self._conj = None
         self._mod = None
