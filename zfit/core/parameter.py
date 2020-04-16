@@ -865,7 +865,7 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
             if not len(params) == len(values):
                 raise ValueError(f"Incompatible length of parameters and values: {params}, {values}")
     if not all(param.independent for param in params):
-        raise ParameterNotIndependentError(f'tryping to set parameters that are not independend '
+        raise ParameterNotIndependentError(f'trying to set value of parameters that are not independent '
                                            f'{[param for param in params if not param.independent]}')
 
     def setter(values):
