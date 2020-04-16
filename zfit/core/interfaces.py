@@ -654,12 +654,6 @@ class ZfitParameter(ZfitNumeric):
     def independent(self) -> bool:
         raise NotImplementedError
 
-    # TODO: shape to numeric?
-    # @property
-    # @abc.abstractmethod
-    # def shape(self):
-    #     raise NotImplementedError
-
 
 class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
     @abstractmethod
