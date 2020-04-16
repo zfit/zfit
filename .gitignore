@@ -1,0 +1,4 @@
+**/__pycache__/
+.eggs/
+.idea/
+zfit.egg-info/
