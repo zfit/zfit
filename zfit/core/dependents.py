@@ -26,17 +26,17 @@ class BaseDependentsMixin(ZfitDependentsMixin):
             dependents = OrderedSet(filter(lambda p: p.floating, dependents))
         return dependents
 
-    @staticmethod
-    def _extract_dependents(zfit_objects: Iterable[ZfitObject]) -> ztyping.DependentsType:
-        """Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.
 
-        Args:
-            zfit_objects ():
+def _extract_dependents(zfit_objects: Iterable[ZfitObject]) -> ztyping.DependentsType:
+    """Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.
 
-        Returns:
-            set(zfit.Parameter): A set of independent Parameters
-        """
-        zfit_objects = convert_to_container(zfit_objects)
-        dependents = (obj.get_cache_deps(only_floating=False) for obj in zfit_objects)
-        dependents_set = OrderedSet(itertools.chain.from_iterable(dependents))  # flatten
-        return dependents_set
+    Args:
+        zfit_objects ():
+
+    Returns:
+        set(zfit.Parameter): A set of independent Parameters
+    """
+    zfit_objects = convert_to_container(zfit_objects)
+    dependents = (obj.get_cache_deps(only_floating=False) for obj in zfit_objects)
+    dependents_set = OrderedSet(itertools.chain.from_iterable(dependents))  # flatten
+    return dependents_set

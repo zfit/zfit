@@ -4,6 +4,7 @@ import abc
 from typing import List, Union, Tuple, Iterable
 
 from ..core.basemodel import BaseModel
+from ..core.dependents import _extract_dependents
 from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace
 from ..core.space import Space
@@ -73,7 +74,7 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
     def _get_dependents(self):
         dependents = super()._get_dependents()  # get the own parameter dependents
-        model_dependents = self._extract_dependents(self.get_models())
+        model_dependents = _extract_dependents(self.get_models())
         return dependents.union(model_dependents)
 
     @property

@@ -47,7 +47,7 @@ class BaseFunctorFunc(FunctorMixin, BaseFunc):
 
     def _get_dependents(self):  # TODO: change recursive to `only_floating`?
         dependents = super()._get_dependents()  # get the own parameter dependents
-        func_dependents = self._extract_dependents(self.funcs)  # flatten
+        func_dependents = _extract_dependents(self.funcs)  # flatten
         return dependents.union(func_dependents)
 
     @property

@@ -10,6 +10,7 @@ from ordered_set import OrderedSet
 
 from zfit import z
 from .baseobject import BaseNumeric
+from .dependents import _extract_dependents
 from .interfaces import ZfitConstraint
 from .interfaces import ZfitParameter
 from .parameter import convert_to_parameter
@@ -44,7 +45,7 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
         raise NotImplementedError
 
     def _get_dependents(self) -> ztyping.DependentsType:
-        return self._extract_dependents(self.get_params())
+        return _extract_dependents(self.get_params())
 
 
 class SimpleConstraint(BaseConstraint):
@@ -117,7 +118,7 @@ class ProbabilityConstraint(BaseConstraint):
         raise NotImplementedError
 
     def _get_dependents(self) -> ztyping.DependentsType:
-        return self._extract_dependents(self.get_params())
+        return _extract_dependents(self.get_params())
 
     def sample(self, n):
         """Sample `n` points from the probability density function for the observed value of the parameters.

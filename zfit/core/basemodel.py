@@ -16,6 +16,7 @@ from tensorflow_probability.python import mcmc as mc
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
 from .data import Data, Sampler, SampleData
+from .dependents import _extract_dependents
 from .dimension import BaseDimensional
 from .interfaces import ZfitModel, ZfitParameter, ZfitData, ZfitSpace
 from .sample import UniformSampleAndWeights
@@ -1006,7 +1007,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return func
 
     def _get_dependents(self) -> ztyping.DependentsType:
-        return self._extract_dependents(self.get_params())
+        return _extract_dependents(self.get_params())
 
     def __add__(self, other):
         from . import operations

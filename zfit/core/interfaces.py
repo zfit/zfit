@@ -6,6 +6,7 @@ from typing import Union, List, Dict, Callable, Tuple, Optional
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.python import deprecated
 
 import zfit
 from ..util import ztyping
@@ -600,9 +601,12 @@ class ZfitDependentsMixin:
     def get_cache_deps(self, only_floating: bool = True) -> ztyping.DependentsType:
         raise NotImplementedError
 
+    @deprecated(date=None, instructions="Use `get_params` instead if you want to retrieve the "
+                                        "independent parameters or `get_cache_deps` in case you need "
+                                        "the numerical cache dependents (advanced).")
     def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
         from zfit.util.exception import BreakingAPIChangeError
-        raise BreakingAPIChangeError
+        # raise BreakingAPIChangeError
         return self.get_cache_deps(only_floating=only_floating)
 
 

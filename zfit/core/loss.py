@@ -9,7 +9,7 @@ from ordered_set import OrderedSet
 
 from .baseobject import BaseObject
 from .constraint import BaseConstraint, SimpleConstraint
-from .dependents import BaseDependentsMixin
+from .dependents import BaseDependentsMixin, _extract_dependents
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
 from .. import z, settings
 from ..util import ztyping
@@ -200,8 +200,8 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         return self._constraints
 
     def _get_dependents(self):  # TODO: fix, add constraints
-        pdf_dependents = self._extract_dependents(self.model)
-        pdf_dependents |= self._extract_dependents(self.constraints)
+        pdf_dependents = _extract_dependents(self.model)
+        pdf_dependents |= _extract_dependents(self.constraints)
         return pdf_dependents
 
     @abc.abstractmethod
@@ -417,7 +417,7 @@ class SimpleLoss(BaseLoss):
         self._errordef = errordef
         self.computed_gradients = {}
         dependents = convert_to_container(dependents, container=OrderedSet)
-        self._simple_func_dependents = self._extract_dependents(dependents)
+        self._simple_func_dependents = _extract_dependents(dependents)
 
         super().__init__(model=[], data=[], fit_range=[])
 
