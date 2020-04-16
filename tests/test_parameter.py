@@ -21,7 +21,7 @@ def test_complex_param():
     def complex_value():
         return real_part + imag_part * 1.j
 
-    param1 = ComplexParameter("param1_compl", complex_value, dependents=None)
+    param1 = ComplexParameter("param1_compl", complex_value, params=None)
     some_value = 3. * param1 ** 2 - 1.2j
     true_value = 3. * complex_value() ** 2 - 1.2j
     assert true_value == pytest.approx(some_value.numpy(), rel=1e-8)
@@ -74,19 +74,23 @@ def test_composed_param():
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
-    param4 = Parameter('param4', 4.)  # needed to make sure it does not only take all params as deps
+    param4 = Parameter('param4', 4.)  # noqa Needed to make sure it does not only take all params as deps
 
-    def a():
-        return z.log(3. * param1) * tf.square(param2) - param3
+    def value_fn(p1, p2, p3):
+        return z.log(3. * p1) * tf.square(p2) - p3
 
-    param_a = ComposedParameter('param_as', value_fn=a, dependents=(param1, param2, param3))
+    param_a = ComposedParameter('param_as', value_fn=value_fn, params=(param1, param2, param3))
+    param_a2 = ComposedParameter('param_as2', value_fn=value_fn, params={f'p{i}': p
+                                                                         for i, p in
+                                                                         enumerate((param1, param2, param3))})
+    assert param_a2.params['p1'] == param2
     assert isinstance(param_a.get_dependents(only_floating=True), OrderedSet)
     assert param_a.get_dependents(only_floating=True) == {param1, param2}
     assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
-    a_unchanged = a().numpy()
+    a_unchanged = value_fn(param1, param2, param3).numpy()
     assert a_unchanged == param_a.numpy()
     assert param2.assign(3.5).numpy()
-    a_changed = a().numpy()
+    a_changed = value_fn(param1, param2, param3).numpy()
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
 
@@ -130,11 +134,11 @@ def test_param_limits():
 
 
 def test_overloaded_operators():
-    param_a = ComposedParameter('param_a', lambda: 5 * 4, dependents=None)
-    param_b = ComposedParameter('param_b', lambda: 3, dependents=None)
+    param_a = ComposedParameter('param_a', lambda: 5 * 4, params=None)
+    param_b = ComposedParameter('param_b', lambda: 3, params=None)
     param_c = param_a * param_b
     assert not isinstance(param_c, zfit.Parameter)
-    param_d = ComposedParameter("param_d", lambda: param_a + param_a * param_b ** 2, dependents=[param_a, param_b])
+    param_d = ComposedParameter("param_d", lambda: param_a + param_a * param_b ** 2, params=[param_a, param_b])
     param_d_val = param_d.numpy()
     assert param_d_val == (param_a + param_a * param_b ** 2).numpy()
 

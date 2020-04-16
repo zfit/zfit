@@ -64,6 +64,11 @@ Breaking changes
  - SumPDF changed in the behavior. Read above in the Major Features and Improvement.
  - Integrals of extended PDFs are not extended anymore.
 
+Depreceations
+-------------
+ - `ComposedParameter` takes now `params` instead of `dependents` as argument, it acts now as
+   the arguments to the `value_fn`.
+
 
 Bug fixes and small changes
 ---------------------------

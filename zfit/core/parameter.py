@@ -2,9 +2,11 @@
 #  Copyright (c) 2020 zfit
 import abc
 import functools
+import warnings
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Callable, Iterable, Union, Optional
+from inspect import signature
+from typing import Callable, Iterable, Union, Optional, Dict
 
 import numpy as np
 import tensorflow as tf
@@ -25,6 +27,7 @@ from ..minimizers.interface import ZfitResult
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import invalidate_graph
+from ..util.checks import NotSpecified
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
     WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError, FunctionNotImplementedError
 from ..util.temporary import TemporarilySet
@@ -619,6 +622,17 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         super().__init__(name=name, params=params, **kwargs)
         if not callable(value_fn):
             raise TypeError("`value_fn` is not callable.")
+        n_params = len(signature(value_fn).parameters)
+        # TODO(0.6): remove, legacy?
+        if n_params == 0:
+            warnings.warn("The `value_fn` for composed parameters should take the same number"
+                          " of arguments as `params` are given.")
+            legacy_value_fn = value_fn
+
+            def value_fn(*_):
+                return legacy_value_fn()
+        # end legacy
+
         self._value_fn = value_fn
 
     def _get_dependents(self):
@@ -627,14 +641,16 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
     @property
     def floating(self):
-        raise LogicalUndefinedOperationError("Cannot be floating or not. Look at the dependents.")
+        raise LogicalUndefinedOperationError("Cannot be floating or not. Look at the dependencies.")
 
     @property
     def params(self):
         return self._params
 
     def value(self):
-        return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
+
+        value = self._value_fn(*self.params.values())
+        return tf.convert_to_tensor(value, dtype=self.dtype)
 
     def read_value(self):
         return tf.identity(self.value())
@@ -689,14 +705,37 @@ register_tensor_conversion(ConstantParameter, overload_operators=True)
 
 
 class ComposedParameter(BaseComposedParameter):
-    def __init__(self, name, value_fn, dependents, dtype=ztypes.float, **kwargs):  # TODO: automatize dependents
-        dependents = convert_to_container(dependents)
-        if dependents is None:
-            params = OrderedSet()
+    def __init__(self, name: str, value_fn: Callable,
+                 params: Union[Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter] = NotSpecified,
+                 dtype: tf.dtypes.DType = ztypes.float,
+                 dependents: Union[Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter] = NotSpecified):
+        """Arbitrary composition of parameters.
+
+        A `ComposedParameter` allows for arbitrary combinations of parameters and correlations
+
+        Args:
+            name: Unique name of the Parameter
+            value_fn: Function that returns the value of the composed parameter and takes as arguments `params` as
+                arguments.
+            params: If it is a `dict`, this will direclty be used as the `params` attribute, otherwise the
+                parameters will be automatically named with f"param_{i}". The values act as arguments to `value_fn`.
+            dtype: Output of `value_fn` dtype
+            dependents: DEPRECEATED, use `params` instead.
+        """
+        if dependents is not NotSpecified:
+            params = dependents
+            warnings.warn("`dependents` is deprecated, use `params` instead.")
+        elif params is NotSpecified:
+            raise ValueError
+        if isinstance(params, dict):
+            params_dict = params
         else:
-            params = self._extract_dependents(dependents)
-        params = {p.name: p for p in params}
-        super().__init__(params=params, value_fn=value_fn, name=name, dtype=dtype, **kwargs)
+            params = convert_to_container(params)
+            if params is None:
+                params_dict = {}
+            else:
+                params_dict = {f'param_{i}': p for i, p in enumerate(params)}
+        super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
 
     def __repr__(self):
         value = self.value()
@@ -704,8 +743,8 @@ class ComposedParameter(BaseComposedParameter):
 
 
 class ComplexParameter(ComposedParameter):
-    def __init__(self, name, value_fn, dependents, dtype=ztypes.complex, **kwargs):
-        super().__init__(name, value_fn=value_fn, dependents=dependents, dtype=dtype, **kwargs)
+    def __init__(self, name, value_fn, params, dtype=ztypes.complex):
+        super().__init__(name, value_fn=value_fn, params=params, dtype=dtype)
         self._conj = None
         self._mod = None
         self._arg = None
@@ -713,13 +752,12 @@ class ComplexParameter(ComposedParameter):
         self._real = None
 
     @staticmethod
-    def from_cartesian(name, real, imag, dtype=ztypes.complex, floating=True,
-                       **kwargs):  # TODO: correct dtype handling, also below
+    def from_cartesian(name, real, imag, dtype=ztypes.complex,
+                       floating=True):  # TODO: correct dtype handling, also below
         real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
         param = ComplexParameter(name=name, value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
-                                 dependents=[real, imag],
-                                 **kwargs)
+                                 params=[real, imag])
         param._real = real
         param._imag = imag
         return param
@@ -728,12 +766,9 @@ class ComplexParameter(ComposedParameter):
     def from_polar(name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
-        param = ComplexParameter(name=name,
-                                 value_fn=lambda: tf.cast(tf.complex(mod * tf.math.cos(arg),
-                                                                     mod * tf.math.sin(arg)),
-                                                          dtype=dtype),
-                                 dependents=[mod, arg],
-                                 **kwargs)
+        param = ComplexParameter(name=name, value_fn=lambda: tf.cast(tf.complex(mod * tf.math.cos(arg),
+                                                                                mod * tf.math.sin(arg)),
+                                                                     dtype=dtype), params=[mod, arg], **kwargs)
         param._mod = mod
         param._arg = arg
         return param
@@ -742,8 +777,7 @@ class ComplexParameter(ComposedParameter):
     def conj(self):
         if self._conj is None:
             self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=lambda: tf.math.conj(self),
-                                          dependents=self.get_dependents(),
-                                          dtype=self.dtype)
+                                          dtype=self.dtype, params=self.get_dependents())
         return self._conj
 
     @property
@@ -801,7 +835,7 @@ def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None
     if callable(value):
         if dependents is None:
             raise ValueError("If the value is a callable, the dependents have to be specified as an empty list/tuple")
-        return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", value_fn=value, dependents=dependents)
+        return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", value_fn=value, params=dependents)
 
     if isinstance(value, ZfitParameter):  # TODO(Mayou36): autoconvert variable. TF 2.0?
         return value
