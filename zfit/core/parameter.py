@@ -712,28 +712,29 @@ class ComplexParameter(ComposedParameter):
         self._imag = None
         self._real = None
 
-    @staticmethod
-    def from_cartesian(name, real, imag, dtype=ztypes.complex, floating=True,
+    @classmethod
+    def from_cartesian(cls, name, real, imag, dtype=ztypes.complex, floating=True,
                        **kwargs):  # TODO: correct dtype handling, also below
         real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
-        param = ComplexParameter(name=name, value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
-                                 dependents=[real, imag],
-                                 **kwargs)
+        param = cls(name=name,
+                    value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
+                    dependents=[real, imag],
+                    **kwargs)
         param._real = real
         param._imag = imag
         return param
 
-    @staticmethod
-    def from_polar(name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
+    @classmethod
+    def from_polar(cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
-        param = ComplexParameter(name=name,
-                                 value_fn=lambda: tf.cast(tf.complex(mod * tf.math.cos(arg),
-                                                                     mod * tf.math.sin(arg)),
-                                                          dtype=dtype),
-                                 dependents=[mod, arg],
-                                 **kwargs)
+        param = cls(name=name,
+                    value_fn=lambda: tf.cast(
+                        tf.complex(mod*tf.math.cos(arg), mod*tf.math.sin(arg)),
+                        dtype=dtype),
+                    dependents=[mod, arg],
+                    **kwargs)
         param._mod = mod
         param._arg = arg
         return param
