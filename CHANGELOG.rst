@@ -67,7 +67,9 @@ Breaking changes
 Depreceations
 -------------
  - `ComposedParameter` takes now `params` instead of `dependents` as argument, it acts now as
-   the arguments to the `value_fn`.
+   the arguments to the `value_fn`. To stay future compatible, create e.g. `def value_fn(p1, pa2)`
+   and using `params = ['param1, param2]`, `value_fn` will then be called as `value_fn(param1, parma2)`.
+   This will most probably break in the future.
 
 
 Bug fixes and small changes
