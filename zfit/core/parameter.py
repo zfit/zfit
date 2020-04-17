@@ -639,6 +639,10 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
     def read_value(self):
         return tf.identity(self.value())
 
+    @property
+    def shape(self):
+        return self.value().shape
+
     def numpy(self):
         return self.value().numpy()
 
