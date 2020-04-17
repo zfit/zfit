@@ -134,11 +134,13 @@ def test_param_limits():
 
 
 def test_overloaded_operators():
-    param_a = ComposedParameter('param_a', lambda: 5 * 4, params=None)
-    param_b = ComposedParameter('param_b', lambda: 3, params=None)
+    param1 = zfit.Parameter('param1', 5)
+    param2 = zfit.Parameter('param2', 3)
+    param_a = ComposedParameter('param_a', lambda p1: p1 * 4, params=param1)
+    param_b = ComposedParameter('param_b', lambda p2: p2, params=param2)
     param_c = param_a * param_b
     assert not isinstance(param_c, zfit.Parameter)
-    param_d = ComposedParameter("param_d", lambda: param_a + param_a * param_b ** 2, params=[param_a, param_b])
+    param_d = ComposedParameter("param_d", lambda pa, pb: pa + pa * pb ** 2, params=[param_a, param_b])
     param_d_val = param_d.numpy()
     assert param_d_val == (param_a + param_a * param_b ** 2).numpy()
 
