@@ -628,6 +628,7 @@ class ZfitParameter(ZfitNumeric):
 
     # TODO: maybe add to numerics?
     @property
+    @abstractmethod
     def shape(self):
         raise NotImplementedError
 
