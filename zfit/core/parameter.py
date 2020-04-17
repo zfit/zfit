@@ -623,15 +623,19 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         if not callable(value_fn):
             raise TypeError("`value_fn` is not callable.")
         n_params = len(signature(value_fn).parameters)
-        # TODO(0.6): remove, legacy?
+        # TODO(0.6): change, remove legacy?
         if n_params == 0:
-            warnings.warn("The `value_fn` for composed parameters should take the same number"
-                          " of arguments as `params` are given.")
-            legacy_value_fn = value_fn
+            if len(params) == 0:
+                warnings.warn("No `params` specified, the `value_fn` is supposed to return a constant. "
+                              "Use preferably `ConstantParameter` instead", RuntimeWarning)
+            else:  # this is the legacy case where the function didn't take arguments
+                warnings.warn("The `value_fn` for composed parameters should take the same number"
+                              " of arguments as `params` are given.", DeprecationWarning)
+                legacy_value_fn = value_fn
 
-            def value_fn(*_):
-                return legacy_value_fn()
-        # end legacy
+                def value_fn(*_):
+                    return legacy_value_fn()
+            # end legacy
 
         self._value_fn = value_fn
 
