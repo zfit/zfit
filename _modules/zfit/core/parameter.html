@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.parameter &#8212; zfit 0.4.4.dev107+g0873786 documentation</title>
+    <title>zfit.core.parameter &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev107</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -128,6 +128,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#depreceations">Depreceations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
@@ -381,9 +382,11 @@
 <span class="c1">#  Copyright (c) 2020 zfit</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">signature</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
@@ -404,6 +407,7 @@
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">invalidate_graph</span>
+<span class="kn">from</span> <span class="nn">..util.checks</span> <span class="kn">import</span> <span class="n">NotSpecified</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">,</span> <span class="n">NameAlreadyTakenError</span><span class="p">,</span> <span class="n">BreakingAPIChangeError</span><span class="p">,</span> \
     <span class="n">WorkInProgressError</span><span class="p">,</span> <span class="n">ParameterNotIndependentError</span><span class="p">,</span> <span class="n">IllegalInGraphModeError</span><span class="p">,</span> <span class="n">FunctionNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="kn">import</span> <span class="n">TemporarilySet</span>
@@ -998,6 +1002,21 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">value_fn</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`value_fn` is not callable.&quot;</span><span class="p">)</span>
+        <span class="n">n_func_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">signature</span><span class="p">(</span><span class="n">value_fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="c1"># TODO(0.6): change, remove legacy?</span>
+        <span class="k">if</span> <span class="n">n_func_params</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No `params` specified, the `value_fn` is supposed to return a constant. &quot;</span>
+                              <span class="s2">&quot;Use preferably `ConstantParameter` instead&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># this is the legacy case where the function didn&#39;t take arguments</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The `value_fn` for composed parameters should take the same number&quot;</span>
+                              <span class="s2">&quot; of arguments as `params` are given.&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+                <span class="n">legacy_value_fn</span> <span class="o">=</span> <span class="n">value_fn</span>
+
+                <span class="k">def</span> <span class="nf">value_fn</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">legacy_value_fn</span><span class="p">()</span>
+            <span class="c1"># end legacy</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_value_fn</span> <span class="o">=</span> <span class="n">value_fn</span>
 
     <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1006,14 +1025,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">floating</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">(</span><span class="s2">&quot;Cannot be floating or not. Look at the dependents.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">(</span><span class="s2">&quot;Cannot be floating or not. Look at the dependencies.&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span>
 
 <div class="viewcode-block" id="BaseComposedParameter.value"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value_fn</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_fn</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BaseComposedParameter.read_value"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter.read_value">[docs]</a>    <span class="k">def</span> <span class="nf">read_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">())</span></div>
@@ -1068,14 +1089,37 @@
 
 
 <div class="viewcode-block" id="ComposedParameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">ComposedParameter</span><span class="p">(</span><span class="n">BaseComposedParameter</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="p">,</span> <span class="n">dependents</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># TODO: automatize dependents</span>
-        <span class="n">dependents</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">dependents</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">dependents</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+                 <span class="n">params</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">ZfitParameter</span><span class="p">]</span> <span class="o">=</span> <span class="n">NotSpecified</span><span class="p">,</span>
+                 <span class="n">dtype</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">DType</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span>
+                 <span class="n">dependents</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">ZfitParameter</span><span class="p">]</span> <span class="o">=</span> <span class="n">NotSpecified</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Arbitrary composition of parameters.</span>
+
+<span class="sd">        A `ComposedParameter` allows for arbitrary combinations of parameters and correlations</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Unique name of the Parameter</span>
+<span class="sd">            value_fn: Function that returns the value of the composed parameter and takes as arguments `params` as</span>
+<span class="sd">                arguments.</span>
+<span class="sd">            params: If it is a `dict`, this will direclty be used as the `params` attribute, otherwise the</span>
+<span class="sd">                parameters will be automatically named with f&quot;param_{i}&quot;. The values act as arguments to `value_fn`.</span>
+<span class="sd">            dtype: Output of `value_fn` dtype</span>
+<span class="sd">            dependents: DEPRECEATED, use `params` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dependents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">NotSpecified</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">dependents</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`dependents` is deprecated, use `params` instead.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">params</span> <span class="ow">is</span> <span class="n">NotSpecified</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">params_dict</span> <span class="o">=</span> <span class="n">params</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="n">dependents</span><span class="p">)</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">}</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="n">value_fn</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">params_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">params_dict</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s1">&#39;param_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">)}</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params_dict</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="n">value_fn</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
@@ -1083,8 +1127,8 @@
 
 
 <div class="viewcode-block" id="ComplexParameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter">[docs]</a><span class="k">class</span> <span class="nc">ComplexParameter</span><span class="p">(</span><span class="n">ComposedParameter</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="p">,</span> <span class="n">dependents</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="n">value_fn</span><span class="p">,</span> <span class="n">dependents</span><span class="o">=</span><span class="n">dependents</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="n">value_fn</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conj</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mod</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1092,13 +1136,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_real</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="ComplexParameter.from_cartesian"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter.from_cartesian">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_cartesian</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                       <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># TODO: correct dtype handling, also below</span>
+    <span class="k">def</span> <span class="nf">from_cartesian</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span>
+                       <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># TODO: correct dtype handling, also below</span>
         <span class="n">real</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_real&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
         <span class="n">imag</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_imag&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
         <span class="n">param</span> <span class="o">=</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span>
-                                 <span class="n">dependents</span><span class="o">=</span><span class="p">[</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">],</span>
-                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                                 <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">])</span>
         <span class="n">param</span><span class="o">.</span><span class="n">_real</span> <span class="o">=</span> <span class="n">real</span>
         <span class="n">param</span><span class="o">.</span><span class="n">_imag</span> <span class="o">=</span> <span class="n">imag</span>
         <span class="k">return</span> <span class="n">param</span></div>
@@ -1107,12 +1150,9 @@
     <span class="k">def</span> <span class="nf">from_polar</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_mod&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_arg&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
-        <span class="n">param</span> <span class="o">=</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-                                 <span class="n">value_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">mod</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span>
-                                                                     <span class="n">mod</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">arg</span><span class="p">)),</span>
-                                                          <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span>
-                                 <span class="n">dependents</span><span class="o">=</span><span class="p">[</span><span class="n">mod</span><span class="p">,</span> <span class="n">arg</span><span class="p">],</span>
-                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">mod</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span>
+                                                                                <span class="n">mod</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">arg</span><span class="p">)),</span>
+                                                                     <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mod</span><span class="p">,</span> <span class="n">arg</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">param</span><span class="o">.</span><span class="n">_mod</span> <span class="o">=</span> <span class="n">mod</span>
         <span class="n">param</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">arg</span>
         <span class="k">return</span> <span class="n">param</span></div>
@@ -1121,8 +1161,7 @@
     <span class="k">def</span> <span class="nf">conj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conj</span> <span class="o">=</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_conj&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">value_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-                                          <span class="n">dependents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">(),</span>
-                                          <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+                                          <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conj</span>
 
     <span class="nd">@property</span>
@@ -1180,7 +1219,7 @@
     <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">dependents</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If the value is a callable, the dependents have to be specified as an empty list/tuple&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ComposedParameter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Composed_autoparam_</span><span class="si">{</span><span class="n">get_auto_number</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">dependents</span><span class="o">=</span><span class="n">dependents</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ComposedParameter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Composed_autoparam_</span><span class="si">{</span><span class="n">get_auto_number</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">dependents</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">):</span>  <span class="c1"># TODO(Mayou36): autoconvert variable. TF 2.0?</span>
         <span class="k">return</span> <span class="n">value</span>

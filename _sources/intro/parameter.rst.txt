@@ -52,17 +52,20 @@ parameter evaluated with the new value at run-time:
 Dependent Parameter
 -------------------
 
-A parameter can be composed of several other parameters. We can use any :py:class:`~tf.Tensor` for that
-and the dependency will be detected automatically. They can be used equivalently to :py:class:`~zfit.Parameter`.
+A parameter can be composed of several other parameters. They can be used equivalently to :py:class:`~zfit.Parameter`.
 
 .. code:: pycon
 
     >>> mu2 = zfit.Parameter("mu_two", 7)
-    >>> dependent_func = lambda: mu * 5 + mu2  # or any kind of computation
-    >>> dep_param = zfit.ComposedParameter("dependent_param", dependent_func, dependents=[mu, mu2])
+    >>> dependent_func = lambda m, m2: m * 5 + m2  # or any kind of computation
+    >>> dep_param = zfit.ComposedParameter("dependent_param", dependent_func, params=[mu, mu2])
 
-    >>> dependents = dep_param.get_dependents()  # returns ordered-set(mu, mu2)
+    >>> dependents = dep_param.get_params()  # returns ordered-set(mu, mu2)
 
 
-A special case of the above is :py:class:`~zfit.ComplexParameter`: it takes a complex :py:class:`tf.Tensor` as input and provides a few special methods (like :py:func:`~zfit.ComplexParameter.real`, :py:func:`~zfit.ComplexParameterconj` etc.) to easier deal with them.
-Additionally, the :py:func:`~zfit.ComplexParameter.from_cartesian` and :py:func:`~zfit.ComplexParameter.from_polar` methods can be used to initialize polar parameters from floats, avoiding the need of creating complex :py:class:`tf.Tensor` objects.
+A special case of the above is :py:class:`~zfit.ComplexParameter`: it takes a complex :py:class:`tf.Tensor` as input and
+provides a few special methods (like :py:func:`~zfit.ComplexParameter.real`, :py:func:`~zfit.ComplexParameterconj` etc.)
+to easier deal with them.
+Additionally, the :py:func:`~zfit.ComplexParameter.from_cartesian` and :py:func:`~zfit.ComplexParameter.from_polar`
+methods can be used to initialize polar parameters from floats, avoiding the need of creating complex
+:py:class:`tf.Tensor` objects.

@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit package &#8212; zfit 0.4.4.dev107+g0873786 documentation</title>
+    <title>zfit package &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../index.html"><img src="../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev107</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -128,6 +128,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../project/changelog.html#depreceations">Depreceations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../project/changelog.html#thanks">Thanks</a></li>
@@ -1417,8 +1418,23 @@ in the specified name scope.</p>
 
 <dl class="py class">
 <dt id="zfit.ComposedParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.</code><code class="sig-name descname">ComposedParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value_fn</span></em>, <em class="sig-param"><span class="n">dependents</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.float64</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComposedParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.</code><code class="sig-name descname">ComposedParameter</code><span class="sig-paren">(</span><em class="sig-param">name: str, value_fn: Callable, params: Union[Dict[str, zfit.core.interfaces.ZfitParameter], Iterable[zfit.core.interfaces.ZfitParameter], zfit.core.interfaces.ZfitParameter] = &lt;class 'zfit.util.checks.NotSpecified'&gt;, dtype: tensorflow.python.framework.dtypes.DType = tf.float64, dependents: Union[Dict[str, zfit.core.interfaces.ZfitParameter], Iterable[zfit.core.interfaces.ZfitParameter], zfit.core.interfaces.ZfitParameter] = &lt;class 'zfit.util.checks.NotSpecified'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComposedParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter" title="zfit.core.parameter.BaseComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseComposedParameter</span></code></a></p>
+<p>Arbitrary composition of parameters.</p>
+<p>A <cite>ComposedParameter</cite> allows for arbitrary combinations of parameters and correlations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Unique name of the Parameter</p></li>
+<li><p><strong>value_fn</strong> – Function that returns the value of the composed parameter and takes as arguments <cite>params</cite> as
+arguments.</p></li>
+<li><p><strong>params</strong> – If it is a <cite>dict</cite>, this will direclty be used as the <cite>params</cite> attribute, otherwise the
+parameters will be automatically named with f”param_{i}”. The values act as arguments to <cite>value_fn</cite>.</p></li>
+<li><p><strong>dtype</strong> – Output of <cite>value_fn</cite> dtype</p></li>
+<li><p><strong>dependents</strong> – DEPRECEATED, use <cite>params</cite> instead.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="zfit.ComposedParameter.add_cache_dependents">
 <code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComposedParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
@@ -1557,8 +1573,23 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py class">
 <dt id="zfit.ComplexParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.</code><code class="sig-name descname">ComplexParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value_fn</span></em>, <em class="sig-param"><span class="n">dependents</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.complex128</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComplexParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.</code><code class="sig-name descname">ComplexParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value_fn</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.complex128</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComplexParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../zfit.core.parameter.html#zfit.core.parameter.ComposedParameter" title="zfit.core.parameter.ComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ComposedParameter</span></code></a></p>
+<p>Arbitrary composition of parameters.</p>
+<p>A <cite>ComposedParameter</cite> allows for arbitrary combinations of parameters and correlations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Unique name of the Parameter</p></li>
+<li><p><strong>value_fn</strong> – Function that returns the value of the composed parameter and takes as arguments <cite>params</cite> as
+arguments.</p></li>
+<li><p><strong>params</strong> – If it is a <cite>dict</cite>, this will direclty be used as the <cite>params</cite> attribute, otherwise the
+parameters will be automatically named with f”param_{i}”. The values act as arguments to <cite>value_fn</cite>.</p></li>
+<li><p><strong>dtype</strong> – Output of <cite>value_fn</cite> dtype</p></li>
+<li><p><strong>dependents</strong> – DEPRECEATED, use <cite>params</cite> instead.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="zfit.ComplexParameter.add_cache_dependents">
 <code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.ComplexParameter.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
@@ -1606,7 +1637,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.ComplexParameter.from_cartesian">
-<em class="property">static </em><code class="sig-name descname">from_cartesian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">real</span></em>, <em class="sig-param"><span class="n">imag</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.complex128</span></em>, <em class="sig-param"><span class="n">floating</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/zfit/core/parameter.html#ComplexParameter.from_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComplexParameter.from_cartesian" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_cartesian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">real</span></em>, <em class="sig-param"><span class="n">imag</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.complex128</span></em>, <em class="sig-param"><span class="n">floating</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/zfit/core/parameter.html#ComplexParameter.from_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.ComplexParameter.from_cartesian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

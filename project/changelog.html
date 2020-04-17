@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.4.4.dev107+g0873786 documentation</title>
+    <title>Changelog &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev107</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -130,6 +130,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#major-features-and-improvements">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#depreceations">Depreceations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#thanks">Thanks</a></li>
@@ -354,6 +355,7 @@
 <li><a class="reference internal" href="#develop">Develop</a><ul>
 <li><a class="reference internal" href="#major-features-and-improvements">Major Features and Improvements</a></li>
 <li><a class="reference internal" href="#breaking-changes">Breaking changes</a></li>
+<li><a class="reference internal" href="#depreceations">Depreceations</a></li>
 <li><a class="reference internal" href="#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
 <li><a class="reference internal" href="#requirement-changes">Requirement changes</a></li>
 <li><a class="reference internal" href="#thanks">Thanks</a></li>
@@ -518,6 +520,17 @@ the containing spaces respectively itself (for the <cite>Space</cite> case).</p>
 </li>
 <li><p>SumPDF changed in the behavior. Read above in the Major Features and Improvement.</p></li>
 <li><p>Integrals of extended PDFs are not extended anymore.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="depreceations">
+<h3>Depreceations<a class="headerlink" href="#depreceations" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>ComposedParameter</cite> takes now <cite>params</cite> instead of <cite>dependents</cite> as argument, it acts now as
+the arguments to the <cite>value_fn</cite>. To stay future compatible, create e.g. <cite>def value_fn(p1, pa2)</cite>
+and using <cite>params = [‘param1, param2]</cite>, <cite>value_fn</cite> will then be called as <cite>value_fn(param1, parma2)</cite>.
+<cite>value_fn</cite> without arguments will probably break in the future.</p></li>
 </ul>
 </div></blockquote>
 </div>
