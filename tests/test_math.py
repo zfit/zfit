@@ -42,7 +42,7 @@ def test_numerical_hessian(graph):
     if graph:
         create_derivatives = z.function(create_derivatives)
     num_hessian, num_hessian_diag, tf_hessian, tf_hessian_diag = create_derivatives(func1, params)
-    np.testing.assert_allclose(num_hessian, tf_hessian, rtol=1e-5, atol=1e-10)
+    np.testing.assert_allclose(num_hessian, tf_hessian, rtol=1e-4, atol=1e-10)
     tf_hessian_diag_from_hessian = [tf_hessian[i, i] for i in range(len(params))]
-    np.testing.assert_allclose(tf_hessian_diag_from_hessian, tf_hessian_diag, rtol=1e-5, atol=1e-10)
-    np.testing.assert_allclose(num_hessian_diag, tf_hessian_diag, rtol=1e-5, atol=1e-10)
+    np.testing.assert_allclose(tf_hessian_diag_from_hessian, tf_hessian_diag, rtol=1e-4, atol=1e-10)
+    np.testing.assert_allclose(num_hessian_diag, tf_hessian_diag, rtol=1e-4, atol=1e-10)

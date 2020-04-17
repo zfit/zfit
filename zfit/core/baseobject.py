@@ -1,8 +1,9 @@
 """Baseclass for most objects appearing in zfit."""
 #  Copyright (c) 2020 zfit
 import itertools
+import warnings
 from collections import OrderedDict
-from typing import List, Optional, Iterable
+from typing import Optional, Iterable, Set
 
 import tensorflow as tf
 from ordered_set import OrderedSet
@@ -11,6 +12,7 @@ from .dependents import BaseDependentsMixin
 from .interfaces import ZfitObject, ZfitNumericParametrized, ZfitParameter, ZfitParametrized, ZfitIndependentParameter
 from ..util import ztyping
 from ..util.cache import Cachable
+from ..util.checks import NotSpecified
 from ..util.container import DotDict, convert_to_container
 
 _COPY_DOCSTRING = """Creates a copy of the {zfit_type}.
@@ -75,11 +77,17 @@ class BaseObject(ZfitObject):
 class BaseParametrized(ZfitParametrized):
 
     def get_params(self, floating: Optional[bool] = True, yields: Optional[bool] = None,
-                   independent: Optional[bool] = True) -> List["ZfitParameter"]:
+                   extract_independent: Optional[bool] = True, only_floating=NotSpecified) -> Set["ZfitParameter"]:
+        if only_floating is not NotSpecified:
+            floating = only_floating
+            warnings.warn("`only_floating` is deprecated and will be removed in the future, use `floating` instead.")
+
         params = self.params.values()
+        params = extract_filter_params(params, floating=floating, extract_independent=extract_independent)
+        return params
 
 
-class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumericParametrized, BaseObject):
+class BaseNumeric(Cachable, BaseDependentsMixin, BaseParametrized, ZfitNumericParametrized, BaseObject):
 
     def __init__(self, name, params, **kwargs):
         if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?
@@ -104,54 +112,54 @@ class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumericParametrized, BaseOb
     def params(self) -> ztyping.ParametersType:
         return self._params
 
-    def get_params(self, floating: Optional[bool] = True,
-                   yields: Optional[bool] = None,
-                   extract_independent: Optional[bool] = True,
-                   only_floating: bool = True) -> List[ZfitParameter]:
-        """Recursively collect parameters that this object depends on according to the filter criteria.
-
-        Which parameters should be included can be steered using the arguments as a filter.
-         - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as
-            parameters that are fixed.
-         - **True**: only return parameters that fulfil this criterion
-         - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return
-            only parameters that are not floating.
-
-        Args:
-            floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`
-            yields: if a parameter is a yield of the _current_ model. This won't be applied recursively, but may include
-               yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
-               model depends on other yields (or also non-yields), this will be included. If, however, just submodels
-               depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
-               included.
-            independent: If the parameter is not an independent parameter, i.e. if it is not a
-                `ZfitIndependentParameter`, it will extract all independent parameters that dependent parameters
-                depend on.
-        """
-
-        # def get_params(self, only_floating: bool = False, names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
-        #     """Return the parameters. If it is empty, automatically return all floating variables.
-        #
-        #     Args:
-        #         only_floating (): If True, return only the floating parameters.
-        #         names (): The names of the parameters to return.
-        #
-        #     Returns:
-        #         list(`ZfitParameters`):
-        #     """
-        #     if isinstance(names, str):
-        #         names = (names,)
-        #     if names is not None:
-        #         missing_names = set(names).difference(self.params.keys())
-        #         if missing_names:
-        #             raise KeyError("The following names are not valid parameter names")
-        #         params = [self.params[name] for name in names]
-        #     else:
-        params = list(self.params.values())
-
-        if only_floating:
-            params = self._filter_floating_params(params=params)
-        return params
+    # def get_params(self, floating: Optional[bool] = True,
+    #                yields: Optional[bool] = None,
+    #                extract_independent: Optional[bool] = True,
+    #                only_floating: bool = True) -> Set[ZfitParameter]:
+    #     """Recursively collect parameters that this object depends on according to the filter criteria.
+    #
+    #     Which parameters should be included can be steered using the arguments as a filter.
+    #      - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as
+    #         parameters that are fixed.
+    #      - **True**: only return parameters that fulfil this criterion
+    #      - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return
+    #         only parameters that are not floating.
+    #
+    #     Args:
+    #         floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`
+    #         yields: if a parameter is a yield of the _current_ model. This won't be applied recursively, but may include
+    #            yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
+    #            model depends on other yields (or also non-yields), this will be included. If, however, just submodels
+    #            depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
+    #            included.
+    #         extract_independent: If the parameter is not an independent parameter, i.e. if it is not a
+    #             `ZfitIndependentParameter`, it will extract all independent parameters that dependent parameters
+    #             depend on.
+    #     """
+    #
+    #     # def get_params(self, only_floating: bool = False, names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
+    #     #     """Return the parameters. If it is empty, automatically return all floating variables.
+    #     #
+    #     #     Args:
+    #     #         only_floating (): If True, return only the floating parameters.
+    #     #         names (): The names of the parameters to return.
+    #     #
+    #     #     Returns:
+    #     #         list(`ZfitParameters`):
+    #     #     """
+    #     #     if isinstance(names, str):
+    #     #         names = (names,)
+    #     #     if names is not None:
+    #     #         missing_names = set(names).difference(self.params.keys())
+    #     #         if missing_names:
+    #     #             raise KeyError("The following names are not valid parameter names")
+    #     #         params = [self.params[name] for name in names]
+    #     #     else:
+    #     params = list(self.params.values())
+    #
+    #     if only_floating:
+    #         params = self._filter_floating_params(params=params)
+    #     return params
 
     @staticmethod
     def _filter_floating_params(params):
@@ -159,10 +167,10 @@ class BaseNumeric(Cachable, BaseDependentsMixin, ZfitNumericParametrized, BaseOb
         return params
 
 
-def extract_filer_params(params: Iterable[ZfitParametrized],
-                         floating: Optional[bool] = True,
-                         extract_independent: Optional[bool] = True):
-    params = convert_to_container(params)
+def extract_filter_params(params: Iterable[ZfitParametrized],
+                          floating: Optional[bool] = True,
+                          extract_independent: Optional[bool] = True) -> Set[ZfitParameter]:
+    params = convert_to_container(params, container=OrderedSet)
 
     if extract_independent:
         params = OrderedSet(itertools.chain.from_iterable(param.get_params(floating=floating,
@@ -171,8 +179,8 @@ def extract_filer_params(params: Iterable[ZfitParametrized],
                                                           for param in params))
 
     if floating is not None:
-        if not extract_independent:
+        if not extract_independent and not all(param.independent for param in params):
             raise ValueError("Since `extract_dependent` is not set to True, there are maybe dependent parameters for "
                              "which `floating` is an ill-defined attribute.")
-        params = [p for p in params if p.floating == floating]
+        params = OrderedSet((p for p in params if p.floating == floating))
     return params

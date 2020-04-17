@@ -6,7 +6,7 @@ import warnings
 from collections import OrderedDict
 from contextlib import suppress
 from inspect import signature
-from typing import Callable, Iterable, Union, Optional, Dict
+from typing import Callable, Iterable, Union, Optional, Dict, Set
 
 import numpy as np
 import tensorflow as tf
@@ -22,7 +22,7 @@ from zfit.util.container import convert_to_container
 from . import interfaces as zinterfaces
 from .dependents import _extract_dependents
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
-from ..core.baseobject import BaseNumeric
+from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.fitresult import FitResult
 from ..minimizers.interface import ZfitResult
 from ..settings import ztypes, run
@@ -584,6 +584,10 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
         self.set_value(value=value)
         return value
+
+    def get_params(self, floating: Optional[bool] = True, yields: Optional[bool] = None,
+                   extract_independent: Optional[bool] = True, only_floating=NotSpecified) -> Set["ZfitParameter"]:
+        return extract_filter_params(self, floating=floating, extract_independent=False)
 
     def __del__(self):
         self._independent_params.remove(self)
