@@ -622,9 +622,9 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         super().__init__(name=name, params=params, **kwargs)
         if not callable(value_fn):
             raise TypeError("`value_fn` is not callable.")
-        n_params = len(signature(value_fn).parameters)
+        n_func_params = len(signature(value_fn).parameters)
         # TODO(0.6): change, remove legacy?
-        if n_params == 0:
+        if n_func_params == 0:
             if len(params) == 0:
                 warnings.warn("No `params` specified, the `value_fn` is supposed to return a constant. "
                               "Use preferably `ConstantParameter` instead", RuntimeWarning)
