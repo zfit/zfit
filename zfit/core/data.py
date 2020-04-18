@@ -23,14 +23,14 @@ from .interfaces import ZfitData
 from .space import Space, convert_to_space
 from ..settings import ztypes
 from ..util import ztyping
-from ..util.cache import Cachable, invalidate_graph
+from ..util.cache import GraphCachable, invalidate_graph
 from ..util.container import convert_to_container
 from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleError, \
     ObsIncompatibleError, DataIsBatchedError
 from ..util.temporary import TemporarilySet
 
 
-class Data(Cachable, ZfitData, BaseDimensional, BaseObject):
+class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], obs: ztyping.ObsTypeInput = None,

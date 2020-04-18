@@ -64,10 +64,10 @@ from .container import convert_to_container
 from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 
 
-class ZfitCachable:
+class ZfitGraphCachable:
 
     @abstractmethod
-    def register_cacher(self, cacher: "ZfitCachable"):
+    def register_cacher(self, cacher: "ZfitGraphCachable"):
         raise NotImplementedError
 
     @abstractmethod
@@ -75,7 +75,7 @@ class ZfitCachable:
         """Add dependents that render the cache invalid if they change.
 
         Args:
-            cache_dependents (ZfitCachable):
+            cache_dependents (ZfitGraphCachable):
             allow_non_cachable (bool): If `True`, allow `cache_dependents` to be non-cachables.
                 If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.
 
@@ -95,7 +95,7 @@ class ZfitCachable:
         pass
 
 
-class Cachable(ZfitCachable):
+class GraphCachable(ZfitGraphCachable):
     graph_caching_methods = []
     instances = weakref.WeakSet()
 
@@ -124,7 +124,7 @@ class Cachable(ZfitCachable):
         Args:
             cacher ():
         """
-        if not isinstance(cacher, ZfitCachable):
+        if not isinstance(cacher, ZfitGraphCachable):
             raise TypeError("`cacher` is not a `ZfitCachable` but {}".format(type(cacher)))
         if not cacher in self._cachers:
             self._cachers[cacher] = None  # could we have a more useful value?
@@ -134,7 +134,7 @@ class Cachable(ZfitCachable):
         """Add dependents that render the cache invalid if they change.
 
         Args:
-            cache_dependents (ZfitCachable):
+            cache_dependents (ZfitGraphCachable):
             allow_non_cachable (bool): If `True`, allow `cache_dependents` to be non-cachables.
                 If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.
 
@@ -144,7 +144,7 @@ class Cachable(ZfitCachable):
         """
         cache_dependents = convert_to_container(cache_dependents)
         for cache_dependent in cache_dependents:
-            if isinstance(cache_dependent, ZfitCachable):
+            if isinstance(cache_dependent, ZfitGraphCachable):
                 cache_dependent.register_cacher(self)
             elif not allow_non_cachable:
                 raise TypeError("cache_dependent {} is not a `ZfitCachable` but {}".format(cache_dependent,
@@ -155,7 +155,7 @@ class Cachable(ZfitCachable):
         self._clean_cache()
         self._inform_cachers()
 
-    def reset_cache(self, reseter: 'ZfitCachable'):
+    def reset_cache(self, reseter: 'ZfitGraphCachable'):
         self.reset_cache_self()
 
     def _clean_cache(self):
@@ -173,7 +173,7 @@ def invalidate_graph(func):
     @functools.wraps(func)
     def wrapped_func(*args, **kwargs):
         self = args[0]
-        if not isinstance(self, ZfitCachable):
+        if not isinstance(self, ZfitGraphCachable):
             raise TypeError("Decorator can only be used in a subclass of `ZfitCachable`")
         self.reset_cache(reseter=self)
 
@@ -182,11 +182,11 @@ def invalidate_graph(func):
     return wrapped_func
 
 
-class FunctionCacheHolder(Cachable):
+class FunctionCacheHolder(GraphCachable):
     IS_TENSOR = object()
 
     def __init__(self, func, wrapped_func,
-                 cachables: Union[ZfitCachable, object, Iterable[Union[ZfitCachable, object]]] = None,
+                 cachables: Union[ZfitGraphCachable, object, Iterable[Union[ZfitGraphCachable, object]]] = None,
                  cachables_mapping=None):
         """`tf.function` decorated function holder with caching dependencies on inputs.
 
@@ -306,6 +306,6 @@ def clear_graph_cache():
 
     for registry in FunctionWrapperRegistry.registries:
         registry.reset()
-    for instance in Cachable.instances:
+    for instance in GraphCachable.instances:
         instance.reset_cache('global')
     # Cachable.graph_caching_methods.clear()

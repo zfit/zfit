@@ -27,7 +27,7 @@ class BaseDependentsMixin(ZfitDependentsMixin):
         return dependents
 
 
-def _extract_dependents(zfit_objects: Iterable[ZfitObject]) -> ztyping.DependentsType:
+def _extract_dependencies(zfit_objects: Iterable[ZfitObject]) -> ztyping.DependentsType:
     """Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.
 
     Args:

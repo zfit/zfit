@@ -11,7 +11,7 @@ from ordered_set import OrderedSet
 from .dependents import BaseDependentsMixin
 from .interfaces import ZfitObject, ZfitNumericParametrized, ZfitParameter, ZfitParametrized, ZfitIndependentParameter
 from ..util import ztyping
-from ..util.cache import Cachable
+from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
 from ..util.container import DotDict, convert_to_container
 
@@ -87,7 +87,7 @@ class BaseParametrized(ZfitParametrized):
         return params
 
 
-class BaseNumeric(Cachable, BaseDependentsMixin, BaseParametrized, ZfitNumericParametrized, BaseObject):
+class BaseNumeric(GraphCachable, BaseDependentsMixin, BaseParametrized, ZfitNumericParametrized, BaseObject):
 
     def __init__(self, name, params, **kwargs):
         if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?

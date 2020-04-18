@@ -16,7 +16,7 @@ from tensorflow_probability.python import mcmc as mc
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
 from .data import Data, Sampler, SampleData
-from .dependents import _extract_dependents
+from .dependents import _extract_dependencies
 from .dimension import BaseDimensional
 from .interfaces import ZfitModel, ZfitParameter, ZfitData, ZfitSpace
 from .sample import UniformSampleAndWeights
@@ -25,7 +25,7 @@ from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
-from ..util.cache import Cachable
+from ..util.cache import GraphCachable
 from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
                               ShapeIncompatibleError, SubclassingError, CannotConvertToNumpyError, WorkInProgressError,
                               SpaceIncompatibleError, AnalyticIntegralNotImplementedError,
@@ -63,7 +63,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
+class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     """Base class for any generic model.
 
     # TODO instructions on how to use
@@ -1007,7 +1007,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
         return func
 
     def _get_dependents(self) -> ztyping.DependentsType:
-        return _extract_dependents(self.get_params())
+        return _extract_dependencies(self.get_params())
 
     def __add__(self, other):
         from . import operations

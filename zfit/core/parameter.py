@@ -20,7 +20,7 @@ from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVa
 from zfit import z
 from zfit.util.container import convert_to_container
 from . import interfaces as zinterfaces
-from .dependents import _extract_dependents
+from .dependents import _extract_dependencies
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.fitresult import FitResult
@@ -645,7 +645,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         self._value_fn = value_fn
 
     def _get_dependents(self):
-        dependents = _extract_dependents(list(self.params.values()))
+        dependents = _extract_dependencies(list(self.params.values()))
         return dependents
 
     @property
