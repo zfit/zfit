@@ -37,7 +37,11 @@ def test_get_params():
 
     gauss = zfit.pdf.Gauss(mu, sigma, obs)
     gauss2 = zfit.pdf.Gauss(mu2, sigma2, obs)
-    gauss_ext = gauss.create_extended()
-    gauss2_ext = gauss2.create_extended()
+    gauss_ext = gauss.create_extended(yield1)
+    gauss2_ext = gauss2.create_extended(yield2)
 
     assert set(gauss.get_params()) == set([mu, sigma2])
+    assert set(gauss_ext.get_params(yields=False)) == set([mu, sigma2])
+    assert set(gauss_ext.get_params(yields=False, floating=None, extract_independent=None)) == set([mu, sigma])
+    assert set(gauss_ext.get_params(yields=True, floating=None, extract_independent=None)) == set([mu, sigma, yield1])
+    assert set(gauss_ext.get_params()) == set([mu, sigma2, yield1])

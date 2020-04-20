@@ -615,7 +615,7 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
     def get_params(self,
                    floating: Optional[bool] = True,
                    yields: Optional[bool] = None,
-                   independent: Optional[bool] = True
+                   extract_independent: Optional[bool] = True
                    ) -> List["ZfitParameter"]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
@@ -633,7 +633,7 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
                model depends on other yields (or also non-yields), this will be included. If, however, just submodels
                depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
                included.
-            independent: If the parameter is an independent parameter, i.e. if it is a `ZfitIndependentParameter`.
+            extract_independent: If the parameter is an independent parameter, i.e. if it is a `ZfitIndependentParameter`.
         """
         raise NotImplementedError
 

@@ -206,18 +206,19 @@ class BasePDF(ZfitPDF, BaseModel):
 
         return TemporarilySet(value=norm_range, setter=setter, getter=getter)
 
-    @property
-    def _yield(self):
-        """For internal use, the yield or None"""
-        return self.params.get('yield')
-
-    @_yield.setter
-    def _yield(self, value):
-        if value is None:
-            # unset
-            self._params.pop('yield', None)  # safely remove if still there
-        else:
-            self._params['yield'] = value
+    # TODO: remove below?
+    # @property
+    # def _yield(self):
+    #     """For internal use, the yield or None"""
+    #     return self.params.get('yield')
+    #
+    # @_yield.setter
+    # def _yield(self, value):
+    #     if value is None:
+    #         # unset
+    #         self._params.pop('yield', None)  # safely remove if still there
+    #     else:
+    #         self._params['yield'] = value
 
     @_BasePDF_register_check_support(True)
     def _normalization(self, limits):
