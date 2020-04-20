@@ -22,3 +22,22 @@ def test_get_dependents_is_deterministic():
     for params in (parameters, reversed(parameters)):
         pdf = create_pdf(params)
         assert pdf.get_cache_deps() == pdf.get_cache_deps(), "get_dependents() not deterministic"
+
+
+def test_get_params():
+    obs = zfit.Space('obs', (-4, 5))
+    mu = zfit.Parameter('mu', 1)
+    mu2 = zfit.Parameter('mu2', 1)
+    sigma2 = zfit.Parameter('sigma2', 2)
+    sigma = zfit.ComposedParameter('sigma', lambda s: s * 0.7, params=sigma2)
+
+    yield1 = zfit.Parameter('yield1', 10)
+    yield2free = zfit.Parameter('yield2free', 200)
+    yield2 = zfit.ComposedParameter('yield2', lambda y: y * 0.9, params=yield2free)
+
+    gauss = zfit.pdf.Gauss(mu, sigma, obs)
+    gauss2 = zfit.pdf.Gauss(mu2, sigma2, obs)
+    gauss_ext = gauss.create_extended()
+    gauss2_ext = gauss2.create_extended()
+
+    assert set(gauss.get_params()) == set([mu, sigma2])

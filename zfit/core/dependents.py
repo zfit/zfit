@@ -5,14 +5,14 @@ from typing import Iterable
 
 from ordered_set import OrderedSet
 
-from zfit.core.interfaces import ZfitDependentsMixin, ZfitObject
+from zfit.core.interfaces import ZfitDependenciesMixin, ZfitObject
 from zfit.util import ztyping
 from zfit.util.container import convert_to_container
 
 
-class BaseDependentsMixin(ZfitDependentsMixin):
+class BaseDependentsMixin(ZfitDependenciesMixin):
     @abc.abstractmethod
-    def _get_dependents(self) -> ztyping.DependentsType:
+    def _get_dependencies(self) -> ztyping.DependentsType:
         raise NotImplementedError
 
     def get_cache_deps(self, only_floating: bool = True) -> ztyping.DependentsType:
@@ -21,10 +21,10 @@ class BaseDependentsMixin(ZfitDependentsMixin):
         Args:
             only_floating (bool): If `True`, only return floating :py:class:`~zfit.Parameter`
         """
-        dependents = self._get_dependents()
+        dependencies = self._get_dependencies()
         if only_floating:
-            dependents = OrderedSet(filter(lambda p: p.floating, dependents))
-        return dependents
+            dependencies = OrderedSet(filter(lambda p: p.floating, dependencies))
+        return dependencies
 
 
 def _extract_dependencies(zfit_objects: Iterable[ZfitObject]) -> ztyping.DependentsType:

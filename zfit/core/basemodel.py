@@ -1006,7 +1006,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             raise TypeError("Function {} is not callable.")
         return func
 
-    def _get_dependents(self) -> ztyping.DependentsType:
+    def _get_dependencies(self) -> ztyping.DependentsType:
         return _extract_dependencies(self.get_params())
 
     def __add__(self, other):

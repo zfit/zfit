@@ -199,7 +199,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
     def constraints(self):
         return self._constraints
 
-    def _get_dependents(self):  # TODO: fix, add constraints
+    def _get_dependencies(self):  # TODO: fix, add constraints
         pdf_dependents = _extract_dependencies(self.model)
         pdf_dependents |= _extract_dependencies(self.constraints)
         return pdf_dependents
@@ -421,7 +421,7 @@ class SimpleLoss(BaseLoss):
 
         super().__init__(model=[], data=[], fit_range=[])
 
-    def _get_dependents(self):
+    def _get_dependencies(self):
         dependents = self._simple_func_dependents
         return dependents
 

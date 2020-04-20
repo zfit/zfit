@@ -72,8 +72,8 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
     #     else:
     #         return False
 
-    def _get_dependents(self):
-        dependents = super()._get_dependents()  # get the own parameter dependents
+    def _get_dependencies(self):
+        dependents = super()._get_dependencies()  # get the own parameter dependents
         model_dependents = _extract_dependencies(self.get_models())
         return dependents.union(model_dependents)
 

@@ -490,7 +490,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             raise TypeError("floating has to be a boolean.")
         self._floating = value
 
-    def _get_dependents(self):
+    def _get_dependencies(self):
         return {self}
 
     @property
@@ -644,7 +644,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
         self._value_fn = value_fn
 
-    def _get_dependents(self):
+    def _get_dependencies(self):
         dependents = _extract_dependencies(list(self.params.values()))
         return dependents
 
@@ -702,7 +702,7 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
     def independent(self) -> bool:
         return False
 
-    def _get_dependents(self) -> ztyping.DependentsType:
+    def _get_dependencies(self) -> ztyping.DependentsType:
         return OrderedSet()
 
     def __repr__(self):

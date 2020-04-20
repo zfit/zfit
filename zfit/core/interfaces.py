@@ -596,7 +596,7 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         raise NotImplementedError
 
 
-class ZfitDependentsMixin:
+class ZfitDependenciesMixin:
     @abstractmethod
     def get_cache_deps(self, only_floating: bool = True) -> ztyping.DependentsType:
         raise NotImplementedError
@@ -604,13 +604,13 @@ class ZfitDependentsMixin:
     @deprecated(date=None, instructions="Use `get_params` instead if you want to retrieve the "
                                         "independent parameters or `get_cache_deps` in case you need "
                                         "the numerical cache dependents (advanced).")
-    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
+    def get_dependencies(self, only_floating: bool = True) -> ztyping.DependentsType:
         from zfit.util.exception import BreakingAPIChangeError
         # raise BreakingAPIChangeError
         return self.get_cache_deps(only_floating=only_floating)
 
 
-class ZfitParametrized(ZfitDependentsMixin, ZfitObject):
+class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
     @abstractmethod
     def get_params(self,
                    floating: Optional[bool] = True,
@@ -758,7 +758,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class ZfitLoss(ZfitObject, ZfitDependentsMixin, metaclass=ABCMeta):
+class ZfitLoss(ZfitObject, ZfitDependenciesMixin, metaclass=ABCMeta):
 
     @abstractmethod
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:

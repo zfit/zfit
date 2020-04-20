@@ -45,8 +45,8 @@ class BaseFunctorFunc(FunctorMixin, BaseFunc):
         self.funcs = funcs
         super().__init__(name=name, models=self.funcs, params=params, **kwargs)
 
-    def _get_dependents(self):  # TODO: change recursive to `only_floating`?
-        dependents = super()._get_dependents()  # get the own parameter dependents
+    def _get_dependencies(self):  # TODO: change recursive to `only_floating`?
+        dependents = super()._get_dependencies()  # get the own parameter dependents
         func_dependents = _extract_dependents(self.funcs)  # flatten
         return dependents.union(func_dependents)
 

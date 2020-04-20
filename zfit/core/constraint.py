@@ -44,7 +44,7 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
     def _value(self):
         raise NotImplementedError
 
-    def _get_dependents(self) -> ztyping.DependentsType:
+    def _get_dependencies(self) -> ztyping.DependentsType:
         return _extract_dependencies(self.get_params())
 
 
@@ -117,7 +117,7 @@ class ProbabilityConstraint(BaseConstraint):
     def _value(self):
         raise NotImplementedError
 
-    def _get_dependents(self) -> ztyping.DependentsType:
+    def _get_dependencies(self) -> ztyping.DependentsType:
         return _extract_dependencies(self.get_params())
 
     def sample(self, n):
