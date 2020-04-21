@@ -9,11 +9,11 @@ from ordered_set import OrderedSet
 
 from .baseobject import BaseObject
 from .constraint import BaseConstraint, SimpleConstraint
-from .dependents import BaseDependentsMixin
+from .dependents import BaseDependentsMixin, _extract_dependencies
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
 from .. import z, settings
 from ..util import ztyping
-from ..util.cache import Cachable
+from ..util.cache import GraphCachable
 from ..util.checks import NOT_SPECIFIED
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
@@ -74,7 +74,7 @@ def _constraint_check_convert(constraints):
     return checked_constraints
 
 
-class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
+class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
                  fit_range: ztyping.LimitsTypeInput = None,
@@ -157,14 +157,14 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         # sanitize fit_range
         fit_range = [p.convert_sort_space(limits=range_) for p, range_ in zip(pdf, fit_range)]
         # TODO: sanitize pdf, data?
-        self.add_cache_dependents(cache_dependents=pdf)
-        self.add_cache_dependents(cache_dependents=data)
-        self.add_cache_dependents(cache_dependents=fit_range)
+        self.add_cache_deps(cache_deps=pdf)
+        self.add_cache_deps(cache_deps=data)
+        self.add_cache_deps(cache_deps=fit_range)
         return pdf, data, fit_range
 
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
         if params is None:
-            params = list(self.get_dependents())
+            params = list(self.get_cache_deps())
         else:
             params = convert_to_container(params)
         return self._gradients(params=params)
@@ -199,9 +199,9 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def constraints(self):
         return self._constraints
 
-    def _get_dependents(self):  # TODO: fix, add constraints
-        pdf_dependents = self._extract_dependents(self.model)
-        pdf_dependents |= self._extract_dependents(self.constraints)
+    def _get_dependencies(self):  # TODO: fix, add constraints
+        pdf_dependents = _extract_dependencies(self.model)
+        pdf_dependents |= _extract_dependencies(self.constraints)
         return pdf_dependents
 
     @abc.abstractmethod
@@ -417,11 +417,11 @@ class SimpleLoss(BaseLoss):
         self._errordef = errordef
         self.computed_gradients = {}
         dependents = convert_to_container(dependents, container=OrderedSet)
-        self._simple_func_dependents = self._extract_dependents(dependents)
+        self._simple_func_dependents = _extract_dependencies(dependents)
 
         super().__init__(model=[], data=[], fit_range=[])
 
-    def _get_dependents(self):
+    def _get_dependencies(self):
         dependents = self._simple_func_dependents
         return dependents
 

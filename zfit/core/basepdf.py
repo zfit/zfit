@@ -51,10 +51,9 @@ also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tut
 
 #  Copyright (c) 2020 zfit
 
-import abc
 import warnings
 from contextlib import suppress
-from typing import Union, Type, Dict
+from typing import Union, Type, Dict, Optional, Set
 
 import tensorflow as tf
 
@@ -62,6 +61,7 @@ from zfit import z
 from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidate_graph
 from .basemodel import BaseModel
+from .baseobject import extract_filter_params
 from .interfaces import ZfitPDF, ZfitParameter
 from .parameter import Parameter, convert_to_parameter
 from .space import Space
@@ -204,18 +204,19 @@ class BasePDF(ZfitPDF, BaseModel):
 
         return TemporarilySet(value=norm_range, setter=setter, getter=getter)
 
-    @property
-    def _yield(self):
-        """For internal use, the yield or None"""
-        return self.params.get('yield')
-
-    @_yield.setter
-    def _yield(self, value):
-        if value is None:
-            # unset
-            self._params.pop('yield', None)  # safely remove if still there
-        else:
-            self._params['yield'] = value
+    # TODO: remove below?
+    # @property
+    # def _yield(self):
+    #     """For internal use, the yield or None"""
+    #     return self.params.get('yield')
+    #
+    # @_yield.setter
+    # def _yield(self, value):
+    #     if value is None:
+    #         # unset
+    #         self._params.pop('yield', None)  # safely remove if still there
+    #     else:
+    #         self._params['yield'] = value
 
     @_BasePDF_register_check_support(True)
     def _normalization(self, limits):
@@ -434,6 +435,7 @@ class BasePDF(ZfitPDF, BaseModel):
         if self.is_extended:
             raise AlreadyExtendedPDFError(f"Cannot extend {self}, is already extended.")
         value = convert_to_parameter(value)
+        self.add_cache_deps(value)
         self._yield = value
 
     @property
@@ -469,6 +471,24 @@ class BasePDF(ZfitPDF, BaseModel):
         # if not self.is_extended:
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
+
+    def _get_params(self,
+                    floating: Optional[bool] = True,
+                    is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set[ZfitParameter]:
+
+        params = super()._get_params(floating, is_yield=is_yield,
+                                     extract_independent=extract_independent)
+
+        if is_yield is not False:
+            if self.is_extended:
+                yield_params = extract_filter_params(self.get_yield(), floating=floating,
+                                                     extract_independent=extract_independent)
+                yield_params.update(params)  # putting the yields at the beginning
+                params = yield_params
+            elif is_yield is True:
+                raise NotExtendedPDFError("PDF is not extended but only yield parameters were requested.")
+        return params
 
     def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsTypeInput) -> 'ZfitPDF':
         """Create a PDF projection by integrating out some of the dimensions.

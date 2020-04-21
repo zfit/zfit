@@ -216,7 +216,7 @@ def test_gradients(chunksize):
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
 
     def loss_func(values):
-        for val, param in zip(values, nll.get_dependents(only_floating=True)):
+        for val, param in zip(values, nll.get_cache_deps(only_floating=True)):
             param.set_value(val)
         return nll.value().numpy()
 
@@ -258,7 +258,7 @@ def test_simple_loss():
     # loss = zfit.loss.SimpleLoss(func=loss_func)
     loss = zfit.loss.SimpleLoss(func=loss_func, dependents=param_list)
 
-    assert loss_deps.get_dependents() == set(param_list)
+    assert loss_deps.get_cache_deps() == set(param_list)
     # assert loss.get_dependents() == set(param_list)  # TODO: uncomment if auto deps available again?
 
     loss_tensor = loss_func()

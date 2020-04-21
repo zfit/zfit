@@ -6,7 +6,7 @@ import warnings
 from collections import OrderedDict
 from contextlib import suppress
 from inspect import signature
-from typing import Callable, Iterable, Union, Optional, Dict
+from typing import Callable, Iterable, Union, Optional, Dict, Set
 
 import numpy as np
 import tensorflow as tf
@@ -20,8 +20,9 @@ from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVa
 from zfit import z
 from zfit.util.container import convert_to_container
 from . import interfaces as zinterfaces
+from .dependents import _extract_dependencies
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
-from ..core.baseobject import BaseNumeric
+from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.fitresult import FitResult
 from ..minimizers.interface import ZfitResult
 from ..settings import ztypes, run
@@ -489,7 +490,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             raise TypeError("floating has to be a boolean.")
         self._floating = value
 
-    def _get_dependents(self):
+    def _get_dependencies(self):
         return {self}
 
     @property
@@ -584,6 +585,10 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         self.set_value(value=value)
         return value
 
+    def get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                   extract_independent: Optional[bool] = True, only_floating=NotSpecified) -> Set["ZfitParameter"]:
+        return extract_filter_params(self, floating=floating, extract_independent=False)
+
     def __del__(self):
         self._independent_params.remove(self)
         super().__del__()
@@ -639,8 +644,8 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
         self._value_fn = value_fn
 
-    def _get_dependents(self):
-        dependents = self._extract_dependents(list(self.params.values()))
+    def _get_dependencies(self):
+        dependents = _extract_dependencies(list(self.params.values()))
         return dependents
 
     @property
@@ -697,7 +702,7 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
     def independent(self) -> bool:
         return False
 
-    def _get_dependents(self) -> ztyping.DependentsType:
+    def _get_dependencies(self) -> ztyping.DependentsType:
         return OrderedSet()
 
     def __repr__(self):
@@ -781,7 +786,8 @@ class ComplexParameter(ComposedParameter):
     def conj(self):
         if self._conj is None:
             self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=lambda: tf.math.conj(self),
-                                          dtype=self.dtype, params=self.get_dependents())
+                                          params=self.get_cache_deps(),
+                                          dtype=self.dtype)
         return self._conj
 
     @property

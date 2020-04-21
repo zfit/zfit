@@ -25,12 +25,12 @@ def test_complex_param():
     some_value = 3. * param1 ** 2 - 1.2j
     true_value = 3. * complex_value() ** 2 - 1.2j
     assert true_value == pytest.approx(some_value.numpy(), rel=1e-8)
-    assert not param1.get_dependents()
+    assert not param1.get_cache_deps()
     # Cartesian complex
     real_part_param = Parameter("real_part_param", real_part)
     imag_part_param = Parameter("imag_part_param", imag_part)
     param2 = ComplexParameter.from_cartesian("param2_compl", real_part_param, imag_part_param)
-    part1, part2 = param2.get_dependents()
+    part1, part2 = param2.get_cache_deps()
     part1_val, part2_val = [part1.value().numpy(), part2.value().numpy()]
     if part1_val == pytest.approx(real_part):
         assert part2_val == pytest.approx(imag_part)
@@ -44,7 +44,7 @@ def test_complex_param():
     mod_part_param = Parameter("mod_part_param", mod_val)
     arg_part_param = Parameter("arg_part_param", arg_val)
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
-    part1, part2 = param3.get_dependents()
+    part1, part2 = param3.get_cache_deps()
     part1_val, part2_val = [part1.value().numpy(), part2.value().numpy()]
     if part1_val == pytest.approx(mod_val):
         assert part2_val == pytest.approx(arg_val)
@@ -55,7 +55,7 @@ def test_complex_param():
 
     param4_name = "param4"
     param4 = ComplexParameter.from_polar(param4_name, 4., 2., floating=True)
-    deps_param4 = param4.get_dependents()
+    deps_param4 = param4.get_cache_deps()
     assert len(deps_param4) == 2
     for dep in deps_param4:
         assert dep.floating
@@ -84,9 +84,9 @@ def test_composed_param():
                                                                          for i, p in
                                                                          enumerate((param1, param2, param3))})
     assert param_a2.params['p1'] == param2
-    assert isinstance(param_a.get_dependents(only_floating=True), OrderedSet)
-    assert param_a.get_dependents(only_floating=True) == {param1, param2}
-    assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
+    assert isinstance(param_a.get_cache_deps(only_floating=True), OrderedSet)
+    assert param_a.get_cache_deps(only_floating=True) == {param1, param2}
+    assert param_a.get_cache_deps(only_floating=False) == {param1, param2, param3}
     a_unchanged = value_fn(param1, param2, param3).numpy()
     assert a_unchanged == param_a.numpy()
     assert param2.assign(3.5).numpy()
@@ -179,7 +179,7 @@ def test_fixed_param():
     assert isinstance(sigma, zfit.param.ConstantParameter)
     assert not sigma.floating
     assert not sigma.independent
-    assert sigma.get_dependents() == set()
+    assert sigma.get_cache_deps() == set()
 
 
 def test_convert_to_parameter():
