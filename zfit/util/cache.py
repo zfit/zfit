@@ -71,7 +71,7 @@ class ZfitGraphCachable:
         raise NotImplementedError
 
     @abstractmethod
-    def add_cache_dependents(self, cache_dependents, allow_non_cachable):
+    def add_cache_deps(self, cache_dependents, allow_non_cachable):
         """Add dependents that render the cache invalid if they change.
 
         Args:
@@ -129,12 +129,11 @@ class GraphCachable(ZfitGraphCachable):
         if not cacher in self._cachers:
             self._cachers[cacher] = None  # could we have a more useful value?
 
-    def add_cache_dependents(self, cache_dependents: ztyping.CacherOrCachersType,
-                             allow_non_cachable: bool = True):
-        """Add dependents that render the cache invalid if they change.
+    def add_cache_deps(self, cache_deps: ztyping.CacherOrCachersType, allow_non_cachable: bool = True):
+        """Add dependencies that render the cache invalid if they change.
 
         Args:
-            cache_dependents (ZfitGraphCachable):
+            cache_deps (ZfitGraphCachable):
             allow_non_cachable (bool): If `True`, allow `cache_dependents` to be non-cachables.
                 If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.
 
@@ -142,13 +141,13 @@ class GraphCachable(ZfitGraphCachable):
             TypeError: if one of the `cache_dependents` is not a `ZfitCachable` _and_ `allow_non_cachable`
                 if `False`.
         """
-        cache_dependents = convert_to_container(cache_dependents)
-        for cache_dependent in cache_dependents:
-            if isinstance(cache_dependent, ZfitGraphCachable):
-                cache_dependent.register_cacher(self)
+        cache_deps = convert_to_container(cache_deps)
+        for cache_dep in cache_deps:
+            if isinstance(cache_dep, ZfitGraphCachable):
+                cache_dep.register_cacher(self)
             elif not allow_non_cachable:
-                raise TypeError("cache_dependent {} is not a `ZfitCachable` but {}".format(cache_dependent,
-                                                                                           type(cache_dependent)))
+                raise TypeError("cache_dependent {} is not a `ZfitCachable` but {}".format(cache_dep,
+                                                                                           type(cache_dep)))
 
     def reset_cache_self(self):
         """Clear the cache of self and all dependent cachers."""
@@ -231,7 +230,7 @@ class FunctionCacheHolder(GraphCachable):
         self.immutable_representation = self.create_immutable(cachables, cachables_mapping)
         # self._hash_value = hash(self.immutable_representation)
         super().__init__()  # resets the cache
-        self.add_cache_dependents(cachables_all)
+        self.add_cache_deps(cachables_all)
         self.is_valid = True  # needed to make the cache valid again
 
     def reset_cache_self(self):

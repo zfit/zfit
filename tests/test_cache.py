@@ -28,7 +28,7 @@ class MotherExample1(GraphCachable):
 
     def __init__(self, test1, test2):
         super().__init__()
-        self.add_cache_dependents([test1, test2])
+        self.add_cache_deps([test1, test2], )
         self.test1 = test1
         self.test2 = test2
 

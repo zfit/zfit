@@ -157,9 +157,9 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
         # sanitize fit_range
         fit_range = [p.convert_sort_space(limits=range_) for p, range_ in zip(pdf, fit_range)]
         # TODO: sanitize pdf, data?
-        self.add_cache_dependents(cache_dependents=pdf)
-        self.add_cache_dependents(cache_dependents=data)
-        self.add_cache_dependents(cache_dependents=fit_range)
+        self.add_cache_deps(cache_deps=pdf)
+        self.add_cache_deps(cache_deps=data)
+        self.add_cache_deps(cache_deps=fit_range)
         return pdf, data, fit_range
 
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:

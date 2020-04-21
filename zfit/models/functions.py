@@ -6,6 +6,7 @@ import tensorflow as tf
 
 from ..core.basefunc import BaseFunc
 from ..core.basemodel import SimpleModelSubclassMixin
+from ..core.dependents import _extract_dependencies
 from ..core.interfaces import ZfitModel, ZfitFunc
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin
@@ -47,7 +48,7 @@ class BaseFunctorFunc(FunctorMixin, BaseFunc):
 
     def _get_dependencies(self):  # TODO: change recursive to `only_floating`?
         dependents = super()._get_dependencies()  # get the own parameter dependents
-        func_dependents = _extract_dependents(self.funcs)  # flatten
+        func_dependents = _extract_dependencies(self.funcs)  # flatten
         return dependents.union(func_dependents)
 
     @property

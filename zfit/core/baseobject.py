@@ -76,6 +76,17 @@ class BaseObject(ZfitObject):
 
 class BaseParametrized(ZfitParametrized):
 
+    def __init__(self, params, **kwargs) -> None:
+        super().__init__(**kwargs)
+        from zfit.core.parameter import convert_to_parameter
+
+        params = params or OrderedDict()
+        params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
+
+        # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
+        self._params = params
+        self._repr.params = self.params
+
     def get_params(self,
                    floating: Optional[bool] = True,
                    is_yield: Optional[bool] = None,
@@ -115,31 +126,25 @@ class BaseParametrized(ZfitParametrized):
             params = extract_filter_params(params, floating=floating, extract_independent=extract_independent)
         return params
 
+    @property
+    def params(self) -> ztyping.ParametersType:
+        return self._params
+
 
 class BaseNumeric(GraphCachable, BaseDependentsMixin, BaseParametrized, ZfitNumericParametrized, BaseObject):
 
-    def __init__(self, name, params, **kwargs):
+    def __init__(self, name, **kwargs):
         if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?
             self._dtype = kwargs.pop('dtype')
         super().__init__(name=name, **kwargs)
-        from zfit.core.parameter import convert_to_parameter
+        self.add_cache_deps(self.params.values())
 
-        params = params or OrderedDict()
-        params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
-        self.add_cache_dependents(params)
 
-        # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
-        self._params = params
-        self._repr.params = self.params
 
     @property
     def dtype(self) -> tf.DType:
         """The dtype of the object"""
         return self._dtype
-
-    @property
-    def params(self) -> ztyping.ParametersType:
-        return self._params
 
     # def get_params(self, floating: Optional[bool] = True,
     #                yields: Optional[bool] = None,

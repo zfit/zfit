@@ -435,6 +435,7 @@ class BasePDF(ZfitPDF, BaseModel):
         if self.is_extended:
             raise AlreadyExtendedPDFError(f"Cannot extend {self}, is already extended.")
         value = convert_to_parameter(value)
+        self.add_cache_deps(value)
         self._yield = value
 
     @property
