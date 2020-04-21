@@ -231,7 +231,9 @@ def test_extended_gauss():
     gauss_dists = [gauss1, gauss2, gauss3]
 
     sum_gauss = SumPDF(pdfs=gauss_dists)
+    integral_true = sum_gauss.integrate((-1, 5)) * sum_gauss.get_yield()
 
+    assert zfit.run(integral_true) == pytest.approx(zfit.run(sum_gauss.ext_integrate((-1, 5))))
     normalization_testing(pdf=sum_gauss, limits=obs1)
 
 
