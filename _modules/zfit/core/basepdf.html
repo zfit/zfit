@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.basepdf &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
+    <title>zfit.core.basepdf &#8212; zfit 0.4.4.dev128+g10c29b3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev128</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -664,6 +664,36 @@
     <span class="c1">#                                  &quot;it received on initialization.&quot;</span>
     <span class="c1">#                                  &quot;Original Error: {}&quot;.format(error))</span>
 
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">ext_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Probability density function scaled by yield, normalized over `norm_range`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x (numerical): `float` or `double` `Tensor`.</span>
+<span class="sd">          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          :py:class:`tf.Tensor` of type `self.dtype`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotExtendedPDFError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> is not extended, cannot call `ext_pdf`&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">ext_log_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XTypeInput</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Log of probability density function scaled by yield, normalized over `norm_range`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          x (numerical): `float` or `double` `Tensor`.</span>
+<span class="sd">          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          :py:class:`tf.Tensor` of type `self.dtype`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotExtendedPDFError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> is not extended, cannot call `ext_pdf`&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_yield</span><span class="p">())</span>
+
     <span class="nd">@_BasePDF_register_check_support</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">SpecificFunctionNotImplementedError</span>
@@ -749,6 +779,24 @@
 
 <div class="viewcode-block" id="BasePDF.gradients"><a class="viewcode-back" href="../../../api/zfit.pdf.html#zfit.core.basepdf.BasePDF.gradients">[docs]</a>    <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">BreakingAPIChangeError</span><span class="p">(</span><span class="s2">&quot;Removed with 0.5.x: is this needed?&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">ext_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Integrate the function over `limits` (normalized over `norm_range` if not False).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over</span>
+<span class="sd">            norm_range (tuple, :py:class:`~zfit.ZfitSpace`): the limits to normalize over or False to integrate the</span>
+<span class="sd">                unnormalized probability</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :py:class`tf.Tensor`: the integral value as a scalar with shape ()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="p">)</span>
+        <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotExtendedPDFError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> is not extended, cannot call `ext_pdf`&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_apply_yield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">limits_are_false</span><span class="p">:</span>
