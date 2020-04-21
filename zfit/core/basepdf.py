@@ -284,6 +284,36 @@ class BasePDF(ZfitPDF, BaseModel):
     #                                  "it received on initialization."
     #                                  "Original Error: {}".format(error))
 
+    @z.function(wraps='model')
+    def ext_pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
+        """Probability density function scaled by yield, normalized over `norm_range`.
+
+        Args:
+          x (numerical): `float` or `double` `Tensor`.
+          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+
+        Returns:
+          :py:class:`tf.Tensor` of type `self.dtype`.
+        """
+        if not self.is_extended:
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return self.pdf(x=x, norm_range=norm_range) * self.get_yield()
+
+    @z.function(wraps='model')
+    def ext_log_pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
+        """Log of probability density function scaled by yield, normalized over `norm_range`.
+
+        Args:
+          x (numerical): `float` or `double` `Tensor`.
+          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+
+        Returns:
+          :py:class:`tf.Tensor` of type `self.dtype`.
+        """
+        if not self.is_extended:
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return self.log_pdf(x=x, norm_range=norm_range) + tf.math.log(self.get_yield())
+
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
         raise SpecificFunctionNotImplementedError
@@ -369,6 +399,24 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise BreakingAPIChangeError("Removed with 0.5.x: is this needed?")
+
+    @z.function(wraps='model')
+    def ext_integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+        """Integrate the function over `limits` (normalized over `norm_range` if not False).
+
+        Args:
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
+            norm_range (tuple, :py:class:`~zfit.ZfitSpace`): the limits to normalize over or False to integrate the
+                unnormalized probability
+
+        Returns:
+            :py:class`tf.Tensor`: the integral value as a scalar with shape ()
+        """
+        norm_range = self._check_input_norm_range(norm_range)
+        limits = self._check_input_limits(limits=limits)
+        if not self.is_extended:
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return self.integrate(limits=limits, norm_range=norm_range) * self.get_yield()
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
         if self.is_extended and not norm_range.limits_are_false:
