@@ -56,7 +56,6 @@ from contextlib import suppress
 from typing import Union, Type, Dict, Optional, Set
 
 import tensorflow as tf
-from ordered_set import OrderedSet
 
 from zfit import z
 from zfit.core.sample import extended_sampling
@@ -68,7 +67,6 @@ from .parameter import Parameter, convert_to_parameter
 from .space import Space
 from ..settings import ztypes, run
 from ..util import ztyping
-from ..util.checks import NotSpecified
 from ..util.exception import (AlreadyExtendedPDFError,
                               NotExtendedPDFError, BreakingAPIChangeError, FunctionNotImplementedError,
                               SpecificFunctionNotImplementedError)
@@ -473,21 +471,21 @@ class BasePDF(ZfitPDF, BaseModel):
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
-    def get_params(self, floating: Optional[bool] = True, yields: Optional[bool] = None,
-                   extract_independent: Optional[bool] = True, only_floating: bool = NotSpecified) -> Set[
-        ZfitParameter]:
-        if only_floating is not NotSpecified:
-            floating = only_floating
-            warnings.warn("`only_floating` is deprecated and will be removed in the future, use `floating` instead.")
+    def _get_params(self,
+                    floating: Optional[bool] = True,
+                    is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set[ZfitParameter]:
 
-        params = super().get_params(floating, yields=yields,
-                                    extract_independent=extract_independent)
-        if yields is not False:
+        params = super()._get_params(floating, is_yield=is_yield,
+                                     extract_independent=extract_independent)
+
+        if is_yield is not False:
             if self.is_extended:
-                yield_params = extract_filter_params(self.get_yield())
+                yield_params = extract_filter_params(self.get_yield(), floating=floating,
+                                                     extract_independent=extract_independent)
                 yield_params.update(params)  # putting the yields at the beginning
                 params = yield_params
-            elif yields is True:
+            elif is_yield is True:
                 raise NotExtendedPDFError("PDF is not extended but only yield parameters were requested.")
         return params
 

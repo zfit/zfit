@@ -76,14 +76,43 @@ class BaseObject(ZfitObject):
 
 class BaseParametrized(ZfitParametrized):
 
-    def get_params(self, floating: Optional[bool] = True, yields: Optional[bool] = None,
-                   extract_independent: Optional[bool] = True, only_floating=NotSpecified) -> Set["ZfitParameter"]:
+    def get_params(self,
+                   floating: Optional[bool] = True,
+                   is_yield: Optional[bool] = None,
+                   extract_independent: Optional[bool] = True,
+                   only_floating=NotSpecified) -> Set["ZfitParameter"]:
+        """Recursively collect parameters that this object depends on according to the filter criteria.
+
+        Which parameters should be included can be steered using the arguments as a filter.
+         - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as
+            parameters that are fixed.
+         - **True**: only return parameters that fulfil this criterion
+         - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return
+            only parameters that are not floating.
+
+        Args:
+            floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`
+            is_yield: if a parameter is a yield of the _current_ model. This won't be applied recursively, but may include
+               yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
+               model depends on other yields (or also non-yields), this will be included. If, however, just submodels
+               depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
+               included.
+            extract_independent: If the parameter is an independent parameter, i.e. if it is a `ZfitIndependentParameter`.
+        """
         if only_floating is not NotSpecified:
             floating = only_floating
-            warnings.warn("`only_floating` is deprecated and will be removed in the future, use `floating` instead.")
+            warnings.warn("`only_floating` is deprecated and will be removed in the future, use `floating` instead.",
+                          DeprecationWarning)
+        return self._get_params(floating=floating, is_yield=is_yield, extract_independent=extract_independent)
 
-        params = self.params.values()
-        params = extract_filter_params(params, floating=floating, extract_independent=extract_independent)
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+
+        if is_yield is True:  # we want exclusively yields, we don't have them by default
+            params = OrderedSet()
+        else:
+            params = self.params.values()
+            params = extract_filter_params(params, floating=floating, extract_independent=extract_independent)
         return params
 
 
@@ -175,7 +204,7 @@ def extract_filter_params(params: Iterable[ZfitParametrized],
     if extract_independent:
         params = OrderedSet(itertools.chain.from_iterable(param.get_params(floating=floating,
                                                                            extract_independent=True,
-                                                                           yields=None)
+                                                                           is_yield=None)
                                                           for param in params))
 
     if floating is not None:

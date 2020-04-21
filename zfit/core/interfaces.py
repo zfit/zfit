@@ -2,7 +2,7 @@
 
 import abc
 from abc import ABCMeta, abstractmethod
-from typing import Union, List, Dict, Callable, Tuple, Optional
+from typing import Union, List, Dict, Callable, Tuple, Optional, Set
 
 import numpy as np
 import tensorflow as tf
@@ -614,9 +614,9 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
     @abstractmethod
     def get_params(self,
                    floating: Optional[bool] = True,
-                   yields: Optional[bool] = None,
+                   is_yield: Optional[bool] = None,
                    extract_independent: Optional[bool] = True
-                   ) -> List["ZfitParameter"]:
+                   ) -> Set["ZfitParameter"]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
@@ -628,7 +628,7 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
 
         Args:
             floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`
-            yields: if a parameter is a yield of the _current_ model. This won't be applied recursively, but may include
+            is_yield: if a parameter is a yield of the _current_ model. This won't be applied recursively, but may include
                yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
                model depends on other yields (or also non-yields), this will be included. If, however, just submodels
                depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be

@@ -1,7 +1,7 @@
 #  Copyright (c) 2020 zfit
 
 import abc
-from typing import List, Union, Tuple, Iterable
+from typing import List, Union, Tuple, Iterable, Optional, Set
 
 from ..core.basemodel import BaseModel
 from ..core.dependents import _extract_dependencies

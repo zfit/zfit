@@ -585,7 +585,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         self.set_value(value=value)
         return value
 
-    def get_params(self, floating: Optional[bool] = True, yields: Optional[bool] = None,
+    def get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
                    extract_independent: Optional[bool] = True, only_floating=NotSpecified) -> Set["ZfitParameter"]:
         return extract_filter_params(self, floating=floating, extract_independent=False)
 
