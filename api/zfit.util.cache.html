@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>cache &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
+    <title>cache &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -431,66 +431,9 @@ calls <cite>reset_cache</cite>) can be brought into play.</p></li>
 </pre></div>
 </div>
 <dl class="py class">
-<dt id="zfit.util.cache.Cachable">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.util.cache.</code><code class="sig-name descname">Cachable</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.ZfitCachable</span></code></a></p>
-<dl class="py method">
-<dt id="zfit.util.cache.Cachable.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.add_cache_dependents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add dependents that render the cache invalid if they change.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
-<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
-If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
-    if <cite>False</cite>.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="zfit.util.cache.Cachable.graph_caching_methods">
-<code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.util.cache.Cachable.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="zfit.util.cache.Cachable.instances">
-<code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.util.cache.Cachable.instances" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.cache.Cachable.register_cacher">
-<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.register_cacher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.register_cacher" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.cache.Cachable.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.reset_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.reset_cache" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.cache.Cachable.reset_cache_self">
-<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#Cachable.reset_cache_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.Cachable.reset_cache_self" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clear the cache of self and all dependent cachers.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt id="zfit.util.cache.FunctionCacheHolder">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.util.cache.</code><code class="sig-name descname">FunctionCacheHolder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">wrapped_func</span></em>, <em class="sig-param"><span class="n">cachables</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><span class="p">, </span>Iterable<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cachables_mapping</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#FunctionCacheHolder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.FunctionCacheHolder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.util.cache.</code><code class="sig-name descname">FunctionCacheHolder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">wrapped_func</span></em>, <em class="sig-param"><span class="n">cachables</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><span class="p">, </span>Iterable<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cachables_mapping</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#FunctionCacheHolder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.FunctionCacheHolder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.cache.GraphCachable" title="zfit.util.cache.GraphCachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.GraphCachable</span></code></a></p>
 <p><cite>tf.function</cite> decorated function holder with caching dependencies on inputs.</p>
 <p>A <cite>tf.function</cite> creates a new graph for every signature that is encountered. It automatically caches them but
 thereby assumes that Python objects are immutable. Any mutation won’t be detected. Therefore, an extra wrapper
@@ -526,13 +469,13 @@ invalidated.</p></li>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.cache.FunctionCacheHolder.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.cache.FunctionCacheHolder.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dt id="zfit.util.cache.FunctionCacheHolder.add_cache_deps">
+<code class="sig-name descname">add_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_deps</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.cache.FunctionCacheHolder.add_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependencies that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>cache_deps</strong> (<a class="reference internal" href="#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable"><em>ZfitGraphCachable</em></a>) – </p></li>
 <li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
 If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
 </ul>
@@ -584,7 +527,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.util.cache.FunctionCacheHolder.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.cache.FunctionCacheHolder.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.util.cache.FunctionCacheHolder.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -596,17 +539,74 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="py class">
-<dt id="zfit.util.cache.ZfitCachable">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.util.cache.</code><code class="sig-name descname">ZfitCachable</code><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.cache.GraphCachable">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.util.cache.</code><code class="sig-name descname">GraphCachable</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#GraphCachable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.GraphCachable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.ZfitGraphCachable</span></code></a></p>
+<dl class="py method">
+<dt id="zfit.util.cache.GraphCachable.add_cache_deps">
+<code class="sig-name descname">add_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_deps</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#GraphCachable.add_cache_deps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.GraphCachable.add_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependencies that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_deps</strong> (<a class="reference internal" href="#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable"><em>ZfitGraphCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.util.cache.GraphCachable.graph_caching_methods">
+<code class="sig-name descname">graph_caching_methods</code><em class="property"> = []</em><a class="headerlink" href="#zfit.util.cache.GraphCachable.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.util.cache.GraphCachable.instances">
+<code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.util.cache.GraphCachable.instances" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.cache.GraphCachable.register_cacher">
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#GraphCachable.register_cacher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.GraphCachable.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.cache.GraphCachable.reset_cache">
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#GraphCachable.reset_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.GraphCachable.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.cache.GraphCachable.reset_cache_self">
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#GraphCachable.reset_cache_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.GraphCachable.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="zfit.util.cache.ZfitGraphCachable">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.util.cache.</code><code class="sig-name descname">ZfitGraphCachable</code><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitGraphCachable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitGraphCachable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
-<dt id="zfit.util.cache.ZfitCachable.add_cache_dependents">
-<em class="property">abstract </em><code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.add_cache_dependents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.cache.ZfitGraphCachable.add_cache_deps">
+<em class="property">abstract </em><code class="sig-name descname">add_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitGraphCachable.add_cache_deps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitGraphCachable.add_cache_deps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add dependents that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable"><em>ZfitGraphCachable</em></a>) – </p></li>
 <li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
 If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
 </ul>
@@ -619,18 +619,18 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.cache.ZfitCachable.register_cacher">
-<em class="property">abstract </em><code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.register_cacher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.cache.ZfitGraphCachable.register_cacher">
+<em class="property">abstract </em><code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitGraphCachable.register_cacher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitGraphCachable.register_cacher" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.cache.ZfitCachable.reset_cache">
-<em class="property">abstract </em><code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.reset_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.cache.ZfitGraphCachable.reset_cache">
+<em class="property">abstract </em><code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitGraphCachable.reset_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitGraphCachable.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.cache.ZfitCachable.reset_cache_self">
-<em class="property">abstract </em><code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitCachable.reset_cache_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitCachable.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.cache.ZfitGraphCachable.reset_cache_self">
+<em class="property">abstract </em><code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/cache.html#ZfitGraphCachable.reset_cache_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.cache.ZfitGraphCachable.reset_cache_self" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the cache of self and all dependent cachers.</p>
 </dd></dl>
 
@@ -669,7 +669,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
     </p>
   </div>
 </footer>

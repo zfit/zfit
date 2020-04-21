@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>baseobject &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
+    <title>baseobject &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -387,16 +387,16 @@
 <p>Baseclass for most objects appearing in zfit.</p>
 <dl class="py class">
 <dt id="zfit.core.baseobject.BaseNumeric">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.baseobject.</code><code class="sig-name descname">BaseNumeric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/baseobject.html#BaseNumeric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.Cachable" title="zfit.util.cache.Cachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.Cachable</span></code></a>, <a class="reference internal" href="zfit.core.dependents.html#zfit.core.dependents.BaseDependentsMixin" title="zfit.core.dependents.BaseDependentsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dependents.BaseDependentsMixin</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitNumeric" title="zfit.core.interfaces.ZfitNumeric"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitNumeric</span></code></a>, <a class="reference internal" href="#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.baseobject.</code><code class="sig-name descname">BaseNumeric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/baseobject.html#BaseNumeric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.GraphCachable" title="zfit.util.cache.GraphCachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.GraphCachable</span></code></a>, <a class="reference internal" href="zfit.core.dependents.html#zfit.core.dependents.BaseDependentsMixin" title="zfit.core.dependents.BaseDependentsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dependents.BaseDependentsMixin</span></code></a>, <a class="reference internal" href="#zfit.core.baseobject.BaseParametrized" title="zfit.core.baseobject.BaseParametrized"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseParametrized</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitNumericParametrized" title="zfit.core.interfaces.ZfitNumericParametrized"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitNumericParametrized</span></code></a>, <a class="reference internal" href="#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
 <dl class="py method">
-<dt id="zfit.core.baseobject.BaseNumeric.add_cache_dependents">
-<code class="sig-name descname">add_cache_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_dependents</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.add_cache_dependents" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add dependents that render the cache invalid if they change.</p>
+<dt id="zfit.core.baseobject.BaseNumeric.add_cache_deps">
+<code class="sig-name descname">add_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_deps</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.add_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependencies that render the cache invalid if they change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cache_dependents</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable"><em>ZfitCachable</em></a>) – </p></li>
+<li><p><strong>cache_deps</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable"><em>ZfitGraphCachable</em></a>) – </p></li>
 <li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
 If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
 </ul>
@@ -420,8 +420,8 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.core.baseobject.BaseNumeric.get_dependents">
-<code class="sig-name descname">get_dependents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.get_dependents" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.core.baseobject.BaseNumeric.get_cache_deps">
+<code class="sig-name descname">get_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.get_cache_deps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -431,21 +431,45 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.core.baseobject.BaseNumeric.get_dependencies">
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED FUNCTION</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>get_params</cite> instead if you want to retrieve the independent parameters or <cite>get_cache_deps</cite> in case you need the numerical cache dependents (advanced).</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.core.baseobject.BaseNumeric.get_params">
-<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">names</span><span class="p">:</span> <span class="n">Union[str, List[str], None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>ZfitParameter<span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/baseobject.html#BaseNumeric.get_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.get_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the parameters. If it is empty, automatically return all floating variables.</p>
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">floating: Optional[bool] = True</em>, <em class="sig-param">is_yield: Optional[bool] = None</em>, <em class="sig-param">extract_independent: Optional[bool] = True</em>, <em class="sig-param">only_floating=&lt;class 'zfit.util.checks.NotSpecified'&gt;</em><span class="sig-paren">)</span> &#x2192; Set<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively collect parameters that this object depends on according to the filter criteria.</p>
+<dl class="simple">
+<dt>Which parameters should be included can be steered using the arguments as a filter.</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt><strong>None</strong>: do not filter on this. E.g. <cite>floating=None</cite> will return parameters that are floating as well as</dt><dd><p>parameters that are fixed.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>True</strong>: only return parameters that fulfil this criterion</p></li>
+<li><dl class="simple">
+<dt><strong>False</strong>: only return parameters that do not fulfil this criterion. E.g. <cite>floating=False</cite> will return</dt><dd><p>only parameters that are not floating.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>(</strong><strong>)</strong> (<em>names</em>) – If True, return only the floating parameters.</p></li>
-<li><p><strong>(</strong><strong>)</strong> – The names of the parameters to return.</p></li>
+<li><p><strong>floating</strong> – if a parameter is floating, e.g. if <code class="xref py py-meth docutils literal notranslate"><span class="pre">floating()</span></code> returns <cite>True</cite></p></li>
+<li><p><strong>is_yield</strong> – if a parameter is a yield of the _current_ model. This won’t be applied recursively, but may include
+yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
+model depends on other yields (or also non-yields), this will be included. If, however, just submodels
+depend on a yield (as their yield) and it is not correlated to the output of our model, they won’t be
+included.</p></li>
+<li><p><strong>extract_independent</strong> – If the parameter is an independent parameter, i.e. if it is a <cite>ZfitIndependentParameter</cite>.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list(<cite>ZfitParameters</cite>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -484,7 +508,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.baseobject.BaseNumeric.reset_cache">
-<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitCachable" title="zfit.util.cache.ZfitCachable">zfit.util.cache.ZfitCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.reset_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseNumeric.reset_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -512,6 +536,71 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 </dd></dl>
 
+<dl class="py class">
+<dt id="zfit.core.baseobject.BaseParametrized">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.baseobject.</code><code class="sig-name descname">BaseParametrized</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/baseobject.html#BaseParametrized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.baseobject.BaseParametrized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParametrized" title="zfit.core.interfaces.ZfitParametrized"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitParametrized</span></code></a></p>
+<dl class="py method">
+<dt id="zfit.core.baseobject.BaseParametrized.get_cache_deps">
+<em class="property">abstract </em><code class="sig-name descname">get_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseParametrized.get_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.core.baseobject.BaseParametrized.get_dependencies">
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.baseobject.BaseParametrized.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED FUNCTION</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>get_params</cite> instead if you want to retrieve the independent parameters or <cite>get_cache_deps</cite> in case you need the numerical cache dependents (advanced).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.core.baseobject.BaseParametrized.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">floating: Optional[bool] = True</em>, <em class="sig-param">is_yield: Optional[bool] = None</em>, <em class="sig-param">extract_independent: Optional[bool] = True</em>, <em class="sig-param">only_floating=&lt;class 'zfit.util.checks.NotSpecified'&gt;</em><span class="sig-paren">)</span> &#x2192; Set<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/baseobject.html#BaseParametrized.get_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.baseobject.BaseParametrized.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively collect parameters that this object depends on according to the filter criteria.</p>
+<dl class="simple">
+<dt>Which parameters should be included can be steered using the arguments as a filter.</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt><strong>None</strong>: do not filter on this. E.g. <cite>floating=None</cite> will return parameters that are floating as well as</dt><dd><p>parameters that are fixed.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>True</strong>: only return parameters that fulfil this criterion</p></li>
+<li><dl class="simple">
+<dt><strong>False</strong>: only return parameters that do not fulfil this criterion. E.g. <cite>floating=False</cite> will return</dt><dd><p>only parameters that are not floating.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>floating</strong> – if a parameter is floating, e.g. if <code class="xref py py-meth docutils literal notranslate"><span class="pre">floating()</span></code> returns <cite>True</cite></p></li>
+<li><p><strong>is_yield</strong> – if a parameter is a yield of the _current_ model. This won’t be applied recursively, but may include
+yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
+model depends on other yields (or also non-yields), this will be included. If, however, just submodels
+depend on a yield (as their yield) and it is not correlated to the output of our model, they won’t be
+included.</p></li>
+<li><p><strong>extract_independent</strong> – If the parameter is an independent parameter, i.e. if it is a <cite>ZfitIndependentParameter</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.core.baseobject.BaseParametrized.params">
+<em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.core.baseobject.BaseParametrized.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="zfit.core.baseobject.extract_filter_params">
+<code class="sig-prename descclassname">zfit.core.baseobject.</code><code class="sig-name descname">extract_filter_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParametrized" title="zfit.core.interfaces.ZfitParametrized">zfit.core.interfaces.ZfitParametrized</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">floating</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">extract_independent</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; Set<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/baseobject.html#extract_filter_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.baseobject.extract_filter_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -534,7 +623,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
     </p>
   </div>
 </footer>

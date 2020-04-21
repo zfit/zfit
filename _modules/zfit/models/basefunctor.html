@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.basefunctor &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
+    <title>zfit.models.basefunctor &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -381,9 +381,12 @@
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span>
+
+<span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
 
 <span class="kn">from</span> <span class="nn">..core.basemodel</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">..core.dependents</span> <span class="kn">import</span> <span class="n">_extract_dependencies</span>
 <span class="kn">from</span> <span class="nn">..core.dimension</span> <span class="kn">import</span> <span class="n">get_same_obs</span>
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitFunctorMixin</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitSpace</span>
 <span class="kn">from</span> <span class="nn">..core.space</span> <span class="kn">import</span> <span class="n">Space</span>
@@ -441,6 +444,15 @@
         <span class="c1"># TODO: needed? remove below</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model_obs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">obs</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floating</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">is_yield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">extract_independent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="s2">&quot;ZfitParameter&quot;</span><span class="p">]:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_params</span><span class="p">(</span><span class="n">floating</span><span class="p">,</span> <span class="n">is_yield</span><span class="p">,</span> <span class="n">extract_independent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_yield</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">floating</span><span class="o">=</span><span class="n">floating</span><span class="p">,</span> <span class="n">is_yield</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                     <span class="n">extract_independent</span><span class="o">=</span><span class="n">extract_independent</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">params</span>
+
     <span class="c1"># def _infer_space_from_daughters(self):</span>
     <span class="c1">#     space = set(model.space for model in self.models)</span>
     <span class="c1">#     obs = set(norm_range.obs for norm_range in space)</span>
@@ -451,9 +463,9 @@
     <span class="c1">#     else:</span>
     <span class="c1">#         return False</span>
 
-    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">dependents</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_dependents</span><span class="p">()</span>  <span class="c1"># get the own parameter dependents</span>
-        <span class="n">model_dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_models</span><span class="p">())</span>
+    <span class="k">def</span> <span class="nf">_get_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dependents</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_dependencies</span><span class="p">()</span>  <span class="c1"># get the own parameter dependents</span>
+        <span class="n">model_dependents</span> <span class="o">=</span> <span class="n">_extract_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_models</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">dependents</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">model_dependents</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -512,7 +524,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
     </p>
   </div>
 </footer>

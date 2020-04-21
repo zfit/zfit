@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.basemodel &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
+    <title>zfit.core.basemodel &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -396,6 +396,7 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">integration</span> <span class="k">as</span> <span class="n">zintegrate</span><span class="p">,</span> <span class="n">sample</span> <span class="k">as</span> <span class="n">zsample</span>
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="kn">import</span> <span class="n">BaseNumeric</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Sampler</span><span class="p">,</span> <span class="n">SampleData</span>
+<span class="kn">from</span> <span class="nn">.dependents</span> <span class="kn">import</span> <span class="n">_extract_dependencies</span>
 <span class="kn">from</span> <span class="nn">.dimension</span> <span class="kn">import</span> <span class="n">BaseDimensional</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitSpace</span>
 <span class="kn">from</span> <span class="nn">.sample</span> <span class="kn">import</span> <span class="n">UniformSampleAndWeights</span>
@@ -404,7 +405,7 @@
 <span class="kn">from</span> <span class="nn">..core.integration</span> <span class="kn">import</span> <span class="n">Integration</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">container</span> <span class="k">as</span> <span class="n">zcontainer</span><span class="p">,</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">Cachable</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">GraphCachable</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">BasePDFSubclassingError</span><span class="p">,</span> <span class="n">MultipleLimitsNotImplementedError</span><span class="p">,</span> <span class="n">NormRangeNotImplementedError</span><span class="p">,</span>
                               <span class="n">ShapeIncompatibleError</span><span class="p">,</span> <span class="n">SubclassingError</span><span class="p">,</span> <span class="n">CannotConvertToNumpyError</span><span class="p">,</span> <span class="n">WorkInProgressError</span><span class="p">,</span>
                               <span class="n">SpaceIncompatibleError</span><span class="p">,</span> <span class="n">AnalyticIntegralNotImplementedError</span><span class="p">,</span>
@@ -442,7 +443,7 @@
     <span class="k">return</span> <span class="n">register</span>
 
 
-<div class="viewcode-block" id="BaseModel"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel">[docs]</a><span class="k">class</span> <span class="nc">BaseModel</span><span class="p">(</span><span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseModel"><a class="viewcode-back" href="../../../api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel">[docs]</a><span class="k">class</span> <span class="nc">BaseModel</span><span class="p">(</span><span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">GraphCachable</span><span class="p">,</span> <span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for any generic model.</span>
 
 <span class="sd">    # TODO instructions on how to use</span>
@@ -1183,7 +1184,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;limits are False/None, have to be specified&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">fixed_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+            <span class="n">fixed_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cache_deps</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">fixed_params</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="n">fixed_params</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fixed_params</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
@@ -1385,8 +1386,8 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Function </span><span class="si">{}</span><span class="s2"> is not callable.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span>
 
-    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
+    <span class="k">def</span> <span class="nf">_get_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_extract_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">operations</span>
@@ -1464,7 +1465,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
     </p>
   </div>
 </footer>

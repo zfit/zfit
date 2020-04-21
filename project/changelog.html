@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
+    <title>Changelog &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -505,6 +505,8 @@ better behavior with toys (e.g. never fail on NaNs but return an invalid <cite>F
 <cite>DefaultToyStrategy</cite> in <cite>zfit.mnimize</cite>.</p></li>
 <li><p>Exceptions are now publicly available in <cite>zfit.exception</cite></p></li>
 <li><p>Added nice printout for <cite>FitResult</cite> and <cite>FitResult.params</cite>.</p></li>
+<li><p><cite>get_params</cite> is now more meaningful, returning by default all independent parameters of the pdf, including yields.
+Arguments (<cite>floating</cite>, <cite>is_yield</cite>) allow for more fine-grained control.</p></li>
 </ul>
 </div></blockquote>
 </div>
@@ -531,6 +533,8 @@ the containing spaces respectively itself (for the <cite>Space</cite> case).</p>
 the arguments to the <cite>value_fn</cite>. To stay future compatible, create e.g. <cite>def value_fn(p1, pa2)</cite>
 and using <cite>params = [‘param1, param2]</cite>, <cite>value_fn</cite> will then be called as <cite>value_fn(param1, parma2)</cite>.
 <cite>value_fn</cite> without arguments will probably break in the future.</p></li>
+<li><p><cite>FitResult.error</cite> has been renamed to <cite>errors</cite> to better reflect that multiple errors, the lower and
+upper are returned.</p></li>
 </ul>
 </div></blockquote>
 </div>
@@ -567,6 +571,7 @@ from.</p></li>
 <blockquote>
 <div><ul class="simple">
 <li><p>Johannes Lade for code review and discussions.</p></li>
+<li><p>Hans Dembinski for useful inputs to the uncertainties.</p></li>
 </ul>
 </div></blockquote>
 </div>
@@ -906,7 +911,7 @@ cannot be set to floating later on.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
     </p>
   </div>
 </footer>

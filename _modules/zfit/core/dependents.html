@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.dependents &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
+    <title>zfit.core.dependents &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -385,41 +385,41 @@
 
 <span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
 
-<span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitDependentsMixin</span><span class="p">,</span> <span class="n">ZfitObject</span>
+<span class="kn">from</span> <span class="nn">zfit.core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitDependenciesMixin</span><span class="p">,</span> <span class="n">ZfitObject</span>
 <span class="kn">from</span> <span class="nn">zfit.util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">zfit.util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 
 
-<div class="viewcode-block" id="BaseDependentsMixin"><a class="viewcode-back" href="../../../api/zfit.core.dependents.html#zfit.BaseDependentsMixin">[docs]</a><span class="k">class</span> <span class="nc">BaseDependentsMixin</span><span class="p">(</span><span class="n">ZfitDependentsMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseDependentsMixin"><a class="viewcode-back" href="../../../api/zfit.core.dependents.html#zfit.BaseDependentsMixin">[docs]</a><span class="k">class</span> <span class="nc">BaseDependentsMixin</span><span class="p">(</span><span class="n">ZfitDependenciesMixin</span><span class="p">):</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_get_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="BaseDependentsMixin.get_dependents"><a class="viewcode-back" href="../../../api/zfit.core.dependents.html#zfit.BaseDependentsMixin.get_dependents">[docs]</a>    <span class="k">def</span> <span class="nf">get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_floating</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseDependentsMixin.get_cache_deps"><a class="viewcode-back" href="../../../api/zfit.core.dependents.html#zfit.BaseDependentsMixin.get_cache_deps">[docs]</a>    <span class="k">def</span> <span class="nf">get_cache_deps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_floating</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return a set of all independent :py:class:`~zfit.Parameter` that this object depends on.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            only_floating (bool): If `True`, only return floating :py:class:`~zfit.Parameter`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dependents</span><span class="p">()</span>
+        <span class="n">dependencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dependencies</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">only_floating</span><span class="p">:</span>
-            <span class="n">dependents</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">dependents</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">dependents</span></div>
+            <span class="n">dependencies</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">dependencies</span></div></div>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_extract_dependents</span><span class="p">(</span><span class="n">zfit_objects</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitObject</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            zfit_objects ():</span>
+<span class="k">def</span> <span class="nf">_extract_dependencies</span><span class="p">(</span><span class="n">zfit_objects</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitObject</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            set(zfit.Parameter): A set of independent Parameters</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">zfit_objects</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">zfit_objects</span><span class="p">)</span>
-        <span class="n">dependents</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">zfit_objects</span><span class="p">)</span>
-        <span class="n">dependents_set</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">dependents</span><span class="p">))</span>  <span class="c1"># flatten</span>
-        <span class="k">return</span> <span class="n">dependents_set</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">        zfit_objects ():</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        set(zfit.Parameter): A set of independent Parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">zfit_objects</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">zfit_objects</span><span class="p">)</span>
+    <span class="n">dependents</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get_cache_deps</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">zfit_objects</span><span class="p">)</span>
+    <span class="n">dependents_set</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">dependents</span><span class="p">))</span>  <span class="c1"># flatten</span>
+    <span class="k">return</span> <span class="n">dependents_set</span>
 </pre></div>
 
     </div>
@@ -437,7 +437,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
     </p>
   </div>
 </footer>

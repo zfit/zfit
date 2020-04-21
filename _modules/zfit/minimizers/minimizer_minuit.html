@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
+    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -391,10 +391,10 @@
 <span class="kn">from</span> <span class="nn">.fitresult</span> <span class="kn">import</span> <span class="n">FitResult</span>
 <span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span>
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span>
-<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">Cachable</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">GraphCachable</span>
 
 
-<div class="viewcode-block" id="Minuit"><a class="viewcode-back" href="../../../api/zfit.minimizers.minimizer_minuit.html#zfit.minimize.Minuit">[docs]</a><span class="k">class</span> <span class="nc">Minuit</span><span class="p">(</span><span class="n">BaseMinimizer</span><span class="p">,</span> <span class="n">Cachable</span><span class="p">):</span>
+<div class="viewcode-block" id="Minuit"><a class="viewcode-back" href="../../../api/zfit.minimizers.minimizer_minuit.html#zfit.minimize.Minuit">[docs]</a><span class="k">class</span> <span class="nc">Minuit</span><span class="p">(</span><span class="n">BaseMinimizer</span><span class="p">,</span> <span class="n">GraphCachable</span><span class="p">):</span>
     <span class="n">_DEFAULT_name</span> <span class="o">=</span> <span class="s2">&quot;Minuit&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="n">ZfitStrategy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">minimize_strategy</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -608,7 +608,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
     </p>
   </div>
 </footer>

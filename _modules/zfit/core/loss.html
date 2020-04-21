@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.loss &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
+    <title>zfit.core.loss &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -389,11 +389,11 @@
 
 <span class="kn">from</span> <span class="nn">.baseobject</span> <span class="kn">import</span> <span class="n">BaseObject</span>
 <span class="kn">from</span> <span class="nn">.constraint</span> <span class="kn">import</span> <span class="n">BaseConstraint</span><span class="p">,</span> <span class="n">SimpleConstraint</span>
-<span class="kn">from</span> <span class="nn">.dependents</span> <span class="kn">import</span> <span class="n">BaseDependentsMixin</span>
+<span class="kn">from</span> <span class="nn">.dependents</span> <span class="kn">import</span> <span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">_extract_dependencies</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitData</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span><span class="p">,</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">Cachable</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">GraphCachable</span>
 <span class="kn">from</span> <span class="nn">..util.checks</span> <span class="kn">import</span> <span class="n">NOT_SPECIFIED</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span><span class="p">,</span> <span class="n">is_container</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">IntentionAmbiguousError</span><span class="p">,</span> <span class="n">NotExtendedPDFError</span><span class="p">,</span> <span class="n">WorkInProgressError</span><span class="p">,</span> \
@@ -454,7 +454,7 @@
     <span class="k">return</span> <span class="n">checked_constraints</span>
 
 
-<div class="viewcode-block" id="BaseLoss"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.BaseLoss">[docs]</a><span class="k">class</span> <span class="nc">BaseLoss</span><span class="p">(</span><span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">Cachable</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseLoss"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.BaseLoss">[docs]</a><span class="k">class</span> <span class="nc">BaseLoss</span><span class="p">(</span><span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">GraphCachable</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ModelsInputType</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DataInputType</span><span class="p">,</span>
                  <span class="n">fit_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -537,14 +537,14 @@
         <span class="c1"># sanitize fit_range</span>
         <span class="n">fit_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">convert_sort_space</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">range_</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">range_</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">)]</span>
         <span class="c1"># TODO: sanitize pdf, data?</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_dependents</span><span class="p">(</span><span class="n">cache_dependents</span><span class="o">=</span><span class="n">pdf</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_dependents</span><span class="p">(</span><span class="n">cache_dependents</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_dependents</span><span class="p">(</span><span class="n">cache_dependents</span><span class="o">=</span><span class="n">fit_range</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_deps</span><span class="p">(</span><span class="n">cache_deps</span><span class="o">=</span><span class="n">pdf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_deps</span><span class="p">(</span><span class="n">cache_deps</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_deps</span><span class="p">(</span><span class="n">cache_deps</span><span class="o">=</span><span class="n">fit_range</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span>
 
 <div class="viewcode-block" id="BaseLoss.gradients"><a class="viewcode-back" href="../../../api/zfit.loss.html#zfit.core.loss.BaseLoss.gradients">[docs]</a>    <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dependents</span><span class="p">())</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cache_deps</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
@@ -579,9 +579,9 @@
     <span class="k">def</span> <span class="nf">constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span>
 
-    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># TODO: fix, add constraints</span>
-        <span class="n">pdf_dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">pdf_dependents</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_get_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># TODO: fix, add constraints</span>
+        <span class="n">pdf_dependents</span> <span class="o">=</span> <span class="n">_extract_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">pdf_dependents</span> <span class="o">|=</span> <span class="n">_extract_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pdf_dependents</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -797,11 +797,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_errordef</span> <span class="o">=</span> <span class="n">errordef</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">computed_gradients</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">dependents</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">dependents</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="n">OrderedSet</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_dependents</span><span class="p">(</span><span class="n">dependents</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span> <span class="o">=</span> <span class="n">_extract_dependencies</span><span class="p">(</span><span class="n">dependents</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="p">[],</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">[])</span>
 
-    <span class="k">def</span> <span class="nf">_get_dependents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span>
         <span class="k">return</span> <span class="n">dependents</span>
 
@@ -840,7 +840,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
     </p>
   </div>
 </footer>

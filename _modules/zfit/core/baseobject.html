@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.baseobject &#8212; zfit 0.4.4.dev114+gb4bf4e3 documentation</title>
+    <title>zfit.core.baseobject &#8212; zfit 0.4.4.dev126+g6bc7429 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev114</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev126</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -380,17 +380,20 @@
   <h1>Source code for zfit.core.baseobject</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Baseclass for most objects appearing in zfit.&quot;&quot;&quot;</span>
 <span class="c1">#  Copyright (c) 2020 zfit</span>
-
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Set</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
 
-<span class="kn">from</span> <span class="nn">zfit.core.dependents</span> <span class="kn">import</span> <span class="n">BaseDependentsMixin</span>
-<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitObject</span><span class="p">,</span> <span class="n">ZfitNumeric</span>
+<span class="kn">from</span> <span class="nn">.dependents</span> <span class="kn">import</span> <span class="n">BaseDependentsMixin</span>
+<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitObject</span><span class="p">,</span> <span class="n">ZfitNumericParametrized</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitParametrized</span><span class="p">,</span> <span class="n">ZfitIndependentParameter</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">Cachable</span>
-<span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">DotDict</span>
+<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">GraphCachable</span>
+<span class="kn">from</span> <span class="nn">..util.checks</span> <span class="kn">import</span> <span class="n">NotSpecified</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">DotDict</span><span class="p">,</span> <span class="n">convert_to_container</span>
 
 <span class="n">_COPY_DOCSTRING</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Creates a copy of the </span><span class="si">{zfit_type}</span><span class="s2">.</span>
 
@@ -451,59 +454,150 @@
         <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BaseNumeric"><a class="viewcode-back" href="../../../api/zfit.core.baseobject.html#zfit.BaseNumeric">[docs]</a><span class="k">class</span> <span class="nc">BaseNumeric</span><span class="p">(</span><span class="n">Cachable</span><span class="p">,</span> <span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">ZfitNumeric</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseParametrized"><a class="viewcode-back" href="../../../api/zfit.core.baseobject.html#zfit.BaseParametrized">[docs]</a><span class="k">class</span> <span class="nc">BaseParametrized</span><span class="p">(</span><span class="n">ZfitParametrized</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s1">&#39;dtype&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>  <span class="c1"># TODO(Mayou36): proper dtype handling?</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;dtype&#39;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="kn">from</span> <span class="nn">zfit.core.parameter</span> <span class="kn">import</span> <span class="n">convert_to_parameter</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_dependents</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
         <span class="c1"># parameters = OrderedDict(sorted(parameters))  # to always have a consistent order</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_repr</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+
+<div class="viewcode-block" id="BaseParametrized.get_params"><a class="viewcode-back" href="../../../api/zfit.core.baseobject.html#zfit.BaseParametrized.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                   <span class="n">floating</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                   <span class="n">is_yield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                   <span class="n">extract_independent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                   <span class="n">only_floating</span><span class="o">=</span><span class="n">NotSpecified</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="s2">&quot;ZfitParameter&quot;</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Recursively collect parameters that this object depends on according to the filter criteria.</span>
+
+<span class="sd">        Which parameters should be included can be steered using the arguments as a filter.</span>
+<span class="sd">         - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as</span>
+<span class="sd">            parameters that are fixed.</span>
+<span class="sd">         - **True**: only return parameters that fulfil this criterion</span>
+<span class="sd">         - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return</span>
+<span class="sd">            only parameters that are not floating.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`</span>
+<span class="sd">            is_yield: if a parameter is a yield of the _current_ model. This won&#39;t be applied recursively, but may include</span>
+<span class="sd">               yields if they do also represent a parameter parametrizing the shape. So if the yield of the current</span>
+<span class="sd">               model depends on other yields (or also non-yields), this will be included. If, however, just submodels</span>
+<span class="sd">               depend on a yield (as their yield) and it is not correlated to the output of our model, they won&#39;t be</span>
+<span class="sd">               included.</span>
+<span class="sd">            extract_independent: If the parameter is an independent parameter, i.e. if it is a `ZfitIndependentParameter`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">only_floating</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">NotSpecified</span><span class="p">:</span>
+            <span class="n">floating</span> <span class="o">=</span> <span class="n">only_floating</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`only_floating` is deprecated and will be removed in the future, use `floating` instead.&quot;</span><span class="p">,</span>
+                          <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_params</span><span class="p">(</span><span class="n">floating</span><span class="o">=</span><span class="n">floating</span><span class="p">,</span> <span class="n">is_yield</span><span class="o">=</span><span class="n">is_yield</span><span class="p">,</span> <span class="n">extract_independent</span><span class="o">=</span><span class="n">extract_independent</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floating</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">is_yield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">extract_independent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="s2">&quot;ZfitParameter&quot;</span><span class="p">]:</span>
+
+        <span class="k">if</span> <span class="n">is_yield</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># we want exclusively yields, we don&#39;t have them by default</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">extract_filter_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="n">floating</span><span class="p">,</span> <span class="n">extract_independent</span><span class="o">=</span><span class="n">extract_independent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">params</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParametersType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span></div>
+
+
+<div class="viewcode-block" id="BaseNumeric"><a class="viewcode-back" href="../../../api/zfit.core.baseobject.html#zfit.BaseNumeric">[docs]</a><span class="k">class</span> <span class="nc">BaseNumeric</span><span class="p">(</span><span class="n">GraphCachable</span><span class="p">,</span> <span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">BaseParametrized</span><span class="p">,</span> <span class="n">ZfitNumericParametrized</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;dtype&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>  <span class="c1"># TODO(Mayou36): proper dtype handling?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;dtype&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_deps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">DType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;The dtype of the object&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParametersType</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span>
-
-<div class="viewcode-block" id="BaseNumeric.get_params"><a class="viewcode-back" href="../../../api/zfit.core.baseobject.html#zfit.BaseNumeric.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_floating</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamsNameOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;ZfitParameter&quot;</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Return the parameters. If it is empty, automatically return all floating variables.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            only_floating (): If True, return only the floating parameters.</span>
-<span class="sd">            names (): The names of the parameters to return.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            list(`ZfitParameters`):</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="n">names</span><span class="p">,)</span>
-        <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">missing_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">names</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="k">if</span> <span class="n">missing_names</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following names are not valid parameter names&quot;</span><span class="p">)</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-
-        <span class="k">if</span> <span class="n">only_floating</span><span class="p">:</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_floating_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">params</span></div>
+    <span class="c1"># def get_params(self, floating: Optional[bool] = True,</span>
+    <span class="c1">#                yields: Optional[bool] = None,</span>
+    <span class="c1">#                extract_independent: Optional[bool] = True,</span>
+    <span class="c1">#                only_floating: bool = True) -&gt; Set[ZfitParameter]:</span>
+    <span class="c1">#     &quot;&quot;&quot;Recursively collect parameters that this object depends on according to the filter criteria.</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Which parameters should be included can be steered using the arguments as a filter.</span>
+    <span class="c1">#      - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as</span>
+    <span class="c1">#         parameters that are fixed.</span>
+    <span class="c1">#      - **True**: only return parameters that fulfil this criterion</span>
+    <span class="c1">#      - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return</span>
+    <span class="c1">#         only parameters that are not floating.</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Args:</span>
+    <span class="c1">#         floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`</span>
+    <span class="c1">#         yields: if a parameter is a yield of the _current_ model. This won&#39;t be applied recursively, but may include</span>
+    <span class="c1">#            yields if they do also represent a parameter parametrizing the shape. So if the yield of the current</span>
+    <span class="c1">#            model depends on other yields (or also non-yields), this will be included. If, however, just submodels</span>
+    <span class="c1">#            depend on a yield (as their yield) and it is not correlated to the output of our model, they won&#39;t be</span>
+    <span class="c1">#            included.</span>
+    <span class="c1">#         extract_independent: If the parameter is not an independent parameter, i.e. if it is not a</span>
+    <span class="c1">#             `ZfitIndependentParameter`, it will extract all independent parameters that dependent parameters</span>
+    <span class="c1">#             depend on.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1">#     # def get_params(self, only_floating: bool = False, names: ztyping.ParamsNameOpt = None) -&gt; List[&quot;ZfitParameter&quot;]:</span>
+    <span class="c1">#     #     &quot;&quot;&quot;Return the parameters. If it is empty, automatically return all floating variables.</span>
+    <span class="c1">#     #</span>
+    <span class="c1">#     #     Args:</span>
+    <span class="c1">#     #         only_floating (): If True, return only the floating parameters.</span>
+    <span class="c1">#     #         names (): The names of the parameters to return.</span>
+    <span class="c1">#     #</span>
+    <span class="c1">#     #     Returns:</span>
+    <span class="c1">#     #         list(`ZfitParameters`):</span>
+    <span class="c1">#     #     &quot;&quot;&quot;</span>
+    <span class="c1">#     #     if isinstance(names, str):</span>
+    <span class="c1">#     #         names = (names,)</span>
+    <span class="c1">#     #     if names is not None:</span>
+    <span class="c1">#     #         missing_names = set(names).difference(self.params.keys())</span>
+    <span class="c1">#     #         if missing_names:</span>
+    <span class="c1">#     #             raise KeyError(&quot;The following names are not valid parameter names&quot;)</span>
+    <span class="c1">#     #         params = [self.params[name] for name in names]</span>
+    <span class="c1">#     #     else:</span>
+    <span class="c1">#     params = list(self.params.values())</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if only_floating:</span>
+    <span class="c1">#         params = self._filter_floating_params(params=params)</span>
+    <span class="c1">#     return params</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_filter_floating_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ZfitIndependentParameter</span><span class="p">)</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">params</span></div>
+
+
+<div class="viewcode-block" id="extract_filter_params"><a class="viewcode-back" href="../../../api/zfit.core.baseobject.html#zfit.extract_filter_params">[docs]</a><span class="k">def</span> <span class="nf">extract_filter_params</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitParametrized</span><span class="p">],</span>
+                          <span class="n">floating</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                          <span class="n">extract_independent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">]:</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="n">OrderedSet</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">extract_independent</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">floating</span><span class="o">=</span><span class="n">floating</span><span class="p">,</span>
+                                                                           <span class="n">extract_independent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                                           <span class="n">is_yield</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                                                          <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">floating</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">extract_independent</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">independent</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Since `extract_dependent` is not set to True, there are maybe dependent parameters for &quot;</span>
+                             <span class="s2">&quot;which `floating` is an ill-defined attribute.&quot;</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">floating</span> <span class="o">==</span> <span class="n">floating</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">params</span></div>
 </pre></div>
 
     </div>
@@ -521,7 +615,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
     </p>
   </div>
 </footer>
