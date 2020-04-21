@@ -53,6 +53,22 @@ The :py:func:`~zfit.minimizers.fitresult.FitResult.error` method can be used to 
 
 .. code-block:: pycon
 
+    >>> param_errors = result.errors()
+    >>> for var, errors in param_errors.items():
+    ...   print('{}: ^{{+{}}}_{{-{}}}'.format(var.name, errors['upper'], errors['lower']))
+    mu: ^{+0.00998104141841555}_{--0.009981515893414316}
+    sigma: ^{+0.007099472590970696}_{--0.0070162654764939734}
+
+
+The
+    >>> param_errors = result.errors()
+    >>> for var, errors in param_errors.items():
+    ...   print('{}: ^{{+{}}}_{{-{}}}'.format(var.name, errors['upper'], errors['lower']))
+    mu: ^{+0.00998104141841555}_{--0.009981515893414316}
+    sigma: ^{+0.007099472590970696}_{--0.0070162654764939734}
+
+
+The
     >>> param_errors = result.error()
     >>> for var, errors in param_errors.items():
     ...   print('{}: ^{{+{}}}_{{-{}}}'.format(var.name, errors['upper'], errors['lower']))

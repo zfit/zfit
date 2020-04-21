@@ -25,7 +25,7 @@ class ZfitResult:
         raise NotImplementedError
 
     @abstractmethod
-    def error(self, params, method, sigma):
+    def errors(self, params, method, sigma):
         """Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:

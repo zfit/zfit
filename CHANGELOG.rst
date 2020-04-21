@@ -72,6 +72,8 @@ Depreceations
    the arguments to the `value_fn`. To stay future compatible, create e.g. `def value_fn(p1, pa2)`
    and using `params = ['param1, param2]`, `value_fn` will then be called as `value_fn(param1, parma2)`.
    `value_fn` without arguments will probably break in the future.
+ - `FitResult.error` has been renamed to `errors` to better reflect that multiple errors, the lower and
+   upper are returned.
 
 
 Bug fixes and small changes
@@ -98,6 +100,7 @@ Requirement changes
 Thanks
 ------
  - Johannes Lade for code review and discussions.
+ - Hans Dembinski for useful inputs to the uncertainties.
 
 0.4.3 (11.3.2020)
 =================
