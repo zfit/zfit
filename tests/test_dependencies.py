@@ -2,7 +2,6 @@
 import pytest
 
 import zfit
-
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
@@ -45,73 +44,73 @@ def test_get_params():
     sum1 = zfit.pdf.SumPDF([gauss, gauss2], fracs=frac)
     sum1_ext = zfit.pdf.SumPDF([gauss_ext, gauss2_ext])
 
-    assert set(gauss.get_params()) == set([sigma2])
+    assert set(gauss.get_params()) == {sigma2}
 
     with pytest.raises(ValueError):
         set(gauss.get_params(floating=True, is_yield=False, extract_independent=False))
 
     with pytest.raises(ValueError):
         set(gauss_ext.get_params(floating=True, is_yield=False, extract_independent=False))
-    assert set(gauss_ext.get_params(floating=None, is_yield=False, extract_independent=False)) == set(
-        [mu_nofloat, sigma_comp])
+    assert set(gauss_ext.get_params(floating=None, is_yield=False, extract_independent=False)) == {mu_nofloat,
+                                                                                                   sigma_comp}
     with pytest.raises(ValueError):
         set(gauss_ext.get_params(floating=False, is_yield=False, extract_independent=False))
 
     with pytest.raises(ValueError):
         set(gauss_ext.get_params(floating=True, is_yield=None, extract_independent=False))
 
-    assert set(gauss_ext.get_params(floating=None, is_yield=None, extract_independent=False)) == set(
-        [mu_nofloat, sigma_comp, yield1])
+    assert set(gauss_ext.get_params(floating=None, is_yield=None, extract_independent=False)) == {mu_nofloat,
+                                                                                                  sigma_comp, yield1}
     with pytest.raises(ValueError):
         set(gauss_ext.get_params(floating=False, is_yield=None, extract_independent=False))
 
     assert set(gauss_ext.get_params(floating=False, is_yield=True, extract_independent=False)) == set([])
-    set(gauss_ext.get_params(floating=None, is_yield=True, extract_independent=False)) == set([yield1])
-    set(gauss_ext.get_params(floating=True, is_yield=True, extract_independent=False)) == set([yield1])
+    assert set(gauss_ext.get_params(floating=None, is_yield=True, extract_independent=False)) == {yield1}
+    assert set(gauss_ext.get_params(floating=True, is_yield=True, extract_independent=False)) == {yield1}
 
     # with extract deps
-    assert set(gauss_ext.get_params(floating=True, is_yield=False, extract_independent=True)) == set([sigma2])
+    assert set(gauss_ext.get_params(floating=True, is_yield=False, extract_independent=True)) == {sigma2}
     assert set(gauss_ext.get_params(floating=None, is_yield=False,
-                                    extract_independent=True)) == set([mu_nofloat, sigma2])
+                                    extract_independent=True)) == {mu_nofloat, sigma2}
     assert set(gauss_ext.get_params(floating=False, is_yield=False,
-                                    extract_independent=True)) == set([mu_nofloat])
+                                    extract_independent=True)) == {mu_nofloat}
 
     assert set(gauss_ext.get_params(floating=True, is_yield=None,
-                                    extract_independent=True)) == set([sigma2, yield1])
+                                    extract_independent=True)) == {sigma2, yield1}
     assert set(gauss_ext.get_params(floating=None, is_yield=None,
-                                    extract_independent=True)) == set([mu_nofloat, sigma2, yield1])
+                                    extract_independent=True)) == {mu_nofloat, sigma2, yield1}
     assert set(gauss_ext.get_params(floating=False, is_yield=None,
-                                    extract_independent=True)) == set([mu_nofloat])
+                                    extract_independent=True)) == {mu_nofloat}
 
     assert set(gauss_ext.get_params(floating=True, is_yield=True,
-                                    extract_independent=True)) == set([yield1])
+                                    extract_independent=True)) == {yield1}
     assert set(gauss_ext.get_params(floating=None, is_yield=True,
-                                    extract_independent=True)) == set([yield1])
+                                    extract_independent=True)) == {yield1}
     assert set(gauss_ext.get_params(floating=False, is_yield=True,
                                     extract_independent=True)) == set([])
 
     # Gauss ext2
-    assert set(gauss2_ext.get_params(floating=True, is_yield=False, extract_independent=False)) == set([mu2, sigma2])
-    assert set(gauss2_ext.get_params(floating=None, is_yield=False, extract_independent=False)) == set([mu2, sigma2])
+    assert set(gauss2_ext.get_params(floating=True, is_yield=False, extract_independent=False)) == {mu2, sigma2}
+    assert set(gauss2_ext.get_params(floating=None, is_yield=False, extract_independent=False)) == {mu2, sigma2}
     assert set(gauss2_ext.get_params(floating=False, is_yield=False, extract_independent=False)) == set([])
 
     with pytest.raises(ValueError):
         set(gauss2_ext.get_params(floating=True, is_yield=None, extract_independent=False))
     assert set(gauss2_ext.get_params(floating=None, is_yield=None,
-                                     extract_independent=False)) == set([mu2, sigma2, yield2_comp])
+                                     extract_independent=False)) == {mu2, sigma2, yield2_comp}
     with pytest.raises(ValueError):
         set(gauss2_ext.get_params(floating=False, is_yield=None, extract_independent=False))
 
     with pytest.raises(ValueError):
         set(gauss2_ext.get_params(floating=False, is_yield=True, extract_independent=False))
-    assert set(gauss2_ext.get_params(floating=None, is_yield=True, extract_independent=False)) == set([yield2_comp])
+    assert set(gauss2_ext.get_params(floating=None, is_yield=True, extract_independent=False)) == {yield2_comp}
     with pytest.raises(ValueError):
         set(gauss2_ext.get_params(floating=True, is_yield=True, extract_independent=False))
 
     # with extract deps
-    assert set(gauss2_ext.get_params(floating=True, is_yield=False, extract_independent=True)) == set([mu2, sigma2])
+    assert set(gauss2_ext.get_params(floating=True, is_yield=False, extract_independent=True)) == {mu2, sigma2}
     assert set(gauss2_ext.get_params(floating=None, is_yield=False,
-                                     extract_independent=True)) == set([mu2, sigma2])
+                                     extract_independent=True)) == {mu2, sigma2}
     yield2.floating = False
     assert set(gauss2_ext.get_params(floating=False, is_yield=False,
                                      extract_independent=True)) == set([])
@@ -120,58 +119,70 @@ def test_get_params():
                                      extract_independent=True)) == set([])
 
     assert set(gauss2_ext.get_params(floating=True, is_yield=None,
-                                     extract_independent=True)) == set([mu2, sigma2, yield2])
+                                     extract_independent=True)) == {mu2, sigma2, yield2}
     assert set(gauss2_ext.get_params(floating=None, is_yield=None,
-                                     extract_independent=True)) == set([mu2, sigma2, yield2])
+                                     extract_independent=True)) == {mu2, sigma2, yield2}
     assert set(gauss2_ext.get_params(floating=False, is_yield=None,
                                      extract_independent=True)) == set([])
 
     assert set(gauss2_ext.get_params(floating=True, is_yield=True,
-                                     extract_independent=True)) == set([yield2])
+                                     extract_independent=True)) == {yield2}
     assert set(gauss2_ext.get_params(floating=None, is_yield=True,
-                                     extract_independent=True)) == set([yield2])
+                                     extract_independent=True)) == {yield2}
     assert set(gauss2_ext.get_params(floating=False, is_yield=True,
                                      extract_independent=True)) == set([])
 
     # sum extended
-    assert set(gauss2_ext.get_params(floating=True, is_yield=False, extract_independent=False)) == set([mu2, sigma2])
-    assert set(gauss2_ext.get_params(floating=None, is_yield=False, extract_independent=False)) == set([mu2, sigma2])
-    assert set(gauss2_ext.get_params(floating=False, is_yield=False, extract_independent=False)) == set([])
+    with pytest.raises(ValueError):
+        assert set(sum1_ext.get_params(floating=True, is_yield=False, extract_independent=False))
+    frac0 = sum1_ext.fracs[0]
+    frac1 = sum1_ext.fracs[1]
+    assert set(sum1_ext.get_params(floating=None, is_yield=False, extract_independent=False)) == {mu_nofloat,
+                                                                                                  sigma_comp, mu2,
+                                                                                                  sigma2, frac0, frac1}
+    with pytest.raises(ValueError):
+        assert set(sum1_ext.get_params(floating=False, is_yield=False, extract_independent=False))
 
     with pytest.raises(ValueError):
-        set(gauss2_ext.get_params(floating=True, is_yield=None, extract_independent=False))
-    assert set(gauss2_ext.get_params(floating=None, is_yield=None,
-                                     extract_independent=False)) == set([mu2, sigma2, yield2_comp])
+        set(sum1_ext.get_params(floating=True, is_yield=None, extract_independent=False))
+    assert set(sum1_ext.get_params(floating=None, is_yield=None,
+                                   extract_independent=False)) == {mu_nofloat, sigma_comp,
+                                                                   mu2, sigma2, frac0, frac1,
+                                                                   sum1_ext.get_yield()}
     with pytest.raises(ValueError):
-        set(gauss2_ext.get_params(floating=False, is_yield=None, extract_independent=False))
+        set(sum1_ext.get_params(floating=False, is_yield=None, extract_independent=False))
 
     with pytest.raises(ValueError):
-        set(gauss2_ext.get_params(floating=False, is_yield=True, extract_independent=False))
-    assert set(gauss2_ext.get_params(floating=None, is_yield=True, extract_independent=False)) == set([yield2_comp])
+        set(sum1_ext.get_params(floating=False, is_yield=True, extract_independent=False))
+    assert set(sum1_ext.get_params(floating=None, is_yield=True, extract_independent=False)) == {sum1_ext.get_yield()}
     with pytest.raises(ValueError):
-        set(gauss2_ext.get_params(floating=True, is_yield=True, extract_independent=False))
+        set(sum1_ext.get_params(floating=True, is_yield=True, extract_independent=False))
 
     # with extract deps
-    assert set(gauss2_ext.get_params(floating=True, is_yield=False, extract_independent=True)) == set([mu2, sigma2])
-    assert set(gauss2_ext.get_params(floating=None, is_yield=False,
-                                     extract_independent=True)) == set([mu2, sigma2])
-    yield2.floating = False
-    assert set(gauss2_ext.get_params(floating=False, is_yield=False,
-                                     extract_independent=True)) == set([])
-    yield2.floating = True
-    assert set(gauss2_ext.get_params(floating=False, is_yield=False,
-                                     extract_independent=True)) == set([])
+    assert set(sum1_ext.get_params(floating=True, is_yield=False,
+                                   extract_independent=True)) == {mu2,
+                                                                  sigma2,
+                                                                  yield1, yield2  # fracs depend on them
+                                                                  }
+    assert set(sum1_ext.get_params(floating=None, is_yield=False,
+                                   extract_independent=True)) == {mu_nofloat, mu2, sigma2, yield1, yield2}
+    assert set(sum1_ext.get_params(floating=False, is_yield=False,
+                                   extract_independent=True)) == {mu_nofloat}
 
-    assert set(gauss2_ext.get_params(floating=True, is_yield=None,
-                                     extract_independent=True)) == set([mu2, sigma2, yield2])
-    assert set(gauss2_ext.get_params(floating=None, is_yield=None,
-                                     extract_independent=True)) == set([mu2, sigma2, yield2])
-    assert set(gauss2_ext.get_params(floating=False, is_yield=None,
-                                     extract_independent=True)) == set([])
+    assert set(sum1_ext.get_params(floating=True, is_yield=None,
+                                   extract_independent=True)) == {mu2, sigma2, yield1, yield2, yield1, yield2}
+    assert set(sum1_ext.get_params(floating=None, is_yield=None,
+                                   extract_independent=True)) == {mu_nofloat, mu2, sigma2, yield1, yield2}
+    assert set(sum1_ext.get_params(floating=False, is_yield=None,
+                                   extract_independent=True)) == {mu_nofloat}
+    yield1.floating = False
+    assert set(sum1_ext.get_params(floating=False, is_yield=None,
+                                   extract_independent=True)) == {mu_nofloat, yield1}
+    yield1.floating = True
 
-    assert set(gauss2_ext.get_params(floating=True, is_yield=True,
-                                     extract_independent=True)) == set([yield2])
-    assert set(gauss2_ext.get_params(floating=None, is_yield=True,
-                                     extract_independent=True)) == set([yield2])
-    assert set(gauss2_ext.get_params(floating=False, is_yield=True,
-                                     extract_independent=True)) == set([])
+    assert set(sum1_ext.get_params(floating=True, is_yield=True,
+                                   extract_independent=True)) == {yield1, yield2}
+    assert set(sum1_ext.get_params(floating=None, is_yield=True,
+                                   extract_independent=True)) == {yield1, yield2}
+    assert set(sum1_ext.get_params(floating=False, is_yield=True,
+                                   extract_independent=True)) == set([])

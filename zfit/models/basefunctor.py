@@ -3,6 +3,8 @@
 import abc
 from typing import List, Union, Tuple, Iterable, Optional, Set
 
+from ordered_set import OrderedSet
+
 from ..core.basemodel import BaseModel
 from ..core.dependents import _extract_dependencies
 from ..core.dimension import get_same_obs
@@ -61,6 +63,15 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
         super().__init__(obs=obs, **kwargs)
         # TODO: needed? remove below
         self._model_obs = tuple(model.obs for model in models)
+
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        params = super()._get_params(floating, is_yield, extract_independent)
+        if is_yield is not True:
+            params = params.union(*(model.get_params(floating=floating, is_yield=False,
+                                                     extract_independent=extract_independent)
+                                    for model in self.models))
+        return params
 
     # def _infer_space_from_daughters(self):
     #     space = set(model.space for model in self.models)
