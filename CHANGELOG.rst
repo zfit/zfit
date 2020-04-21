@@ -52,6 +52,8 @@ Major Features and Improvements
    `DefaultToyStrategy` in `zfit.mnimize`.
  - Exceptions are now publicly available in `zfit.exception`
  - Added nice printout for `FitResult` and `FitResult.params`.
+ - `get_params` is now more meaningful, returning by default all indipendent parameters of the pdf, including yields.
+   Arguments (`floating`, `is_yield`) allow for more fine-grained control.
 
 Breaking changes
 ------------------
