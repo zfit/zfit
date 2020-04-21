@@ -62,7 +62,8 @@ Breaking changes
    To extract limits from multiple limits, `MultiSpace` and `Space` are both iterables, returning
    the containing spaces respectively itself (for the `Space` case).
  - SumPDF changed in the behavior. Read above in the Major Features and Improvement.
- - Integrals of extended PDFs are not extended anymore.
+ - Integrals of extended PDFs are not extended anymore, but `ext_integrate` now returns the
+   integral multiplied by the yield.
 
 Depreceations
 -------------
