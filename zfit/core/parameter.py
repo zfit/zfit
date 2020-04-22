@@ -23,7 +23,6 @@ from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
 from ..core.baseobject import BaseNumeric, extract_filter_params
-from ..minimizers.fitresult import FitResult
 from ..minimizers.interface import ZfitResult
 from ..settings import ztypes, run
 from ..util import ztyping
