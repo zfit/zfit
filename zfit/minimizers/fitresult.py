@@ -16,6 +16,7 @@ from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
+from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
 
 from .errors import compute_errors
@@ -293,7 +294,7 @@ class FitResult(ZfitResult):
             if isinstance(self.minimizer, Minuit):
                 method = 'minuit_minos'
                 warnings.warn("'minuit_minos' will be changed as the default errors method to a custom implementation"
-                              "with the same functionality 'zfit_error'. If you want to make sure that 'minuit_minos' will be used "
+                              "with the same functionality. If you want to make sure that 'minuit_minos' will be used "
                               "in the future, add it explicitly as in `errors(method='minuit_minos')`", FutureWarning)
             else:
                 method = self._default_error
@@ -301,6 +302,9 @@ class FitResult(ZfitResult):
             if not isinstance(method, str):
                 raise ValueError("Need to specify `error_name` or use a string as `method`")
             error_name = method
+
+        if method == 'zfit_error':
+            warnings.warn("'zfit_error' is still experimental and may fails.", ExperimentalFeatureWarning)
 
         params = self._input_check_params(params)
         uncached_params = self._get_uncached_params(params=params, method_name=error_name)
