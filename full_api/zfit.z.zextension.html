@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>zextension &#8212; zfit 0.4.4.dev173+g06493ce documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-2.3.2/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+        <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
+          zfit</a>
+        <span class="navbar-text pull-left"><b>0.4.4.dev173</b></span>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="divider-vertical"></li>
+            
+                <li><a href="../getting_started.html">Getting started</a></li>
+                <li><a href="../introduction.html">Intro</a></li>
+                <li><a href="../project.html">Project</a></li>
+                <li><a href="../API.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Overview <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#what-did-just-happen">What did just happen?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">zfit introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro/space.html">Space, Observable and Range</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/space.html#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/space.html#limits">Limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#using-the-limits">Using the limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/model.html">Building a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#custom-pdf">Custom PDF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#tensor-sampling">Tensor sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/data.html">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/loss.html">Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/loss.html#adding-constraints">Adding constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/minimize.html">Minimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../project.html">zfit Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../project/installation.html#stable-release">Stable release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/installation.html#from-sources">From sources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../project/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../project/contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upgrade_guide.html">Upgrade guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/upgrade_guide.html#dependents">Dependents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../project/changelog.html">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#develop">Develop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#depreceations">Depreceations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental">Experimental</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id2">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id13">Major Features and Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id38">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bugfixes">Bugfixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id39">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id40">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id41">0.0.1 (2018-03-22)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../project/authors.html">Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/authors.html#authors">Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../full_api.html">zfit API documentation</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">zextension</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body span12 content" role="main">
+      
+  <div class="section" id="module-zfit.z.zextension">
+<span id="zextension"></span><h1>zextension<a class="headerlink" href="#module-zfit.z.zextension" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">FunctionWrapperRegistry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wraps</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs_user</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#FunctionWrapperRegistry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p><cite>tf.function</cite>-like decorator with additional cache-invalidation functionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs_user</strong> – arguments to <cite>tf.function</cite></p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.all_wrapped_functions">
+<code class="sig-name descname">all_wrapped_functions</code><em class="property"> = []</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.all_wrapped_functions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.all_wrapped_functions_registered">
+<em class="property">classmethod </em><code class="sig-name descname">all_wrapped_functions_registered</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#FunctionWrapperRegistry.all_wrapped_functions_registered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.all_wrapped_functions_registered" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.allow_jit">
+<code class="sig-name descname">allow_jit</code><em class="property"> = True</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.allow_jit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.do_jit">
+<em class="property">property </em><code class="sig-name descname">do_jit</code><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.do_jit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.do_jit_types">
+<code class="sig-name descname">do_jit_types</code><em class="property"> = defaultdict(&lt;function FunctionWrapperRegistry.&lt;lambda&gt;&gt;, {None: True, 'model': True, 'loss': True, 'sample': True, 'model_sampling': True, 'zfit_tensor': True, 'tensor': True})</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.do_jit_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.registries">
+<code class="sig-name descname">registries</code><em class="property"> = [&lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;, &lt;zfit.z.zextension.FunctionWrapperRegistry object&gt;]</em><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.registries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.z.zextension.FunctionWrapperRegistry.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs_user</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#FunctionWrapperRegistry.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.FunctionWrapperRegistry.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.abs_square">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">abs_square</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#abs_square"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.abs_square" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.constant">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">constant</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.float64</span></em>, <em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Const'</span></em>, <em class="sig-param"><span class="n">verify_shape</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#constant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.constant" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.convert_to_tensor">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">convert_to_tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">preferred_dtype</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#convert_to_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.convert_to_tensor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.function_factory">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">function_factory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#function_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.function_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.function_sampling">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">function_sampling</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">_</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">__</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#function_sampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.function_sampling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.function_tf_input">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">function_tf_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">_</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">__</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#function_tf_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.function_tf_input" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.nth_pow">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">nth_pow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#nth_pow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.nth_pow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the nth power of the complex Tensor x.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>tf.Tensor</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)"><em>complex</em></a>) – </p></li>
+<li><p><strong>n</strong> (<em>int &gt;= 0</em>) – Power</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – No effect, for API compatibility with tf.pow</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.run_no_nan">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">run_no_nan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#run_no_nan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.run_no_nan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.safe_where">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">safe_where</code><span class="sig-paren">(</span><em class="sig-param">condition: tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">func: Callable</em>, <em class="sig-param">safe_func: Callable</em>, <em class="sig-param">values: tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">value_safer: Callable = &lt;function ones_like_v2&gt;</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/z/zextension.html#safe_where"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.safe_where" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like <code class="xref py py-func docutils literal notranslate"><span class="pre">tf.where()</span></code> but fixes gradient <cite>NaN</cite> if func produces <cite>NaN</cite> with certain <cite>values</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code>) – Same argument as to <code class="xref py py-func docutils literal notranslate"><span class="pre">tf.where()</span></code>, a boolean <code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p></li>
+<li><p><strong>func</strong> (<em>Callable</em>) – Function taking <cite>values</cite> as argument and returning the tensor _in case
+condition is <a href="#id1"><span class="problematic" id="id2">True_</span></a>. Equivalent <cite>x</cite> of <code class="xref py py-func docutils literal notranslate"><span class="pre">tf.where()</span></code> but as function.</p></li>
+<li><p><strong>safe_func</strong> (<em>Callable</em>) – Function taking <cite>values</cite> as argument and returning the tensor
+_in case the condition is <a href="#id3"><span class="problematic" id="id4">False_</span></a>, Equivalent <cite>y</cite> of <code class="xref py py-func docutils literal notranslate"><span class="pre">tf.where()</span></code> but as function.</p></li>
+<li><p><strong>values</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code>) – Values to be evaluated either by <cite>func</cite> or <cite>safe_func</cite> depending on
+<cite>condition</cite>.</p></li>
+<li><p><strong>value_safer</strong> (<em>Callable</em>) – Function taking <cite>values</cite> as arguments and returns “safe” values
+that won’t cause troubles when given to`func` or by taking the gradient with respect
+to <cite>func(value_safer(values))</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tf.Tensor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.stack_x">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">stack_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">axis</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'stack_x'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#stack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.stack_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.tf_function">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">tf_function</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.z.zextension.tf_function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.to_complex">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">to_complex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.complex128</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#to_complex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.to_complex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.to_real">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">to_real</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.float64</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#to_real"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.to_real" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.z.zextension.unstack_x">
+<code class="sig-prename descclassname">zfit.z.zextension.</code><code class="sig-name descname">unstack_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Any</span></em>, <em class="sig-param"><span class="n">num</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axis</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">always_list</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'unstack_x'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/z/zextension.html#unstack_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.z.zextension.unstack_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unstack a Data object and return a list of (or a single) tensors in the right order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p></li>
+<li><p><strong>num</strong> (<em>Union</em><em>[</em><em>]</em>) – </p></li>
+<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>always_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True, also return a list if only one element.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[List[tensorflow.python.framework.ops.Tensor], tensorflow.python.framework.ops.Tensor, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/full_api/zfit.z.zextension.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright Copyright 2018, zfit.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

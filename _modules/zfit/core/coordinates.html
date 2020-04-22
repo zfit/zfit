@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.coordinates &#8212; zfit 0.4.4.dev137+g3e8b482 documentation</title>
+    <title>zfit.core.coordinates &#8212; zfit 0.4.4.dev173+g06493ce documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev137</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev173</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -130,6 +130,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#depreceations">Depreceations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental">Experimental</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
@@ -203,137 +204,7 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.core.html">core</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.core.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basefunc.html">basefunc</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basemodel.html">basemodel</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.baseobject.html">baseobject</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basepdf.html">basepdf</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimizers.html">minimizers</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.minimizers.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.base_tf.html">base_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.interface.html">interface</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.models.html">models</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.models.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basefunctor.html">basefunctor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basic.html">basic</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.dist_tfp.html">dist_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functions.html">functions</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functor.html">functor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.physics.html">physics</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.polynomials.html">polynomials</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.special.html">special</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.util.html">util</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.util.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.cache.html">cache</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.checks.html">checks</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.container.html">container</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.diverse.html">diverse</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.param.html">param</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.sample.html">sample</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../full_api.html">zfit API documentation</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -392,7 +263,7 @@
     <span class="n">AxesIncompatibleError</span><span class="p">,</span> <span class="n">ObsIncompatibleError</span><span class="p">,</span> <span class="n">WorkInProgressError</span><span class="p">,</span> <span class="n">IntentionAmbiguousError</span>
 
 
-<div class="viewcode-block" id="Coordinates"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates">[docs]</a><span class="k">class</span> <span class="nc">Coordinates</span><span class="p">(</span><span class="n">ZfitOrderableDimensional</span><span class="p">):</span>
+<div class="viewcode-block" id="Coordinates"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.core.coordinates.Coordinates">[docs]</a><span class="k">class</span> <span class="nc">Coordinates</span><span class="p">(</span><span class="n">ZfitOrderableDimensional</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">n_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_convert_obs_axes</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_obs</span> <span class="o">=</span> <span class="n">obs</span>
@@ -443,7 +314,7 @@
         <span class="sd">&quot;&quot;&quot;Return the number of observables, the dimensionality. Corresponds to the last dimension.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_obs</span>
 
-<div class="viewcode-block" id="Coordinates.with_obs"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.with_obs">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Coordinates.with_obs"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.core.coordinates.Coordinates.with_obs">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">obs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">],</span>
                  <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">allow_subset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Coordinates&quot;</span><span class="p">:</span>
@@ -509,7 +380,7 @@
                 <span class="n">new_coords</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="n">new_obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">new_axes</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_coords</span></div>
 
-<div class="viewcode-block" id="Coordinates.with_axes"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.with_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Coordinates.with_axes"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.core.coordinates.Coordinates.with_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">],</span>
                   <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                   <span class="n">allow_subset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Coordinates&quot;</span><span class="p">:</span>
@@ -575,7 +446,7 @@
                 <span class="n">new_coords</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="n">new_obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">new_axes</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_coords</span></div>
 
-<div class="viewcode-block" id="Coordinates.with_autofill_axes"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.with_autofill_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_autofill_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitOrderableDimensional&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="Coordinates.with_autofill_axes"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.core.coordinates.Coordinates.with_autofill_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_autofill_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitOrderableDimensional&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).</span>
 
 <span class="sd">        This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or</span>
@@ -619,7 +490,7 @@
             <span class="n">axes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">axes</span>
 
-<div class="viewcode-block" id="Coordinates.get_reorder_indices"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.get_reorder_indices">[docs]</a>    <span class="k">def</span> <span class="nf">get_reorder_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Coordinates.get_reorder_indices"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.core.coordinates.Coordinates.get_reorder_indices">[docs]</a>    <span class="k">def</span> <span class="nf">get_reorder_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                             <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                             <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span>
                             <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
@@ -654,7 +525,7 @@
         <span class="n">new_indices</span> <span class="o">=</span> <span class="n">_reorder_indices</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">new</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_indices</span></div>
 
-<div class="viewcode-block" id="Coordinates.reorder_x"><a class="viewcode-back" href="../../../api/zfit.dimension.html#zfit.core.coordinates.Coordinates.reorder_x">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<div class="viewcode-block" id="Coordinates.reorder_x"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.core.coordinates.Coordinates.reorder_x">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
                   <span class="o">*</span><span class="p">,</span>
                   <span class="n">x_obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">x_axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -771,7 +642,7 @@
     <span class="k">return</span> <span class="n">new_indices</span>
 
 
-<div class="viewcode-block" id="convert_to_axes"><a class="viewcode-back" href="../../../api/zfit.core.coordinates.html#zfit.core.coordinates.convert_to_axes">[docs]</a><span class="k">def</span> <span class="nf">convert_to_axes</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_to_axes"><a class="viewcode-back" href="../../../full_api/zfit.core.coordinates.html#zfit.core.coordinates.convert_to_axes">[docs]</a><span class="k">def</span> <span class="nf">convert_to_axes</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if axes is None.</span>
 
 <span class="sd">    Raises</span>
@@ -794,7 +665,7 @@
     <span class="k">return</span> <span class="n">container</span><span class="p">(</span><span class="n">new_axes</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="convert_to_obs_str"><a class="viewcode-back" href="../../../api/zfit.core.coordinates.html#zfit.core.coordinates.convert_to_obs_str">[docs]</a><span class="k">def</span> <span class="nf">convert_to_obs_str</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_to_obs_str"><a class="viewcode-back" href="../../../full_api/zfit.core.coordinates.html#zfit.core.coordinates.convert_to_obs_str">[docs]</a><span class="k">def</span> <span class="nf">convert_to_obs_str</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="nb">tuple</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if obs is None.</span>
 
 <span class="sd">    Raises:</span>

@@ -40,7 +40,7 @@ Source code can be found in `our github page <https://github.com/zfit/zfit/>`_.
 .. toctree::
     :maxdepth: 1
 
-    API
+    full_api
 
 
 

@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.parameter &#8212; zfit 0.4.4.dev137+g3e8b482 documentation</title>
+    <title>zfit.core.parameter &#8212; zfit 0.4.4.dev173+g06493ce documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev137</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev173</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -130,6 +130,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#depreceations">Depreceations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental">Experimental</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
@@ -203,137 +204,7 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.core.html">core</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.core.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basefunc.html">basefunc</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basemodel.html">basemodel</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.baseobject.html">baseobject</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basepdf.html">basepdf</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimizers.html">minimizers</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.minimizers.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.base_tf.html">base_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.interface.html">interface</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.models.html">models</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.models.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basefunctor.html">basefunctor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basic.html">basic</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.dist_tfp.html">dist_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functions.html">functions</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functor.html">functor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.physics.html">physics</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.polynomials.html">polynomials</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.special.html">special</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.util.html">util</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.util.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.cache.html">cache</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.checks.html">checks</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.container.html">container</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.diverse.html">diverse</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.param.html">param</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.sample.html">sample</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../full_api.html">zfit API documentation</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -403,7 +274,6 @@
 <span class="kn">from</span> <span class="nn">.dependents</span> <span class="kn">import</span> <span class="n">_extract_dependencies</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitIndependentParameter</span>
 <span class="kn">from</span> <span class="nn">..core.baseobject</span> <span class="kn">import</span> <span class="n">BaseNumeric</span><span class="p">,</span> <span class="n">extract_filter_params</span>
-<span class="kn">from</span> <span class="nn">..minimizers.fitresult</span> <span class="kn">import</span> <span class="n">FitResult</span>
 <span class="kn">from</span> <span class="nn">..minimizers.interface</span> <span class="kn">import</span> <span class="n">ZfitResult</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span><span class="p">,</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
@@ -414,11 +284,11 @@
 <span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="kn">import</span> <span class="n">TemporarilySet</span>
 
 
-<div class="viewcode-block" id="MetaBaseParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.MetaBaseParameter">[docs]</a><span class="k">class</span> <span class="nc">MetaBaseParameter</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">zinterfaces</span><span class="o">.</span><span class="n">ZfitParameter</span><span class="p">)):</span>  <span class="c1"># resolve metaclasses</span>
+<div class="viewcode-block" id="MetaBaseParameter"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.MetaBaseParameter">[docs]</a><span class="k">class</span> <span class="nc">MetaBaseParameter</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">zinterfaces</span><span class="o">.</span><span class="n">ZfitParameter</span><span class="p">)):</span>  <span class="c1"># resolve metaclasses</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="register_tensor_conversion"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.register_tensor_conversion">[docs]</a><span class="k">def</span> <span class="nf">register_tensor_conversion</span><span class="p">(</span><span class="n">convertable</span><span class="p">,</span> <span class="n">overload_operators</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>  <span class="c1"># higher then any tf conversion</span>
+<div class="viewcode-block" id="register_tensor_conversion"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.register_tensor_conversion">[docs]</a><span class="k">def</span> <span class="nf">register_tensor_conversion</span><span class="p">(</span><span class="n">convertable</span><span class="p">,</span> <span class="n">overload_operators</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>  <span class="c1"># higher then any tf conversion</span>
     <span class="n">fetch_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">variable</span><span class="p">:</span> <span class="p">([</span><span class="n">variable</span><span class="o">.</span><span class="n">read_value</span><span class="p">()],</span>
                                        <span class="k">lambda</span> <span class="n">val</span><span class="p">:</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">feed_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feed</span><span class="p">,</span> <span class="n">feed_val</span><span class="p">:</span> <span class="p">[(</span><span class="n">feed</span><span class="o">.</span><span class="n">read_value</span><span class="p">(),</span> <span class="n">feed_val</span><span class="p">)]</span>
@@ -437,7 +307,7 @@
         <span class="n">convertable</span><span class="o">.</span><span class="n">_OverloadAllOperators</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="OverloadableMixin"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.OverloadableMixin">[docs]</a><span class="k">class</span> <span class="nc">OverloadableMixin</span><span class="p">(</span><span class="n">ZfitParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="OverloadableMixin"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.OverloadableMixin">[docs]</a><span class="k">class</span> <span class="nc">OverloadableMixin</span><span class="p">(</span><span class="n">ZfitParameter</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">_dense_var_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_ref</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">del</span> <span class="n">name</span>
@@ -493,7 +363,7 @@
 <span class="n">register_tensor_conversion</span><span class="p">(</span><span class="n">OverloadableMixin</span><span class="p">,</span> <span class="n">overload_operators</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="WrappedVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.WrappedVariable">[docs]</a><span class="k">class</span> <span class="nc">WrappedVariable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="WrappedVariable"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.WrappedVariable">[docs]</a><span class="k">class</span> <span class="nc">WrappedVariable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">,</span> <span class="n">constraint</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -514,20 +384,20 @@
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">dtype</span>
 
-<div class="viewcode-block" id="WrappedVariable.value"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.WrappedVariable.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WrappedVariable.value"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.WrappedVariable.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">value</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="WrappedVariable.read_valu"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.WrappedVariable.read_valu">[docs]</a>    <span class="k">def</span> <span class="nf">read_valu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WrappedVariable.read_valu"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.WrappedVariable.read_valu">[docs]</a>    <span class="k">def</span> <span class="nf">read_valu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">read_value</span><span class="p">()</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">shape</span>
 
-<div class="viewcode-block" id="WrappedVariable.numpy"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.WrappedVariable.numpy">[docs]</a>    <span class="k">def</span> <span class="nf">numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WrappedVariable.numpy"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.WrappedVariable.numpy">[docs]</a>    <span class="k">def</span> <span class="nf">numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="WrappedVariable.assign"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.WrappedVariable.assign">[docs]</a>    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="WrappedVariable.assign"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.WrappedVariable.assign">[docs]</a>    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="n">use_locking</span><span class="p">,</span>
                                     <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="n">read_value</span><span class="p">)</span></div>
 
@@ -665,7 +535,7 @@
 <span class="c1"># register_tensor_conversion(ComposedVariable, overload_operators=True)</span>
 
 
-<div class="viewcode-block" id="BaseParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseParameter</span><span class="p">(</span><span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseParameter"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.BaseParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseParameter</span><span class="p">(</span><span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
     <span class="k">pass</span></div>
     <span class="c1"># @property</span>
     <span class="c1"># def dtype(self) -&gt; tf.DType:</span>
@@ -676,7 +546,7 @@
     <span class="c1">#     return self.value().shape</span>
 
 
-<div class="viewcode-block" id="ZfitParameterMixin"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.ZfitParameterMixin">[docs]</a><span class="k">class</span> <span class="nc">ZfitParameterMixin</span><span class="p">(</span><span class="n">BaseNumeric</span><span class="p">):</span>
+<div class="viewcode-block" id="ZfitParameterMixin"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.ZfitParameterMixin">[docs]</a><span class="k">class</span> <span class="nc">ZfitParameterMixin</span><span class="p">(</span><span class="n">BaseNumeric</span><span class="p">):</span>
     <span class="n">_existing_params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -734,7 +604,7 @@
         <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TFBaseVariable"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.TFBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">TFBaseVariable</span><span class="p">(</span><span class="n">TFVariable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="TFBaseVariable"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.TFBaseVariable">[docs]</a><span class="k">class</span> <span class="nc">TFBaseVariable</span><span class="p">(</span><span class="n">TFVariable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">MetaBaseParameter</span><span class="p">):</span>
     <span class="c1"># class TFBaseVariable(WrappedVariable, metaclass=MetaBaseParameter):</span>
 
     <span class="c1"># Needed, otherwise tf variable complains about the name not having a &#39;:&#39; in there</span>
@@ -743,7 +613,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 
-<div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.Parameter">[docs]</a><span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">TFBaseVariable</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">,</span> <span class="n">ZfitIndependentParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.Parameter">[docs]</a><span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">TFBaseVariable</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">,</span> <span class="n">ZfitIndependentParameter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for fit parameters, derived from TF Variable class.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_independent</span> <span class="o">=</span> <span class="kc">True</span>
@@ -846,13 +716,13 @@
         <span class="n">at_upper</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstable</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">-</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">*</span> <span class="mf">1e-5</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">unstable</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">at_lower</span><span class="p">,</span> <span class="n">at_upper</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Parameter.value"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.Parameter.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter.value"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.Parameter.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_limits</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="Parameter.read_value"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.Parameter.read_value">[docs]</a>    <span class="k">def</span> <span class="nf">read_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter.read_value"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.Parameter.read_value">[docs]</a>    <span class="k">def</span> <span class="nf">read_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">read_value</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_limits</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -915,7 +785,7 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step_size</span> <span class="o">=</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="Parameter.set_value"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.Parameter.set_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">):</span>
+<div class="viewcode-block" id="Parameter.set_value"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.Parameter.set_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the :py:class:`~zfit.Parameter` to `value` (temporarily if used in a context manager).</span>
 
 <span class="sd">        This operation won&#39;t, compared to the assign, return the read value but an object that *can* act as a context</span>
@@ -934,7 +804,7 @@
 
         <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">getter</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Parameter.randomize"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.Parameter.randomize">[docs]</a>    <span class="k">def</span> <span class="nf">randomize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Parameter.randomize"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.Parameter.randomize">[docs]</a>    <span class="k">def</span> <span class="nf">randomize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">maxval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">sampler</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Update the parameter with a randomised value between minval and maxval and return it.</span>
@@ -965,7 +835,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="Parameter.get_params"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.Parameter.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floating</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">is_yield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Parameter.get_params"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.Parameter.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floating</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">is_yield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                    <span class="n">extract_independent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">only_floating</span><span class="o">=</span><span class="n">NotSpecified</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="s2">&quot;ZfitParameter&quot;</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">extract_filter_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="n">floating</span><span class="p">,</span> <span class="n">extract_independent</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
@@ -998,7 +868,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">upper</span> <span class="o">=</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="BaseComposedParameter"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseComposedParameter</span><span class="p">(</span><span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">OverloadableMixin</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseComposedParameter"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.BaseComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">BaseComposedParameter</span><span class="p">(</span><span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">OverloadableMixin</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">value_fn</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;BaseComposedParameter&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># 0.4 breaking</span>
@@ -1036,19 +906,19 @@
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span>
 
-<div class="viewcode-block" id="BaseComposedParameter.value"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseComposedParameter.value"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.BaseComposedParameter.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_fn</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseComposedParameter.read_value"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter.read_value">[docs]</a>    <span class="k">def</span> <span class="nf">read_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseComposedParameter.read_value"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.BaseComposedParameter.read_value">[docs]</a>    <span class="k">def</span> <span class="nf">read_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">())</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span>
 
-<div class="viewcode-block" id="BaseComposedParameter.numpy"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter.numpy">[docs]</a>    <span class="k">def</span> <span class="nf">numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseComposedParameter.numpy"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.BaseComposedParameter.numpy">[docs]</a>    <span class="k">def</span> <span class="nf">numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
 
     <span class="nd">@property</span>
@@ -1056,7 +926,7 @@
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="ConstantParameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ConstantParameter">[docs]</a><span class="k">class</span> <span class="nc">ConstantParameter</span><span class="p">(</span><span class="n">OverloadableMixin</span><span class="p">,</span> <span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="ConstantParameter"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.ConstantParameter">[docs]</a><span class="k">class</span> <span class="nc">ConstantParameter</span><span class="p">(</span><span class="n">OverloadableMixin</span><span class="p">,</span> <span class="n">ZfitParameterMixin</span><span class="p">,</span> <span class="n">BaseParameter</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{},</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
@@ -1072,10 +942,10 @@
     <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span>
 
-<div class="viewcode-block" id="ConstantParameter.value"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ConstantParameter.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="ConstantParameter.value"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.ConstantParameter.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span></div>
 
-<div class="viewcode-block" id="ConstantParameter.read_value"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ConstantParameter.read_value">[docs]</a>    <span class="k">def</span> <span class="nf">read_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="ConstantParameter.read_value"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.ConstantParameter.read_value">[docs]</a>    <span class="k">def</span> <span class="nf">read_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span></div>
 
     <span class="nd">@property</span>
@@ -1097,7 +967,7 @@
 <span class="n">register_tensor_conversion</span><span class="p">(</span><span class="n">ConstantParameter</span><span class="p">,</span> <span class="n">overload_operators</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ComposedParameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">ComposedParameter</span><span class="p">(</span><span class="n">BaseComposedParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="ComposedParameter"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.ComposedParameter">[docs]</a><span class="k">class</span> <span class="nc">ComposedParameter</span><span class="p">(</span><span class="n">BaseComposedParameter</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
                  <span class="n">params</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">ZfitParameter</span><span class="p">]</span> <span class="o">=</span> <span class="n">NotSpecified</span><span class="p">,</span>
                  <span class="n">dtype</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">DType</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span>
@@ -1135,7 +1005,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;zfit.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; dtype=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> value=</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.4g</span><span class="si">}</span><span class="s2">&gt;&quot;</span></div>
 
 
-<div class="viewcode-block" id="ComplexParameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter">[docs]</a><span class="k">class</span> <span class="nc">ComplexParameter</span><span class="p">(</span><span class="n">ComposedParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="ComplexParameter"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.ComplexParameter">[docs]</a><span class="k">class</span> <span class="nc">ComplexParameter</span><span class="p">(</span><span class="n">ComposedParameter</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a complex parameter.</span>
 
@@ -1152,7 +1022,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_imag</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_real</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="ComplexParameter.from_cartesian"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter.from_cartesian">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ComplexParameter.from_cartesian"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.ComplexParameter.from_cartesian">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_cartesian</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span>
                        <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># TODO: correct dtype handling, also below</span>
         <span class="n">real</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_real&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
@@ -1164,7 +1034,7 @@
         <span class="n">param</span><span class="o">.</span><span class="n">_imag</span> <span class="o">=</span> <span class="n">imag</span>
         <span class="k">return</span> <span class="n">param</span></div>
 
-<div class="viewcode-block" id="ComplexParameter.from_polar"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter.from_polar">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ComplexParameter.from_polar"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.ComplexParameter.from_polar">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_polar</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_mod&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_arg&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
@@ -1217,14 +1087,14 @@
 <span class="n">_auto_number</span> <span class="o">=</span> <span class="mi">0</span>
 
 
-<div class="viewcode-block" id="get_auto_number"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.get_auto_number">[docs]</a><span class="k">def</span> <span class="nf">get_auto_number</span><span class="p">():</span>
+<div class="viewcode-block" id="get_auto_number"><a class="viewcode-back" href="../../../full_api/zfit.core.parameter.html#zfit.get_auto_number">[docs]</a><span class="k">def</span> <span class="nf">get_auto_number</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">_auto_number</span>
     <span class="n">auto_number</span> <span class="o">=</span> <span class="n">_auto_number</span>
     <span class="n">_auto_number</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">return</span> <span class="n">auto_number</span></div>
 
 
-<div class="viewcode-block" id="convert_to_parameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.convert_to_parameter">[docs]</a><span class="k">def</span> <span class="nf">convert_to_parameter</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dependents</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitParameter&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="convert_to_parameter"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.convert_to_parameter">[docs]</a><span class="k">def</span> <span class="nf">convert_to_parameter</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dependents</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitParameter&quot;</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Convert a *numerical* to a constant/floating parameter or return if already a parameter.</span>
 
 <span class="sd">    Args:</span>
@@ -1278,7 +1148,7 @@
     <span class="k">return</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="set_values"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.set_values">[docs]</a><span class="k">def</span> <span class="nf">set_values</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]],</span>
+<div class="viewcode-block" id="set_values"><a class="viewcode-back" href="../../../full_api/zfit.param.html#zfit.set_values">[docs]</a><span class="k">def</span> <span class="nf">set_values</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]],</span>
                <span class="n">values</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">,</span>
                              <span class="n">Iterable</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">NumericalScalarType</span><span class="p">],</span> <span class="n">ZfitResult</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Set the values (using a context manager or not) of multiple parameters.</span>
@@ -1296,7 +1166,7 @@
         <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot set </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">FitResult</span><span class="p">)</span><span class="si">}</span><span class="s2"> as it is not contained.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot set </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="si">}</span><span class="s2"> as it is not contained.&quot;</span><span class="p">)</span>
             <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>

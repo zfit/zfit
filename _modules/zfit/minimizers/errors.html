@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>zfit.minimizers.errors &#8212; zfit 0.4.4.dev173+g06493ce documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-2.3.2/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+        <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
+          zfit</a>
+        <span class="navbar-text pull-left"><b>0.4.4.dev173</b></span>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="divider-vertical"></li>
+            
+                <li><a href="../../../getting_started.html">Getting started</a></li>
+                <li><a href="../../../introduction.html">Intro</a></li>
+                <li><a href="../../../project.html">Project</a></li>
+                <li><a href="../../../API.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Overview <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-did-just-happen">What did just happen?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">zfit introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/model.html">Building a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#custom-pdf">Custom PDF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#tensor-sampling">Tensor sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/data.html">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/loss.html">Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#adding-constraints">Adding constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/minimize.html">Minimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project.html">zfit Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#stable-release">Stable release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#from-sources">From sources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/upgrade_guide.html">Upgrade guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/upgrade_guide.html#dependents">Dependents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#depreceations">Depreceations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental">Experimental</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Major Features and Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id39">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id40">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id41">0.0.1 (2018-03-22)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html">Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#authors">Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../full_api.html">zfit API documentation</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body span12 content" role="main">
+      
+  <h1>Source code for zfit.minimizers.errors</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
+<span class="kn">from</span> <span class="nn">..param</span> <span class="kn">import</span> <span class="n">set_values</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
+
+
+<div class="viewcode-block" id="NewMinimum"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.NewMinimum">[docs]</a><span class="k">class</span> <span class="nc">NewMinimum</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception class for cases where a new minimum is found.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="pll"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.pll">[docs]</a><span class="k">def</span> <span class="nf">pll</span><span class="p">(</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;FitResult&#39;</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Compute minimum profile likelihood for given parameters and values.&quot;&quot;&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="n">verbosity</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">verbosity</span>
+    <span class="n">minimizer</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">with</span> <span class="n">set_values</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">floating</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">minimum</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">param</span><span class="o">.</span><span class="n">floating</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">minimizer</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="n">verbosity</span>
+
+    <span class="k">return</span> <span class="n">minimum</span></div>
+
+
+<div class="viewcode-block" id="get_crossing_value"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.get_crossing_value">[docs]</a><span class="k">def</span> <span class="nf">get_crossing_value</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find the crossing point between the profiled loss function, for given parameters, and the value of</span>
+<span class="sd">    `errordef` for a given direction (positive / negative).</span>
+<span class="sd">    `errordef` = 1 for a chisquare fit, = 0.5 for a likelihood fit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">all_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span>
+    <span class="n">errordef</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">errordef</span>
+    <span class="n">fmin</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fmin</span>
+    <span class="n">minimizer</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">minimizer</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">minimizer</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">rtol</span> <span class="o">*=</span> <span class="n">errordef</span>
+
+    <span class="n">set_values</span><span class="p">(</span><span class="n">all_params</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="n">covariance</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">covariance</span><span class="p">(</span><span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">step_size_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">ap</span><span class="p">:</span> <span class="n">ap</span><span class="o">.</span><span class="n">step_size</span> <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">:</span>
+        <span class="n">ap</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[(</span><span class="n">ap</span><span class="p">,</span> <span class="n">ap</span><span class="p">)]</span> <span class="o">**</span> <span class="mf">0.5</span>
+
+    <span class="n">to_return</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">param_error</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">hesse</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">param</span><span class="p">)[</span><span class="n">param</span><span class="p">][</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+        <span class="n">param_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+        <span class="n">exp_root</span> <span class="o">=</span> <span class="n">param_value</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">param_error</span>  <span class="c1"># expected root</span>
+
+        <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ap</span> <span class="o">==</span> <span class="n">param</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># shift parameters, other than param, using covariance matrix</span>
+            <span class="n">ap_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">ap</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+            <span class="n">ap_value</span> <span class="o">+=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">covariance</span><span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">ap</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">errordef</span> <span class="o">/</span> <span class="n">param_error</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+            <span class="n">ap</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">ap_value</span><span class="p">)</span>
+
+        <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># TODO: round for better floating point comparison?</span>
+        <span class="k">def</span> <span class="nf">shifted_pll</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Computes the pll, with the minimum substracted and shifted by minus the `errordef`, for a</span>
+<span class="sd">            given parameter.</span>
+<span class="sd">            `errordef` = 1 for a chisquare fit, = 0.5 for a likelihood fit.</span>
+
+<span class="sd">            The function raises a `NewMinimum` exception if the value of the shifted `pll` is less than</span>
+<span class="sd">            `- errordef`.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+                <span class="n">pll_result</span> <span class="o">=</span> <span class="n">pll</span><span class="p">(</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                <span class="n">cache</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">pll_result</span><span class="o">.</span><span class="n">fmin</span> <span class="o">-</span> <span class="n">fmin</span> <span class="o">-</span> <span class="n">errordef</span>
+                <span class="k">if</span> <span class="n">cache</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">errordef</span> <span class="o">-</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">tolerance</span><span class="p">:</span>
+                    <span class="n">set_values</span><span class="p">(</span><span class="n">pll_result</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">pll_result</span><span class="p">)</span>  <span class="c1"># set values to the new minimum</span>
+                    <span class="k">raise</span> <span class="n">NewMinimum</span><span class="p">(</span><span class="s2">&quot;A new is minimum found.&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+
+        <span class="n">exp_shifted_pll</span> <span class="o">=</span> <span class="n">shifted_pll</span><span class="p">(</span><span class="n">exp_root</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">exp_shifted_pll</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.0005</span><span class="p">):</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">exp_root</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">linear_interp</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Linear interpolation between the minimum of the `shifted_pll` curve and its expected root,</span>
+<span class="sd">                assuming it is a parabolic curve.</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">exp_root</span> <span class="o">-</span> <span class="n">param_value</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">exp_shifted_pll</span> <span class="o">+</span> <span class="n">errordef</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">param_value</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">errordef</span><span class="p">)</span> <span class="o">*</span> <span class="n">slope</span>
+            <span class="n">bound_interp</span> <span class="o">=</span> <span class="n">linear_interp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">exp_shifted_pll</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+                <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">exp_root</span>
+                <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">bound_interp</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">bound_interp</span>
+                <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">exp_root</span>
+
+            <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">lower_bound</span>
+
+            <span class="c1"># Check if the `shifted_pll` function has the same sign at the lower and upper bounds.</span>
+            <span class="c1"># If they have the same sign, the window given to the root finding algorithm is increased.</span>
+
+            <span class="n">nsigma</span> <span class="o">=</span> <span class="mf">1.5</span>
+            <span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">shifted_pll</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">))</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">shifted_pll</span><span class="p">(</span><span class="n">upper_bound</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">shifted_pll</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">param_value</span> <span class="o">-</span> <span class="n">nsigma</span> <span class="o">*</span> <span class="n">param_error</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">param_value</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">shifted_pll</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">param_value</span> <span class="o">+</span> <span class="n">nsigma</span> <span class="o">*</span> <span class="n">param_error</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">param_value</span>
+
+                <span class="n">nsigma</span> <span class="o">+=</span> <span class="mf">0.5</span>
+
+            <span class="n">root</span><span class="p">,</span> <span class="n">results</span> <span class="o">=</span> <span class="n">rootf</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">shifted_pll</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">upper_bound</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span>
+                                  <span class="n">full_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">to_return</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">root</span>
+
+    <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">:</span>
+        <span class="n">ap</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="n">step_size_dict</span><span class="p">[</span><span class="n">ap</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">to_return</span></div>
+
+
+<span class="k">def</span> <span class="nf">_rootf</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">optimize</span><span class="o">.</span><span class="n">toms748</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="c1"># def _rootf(**kwargs):</span>
+<span class="c1">#     return optimize.brentq(**kwargs)</span>
+
+
+<div class="viewcode-block" id="compute_errors"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.compute_errors">[docs]</a><span class="k">def</span> <span class="nf">compute_errors</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rootf</span><span class="o">=</span><span class="n">_rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes asymmetric errors of parameters by profiling the loss function in the fit result.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        result (`FitResult`): fit result</span>
+<span class="sd">        params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate the</span>
+<span class="sd">            errors error. If None, use all parameters.</span>
+<span class="sd">        sigma (float): Errors are calculated with respect to `sigma` std deviations.</span>
+<span class="sd">        rootf (callable): function used to find the roots of the loss function</span>
+<span class="sd">        rtol (float, default=0.01): relative tolerance between the computed and the exact roots</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which</span>
+<span class="sd">            contains two keys &#39;lower&#39; and &#39;upper&#39;, holding the calculated errors.</span>
+<span class="sd">            Example: result[par1][&#39;upper&#39;] -&gt; the asymmetric upper error of &#39;par1&#39;</span>
+<span class="sd">        `FitResult` or `None`: a fit result is returned when a new minimum is found during the loss scan</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">new_result</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+
+        <span class="n">upper_values</span> <span class="o">=</span> <span class="n">get_crossing_value</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+                                          <span class="n">rootf</span><span class="o">=</span><span class="n">rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
+
+        <span class="n">lower_values</span> <span class="o">=</span> <span class="n">get_crossing_value</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">direction</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+                                          <span class="n">rootf</span><span class="o">=</span><span class="n">rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
+
+        <span class="n">to_return</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">fitted_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+            <span class="n">to_return</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lower&quot;</span><span class="p">:</span> <span class="n">lower_values</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">-</span> <span class="n">fitted_value</span><span class="p">,</span>
+                                <span class="s2">&quot;upper&quot;</span><span class="p">:</span> <span class="n">upper_values</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">-</span> <span class="n">fitted_value</span><span class="p">}</span>
+
+    <span class="k">except</span> <span class="n">NewMinimum</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">settings</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">get_verbosity</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">minimizer</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">minimizer</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span>
+        <span class="n">new_result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
+        <span class="n">to_return</span><span class="p">,</span> <span class="n">new_result_</span> <span class="o">=</span> <span class="n">compute_errors</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">new_result</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+                                                <span class="n">rootf</span><span class="o">=</span><span class="n">rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_result_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_result</span> <span class="o">=</span> <span class="n">new_result_</span>
+
+    <span class="k">return</span> <span class="n">to_return</span><span class="p">,</span> <span class="n">new_result</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright Copyright 2018, zfit.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

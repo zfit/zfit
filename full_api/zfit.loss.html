@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>loss &#8212; zfit 0.4.4.dev173+g06493ce documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-2.3.2/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+        <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
+          zfit</a>
+        <span class="navbar-text pull-left"><b>0.4.4.dev173</b></span>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="divider-vertical"></li>
+            
+                <li><a href="../getting_started.html">Getting started</a></li>
+                <li><a href="../introduction.html">Intro</a></li>
+                <li><a href="../project.html">Project</a></li>
+                <li><a href="../API.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Overview <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#what-did-just-happen">What did just happen?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">zfit introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro/space.html">Space, Observable and Range</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/space.html#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/space.html#limits">Limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#using-the-limits">Using the limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/model.html">Building a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#custom-pdf">Custom PDF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#tensor-sampling">Tensor sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/data.html">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/loss.html">Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/loss.html#adding-constraints">Adding constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../intro/minimize.html">Minimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../project.html">zfit Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../project/installation.html#stable-release">Stable release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/installation.html#from-sources">From sources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../project/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../project/contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upgrade_guide.html">Upgrade guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/upgrade_guide.html#dependents">Dependents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../project/changelog.html">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#develop">Develop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#depreceations">Depreceations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental">Experimental</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id1">0.4.3 (11.3.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id2">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id6">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id7">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id12">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id13">Major Features and Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id15">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id17">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id21">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id22">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id25">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id26">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id28">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id30">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id31">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id32">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id36">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id37">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id38">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bugfixes">Bugfixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id39">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id40">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id41">0.0.1 (2018-03-22)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../project/authors.html">Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/authors.html#authors">Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../full_api.html">zfit API documentation</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">loss</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body span12 content" role="main">
+      
+  <div class="section" id="module-zfit.loss">
+<span id="loss"></span><h1>loss<a class="headerlink" href="#module-zfit.loss" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="zfit.loss.ExtendedUnbinnedNLL">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">ExtendedUnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">fit_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constraints</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#ExtendedUnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.loss.html#zfit.core.loss.UnbinnedNLL" title="zfit.core.loss.UnbinnedNLL"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.UnbinnedNLL</span></code></a></p>
+<p>An Unbinned Negative Log Likelihood with an additional poisson term for the</p>
+<p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
+to the loss. The length of each has to match the length of the others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><em>ZfitModel</em></a><em>]</em>) – The model or models to evaluate the data on</p></li>
+<li><p><strong>data</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><em>ZfitData</em></a><em>]</em>) – Data to use</p></li>
+<li><p><strong>fit_range</strong> (Iterable[<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>]) – The fitting range. It’s the norm_range for the models (if</p></li>
+<li><p><strong>they</strong> – have a norm_range) and the data_range for the data.</p></li>
+<li><p><strong>constraints</strong> (<em>Iterable</em><em>[</em><em>tf.Tensor</em>) – A Tensor representing a loss constraint. Using
+<cite>zfit.constraint.*</cite> allows for easy use of predefined constraints.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.add_cache_deps">
+<code class="sig-name descname">add_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_deps</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.add_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependencies that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_deps</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable"><em>ZfitGraphCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.add_constraints">
+<code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">constraints</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.add_constraints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.constraints">
+<em class="property">property </em><code class="sig-name descname">constraints</code><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.constraints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">overwrite_params</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject">zfit.core.interfaces.ZfitObject</a><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.data">
+<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.errordef">
+<em class="property">property </em><code class="sig-name descname">errordef</code><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.errordef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.fit_range">
+<em class="property">property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.fit_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.get_cache_deps">
+<code class="sig-name descname">get_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.get_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.get_dependencies">
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED FUNCTION</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>get_params</cite> instead if you want to retrieve the independent parameters or <cite>get_cache_deps</cite> in case you need the numerical cache dependents (advanced).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.gradients">
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.graph_caching_methods">
+<code class="sig-name descname">graph_caching_methods</code><em class="property"> = [&lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;]</em><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.instances">
+<code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.instances" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.model">
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.register_cacher">
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.reset_cache">
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.reset_cache_self">
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.value">
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.value_gradients">
+<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.value_gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.ExtendedUnbinnedNLL.value_gradients_hessian">
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">hessian</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.loss.ExtendedUnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="zfit.loss.UnbinnedNLL">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">UnbinnedNLL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">fit_range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constraints</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#UnbinnedNLL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.UnbinnedNLL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.loss.html#zfit.core.loss.BaseLoss" title="zfit.core.loss.BaseLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.BaseLoss</span></code></a></p>
+<p>The Unbinned Negative Log Likelihood.</p>
+<p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
+to the loss. The length of each has to match the length of the others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><em>ZfitModel</em></a><em>]</em>) – The model or models to evaluate the data on</p></li>
+<li><p><strong>data</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><em>ZfitData</em></a><em>]</em>) – Data to use</p></li>
+<li><p><strong>fit_range</strong> (Iterable[<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>]) – The fitting range. It’s the norm_range for the models (if</p></li>
+<li><p><strong>they</strong> – have a norm_range) and the data_range for the data.</p></li>
+<li><p><strong>constraints</strong> (<em>Iterable</em><em>[</em><em>tf.Tensor</em>) – A Tensor representing a loss constraint. Using
+<cite>zfit.constraint.*</cite> allows for easy use of predefined constraints.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.add_cache_deps">
+<code class="sig-name descname">add_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_deps</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.add_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependencies that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_deps</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable"><em>ZfitGraphCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.add_constraints">
+<code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">constraints</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.add_constraints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.constraints">
+<em class="property">property </em><code class="sig-name descname">constraints</code><a class="headerlink" href="#zfit.loss.UnbinnedNLL.constraints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">overwrite_params</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject">zfit.core.interfaces.ZfitObject</a><a class="headerlink" href="#zfit.loss.UnbinnedNLL.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.data">
+<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#zfit.loss.UnbinnedNLL.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.errordef">
+<em class="property">property </em><code class="sig-name descname">errordef</code><a class="headerlink" href="#zfit.loss.UnbinnedNLL.errordef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.fit_range">
+<em class="property">property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.loss.UnbinnedNLL.fit_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.get_cache_deps">
+<code class="sig-name descname">get_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.get_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.get_dependencies">
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED FUNCTION</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>get_params</cite> instead if you want to retrieve the independent parameters or <cite>get_cache_deps</cite> in case you need the numerical cache dependents (advanced).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.gradients">
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.loss.UnbinnedNLL.graph_caching_methods">
+<code class="sig-name descname">graph_caching_methods</code><em class="property"> = [&lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;, &lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;]</em><a class="headerlink" href="#zfit.loss.UnbinnedNLL.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.loss.UnbinnedNLL.instances">
+<code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.loss.UnbinnedNLL.instances" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.model">
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#zfit.loss.UnbinnedNLL.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.loss.UnbinnedNLL.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.register_cacher">
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.reset_cache">
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.reset_cache_self">
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.value">
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.value_gradients">
+<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.value_gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.UnbinnedNLL.value_gradients_hessian">
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">hessian</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.loss.UnbinnedNLL.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="zfit.loss.BaseLoss">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">BaseLoss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel">zfit.core.interfaces.ZfitModel</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel">zfit.core.interfaces.ZfitModel</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.Data<span class="p">, </span>Iterable<span class="p">[</span>zfit.Data<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">fit_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constraints</span><span class="p">:</span> <span class="n">Union[Iterable[Union[zfit.core.interfaces.ZfitConstraint, Callable]], zfit.core.interfaces.ZfitConstraint, Callable, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.dependents.html#zfit.core.dependents.BaseDependentsMixin" title="zfit.core.dependents.BaseDependentsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.dependents.BaseDependentsMixin</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitLoss</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.GraphCachable" title="zfit.util.cache.GraphCachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.GraphCachable</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseObject" title="zfit.core.baseobject.BaseObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseObject</span></code></a></p>
+<p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
+to the loss. The length of each has to match the length of the others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel"><em>ZfitModel</em></a><em>]</em>) – The model or models to evaluate the data on</p></li>
+<li><p><strong>data</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitData" title="zfit.core.interfaces.ZfitData"><em>ZfitData</em></a><em>]</em>) – Data to use</p></li>
+<li><p><strong>fit_range</strong> (Iterable[<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>]) – The fitting range. It’s the norm_range for the models (if</p></li>
+<li><p><strong>they</strong> – have a norm_range) and the data_range for the data.</p></li>
+<li><p><strong>constraints</strong> (<em>Iterable</em><em>[</em><em>tf.Tensor</em>) – A Tensor representing a loss constraint. Using
+<cite>zfit.constraint.*</cite> allows for easy use of predefined constraints.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.add_cache_deps">
+<code class="sig-name descname">add_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_deps</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.BaseLoss.add_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependencies that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_deps</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable"><em>ZfitGraphCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.add_constraints">
+<code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">constraints</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.add_constraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.constraints">
+<em class="property">property </em><code class="sig-name descname">constraints</code><a class="headerlink" href="#zfit.loss.BaseLoss.constraints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">overwrite_params</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject">zfit.core.interfaces.ZfitObject</a><a class="headerlink" href="#zfit.loss.BaseLoss.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.data">
+<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#zfit.loss.BaseLoss.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.errordef">
+<em class="property">property </em><code class="sig-name descname">errordef</code><a class="headerlink" href="#zfit.loss.BaseLoss.errordef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.fit_range">
+<em class="property">property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.loss.BaseLoss.fit_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.get_cache_deps">
+<code class="sig-name descname">get_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.BaseLoss.get_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.get_dependencies">
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.BaseLoss.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED FUNCTION</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>get_params</cite> instead if you want to retrieve the independent parameters or <cite>get_cache_deps</cite> in case you need the numerical cache dependents (advanced).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.gradients">
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss.gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.loss.BaseLoss.graph_caching_methods">
+<code class="sig-name descname">graph_caching_methods</code><em class="property"> = [&lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;]</em><a class="headerlink" href="#zfit.loss.BaseLoss.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.loss.BaseLoss.instances">
+<code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.loss.BaseLoss.instances" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.model">
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#zfit.loss.BaseLoss.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.loss.BaseLoss.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.register_cacher">
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.BaseLoss.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.reset_cache">
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.BaseLoss.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.reset_cache_self">
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.BaseLoss.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.value">
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.value_gradients">
+<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss.value_gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.BaseLoss.value_gradients_hessian">
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">hessian</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss.value_gradients_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.BaseLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="zfit.loss.SimpleLoss">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">SimpleLoss</code><span class="sig-paren">(</span><em class="sig-param">func: Callable</em>, <em class="sig-param">dependents: Iterable[zfit.Parameter] = &lt;zfit.util.checks.NotSpecified object&gt;</em>, <em class="sig-param">errordef: Optional[float] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#SimpleLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.SimpleLoss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.core.loss.html#zfit.core.loss.BaseLoss" title="zfit.core.loss.BaseLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.loss.BaseLoss</span></code></a></p>
+<p>Loss from a (function returning a ) Tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – Callable that constructs the loss and returns a tensor.</p></li>
+<li><p><strong>dependents</strong> – The dependents (independent <cite>zfit.Parameter</cite>) of the loss. If not given, the dependents are
+figured out automatically.</p></li>
+<li><p><strong>errordef</strong> – Definition of which change in the loss corresponds to a change of 1 sigma.
+For example, 1 for Chi squared, 0.5 for negative log-likelihood.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.add_cache_deps">
+<code class="sig-name descname">add_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_deps</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.SimpleLoss.add_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependencies that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_deps</strong> (<a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable"><em>ZfitGraphCachable</em></a>) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.add_constraints">
+<code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">constraints</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.SimpleLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.constraints">
+<em class="property">property </em><code class="sig-name descname">constraints</code><a class="headerlink" href="#zfit.loss.SimpleLoss.constraints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">deep</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">overwrite_params</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject">zfit.core.interfaces.ZfitObject</a><a class="headerlink" href="#zfit.loss.SimpleLoss.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.data">
+<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#zfit.loss.SimpleLoss.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.errordef">
+<em class="property">property </em><code class="sig-name descname">errordef</code><a class="headerlink" href="#zfit.loss.SimpleLoss.errordef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.fit_range">
+<em class="property">property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.loss.SimpleLoss.fit_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.get_cache_deps">
+<code class="sig-name descname">get_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.SimpleLoss.get_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.get_dependencies">
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.SimpleLoss.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED FUNCTION</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>get_params</cite> instead if you want to retrieve the independent parameters or <cite>get_cache_deps</cite> in case you need the numerical cache dependents (advanced).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.gradients">
+<code class="sig-name descname">gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.loss.SimpleLoss.gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.loss.SimpleLoss.graph_caching_methods">
+<code class="sig-name descname">graph_caching_methods</code><em class="property"> = [&lt;function FunctionWrapperRegistry.__call__.&lt;locals&gt;.concrete_func&gt;]</em><a class="headerlink" href="#zfit.loss.SimpleLoss.graph_caching_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="zfit.loss.SimpleLoss.instances">
+<code class="sig-name descname">instances</code><em class="property"> = &lt;_weakrefset.WeakSet object&gt;</em><a class="headerlink" href="#zfit.loss.SimpleLoss.instances" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.model">
+<em class="property">property </em><code class="sig-name descname">model</code><a class="headerlink" href="#zfit.loss.SimpleLoss.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.loss.SimpleLoss.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.register_cacher">
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">, </span>Iterable<span class="p">[</span>zfit.core.interfaces.ZfitCachable<span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.SimpleLoss.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>cacher</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.reset_cache">
+<code class="sig-name descname">reset_cache</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reseter</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.ZfitGraphCachable" title="zfit.util.cache.ZfitGraphCachable">zfit.util.cache.ZfitGraphCachable</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.SimpleLoss.reset_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.reset_cache_self">
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.SimpleLoss.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.value">
+<code class="sig-name descname">value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.loss.SimpleLoss.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.value_gradients">
+<code class="sig-name descname">value_gradients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.loss.SimpleLoss.value_gradients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.loss.SimpleLoss.value_gradients_hessian">
+<code class="sig-name descname">value_gradients_hessian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">hessian</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.loss.SimpleLoss.value_gradients_hessian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="zfit.loss.experimental_enable_loss_penalty">
+<code class="sig-prename descclassname">zfit.loss.</code><code class="sig-name descname">experimental_enable_loss_penalty</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">enable</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/loss.html#experimental_enable_loss_penalty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.loss.experimental_enable_loss_penalty" title="Permalink to this definition">¶</a></dt>
+<dd><p>EXPERIMENTAL! Enable a loss penalty if the loss is NaN, which can push back the minimizer.</p>
+<p>Won’t work with every minimizer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>enable</strong> – If True, enable this feature.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+<div id="sourcelink">
+  <a href="../_sources/full_api/zfit.loss.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+      
+    </p>
+    <p>
+        &copy; Copyright Copyright 2018, zfit.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

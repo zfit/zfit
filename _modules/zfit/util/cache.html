@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.cache &#8212; zfit 0.4.4.dev137+g3e8b482 documentation</title>
+    <title>zfit.util.cache &#8212; zfit 0.4.4.dev173+g06493ce documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev137</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev173</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -130,6 +130,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#depreceations">Depreceations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental">Experimental</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
@@ -203,137 +204,7 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.core.html">core</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.core.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basefunc.html">basefunc</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basemodel.html">basemodel</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.baseobject.html">baseobject</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basepdf.html">basepdf</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimizers.html">minimizers</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.minimizers.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.base_tf.html">base_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.interface.html">interface</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.models.html">models</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.models.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basefunctor.html">basefunctor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basic.html">basic</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.dist_tfp.html">dist_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functions.html">functions</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functor.html">functor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.physics.html">physics</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.polynomials.html">polynomials</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.special.html">special</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.util.html">util</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.util.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.cache.html">cache</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.checks.html">checks</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.container.html">container</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.diverse.html">diverse</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.param.html">param</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.sample.html">sample</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../full_api.html">zfit API documentation</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -444,13 +315,13 @@
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitSpace</span>
 
 
-<div class="viewcode-block" id="ZfitGraphCachable"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.ZfitGraphCachable">[docs]</a><span class="k">class</span> <span class="nc">ZfitGraphCachable</span><span class="p">:</span>
+<div class="viewcode-block" id="ZfitGraphCachable"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.ZfitGraphCachable">[docs]</a><span class="k">class</span> <span class="nc">ZfitGraphCachable</span><span class="p">:</span>
 
-<div class="viewcode-block" id="ZfitGraphCachable.register_cacher"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.ZfitGraphCachable.register_cacher">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="ZfitGraphCachable.register_cacher"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.ZfitGraphCachable.register_cacher">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">register_cacher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cacher</span><span class="p">:</span> <span class="s2">&quot;ZfitGraphCachable&quot;</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="ZfitGraphCachable.add_cache_deps"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.ZfitGraphCachable.add_cache_deps">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="ZfitGraphCachable.add_cache_deps"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.ZfitGraphCachable.add_cache_deps">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_cache_deps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dependents</span><span class="p">,</span> <span class="n">allow_non_cachable</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add dependents that render the cache invalid if they change.</span>
 
@@ -465,17 +336,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="ZfitGraphCachable.reset_cache_self"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.ZfitGraphCachable.reset_cache_self">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="ZfitGraphCachable.reset_cache_self"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.ZfitGraphCachable.reset_cache_self">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">reset_cache_self</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Clear the cache of self and all dependent cachers.&quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="ZfitGraphCachable.reset_cache"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.ZfitGraphCachable.reset_cache">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="ZfitGraphCachable.reset_cache"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.ZfitGraphCachable.reset_cache">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reseter</span><span class="p">):</span>
         <span class="k">pass</span></div></div>
 
 
-<div class="viewcode-block" id="GraphCachable"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.GraphCachable">[docs]</a><span class="k">class</span> <span class="nc">GraphCachable</span><span class="p">(</span><span class="n">ZfitGraphCachable</span><span class="p">):</span>
+<div class="viewcode-block" id="GraphCachable"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.GraphCachable">[docs]</a><span class="k">class</span> <span class="nc">GraphCachable</span><span class="p">(</span><span class="n">ZfitGraphCachable</span><span class="p">):</span>
     <span class="n">graph_caching_methods</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">instances</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">WeakSet</span><span class="p">()</span>
 
@@ -498,7 +369,7 @@
                     <span class="n">graph_caching_methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">graph_caching_methods</span> <span class="o">=</span> <span class="n">graph_caching_methods</span>
 
-<div class="viewcode-block" id="GraphCachable.register_cacher"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.GraphCachable.register_cacher">[docs]</a>    <span class="k">def</span> <span class="nf">register_cacher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cacher</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">CacherOrCachersType</span><span class="p">):</span>
+<div class="viewcode-block" id="GraphCachable.register_cacher"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.GraphCachable.register_cacher">[docs]</a>    <span class="k">def</span> <span class="nf">register_cacher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cacher</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">CacherOrCachersType</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Register a `cacher` that caches values produces by this instance; a dependent.</span>
 
 <span class="sd">        Args:</span>
@@ -509,7 +380,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cacher</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cachers</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cachers</span><span class="p">[</span><span class="n">cacher</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># could we have a more useful value?</span></div>
 
-<div class="viewcode-block" id="GraphCachable.add_cache_deps"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.GraphCachable.add_cache_deps">[docs]</a>    <span class="k">def</span> <span class="nf">add_cache_deps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_deps</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">CacherOrCachersType</span><span class="p">,</span> <span class="n">allow_non_cachable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="GraphCachable.add_cache_deps"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.GraphCachable.add_cache_deps">[docs]</a>    <span class="k">def</span> <span class="nf">add_cache_deps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_deps</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">CacherOrCachersType</span><span class="p">,</span> <span class="n">allow_non_cachable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add dependencies that render the cache invalid if they change.</span>
 
 <span class="sd">        Args:</span>
@@ -529,12 +400,12 @@
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;cache_dependent </span><span class="si">{}</span><span class="s2"> is not a `ZfitCachable` but </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cache_dep</span><span class="p">,</span>
                                                                                            <span class="nb">type</span><span class="p">(</span><span class="n">cache_dep</span><span class="p">)))</span></div>
 
-<div class="viewcode-block" id="GraphCachable.reset_cache_self"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.GraphCachable.reset_cache_self">[docs]</a>    <span class="k">def</span> <span class="nf">reset_cache_self</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GraphCachable.reset_cache_self"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.GraphCachable.reset_cache_self">[docs]</a>    <span class="k">def</span> <span class="nf">reset_cache_self</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Clear the cache of self and all dependent cachers.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_clean_cache</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_inform_cachers</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="GraphCachable.reset_cache"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.GraphCachable.reset_cache">[docs]</a>    <span class="k">def</span> <span class="nf">reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reseter</span><span class="p">:</span> <span class="s1">&#39;ZfitGraphCachable&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="GraphCachable.reset_cache"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.GraphCachable.reset_cache">[docs]</a>    <span class="k">def</span> <span class="nf">reset_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reseter</span><span class="p">:</span> <span class="s1">&#39;ZfitGraphCachable&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_cache_self</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_clean_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -548,7 +419,7 @@
             <span class="n">cacher</span><span class="o">.</span><span class="n">reset_cache</span><span class="p">(</span><span class="n">reseter</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="invalidate_graph"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.invalidate_graph">[docs]</a><span class="k">def</span> <span class="nf">invalidate_graph</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<div class="viewcode-block" id="invalidate_graph"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.invalidate_graph">[docs]</a><span class="k">def</span> <span class="nf">invalidate_graph</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -561,7 +432,7 @@
     <span class="k">return</span> <span class="n">wrapped_func</span></div>
 
 
-<div class="viewcode-block" id="FunctionCacheHolder"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.FunctionCacheHolder">[docs]</a><span class="k">class</span> <span class="nc">FunctionCacheHolder</span><span class="p">(</span><span class="n">GraphCachable</span><span class="p">):</span>
+<div class="viewcode-block" id="FunctionCacheHolder"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.FunctionCacheHolder">[docs]</a><span class="k">class</span> <span class="nc">FunctionCacheHolder</span><span class="p">(</span><span class="n">GraphCachable</span><span class="p">):</span>
     <span class="n">IS_TENSOR</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">wrapped_func</span><span class="p">,</span>
@@ -613,10 +484,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_deps</span><span class="p">(</span><span class="n">cachables_all</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># needed to make the cache valid again</span>
 
-<div class="viewcode-block" id="FunctionCacheHolder.reset_cache_self"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.FunctionCacheHolder.reset_cache_self">[docs]</a>    <span class="k">def</span> <span class="nf">reset_cache_self</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FunctionCacheHolder.reset_cache_self"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.FunctionCacheHolder.reset_cache_self">[docs]</a>    <span class="k">def</span> <span class="nf">reset_cache_self</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="FunctionCacheHolder.create_immutable"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.FunctionCacheHolder.create_immutable">[docs]</a>    <span class="k">def</span> <span class="nf">create_immutable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="FunctionCacheHolder.create_immutable"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.FunctionCacheHolder.create_immutable">[docs]</a>    <span class="k">def</span> <span class="nf">create_immutable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`</span>
 
 <span class="sd">        Args:</span>
@@ -671,7 +542,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;FunctionCacheHolder: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">python_func</span><span class="si">}</span><span class="s2">, valid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span><span class="si">}</span><span class="s2">&gt;&quot;</span></div>
 
 
-<div class="viewcode-block" id="clear_graph_cache"><a class="viewcode-back" href="../../../api/zfit.util.cache.html#zfit.clear_graph_cache">[docs]</a><span class="k">def</span> <span class="nf">clear_graph_cache</span><span class="p">():</span>
+<div class="viewcode-block" id="clear_graph_cache"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.clear_graph_cache">[docs]</a><span class="k">def</span> <span class="nf">clear_graph_cache</span><span class="p">():</span>
     <span class="kn">from</span> <span class="nn">zfit.z.zextension</span> <span class="kn">import</span> <span class="n">FunctionWrapperRegistry</span>
 
     <span class="k">for</span> <span class="n">registry</span> <span class="ow">in</span> <span class="n">FunctionWrapperRegistry</span><span class="o">.</span><span class="n">registries</span><span class="p">:</span>

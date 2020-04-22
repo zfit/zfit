@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.integration &#8212; zfit 0.4.4.dev137+g3e8b482 documentation</title>
+    <title>zfit.core.integration &#8212; zfit 0.4.4.dev173+g06493ce documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev137</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev173</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -130,6 +130,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#depreceations">Depreceations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental">Experimental</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
 </ul>
@@ -203,137 +204,7 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../API.html">zfit API documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.core.html">core</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.core.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basefunc.html">basefunc</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basemodel.html">basemodel</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.baseobject.html">baseobject</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.basepdf.html">basepdf</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.constraint.html">constraint</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.coordinates.html">coordinates</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.data.html">data</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dependents.html">dependents</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.dimension.html">dimension</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.integration.html">integration</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.loss.html">loss</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.operations.html">operations</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.parameter.html">parameter</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.sample.html">sample</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.space.html">space</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.core.testing.html">testing</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimizers.html">minimizers</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.minimizers.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.base_tf.html">base_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.interface.html">interface</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.models.html">models</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.models.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basefunctor.html">basefunctor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.basic.html">basic</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.dist_tfp.html">dist_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functions.html">functions</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.functor.html">functor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.physics.html">physics</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.polynomials.html">polynomials</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.models.special.html">special</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.util.html">util</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.util.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.cache.html">cache</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../../../api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.checks.html">checks</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.container.html">container</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.diverse.html">diverse</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.exception.html">exception</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.execution.html">execution</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.graph.html">graph</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.legacy.html">legacy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.logging.html">logging</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.temporary.html">temporary</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.warnings.html">warnings</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.util.ztyping.html">ztyping</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.dimension.html">dimension</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.exception.html">exception</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.param.html">param</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.sample.html">sample</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.func.html">func</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.data.html">data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.settings.html">settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/zfit.z.html">z</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../full_api.html">zfit API documentation</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -403,7 +274,7 @@
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WorkInProgressError</span><span class="p">,</span> <span class="n">AnalyticIntegralNotImplementedError</span>
 
 
-<div class="viewcode-block" id="auto_integrate"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.auto_integrate">[docs]</a><span class="nd">@supports</span><span class="p">()</span>
+<div class="viewcode-block" id="auto_integrate"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.auto_integrate">[docs]</a><span class="nd">@supports</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">auto_integrate</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">n_axes</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;AUTO&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span>
                    <span class="n">mc_sampler</span><span class="o">=</span><span class="n">tfp</span><span class="o">.</span><span class="n">mcmc</span><span class="o">.</span><span class="n">sample_halton_sequence</span><span class="p">,</span>
                    <span class="n">mc_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -420,14 +291,14 @@
 
 
 <span class="c1"># TODO implement numerical integration method</span>
-<div class="viewcode-block" id="numeric_integrate"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.numeric_integrate">[docs]</a><span class="k">def</span> <span class="nf">numeric_integrate</span><span class="p">():</span>
+<div class="viewcode-block" id="numeric_integrate"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.numeric_integrate">[docs]</a><span class="k">def</span> <span class="nf">numeric_integrate</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Integrate `func` using numerical methods.&quot;&quot;&quot;</span>
     <span class="n">integral</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">integral</span></div>
 
 
 <span class="c1"># @z.function</span>
-<div class="viewcode-block" id="mc_integrate"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.mc_integrate">[docs]</a><span class="k">def</span> <span class="nf">mc_integrate</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="mc_integrate"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.mc_integrate">[docs]</a><span class="k">def</span> <span class="nf">mc_integrate</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">x</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">n_axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">draws_per_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20000</span><span class="p">,</span>
                  <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">dtype</span><span class="p">:</span> <span class="n">Type</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">,</span>
@@ -529,7 +400,7 @@
 
 <span class="c1"># TODO(Mayou36): Make more flexible for sampling</span>
 <span class="c1"># @z.function</span>
-<div class="viewcode-block" id="normalization_nograd"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.normalization_nograd">[docs]</a><span class="k">def</span> <span class="nf">normalization_nograd</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">n_axes</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shape_after</span><span class="o">=</span><span class="p">()):</span>
+<div class="viewcode-block" id="normalization_nograd"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.normalization_nograd">[docs]</a><span class="k">def</span> <span class="nf">normalization_nograd</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">n_axes</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shape_after</span><span class="o">=</span><span class="p">()):</span>
     <span class="n">upper</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">rect_limits</span>
     <span class="n">lower</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
     <span class="n">upper</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
@@ -573,7 +444,7 @@
 
 
 <span class="c1"># @z.function</span>
-<div class="viewcode-block" id="normalization_chunked"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.normalization_chunked">[docs]</a><span class="k">def</span> <span class="nf">normalization_chunked</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">n_axes</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shape_after</span><span class="o">=</span><span class="p">()):</span>
+<div class="viewcode-block" id="normalization_chunked"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.normalization_chunked">[docs]</a><span class="k">def</span> <span class="nf">normalization_chunked</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">n_axes</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shape_after</span><span class="o">=</span><span class="p">()):</span>
     <span class="n">x_is_none</span> <span class="o">=</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span>
 
     <span class="nd">@tf</span><span class="o">.</span><span class="n">custom_gradient</span>
@@ -606,7 +477,7 @@
 
 
 <span class="c1"># @z.function</span>
-<div class="viewcode-block" id="chunked_average"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.chunked_average">[docs]</a><span class="k">def</span> <span class="nf">chunked_average</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">mc_sampler</span><span class="p">):</span>
+<div class="viewcode-block" id="chunked_average"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.chunked_average">[docs]</a><span class="k">def</span> <span class="nf">chunked_average</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">mc_sampler</span><span class="p">):</span>
     <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">space</span><span class="o">.</span><span class="n">limits</span>
 
     <span class="n">fake_resource_var</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="s2">&quot;fake_hack_ResVar_for_custom_gradient&quot;</span><span class="p">,</span>
@@ -681,7 +552,7 @@
         <span class="k">return</span> <span class="n">dummy_func</span><span class="p">(</span><span class="n">fake_x</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="PartialIntegralSampleData"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData">[docs]</a><span class="k">class</span> <span class="nc">PartialIntegralSampleData</span><span class="p">(</span><span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">):</span>
+<div class="viewcode-block" id="PartialIntegralSampleData"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData">[docs]</a><span class="k">class</span> <span class="nc">PartialIntegralSampleData</span><span class="p">(</span><span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">space</span><span class="p">:</span> <span class="n">ZfitSpace</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Takes a list of tensors and &quot;fakes&quot; a dataset. Useful for tensors with non-matching shapes.</span>
@@ -705,7 +576,7 @@
     <span class="k">def</span> <span class="nf">space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space</span>
 
-<div class="viewcode-block" id="PartialIntegralSampleData.sort_by_axes"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.sort_by_axes">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="PartialIntegralSampleData.sort_by_axes"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.sort_by_axes">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="n">axes</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
         <span class="n">new_reorder_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_reorder_indices_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ax</span><span class="p">)]</span> <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">]</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">with_axes</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">),</span> <span class="n">new_reorder_list</span>
@@ -717,7 +588,7 @@
 
         <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">getter</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PartialIntegralSampleData.sort_by_obs"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.sort_by_obs">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="PartialIntegralSampleData.sort_by_obs"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.sort_by_obs">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="n">obs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
         <span class="n">new_reorder_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_reorder_indices_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ob</span><span class="p">)]</span> <span class="k">for</span> <span class="n">ob</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">]</span>
 
@@ -730,23 +601,23 @@
 
         <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">getter</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="n">setter</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PartialIntegralSampleData.value"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PartialIntegralSampleData.value"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-<div class="viewcode-block" id="PartialIntegralSampleData.unstack_x"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.unstack_x">[docs]</a>    <span class="k">def</span> <span class="nf">unstack_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">always_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="PartialIntegralSampleData.unstack_x"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.PartialIntegralSampleData.unstack_x">[docs]</a>    <span class="k">def</span> <span class="nf">unstack_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">always_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">unstacked_x</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reorder_indices_list</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unstacked_x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">always_list</span><span class="p">:</span>
             <span class="n">unstacked_x</span> <span class="o">=</span> <span class="n">unstacked_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">unstacked_x</span></div></div>
 
 
-<div class="viewcode-block" id="AnalyticIntegral"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral">[docs]</a><span class="k">class</span> <span class="nc">AnalyticIntegral</span><span class="p">:</span>
+<div class="viewcode-block" id="AnalyticIntegral"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral">[docs]</a><span class="k">class</span> <span class="nc">AnalyticIntegral</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Hold analytic integrals and manage their dimensions, limits etc.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">AnalyticIntegral</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_integrals</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AnalyticIntegral.get_max_axes"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral.get_max_axes">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<div class="viewcode-block" id="AnalyticIntegral.get_max_axes"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral.get_max_axes">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Return the maximal available axes to integrate over analytically for given limits</span>
 
 <span class="sd">        Args:</span>
@@ -779,7 +650,7 @@
                 <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">axes</span><span class="p">)),</span> <span class="n">limits_matched</span>
         <span class="k">return</span> <span class="p">(),</span> <span class="p">()</span>  <span class="c1"># no integral available for this axes</span>
 
-<div class="viewcode-block" id="AnalyticIntegral.get_max_integral"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral.get_max_integral">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_integral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
+<div class="viewcode-block" id="AnalyticIntegral.get_max_integral"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral.get_max_integral">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_integral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
                          <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Integral&quot;</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Return the integral over the `limits` with `axes` (or a subset of them).</span>
 
@@ -798,7 +669,7 @@
         <span class="n">integral_fn</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">integrals</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">integral_fn</span></div>
 
-<div class="viewcode-block" id="AnalyticIntegral.register"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
+<div class="viewcode-block" id="AnalyticIntegral.register"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span>
                  <span class="n">priority</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
                  <span class="n">supports_norm_range</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">supports_multiple_limits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Register an analytic integral.</span>
@@ -833,7 +704,7 @@
                                                  <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>  <span class="c1"># TODO improve with</span></div>
         <span class="c1"># database-like access</span>
 
-<div class="viewcode-block" id="AnalyticIntegral.integrate"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral.integrate">[docs]</a>    <span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">],</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="AnalyticIntegral.integrate"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral.integrate">[docs]</a>    <span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">],</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ZfitModel</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Integrate analytically over the axes if available.</span>
 
@@ -875,7 +746,7 @@
         <span class="k">return</span> <span class="n">integral</span></div></div>
 
 
-<div class="viewcode-block" id="Integral"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.Integral">[docs]</a><span class="k">class</span> <span class="nc">Integral</span><span class="p">:</span>  <span class="c1"># TODO analytic integral</span>
+<div class="viewcode-block" id="Integral"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.Integral">[docs]</a><span class="k">class</span> <span class="nc">Integral</span><span class="p">:</span>  <span class="c1"># TODO analytic integral</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="s2">&quot;ZfitSpace&quot;</span><span class="p">,</span> <span class="n">priority</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;A lightweight holder for the integral function.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">limits</span> <span class="o">=</span> <span class="n">limits</span>
@@ -888,7 +759,7 @@
 
 
 <span class="c1"># to be &quot;the&quot; future integral class</span>
-<div class="viewcode-block" id="Integration"><a class="viewcode-back" href="../../../api/zfit.core.integration.html#zfit.core.integration.Integration">[docs]</a><span class="k">class</span> <span class="nc">Integration</span><span class="p">:</span>
+<div class="viewcode-block" id="Integration"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.Integration">[docs]</a><span class="k">class</span> <span class="nc">Integration</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mc_sampler</span><span class="p">,</span> <span class="n">draws_per_dim</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mc_sampler</span> <span class="o">=</span> <span class="n">mc_sampler</span>

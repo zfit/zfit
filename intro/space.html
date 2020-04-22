@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Space, Observable and Range &#8212; zfit 0.4.4.dev137+g3e8b482 documentation</title>
+    <title>Space, Observable and Range &#8212; zfit 0.4.4.dev173+g06493ce documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev137</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev173</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -132,6 +132,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#depreceations">Depreceations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental">Experimental</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
 </ul>
@@ -205,137 +206,7 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../API.html">zfit API documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/zfit.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.core.html">core</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../api/zfit.core.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.basefunc.html">basefunc</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.basemodel.html">basemodel</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.baseobject.html">baseobject</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.basepdf.html">basepdf</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../api/zfit.core.basepdf.html#defining-your-own-pdf">Defining your own pdf</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.constraint.html">constraint</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.coordinates.html">coordinates</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.data.html">data</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.dependents.html">dependents</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.dimension.html">dimension</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.integration.html">integration</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.interfaces.html">interfaces</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.loss.html">loss</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.operations.html">operations</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.parameter.html">parameter</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.sample.html">sample</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.space.html">space</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.core.testing.html">testing</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.minimizers.html">minimizers</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../api/zfit.minimizers.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.minimizers.base_tf.html">base_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.minimizers.baseminimizer.html">baseminimizer</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.minimizers.interface.html">interface</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.minimizers.minimizer_minuit.html">minimizer_minuit</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.minimizers.minimizer_tfp.html">minimizer_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.minimizers.minimizers_scipy.html">minimizers_scipy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.minimizers.optimizers_tf.html">optimizers_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.minimizers.tf_external_optimizer.html">tf_external_optimizer</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.models.html">models</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../api/zfit.models.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.models.basefunctor.html">basefunctor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.models.basic.html">basic</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.models.dist_tfp.html">dist_tfp</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.models.functions.html">functions</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.models.functor.html">functor</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.models.physics.html">physics</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.models.polynomials.html">polynomials</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.models.special.html">special</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.util.html">util</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../api/zfit.util.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.cache.html">cache</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="../api/zfit.util.cache.html#basic-principle">Basic principle</a></li>
-</ul>
-</li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.checks.html">checks</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.container.html">container</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.diverse.html">diverse</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.exception.html">exception</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.execution.html">execution</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.graph.html">graph</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.legacy.html">legacy</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.logging.html">logging</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.temporary.html">temporary</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.warnings.html">warnings</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.util.ztyping.html">ztyping</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.z.html">z</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../api/zfit.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.data.html">data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.dimension.html">dimension</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.exception.html">exception</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.func.html">func</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.param.html">param</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.sample.html">sample</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.settings.html">settings</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.pdf.html">pdf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.func.html">func</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.data.html">data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.loss.html">loss</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.constraint.html">constraint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.minimize.html">minimize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.minimizers.fitresult.html">fitresult</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.settings.html">settings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/zfit.z.html">z</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/zfit.z.html#submodules">Submodules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.z.const.html">const</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.z.math.html">math</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.z.random.html">random</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.z.tools.html">tools</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.z.unstable.html">unstable</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.z.wrapping_tf.html">wrapping_tf</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/zfit.z.zextension.html">zextension</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../full_api.html">zfit API documentation</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -393,10 +264,10 @@
       
   <div class="section" id="space-observable-and-range">
 <h1>Space, Observable and Range<a class="headerlink" href="#space-observable-and-range" title="Permalink to this headline">¶</a></h1>
-<p>Inside zfit, <a class="reference internal" href="../api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> defines the domain of objects by specifying the observables/axes and <em>maybe</em> also
+<p>Inside zfit, <a class="reference internal" href="../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> defines the domain of objects by specifying the observables/axes and <em>maybe</em> also
 the limits. Any model and data needs to be specified in a certain domain, which is usually done using the
 <code class="docutils literal notranslate"><span class="pre">obs</span></code> argument. It is crucial that the axis used by the observable of the data and the model match, and this matching is
-handle by the <a class="reference internal" href="../api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> class.</p>
+handle by the <a class="reference internal" href="../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> class.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
@@ -410,8 +281,8 @@ with or without limits.</p>
 <p class="admonition-title">Note</p>
 <p><em>compared to `RooFit`, a space is **not*</em> the equivalent of an observable but rather corresponds
 to an object combining <strong>a set</strong> of observables (which of course can be of size 1). Furthermore,
-there is a <strong>strong</strong> distinction in zfit between a <a class="reference internal" href="../api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (or observables)
-and a <a class="reference internal" href="../api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>, both conceptually and in terms of implementation and usage.*</p>
+there is a <strong>strong</strong> distinction in zfit between a <a class="reference internal" href="../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (or observables)
+and a <a class="reference internal" href="../full_api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>, both conceptually and in terms of implementation and usage.*</p>
 </div>
 <p><strong>Observable</strong>: a string defining the axes; a named axes.</p>
 <p><em>(for advanced usage only, can be skipped on first read)</em>
@@ -419,7 +290,7 @@ and a <a class="reference internal" href="../api/zfit.html#zfit.Parameter" title
 <dl class="simple">
 <dt><strong>Limit</strong> The range on a certain axis. Typically defines an interval. In fact, there are two times of limits:</dt><dd><ul class="simple">
 <li><p><strong>rectangular</strong>: This type is the usual limit as e.g. <code class="docutils literal notranslate"><span class="pre">(-2,</span> <span class="pre">5)</span></code> for a simple, 1 dimensional interval. It is
-rectangular. This can either be given as <code class="docutils literal notranslate"><span class="pre">limits</span></code> of a <a class="reference internal" href="../api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> or as <code class="docutils literal notranslate"><span class="pre">rect_limits</span></code>.</p></li>
+rectangular. This can either be given as <code class="docutils literal notranslate"><span class="pre">limits</span></code> of a <a class="reference internal" href="../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> or as <code class="docutils literal notranslate"><span class="pre">rect_limits</span></code>.</p></li>
 <li><p><strong>functional</strong>: In order to define arbitrary limits, a function can be used that receives a tensor-like
 object <code class="docutils literal notranslate"><span class="pre">x</span></code> and returns <code class="docutils literal notranslate"><span class="pre">True</span></code> on every position that is inside the limits, <code class="docutils literal notranslate"><span class="pre">False</span></code> for every value outside.
 When a functional limit is given, rectangular limits that contain the functional limit as a subset <strong>must</strong> be
@@ -468,9 +339,9 @@ two intervals) or combination (increase the dimensionality) are also possible.</
 <span class="n">added_limits</span> <span class="o">=</span> <span class="n">simple_limit1</span> <span class="o">+</span> <span class="n">simple_limit2</span>
 </pre></div>
 </div>
-<p>In this case, <cite>added_limits</cite> is now a <a class="reference internal" href="../api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.Space</span></code></a> with observable <cite>‘obs1’</cite> defined in the intervals
+<p>In this case, <cite>added_limits</cite> is now a <a class="reference internal" href="../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.Space</span></code></a> with observable <cite>‘obs1’</cite> defined in the intervals
 (-5, 1) and (3, 7.5). This can be useful, <em>e.g.</em>, when fitting in two regions.
-An example of the product of different <a class="reference internal" href="../api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.Space</span></code></a> instances has been shown before as <code class="docutils literal notranslate"><span class="pre">combined_obs</span></code>.</p>
+An example of the product of different <a class="reference internal" href="../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.Space</span></code></a> instances has been shown before as <code class="docutils literal notranslate"><span class="pre">combined_obs</span></code>.</p>
 <div class="section" id="functional-limits">
 <h3>Functional limits<a class="headerlink" href="#functional-limits" title="Permalink to this headline">¶</a></h3>
 <p>Limits can be defined by a function that returns whether a value is inside the boundaries or not <strong>and</strong> rectangular
@@ -491,9 +362,9 @@ achieved by directly specifying them as rectangular limits).</p>
 <div class="section" id="combining-limits">
 <h3>Combining limits<a class="headerlink" href="#combining-limits" title="Permalink to this headline">¶</a></h3>
 <p>To define simple, 1-dimensional limits, a tuple with two numbers or a functional limit in 1 dimension is enough. For anything more complicated,
-the operators product <cite>*</cite> or addition <cite>+</cite> respectively their functional API <a class="reference internal" href="../api/zfit.dimension.html#zfit.dimension.combine_spaces" title="zfit.dimension.combine_spaces"><code class="xref py py-func docutils literal notranslate"><span class="pre">zfit.dimension.combine_spaces()</span></code></a>
-and <a class="reference internal" href="../api/zfit.dimension.html#zfit.dimension.add_spaces" title="zfit.dimension.add_spaces"><code class="xref py py-func docutils literal notranslate"><span class="pre">zfit.dimension.add_spaces()</span></code></a> can be used.</p>
-<p>A working code example of <a class="reference internal" href="../api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> handling is provided in <cite>spaces.py</cite> in
+the operators product <cite>*</cite> or addition <cite>+</cite> respectively their functional API <a class="reference internal" href="../full_api/zfit.dimension.html#zfit.dimension.combine_spaces" title="zfit.dimension.combine_spaces"><code class="xref py py-func docutils literal notranslate"><span class="pre">zfit.dimension.combine_spaces()</span></code></a>
+and <a class="reference internal" href="../full_api/zfit.dimension.html#zfit.dimension.add_spaces" title="zfit.dimension.add_spaces"><code class="xref py py-func docutils literal notranslate"><span class="pre">zfit.dimension.add_spaces()</span></code></a> can be used.</p>
+<p>A working code example of <a class="reference internal" href="../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> handling is provided in <cite>spaces.py</cite> in
 <span class="xref std std-doc">examples</span>.</p>
 </div>
 <div class="section" id="using-the-limits">

@@ -1,0 +1,8 @@
+errors
+======
+
+.. automodule:: zfit.minimizers.errors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
