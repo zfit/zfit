@@ -237,8 +237,7 @@ class FitResult(ZfitResult):
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.0) -> OrderedDict:
-        r"""DEPRECATED! Use 'errors' instead. Calculate and set for `params` the asymmetric error using the set error method.
-
+        r"""DEPRECATED! Use 'errors' instead
             Args:
                 params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the
                      errors. If `params` is `None`, use all *floating* parameters.
@@ -263,7 +262,7 @@ class FitResult(ZfitResult):
                       "errors = result.error()"
                       "to"
                       "errors, new_res = result.errors()", DeprecationWarning)
-        return self.errors(params=params, method=method, error_name=error_name, sigma=sigma)
+        return self.errors(params=params, method=method, error_name=error_name, sigma=sigma)[0]
 
     def errors(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
                sigma: float = 1.0) -> Tuple[OrderedDict, Union[None, 'FitResult']]:
@@ -294,7 +293,7 @@ class FitResult(ZfitResult):
             if isinstance(self.minimizer, Minuit):
                 method = 'minuit_minos'
                 warnings.warn("'minuit_minos' will be changed as the default errors method to a custom implementation"
-                              "with the same functionality. If you want to make sure that 'minuit_minos' will be used "
+                              "with the same functionality 'zfit_error'. If you want to make sure that 'minuit_minos' will be used "
                               "in the future, add it explicitly as in `errors(method='minuit_minos')`", FutureWarning)
             else:
                 method = self._default_error

@@ -11,7 +11,7 @@ class NewMinimum(Exception):
     pass
 
 
-def pll(minimizer, loss, params, values) -> float:
+def pll(minimizer, loss, params, values) -> 'FitResult':
     """Compute minimum profile likelihood for given parameters and values."""
     params = convert_to_container(params)
     values = convert_to_container(values)
@@ -29,7 +29,7 @@ def pll(minimizer, loss, params, values) -> float:
         param.floating = True
     minimizer.verbosity = verbosity
 
-    return minimum.fmin
+    return minimum
 
 
 def get_crossing_value(result, params, direction, sigma, rootf, rtol):
@@ -69,7 +69,7 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
             ap_value += sigma * direction * covariance[(param, ap)] * (2 * errordef / param_error**2)**0.5
             ap.set_value(ap_value)
 
-        cache = {}
+        cache = {}  # TODO: round for better floating point comparison?
         def shifted_pll(v):
             """
             Computes the pll, with the minimum substracted and shifted by minus the `errordef`, for a
@@ -80,8 +80,10 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
             `- errordef`.
             """
             if v not in cache:
-                cache[v] = pll(minimizer, loss, param, v) - fmin - errordef
+                pll_result = pll(minimizer, loss, param, v)
+                cache[v] = pll_result.fmin - fmin - errordef
                 if cache[v] < -errordef - minimizer.tolerance:
+                    set_values(pll_result.params.keys(), pll_result)  # set values to the new minimum
                     raise NewMinimum("A new is minimum found.")
 
             return cache[v]

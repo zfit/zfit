@@ -12,8 +12,7 @@ true_b = 4.
 true_c = -0.3
 
 
-def create_loss():
-
+def create_loss(n=15000):
     a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
                              step_size=z.constant(0.1))
     b_param = zfit.Parameter("variable_b15151", 3.5, 0, 20)
@@ -30,7 +29,7 @@ def create_loss():
 
     sum_pdf1 = zfit.pdf.SumPDF((gauss1, exp1), 0.7)
 
-    sampled_data = sum_pdf1.create_sampler(n=15000)
+    sampled_data = sum_pdf1.create_sampler(n=n)
     sampled_data.resample()
 
     loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
@@ -136,10 +135,10 @@ def test_errors(minimizer_class_and_kwargs):
     b = results['b_param']
     c = results['c_param']
 
-    z_errors, new_result = result.error(method="zfit_error")
+    z_errors, new_result = result.errors(method="zfit_error")
     if new_result is not None:
         result = new_result
-    minos_errors, _ = result.error(method="minuit_minos")
+    minos_errors, _ = result.errors(method="minuit_minos")
 
     for param in [a, b, c]:
         z_error_param = z_errors[param]
@@ -150,24 +149,23 @@ def test_errors(minimizer_class_and_kwargs):
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_new_minimum(minimizer_class_and_kwargs):
-
-    loss, params = create_loss()
+    loss, params = create_loss(2000)
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
 
     if test_error:
         ntoys = 1000
-        params_random_values = {p: np.random.uniform(p.lower_limit, p.upper_limit, ntoys) for p in params}
 
         new_minimum_found = False
 
         for n in range(ntoys):
+            params_random_values = {p: np.random.uniform(p.lower_limit, p.upper_limit, ntoys) for p in params}
 
             try:
                 zfit.param.set_values(params, [params_random_values[p][n] for p in params])
                 result_n = minimizer.minimize(loss=loss)
-                errors, new_result_n = result_n.error()
+                errors, new_result_n = result_n.errors(method='zfit_error')
 
                 if new_result_n is not None:
                     new_minimum_found = True
@@ -183,7 +181,7 @@ def test_new_minimum(minimizer_class_and_kwargs):
             assert errors[p] == "Invalid, a new minimum was found."
 
         assert new_result_n.valid is True
-        errors, _ = new_result_n.error()
+        errors, _ = new_result_n.errors()
         for param in params:
             assert errors[param]["lower"] < 0
             assert errors[param]["upper"] > 0
