@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.functor &#8212; zfit 0.4.4.dev173+gb4c41c8 documentation</title>
+    <title>zfit.models.functor &#8212; zfit 0.4.4.dev173+g66d4de2 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -363,7 +363,8 @@
             <span class="k">raise</span> <span class="n">ModelIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not all pdf </span><span class="si">{</span><span class="n">pdfs</span><span class="si">}</span><span class="s2"> are extended and no fracs </span><span class="si">{</span><span class="n">fracs</span><span class="si">}</span><span class="s2"> are provided.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">no_extended</span> <span class="ow">and</span> <span class="n">fracs</span><span class="p">:</span>
-            <span class="n">warn_advanced_feature</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This SumPDF is built with fracs </span><span class="si">{</span><span class="n">fracs</span><span class="si">}</span><span class="s2"> and (some or all) pdf extended </span><span class="si">{</span><span class="n">pdfs</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="n">warn_advanced_feature</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This SumPDF is built with fracs </span><span class="si">{</span><span class="n">fracs</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="s1">&#39;all&#39;</span> <span class="k">if</span> <span class="n">all_extended</span> <span class="k">else</span> <span class="s1">&#39;some&#39;</span><span class="si">}</span><span class="s2"> &quot;</span>
+                                  <span class="sa">f</span><span class="s2">&quot;pdf are extended: </span><span class="si">{</span><span class="n">pdfs</span><span class="si">}</span><span class="s2">.&quot;</span>
                                   <span class="sa">f</span><span class="s2">&quot; This will ignore the yields of the already extended pdfs and the result will&quot;</span>
                                   <span class="sa">f</span><span class="s2">&quot; be a not extended SumPDF.&quot;</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="s1">&#39;sum_extended_frac&#39;</span><span class="p">)</span>
 

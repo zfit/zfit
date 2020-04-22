@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.basepdf &#8212; zfit 0.4.4.dev173+gb4c41c8 documentation</title>
+    <title>zfit.core.basepdf &#8212; zfit 0.4.4.dev173+g66d4de2 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -362,7 +362,6 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_yield</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_yield</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_norm_range</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_normalization_value</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -393,36 +392,6 @@
 
     <span class="k">def</span> <span class="nf">_func_to_sample_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnormalized_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
-        <span class="n">integral</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-        <span class="c1"># integral = self.apply_yield(integral, norm_range=norm_range)</span>
-        <span class="k">return</span> <span class="n">integral</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
-        <span class="n">integral</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_analytic_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-        <span class="c1"># integral = self.apply_yield(integral, norm_range=norm_range)</span>
-        <span class="k">return</span> <span class="n">integral</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
-        <span class="n">numeric_integral</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_numeric_integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-        <span class="c1"># numeric_integral = self.apply_yield(numeric_integral, norm_range=norm_range)</span>
-        <span class="k">return</span> <span class="n">numeric_integral</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_partial_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
-        <span class="n">partial_integral</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_partial_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-        <span class="c1"># partial_integral = self.apply_yield(partial_integral, norm_range=norm_range)</span>
-        <span class="k">return</span> <span class="n">partial_integral</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
-        <span class="n">part_analytic_int</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_partial_analytic_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-        <span class="c1"># part_analytic_int = self.apply_yield(part_analytic_int, norm_range=norm_range)</span>
-        <span class="k">return</span> <span class="n">part_analytic_int</span>
-
-    <span class="k">def</span> <span class="nf">_single_hook_partial_numeric_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
-        <span class="n">part_numeric_int</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_single_hook_partial_numeric_integrate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
-        <span class="c1"># part_numeric_int = self.apply_yield(part_numeric_int, norm_range=norm_range)</span>
-        <span class="k">return</span> <span class="n">part_numeric_int</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
