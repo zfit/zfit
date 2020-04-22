@@ -1,4 +1,5 @@
 #  Copyright (c) 2020 zfit
+import warnings
 
 from .core.loss import ExtendedUnbinnedNLL, UnbinnedNLL, BaseLoss, SimpleLoss
 
@@ -16,8 +17,5 @@ def experimental_enable_loss_penalty(enable=True):
     Args:
         enable: If True, enable this feature.
     """
-    global _experimental_loss_penalty_nan
-    _experimental_loss_penalty_nan = enable
-
-
-_experimental_loss_penalty_nan = False
+    warnings.warn("This has been removed and is now activated by default. Remove this function call."
+                  "Many thanks for the feedbacks received.")

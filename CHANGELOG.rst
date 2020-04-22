@@ -6,14 +6,18 @@ Changelog
 Develop
 =======
 
-Complete refactoring of Spaces. New behavior with extended. SumPDF refactoring. Improved graph building
+Complete refactoring of Spaces to allow arbitrary function.
+New, more consistent behavior with extended PDFs.
+SumPDF refactoring, more explicit handling of fracs and yields.
+Improved graph building allowing for more fine-grained control of tracing.
+Stabilized minimization including a push-back for NaNs.
 
 
 
 Major Features and Improvements
 -------------------------------
  - Arbitrary limits as well as vectorization (experimental)
-   is now fully supported. The new `Space` has an additional argument for a function that
+   are now fully supported. The new `Space` has an additional argument for a function that
    tests if a vector x is inside.
 
    To test if a value is inside a space, `Space.inside` can be used. To filter values, `Space.filter`.
