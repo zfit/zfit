@@ -6,11 +6,11 @@ import zfit
 from zfit import z
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.cache import Cachable, invalidate_graph, clear_graph_cache
+from zfit.util.cache import GraphCachable, invalidate_graph, clear_graph_cache
 from zfit.z.zextension import FunctionWrapperRegistry
 
 
-class Example1(Cachable):
+class Example1(GraphCachable):
 
     def value(self):
         value = self._cache.get("value")
@@ -24,11 +24,11 @@ class Example1(Cachable):
         return None
 
 
-class MotherExample1(Cachable):
+class MotherExample1(GraphCachable):
 
     def __init__(self, test1, test2):
         super().__init__()
-        self.add_cache_dependents([test1, test2])
+        self.add_cache_deps([test1, test2], )
         self.test1 = test1
         self.test2 = test2
 
@@ -65,7 +65,7 @@ def test_mother_cache():
 CONST = 40
 
 
-class GraphCreator1(Cachable):
+class GraphCreator1(GraphCachable):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

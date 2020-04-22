@@ -10,7 +10,7 @@ from zfit import Parameter, z
 from zfit.core.parameter import ComposedParameter, ComplexParameter
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError
+from zfit.util.exception import NameAlreadyTakenError
 
 
 def test_complex_param():
@@ -21,16 +21,16 @@ def test_complex_param():
     def complex_value():
         return real_part + imag_part * 1.j
 
-    param1 = ComplexParameter("param1_compl", complex_value, dependents=None)
+    param1 = ComplexParameter("param1_compl", complex_value, params=None)
     some_value = 3. * param1 ** 2 - 1.2j
     true_value = 3. * complex_value() ** 2 - 1.2j
     assert true_value == pytest.approx(some_value.numpy(), rel=1e-8)
-    assert not param1.get_dependents()
+    assert not param1.get_cache_deps()
     # Cartesian complex
     real_part_param = Parameter("real_part_param", real_part)
     imag_part_param = Parameter("imag_part_param", imag_part)
     param2 = ComplexParameter.from_cartesian("param2_compl", real_part_param, imag_part_param)
-    part1, part2 = param2.get_dependents()
+    part1, part2 = param2.get_cache_deps()
     part1_val, part2_val = [part1.value().numpy(), part2.value().numpy()]
     if part1_val == pytest.approx(real_part):
         assert part2_val == pytest.approx(imag_part)
@@ -44,7 +44,7 @@ def test_complex_param():
     mod_part_param = Parameter("mod_part_param", mod_val)
     arg_part_param = Parameter("arg_part_param", arg_val)
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
-    part1, part2 = param3.get_dependents()
+    part1, part2 = param3.get_cache_deps()
     part1_val, part2_val = [part1.value().numpy(), part2.value().numpy()]
     if part1_val == pytest.approx(mod_val):
         assert part2_val == pytest.approx(arg_val)
@@ -55,7 +55,7 @@ def test_complex_param():
 
     param4_name = "param4"
     param4 = ComplexParameter.from_polar(param4_name, 4., 2., floating=True)
-    deps_param4 = param4.get_dependents()
+    deps_param4 = param4.get_cache_deps()
     assert len(deps_param4) == 2
     for dep in deps_param4:
         assert dep.floating
@@ -74,19 +74,23 @@ def test_composed_param():
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
-    param4 = Parameter('param4', 4.)  # needed to make sure it does not only take all params as deps
+    param4 = Parameter('param4', 4.)  # noqa Needed to make sure it does not only take all params as deps
 
-    def a():
-        return z.log(3. * param1) * tf.square(param2) - param3
+    def value_fn(p1, p2, p3):
+        return z.log(3. * p1) * tf.square(p2) - p3
 
-    param_a = ComposedParameter('param_as', value_fn=a, dependents=(param1, param2, param3))
-    assert isinstance(param_a.get_dependents(only_floating=True), OrderedSet)
-    assert param_a.get_dependents(only_floating=True) == {param1, param2}
-    assert param_a.get_dependents(only_floating=False) == {param1, param2, param3}
-    a_unchanged = a().numpy()
+    param_a = ComposedParameter('param_as', value_fn=value_fn, params=(param1, param2, param3))
+    param_a2 = ComposedParameter('param_as2', value_fn=value_fn, params={f'p{i}': p
+                                                                         for i, p in
+                                                                         enumerate((param1, param2, param3))})
+    assert param_a2.params['p1'] == param2
+    assert isinstance(param_a.get_cache_deps(only_floating=True), OrderedSet)
+    assert param_a.get_cache_deps(only_floating=True) == {param1, param2}
+    assert param_a.get_cache_deps(only_floating=False) == {param1, param2, param3}
+    a_unchanged = value_fn(param1, param2, param3).numpy()
     assert a_unchanged == param_a.numpy()
     assert param2.assign(3.5).numpy()
-    a_changed = a().numpy()
+    a_changed = value_fn(param1, param2, param3).numpy()
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
 
@@ -95,6 +99,26 @@ def test_composed_param():
     #     param_a.assign(value=5.)
     # with pytest.raises(LogicalUndefinedOperationError):
     #     param_a.assign(value=5.)
+
+
+def test_shape_parameter():
+    a = Parameter(name='a', value=1)
+    assert a.shape.rank == 0
+
+
+def test_shape_composed_parameter():
+    a = Parameter(name='a', value=1)
+    b = Parameter(name='b', value=2)
+
+    def compose():
+        return tf.square(a) - b
+    c = ComposedParameter(name='c', value_fn=compose, dependents=[a, b])
+    assert c.shape.rank == 0
+
+
+# TODO: add test
+def test_randomize():
+    pass
 
 
 def test_floating_behavior():
@@ -125,11 +149,13 @@ def test_param_limits():
 
 
 def test_overloaded_operators():
-    param_a = ComposedParameter('param_a', lambda: 5 * 4, dependents=None)
-    param_b = ComposedParameter('param_b', lambda: 3, dependents=None)
+    param1 = zfit.Parameter('param1', 5)
+    param2 = zfit.Parameter('param2', 3)
+    param_a = ComposedParameter('param_a', lambda p1: p1 * 4, params=param1)
+    param_b = ComposedParameter('param_b', lambda p2: p2, params=param2)
     param_c = param_a * param_b
     assert not isinstance(param_c, zfit.Parameter)
-    param_d = ComposedParameter("param_d", lambda: param_a + param_a * param_b ** 2, dependents=[param_a, param_b])
+    param_d = ComposedParameter("param_d", lambda pa, pb: pa + pa * pb ** 2, params=[param_a, param_b])
     param_d_val = param_d.numpy()
     assert param_d_val == (param_a + param_a * param_b ** 2).numpy()
 
@@ -168,7 +194,7 @@ def test_fixed_param():
     assert isinstance(sigma, zfit.param.ConstantParameter)
     assert not sigma.floating
     assert not sigma.independent
-    assert sigma.get_dependents() == set()
+    assert sigma.get_cache_deps() == set()
 
 
 def test_convert_to_parameter():

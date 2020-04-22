@@ -1,9 +1,12 @@
 #  Copyright (c) 2020 zfit
 
 import abc
-from typing import List, Union, Tuple, Iterable
+from typing import List, Union, Tuple, Iterable, Optional, Set
+
+from ordered_set import OrderedSet
 
 from ..core.basemodel import BaseModel
+from ..core.dependents import _extract_dependencies
 from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace
 from ..core.space import Space
@@ -61,6 +64,15 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
         # TODO: needed? remove below
         self._model_obs = tuple(model.obs for model in models)
 
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        params = super()._get_params(floating, is_yield, extract_independent)
+        if is_yield is not True:
+            params = params.union(*(model.get_params(floating=floating, is_yield=False,
+                                                     extract_independent=extract_independent)
+                                    for model in self.models))
+        return params
+
     # def _infer_space_from_daughters(self):
     #     space = set(model.space for model in self.models)
     #     obs = set(norm_range.obs for norm_range in space)
@@ -71,9 +83,9 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
     #     else:
     #         return False
 
-    def _get_dependents(self):
-        dependents = super()._get_dependents()  # get the own parameter dependents
-        model_dependents = self._extract_dependents(self.get_models())
+    def _get_dependencies(self):
+        dependents = super()._get_dependencies()  # get the own parameter dependents
+        model_dependents = _extract_dependencies(self.get_models())
         return dependents.union(model_dependents)
 
     @property

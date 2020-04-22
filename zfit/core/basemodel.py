@@ -16,6 +16,7 @@ from tensorflow_probability.python import mcmc as mc
 from . import integration as zintegrate, sample as zsample
 from .baseobject import BaseNumeric
 from .data import Data, Sampler, SampleData
+from .dependents import _extract_dependencies
 from .dimension import BaseDimensional
 from .interfaces import ZfitModel, ZfitParameter, ZfitData, ZfitSpace
 from .sample import UniformSampleAndWeights
@@ -24,7 +25,7 @@ from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
 from ..util import container as zcontainer, ztyping
-from ..util.cache import Cachable
+from ..util.cache import GraphCachable
 from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
                               ShapeIncompatibleError, SubclassingError, CannotConvertToNumpyError, WorkInProgressError,
                               SpaceIncompatibleError, AnalyticIntegralNotImplementedError,
@@ -62,7 +63,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
+class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     """Base class for any generic model.
 
     # TODO instructions on how to use
@@ -803,7 +804,7 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
                 raise ValueError("limits are False/None, have to be specified")
 
         if fixed_params is True:
-            fixed_params = list(self.get_dependents(only_floating=False))
+            fixed_params = list(self.get_cache_deps(only_floating=False))
         elif fixed_params is False:
             fixed_params = []
         elif not isinstance(fixed_params, (list, tuple)):
@@ -1005,8 +1006,8 @@ class BaseModel(BaseNumeric, Cachable, BaseDimensional, ZfitModel):
             raise TypeError("Function {} is not callable.")
         return func
 
-    def _get_dependents(self) -> ztyping.DependentsType:
-        return self._extract_dependents(self.get_params())
+    def _get_dependencies(self) -> ztyping.DependentsType:
+        return _extract_dependencies(self.get_params())
 
     def __add__(self, other):
         from . import operations

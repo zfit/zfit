@@ -1,6 +1,7 @@
 #  Copyright (c) 2020 zfit
 
 import itertools
+import warnings
 from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
 
@@ -237,6 +238,32 @@ class FitResult(ZfitResult):
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.0) -> OrderedDict:
+        r"""DEPRECATED! Use 'errors' instead. Calculate and set for `params` the asymmetric error using the set error method.
+
+            Args:
+                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the
+                     errors. If `params` is `None`, use all *floating* parameters.
+                method (str or Callable): The method to use to calculate the errors. Valid choices are
+                    {'minuit_minos'} or a Callable.
+                sigma (float): Errors are calculated with respect to `sigma` std deviations. The definition
+                    of 1 sigma depends on the loss function and is defined there.
+
+                    For example, the negative log-likelihood (without the factor of 2) has a correspondents
+                    of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
+                error_name (str): The name for the error in the dictionary.
+
+
+            Returns:
+                `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+                    contains (next to probably more things) two keys 'lower' and 'upper',
+                    holding the calculated errors.
+                    Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
+        """
+        warnings.warn("`error` is depreceated, use `errors` instead.", DeprecationWarning)
+        return self.errors(params=params, method=method, error_name=error_name, sigma=sigma)
+
+    def errors(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
+               sigma: float = 1.0) -> OrderedDict:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:

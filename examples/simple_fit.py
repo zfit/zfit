@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import numpy as np
 import zfit
@@ -25,5 +25,4 @@ minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
 
 # do the error calculations, here with minos
-param_errors = result.error()
-
+param_errors = result.errors()

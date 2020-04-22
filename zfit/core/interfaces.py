@@ -2,10 +2,11 @@
 
 import abc
 from abc import ABCMeta, abstractmethod
-from typing import Union, List, Dict, Callable, Tuple, Optional
+from typing import Union, List, Dict, Callable, Tuple, Optional, Set
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.python import deprecated
 
 import zfit
 from ..util import ztyping
@@ -595,22 +596,45 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         raise NotImplementedError
 
 
-class ZfitDependentsMixin:
+class ZfitDependenciesMixin:
     @abstractmethod
-    def get_dependents(self, only_floating: bool = True) -> ztyping.DependentsType:
+    def get_cache_deps(self, only_floating: bool = True) -> ztyping.DependentsType:
         raise NotImplementedError
 
+    @deprecated(date=None, instructions="Use `get_params` instead if you want to retrieve the "
+                                        "independent parameters or `get_cache_deps` in case you need "
+                                        "the numerical cache dependents (advanced).")
+    def get_dependencies(self, only_floating: bool = True) -> ztyping.DependentsType:
+        from zfit.util.exception import BreakingAPIChangeError
+        # raise BreakingAPIChangeError
+        return self.get_cache_deps(only_floating=only_floating)
 
-class ZfitNumeric(ZfitDependentsMixin, ZfitObject):
-    @abstractmethod
-    def get_params(self, only_floating: bool = False,
-                   names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
-        raise NotImplementedError
 
-    @property
+class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
     @abstractmethod
-    def dtype(self) -> tf.DType:
-        """The `DType` of `Tensor`s handled by this `model`."""
+    def get_params(self,
+                   floating: Optional[bool] = True,
+                   is_yield: Optional[bool] = None,
+                   extract_independent: Optional[bool] = True
+                   ) -> Set["ZfitParameter"]:
+        """Recursively collect parameters that this object depends on according to the filter criteria.
+
+        Which parameters should be included can be steered using the arguments as a filter.
+         - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as
+            parameters that are fixed.
+         - **True**: only return parameters that fulfil this criterion
+         - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return
+            only parameters that are not floating.
+
+        Args:
+            floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`
+            is_yield: if a parameter is a yield of the _current_ model. This won't be applied recursively, but may include
+               yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
+               model depends on other yields (or also non-yields), this will be included. If, however, just submodels
+               depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
+               included.
+            extract_independent: If the parameter is an independent parameter, i.e. if it is a `ZfitIndependentParameter`.
+        """
         raise NotImplementedError
 
     @property
@@ -619,7 +643,16 @@ class ZfitNumeric(ZfitDependentsMixin, ZfitObject):
         raise NotImplementedError
 
 
-class ZfitParameter(ZfitNumeric):
+class ZfitNumericParametrized(ZfitParametrized):
+
+    @property
+    @abstractmethod
+    def dtype(self) -> tf.DType:
+        """The `DType` of `Tensor`s handled by this `model`."""
+        raise NotImplementedError
+
+
+class ZfitParameter(ZfitNumericParametrized):
 
     @property
     @abstractmethod
@@ -628,6 +661,7 @@ class ZfitParameter(ZfitNumeric):
 
     # TODO: maybe add to numerics?
     @property
+    @abstractmethod
     def shape(self):
         raise NotImplementedError
 
@@ -653,12 +687,6 @@ class ZfitParameter(ZfitNumeric):
     @abstractmethod
     def independent(self) -> bool:
         raise NotImplementedError
-
-    # TODO: shape to numeric?
-    # @property
-    # @abc.abstractmethod
-    # def shape(self):
-    #     raise NotImplementedError
 
 
 class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
@@ -725,7 +753,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class ZfitLoss(ZfitObject, ZfitDependentsMixin, metaclass=ABCMeta):
+class ZfitLoss(ZfitObject, ZfitDependenciesMixin, metaclass=ABCMeta):
 
     @abstractmethod
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
@@ -773,7 +801,7 @@ class ZfitLoss(ZfitObject, ZfitDependentsMixin, metaclass=ABCMeta):
         pass
 
 
-class ZfitModel(ZfitNumeric, ZfitDimensional):
+class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
 
     @abstractmethod
     def update_integration_options(self, *args, **kwargs):  # TODO: handling integration properly

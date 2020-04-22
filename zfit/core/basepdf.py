@@ -51,10 +51,9 @@ also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tut
 
 #  Copyright (c) 2020 zfit
 
-import abc
 import warnings
 from contextlib import suppress
-from typing import Union, Type, Dict
+from typing import Union, Type, Dict, Optional, Set
 
 import tensorflow as tf
 
@@ -62,6 +61,7 @@ from zfit import z
 from zfit.core.sample import extended_sampling
 from zfit.util.cache import invalidate_graph
 from .basemodel import BaseModel
+from .baseobject import extract_filter_params
 from .interfaces import ZfitPDF, ZfitParameter
 from .parameter import Parameter, convert_to_parameter
 from .space import Space
@@ -204,18 +204,19 @@ class BasePDF(ZfitPDF, BaseModel):
 
         return TemporarilySet(value=norm_range, setter=setter, getter=getter)
 
-    @property
-    def _yield(self):
-        """For internal use, the yield or None"""
-        return self.params.get('yield')
-
-    @_yield.setter
-    def _yield(self, value):
-        if value is None:
-            # unset
-            self._params.pop('yield', None)  # safely remove if still there
-        else:
-            self._params['yield'] = value
+    # TODO: remove below?
+    # @property
+    # def _yield(self):
+    #     """For internal use, the yield or None"""
+    #     return self.params.get('yield')
+    #
+    # @_yield.setter
+    # def _yield(self, value):
+    #     if value is None:
+    #         # unset
+    #         self._params.pop('yield', None)  # safely remove if still there
+    #     else:
+    #         self._params['yield'] = value
 
     @_BasePDF_register_check_support(True)
     def _normalization(self, limits):
@@ -282,6 +283,36 @@ class BasePDF(ZfitPDF, BaseModel):
     #                                  "does not coincide with the `n_obs` from the `space`/`obs`"
     #                                  "it received on initialization."
     #                                  "Original Error: {}".format(error))
+
+    @z.function(wraps='model')
+    def ext_pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
+        """Probability density function scaled by yield, normalized over `norm_range`.
+
+        Args:
+          x (numerical): `float` or `double` `Tensor`.
+          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+
+        Returns:
+          :py:class:`tf.Tensor` of type `self.dtype`.
+        """
+        if not self.is_extended:
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return self.pdf(x=x, norm_range=norm_range) * self.get_yield()
+
+    @z.function(wraps='model')
+    def ext_log_pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
+        """Log of probability density function scaled by yield, normalized over `norm_range`.
+
+        Args:
+          x (numerical): `float` or `double` `Tensor`.
+          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+
+        Returns:
+          :py:class:`tf.Tensor` of type `self.dtype`.
+        """
+        if not self.is_extended:
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return self.log_pdf(x=x, norm_range=norm_range) + tf.math.log(self.get_yield())
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
@@ -369,6 +400,24 @@ class BasePDF(ZfitPDF, BaseModel):
     def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise BreakingAPIChangeError("Removed with 0.5.x: is this needed?")
 
+    @z.function(wraps='model')
+    def ext_integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+        """Integrate the function over `limits` (normalized over `norm_range` if not False).
+
+        Args:
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
+            norm_range (tuple, :py:class:`~zfit.ZfitSpace`): the limits to normalize over or False to integrate the
+                unnormalized probability
+
+        Returns:
+            :py:class`tf.Tensor`: the integral value as a scalar with shape ()
+        """
+        norm_range = self._check_input_norm_range(norm_range)
+        limits = self._check_input_limits(limits=limits)
+        if not self.is_extended:
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return self.integrate(limits=limits, norm_range=norm_range) * self.get_yield()
+
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
         if self.is_extended and not norm_range.limits_are_false:
             if log:
@@ -434,6 +483,7 @@ class BasePDF(ZfitPDF, BaseModel):
         if self.is_extended:
             raise AlreadyExtendedPDFError(f"Cannot extend {self}, is already extended.")
         value = convert_to_parameter(value)
+        self.add_cache_deps(value)
         self._yield = value
 
     @property
@@ -469,6 +519,24 @@ class BasePDF(ZfitPDF, BaseModel):
         # if not self.is_extended:
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
+
+    def _get_params(self,
+                    floating: Optional[bool] = True,
+                    is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set[ZfitParameter]:
+
+        params = super()._get_params(floating, is_yield=is_yield,
+                                     extract_independent=extract_independent)
+
+        if is_yield is not False:
+            if self.is_extended:
+                yield_params = extract_filter_params(self.get_yield(), floating=floating,
+                                                     extract_independent=extract_independent)
+                yield_params.update(params)  # putting the yields at the beginning
+                params = yield_params
+            elif is_yield is True:
+                raise NotExtendedPDFError("PDF is not extended but only yield parameters were requested.")
+        return params
 
     def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsTypeInput) -> 'ZfitPDF':
         """Create a PDF projection by integrating out some of the dimensions.

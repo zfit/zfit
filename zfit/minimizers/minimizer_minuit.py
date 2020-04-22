@@ -11,10 +11,10 @@ from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_grad
 from .fitresult import FitResult
 from ..core.parameter import Parameter
 from ..core.interfaces import ZfitLoss
-from ..util.cache import Cachable
+from ..util.cache import GraphCachable
 
 
-class Minuit(BaseMinimizer, Cachable):
+class Minuit(BaseMinimizer, GraphCachable):
     _DEFAULT_name = "Minuit"
 
     def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tolerance: float = None,
