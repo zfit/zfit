@@ -96,6 +96,10 @@ Bug fixes and small changes
  - `zfit.param.set_values(..)` now also can use a `FitResult` as `values` argument to set the values
    from.
 
+Experimental
+------------
+ - added a new error method, 'zfit_error' that is equivalent to 'minuit_minos', but not fully
+   stable. It can be used with other minimizers as well, not only Minuit.
 
 Requirement changes
 -------------------

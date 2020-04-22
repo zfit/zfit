@@ -3,6 +3,10 @@ import functools
 import warnings
 
 
+class ExperimentalFeatureWarning(UserWarning):
+    pass
+
+
 def warn_experimental_feature(func):
     warned = False
 
@@ -13,7 +17,7 @@ def warn_experimental_feature(func):
             warnings.warn(f"The function {func} is EXPERIMENTAL and likely to break in the future!"
                           f" Use it with caution and feedback (Gitter, e-mail, "
                           f"https://github.com/zfit/zfit/issues)"
-                          f" is very welcome!", stacklevel=2)
+                          f" is very welcome!", category=ExperimentalFeatureWarning, stacklevel=2)
             warned = True
 
         return func(*args, **kwargs)

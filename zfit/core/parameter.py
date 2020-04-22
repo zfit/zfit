@@ -23,7 +23,6 @@ from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
 from ..core.baseobject import BaseNumeric, extract_filter_params
-from ..minimizers.fitresult import FitResult
 from ..minimizers.interface import ZfitResult
 from ..settings import ztypes, run
 from ..util import ztyping
@@ -916,7 +915,7 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
         values = []
         for param in params:
             if not param in result.params:
-                raise ValueError(f"Cannot set {param} with {repr(FitResult)} as it is not contained.")
+                raise ValueError(f"Cannot set {param} with {repr(result)} as it is not contained.")
             values.append(result.params[param]['value'])
     elif len(params) > 1:
         if not tf.is_tensor(values) or isinstance(values, np.ndarray):

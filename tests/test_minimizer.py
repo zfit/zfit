@@ -112,9 +112,9 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
 
         if isinstance(minimizer, zfit.minimize.Minuit):
             # Test Error
-            a_errors = result.errors(params=mu_param)
+            a_errors, _ = result.errors(params=mu_param)
             assert tuple(a_errors.keys()) == (mu_param,)
-            errors = result.errors()
+            errors, _ = result.errors()
             a_error = a_errors[mu_param]
             assert a_error['lower'] == pytest.approx(-a_error['upper'], abs=0.1)
             assert abs(a_error['lower']) == pytest.approx(0.015, abs=0.015)
@@ -126,9 +126,9 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
             assert errors[mu_param]['upper'] == pytest.approx(a_error['upper'], rel=0.01)
 
             # Test Error method name
-            a_errors = result.errors(params=mu_param, error_name='error1')
+            a_errors, _ = result.errors(params=mu_param, error_name='error1')
             assert tuple(a_errors.keys()) == (mu_param,)
-            errors = result.errors(error_name='error42')
+            errors, _ = result.errors(error_name='error42')
             a_error = a_errors[mu_param]
 
             assert a_error['lower'] == pytest.approx(result.params[mu_param]['error42']['lower'], rel=0.001)
@@ -139,9 +139,9 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
 
             # test custom error
             def custom_error_func(result, params, sigma):
-                return OrderedDict((param, {'myval': 42}) for param in params)
+                return OrderedDict((param, {'myval': 42}) for param in params), None
 
-            custom_errors = result.errors(method=custom_error_func, error_name='custom_method1')
+            custom_errors, _ = result.errors(method=custom_error_func, error_name='custom_method1')
             for param, errors2 in result.params.items():
                 assert custom_errors[param]['myval'] == 42
 

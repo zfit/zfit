@@ -40,8 +40,8 @@ def setup(app):
     """
     cmd_autodoc = 'MAKE_DOCS_PATH="$(pwd -P)" &&'
     cmd_autodoc += "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
-                   "sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
-    cmd_customize = " && python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.*"
+                   "sphinx-apidoc -o ${MAKE_DOCS_PATH}/full_api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
+    cmd_customize = " && python3 ${MAKE_DOCS_PATH}/full_api/tools/change_headline.py ${MAKE_DOCS_PATH}/full_api/zfit.*"
     os.system(cmd_autodoc + cmd_customize)
 
 # -- General configuration ---------------------------------------------

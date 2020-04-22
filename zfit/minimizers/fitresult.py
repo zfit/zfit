@@ -3,7 +3,7 @@
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Dict, Union, Callable, Optional
+from typing import Dict, Union, Callable, Optional, Tuple
 
 import colored
 import numpy as np
@@ -16,7 +16,10 @@ from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
+from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
+
+from .errors import compute_errors
 
 
 def _minos_minuit(result, params, sigma=1.0):
@@ -31,7 +34,8 @@ def _minos_minuit(result, params, sigma=1.0):
     result = [minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma)
               for p in params][-1]  # returns every var
     result = OrderedDict((p, result[p.name]) for p in params)
-    return result
+    new_result = None
+    return result, new_result
 
 
 def _covariance_minuit(result, params):
@@ -78,8 +82,8 @@ def _covariance_np(result, params):
 class FitResult(ZfitResult):
     _default_hesse = "hesse_np"
     _hesse_methods = {"minuit_hesse": _covariance_minuit, "hesse_np": _covariance_np}
-    _default_error = "minuit_minos"
-    _error_methods = {"minuit_minos": _minos_minuit}
+    _default_error = "zfit_error"
+    _error_methods = {"minuit_minos": _minos_minuit, "zfit_error": compute_errors}
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
@@ -113,6 +117,7 @@ class FitResult(ZfitResult):
         self._info = info
         self._loss = loss
         self._minimizer = minimizer
+        self._valid = True
         # self.param_error = OrderedDict((p, {}) for p in params)
         # self.param_hesse = OrderedDict((p, {}) for p in params)
 
@@ -169,6 +174,10 @@ class FitResult(ZfitResult):
     @property
     def converged(self):
         return self._converged
+
+    @property
+    def valid(self):
+        return self._valid
 
     def _input_check_params(self, params):
         if params is not None:
@@ -229,8 +238,7 @@ class FitResult(ZfitResult):
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.0) -> OrderedDict:
-        r"""DEPRECATED! Use 'errors' instead. Calculate and set for `params` the asymmetric error using the set error method.
-
+        r"""DEPRECATED! Use 'errors' instead
             Args:
                 params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the
                      errors. If `params` is `None`, use all *floating* parameters.
@@ -250,11 +258,15 @@ class FitResult(ZfitResult):
                     holding the calculated errors.
                     Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
-        warnings.warn("`error` is depreceated, use `errors` instead.", DeprecationWarning)
-        return self.errors(params=params, method=method, error_name=error_name, sigma=sigma)
+        warnings.warn("`error` is depreceated, use `errors` instead. This will return not only the errors but also "
+                      "(a possible) new FitResult if a minimum was found. So change"
+                      "errors = result.error()"
+                      "to"
+                      "errors, new_res = result.errors()", DeprecationWarning)
+        return self.errors(params=params, method=method, error_name=error_name, sigma=sigma)[0]
 
     def errors(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
-               sigma: float = 1.0) -> OrderedDict:
+               sigma: float = 1.0) -> Tuple[OrderedDict, Union[None, 'FitResult']]:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
@@ -271,26 +283,46 @@ class FitResult(ZfitResult):
 
 
             Returns:
-                `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+                `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which
                     contains (next to probably more things) two keys 'lower' and 'upper',
                     holding the calculated errors.
-                    Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
+                    Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
         """
         if method is None:
-            method = self._default_error
+            # TODO: legacy, remove 0.6
+            from zfit.minimize import Minuit
+            if isinstance(self.minimizer, Minuit):
+                method = 'minuit_minos'
+                warnings.warn("'minuit_minos' will be changed as the default errors method to a custom implementation"
+                              "with the same functionality. If you want to make sure that 'minuit_minos' will be used "
+                              "in the future, add it explicitly as in `errors(method='minuit_minos')`", FutureWarning)
+            else:
+                method = self._default_error
         if error_name is None:
             if not isinstance(method, str):
                 raise ValueError("Need to specify `error_name` or use a string as `method`")
             error_name = method
 
+        if method == 'zfit_error':
+            warnings.warn("'zfit_error' is still experimental and may fails.", ExperimentalFeatureWarning)
+
         params = self._input_check_params(params)
         uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
+        new_result = None
+
         if uncached_params:
-            error_dict = self._error(params=uncached_params, method=method, sigma=sigma)
-            self._cache_errors(error_name=error_name, errors=error_dict)
+            error_dict, new_result = self._error(params=uncached_params, method=method, sigma=sigma)
+            if new_result is None:
+                self._cache_errors(error_name=error_name, errors=error_dict)
+            else:
+                msg = "Invalid, a new minimum was found."
+                self._cache_errors(error_name=error_name, errors={p: msg for p in params})
+                self._valid = False
+                new_result._cache_errors(error_name=error_name, errors=error_dict)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
-        return all_errors
+
+        return all_errors, new_result
 
     def _error(self, params, method, sigma):
         if not callable(method):
@@ -353,6 +385,12 @@ class FitResult(ZfitResult):
         string += Style.BRIGHT + "Parameters\n"
         string += str(self.params)
         return string
+
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            p.text(self.__repr__())
+            return
+        p.text(self.__str__())
 
 
 def dict_to_matrix(params, matrix_dict):

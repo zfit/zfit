@@ -1,3 +1,5 @@
+#  Copyright (c) 2020 zfit
+
 import argparse
 
 parser = argparse.ArgumentParser(description='replace first two line')
