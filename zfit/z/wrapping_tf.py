@@ -1,16 +1,13 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import functools
 from typing import Any
 
-from tensorflow.compat.v1 import DType
 import tensorflow as tf
 
-
-
 from .tools import _auto_upcast
-from . import zextension
 from ..settings import ztypes
+from ..util.legacy import deprecated
 
 
 def log(x, name=None):
@@ -24,18 +21,22 @@ def exp(x, name=None):
 
 @functools.wraps(tf.convert_to_tensor)
 def convert_to_tensor(value, dtype=ztypes.float, name=None, preferred_dtype=ztypes.float):
+    value = tf.cast(value, dtype=dtype)
     return tf.convert_to_tensor(value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype)
 
 
+@deprecated(None, "Use z.random.normal instead.")
 def random_normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, name=None):
     return tf.random.normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name)
 
 
+@deprecated(None, "Use z.random.uniform instead.")
 def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
     return tf.random.uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
 
 
-def random_poisson(lam: Any, shape: Any, dtype: DType = ztypes.float, seed: Any = None, name: Any = None):
+@deprecated(None, "Use z.random.poisson instead.")
+def random_poisson(lam: Any, shape: Any, dtype: tf.DType = ztypes.float, seed: Any = None, name: Any = None):
     return tf.random.poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)
 
 

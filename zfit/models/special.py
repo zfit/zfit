@@ -18,7 +18,7 @@ from .functor import BaseFunctor
 from ..util import ztyping
 
 from ..core.basepdf import BasePDF
-from ..core.limits import no_norm_range
+from ..core.space import no_norm_range
 from ..util.exception import NormRangeNotImplementedError
 
 

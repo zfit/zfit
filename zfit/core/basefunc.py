@@ -10,7 +10,7 @@ import typing
 import tensorflow as tf
 
 import zfit
-from zfit.util.exception import ShapeIncompatibleError
+from zfit.util.exception import ShapeIncompatibleError, SpecificFunctionNotImplementedError
 from .basemodel import BaseModel
 from .interfaces import ZfitFunc
 from ..settings import ztypes
@@ -42,7 +42,7 @@ class BaseFunc(BaseModel, ZfitFunc):
 
     @abc.abstractmethod
     def _func(self, x):
-        raise NotImplementedError
+        raise SpecificFunctionNotImplementedError
 
     def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
         """The function evaluated at `x`.
@@ -64,14 +64,14 @@ class BaseFunc(BaseModel, ZfitFunc):
         return self._call_value(x=x, name=name)
 
     def _call_value(self, x, name):
-        with self._name_scope(name, values=[x]):
-            try:
-                return self._func(x=x)
-            except ValueError as error:
-                raise ShapeIncompatibleError("Most probably, the number of obs the func was designed for"
-                                             "does not coincide with the `n_obs` from the `space`/`obs`"
-                                             "it received on initialization."
-                                             "Original Error: {}".format(error))
+
+        try:
+            return self._func(x=x)
+        except ValueError as error:
+            raise ShapeIncompatibleError("Most probably, the number of obs the func was designed for"
+                                         "does not coincide with the `n_obs` from the `space`/`obs`"
+                                         "it received on initialization."
+                                         "Original Error: {}".format(error))
 
     def as_pdf(self) -> "zfit.core.interfaces.ZfitPDF":
         """Create a PDF out of the function
@@ -84,4 +84,4 @@ class BaseFunc(BaseModel, ZfitFunc):
 
     def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):  # TODO(Mayou36): default
 
-        return self._check_input_norm_range(norm_range=norm_range, caller_name=caller_name, none_is_error=none_is_error)
+        return self._check_input_norm_range(norm_range=norm_range, none_is_error=none_is_error)

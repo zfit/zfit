@@ -5,13 +5,14 @@ from typing import Dict, Type
 import numpy as np
 import pytest
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 import zfit.core.basepdf
 import zfit.models.dist_tfp
 import zfit.settings
 from zfit import z
 from zfit.core.interfaces import ZfitParameter
-from zfit.core.limits import Space, ANY_UPPER
+from zfit.core.space import Space, ANY_UPPER, MultiSpace
 from zfit.core.parameter import Parameter
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -19,6 +20,8 @@ from zfit.models.dist_tfp import Gauss
 from zfit.models.special import SimplePDF
 # from zfit.z import
 from zfit.util import ztyping
+from zfit.util.exception import AlreadyExtendedPDFError, BreakingAPIChangeError, SpaceIncompatibleError, \
+    CoordinatesUnderdefinedError, ObsIncompatibleError
 
 test_values = np.array([3., 11.3, -0.2, -7.82])
 
@@ -26,7 +29,7 @@ mu_true = 1.4
 sigma_true = 1.8
 low, high = -4.3, 1.9
 
-obs1 = 'obs1'
+obs1 = zfit.Space('obs1', (low, high))
 
 
 def create_gauss1(nameadd=""):
@@ -38,12 +41,12 @@ def create_gauss1(nameadd=""):
 
 
 def create_mu_sigma_true_params():
-    mu_true_param = zfit.Parameter('mu_true123', mu_true)
-    sigma_true_param = zfit.Parameter('sigma_true123', sigma_true)
+    mu_true_param = zfit.Parameter('mu_true', mu_true)
+    sigma_true_param = zfit.Parameter('sigma_true', sigma_true)
     return mu_true_param, sigma_true_param
 
 
-class TestGaussian(zfit.pdf.BasePDF):
+class TmpGaussian(zfit.pdf.BasePDF):
 
     def __init__(self, obs: ztyping.ObsTypeInput, mu, sigma, params: Dict[str, ZfitParameter] = None,
                  dtype: Type = zfit.ztypes.float,
@@ -82,7 +85,7 @@ def create_mu_sigma_2(nameadd=""):
 def create_wrapped_gauss(nameadd=""):
     mu2, sigma2 = create_mu_sigma_2(nameadd)
     gauss_params = dict(loc=mu2, scale=sigma2)
-    tf_gauss = tf.compat.v1.distributions.Normal
+    tf_gauss = tfp.distributions.Normal
     return zfit.models.dist_tfp.WrapDistribution(tf_gauss, dist_params=gauss_params, obs=obs1, name="tf_gauss1")
 
 
@@ -95,7 +98,7 @@ def create_gauss3(nameadd=""):
 
 def create_test_gauss1():
     mu, sigma = create_mu_sigma_true_params()
-    return TestGaussian(name="test_gauss1", mu=mu, sigma=sigma, obs=obs1)
+    return TmpGaussian(name="test_gauss1", mu=mu, sigma=sigma, obs=obs1)
 
 
 def create_wrapped_normal1(nameadd=""):
@@ -116,6 +119,13 @@ def test_gradient():
     tensor_grad = gauss3.gradients(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
     random_vals_eval = tensor_grad.numpy()
     np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-3)
+
+
+def test_input_space():
+    gauss3 = create_gauss3()
+    space = zfit.Space('nonexisting_obs', (-3, 5))
+    with pytest.raises(ObsIncompatibleError):
+        gauss3.set_norm_range(space)
 
 
 def test_func():
@@ -144,7 +154,6 @@ def test_normalization(pdf_factory):
     samples = tf.cast(np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64)
     small_samples = tf.cast(np.random.uniform(low=low, high=high, size=10), dtype=tf.float64)
     with dist.set_norm_range(Space(obs1, limits=(low, high))):
-        samples.limits = low, high
         probs = dist.pdf(samples)
         probs_small = dist.pdf(small_samples)
         log_probs = dist.log_pdf(small_samples)
@@ -153,10 +162,13 @@ def test_normalization(pdf_factory):
         assert probs == pytest.approx(1., rel=0.05)
         assert log_probs == pytest.approx(tf.math.log(probs_small).numpy(), rel=0.05)
         dist = dist.create_extended(z.constant(test_yield))
-        probs_extended = dist.pdf(samples)
-        result_extended = probs_extended.numpy()
-        result_extended = np.average(result_extended) * (high - low)
-        assert result_extended == pytest.approx(1, rel=0.05)
+        probs = dist.pdf(samples)
+        probs_extended = dist.ext_pdf(samples)
+        result = probs.numpy()
+        result = np.average(result) * (high - low)
+        result_ext = np.average(probs_extended) * (high - low)
+        assert result == pytest.approx(1, rel=0.05)
+        assert result_ext == pytest.approx(test_yield, rel=0.05)
 
 
 @pytest.mark.parametrize('gauss_factory', [create_gauss1, create_test_gauss1])
@@ -215,12 +227,12 @@ def test_sampling_multiple_limits():
 
 
 def test_analytic_sampling():
-    class SampleGauss(TestGaussian):
+    class SampleGauss(TmpGaussian):
         pass
 
     SampleGauss.register_analytic_integral(func=lambda limits, params, model: 2 * limits.upper[0][0],
-                                           limits=Space.from_axes(limits=(-float("inf"), ANY_UPPER),
-                                                                  axes=(0,)))  # DUMMY!
+                                           limits=Space(limits=(-float("inf"), ANY_UPPER),
+                                                        axes=(0,)))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
     mu, sigma = create_mu_sigma_true_params()
@@ -240,7 +252,9 @@ def test_multiple_limits():
     simple_limits = (-3.2, 9.1)
     multiple_limits_lower = ((-3.2,), (1.1,), (2.1,))
     multiple_limits_upper = ((1.1,), (2.1,), (9.1,))
-    multiple_limits_range = Space.from_axes(limits=(multiple_limits_lower, multiple_limits_upper), axes=dims)
+
+    multiple_limits_range = MultiSpace(
+        [Space(limits=(low, up), axes=dims) for low, up in zip(multiple_limits_lower, multiple_limits_upper)])
     integral_simp = gauss_params1.integrate(limits=simple_limits, norm_range=False)
     integral_mult = gauss_params1.integrate(limits=multiple_limits_range, norm_range=False)
     integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits, norm_range=False)
@@ -260,39 +274,51 @@ def test_copy():
     assert new_gauss is not gauss_params1
 
 
-@pytest.mark.skip  # unsure why it does not fully work...
-def test_projection_pdf():
-    # return  # HACK(Mayou36) check again on projection and dimensions. Why was there an expand_dims?
-    # x = zfit.Space("x", limits=(-5, 5))
-    # y = zfit.Space("y", limits=(-5, 5))
-    # gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
-    # gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
-    # gauss_xy = ProductPDF([gauss_x, gauss_y])
+def test_set_yield():
+    gauss_params1 = create_gauss1()
+    assert not gauss_params1.is_extended
+    gauss_params1._set_yield(10)
+    assert gauss_params1.is_extended
+    with pytest.raises(AlreadyExtendedPDFError):
+        gauss_params1._set_yield(15)
 
+    with pytest.raises(BreakingAPIChangeError):
+        gauss_params1._set_yield(None)
+
+def test_projection_pdf():
     x = zfit.Space("x", limits=(-1, 1))
-    y = zfit.Space("y", limits=(-0.1, 1))
-    # gauss_x = Gauss(mu=mu, sigma=sigma, obs=x, name="gauss_x")
-    # gauss_y = Gauss(mu=mu, sigma=sigma, obs=y, name="gauss_x")
-    # gauss_xy = ProductPDF([gauss_x, gauss_y])
-    import tensorflow as tf
-    # gauss_xy = ProductPDF([gauss_x, gauss_y])
+    y = zfit.Space("y", limits=(-1, 1))
 
     def correlated_func(self, x):
         x, y = x.unstack_x()
-        value = 1 / (tf.abs(x - y) + 0.1) ** 2
+        value = (((x - y ** 3) ** 2) + 0.1)
         return value
 
-    gauss_xy = SimplePDF(func=correlated_func, obs=x * y)
+    def correlated_func_integrate_x(y, limits):
+        lower, upper = limits.rect_limits
+
+        def integ(x, y):
+            return 0.333333333333333 * x ** 3 - 1.0 * x ** 2 * y ** 3 + x * (1.0 * y ** 6 + 0.1)
+
+        return integ(y, upper) - integ(y, lower)
+
+    def correlated_func_integrate_y(x, limits):
+        lower, upper = limits.rect_limits
+
+        def integ(x, y):
+            return -0.5 * x * y ** 4 + 0.142857142857143 * y ** 7 + y * (1.0 * x ** 2 + 0.1)
+
+        return (integ(x, upper) - integ(x, lower))[0]
+
+    obs = x * y
+    gauss_xy = SimplePDF(func=correlated_func, obs=obs)
     assert gauss_xy.create_projection_pdf(limits_to_integrate=y).norm_range == x
     proj_pdf = gauss_xy.create_projection_pdf(limits_to_integrate=y)
     test_values = np.array([-0.95603563, -0.84636306, -0.83895759, 2.62608006, 1.02336499,
                             -0.99631608, -1.22185623, 0.83838586, 2.77894762, -2.48259488,
                             1.5440374, 0.1109899, 0.20873491, -2.45271623, 2.04510553,
                             0.31566277, -1.55696965, 0.36304538, 0.77765786, 3.92630088])
-    true_probs = np.array([0.0198562, 0.02369336, 0.02399382, 0.00799939, 0.2583654, 0.01868723,
-                           0.01375734, 0.53971816, 0.00697152, 0.00438797, 0.03473656, 0.55963737,
-                           0.58296759, 0.00447878, 0.01517764, 0.59553535, 0.00943439, 0.59838703,
-                           0.56315399, 0.00312496])
+    true_probs = correlated_func_integrate_y(test_values, y) / gauss_xy.integrate(limits=obs, norm_range=False)
     probs = proj_pdf.pdf(x=test_values)
     probs = probs.numpy()
-    np.testing.assert_allclose(probs, true_probs, rtol=1e-5)  # MC normalization
+    np.testing.assert_allclose(probs, true_probs, rtol=1e-3)  # MC normalization

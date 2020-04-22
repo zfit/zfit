@@ -10,6 +10,7 @@ from ordered_set import OrderedSet
 
 from zfit import z
 from .baseobject import BaseNumeric
+from .dependents import _extract_dependencies
 from .interfaces import ZfitConstraint
 from .interfaces import ZfitParameter
 from .parameter import convert_to_parameter
@@ -43,8 +44,8 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
     def _value(self):
         raise NotImplementedError
 
-    def _get_dependents(self) -> ztyping.DependentsType:
-        return self._extract_dependents(self.get_params())
+    def _get_dependencies(self) -> ztyping.DependentsType:
+        return _extract_dependencies(self.get_params())
 
 
 class SimpleConstraint(BaseConstraint):
@@ -66,14 +67,6 @@ class SimpleConstraint(BaseConstraint):
         params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
 
         super().__init__(name="SimpleConstraint", params=params)
-
-    # def _get_dependents(self):
-    #     dependents = self._simple_func_dependents
-    #     if dependents is None:
-    #         independent_params = tf.compat.v1.get_collection("zfit_independent")
-    #         dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
-    #         self._simple_func_dependents = dependents
-    #     return dependents
 
     def _value(self):
         return self._simple_func()
@@ -124,8 +117,8 @@ class ProbabilityConstraint(BaseConstraint):
     def _value(self):
         raise NotImplementedError
 
-    def _get_dependents(self) -> ztyping.DependentsType:
-        return self._extract_dependents(self.get_params())
+    def _get_dependencies(self) -> ztyping.DependentsType:
+        return _extract_dependencies(self.get_params())
 
     def sample(self, n):
         """Sample `n` points from the probability density function for the observed value of the parameters.

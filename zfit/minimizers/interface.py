@@ -1,7 +1,7 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import abc
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 
 
 class ZfitResult:
@@ -25,7 +25,7 @@ class ZfitResult:
         raise NotImplementedError
 
     @abstractmethod
-    def error(self, params, method, sigma):
+    def errors(self, params, method, sigma):
         """Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
@@ -70,25 +70,10 @@ class ZfitMinimizer:
     def minimize(self, loss, params=None):
         raise NotImplementedError
 
-    def _minimize(self, loss, params):
-        raise NotImplementedError
-
-    def _minimize_with_step(self, loss, params):
-        raise NotImplementedError
-
     def step(self, loss, params=None):
-        raise NotImplementedError
-
-    def _step_tf(self, loss, params):
-        raise NotImplementedError
-
-    def _step(self, loss, params):
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def tolerance(self):
-        raise NotImplementedError
-
-    def _tolerance(self):
         raise NotImplementedError

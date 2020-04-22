@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 """Recurrent polynomials."""
 import abc
 from typing import List, Dict, Optional, Mapping
@@ -9,8 +9,9 @@ from zfit import z
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..settings import ztypes
-from ..core.limits import Space
+from ..core.space import Space
 from ..core.basepdf import BasePDF
+from ..util.exception import SpecificFunctionNotImplementedError
 
 
 def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
@@ -75,7 +76,7 @@ class RecursivePolynomial(BasePDF):
 
     @abc.abstractmethod
     def _poly_func(self, x):
-        raise NotImplementedError
+        raise SpecificFunctionNotImplementedError
 
 
 def create_poly(x, polys, coeffs, recurrence):
@@ -95,7 +96,7 @@ def do_recurrence(x, polys, degree, recurrence):
 legendre_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
-@z.function_tf
+@z.function(wraps='zfit_tensor')
 def legendre_recurrence(p1, p2, n, x):
     """Recurrence relation for Legendre polynomials.
 
@@ -184,13 +185,13 @@ class Legendre(RecursivePolynomial):
         return legendre_shape(x=x, coeffs=coeffs)
 
 
-legendre_limits = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+legendre_limits = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Legendre.register_analytic_integral(func=legendre_integral, limits=legendre_limits)
 
 chebyshev_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
-@z.function_tf
+@z.function(wraps='zfit_tensor')
 def chebyshev_recurrence(p1, p2, _, x):
     """Recurrence relation for Chebyshev polynomials.
 
@@ -245,7 +246,7 @@ class Chebyshev(RecursivePolynomial):
 
 
 def func_integral_chebyshev1(limits, norm_range, params, model):
-    lower, upper = limits.limit1d
+    lower, upper = limits.rect_limits
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
 
@@ -273,10 +274,11 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
         integral += indefinite_integral(upper) - indefinite_integral(lower)
         integral = tf.reshape(integral, shape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral = tf.gather(integral, indices=0, axis=-1)
     return integral
 
 
-chebyshev1_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+chebyshev1_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Chebyshev.register_analytic_integral(func=func_integral_chebyshev1, limits=chebyshev1_limits_integral)
 
 chebyshev2_polys = [lambda x: tf.ones_like(x), lambda x: x * 2]
@@ -354,7 +356,7 @@ def func_integral_chebyshev2(limits, norm_range, params, model):
     return integral
 
 
-chebyshev2_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+chebyshev2_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Chebyshev2.register_analytic_integral(func=func_integral_chebyshev2, limits=chebyshev2_limits_integral)
 
 
@@ -366,7 +368,7 @@ laguerre_polys = generalized_laguerre_polys_factory(alpha=0.)
 
 
 def generalized_laguerre_recurrence_factory(alpha=0.):
-    @z.function_tf
+    @z.function(wraps='zfit_tensor')
     def generalized_laguerre_recurrence(p1, p2, n, x):
         """Recurrence relation for Laguerre polynomials.
 
@@ -470,13 +472,13 @@ def func_integral_laguerre(limits, norm_range, params: Dict, model):
     return integral
 
 
-laguerre_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+laguerre_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Laguerre.register_analytic_integral(func=func_integral_laguerre, limits=laguerre_limits_integral)
 
 hermite_polys = [lambda x: tf.ones_like(x), lambda x: 2 * x]
 
 
-@z.function_tf
+@z.function(wraps='zfit_tensor')
 def hermite_recurrence(p1, p2, n, x):
     """Recurrence relation for Hermite polynomials (physics).
 
@@ -554,7 +556,7 @@ def func_integral_hermite(limits, norm_range, params, model):
     return integral
 
 
-hermite_limits_integral = Space.from_axes(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+hermite_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
 Hermite.register_analytic_integral(func=func_integral_hermite, limits=hermite_limits_integral)
 
 

@@ -28,7 +28,7 @@ Let's create an instance and some example data
 >>> gauss = MyGauss(mean=mean, stddev=stddev)
 >>> example_data = np.random.random(10)
 Now we can get the probability
->>> probs = gauss.pdf(x=example_data, norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
+>>> probs = gauss.pdf(x=example_data,norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
 Or the integral
 >>> integral = gauss.integrate(limits=(-5, 3.1), norm_range=False)  # norm_range is False -> return unnormalized
 integral
@@ -51,25 +51,25 @@ also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tut
 
 #  Copyright (c) 2020 zfit
 
-import abc
 import warnings
 from contextlib import suppress
-from typing import Union, Type, Dict
+from typing import Union, Type, Dict, Optional, Set
 
 import tensorflow as tf
 
 from zfit import z
 from zfit.core.sample import extended_sampling
-from zfit.util.cache import invalidates_cache
+from zfit.util.cache import invalidate_graph
 from .basemodel import BaseModel
+from .baseobject import extract_filter_params
 from .interfaces import ZfitPDF, ZfitParameter
-from .limits import Space
 from .parameter import Parameter, convert_to_parameter
+from .space import Space
 from ..settings import ztypes, run
 from ..util import ztyping
-from ..util.container import convert_to_container
 from ..util.exception import (AlreadyExtendedPDFError,
-                              NotExtendedPDFError, )
+                              NotExtendedPDFError, BreakingAPIChangeError, FunctionNotImplementedError,
+                              SpecificFunctionNotImplementedError)
 from ..util.temporary import TemporarilySet
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
@@ -111,7 +111,6 @@ class BasePDF(ZfitPDF, BaseModel):
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
         self._yield = None
-        self._temp_yield = None
         self._norm_range = None
         self._normalization_value = None
 
@@ -129,11 +128,10 @@ class BasePDF(ZfitPDF, BaseModel):
 
         return space
 
-    def _check_input_norm_range(self, norm_range, caller_name="", none_is_error=True):
+    def _check_input_norm_range(self, norm_range, none_is_error=False):
         if norm_range is None:
             norm_range = self.norm_range
-        return super()._check_input_norm_range(norm_range=norm_range, caller_name=caller_name,
-                                               none_is_error=none_is_error)
+        return super()._check_input_norm_range(norm_range=norm_range, none_is_error=none_is_error)
 
     def _check_input_params(self, *params):
         return tuple(convert_to_parameter(p) for p in params)
@@ -143,38 +141,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _func_to_sample_from(self, x):
         return self.unnormalized_pdf(x)
-
-    def _single_hook_integrate(self, limits, norm_range, name='hook_integrate'):
-        integral = super()._single_hook_integrate(limits=limits, norm_range=norm_range, name=name)
-        integral = self.apply_yield(integral, norm_range=norm_range)
-        return integral
-
-    def _single_hook_analytic_integrate(self, limits, norm_range, name='hook_analytic_integrate'):
-        integral = super()._single_hook_analytic_integrate(limits=limits, norm_range=norm_range, name=name)
-        integral = self.apply_yield(integral, norm_range=norm_range)
-        return integral
-
-    def _single_hook_numeric_integrate(self, limits, norm_range, name='hook_numeric_integrate'):
-        numeric_integral = super()._single_hook_numeric_integrate(limits=limits, norm_range=norm_range, name=name)
-        numeric_integral = self.apply_yield(numeric_integral, norm_range=norm_range)
-        return numeric_integral
-
-    def _single_hook_partial_integrate(self, x, limits, norm_range, name='hook_partial_integrate'):
-        partial_integral = super()._single_hook_partial_integrate(x=x, limits=limits, norm_range=norm_range, name=name)
-        partial_integral = self.apply_yield(partial_integral, norm_range=norm_range)
-        return partial_integral
-
-    def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='hook_partial_analytic_integrate'):
-        part_analytic_int = super()._single_hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range,
-                                                                            name=name)
-        part_analytic_int = self.apply_yield(part_analytic_int, norm_range=norm_range)
-        return part_analytic_int
-
-    def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='hook_partial_numeric_integrate'):
-        part_numeric_int = super()._single_hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range,
-                                                                          name=name)
-        part_numeric_int = self.apply_yield(part_numeric_int, norm_range=norm_range)
-        return part_numeric_int
 
     @property
     def norm_range(self) -> Union[Space, None, bool]:
@@ -189,7 +155,7 @@ class BasePDF(ZfitPDF, BaseModel):
             norm_range = self.space
         return norm_range
 
-    @invalidates_cache
+    @invalidate_graph
     def set_norm_range(self, norm_range: ztyping.LimitsTypeInput):
         """Set the normalization range (temporarily if used with contextmanager).
 
@@ -207,59 +173,56 @@ class BasePDF(ZfitPDF, BaseModel):
 
         return TemporarilySet(value=norm_range, setter=setter, getter=getter)
 
-    @property
-    def _yield(self):
-        """For internal use, the yield or None"""
-        return self.params.get('yield')
-
-    @_yield.setter
-    def _yield(self, value):
-        if value is None:
-            # unset
-            self._params.pop('yield', None)  # safely remove if still there
-        else:
-            self._params['yield'] = value
+    # TODO: remove below?
+    # @property
+    # def _yield(self):
+    #     """For internal use, the yield or None"""
+    #     return self.params.get('yield')
+    #
+    # @_yield.setter
+    # def _yield(self, value):
+    #     if value is None:
+    #         # unset
+    #         self._params.pop('yield', None)  # safely remove if still there
+    #     else:
+    #         self._params['yield'] = value
 
     @_BasePDF_register_check_support(True)
     def _normalization(self, limits):
-        raise NotImplementedError
+        raise SpecificFunctionNotImplementedError
 
-    def normalization(self, limits: ztyping.LimitsType, name: str = "normalization") -> ztyping.XType:
+    def normalization(self, limits: ztyping.LimitsType) -> ztyping.XType:
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
             limits (tuple, :py:class:`~zfit.Space`): The limits on where to normalize over
-            name (str):
 
         Returns:
             Tensor: the normalization value
         """
-        limits = self._check_input_limits(limits=limits, caller_name=name)
+        limits = self._check_input_limits(limits=limits)
 
-        return self._single_hook_normalization(limits=limits, name=name)
+        return self._single_hook_normalization(limits=limits)
 
-    def _single_hook_normalization(self, limits, name):  # TODO(Mayou36): add yield?
-        return self._hook_normalization(limits=limits, name=name)
+    def _single_hook_normalization(self, limits):  # TODO(Mayou36): add yield?
+        return self._hook_normalization(limits=limits)
 
-    def _hook_normalization(self, limits, name="_hook_normalization"):
-        return self._call_normalization(limits=limits, name=name)  # no _norm_* needed
+    def _hook_normalization(self, limits):
+        return self._call_normalization(limits=limits)  # no _norm_* needed
 
-    def _call_normalization(self, limits, name):
+    def _call_normalization(self, limits):
         # TODO: caching? alternative
-        with self._name_scope(name, values=[limits]):
-            with suppress(NotImplementedError):
-                return self._normalization(limits=limits)
-            return self._fallback_normalization(limits)
+        with suppress(FunctionNotImplementedError):
+            return self._normalization(limits=limits)
+        return self._fallback_normalization(limits)
 
     def _fallback_normalization(self, limits):
         return self._hook_integrate(limits=limits, norm_range=False)
 
-    @abc.abstractmethod
     def _unnormalized_pdf(self, x):
-        raise NotImplementedError
+        raise SpecificFunctionNotImplementedError
 
-    def unnormalized_pdf(self, x: ztyping.XType, component_norm_range: ztyping.LimitsTypeInput = None,
-                         name: str = "unnormalized_pdf") -> ztyping.XType:
+    def unnormalized_pdf(self, x: ztyping.XType, component_norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
         """PDF "unnormalized". Use `functions` for unnormalized pdfs. this is only for performance in special cases.
 
         Args:
@@ -267,135 +230,165 @@ class BasePDF(ZfitPDF, BaseModel):
             component_norm_range (:py:class:`~zfit.Space`): The normalization range for the components. Needed for
             certain composition
                 pdfs.
-            name (str):
 
         Returns:
             :py:class:`tf.Tensor`: 1-dimensional :py:class:`tf.Tensor` containing the unnormalized pdf.
         """
-        # if component_norm_range is None:
-        #     component_norm_range = self._get
+        if component_norm_range is not None:
+            raise BreakingAPIChangeError("component norm range should not be given anymore. If you want to set the norm"
+                                         " range for the components, use `set_norm_range(..., propagate=True)")
         with self._convert_sort_x(x) as x:
-            component_norm_range = self._check_input_norm_range(component_norm_range, caller_name=name,
-                                                                none_is_error=False)
-            return self._single_hook_unnormalized_pdf(x, component_norm_range, name)
+            return self._single_hook_unnormalized_pdf(x)
 
-    def _single_hook_unnormalized_pdf(self, x, component_norm_range, name):
-        return self._call_unnormalized_pdf(x=x, name=name)
+    def _single_hook_unnormalized_pdf(self, x):
+        return self._call_unnormalized_pdf(x=x)
 
-    def _call_unnormalized_pdf(self, x, name):
-        with self._name_scope(name, values=[x]):
-            # try:
-            return self._unnormalized_pdf(x)
-        # except ValueError as error:
-        #     raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
-        #                                  "does not coincide with the `n_obs` from the `space`/`obs`"
-        #                                  "it received on initialization."
-        #                                  "Original Error: {}".format(error))
+    def _call_unnormalized_pdf(self, x):
+        # try:
+        return self._unnormalized_pdf(x)
+
+    # except ValueError as error:
+    #     raise ShapeIncompatibleError("Most probably, the number of obs the pdf was designed for"
+    #                                  "does not coincide with the `n_obs` from the `space`/`obs`"
+    #                                  "it received on initialization."
+    #                                  "Original Error: {}".format(error))
+
+    @z.function(wraps='model')
+    def ext_pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
+        """Probability density function scaled by yield, normalized over `norm_range`.
+
+        Args:
+          x (numerical): `float` or `double` `Tensor`.
+          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+
+        Returns:
+          :py:class:`tf.Tensor` of type `self.dtype`.
+        """
+        if not self.is_extended:
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return self.pdf(x=x, norm_range=norm_range) * self.get_yield()
+
+    @z.function(wraps='model')
+    def ext_log_pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
+        """Log of probability density function scaled by yield, normalized over `norm_range`.
+
+        Args:
+          x (numerical): `float` or `double` `Tensor`.
+          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+
+        Returns:
+          :py:class:`tf.Tensor` of type `self.dtype`.
+        """
+        if not self.is_extended:
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return self.log_pdf(x=x, norm_range=norm_range) + tf.math.log(self.get_yield())
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
-        raise NotImplementedError
+        raise SpecificFunctionNotImplementedError
 
     # @func_simple
-    @z.function
-    def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None,
-            name: str = "model") -> ztyping.XType:
+    @z.function(wraps='model')
+    def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
         """Probability density function, normalized over `norm_range`.
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
           norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
-          name (str): Prepended to names of ops created by this function.
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
-        # TODO TF2 converion, remove control deps
-        norm_range = self._check_input_norm_range(norm_range, caller_name=name, none_is_error=True)
+        norm_range = self._check_input_norm_range(norm_range, none_is_error=True)
         with self._convert_sort_x(x) as x:
-            value = self._single_hook_pdf(x=x, norm_range=norm_range, name=name)
+            value = self._single_hook_pdf(x=x, norm_range=norm_range)
             if run.numeric_checks:
                 z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
             return z.to_real(value)
 
-    def _single_hook_pdf(self, x, norm_range, name):
-        return self._hook_pdf(x=x, norm_range=norm_range, name=name)
+    def _single_hook_pdf(self, x, norm_range):
+        return self._hook_pdf(x=x, norm_range=norm_range)
 
-    def _hook_pdf(self, x, norm_range, name="_hook_pdf"):
-        return self._norm_pdf(x=x, norm_range=norm_range, name=name)
+    def _hook_pdf(self, x, norm_range):
+        return self._norm_pdf(x=x, norm_range=norm_range)
 
-    def _norm_pdf(self, x, norm_range, name='norm_pdf'):
-        return self._call_pdf(x=x, norm_range=norm_range, name=name)
+    def _norm_pdf(self, x, norm_range):
+        return self._call_pdf(x=x, norm_range=norm_range)
 
-    def _call_pdf(self, x, norm_range, name):
-        with self._name_scope(name, values=[x, norm_range]):
-            with suppress(NotImplementedError):
-                return self._pdf(x, norm_range=norm_range)
-            with suppress(NotImplementedError):
-                return tf.exp(self._log_pdf(x=x, norm_range=norm_range))
-            return self._fallback_pdf(x=x, norm_range=norm_range)
+    def _call_pdf(self, x, norm_range):
+        with suppress(FunctionNotImplementedError):
+            return self._pdf(x, norm_range=norm_range)
+        with suppress(FunctionNotImplementedError):
+            return tf.exp(self._log_pdf(x=x, norm_range=norm_range))
+        return self._fallback_pdf(x=x, norm_range=norm_range)
 
     def _fallback_pdf(self, x, norm_range):
-        pdf = self._call_unnormalized_pdf(x, name="_call_unnormalized_pdf")
-        if norm_range.limits is not False:  # identity check!
+        pdf = self._call_unnormalized_pdf(x)
+        if norm_range.has_limits:  # needed?
             pdf /= self._hook_normalization(limits=norm_range)
         return pdf
 
     @_BasePDF_register_check_support(False)
     def _log_pdf(self, x, norm_range):
-        raise NotImplementedError
+        raise SpecificFunctionNotImplementedError
 
-    def log_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None,
-                name: str = "log_pdf") -> ztyping.XType:
+    def log_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         """Log probability density function normalized over `norm_range`.
 
         Args:
           x (numerical): `float` or `double` `Tensor`.
           norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
-          name (str): Prepended to names of ops created by this function.
 
         Returns:
           log_pdf: a `Tensor` of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range(norm_range, caller_name=name)
+        norm_range = self._check_input_norm_range(norm_range)
         with self._convert_sort_x(x) as x:
-            return self._single_hook_log_pdf(x=x, norm_range=norm_range, name=name)
+            return self._single_hook_log_pdf(x=x, norm_range=norm_range)
 
-    def _single_hook_log_pdf(self, x, norm_range, name):
-        return self._hook_log_pdf(x=x, norm_range=norm_range, name=name)
+    def _single_hook_log_pdf(self, x, norm_range):
+        return self._hook_log_pdf(x=x, norm_range=norm_range)
 
-    def _hook_log_pdf(self, x, norm_range, name):
-        log_prob = self._norm_log_pdf(x=x, norm_range=norm_range, name=name)
+    def _hook_log_pdf(self, x, norm_range):
+        log_prob = self._norm_log_pdf(x=x, norm_range=norm_range)
         return log_prob
 
-    def _norm_log_pdf(self, x, norm_range, name='norm_log_pdf'):
-        return self._call_log_pdf(x=x, norm_range=norm_range, name=name)
+    def _norm_log_pdf(self, x, norm_range):
+        return self._call_log_pdf(x=x, norm_range=norm_range)
 
-    def _call_log_pdf(self, x, norm_range, name):
-        with self._name_scope(name, values=[x, norm_range]):
-            with suppress(NotImplementedError):
-                return self._log_pdf(x=x, norm_range=norm_range)
-            with suppress(NotImplementedError):
-                return tf.math.log(self._pdf(x=x, norm_range=norm_range))
-            return self._fallback_log_pdf(x=x, norm_range=norm_range)
+    def _call_log_pdf(self, x, norm_range):
+        with suppress(FunctionNotImplementedError):
+            return self._log_pdf(x=x, norm_range=norm_range)
+        with suppress(FunctionNotImplementedError):
+            return tf.math.log(self._pdf(x=x, norm_range=norm_range))
+        return self._fallback_log_pdf(x=x, norm_range=norm_range)
 
     def _fallback_log_pdf(self, x, norm_range):
         return tf.math.log(self._hook_pdf(x=x, norm_range=norm_range))
 
     def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
-        warnings.warn("Taking the gradient *this way* in TensorFlow is inefficient! Consider taking it with"
-                      "respect to the loss function.")
-        if params is not None:
-            params = convert_to_container(params)
-        if params is None or isinstance(params[0], str):
-            params = self.get_params(only_floating=False, names=params)
+        raise BreakingAPIChangeError("Removed with 0.5.x: is this needed?")
 
-        probs = self.pdf(x, norm_range=norm_range)
-        gradients = [tf.gradients(ys=prob, xs=params) for prob in z.unstack_x(probs, always_list=True)]
-        return tf.stack(gradients)
+    @z.function(wraps='model')
+    def ext_integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+        """Integrate the function over `limits` (normalized over `norm_range` if not False).
+
+        Args:
+            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
+            norm_range (tuple, :py:class:`~zfit.ZfitSpace`): the limits to normalize over or False to integrate the
+                unnormalized probability
+
+        Returns:
+            :py:class`tf.Tensor`: the integral value as a scalar with shape ()
+        """
+        norm_range = self._check_input_norm_range(norm_range)
+        limits = self._check_input_limits(limits=limits)
+        if not self.is_extended:
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return self.integrate(limits=limits, norm_range=norm_range) * self.get_yield()
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
-        if self.is_extended and norm_range.limits is not False:
+        if self.is_extended and not norm_range.limits_are_false:
             if log:
                 value += tf.math.log(self.get_yield())
             else:
@@ -417,11 +410,11 @@ class BasePDF(ZfitPDF, BaseModel):
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    @invalidates_cache
+    @invalidate_graph
     def _set_yield_inplace(self, value: Union[ZfitParameter, float, None]):
-        """Make the model extended by (temporarily) setting a yield.
+        """Make the model extended by setting a yield.
 
-        This alters the behavior of `model` and similar and `integrate` and similar. If there is a
+        This does not alter the general behavior of the PDF. If there is a
         `norm_range` given, the output of the above functions does not represent a normalized
         probability density function anymore but corresponds to a number probability.
 
@@ -429,14 +422,7 @@ class BasePDF(ZfitPDF, BaseModel):
             value ():
         """
 
-        # TODO(Mayou36): check input for yield?
-        def setter(value):
-            self._set_yield(value=value)
-
-        def getter():
-            return self.get_yield()
-
-        return TemporarilySet(value=value, setter=setter, getter=getter)
+        self._set_yield(value=value)
 
     def create_extended(self, yield_: ztyping.ParamTypeInput, name_addition="_extended") -> "ZfitPDF":
         """Return an extended version of this pdf with yield `yield_`. The parameters are shared.
@@ -460,9 +446,13 @@ class BasePDF(ZfitPDF, BaseModel):
         new_pdf._set_yield_inplace(value=yield_)
         return new_pdf
 
-    def _set_yield(self, value: Union[Parameter, None]):
-        if value is not None:
-            value = convert_to_parameter(value)
+    def _set_yield(self, value: ztyping.ParamTypeInput):
+        if value is None:
+            raise BreakingAPIChangeError("Cannot unset a yield (anymore).")
+        if self.is_extended:
+            raise AlreadyExtendedPDFError(f"Cannot extend {self}, is already extended.")
+        value = convert_to_parameter(value)
+        self.add_cache_deps(value)
         self._yield = value
 
     @property
@@ -474,7 +464,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         return self._yield is not None
 
-    def _hook_sample(self, limits, n, name='hook_sample'):
+    def _hook_sample(self, limits, n):
         if n is None and self.is_extended:
             n = 'extended'
         if isinstance(n, str) and n == 'extended':
@@ -486,7 +476,7 @@ class BasePDF(ZfitPDF, BaseModel):
         elif n is None:
             raise tf.errors.InvalidArgumentError("`n` cannot be `None` if pdf is not extended.")
         else:
-            samples = super()._hook_sample(limits=limits, n=n, name=name)
+            samples = super()._hook_sample(limits=limits, n=n)
         return samples
 
     def get_yield(self) -> Union[Parameter, None]:
@@ -498,6 +488,24 @@ class BasePDF(ZfitPDF, BaseModel):
         # if not self.is_extended:
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
+
+    def _get_params(self,
+                    floating: Optional[bool] = True,
+                    is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set[ZfitParameter]:
+
+        params = super()._get_params(floating, is_yield=is_yield,
+                                     extract_independent=extract_independent)
+
+        if is_yield is not False:
+            if self.is_extended:
+                yield_params = extract_filter_params(self.get_yield(), floating=floating,
+                                                     extract_independent=extract_independent)
+                yield_params.update(params)  # putting the yields at the beginning
+                params = yield_params
+            elif is_yield is True:
+                raise NotExtendedPDFError("PDF is not extended but only yield parameters were requested.")
+        return params
 
     def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsTypeInput) -> 'ZfitPDF':
         """Create a PDF projection by integrating out some of the dimensions.
@@ -513,12 +521,6 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.special import SimpleFunctorPDF
 
         def partial_integrate_wrapped(self_simple, x):
-            norm_range = self_simple._get_component_norm_range()
-            if norm_range not in (None, False) and norm_range.limits not in (None, False):
-                from zfit.models.functor import BaseFunctor
-
-                if isinstance(self, BaseFunctor):
-                    self._set_component_norm_range(norm_range)
             return self.partial_integrate(x, limits=limits_to_integrate, norm_range=False)
 
         new_pdf = SimpleFunctorPDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs

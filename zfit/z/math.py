@@ -1,7 +1,7 @@
 #  Copyright (c) 2020 zfit
 
 import itertools
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Optional
 
 import numdifftools
 import tensorflow as tf
@@ -79,7 +79,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
                                Tout=tf.float64)
     if gradients.shape == ():
         gradients = tf.reshape(gradients, shape=(1,))
-    gradients.set_shape((param_vals.shape[0],))
+    gradients.set_shape(param_vals.shape)
     for param, val in zip(params, original_vals):
         param.set_value(val)
     return gradients
@@ -121,9 +121,14 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
     original_vals = [param.read_value() for param in params]
 
     if hessian == 'diag':
-        hesse_func = numdifftools.Hessdiag(wrapped_func)
+        hesse_func = numdifftools.Hessdiag(wrapped_func,
+                                           # TODO: maybe add step to remove numerical problems?
+                                           # step=1e-4
+                                           )
     else:
-        hesse_func = numdifftools.Hessian(wrapped_func)
+        hesse_func = numdifftools.Hessian(wrapped_func,
+                                          # base_step=1e-4
+                                          )
     computed_hessian = tf.py_function(hesse_func, inp=[param_vals],
                                       Tout=tf.float64)
     n_params = param_vals.shape[0]
@@ -137,9 +142,8 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
     return computed_hessian
 
 
-def numerical_value_gradients_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessian=None) -> [tf.Tensor,
-                                                                                                            tf.Tensor,
-                                                                                                            tf.Tensor]:
+def numerical_value_gradients_hessian(func: Callable, params: Iterable["zfit.Parameter"],
+                                      hessian: Optional[str] = None) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
     """Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
 
         Args:
@@ -189,7 +193,8 @@ def autodiff_value_gradients(func: Callable, params: Iterable["zfit.Parameter"])
         Returns:
             tuple(`tf.Tensor`, `tf.Tensor`): value and gradient
     """
-    with tf.GradientTape(persistent=False, watch_accessed_variables=False) as tape:
+    with tf.GradientTape(persistent=False,  # needs to be persistent for a call from hessian.
+                         watch_accessed_variables=False) as tape:
         tape.watch(params)
         value = func()
     gradients = tape.gradient(value, sources=params)
@@ -238,17 +243,24 @@ def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["z
         ValueError("Either `func` or `value_grad_func` has to be specified.")
 
     from .. import z
-    with tf.GradientTape(persistent=True, watch_accessed_variables=False) as tape:
+    persistant = hessian == 'diag' or tf.executing_eagerly()  # currently needed, TODO: can we better parallelize that?
+    with tf.GradientTape(persistent=persistant, watch_accessed_variables=False) as tape:
         tape.watch(params)
         if callable(value_grad_func):
             loss, gradients = value_grad_func(params)
         else:
             loss, gradients = autodiff_value_gradients(func=func, params=params)
         if hessian != 'diag':
-            gradients_tf = z.convert_to_tensor(gradients)
+            gradients_tf = tf.stack(gradients)
     if hessian == 'diag':
-        computed_hessian = z.convert_to_tensor(
-            [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)])
+        computed_hessian = tf.stack(
+            # tape.gradient(gradients_tf, sources=params)
+            # computed_hessian = tf.stack(tf.vectorized_map(lambda grad: tape.gradient(grad, sources=params), gradients))
+            [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)]
+        )
     else:
-        computed_hessian = z.convert_to_tensor(tape.jacobian(gradients_tf, sources=params))
+        computed_hessian = z.convert_to_tensor(tape.jacobian(gradients_tf, sources=params,
+                                                             experimental_use_pfor=False  # causes TF bug? Slow..
+                                                             ))
+    del tape
     return loss, gradients, computed_hessian

@@ -6,8 +6,9 @@ import tensorflow as tf
 
 from ..core.basefunc import BaseFunc
 from ..core.basemodel import SimpleModelSubclassMixin
+from ..core.dependents import _extract_dependencies
 from ..core.interfaces import ZfitModel, ZfitFunc
-from ..core.limits import supports
+from ..core.space import supports
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -45,9 +46,9 @@ class BaseFunctorFunc(FunctorMixin, BaseFunc):
         self.funcs = funcs
         super().__init__(name=name, models=self.funcs, params=params, **kwargs)
 
-    def _get_dependents(self):  # TODO: change recursive to `only_floating`?
-        dependents = super()._get_dependents()  # get the own parameter dependents
-        func_dependents = self._extract_dependents(self.funcs)  # flatten
+    def _get_dependencies(self):  # TODO: change recursive to `only_floating`?
+        dependents = super()._get_dependencies()  # get the own parameter dependents
+        func_dependents = _extract_dependencies(self.funcs)  # flatten
         return dependents.union(func_dependents)
 
     @property
@@ -67,9 +68,9 @@ class SumFunc(BaseFunctorFunc):
 
     @supports()
     def _analytic_integrate(self, limits, norm_range):
-        # below may raises NotImplementedError, that's fine. We don't wanna catch that.
+        # below may raises AnalyticIntegralNotImplementedError, that's fine. We don't wanna catch that.
         integrals = [func.analytic_integrate(limits=limits, norm_range=norm_range) for func in self.funcs]
-        return tf.accumulate_n(integrals)
+        return tf.math.accumulate_n(integrals)
 
 
 class ProdFunc(BaseFunctorFunc):
@@ -77,10 +78,9 @@ class ProdFunc(BaseFunctorFunc):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
     def _func(self, x):
-        value = self.funcs[0].func(x)
-        for func in self.funcs[1:]:
-            value *= func.func(x)
-        return value
+        funcs = [func.func(x) for func in self.funcs]
+        product = tf.reduce_prod(funcs, axis=0)
+        return product
 
 
 class ZFunc(SimpleModelSubclassMixin, BaseFunc):

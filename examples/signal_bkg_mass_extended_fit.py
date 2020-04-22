@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import numpy as np
 import zfit
@@ -39,8 +39,9 @@ lambd.set_value(-0.05)
 nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 
 # create a minimizer
-minimizer = zfit.minimize.Minuit()
+minimizer = zfit.minimize.Minuit(verbosity=7)
 result = minimizer.minimize(nll)
 print(result.params)
 # do the error calculations, here with minos
-param_errors = result.error()
+param_errors = result.hesse(method='hesse_np')
+param_errors = result.errors()

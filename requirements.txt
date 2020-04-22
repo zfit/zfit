@@ -5,8 +5,10 @@ uproot
 pandas
 numpy>=1.16
 iminuit
-typing
 colorlog
 texttable
+tableformatter
+colored
+colorama
 ordered-set
 numdifftools

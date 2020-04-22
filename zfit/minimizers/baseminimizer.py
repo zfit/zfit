@@ -19,8 +19,7 @@ from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
-
-
+from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError
 
 
 class FailMinimizeNaN(Exception):
@@ -47,11 +46,15 @@ class BaseStrategy(ZfitStrategy):
 
     def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
                       values: Mapping = None) -> float:
-        print("The minimization failed due to NaNs being produced in the loss. This is most probably caused by negative"
+        print("The minimization failed due to too many NaNs being produced in the loss."
+              "This is most probably caused by negative"
               " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
               " problem. Also check your model (if custom) for problems. For more information,"
               " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
         raise FailMinimizeNaN()
+
+    def __str__(self) -> str:
+        return repr(self.__class__)[:-2].split(".")[-1]
 
 
 class ToyStrategyFail(BaseStrategy):
@@ -71,21 +74,45 @@ class ToyStrategyFail(BaseStrategy):
         raise FailMinimizeNaN()
 
 
-class DefaultStrategy(BaseStrategy):
+class PushbackStrategy(BaseStrategy):
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._nan_penalty = 10000
+    def __init__(self, nan_penalty: Union[float, int] = 100, nan_tolerance: int = 30, **kwargs):
+        """Pushback by adding `nan_penalty * counter` to the loss if NaNs are encountered.
+
+        The counter indicates how many NaNs occurred in a row. The `nan_tolerance` is the upper limit, if this is
+        exceeded, the fallback will be used and an error is raised.
+        Args:
+            nan_penalty: Value to add to the previous loss in order to penalize the step taken
+            nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.
+        """
+        super().__init__(**kwargs)
+        self.nan_penalty = nan_penalty
+        self.nan_tolerance = nan_tolerance
 
     def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
-                     values: Mapping = None) -> float:
-        import zfit
-        if zfit.experimental_loss_penalty_nan:
+                      values: Mapping = None) -> float:
+        assert 'nan_counter' in values, "'nan_counter' not in values, minimizer not correctly implemented"
+        nan_counter = values['nan_counter']
+        if nan_counter < self.nan_tolerance:
             last_loss = values.get('old_loss')
-            loss_evaluated = last_loss + self._nan_penalty if last_loss is not None else values.get('loss')
+            if last_loss is not None:
+
+                loss_evaluated = last_loss + self.nan_penalty * nan_counter
+            else:
+                loss_evaluated = values.get('loss')
             return loss_evaluated
         else:
             super()._minimize_nan(loss=loss, params=params, minimizer=minimizer, values=values)
+
+
+DefaultStrategy = PushbackStrategy
+
+
+class DefaultToyStrategy(DefaultStrategy, ToyStrategyFail):
+    """Same as `DefaultStrategy`, but does not raise an error on full failure, instead return an invalid FitResult.
+
+    This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a
+    failure instead of rising an error."""
 
 
 class BaseMinimizer(ZfitMinimizer):
@@ -95,13 +122,12 @@ class BaseMinimizer(ZfitMinimizer):
     attribute (dict) `minimizer.minimizer_options`
 
     """
-    _DEFAULT_name = "BaseMinimizer"
     _DEFAULT_TOLERANCE = 1e-3
 
     def __init__(self, name, tolerance, verbosity, minimizer_options, strategy=None, **kwargs):
         super().__init__(**kwargs)
         if name is None:
-            name = self._DEFAULT_name
+            name = repr(self.__class__)[:-2].split(".")[-1]
         if strategy is None:
             strategy = DefaultStrategy()
         if not isinstance(strategy, ZfitStrategy):
@@ -115,13 +141,14 @@ class BaseMinimizer(ZfitMinimizer):
         if minimizer_options is None:
             minimizer_options = {}
         self.minimizer_options = minimizer_options
+        self._max_steps = 5000
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
         if isinstance(params, (str, ZfitParameter)) or (not hasattr(params, "__len__") and params is not None):
             params = [params, ]
             params = self._filter_floating_params(params)
         if params is None or isinstance(params[0], str):
-            params = loss.get_dependents(only_floating=only_floating)
+            params = loss.get_cache_deps(only_floating=only_floating)
             params = list(params)
         if not params:
             raise RuntimeError("No parameter for minimization given/found. Cannot minimize.")
@@ -199,7 +226,7 @@ class BaseMinimizer(ZfitMinimizer):
         Returns:
 
         Raises:
-            NotImplementedError: if the `step` method is not implemented in the minimizer.
+            MinimizeStepNotImplementedError: if the `step` method is not implemented in the minimizer.
         """
         params = self._check_input_params(loss, params)
 
@@ -232,29 +259,31 @@ class BaseMinimizer(ZfitMinimizer):
     def _call_minimize(self, loss, params):
         try:
             return self._minimize(loss=loss, params=params)
-        except NotImplementedError as error:
+        except MinimizeNotImplementedError as error:
             try:
                 return self._minimize_with_step(loss=loss, params=params)
-            except NotImplementedError:
+            except MinimizeStepNotImplementedError:
                 raise error
 
     def _minimize_with_step(self, loss, params):  # TODO improve
         n_old_vals = 10
         changes = collections.deque(np.ones(n_old_vals))
         last_val = -10
+        n_steps = 0
 
         def step_fn(loss, params):
             try:
                 self._step_tf(loss=loss.value, params=params)
-            except NotImplementedError:
+            except MinimizeStepNotImplementedError:
                 self.step(loss, params)
             return loss.value()
 
-        while sum(sorted(changes)[-3:]) > self.tolerance:  # TODO: improve condition
+        while sum(sorted(changes)[-3:]) > self.tolerance and n_steps < self._max_steps:  # TODO: improve condition
             cur_val = step_fn(loss=loss, params=params)
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
+            n_steps += 1
         fmin = cur_val
         edm = -999  # TODO: get edm
 
@@ -278,6 +307,19 @@ class BaseMinimizer(ZfitMinimizer):
     def copy(self):
         return copy.copy(self)
 
+    def _minimize(self, loss, params):
+        raise MinimizeNotImplementedError
+
+    def _step_tf(self, loss, params):
+        raise MinimizeStepNotImplementedError
+
+    def _step(self, loss, params):
+        raise MinimizeStepNotImplementedError
+
+    def __str__(self) -> str:
+        string = f'<{self.name} strategy={self.strategy} tolerance={self.tolerance}>'
+        return string
+
 
 def print_params(params, values, loss=None):
     table = tt.Texttable()
@@ -296,5 +338,5 @@ def print_gradients(params, values, gradients, loss=None):
     for param, value, grad in zip(params, values, gradients):
         table.add_row([param.name, value, grad])
     if loss is not None:
-        table.add_row(["Loss value:", loss])
+        table.add_row(["Loss value:", loss, "|"])
     print(table.draw())

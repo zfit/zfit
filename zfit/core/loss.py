@@ -7,20 +7,19 @@ from typing import Optional, Union, List, Callable, Iterable, Tuple
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-
+from .baseobject import BaseObject
+from .constraint import BaseConstraint, SimpleConstraint
+from .dependents import BaseDependentsMixin, _extract_dependencies
+from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
 from .. import z, settings
+from ..util import ztyping
+from ..util.cache import GraphCachable
+from ..util.checks import NOT_SPECIFIED
+from ..util.container import convert_to_container, is_container
+from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
+    BreakingAPIChangeError
 from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
     automatic_value_gradients_hessian, numerical_value_gradients_hessian
-from ..util import ztyping
-from ..util.cache import Cachable
-from ..util.checks import ZfitNotImplemented, NOT_SPECIFIED
-from .baseobject import BaseObject
-from .dependents import BaseDependentsMixin
-from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
-from ..util.container import convert_to_container, is_container
-from ..util.exception import IntentionNotUnambiguousError, NotExtendedPDFError, WorkInProgressError, \
-    BreakingAPIChangeError
-from .constraint import BaseConstraint, SimpleConstraint
 
 
 # @z.function
@@ -75,7 +74,7 @@ def _constraint_check_convert(constraints):
     return checked_constraints
 
 
-class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
+class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
                  fit_range: ztyping.LimitsTypeInput = None,
@@ -132,10 +131,10 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
             fit_range = []
             for p, d in zip(pdf, data):
                 if not p.norm_range == d.data_range:
-                    raise IntentionNotUnambiguousError(f"No `fit_range` is specified and `pdf` {p} as "
-                                                       f"well as `data` {d} have different ranges they "
-                                                       f"are defined in. Either make them (all) consistent "
-                                                       f"or specify the `fit_range`")
+                    raise IntentionAmbiguousError(f"No `fit_range` is specified and `pdf` {p} as "
+                                                  f"well as `data` {d} have different ranges they "
+                                                  f"are defined in. Either make them (all) consistent "
+                                                  f"or specify the `fit_range`")
                 fit_range.append(p.norm_range)
         else:
             fit_range = convert_to_container(fit_range, non_containers=[tuple])
@@ -158,14 +157,14 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         # sanitize fit_range
         fit_range = [p.convert_sort_space(limits=range_) for p, range_ in zip(pdf, fit_range)]
         # TODO: sanitize pdf, data?
-        self.add_cache_dependents(cache_dependents=pdf)
-        self.add_cache_dependents(cache_dependents=data)
-        self.add_cache_dependents(cache_dependents=fit_range)
+        self.add_cache_deps(cache_deps=pdf)
+        self.add_cache_deps(cache_deps=data)
+        self.add_cache_deps(cache_deps=fit_range)
         return pdf, data, fit_range
 
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
         if params is None:
-            params = list(self.get_dependents())
+            params = list(self.get_cache_deps())
         else:
             params = convert_to_container(params)
         return self._gradients(params=params)
@@ -200,9 +199,9 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def constraints(self):
         return self._constraints
 
-    def _get_dependents(self):  # TODO: fix, add constraints
-        pdf_dependents = self._extract_dependents(self.model)
-        pdf_dependents |= self._extract_dependents(self.constraints)
+    def _get_dependencies(self):  # TODO: fix, add constraints
+        pdf_dependents = _extract_dependencies(self.model)
+        pdf_dependents |= _extract_dependencies(self.constraints)
         return pdf_dependents
 
     @abc.abstractmethod
@@ -220,8 +219,8 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
         try:
             return self._loss_func(model=self.model, data=self.data, fit_range=self.fit_range,
                                    constraints=self.constraints)
-        except NotImplementedError:
-            raise NotImplementedError("_loss_func not properly defined!")
+        except NotImplementedError as error:
+            raise NotImplementedError("_loss_func not properly defined!") from error
 
     def __add__(self, other):
         if not isinstance(other, BaseLoss):
@@ -246,7 +245,6 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
     def value_gradients(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor]:
         return self._value_gradients(params=params)
 
-    @z.function
     def _value_gradients(self, params):
         if settings.options['numerical_grad']:
             value, gradients = numerical_value_gradients(self.value, params=params)
@@ -256,22 +254,43 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, Cachable, BaseObject):
 
     def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None) -> Tuple[
         tf.Tensor, tf.Tensor, tf.Tensor]:
-        vals = self._value_gradients_hessian(params=params, hessian=hessian)
-        if vals is ZfitNotImplemented:
-            vals = self._value_gradients_hessian_fallback(params=params, hessian=hessian)
+        numerical = settings.options['numerical_grad']
+        vals = self._value_gradients_hessian(params=params, hessian=hessian, numerical=numerical)
+
         return vals
 
-    @z.function
-    def _value_gradients_hessian_fallback(self, params, hessian):
-
-        if settings.options['numerical_grad']:
+    @z.function(wraps='loss')
+    def _value_gradients_hessian(self, params, hessian, numerical=False):
+        if numerical:
             result = numerical_value_gradients_hessian(self.value, params=params, hessian=hessian)
         else:
             result = automatic_value_gradients_hessian(self.value, params=params, hessian=hessian)
         return result
 
-    def _value_gradients_hessian(self, params, hessian):
-        return ZfitNotImplemented
+    def __repr__(self) -> str:
+        class_name = repr(self.__class__)[:-2].split(".")[-1]
+        string = f'<{class_name} ' \
+                 f'model={one_two_many([model.name for model in self.model])} ' \
+                 f'data={one_two_many([data.name for data in self.data])} ' \
+                 f'constraints={one_two_many(self.constraints, many="True")} ' \
+                 f'>'
+        return string
+
+    def __str__(self) -> str:
+        class_name = repr(self.__class__)[:-2].split(".")[-1]
+        string = f'<{class_name}' \
+                 f' model={one_two_many([model for model in self.model])}' \
+                 f' data={one_two_many([data for data in self.data])}' \
+                 f' constraints={one_two_many(self.constraints, many="True")}' \
+                 f'>'
+        return string
+
+
+def one_two_many(values, n=3, many='multiple'):
+    values = convert_to_container(values)
+    if len(values) > n:
+        values = many
+    return values
 
 
 class CachedLoss(BaseLoss):
@@ -323,7 +342,7 @@ class UnbinnedNLL(BaseLoss):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
 
-    @z.function
+    @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
         # with tf.GradientTape(persistent=True) as tape:
         nll = self._loss_func_watched(constraints, data, fit_range, model)
@@ -341,7 +360,7 @@ class UnbinnedNLL(BaseLoss):
         # self.computed_gradients[param] = grad
         return nll
 
-    @z.function
+    @z.function(wraps='loss')
     def _loss_func_watched(self, constraints, data, fit_range, model):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
         if constraints:
@@ -358,14 +377,14 @@ class UnbinnedNLL(BaseLoss):
 class ExtendedUnbinnedNLL(UnbinnedNLL):
     """An Unbinned Negative Log Likelihood with an additional poisson term for the"""
 
-    @z.function
+    @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
         nll = super()._loss_func(model=model, data=data, fit_range=fit_range, constraints=constraints)
         poisson_terms = []
         for mod, dat in zip(model, data):
             if not mod.is_extended:
                 raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
-            nevents = dat.nevents if dat.weights is None else z.reduce_sum(dat.weights)
+            nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
             poisson_terms.append(-mod.get_yield() + z.to_real(nevents) * tf.math.log(mod.get_yield()))
         nll -= tf.reduce_sum(input_tensor=poisson_terms)
         return nll
@@ -389,7 +408,7 @@ class SimpleLoss(BaseLoss):
             raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
                                          "More information can be found in the upgrade guide on the website.")
 
-        @z.function
+        @z.function(wraps='loss')
         def wrapped_func():
             return func()
 
@@ -398,16 +417,12 @@ class SimpleLoss(BaseLoss):
         self._errordef = errordef
         self.computed_gradients = {}
         dependents = convert_to_container(dependents, container=OrderedSet)
-        self._simple_func_dependents = self._extract_dependents(dependents)
+        self._simple_func_dependents = _extract_dependencies(dependents)
 
         super().__init__(model=[], data=[], fit_range=[])
 
-    def _get_dependents(self):
+    def _get_dependencies(self):
         dependents = self._simple_func_dependents
-        # if dependents is None:
-        #     independent_params = tf.compat.v1.get_collection("zfit_independent")
-        #     dependents = get_dependents_auto(tensor=self.value(), candidates=independent_params)
-        #     self._simple_func_dependents = dependents
         return dependents
 
     @property
@@ -423,8 +438,8 @@ class SimpleLoss(BaseLoss):
         return self._simple_func()
 
     def __add__(self, other):
-        raise IntentionNotUnambiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."
-                                           "Add them manually")
+        raise IntentionAmbiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."
+                                      "Add them manually")
 
     def _cache_add_constraints(self, constraints):
         raise WorkInProgressError("Needed? will probably provided in future")

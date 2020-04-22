@@ -1,5 +1,4 @@
 #  Copyright (c) 2020 zfit
-import copy
 import functools
 import math as _mt
 from collections import defaultdict
@@ -9,6 +8,8 @@ import numpy as np
 import tensorflow as tf
 
 from ..settings import ztypes
+from ..util.exception import BreakingAPIChangeError
+from ..util.warnings import warn_advanced_feature
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
@@ -118,7 +119,7 @@ def run_no_nan(func, x):
     if value_with_nans.dtype in (tf.complex128, tf.complex64):
         value_with_nans = tf.math.real(value_with_nans) + tf.math.imag(value_with_nans)  # we care only about NaN or not
     finite_bools = tf.math.is_finite(tf.cast(value_with_nans, dtype=tf.float64))
-    finite_indices = tf.compat.v1.where(finite_bools)
+    finite_indices = tf.where(finite_bools)
     new_x = tf.gather_nd(params=x, indices=finite_indices)
     new_x = Data.from_tensor(obs=x.obs, tensor=new_x)
     vals_no_nan = func(x=new_x)
@@ -128,15 +129,27 @@ def run_no_nan(func, x):
 
 
 class FunctionWrapperRegistry:
-    wrapped_functions = []
+    all_wrapped_functions = []
     registries = []
-    do_jit = True
+    allow_jit = True
+    _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
+    _DEFAULT_DO_JIT_TYPES.update({
+        None: True,
+        'model': False,
+        'loss': True,
+        'sample': True,
+        'model_sampling': True,
+        'zfit_tensor': True,
+        'tensor': True,
+    })
+
+    do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
     @classmethod
-    def check_wrapped_functions_registered(cls):
-        return all((func.zfit_graph_cache_registered for func in cls.wrapped_functions))
+    def all_wrapped_functions_registered(cls):
+        return all((func.zfit_graph_cache_registered for func in cls.all_wrapped_functions))
 
-    def __init__(self, **kwargs_user) -> None:
+    def __init__(self, wraps=None, **kwargs_user) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
         Args:
@@ -144,9 +157,21 @@ class FunctionWrapperRegistry:
         """
         super().__init__()
         self._initial_user_kwargs = kwargs_user
+
         self.registries.append(self)
+        self.wrapped_func = None
+
+        if not wraps in self.do_jit_types:
+            # raise RuntimeError(f"Currently custom 'wraps' category ({wraps}) not allowed, set explicitly in `do_jit_types`")
+            self.do_jit_types[wraps] = True
+        self.wraps = wraps
+        self.function_cache = defaultdict(list)
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
+
+    @property
+    def do_jit(self):
+        return self.do_jit_types[self.wraps] and self.allow_jit
 
     def reset(self, **kwargs_user):
         kwargs = dict(autograph=False, experimental_relax_shapes=True)
@@ -154,37 +179,27 @@ class FunctionWrapperRegistry:
         kwargs.update(kwargs_user)
 
         self.tf_function = tf.function(**kwargs)
-        self.function_cache = defaultdict(list)
+        for cache in self.function_cache.values():
+            cache.clear()
 
     def __call__(self, func):
         wrapped_func = self.tf_function(func)
         cache = self.function_cache[func]
         from zfit.util.cache import FunctionCacheHolder
 
-        def call_correct_signature(func, args, kwargs):
-            if args == [] and kwargs != {}:
-                return func(**kwargs)
-            elif args != [] and kwargs == {}:
-                return func(*args)
-            elif args == [] and kwargs == {}:
-                return func()
-            elif args != [] and kwargs != {}:
-                return func(*args, **kwargs)
-
         def concrete_func(*args, **kwargs):
 
             if not self.do_jit or func in self.currently_traced:
-                return call_correct_signature(func, args, kwargs)
+                return func(*args, **kwargs)
+
+            assert self.all_wrapped_functions_registered()
 
             self.currently_traced.add(func)
             nonlocal wrapped_func
             function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
 
-            try:
+            if function_holder in cache:
                 func_holder_index = cache.index(function_holder)
-            except ValueError:  # not in cache
-                cache.append(function_holder)
-            else:
                 func_holder_cached = cache[func_holder_index]
                 if func_holder_cached.is_valid:
                     function_holder = func_holder_cached
@@ -192,29 +207,51 @@ class FunctionWrapperRegistry:
                     wrapped_func = self.tf_function(func)  # update nonlocal wrapped function
                     function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
                     cache[func_holder_index] = function_holder
+            else:
+                cache.append(function_holder)
             func_to_run = function_holder.wrapped_func
-            result = call_correct_signature(func_to_run, args, kwargs)
-            self.currently_traced.remove(func)
+            try:
+                result = func_to_run(*args, **kwargs)
+            finally:
+                self.currently_traced.remove(func)
             return result
 
+        concrete_func.zfit_graph_cache_registered = False
         return concrete_func
 
 
-FunctionWrapperRegistry2 = copy.deepcopy(FunctionWrapperRegistry)
+def function_factory(func=None, **kwargs):
+    if callable(func):
+        wrapper = FunctionWrapperRegistry()
+        return wrapper(func)
+    elif func:
+        raise ValueError("All argument have to be key-word only. `func` must not be used")
+    else:
+        return FunctionWrapperRegistry(**kwargs)
 
-tf_function = FunctionWrapperRegistry()
 
-function_tf = FunctionWrapperRegistry2()  # for only tensorflow inside
-function_sampling = tf_function
+tf_function = function_factory
+
+
+# legacy, remove 0.6
+def function_tf_input(*_, **__):
+    raise BreakingAPIChangeError("This function has been removed. Use `z.function(wraps='zfit_tensor') or your"
+                                 "own category")
+
+
+# legacy, remove 0.6
+def function_sampling(*_, **__):
+    raise BreakingAPIChangeError("This function has been removed. Use `z.function(wraps='zfit_sampling') or your"
+                                 "own category")
 
 
 @functools.wraps(tf.py_function)
 def py_function(func, inp, Tout, name=None):
     from .. import settings
     if not settings.options['numerical_grad']:
-        raise RuntimeError("Running a py_function without using the numerical gradient will result in wrong gradient"
-                           " calculation. Will be more fine-grained in the future. To switch to numerical calculation"
-                           " (even if the gradients are not calculated at all), do"
-                           " `zfit.settings.options['numerical_grad'] = True`")
+        warn_advanced_feature("Using py_function without numerical gradients. If the Python code does not contain any"
+                              " parametrization by `zfit.Parameter` or similar, this can work out. Otherwise, in case"
+                              " it depends on those, you may want to set `zfit.run.set_mode(autograd=False)`.",
+                              identifier="py_func_autograd")
 
     return tf.py_function(func=func, inp=inp, Tout=Tout, name=name)

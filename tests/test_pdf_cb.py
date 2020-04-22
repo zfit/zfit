@@ -41,7 +41,7 @@ def sample_testing(pdf):
 
 def eval_testing(pdf, x):
     probs = pdf.pdf(x).numpy()
-    assert not any(np.isnan(probs))
+    assert not np.any(np.isnan(probs))
     return probs
 
 

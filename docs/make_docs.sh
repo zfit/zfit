@@ -10,7 +10,7 @@ popd > /dev/null
 #echo "debug"
 #echo ${MAKE_DOCS_PATH}/../zfit
 #ls ${MAKE_DOCS_PATH}
-#SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members sphinx-apidoc -o ${MAKE_DOCS_PATH}/api ${MAKE_DOCS_PATH}/../zfit  -fMeT && \
-#python3 ${MAKE_DOCS_PATH}/api/tools/change_headline.py ${MAKE_DOCS_PATH}/api/zfit.* && \
+#SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members sphinx-apidoc -o ${MAKE_DOCS_PATH}/full_api ${MAKE_DOCS_PATH}/../zfit  -fMeT && \
+#python3 ${MAKE_DOCS_PATH}/full_api/tools/change_headline.py ${MAKE_DOCS_PATH}/full_api/zfit.* && \
 make -C ${MAKE_DOCS_PATH} clean && make -C ${MAKE_DOCS_PATH} html -j4 && \
 echo "Documentation successfully built!" || echo "FAILED to build Documentation"

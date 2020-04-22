@@ -8,7 +8,7 @@ import tensorflow as tf
 import zfit
 from zfit import z
 from ..core.basepdf import BasePDF
-from ..core.limits import ANY_UPPER, ANY_LOWER, Space
+from ..core.space import ANY_UPPER, ANY_LOWER, Space
 from ..settings import ztypes
 from ..util import ztyping
 
@@ -17,7 +17,7 @@ def _powerlaw(x, a, k):
     return a * tf.pow(x, k)
 
 
-@z.function_tf
+@z.function(wraps='zfit_tensor')
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = tf.abs(alpha)
@@ -32,7 +32,7 @@ def crystalball_func(x, mu, sigma, alpha, n):
     return func
 
 
-@z.function_tf
+@z.function(wraps='zfit_tensor')
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
     func = tf.where(cond,
@@ -49,14 +49,16 @@ def crystalball_integral(limits, params, model):
     alpha = params['alpha']
     n = params['n']
 
-    (lower,), (upper,) = limits.limits
-    lower = lower[0]  # obs number 0
-    upper = upper[0]
+    lower, upper = limits._rect_limits_tf
+    lower = lower
+    upper = upper
 
-    return crystalball_integral_func(mu, sigma, alpha, n, lower, upper)
+    integral = crystalball_integral_func(mu, sigma, alpha, n, lower, upper)
+    return integral
 
 
-@z.function_tf
+# @z.function(wraps='zfit_tensor')
+# @tf.function  # BUG? TODO: problem with tf.function and input signature
 def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
     sqrt2 = np.sqrt(2)
@@ -125,10 +127,11 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
     # if_false_4()
     result = tf.cond(pred=tf.greater_equal(tmin, -abs_alpha), true_fn=if_true_4, false_fn=if_false_4)
+    if not result.shape.rank == 0:
+        result = tf.gather(result, 0, axis=-1)  # remove last dim, should vanish
     return result
 
 
-# @z.function_tf
 def double_crystalball_mu_integral(limits, params, model):
     mu = params['mu']
     sigma = params['sigma']
@@ -137,15 +140,13 @@ def double_crystalball_mu_integral(limits, params, model):
     alphar = -params["alphar"]
     nr = params["nr"]
 
-    (lower,), (upper,) = limits.limits
-    lower = lower[0]  # obs number 0
-    upper = upper[0]
+    lower, upper = limits._rect_limits_tf
 
-    #
     return double_crystalball_mu_integral_func(mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr,
                                                lower=lower, upper=upper)
 
-@z.function_tf
+
+@z.function(wraps='zfit_tensor')
 def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower, upper):
     left = tf.cond(pred=tf.less(mu, lower), true_fn=lambda: z.constant(0.),
                    false_fn=lambda: crystalball_integral_func(mu=mu, sigma=sigma, alpha=alphal, n=nl,
@@ -209,7 +210,7 @@ class CrystalBall(BasePDF):
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
 
-crystalball_integral_limits = Space.from_axes(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+crystalball_integral_limits = Space(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
 # TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond
 CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 

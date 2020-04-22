@@ -1,6 +1,7 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 # TODO: improve errors of models. Generate more general error, inherit and use more specific?
+import warnings
 
 
 class PDFCompatibilityError(Exception):
@@ -8,6 +9,10 @@ class PDFCompatibilityError(Exception):
 
 
 class LogicalUndefinedOperationError(Exception):
+    pass
+
+
+class OperationNotAllowedError(Exception):
     pass
 
 
@@ -35,10 +40,11 @@ class BasePDFSubclassingError(SubclassingError):
     pass
 
 
-class IntentionNotUnambiguousError(Exception):
+class IntentionAmbiguousError(Exception):
     pass
 
-class UnderdefinedError(IntentionNotUnambiguousError):
+
+class UnderdefinedError(IntentionAmbiguousError):
     pass
 
 
@@ -46,7 +52,11 @@ class LimitsUnderdefinedError(UnderdefinedError):
     pass
 
 
-class OverdefinedError(IntentionNotUnambiguousError):
+class NormRangeUnderdefinedError(UnderdefinedError):
+    pass
+
+
+class OverdefinedError(IntentionAmbiguousError):
     pass
 
 
@@ -54,7 +64,11 @@ class LimitsOverdefinedError(OverdefinedError):
     pass
 
 
-class AxesNotUnambiguousError(IntentionNotUnambiguousError):
+class CoordinatesUnderdefinedError(UnderdefinedError):
+    pass
+
+
+class AxesAmbiguousError(IntentionAmbiguousError):
     pass
 
 
@@ -95,11 +109,28 @@ class ShapeIncompatibleError(IncompatibleError):
 class ObsIncompatibleError(IncompatibleError):
     pass
 
+
+class AxesIncompatibleError(IncompatibleError):
+    pass
+
+
+class CoordinatesIncompatibleError(IncompatibleError):
+    pass
+
+
 class SpaceIncompatibleError(IncompatibleError):
     pass
 
 
 class LimitsIncompatibleError(IncompatibleError):
+    pass
+
+
+class NumberOfEventsIncompatibleError(ShapeIncompatibleError):
+    pass
+
+
+class InvalidLimitSubspaceError(Exception):
     pass
 
 
@@ -112,6 +143,15 @@ class WeightsNotImplementedError(Exception):
     pass
 
 
+class DataIsBatchedError(Exception):
+    pass
+
+
+# Parameter errors
+class ParameterNotIndependentError(Exception):
+    pass
+
+
 # Minimizer errors
 
 class NotMinimizedError(Exception):
@@ -120,7 +160,54 @@ class NotMinimizedError(Exception):
 
 # Runtime Errors
 
-class NoSessionSpecifiedError(Exception):
+
+class IllegalInGraphModeError(Exception):
+    pass
+
+
+class CannotConvertToNumpyError(Exception):
+    pass
+
+
+# Baseclass to steer execution
+class ZfitNotImplementedError(NotImplementedError):
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+        if type(self) == ZfitNotImplementedError:
+            warnings.warn("Prefer to use a more specific subclass. See in `zfit.exceptions`")
+
+
+class FunctionNotImplementedError(ZfitNotImplementedError):
+    """Any function, e.g. in a BaseModel, that not implemented and a fallback should be called.
+
+    Preferably use more specific exceptions
+    """
+
+
+class SpecificFunctionNotImplementedError(FunctionNotImplementedError):
+    """If a specific function, e.g. by the user is not implemented"""
+
+
+class MinimizeNotImplementedError(FunctionNotImplementedError):
+    """The `minimize` function of a minimizer is not implemented."""
+
+
+class MinimizeStepNotImplementedError(FunctionNotImplementedError):
+    """The `step` function of a minimizer is not implemented."""
+
+
+class AnalyticNotImplementedError(ZfitNotImplementedError):
+    """General exception if an analytic way is not implemented"""
+
+
+class AnalyticIntegralNotImplementedError(AnalyticNotImplementedError):
+    """If an analytic integral is not provided."""
+    pass
+
+
+class AnalyticSamplingNotImplementedError(AnalyticNotImplementedError):
+    """If analytic sampling from a distribution is not possible."""
     pass
 
 
@@ -135,6 +222,11 @@ class MultipleLimitsNotImplementedError(Exception):
     pass
 
 
+class VectorizedLimitsNotImplementedError(Exception):
+    """Indicates that a function does not support vectorized (n_events > 1) limits in a :py:class:`~zfit.Space`."""
+    pass
+
+
 # Developer verbose messages
 
 class WorkInProgressError(Exception):
@@ -143,4 +235,18 @@ class WorkInProgressError(Exception):
 
 
 class BreakingAPIChangeError(Exception):
-    pass
+    def __init__(self, msg, *args: object) -> None:
+        default_msg = ("This item has been removed due to an API change. Instruction to update:\n"
+                       "")
+        msg = default_msg + str(msg)
+        super().__init__(msg, *args)
+
+
+class BehaviorUnderDiscussion(Exception):
+
+    def __init__(self, msg, *args: object) -> None:
+        default_msg = ("The behavior of the following is currently under discussion and ideas are well needed. "
+                       "Please open an issue at https://github.com/zfit/zfit/issues with your opinion about this.\n"
+                       "")
+        msg = default_msg + str(msg)
+        super().__init__(msg, *args)

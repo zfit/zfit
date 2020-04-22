@@ -10,7 +10,7 @@ import zfit
 import zfit.core.integration as zintegrate
 from zfit import z
 from zfit.core import basepdf as zbasepdf
-from zfit.core.limits import Space
+from zfit.core.space import Space
 from zfit.core.parameter import Parameter
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -107,6 +107,7 @@ def func1_5deps_fully_integrated(limits):
 
 
 limits2 = (-1., 2.)
+limits2_split = [(-1., 1.5), (1.5, 2.)]
 
 
 def func2_1deps(x):
@@ -134,7 +135,7 @@ def func3_2deps(x):
 
 
 def func3_2deps_fully_integrated(limits, params=None, model=None):
-    lower, upper = limits.limits
+    lower, upper = limits.rect_limits
     with suppress(TypeError):
         lower, upper = lower[0], upper[0]
 
@@ -190,43 +191,47 @@ def func4_3deps_1_integrated(x, limits):
 
 
 @pytest.mark.parametrize("chunksize", [10000000, 1000])
-def test_mc_integration(chunksize):
+@pytest.mark.parametrize("limits", [limits2, limits2_split])
+def test_mc_integration(chunksize, limits):
     # simpel example
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
     num_integral = zintegrate.mc_integrate(func=func1_5deps,
-                                           limits=Space.from_axes(limits=limits_simple_5deps,
-                                                                  axes=tuple(range(5))),
+                                           limits=Space(limits=limits_simple_5deps,
+                                                        axes=tuple(range(5))),
                                            n_axes=5)
+    if isinstance(limits, list):
+        spaces = [Space(limits=limit, axes=tuple(range(1))) for limit in limits]
+        space2 = spaces[0] + spaces[1]
+    else:
+        space2 = Space(limits=limits2, axes=tuple(range(1)))
     num_integral2 = zintegrate.mc_integrate(func=func2_1deps,
-                                            limits=Space.from_axes(limits=limits2,
-                                                                   axes=tuple(range(1))),
+                                            limits=space2,
                                             n_axes=1)
     num_integral3 = zintegrate.mc_integrate(func=func3_2deps,
-                                            limits=Space.from_axes(limits=limits3,
-                                                                   axes=tuple(range(2))),
+                                            limits=Space(limits=limits3,
+                                                         axes=(0, 1)),
                                             n_axes=2)
 
     integral = num_integral.numpy()
     integral2 = num_integral2.numpy()
     integral3 = num_integral3.numpy()
 
-    assert not hasattr(integral, "__len__")
-    assert not hasattr(integral2, "__len__")
-    assert not hasattr(integral3, "__len__")
+    assert integral.shape == (1,)
+    assert integral2.shape == (1,)
+    assert integral3.shape == (1,)
     assert func1_5deps_fully_integrated(limits_simple_5deps) == pytest.approx(integral,
                                                                               rel=0.1)
     assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
     assert func3_2deps_fully_integrated(
-        Space.from_axes(limits=limits3, axes=(0, 1))).numpy() == pytest.approx(integral3, rel=0.03)
+        Space(limits=limits3, axes=(0, 1))).numpy() == pytest.approx(integral3, rel=0.03)
 
 
 @pytest.mark.flaky(2)
 def test_mc_partial_integration():
     values = z.convert_to_tensor(func4_values)
     data1 = zfit.Data.from_tensor(obs='obs2', tensor=tf.expand_dims(values, axis=-1))
-    limits1 = Space(limits=limits4_2dim, obs=['obs1', 'obs3'])
-    limits1._set_obs_axes({'obs1': 0, 'obs3': 2})
+    limits1 = Space(limits=limits4_2dim, obs=['obs1', 'obs3'], axes=(0, 2))
     num_integral = zintegrate.mc_integrate(x=data1,
                                            func=func4_3deps,
                                            limits=limits1)
@@ -236,8 +241,7 @@ def test_mc_partial_integration():
     vals_reshaped = tf.transpose(a=vals_tensor)
     data2 = zfit.Data.from_tensor(obs=['obs1', 'obs3'], tensor=vals_reshaped)
 
-    limits2 = Space(limits=limits4_1dim, obs=['obs2'])
-    limits2._set_obs_axes({'obs2': 1})
+    limits2 = Space(limits=limits4_1dim, obs=['obs2'], axes=1)
     num_integral2 = zintegrate.mc_integrate(x=data2,
                                             func=func4_3deps,
                                             limits=limits2,
@@ -250,10 +254,10 @@ def test_mc_partial_integration():
     assert len(integral2) == len(func4_2values[0])
     assert func4_3deps_0and2_integrated(x=func4_values,
                                         limits=limits4_2dim) == pytest.approx(integral,
-                                                                              rel=0.03)
+                                                                              rel=0.05)
 
     assert func4_3deps_1_integrated(x=func4_2values,
-                                    limits=limits4_1dim) == pytest.approx(integral2, rel=0.03)
+                                    limits=limits4_1dim) == pytest.approx(integral2, rel=0.05)
 
 
 def test_analytic_integral():
@@ -272,18 +276,18 @@ def test_analytic_integral():
         infinity = mt.inf
     except AttributeError:  # py34
         infinity = float('inf')
-    gauss_integral_infs = gauss_params1.integrate(limits=(-infinity, infinity), norm_range=False)
-    normal_integral_infs = normal_params1.integrate(limits=(-infinity, infinity), norm_range=False)
+    gauss_integral_infs = gauss_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm_range=False)
+    normal_integral_infs = normal_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm_range=False)
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
-                                         limits=Space.from_axes(limits=limits3, axes=(0, 1)))
+                                         limits=Space(limits=limits3, axes=(0, 1)))
 
     dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
     normal_integral_infs = normal_integral_infs
-    func3_integrated = dist_func3.integrate(limits=Space.from_axes(limits=limits3, axes=(0, 1)),
+    func3_integrated = dist_func3.integrate(limits=Space(limits=limits3, axes=(0, 1)),
                                             norm_range=False).numpy()
     assert func3_integrated == pytest.approx(
-        func3_2deps_fully_integrated(limits=Space.from_axes(limits=limits3, axes=(0, 1))).numpy())
+        func3_2deps_fully_integrated(limits=Space(limits=limits3, axes=(0, 1))).numpy())
     assert gauss_integral_infs.numpy() == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)
     assert normal_integral_infs.numpy() == pytest.approx(1, rel=0.0001)
 
@@ -301,25 +305,25 @@ def test_analytic_integral_selection():
     int5 = lambda x: 5
     limits1 = (-1, 5)
     dims1 = (1,)
-    limits1 = Space.from_axes(axes=dims1, limits=limits1)
+    limits1 = Space(axes=dims1, limits=limits1)
     limits2 = (Space.ANY_LOWER, 5)
     dims2 = (1,)
-    limits2 = Space.from_axes(axes=dims2, limits=limits2)
+    limits2 = Space(axes=dims2, limits=limits2)
     limits3 = ((Space.ANY_LOWER, 1),), ((Space.ANY_UPPER, 5),)
     dims3 = (0, 1)
-    limits3 = Space.from_axes(axes=dims3, limits=limits3)
+    limits3 = Space(axes=dims3, limits=limits3)
     limits4 = (((Space.ANY_LOWER, 0, Space.ANY_LOWER),), ((Space.ANY_UPPER, 5, 42),))
     dims4 = (0, 1, 2)
-    limits4 = Space.from_axes(axes=dims4, limits=limits4)
+    limits4 = Space(axes=dims4, limits=limits4)
     limits5 = (((Space.ANY_LOWER, 1),), ((10, Space.ANY_UPPER),))
     dims5 = (1, 2)
-    limits5 = Space.from_axes(axes=dims5, limits=limits5)
+    limits5 = Space(axes=dims5, limits=limits5)
     DistFuncInts.register_analytic_integral(int1, limits=limits1)
     DistFuncInts.register_analytic_integral(int2, limits=limits2)
     DistFuncInts.register_analytic_integral(int22, limits=limits2, priority=60)
     DistFuncInts.register_analytic_integral(int3, limits=limits3)
     DistFuncInts.register_analytic_integral(int4, limits=limits4)
     DistFuncInts.register_analytic_integral(int5, limits=limits5)
-    dims = DistFuncInts._analytic_integral.get_max_axes(limits=Space.from_axes(limits=(((-5, 1),), ((1, 5),)),
-                                                                               axes=dims3))
+    dims = DistFuncInts._analytic_integral.get_max_axes(limits=Space(limits=(((-5, 1),), ((1, 5),)),
+                                                                     axes=dims3))
     assert dims3 == dims

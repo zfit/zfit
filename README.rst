@@ -8,8 +8,12 @@ zfit: scalable pythonic fitting
 .. image:: https://img.shields.io/pypi/v/zfit.svg
    :target: https://pypi.python.org/pypi/zfit
 
+.. image:: https://img.shields.io/conda/vn/conda-forge/zfit
+   :alt: conda-forge
+   :target: https://anaconda.org/conda-forge/zfit
+
 .. image:: https://travis-ci.org/zfit/zfit.svg?branch=develop
-    :target: https://travis-ci.org/zfit/zfit
+   :target: https://travis-ci.org/zfit/zfit
 
 .. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
    :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
@@ -257,7 +261,7 @@ zfit has been developed with support from the University of Zürich and the Swis
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
 .. _documentation: https://zfit.readthedocs.io/en/latest/
-..  _stable documentation: https://zfit.readthedocs.io/en/0.4.3/
+..  _stable documentation: https://zfit.readthedocs.io/en/0.5.0/
 .. _API: https://zfit.readthedocs.io/en/latest/API.html
 
 
