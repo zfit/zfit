@@ -112,7 +112,8 @@ class SumPDF(BaseFunctor):
             raise ModelIncompatibleError(f"Not all pdf {pdfs} are extended and no fracs {fracs} are provided.")
 
         if not no_extended and fracs:
-            warn_advanced_feature(f"This SumPDF is built with fracs {fracs} and (some or all) pdf extended {pdfs}."
+            warn_advanced_feature(f"This SumPDF is built with fracs {fracs} and {'all' if all_extended else 'some'} "
+                                  f"pdf are extended: {pdfs}."
                                   f" This will ignore the yields of the already extended pdfs and the result will"
                                   f" be a not extended SumPDF.", identifier='sum_extended_frac')
 

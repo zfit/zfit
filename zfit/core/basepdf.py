@@ -111,7 +111,6 @@ class BasePDF(ZfitPDF, BaseModel):
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
         self._yield = None
-        self._temp_yield = None
         self._norm_range = None
         self._normalization_value = None
 
@@ -142,36 +141,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _func_to_sample_from(self, x):
         return self.unnormalized_pdf(x)
-
-    def _single_hook_integrate(self, limits, norm_range):
-        integral = super()._single_hook_integrate(limits=limits, norm_range=norm_range)
-        # integral = self.apply_yield(integral, norm_range=norm_range)
-        return integral
-
-    def _single_hook_analytic_integrate(self, limits, norm_range):
-        integral = super()._single_hook_analytic_integrate(limits=limits, norm_range=norm_range)
-        # integral = self.apply_yield(integral, norm_range=norm_range)
-        return integral
-
-    def _single_hook_numeric_integrate(self, limits, norm_range):
-        numeric_integral = super()._single_hook_numeric_integrate(limits=limits, norm_range=norm_range)
-        # numeric_integral = self.apply_yield(numeric_integral, norm_range=norm_range)
-        return numeric_integral
-
-    def _single_hook_partial_integrate(self, x, limits, norm_range):
-        partial_integral = super()._single_hook_partial_integrate(x=x, limits=limits, norm_range=norm_range)
-        # partial_integral = self.apply_yield(partial_integral, norm_range=norm_range)
-        return partial_integral
-
-    def _single_hook_partial_analytic_integrate(self, x, limits, norm_range):
-        part_analytic_int = super()._single_hook_partial_analytic_integrate(x=x, limits=limits, norm_range=norm_range)
-        # part_analytic_int = self.apply_yield(part_analytic_int, norm_range=norm_range)
-        return part_analytic_int
-
-    def _single_hook_partial_numeric_integrate(self, x, limits, norm_range):
-        part_numeric_int = super()._single_hook_partial_numeric_integrate(x=x, limits=limits, norm_range=norm_range)
-        # part_numeric_int = self.apply_yield(part_numeric_int, norm_range=norm_range)
-        return part_numeric_int
 
     @property
     def norm_range(self) -> Union[Space, None, bool]:
