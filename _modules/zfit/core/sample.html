@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.sample &#8212; zfit 0.4.4.dev137+ga25d401 documentation</title>
+    <title>zfit.core.sample &#8212; zfit 0.4.4.dev137+g3e8b482 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -722,9 +722,10 @@
     <span class="n">sample_array</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">cond</span><span class="o">=</span><span class="n">not_enough_produced</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">sample_body</span><span class="p">,</span>  <span class="c1"># paraopt</span>
                                  <span class="n">loop_vars</span><span class="o">=</span><span class="n">loop_vars</span><span class="p">,</span>
                                  <span class="n">swap_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                 <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                                 <span class="n">back_prop</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># backprop not needed here</span>
+                                 <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">new_sample</span> <span class="o">=</span> <span class="n">sample_array</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+    <span class="n">new_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stop_gradient</span><span class="p">(</span><span class="n">new_sample</span><span class="p">)</span>  <span class="c1"># stopping backprop</span>
+
     <span class="k">if</span> <span class="n">multiple_limits</span><span class="p">:</span>
         <span class="n">new_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">new_sample</span><span class="p">)</span>  <span class="c1"># to make sure, randomly remove and not biased.</span>
     <span class="k">if</span> <span class="n">dynamic_array_shape</span><span class="p">:</span>  <span class="c1"># if not dynamic we produced exact n -&gt; no need to cut</span>
