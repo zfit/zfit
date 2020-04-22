@@ -74,7 +74,7 @@ def test_gaussian_constraint_matrix():
     assert constr_np == pytest.approx(trueval)
     #assert constr_np == pytest.approx(3.989638)
 
-    assert constr.get_dependents() == set(params)
+    assert constr.get_cache_deps() == set(params)
 
 
 def test_gaussian_constraint():
@@ -88,7 +88,7 @@ def test_gaussian_constraint():
     constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
     constr_np = constr.value().numpy()
     assert constr_np == pytest.approx(true_val)
-    assert constr.get_dependents() == set(params)
+    assert constr.get_cache_deps() == set(params)
 
     param_vals[0] = 2
     params[0].set_value(param_vals[0])
@@ -185,4 +185,4 @@ def test_simple_constraint():
     constr_np = constr.value().numpy()
     assert constr_np == pytest.approx(2.02)
 
-    assert constr.get_dependents() == set(params)
+    assert constr.get_cache_deps() == set(params)

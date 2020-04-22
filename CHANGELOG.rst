@@ -52,6 +52,8 @@ Major Features and Improvements
    `DefaultToyStrategy` in `zfit.mnimize`.
  - Exceptions are now publicly available in `zfit.exception`
  - Added nice printout for `FitResult` and `FitResult.params`.
+ - `get_params` is now more meaningful, returning by default all independent parameters of the pdf, including yields.
+   Arguments (`floating`, `is_yield`) allow for more fine-grained control.
 
 Breaking changes
 ------------------
@@ -62,7 +64,17 @@ Breaking changes
    To extract limits from multiple limits, `MultiSpace` and `Space` are both iterables, returning
    the containing spaces respectively itself (for the `Space` case).
  - SumPDF changed in the behavior. Read above in the Major Features and Improvement.
- - Integrals of extended PDFs are not extended anymore.
+ - Integrals of extended PDFs are not extended anymore, but `ext_integrate` now returns the
+   integral multiplied by the yield.
+
+Depreceations
+-------------
+ - `ComposedParameter` takes now `params` instead of `dependents` as argument, it acts now as
+   the arguments to the `value_fn`. To stay future compatible, create e.g. `def value_fn(p1, pa2)`
+   and using `params = ['param1, param2]`, `value_fn` will then be called as `value_fn(param1, parma2)`.
+   `value_fn` without arguments will probably break in the future.
+ - `FitResult.error` has been renamed to `errors` to better reflect that multiple errors, the lower and
+   upper are returned.
 
 
 Bug fixes and small changes
@@ -89,6 +101,7 @@ Requirement changes
 Thanks
 ------
  - Johannes Lade for code review and discussions.
+ - Hans Dembinski for useful inputs to the uncertainties.
 
 0.4.3 (11.3.2020)
 =================

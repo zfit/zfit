@@ -148,7 +148,7 @@ class BaseMinimizer(ZfitMinimizer):
             params = [params, ]
             params = self._filter_floating_params(params)
         if params is None or isinstance(params[0], str):
-            params = loss.get_dependents(only_floating=only_floating)
+            params = loss.get_cache_deps(only_floating=only_floating)
             params = list(params)
         if not params:
             raise RuntimeError("No parameter for minimization given/found. Cannot minimize.")

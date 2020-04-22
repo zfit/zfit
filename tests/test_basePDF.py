@@ -162,10 +162,13 @@ def test_normalization(pdf_factory):
         assert probs == pytest.approx(1., rel=0.05)
         assert log_probs == pytest.approx(tf.math.log(probs_small).numpy(), rel=0.05)
         dist = dist.create_extended(z.constant(test_yield))
-        probs_extended = dist.pdf(samples)
-        result_extended = probs_extended.numpy()
-        result_extended = np.average(result_extended) * (high - low)
-        assert result_extended == pytest.approx(1, rel=0.05)
+        probs = dist.pdf(samples)
+        probs_extended = dist.ext_pdf(samples)
+        result = probs.numpy()
+        result = np.average(result) * (high - low)
+        result_ext = np.average(probs_extended) * (high - low)
+        assert result == pytest.approx(1, rel=0.05)
+        assert result_ext == pytest.approx(test_yield, rel=0.05)
 
 
 @pytest.mark.parametrize('gauss_factory', [create_gauss1, create_test_gauss1])
