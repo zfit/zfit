@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.parameter &#8212; zfit 0.4.4.dev128+g10c29b3 documentation</title>
+    <title>zfit.core.parameter &#8212; zfit 0.4.4.dev137+g394366e documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.4.4.dev128</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev137</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -1044,6 +1044,10 @@
 <div class="viewcode-block" id="BaseComposedParameter.read_value"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter.read_value">[docs]</a>    <span class="k">def</span> <span class="nf">read_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">())</span></div>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span>
+
 <div class="viewcode-block" id="BaseComposedParameter.numpy"><a class="viewcode-back" href="../../../api/zfit.core.parameter.html#zfit.BaseComposedParameter.numpy">[docs]</a>    <span class="k">def</span> <span class="nf">numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
 
@@ -1133,6 +1137,14 @@
 
 <div class="viewcode-block" id="ComplexParameter"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter">[docs]</a><span class="k">class</span> <span class="nc">ComplexParameter</span><span class="p">(</span><span class="n">ComposedParameter</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a complex parameter.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Use the constructor class methods instead of the __init__() constructor:</span>
+
+<span class="sd">            - :py:meth:`ComplexParameter.from_cartesian`</span>
+<span class="sd">            - :py:meth:`ComplexParameter.from_polar`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="n">value_fn</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conj</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mod</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1140,24 +1152,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_imag</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_real</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="ComplexParameter.from_cartesian"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter.from_cartesian">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_cartesian</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span>
+<div class="viewcode-block" id="ComplexParameter.from_cartesian"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter.from_cartesian">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_cartesian</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span>
                        <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># TODO: correct dtype handling, also below</span>
         <span class="n">real</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_real&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
         <span class="n">imag</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_imag&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
-        <span class="n">param</span> <span class="o">=</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span>
-                                 <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">])</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">value_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span>
+                    <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">real</span><span class="p">,</span> <span class="n">imag</span><span class="p">])</span>
         <span class="n">param</span><span class="o">.</span><span class="n">_real</span> <span class="o">=</span> <span class="n">real</span>
         <span class="n">param</span><span class="o">.</span><span class="n">_imag</span> <span class="o">=</span> <span class="n">imag</span>
         <span class="k">return</span> <span class="n">param</span></div>
 
-<div class="viewcode-block" id="ComplexParameter.from_polar"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter.from_polar">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_polar</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ComplexParameter.from_polar"><a class="viewcode-back" href="../../../api/zfit.param.html#zfit.ComplexParameter.from_polar">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_polar</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">complex</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_mod&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_arg&quot;</span><span class="p">,</span> <span class="n">prefer_constant</span><span class="o">=</span><span class="ow">not</span> <span class="n">floating</span><span class="p">)</span>
-        <span class="n">param</span> <span class="o">=</span> <span class="n">ComplexParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">mod</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span>
-                                                                                <span class="n">mod</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">arg</span><span class="p">)),</span>
-                                                                     <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mod</span><span class="p">,</span> <span class="n">arg</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">value_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+                        <span class="n">tf</span><span class="o">.</span><span class="n">complex</span><span class="p">(</span><span class="n">mod</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="n">mod</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">arg</span><span class="p">)),</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span>
+                    <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mod</span><span class="p">,</span> <span class="n">arg</span><span class="p">])</span>
         <span class="n">param</span><span class="o">.</span><span class="n">_mod</span> <span class="o">=</span> <span class="n">mod</span>
         <span class="n">param</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">arg</span>
         <span class="k">return</span> <span class="n">param</span></div>
@@ -1289,7 +1304,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible length of parameters and values: </span><span class="si">{</span><span class="n">params</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">independent</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">ParameterNotIndependentError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;tryping to set parameters that are not independend &#39;</span>
+        <span class="k">raise</span> <span class="n">ParameterNotIndependentError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;trying to set value of parameters that are not independent &#39;</span>
                                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">independent</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
