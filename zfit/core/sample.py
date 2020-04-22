@@ -342,9 +342,10 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
                                  loop_vars=loop_vars,
                                  swap_memory=True,
-                                 parallel_iterations=1,
-                                 back_prop=False)[1]  # backprop not needed here
+                                 parallel_iterations=1)[1]
     new_sample = sample_array.stack()
+    new_sample = tf.stop_gradient(new_sample)  # stopping backprop
+
     if multiple_limits:
         new_sample = tf.random.shuffle(new_sample)  # to make sure, randomly remove and not biased.
     if dynamic_array_shape:  # if not dynamic we produced exact n -> no need to cut
