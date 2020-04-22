@@ -661,6 +661,7 @@ class ZfitParameter(ZfitNumericParametrized):
 
     # TODO: maybe add to numerics?
     @property
+    @abstractmethod
     def shape(self):
         raise NotImplementedError
 
@@ -686,12 +687,6 @@ class ZfitParameter(ZfitNumericParametrized):
     @abstractmethod
     def independent(self) -> bool:
         raise NotImplementedError
-
-    # TODO: shape to numeric?
-    # @property
-    # @abc.abstractmethod
-    # def shape(self):
-    #     raise NotImplementedError
 
 
 class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):

@@ -664,6 +664,10 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
     def read_value(self):
         return tf.identity(self.value())
 
+    @property
+    def shape(self):
+        return self.value().shape
+
     def numpy(self):
         return self.value().numpy()
 
@@ -753,6 +757,14 @@ class ComposedParameter(BaseComposedParameter):
 
 class ComplexParameter(ComposedParameter):
     def __init__(self, name, value_fn, params, dtype=ztypes.complex):
+        """Create a complex parameter.
+
+        .. warning::
+            Use the constructor class methods instead of the __init__() constructor:
+
+            - :py:meth:`ComplexParameter.from_cartesian`
+            - :py:meth:`ComplexParameter.from_polar`
+        """
         super().__init__(name, value_fn=value_fn, params=params, dtype=dtype)
         self._conj = None
         self._mod = None
@@ -760,24 +772,27 @@ class ComplexParameter(ComposedParameter):
         self._imag = None
         self._real = None
 
-    @staticmethod
-    def from_cartesian(name, real, imag, dtype=ztypes.complex,
+    @classmethod
+    def from_cartesian(cls, name, real, imag, dtype=ztypes.complex,
                        floating=True):  # TODO: correct dtype handling, also below
         real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
-        param = ComplexParameter(name=name, value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
-                                 params=[real, imag])
+        param = cls(name=name,
+                    value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
+                    params=[real, imag])
         param._real = real
         param._imag = imag
         return param
 
-    @staticmethod
-    def from_polar(name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
+    @classmethod
+    def from_polar(cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
-        param = ComplexParameter(name=name, value_fn=lambda: tf.cast(tf.complex(mod * tf.math.cos(arg),
-                                                                                mod * tf.math.sin(arg)),
-                                                                     dtype=dtype), params=[mod, arg], **kwargs)
+        param = cls(name=name,
+                    value_fn=lambda: tf.cast(
+                        tf.complex(mod*tf.math.cos(arg), mod*tf.math.sin(arg)),
+                        dtype=dtype),
+                    params=[mod, arg])
         param._mod = mod
         param._arg = arg
         return param
@@ -909,7 +924,7 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
             if not len(params) == len(values):
                 raise ValueError(f"Incompatible length of parameters and values: {params}, {values}")
     if not all(param.independent for param in params):
-        raise ParameterNotIndependentError(f'tryping to set parameters that are not independend '
+        raise ParameterNotIndependentError(f'trying to set value of parameters that are not independent '
                                            f'{[param for param in params if not param.independent]}')
 
     def setter(values):

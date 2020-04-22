@@ -101,6 +101,21 @@ def test_composed_param():
     #     param_a.assign(value=5.)
 
 
+def test_shape_parameter():
+    a = Parameter(name='a', value=1)
+    assert a.shape.rank == 0
+
+
+def test_shape_composed_parameter():
+    a = Parameter(name='a', value=1)
+    b = Parameter(name='b', value=2)
+
+    def compose():
+        return tf.square(a) - b
+    c = ComposedParameter(name='c', value_fn=compose, dependents=[a, b])
+    assert c.shape.rank == 0
+
+
 # TODO: add test
 def test_randomize():
     pass
