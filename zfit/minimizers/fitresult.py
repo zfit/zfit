@@ -3,7 +3,7 @@
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Dict, Union, Callable, Optional
+from typing import Dict, Union, Callable, Optional, Tuple
 
 import colored
 import numpy as np
@@ -19,7 +19,6 @@ from ..util.exception import WeightsNotImplementedError
 from ..util.ztyping import ParamsTypeOpt
 
 from .errors import compute_errors
-from .. import settings
 
 
 def _minos_minuit(result, params, sigma=1.0):
@@ -259,11 +258,15 @@ class FitResult(ZfitResult):
                     holding the calculated errors.
                     Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
-        warnings.warn("`error` is depreceated, use `errors` instead.", DeprecationWarning)
+        warnings.warn("`error` is depreceated, use `errors` instead. This will return not only the errors but also "
+                      "(a possible) new FitResult if a minimum was found. So change"
+                      "errors = result.error()"
+                      "to"
+                      "errors, new_res = result.errors()", DeprecationWarning)
         return self.errors(params=params, method=method, error_name=error_name, sigma=sigma)
 
     def errors(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
-               sigma: float = 1.0) -> OrderedDict:
+               sigma: float = 1.0) -> Tuple[OrderedDict, Union[None, 'FitResult']]:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
@@ -286,7 +289,15 @@ class FitResult(ZfitResult):
                     Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
         """
         if method is None:
-            method = self._default_error
+            # TODO: legacy, remove 0.6
+            from zfit.minimize import Minuit
+            if isinstance(self.minimizer, Minuit):
+                method = 'minuit_minos'
+                warnings.warn("'minuit_minos' will be changed as the default errors method to a custom implementation"
+                              "with the same functionality. If you want to make sure that 'minuit_minos' will be used "
+                              "in the future, add it explicitly as in `errors(method='minuit_minos')`", FutureWarning)
+            else:
+                method = self._default_error
         if error_name is None:
             if not isinstance(method, str):
                 raise ValueError("Need to specify `error_name` or use a string as `method`")

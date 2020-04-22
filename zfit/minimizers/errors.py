@@ -1,3 +1,5 @@
+#  Copyright (c) 2020 zfit
+
 import numpy as np
 from scipy import optimize
 from ..param import set_values
@@ -182,7 +184,9 @@ def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
                                 "upper": upper_values[param] - fitted_value}
 
     except NewMinimum as e:
-        print(e)
+        from .. import settings
+        if settings.get_verbosity() >= 5:
+            print(e)
         minimizer = result.minimizer
         loss = result.loss
         new_result = minimizer.minimize(loss=loss)
