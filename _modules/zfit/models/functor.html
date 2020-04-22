@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.functor &#8212; zfit 0.4.4.dev173+g06493ce documentation</title>
+    <title>zfit.models.functor &#8212; zfit 0.4.4.dev173+gb4c41c8 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -274,7 +274,7 @@
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ModelIncompatibleError</span><span class="p">,</span> <span class="n">ObsIncompatibleError</span><span class="p">,</span> <span class="n">NormRangeUnderdefinedError</span><span class="p">,</span>
                               <span class="n">AnalyticIntegralNotImplementedError</span><span class="p">,</span> <span class="n">SpecificFunctionNotImplementedError</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">warn_advanced_feature</span>
+<span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">warn_advanced_feature</span><span class="p">,</span> <span class="n">warn_changed_feature</span>
 <span class="kn">from</span> <span class="nn">..z.random</span> <span class="kn">import</span> <span class="n">counts_multinomial</span>
 
 
@@ -284,25 +284,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_norm_range_from_daugthers</span><span class="p">()</span>
-
-    <span class="c1"># TODO: remove?</span>
-    <span class="c1"># def _get_component_norm_range(self):</span>
-    <span class="c1">#     return self._component_norm_range_holder</span>
-
-    <span class="c1"># TODO: remove?</span>
-    <span class="c1"># def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):</span>
-    <span class="c1">#     norm_range = self._check_input_norm_range(norm_range=norm_range)</span>
-    <span class="c1">#</span>
-    <span class="c1">#     # TODO: remove completely? cleanup functor, norm_range?</span>
-    <span class="c1">#     # if not norm_range.has_limits:</span>
-    <span class="c1">#     #     if self._get_component_norm_range() is None:</span>
-    <span class="c1">#     #         raise RuntimeError(&quot;Cannot use `False` as `norm_range` without previously setting the &quot;</span>
-    <span class="c1">#     #                            &quot;`component_norm_range`.&quot;)</span>
-    <span class="c1">#</span>
-    <span class="c1">#     def setter(value):</span>
-    <span class="c1">#         self._component_norm_range_holder = value</span>
-    <span class="c1">#</span>
-    <span class="c1">#     return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)</span>
 
     <span class="k">def</span> <span class="nf">_set_norm_range_from_daugthers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">norm_range</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">norm_range</span>
@@ -315,18 +296,6 @@
                 <span class="s2">&quot;has been explicitly set.&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="p">)</span>
-
-    <span class="c1"># TODO: remove below?</span>
-    <span class="c1">#</span>
-    <span class="c1"># def _infer_space_from_daughters(self):</span>
-    <span class="c1">#     space = set(model.space for model in self.models)</span>
-    <span class="c1">#     obs = set(norm_range.obs for norm_range in space)</span>
-    <span class="c1">#     if len(space) == 1:</span>
-    <span class="c1">#         return space.pop()</span>
-    <span class="c1">#     elif len(obs) &gt; 1:  # TODO(Mayou36, #77): different obs?</span>
-    <span class="c1">#         return None</span>
-    <span class="c1">#     else:</span>
-    <span class="c1">#         return False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pdfs_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -401,12 +370,8 @@
         <span class="c1"># catch if args don&#39;t fit known case</span>
 
         <span class="k">if</span> <span class="n">fracs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">ModelIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;If all PDFs are not extended </span><span class="si">{</span><span class="n">pdfs</span><span class="si">}</span><span class="s2">, the fracs </span><span class="si">{</span><span class="n">fracs</span><span class="si">}</span><span class="s2"> have to be of&quot;</span>
-                                             <span class="sa">f</span><span class="s2">&quot; the same length as pdf or one less.&quot;</span><span class="p">)</span>
-
             <span class="c1"># create fracs if one is missing</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">remaining_frac_func</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span>
                 <span class="n">remaining_frac</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">remaining_frac_func</span><span class="p">,</span>
                                                       <span class="n">dependents</span><span class="o">=</span><span class="n">fracs</span><span class="p">)</span>
@@ -417,8 +382,16 @@
                 <span class="c1"># IMPORTANT! Otherwise, recursion due to namespace capture in the lambda</span>
                 <span class="n">fracs_cleaned</span> <span class="o">=</span> <span class="n">fracs</span> <span class="o">+</span> <span class="p">[</span><span class="n">remaining_frac</span><span class="p">]</span>
 
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdfs</span><span class="p">):</span>
+                <span class="n">warn_changed_feature</span><span class="p">(</span><span class="s2">&quot;A SumPDF with the number of fractions equal to the number of pdf will no longer &quot;</span>
+                                     <span class="s2">&quot;be extended. To make it extended, either manually use &#39;create_exteneded&#39; or set &quot;</span>
+                                     <span class="s2">&quot;the yield. OR provide all pdfs as extended pdfs and do not provide a fracs &quot;</span>
+                                     <span class="s2">&quot;argument.&quot;</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="s1">&#39;new_sum&#39;</span><span class="p">)</span>
                 <span class="n">fracs_cleaned</span> <span class="o">=</span> <span class="n">fracs</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ModelIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;If all PDFs are not extended </span><span class="si">{</span><span class="n">pdfs</span><span class="si">}</span><span class="s2">, the fracs </span><span class="si">{</span><span class="n">fracs</span><span class="si">}</span><span class="s2"> have to be of&quot;</span>
+                                             <span class="sa">f</span><span class="s2">&quot; the same length as pdf or one less.&quot;</span><span class="p">)</span>
             <span class="n">param_fracs</span> <span class="o">=</span> <span class="n">fracs_cleaned</span>
 
         <span class="c1"># for the extended case, take the yields, normalize them, in case no fracs are given.</span>
