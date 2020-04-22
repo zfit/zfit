@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.4.4.dev137+g394366e documentation</title>
+    <title>Changelog &#8212; zfit 0.4.4.dev137+ga25d401 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -457,13 +457,17 @@
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="develop">
 <h2>Develop<a class="headerlink" href="#develop" title="Permalink to this headline">¶</a></h2>
-<p>Complete refactoring of Spaces. New behavior with extended. SumPDF refactoring. Improved graph building</p>
+<p>Complete refactoring of Spaces to allow arbitrary function.
+New, more consistent behavior with extended PDFs.
+SumPDF refactoring, more explicit handling of fracs and yields.
+Improved graph building allowing for more fine-grained control of tracing.
+Stabilized minimization including a push-back for NaNs.</p>
 <div class="section" id="major-features-and-improvements">
 <h3>Major Features and Improvements<a class="headerlink" href="#major-features-and-improvements" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul>
 <li><p>Arbitrary limits as well as vectorization (experimental)
-is now fully supported. The new <cite>Space</cite> has an additional argument for a function that
+are now fully supported. The new <cite>Space</cite> has an additional argument for a function that
 tests if a vector x is inside.</p>
 <p>To test if a value is inside a space, <cite>Space.inside</cite> can be used. To filter values, <cite>Space.filter</cite>.</p>
 <p>The limits returned are now by default numpy arrays with the shape (1, n_obs). This corresponds well

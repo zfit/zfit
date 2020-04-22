@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.loss &#8212; zfit 0.4.4.dev137+g394366e documentation</title>
+    <title>zfit.loss &#8212; zfit 0.4.4.dev137+ga25d401 documentation</title>
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -379,6 +379,7 @@
       
   <h1>Source code for zfit.loss</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">.core.loss</span> <span class="kn">import</span> <span class="n">ExtendedUnbinnedNLL</span><span class="p">,</span> <span class="n">UnbinnedNLL</span><span class="p">,</span> <span class="n">BaseLoss</span><span class="p">,</span> <span class="n">SimpleLoss</span>
 
@@ -396,11 +397,8 @@
 <span class="sd">    Args:</span>
 <span class="sd">        enable: If True, enable this feature.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">_experimental_loss_penalty_nan</span>
-    <span class="n">_experimental_loss_penalty_nan</span> <span class="o">=</span> <span class="n">enable</span></div>
-
-
-<span class="n">_experimental_loss_penalty_nan</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;This has been removed and is now activated by default. Remove this function call.&quot;</span>
+                  <span class="s2">&quot;Many thanks for the feedbacks received.&quot;</span><span class="p">)</span></div>
 </pre></div>
 
     </div>
