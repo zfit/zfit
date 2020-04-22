@@ -23,7 +23,7 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (ModelIncompatibleError, ObsIncompatibleError, NormRangeUnderdefinedError,
                               AnalyticIntegralNotImplementedError, SpecificFunctionNotImplementedError)
-from ..util.warnings import warn_advanced_feature
+from ..util.warnings import warn_advanced_feature, warn_changed_feature
 from ..z.random import counts_multinomial
 
 
@@ -33,25 +33,6 @@ class BaseFunctor(FunctorMixin, BasePDF):
         self.pdfs = convert_to_container(pdfs)
         super().__init__(models=self.pdfs, name=name, **kwargs)
         self._set_norm_range_from_daugthers()
-
-    # TODO: remove?
-    # def _get_component_norm_range(self):
-    #     return self._component_norm_range_holder
-
-    # TODO: remove?
-    # def _set_component_norm_range(self, norm_range: ztyping.LimitsTypeInput):
-    #     norm_range = self._check_input_norm_range(norm_range=norm_range)
-    #
-    #     # TODO: remove completely? cleanup functor, norm_range?
-    #     # if not norm_range.has_limits:
-    #     #     if self._get_component_norm_range() is None:
-    #     #         raise RuntimeError("Cannot use `False` as `norm_range` without previously setting the "
-    #     #                            "`component_norm_range`.")
-    #
-    #     def setter(value):
-    #         self._component_norm_range_holder = value
-    #
-    #     return TemporarilySet(value=norm_range, setter=setter, getter=self._get_component_norm_range)
 
     def _set_norm_range_from_daugthers(self):
         norm_range = super().norm_range
@@ -64,18 +45,6 @@ class BaseFunctor(FunctorMixin, BasePDF):
                 "has been explicitly set.")
 
         self.set_norm_range(norm_range)
-
-    # TODO: remove below?
-    #
-    # def _infer_space_from_daughters(self):
-    #     space = set(model.space for model in self.models)
-    #     obs = set(norm_range.obs for norm_range in space)
-    #     if len(space) == 1:
-    #         return space.pop()
-    #     elif len(obs) > 1:  # TODO(Mayou36, #77): different obs?
-    #         return None
-    #     else:
-    #         return False
 
     @property
     def pdfs_extended(self):
@@ -150,12 +119,8 @@ class SumPDF(BaseFunctor):
         # catch if args don't fit known case
 
         if fracs:
-            if not len(fracs) in (len(pdfs), len(pdfs) - 1):
-                raise ModelIncompatibleError(f"If all PDFs are not extended {pdfs}, the fracs {fracs} have to be of"
-                                             f" the same length as pdf or one less.")
-
             # create fracs if one is missing
-            elif len(fracs) == len(pdfs) - 1:
+            if len(fracs) == len(pdfs) - 1:
                 remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
                 remaining_frac = convert_to_parameter(remaining_frac_func,
                                                       dependents=fracs)
@@ -166,8 +131,16 @@ class SumPDF(BaseFunctor):
                 # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
                 fracs_cleaned = fracs + [remaining_frac]
 
-            else:
+            elif len(fracs) == len(pdfs):
+                warn_changed_feature("A SumPDF with the number of fractions equal to the number of pdf will no longer "
+                                     "be extended. To make it extended, either manually use 'create_exteneded' or set "
+                                     "the yield. OR provide all pdfs as extended pdfs and do not provide a fracs "
+                                     "argument.", identifier='new_sum')
                 fracs_cleaned = fracs
+
+            else:
+                raise ModelIncompatibleError(f"If all PDFs are not extended {pdfs}, the fracs {fracs} have to be of"
+                                             f" the same length as pdf or one less.")
             param_fracs = fracs_cleaned
 
         # for the extended case, take the yields, normalize them, in case no fracs are given.

@@ -46,11 +46,17 @@ ztypes = DotDict({'float': tf.float64,
 
 options = DotDict({'epsilon': 1e-8,
                    'numerical_grad': None,
-                   'advanced_warning': True})
+                   'advanced_warning': True,
+                   'changed_warning': True})
 
 advanced_warnings = DotDict({
     'sum_extended_frac': True,
     'exp_shift': True,
     'py_func_autograd': True,
+    'all': True,
+})
+
+changed_warnings = DotDict({
+    'new_sum': True,
     'all': True,
 })
