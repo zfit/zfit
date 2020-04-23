@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.errors &#8212; zfit 0.5.1.dev2+gdaac5e4 documentation</title>
+    <title>zfit.minimizers.errors &#8212; zfit 0.4.4.dev176+g67bba77 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev2</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev176</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -263,6 +263,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
+
 <span class="kn">from</span> <span class="nn">..param</span> <span class="kn">import</span> <span class="n">set_values</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 
@@ -327,10 +328,11 @@
 
             <span class="c1"># shift parameters, other than param, using covariance matrix</span>
             <span class="n">ap_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">ap</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
-            <span class="n">ap_value</span> <span class="o">+=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">covariance</span><span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">ap</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">errordef</span> <span class="o">/</span> <span class="n">param_error</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+            <span class="n">ap_value</span> <span class="o">+=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">covariance</span><span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">ap</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">errordef</span> <span class="o">/</span> <span class="n">param_error</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
             <span class="n">ap</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">ap_value</span><span class="p">)</span>
 
         <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># TODO: round for better floating point comparison?</span>
+
         <span class="k">def</span> <span class="nf">shifted_pll</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Computes the pll, with the minimum substracted and shifted by minus the `errordef`, for a</span>
@@ -362,6 +364,7 @@
 <span class="sd">                &quot;&quot;&quot;</span>
                 <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">exp_root</span> <span class="o">-</span> <span class="n">param_value</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">exp_shifted_pll</span> <span class="o">+</span> <span class="n">errordef</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">param_value</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">errordef</span><span class="p">)</span> <span class="o">*</span> <span class="n">slope</span>
+
             <span class="n">bound_interp</span> <span class="o">=</span> <span class="n">linear_interp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">exp_shifted_pll</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
@@ -406,9 +409,9 @@
 <span class="k">def</span> <span class="nf">_rootf</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">optimize</span><span class="o">.</span><span class="n">toms748</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
+
 <span class="c1"># def _rootf(**kwargs):</span>
 <span class="c1">#     return optimize.brentq(**kwargs)</span>
-
 
 <div class="viewcode-block" id="compute_errors"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.compute_errors">[docs]</a><span class="k">def</span> <span class="nf">compute_errors</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rootf</span><span class="o">=</span><span class="n">_rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -452,7 +455,11 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="n">minimizer</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">minimizer</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span>
+        <span class="n">new_found_fmin</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
         <span class="n">new_result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_result</span><span class="o">.</span><span class="n">fmin</span> <span class="o">&gt;=</span> <span class="n">new_found_fmin</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;A new minimum was discovered but the minimizer was not able to find this on himself. &quot;</span>
+                               <span class="s2">&quot;This behavior is currently an exception but will most likely change in the future.&quot;</span><span class="p">)</span>
         <span class="n">to_return</span><span class="p">,</span> <span class="n">new_result_</span> <span class="o">=</span> <span class="n">compute_errors</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">new_result</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
                                                 <span class="n">rootf</span><span class="o">=</span><span class="n">rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">new_result_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

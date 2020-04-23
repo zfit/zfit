@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.warnings &#8212; zfit 0.5.1.dev2+gdaac5e4 documentation</title>
+    <title>zfit.util.warnings &#8212; zfit 0.4.4.dev176+g67bba77 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev2</b></span>
+        <span class="navbar-text pull-left"><b>0.4.4.dev176</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -275,7 +275,7 @@
     <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">nonlocal</span> <span class="n">warned</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The function </span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s2"> is EXPERIMENTAL and likely to break in the future!&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The function </span><span class="si">{</span><span class="n">func</span><span class="si">}</span><span class="s2"> is EXPERIMENTAL and likely to change in the future!&quot;</span>
                           <span class="sa">f</span><span class="s2">&quot; Use it with caution and feedback (Gitter, e-mail, &quot;</span>
                           <span class="sa">f</span><span class="s2">&quot;https://github.com/zfit/zfit/issues)&quot;</span>
                           <span class="sa">f</span><span class="s2">&quot; is very welcome!&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">ExperimentalFeatureWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
