@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.5.1.dev1+ga1d2a9c documentation</title>
+    <title>Changelog &#8212; zfit 0.5.1.dev2+gdaac5e4 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.5.1.dev2</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -137,27 +137,25 @@
 <li class="toctree-l4"><a class="reference internal" href="#thanks">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id1">0.4.3 (11.3.2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">0.5.0 (23.04.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id2">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Depreceations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Experimental</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">0.4.3 (11.3.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id10">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#behavioral-changes">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id3">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id4">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id5">Thanks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id13">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id6">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id7">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id8">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id9">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id10">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id11">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#id12">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id13">Major Features and Improvements</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#id14">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id14">0.4.2 (27.2.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id15">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id16">Behavioral changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id17">Bug fixes and small changes</a></li>
@@ -165,38 +163,50 @@
 <li class="toctree-l4"><a class="reference internal" href="#id19">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id20">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id20">0.4.1 (12.1.20)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id21">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id22">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id23">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id25">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id26">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id27">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id28">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id29">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id30">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id22">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id23">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id24">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id25">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id26">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id27">Thanks</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id31">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id32">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id33">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id34">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id35">Thanks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id28">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id29">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id30">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id31">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id32">Requirement changes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id36">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id37">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id38">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id33">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id34">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id35">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id36">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id37">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id38">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id39">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id40">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id41">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id42">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id43">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id44">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id45">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id46">Breaking changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bugfixes">Bugfixes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#improvements">Improvements</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id39">0.3.1 (30-04-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id40">0.3.0 (2019-03-20)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id41">0.0.1 (2018-03-22)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id47">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id48">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id49">0.0.1 (2018-03-22)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="authors.html">Development Lead</a></li>
@@ -233,27 +243,25 @@
 <li><a class="reference internal" href="#thanks">Thanks</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id1">0.4.3 (11.3.2020)</a><ul>
+<li><a class="reference internal" href="#id1">0.5.0 (23.04.2020)</a><ul>
 <li><a class="reference internal" href="#id2">Major Features and Improvements</a></li>
+<li><a class="reference internal" href="#id3">Breaking changes</a></li>
+<li><a class="reference internal" href="#id4">Depreceations</a></li>
+<li><a class="reference internal" href="#id5">Bug fixes and small changes</a></li>
+<li><a class="reference internal" href="#id6">Experimental</a></li>
+<li><a class="reference internal" href="#id7">Requirement changes</a></li>
+<li><a class="reference internal" href="#id8">Thanks</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9">0.4.3 (11.3.2020)</a><ul>
+<li><a class="reference internal" href="#id10">Major Features and Improvements</a></li>
 <li><a class="reference internal" href="#behavioral-changes">Behavioral changes</a></li>
-<li><a class="reference internal" href="#id3">Bug fixes and small changes</a></li>
-<li><a class="reference internal" href="#id4">Requirement changes</a></li>
-<li><a class="reference internal" href="#id5">Thanks</a></li>
+<li><a class="reference internal" href="#id11">Bug fixes and small changes</a></li>
+<li><a class="reference internal" href="#id12">Requirement changes</a></li>
+<li><a class="reference internal" href="#id13">Thanks</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id6">0.4.2 (27.2.2020)</a><ul>
-<li><a class="reference internal" href="#id7">Major Features and Improvements</a></li>
-<li><a class="reference internal" href="#id8">Behavioral changes</a></li>
-<li><a class="reference internal" href="#id9">Bug fixes and small changes</a></li>
-<li><a class="reference internal" href="#id10">Requirement changes</a></li>
-<li><a class="reference internal" href="#id11">Thanks</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id12">0.4.1 (12.1.20)</a><ul>
-<li><a class="reference internal" href="#id13">Major Features and Improvements</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id14">0.4.0 (7.1.2020)</a><ul>
+<li><a class="reference internal" href="#id14">0.4.2 (27.2.2020)</a><ul>
 <li><a class="reference internal" href="#id15">Major Features and Improvements</a></li>
 <li><a class="reference internal" href="#id16">Behavioral changes</a></li>
 <li><a class="reference internal" href="#id17">Bug fixes and small changes</a></li>
@@ -261,38 +269,50 @@
 <li><a class="reference internal" href="#id19">Thanks</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id20">0.3.7 (6.12.19)</a><ul>
+<li><a class="reference internal" href="#id20">0.4.1 (12.1.20)</a><ul>
 <li><a class="reference internal" href="#id21">Major Features and Improvements</a></li>
-<li><a class="reference internal" href="#id22">Behavioral changes</a></li>
-<li><a class="reference internal" href="#id23">Bug fixes and small changes</a></li>
-<li><a class="reference internal" href="#id24">Requirement changes</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id25">0.3.6 (12.10.19)</a><ul>
-<li><a class="reference internal" href="#id26">Major Features and Improvements</a></li>
-<li><a class="reference internal" href="#id27">Behavioral changes</a></li>
-<li><a class="reference internal" href="#id28">Bug fixes and small changes</a></li>
-<li><a class="reference internal" href="#id29">Requirement changes</a></li>
-<li><a class="reference internal" href="#id30">Thanks</a></li>
+<li><a class="reference internal" href="#id22">0.4.0 (7.1.2020)</a><ul>
+<li><a class="reference internal" href="#id23">Major Features and Improvements</a></li>
+<li><a class="reference internal" href="#id24">Behavioral changes</a></li>
+<li><a class="reference internal" href="#id25">Bug fixes and small changes</a></li>
+<li><a class="reference internal" href="#id26">Requirement changes</a></li>
+<li><a class="reference internal" href="#id27">Thanks</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id31">0.3.4 (30-07-19)</a><ul>
-<li><a class="reference internal" href="#id32">Major Features and Improvements</a></li>
-<li><a class="reference internal" href="#id33">Behavioral changes</a></li>
-<li><a class="reference internal" href="#id34">Bug fixes and small changes</a></li>
-<li><a class="reference internal" href="#id35">Thanks</a></li>
+<li><a class="reference internal" href="#id28">0.3.7 (6.12.19)</a><ul>
+<li><a class="reference internal" href="#id29">Major Features and Improvements</a></li>
+<li><a class="reference internal" href="#id30">Behavioral changes</a></li>
+<li><a class="reference internal" href="#id31">Bug fixes and small changes</a></li>
+<li><a class="reference internal" href="#id32">Requirement changes</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id36">0.3.3 (15-05-19)</a></li>
-<li><a class="reference internal" href="#id37">0.3.2 (01-05-19)</a><ul>
-<li><a class="reference internal" href="#id38">Breaking changes</a></li>
+<li><a class="reference internal" href="#id33">0.3.6 (12.10.19)</a><ul>
+<li><a class="reference internal" href="#id34">Major Features and Improvements</a></li>
+<li><a class="reference internal" href="#id35">Behavioral changes</a></li>
+<li><a class="reference internal" href="#id36">Bug fixes and small changes</a></li>
+<li><a class="reference internal" href="#id37">Requirement changes</a></li>
+<li><a class="reference internal" href="#id38">Thanks</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id39">0.3.4 (30-07-19)</a><ul>
+<li><a class="reference internal" href="#id40">Major Features and Improvements</a></li>
+<li><a class="reference internal" href="#id41">Behavioral changes</a></li>
+<li><a class="reference internal" href="#id42">Bug fixes and small changes</a></li>
+<li><a class="reference internal" href="#id43">Thanks</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id44">0.3.3 (15-05-19)</a></li>
+<li><a class="reference internal" href="#id45">0.3.2 (01-05-19)</a><ul>
+<li><a class="reference internal" href="#id46">Breaking changes</a></li>
 <li><a class="reference internal" href="#bugfixes">Bugfixes</a></li>
 <li><a class="reference internal" href="#improvements">Improvements</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id39">0.3.1 (30-04-19)</a></li>
-<li><a class="reference internal" href="#id40">0.3.0 (2019-03-20)</a></li>
-<li><a class="reference internal" href="#id41">0.0.1 (2018-03-22)</a></li>
+<li><a class="reference internal" href="#id47">0.3.1 (30-04-19)</a></li>
+<li><a class="reference internal" href="#id48">0.3.0 (2019-03-20)</a></li>
+<li><a class="reference internal" href="#id49">0.0.1 (2018-03-22)</a></li>
 </ul>
 </li>
 </ul>
@@ -329,13 +349,37 @@
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="develop">
 <h2>Develop<a class="headerlink" href="#develop" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="major-features-and-improvements">
+<h3>Major Features and Improvements<a class="headerlink" href="#major-features-and-improvements" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="breaking-changes">
+<h3>Breaking changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="depreceations">
+<h3>Depreceations<a class="headerlink" href="#depreceations" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="bug-fixes-and-small-changes">
+<h3>Bug fixes and small changes<a class="headerlink" href="#bug-fixes-and-small-changes" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="experimental">
+<h3>Experimental<a class="headerlink" href="#experimental" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="requirement-changes">
+<h3>Requirement changes<a class="headerlink" href="#requirement-changes" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="thanks">
+<h3>Thanks<a class="headerlink" href="#thanks" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>0.5.0 (23.04.2020)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>Complete refactoring of Spaces to allow arbitrary function.
 New, more consistent behavior with extended PDFs.
 SumPDF refactoring, more explicit handling of fracs and yields.
 Improved graph building allowing for more fine-grained control of tracing.
 Stabilized minimization including a push-back for NaNs.</p>
-<div class="section" id="major-features-and-improvements">
-<h3>Major Features and Improvements<a class="headerlink" href="#major-features-and-improvements" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h3>Major Features and Improvements<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul>
 <li><p>Arbitrary limits as well as vectorization (experimental)
@@ -351,26 +395,20 @@ method with leading <cite>rect_*</cite> have been added (<cite>rect_limits</cite
 <li><p>Extending a PDF is more straightforward and removes any “magic”. The philosophy is: a PDF can be extended
 or not. But it does not change the fundamental behavior of functions.</p></li>
 <li><p>SumPDF has been refactored and behaves now as follows:
-- Giving in pdfs (extended or not or mixed) <em>and</em> fracs (either length pdfs or one less) will create a</p>
-<blockquote>
-<div><p>non-extended SumPDF using the fracs. The fact that the pdfs are maybe extended is ignored.
+Giving in pdfs (extended or not or mixed) <em>and</em> fracs (either length pdfs or one less) will create a
+non-extended SumPDF using the fracs. The fact that the pdfs are maybe extended is ignored.
 This will lead to highly consistent behavior.
 If the number of fracs given equals the number of pdfs, it is up to the user (currently) to take care of
 the normalization.
 <em>Only</em> if <em>all</em> pdfs are extended <strong>and</strong> no fracs are given, the sumpdf will be using the yields as
-normalized fracs and be extended.</p>
-</div></blockquote>
-</li>
-<li><p>Improved graph building and <cite>z.function
-- the `z.function</cite> can now, as with <cite>tf.function</cite>, be used either as a decorator without arguments or</p>
-<blockquote>
-<div><p>as a decorator with arguments. They are the same as in <cite>tf.function</cite>, except of a few additional ones.</p>
-</div></blockquote>
+normalized fracs and be extended.</p></li>
+<li><p>Improved graph building and <cite>z.function</cite></p>
 <ul class="simple">
+<li><p>the <cite>z.function</cite> can now, as with <cite>tf.function</cite>, be used either as a decorator without arguments or as a decorator with arguments. They are the same as in <cite>tf.function</cite>, except of a few additional ones.</p></li>
 <li><p><cite>zfit.run.set_mode</cite> allows to set the policy for whether everything is run in eager mode (<cite>graph=False</cite>),
 everything in graph, or most of it (<cite>graph=True</cite>) or an optimized variant, doing graph building only with
 losses but not just models (e.g. <cite>pdf</cite> won’t trigger a graph build, <cite>loss.value()</cite> will) with <cite>graph=’auto’</cite>.</p></li>
-<li><p>The graph cache can be cleaned manually using <cite>zfit.run.clear_graph_cache</cite> in order to prevent slowness
+<li><p>The graph cache can be cleaned manually using <cite>zfit.run.clear_graph_cache()</cite> in order to prevent slowness
 in repeated tasks.</p></li>
 </ul>
 </li>
@@ -386,8 +424,8 @@ Arguments (<cite>floating</cite>, <cite>is_yield</cite>) allow for more fine-gra
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="breaking-changes">
-<h3>Breaking changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>Breaking changes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul>
 <li><p>Multiple limits are now handled by a MultiSpace class. Each Space has only “one limit”
@@ -402,8 +440,8 @@ integral multiplied by the yield.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="depreceations">
-<h3>Depreceations<a class="headerlink" href="#depreceations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>Depreceations<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p><cite>ComposedParameter</cite> takes now <cite>params</cite> instead of <cite>dependents</cite> as argument, it acts now as
@@ -415,15 +453,15 @@ upper are returned.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="bug-fixes-and-small-changes">
-<h3>Bug fixes and small changes<a class="headerlink" href="#bug-fixes-and-small-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>fix a (nasty, rounding) bug in sampling with multiple limits</p></li>
 <li><p>fix bug in numerical calculation</p></li>
 <li><p>fix bug in SimplePDF</p></li>
 <li><p>fix wrong caching signature may lead to graph not being rebuild</p></li>
-<li><p>add <a class="reference internal" href="../full_api/zfit.param.html#zfit.param.set_values" title="zfit.param.set_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">zfit.param.set_values()</span></code></a> method that allows to set the values of multiple
+<li><p>add <cite>zfit.param.set_values</cite> method that allows to set the values of multiple
 parameters with one command. Can, as the <cite>set_value</cite> method be used with a context manager.</p></li>
 <li><p>wrong size of weights when applying cuts in a dataset</p></li>
 <li><p><cite>with_coords</cite> did drop axes/obs</p></li>
@@ -434,8 +472,8 @@ from.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="experimental">
-<h3>Experimental<a class="headerlink" href="#experimental" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id6">
+<h3>Experimental<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>added a new error method, ‘zfit_error’ that is equivalent to ‘minuit_minos’, but not fully
@@ -443,8 +481,8 @@ stable. It can be used with other minimizers as well, not only Minuit.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="requirement-changes">
-<h3>Requirement changes<a class="headerlink" href="#requirement-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h3>Requirement changes<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>remove the outdated typing module</p></li>
@@ -452,8 +490,8 @@ stable. It can be used with other minimizers as well, not only Minuit.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="thanks">
-<h3>Thanks<a class="headerlink" href="#thanks" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>Thanks<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>Johannes Lade for code review and discussions.</p></li>
@@ -462,10 +500,10 @@ stable. It can be used with other minimizers as well, not only Minuit.</p></li>
 </div></blockquote>
 </div>
 </div>
-<div class="section" id="id1">
-<h2>0.4.3 (11.3.2020)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id2">
-<h3>Major Features and Improvements<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id9">
+<h2>0.4.3 (11.3.2020)<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h3>Major Features and Improvements<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>refactor <cite>hesse_np</cite> with covariance matrix, make it available to all minimizers</p></li>
@@ -475,25 +513,25 @@ stable. It can be used with other minimizers as well, not only Minuit.</p></li>
 <div class="section" id="behavioral-changes">
 <h3>Behavioral changes<a class="headerlink" href="#behavioral-changes" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id3">
-<h3>Bug fixes and small changes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id11">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>fix bug in <cite>hesse_np</cite></p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id4">
-<h3>Requirement changes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id12">
+<h3>Requirement changes<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id5">
-<h3>Thanks<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id13">
+<h3>Thanks<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
-<div class="section" id="id6">
-<h2>0.4.2 (27.2.2020)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id7">
-<h3>Major Features and Improvements<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id14">
+<h2>0.4.2 (27.2.2020)<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id15">
+<h3>Major Features and Improvements<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>Refactoring of the Constraints, dividing into <cite>ProbabilityConstraint</cite> that can be
@@ -504,16 +542,16 @@ can not be sampled from.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id8">
-<h3>Behavioral changes<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id16">
+<h3>Behavioral changes<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>Changed default step size to an adaptive scheme, a fraction (1e-4) of the range between the lower and upper limits.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id9">
-<h3>Bug fixes and small changes<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id17">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>Add <cite>use_minuit_grad</cite> option to Minuit optimizer to use the internal gradient, often for more stable fits</p></li>
@@ -522,18 +560,18 @@ nan. Can help with the optimisation. Feedback welcome!</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id10">
-<h3>Requirement changes<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id18">
+<h3>Requirement changes<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id11">
-<h3>Thanks<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id19">
+<h3>Thanks<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
-<div class="section" id="id12">
-<h2>0.4.1 (12.1.20)<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id20">
+<h2>0.4.1 (12.1.20)<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h2>
 <p>Release to keep up with TensorFlow 2.1</p>
-<div class="section" id="id13">
-<h3>Major Features and Improvements<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id21">
+<h3>Major Features and Improvements<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>Fixed the comparison in caching the graph (implementation detail) that leads to an error.</p></li>
@@ -541,15 +579,15 @@ nan. Can help with the optimisation. Feedback welcome!</p></li>
 </div></blockquote>
 </div>
 </div>
-<div class="section" id="id14">
-<h2>0.4.0 (7.1.2020)<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id22">
+<h2>0.4.0 (7.1.2020)<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h2>
 <p>This release switched to TensorFlow 2.0 eager mode. In case this breaks things for you and you need <strong>urgently</strong>
 a running version, install a version
 &lt; 0.4.1. It is highly recommended to upgrade and make the small changes required.</p>
 <p>Please read the <cite>upgrade guide &lt;docs/project/upgrade_guide.rst&gt;</cite> on a more detailed explanation how to upgrade.</p>
 <p>TensorFlow 2.0 is eager executing and uses functions to abstract the performance critical parts away.</p>
-<div class="section" id="id15">
-<h3>Major Features and Improvements<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id23">
+<h3>Major Features and Improvements<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul>
 <li><p>Dependents (currently, and probably also in the future) need more manual tracking. This has mostly
@@ -576,8 +614,8 @@ caches/invalidates the graph and recreates.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id16">
-<h3>Behavioral changes<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id24">
+<h3>Behavioral changes<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>EDM goal of the minuit minimizer has been reduced by a factor of 10 to 10E-3 in agreement with
@@ -587,37 +625,37 @@ memory)</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id17">
-<h3>Bug fixes and small changes<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id25">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id18">
-<h3>Requirement changes<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id26">
+<h3>Requirement changes<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>added numdifftools (for numerical differentiation)</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id19">
-<h3>Thanks<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id27">
+<h3>Thanks<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
-<div class="section" id="id20">
-<h2>0.3.7 (6.12.19)<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id28">
+<h2>0.3.7 (6.12.19)<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h2>
 <p>This is a legacy release to add some fixes, next release is TF 2 eager mode only release.</p>
-<div class="section" id="id21">
-<h3>Major Features and Improvements<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id29">
+<h3>Major Features and Improvements<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>mostly TF 2.0 compatibility in graph mode, tests against 1.x and 2.x</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id22">
-<h3>Behavioral changes<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id30">
+<h3>Behavioral changes<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="id23">
-<h3>Bug fixes and small changes<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id31">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p><cite>get_depentents</cite> returns now an OrderedSet</p></li>
@@ -626,8 +664,8 @@ memory)</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id24">
-<h3>Requirement changes<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id32">
+<h3>Requirement changes<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>added ordered-set</p></li>
@@ -635,12 +673,12 @@ memory)</p></li>
 </div></blockquote>
 </div>
 </div>
-<div class="section" id="id25">
-<h2>0.3.6 (12.10.19)<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id33">
+<h2>0.3.6 (12.10.19)<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h2>
 <p><strong>Special release for conda deployment and version fix (TF 2.0 is out)</strong></p>
 <p><strong>This is the last release before breaking changes occur</strong></p>
-<div class="section" id="id26">
-<h3>Major Features and Improvements<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id34">
+<h3>Major Features and Improvements<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>added ConstantParameter and <cite>zfit.param</cite> namespace</p></li>
@@ -648,8 +686,8 @@ memory)</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id27">
-<h3>Behavioral changes<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id35">
+<h3>Behavioral changes<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>an implicitly created parameter with a Python numerical (e.g. when instantiating a model)
@@ -658,8 +696,8 @@ cannot be set to floating later on.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id28">
-<h3>Bug fixes and small changes<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id36">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id36" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>added native support TFP distributions for analytic sampling</p></li>
@@ -669,16 +707,16 @@ cannot be set to floating later on.</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id29">
-<h3>Requirement changes<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id37">
+<h3>Requirement changes<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>TensorFlow &gt;= 1.14 is required</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id30">
-<h3>Thanks<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id38">
+<h3>Thanks<a class="headerlink" href="#id38" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>Chris Burr for the conda-forge deployment</p></li>
@@ -686,34 +724,34 @@ cannot be set to floating later on.</p></li>
 </div></blockquote>
 </div>
 </div>
-<div class="section" id="id31">
-<h2>0.3.4 (30-07-19)<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id39">
+<h2>0.3.4 (30-07-19)<a class="headerlink" href="#id39" title="Permalink to this headline">¶</a></h2>
 <p><strong>This is the last release before breaking changes occur</strong></p>
-<div class="section" id="id32">
-<h3>Major Features and Improvements<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id40">
+<h3>Major Features and Improvements<a class="headerlink" href="#id40" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>create <cite>Constraint</cite> class which allows for more fine grained control and information on the applied constraints.</p></li>
 <li><p>Added Polynomial models</p></li>
 <li><p>Improved and fixed sampling (can still be slightly biased)</p></li>
 </ul>
 </div>
-<div class="section" id="id33">
-<h3>Behavioral changes<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id41">
+<h3>Behavioral changes<a class="headerlink" href="#id41" title="Permalink to this headline">¶</a></h3>
 <p>None</p>
 </div>
-<div class="section" id="id34">
-<h3>Bug fixes and small changes<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id42">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id42" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>fixed various small bugs</p></li>
 </ul>
 </div>
-<div class="section" id="id35">
-<h3>Thanks<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id43">
+<h3>Thanks<a class="headerlink" href="#id43" title="Permalink to this headline">¶</a></h3>
 <p>for the contribution of the Constraints to Matthieu Marinangeli &lt;<a class="reference external" href="mailto:matthieu&#46;marinangeli&#37;&#52;&#48;cern&#46;ch">matthieu<span>&#46;</span>marinangeli<span>&#64;</span>cern<span>&#46;</span>ch</a>&gt;</p>
 </div>
 </div>
-<div class="section" id="id36">
-<h2>0.3.3 (15-05-19)<a class="headerlink" href="#id36" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id44">
+<h2>0.3.3 (15-05-19)<a class="headerlink" href="#id44" title="Permalink to this headline">¶</a></h2>
 <p>Fixed Partial numeric integration</p>
 <p>Bugfixes mostly, a few major fixes. Partial numeric integration works now.</p>
 <dl class="simple">
@@ -725,11 +763,11 @@ cannot be set to floating later on.</p></li>
 </dd>
 </dl>
 </div>
-<div class="section" id="id37">
-<h2>0.3.2 (01-05-19)<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id45">
+<h2>0.3.2 (01-05-19)<a class="headerlink" href="#id45" title="Permalink to this headline">¶</a></h2>
 <p>With 0.3.2, bugfixes and three changes in the API/behavior</p>
-<div class="section" id="id38">
-<h3>Breaking changes<a class="headerlink" href="#id38" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id46">
+<h3>Breaking changes<a class="headerlink" href="#id46" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>tfp distributions wrapping is now different with dist_kwargs allowing for non-Parameter arguments (like other dists)</p></li>
@@ -757,20 +795,20 @@ cannot be set to floating later on.</p></li>
 </div></blockquote>
 </div>
 </div>
-<div class="section" id="id39">
-<h2>0.3.1 (30-04-19)<a class="headerlink" href="#id39" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id47">
+<h2>0.3.1 (30-04-19)<a class="headerlink" href="#id47" title="Permalink to this headline">¶</a></h2>
 <p>Minor improvements and bugfixes including:</p>
 <ul class="simple">
 <li><p>improved importance sampling allowing to preinstantiate objects before it’s called inside the while loop</p></li>
 <li><p>fixing a problem with <cite>ztf.sqrt</cite></p></li>
 </ul>
 </div>
-<div class="section" id="id40">
-<h2>0.3.0 (2019-03-20)<a class="headerlink" href="#id40" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id48">
+<h2>0.3.0 (2019-03-20)<a class="headerlink" href="#id48" title="Permalink to this headline">¶</a></h2>
 <p>Beta stage and first pip release</p>
 </div>
-<div class="section" id="id41">
-<h2>0.0.1 (2018-03-22)<a class="headerlink" href="#id41" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id49">
+<h2>0.0.1 (2018-03-22)<a class="headerlink" href="#id49" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>First creation of the package.</p></li>
 </ul>
