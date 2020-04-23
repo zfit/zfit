@@ -2,6 +2,7 @@
 
 import numpy as np
 from scipy import optimize
+
 from ..param import set_values
 from ..util.container import convert_to_container
 
@@ -66,10 +67,11 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
 
             # shift parameters, other than param, using covariance matrix
             ap_value = result.params[ap]["value"]
-            ap_value += sigma * direction * covariance[(param, ap)] * (2 * errordef / param_error**2)**0.5
+            ap_value += sigma * direction * covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
             ap.set_value(ap_value)
 
         cache = {}  # TODO: round for better floating point comparison?
+
         def shifted_pll(v):
             """
             Computes the pll, with the minimum substracted and shifted by minus the `errordef`, for a
@@ -101,6 +103,7 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
                 """
                 slope = (exp_root - param_value) / (exp_shifted_pll + errordef)
                 return param_value + (y + errordef) * slope
+
             bound_interp = linear_interp(0)
 
             if exp_shifted_pll > 0.:
@@ -145,9 +148,9 @@ def get_crossing_value(result, params, direction, sigma, rootf, rtol):
 def _rootf(**kwargs):
     return optimize.toms748(k=1, **kwargs)
 
+
 # def _rootf(**kwargs):
 #     return optimize.brentq(**kwargs)
-
 
 def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
     """
@@ -191,7 +194,11 @@ def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
             print(e)
         minimizer = result.minimizer
         loss = result.loss
+        new_found_fmin = loss.value()
         new_result = minimizer.minimize(loss=loss)
+        if new_result.fmin >= new_found_fmin:
+            raise RuntimeError("A new minimum was discovered but the minimizer was not able to find this on himself. "
+                               "This behavior is currently an exception but will most likely change in the future.")
         to_return, new_result_ = compute_errors(result=new_result, params=params, sigma=sigma,
                                                 rootf=rootf, rtol=rtol)
         if new_result_ is not None:
