@@ -15,7 +15,7 @@ def warn_experimental_feature(func):
         nonlocal warned
         if not warned:
             warnings.warn(f"The function {func} is EXPERIMENTAL and likely to change in the future!"
-                          f" Use it with caution and feedback (Gitter, e-mail, "
+                          f" Use it with caution and feedback (Gitter, e-mail or "
                           f"https://github.com/zfit/zfit/issues)"
                           f" is very welcome!", category=ExperimentalFeatureWarning, stacklevel=2)
             warned = True
