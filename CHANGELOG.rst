@@ -2,9 +2,34 @@
 Changelog
 *********
 
-
 Develop
 =======
+
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+0.5.0 (23.04.2020)
+==================
 
 Complete refactoring of Spaces to allow arbitrary function.
 New, more consistent behavior with extended PDFs.
@@ -33,22 +58,23 @@ Major Features and Improvements
    or not. But it does not change the fundamental behavior of functions.
 
  - SumPDF has been refactored and behaves now as follows:
-   - Giving in pdfs (extended or not or mixed) *and* fracs (either length pdfs or one less) will create a
-     non-extended SumPDF using the fracs. The fact that the pdfs are maybe extended is ignored.
-     This will lead to highly consistent behavior.
-     If the number of fracs given equals the number of pdfs, it is up to the user (currently) to take care of
-     the normalization.
-     *Only* if *all* pdfs are extended **and** no fracs are given, the sumpdf will be using the yields as
-     normalized fracs and be extended.
+   Giving in pdfs (extended or not or mixed) *and* fracs (either length pdfs or one less) will create a
+   non-extended SumPDF using the fracs. The fact that the pdfs are maybe extended is ignored.
+   This will lead to highly consistent behavior.
+   If the number of fracs given equals the number of pdfs, it is up to the user (currently) to take care of
+   the normalization.
+   *Only* if *all* pdfs are extended **and** no fracs are given, the sumpdf will be using the yields as
+   normalized fracs and be extended.
 
- - Improved graph building and `z.function
-   - the `z.function` can now, as with `tf.function`, be used either as a decorator without arguments or
-     as a decorator with arguments. They are the same as in `tf.function`, except of a few additional ones.
+ - Improved graph building and `z.function`
+
+   - the `z.function` can now, as with `tf.function`, be used either as a decorator without arguments or as a decorator with arguments. They are the same as in `tf.function`, except of a few additional ones.
    - `zfit.run.set_mode` allows to set the policy for whether everything is run in eager mode (`graph=False`),
      everything in graph, or most of it (`graph=True`) or an optimized variant, doing graph building only with
      losses but not just models (e.g. `pdf` won't trigger a graph build, `loss.value()` will) with `graph='auto'`.
-   - The graph cache can be cleaned manually using `zfit.run.clear_graph_cache` in order to prevent slowness
+   - The graph cache can be cleaned manually using `zfit.run.clear_graph_cache()` in order to prevent slowness
      in repeated tasks.
+
  - Switch for numerical gradients has been added as well in `zfit.run.set_mode(autograd=True/False)`.
  - Resetting to the default can be done with `zfit.run.set_mode_default()`
  - Improved stability of minimizer by adding penalty (currently in `Minuit`) as default. To have a
@@ -87,7 +113,7 @@ Bug fixes and small changes
  - fix bug in numerical calculation
  - fix bug in SimplePDF
  - fix wrong caching signature may lead to graph not being rebuild
- - add :py:func:`zfit.param.set_values` method that allows to set the values of multiple
+ - add `zfit.param.set_values` method that allows to set the values of multiple
    parameters with one command. Can, as the `set_value` method be used with a context manager.
  - wrong size of weights when applying cuts in a dataset
  - `with_coords` did drop axes/obs
