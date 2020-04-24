@@ -28,8 +28,9 @@ Requirement changes
 Thanks
 ------
 
-0.5.0 (23.04.2020)
+0.5.1 (24.04.2020)
 ==================
+(0.5.0 was skipped)
 
 Complete refactoring of Spaces to allow arbitrary function.
 New, more consistent behavior with extended PDFs.
