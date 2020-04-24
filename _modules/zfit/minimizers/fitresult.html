@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.1.dev2+g07e384d documentation</title>
+    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.1.dev5+g4cbe78e documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev2</b></span>
+        <span class="navbar-text pull-left"><b>0.5.1.dev5</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -268,10 +268,11 @@
 
 <span class="kn">import</span> <span class="nn">colored</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">tableformatter</span> <span class="k">as</span> <span class="nn">tafo</span>
 <span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Style</span>
 <span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
 
+<span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">compute_errors</span>
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">ZfitResult</span>
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
@@ -279,8 +280,6 @@
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WeightsNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">ExperimentalFeatureWarning</span>
 <span class="kn">from</span> <span class="nn">..util.ztyping</span> <span class="kn">import</span> <span class="n">ParamsTypeOpt</span>
-
-<span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">compute_errors</span>
 
 
 <span class="k">def</span> <span class="nf">_minos_minuit</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
@@ -636,14 +635,13 @@
         <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">string</span> <span class="o">=</span> <span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;FitResult&#39;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">NORMAL</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; of</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">with</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">minimizer</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="n">string</span> <span class="o">+=</span> <span class="n">tafo</span><span class="o">.</span><span class="n">generate_table</span><span class="p">(</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;FitResult&#39;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">NORMAL</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; of</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">with</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">minimizer</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="n">tabulate</span><span class="p">(</span>
             <span class="p">[[</span><span class="n">color_on_bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">),</span> <span class="n">format_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edm</span><span class="p">,</span> <span class="n">highprec</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
               <span class="n">format_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmin</span><span class="p">)]],</span>
-            <span class="p">[</span><span class="s1">&#39;converged&#39;</span><span class="p">,</span> <span class="s1">&#39;edm&#39;</span><span class="p">,</span> <span class="s1">&#39;min value&#39;</span><span class="p">],</span>
-            <span class="c1"># grid_style=tafo.SparseGrid()</span>
+            <span class="p">[</span><span class="s1">&#39;converged&#39;</span><span class="p">,</span> <span class="s1">&#39;edm&#39;</span><span class="p">,</span> <span class="s1">&#39;min value&#39;</span><span class="p">],</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;fancy_grid&#39;</span>
         <span class="p">)</span>
-        <span class="n">string</span> <span class="o">+=</span> <span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="s2">&quot;Parameters</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="s2">&quot;Parameters</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">NORMAL</span>
         <span class="n">string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">string</span>
 
@@ -716,7 +714,7 @@
         <span class="n">value_add</span> <span class="o">=</span> <span class="n">on_true</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">value_add</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="n">value_add</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value_add</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">value</span></div>
 
 
@@ -738,9 +736,8 @@
             <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
         <span class="n">order_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">order_keys</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;at limit&#39;</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">tafo</span><span class="o">.</span><span class="n">generate_table</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">order_keys</span><span class="p">,</span>
-                                   <span class="n">grid_style</span><span class="o">=</span><span class="n">tafo</span><span class="o">.</span><span class="n">AlternatingRowGrid</span><span class="p">(</span><span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">15</span><span class="p">),</span> <span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">254</span><span class="p">)))</span></div>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">order_keys</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
 </pre></div>
 
     </div>
