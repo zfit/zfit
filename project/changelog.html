@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.5.1.dev1+g2f39a83 documentation</title>
+    <title>Changelog &#8212; zfit 0.5.1.dev2+g07e384d documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev1</b></span>
+        <span class="navbar-text pull-left"><b>0.5.1.dev2</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -380,8 +380,7 @@ Improved graph building allowing for more fine-grained control of tracing.
 Stabilized minimization including a push-back for NaNs.</p>
 <div class="section" id="id2">
 <h3>Major Features and Improvements<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul>
+<ul>
 <li><p>Arbitrary limits as well as vectorization (experimental)
 are now fully supported. The new <cite>Space</cite> has an additional argument for a function that
 tests if a vector x is inside.</p>
@@ -406,11 +405,15 @@ normalized fracs and be extended.</p></li>
 <ul class="simple">
 <li><p>the <cite>z.function</cite> can now, as with <cite>tf.function</cite>, be used either as a decorator without arguments or as a decorator with arguments. They are the same as in <cite>tf.function</cite>, except of a few additional ones.</p></li>
 <li><p><cite>zfit.run.set_mode</cite> allows to set the policy for whether everything is run in eager mode (<cite>graph=False</cite>),
-everything in graph, or most of it (<cite>graph=True</cite>) or an optimized variant, doing graph building only with
-losses but not just models (e.g. <cite>pdf</cite> won’t trigger a graph build, <cite>loss.value()</cite> will) with <cite>graph=’auto’</cite>.</p></li>
-<li><p>The graph cache can be cleaned manually using <cite>zfit.run.clear_graph_cache()</cite> in order to prevent slowness
-in repeated tasks.</p></li>
+everything in graph, or most of it (<cite>graph=True</cite>) or an optimized variant, doing graph building only with</p></li>
 </ul>
+<blockquote>
+<div><p>losses but not just models (e.g. <cite>pdf</cite> won’t trigger a graph build, <cite>loss.value()</cite> will) with <cite>graph=’auto’</cite>.
+- The graph cache can be cleaned manually using <cite>zfit.run.clear_graph_cache()</cite> in order to prevent slowness</p>
+<blockquote>
+<div><p>in repeated tasks.</p>
+</div></blockquote>
+</div></blockquote>
 </li>
 <li><p>Switch for numerical gradients has been added as well in <cite>zfit.run.set_mode(autograd=True/False)</cite>.</p></li>
 <li><p>Resetting to the default can be done with <cite>zfit.run.set_mode_default()</cite></p></li>
@@ -422,12 +425,10 @@ better behavior with toys (e.g. never fail on NaNs but return an invalid <cite>F
 <li><p><cite>get_params</cite> is now more meaningful, returning by default all independent parameters of the pdf, including yields.
 Arguments (<cite>floating</cite>, <cite>is_yield</cite>) allow for more fine-grained control.</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id3">
 <h3>Breaking changes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul>
+<ul>
 <li><p>Multiple limits are now handled by a MultiSpace class. Each Space has only “one limit”
 and no complicated layout has to be remembered. If you want to have a space that is
 defined in disconnected regions, use the <cite>+</cite> operator or functionally <cite>zfit.dimension.add_spaces</cite></p>
@@ -438,12 +439,10 @@ the containing spaces respectively itself (for the <cite>Space</cite> case).</p>
 <li><p>Integrals of extended PDFs are not extended anymore, but <cite>ext_integrate</cite> now returns the
 integral multiplied by the yield.</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id4">
 <h3>Depreceations<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p><cite>ComposedParameter</cite> takes now <cite>params</cite> instead of <cite>dependents</cite> as argument, it acts now as
 the arguments to the <cite>value_fn</cite>. To stay future compatible, create e.g. <cite>def value_fn(p1, pa2)</cite>
 and using <cite>params = [‘param1, param2]</cite>, <cite>value_fn</cite> will then be called as <cite>value_fn(param1, parma2)</cite>.
@@ -451,12 +450,10 @@ and using <cite>params = [‘param1, param2]</cite>, <cite>value_fn</cite> will 
 <li><p><cite>FitResult.error</cite> has been renamed to <cite>errors</cite> to better reflect that multiple errors, the lower and
 upper are returned.</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id5">
 <h3>Bug fixes and small changes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>fix a (nasty, rounding) bug in sampling with multiple limits</p></li>
 <li><p>fix bug in numerical calculation</p></li>
 <li><p>fix bug in SimplePDF</p></li>
@@ -470,56 +467,45 @@ parameters with one command. Can, as the <cite>set_value</cite> method be used w
 <li><p><cite>zfit.param.set_values(..)</cite> now also can use a <cite>FitResult</cite> as <cite>values</cite> argument to set the values
 from.</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id6">
 <h3>Experimental<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>added a new error method, ‘zfit_error’ that is equivalent to ‘minuit_minos’, but not fully
 stable. It can be used with other minimizers as well, not only Minuit.</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id7">
 <h3>Requirement changes<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>remove the outdated typing module</p></li>
 <li><p>add tableformatter, colored, colorama for colored table printout</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id8">
 <h3>Thanks<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>Johannes Lade for code review and discussions.</p></li>
 <li><p>Hans Dembinski for useful inputs to the uncertainties.</p></li>
 </ul>
-</div></blockquote>
 </div>
 </div>
 <div class="section" id="id9">
 <h2>0.4.3 (11.3.2020)<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id10">
 <h3>Major Features and Improvements<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>refactor <cite>hesse_np</cite> with covariance matrix, make it available to all minimizers</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="behavioral-changes">
 <h3>Behavioral changes<a class="headerlink" href="#behavioral-changes" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="id11">
 <h3>Bug fixes and small changes<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>fix bug in <cite>hesse_np</cite></p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id12">
 <h3>Requirement changes<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
@@ -532,33 +518,30 @@ stable. It can be used with other minimizers as well, not only Minuit.</p></li>
 <h2>0.4.2 (27.2.2020)<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id15">
 <h3>Major Features and Improvements<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>Refactoring of the Constraints, dividing into <cite>ProbabilityConstraint</cite> that can be
 sampled from and more general constraints (e.g. for parameter boundaries) that
 can not be sampled from.</p></li>
 <li><p>Doc improvements in the constraints.</p></li>
 <li><p>Add <cite>hesse</cite> error method (‘hesse_np’) available to all minimizers (not just Minuit).</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id16">
 <h3>Behavioral changes<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>Changed default step size to an adaptive scheme, a fraction (1e-4) of the range between the lower and upper limits.</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id17">
 <h3>Bug fixes and small changes<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>Add <cite>use_minuit_grad</cite> option to Minuit optimizer to use the internal gradient, often for more stable fits</p></li>
-<li><p>added experimental flag <cite>zfit.experimental_loss_penalty_nan</cite>, which adds a penalty to the loss in case the value is
-nan. Can help with the optimisation. Feedback welcome!</p></li>
+<li><dl class="simple">
+<dt>added experimental flag <cite>zfit.experimental_loss_penalty_nan</cite>, which adds a penalty to the loss in case the value is</dt><dd><p>nan. Can help with the optimisation. Feedback welcome!</p>
+</dd>
+</dl>
+</li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id18">
 <h3>Requirement changes<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
@@ -572,11 +555,9 @@ nan. Can help with the optimisation. Feedback welcome!</p></li>
 <p>Release to keep up with TensorFlow 2.1</p>
 <div class="section" id="id21">
 <h3>Major Features and Improvements<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>Fixed the comparison in caching the graph (implementation detail) that leads to an error.</p></li>
 </ul>
-</div></blockquote>
 </div>
 </div>
 <div class="section" id="id22">
@@ -588,8 +569,7 @@ a running version, install a version
 <p>TensorFlow 2.0 is eager executing and uses functions to abstract the performance critical parts away.</p>
 <div class="section" id="id23">
 <h3>Major Features and Improvements<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul>
+<ul>
 <li><p>Dependents (currently, and probably also in the future) need more manual tracking. This has mostly
 an effect on CompositeParameters and SimpleLoss, which now require to specify the dependents by giving
 the objects it depends (indirectly) on. For example, it is sufficient to give a <cite>ComplexParameter</cite> (which
@@ -612,29 +592,24 @@ caches/invalidates the graph and recreates.</p></li>
 </div></blockquote>
 </li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id24">
 <h3>Behavioral changes<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>EDM goal of the minuit minimizer has been reduced by a factor of 10 to 10E-3 in agreement with
 the goal in RooFits Minuit minimizer. This can be varied by specifying the tolerance.</p></li>
 <li><p>known issue: the <cite>projection_pdf</cite> has troubles with the newest TF version and may not work properly (runs out of
 memory)</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id25">
 <h3>Bug fixes and small changes<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="id26">
 <h3>Requirement changes<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>added numdifftools (for numerical differentiation)</p></li>
 </ul>
-</div></blockquote>
 </div>
 <div class="section" id="id27">
 <h3>Thanks<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
