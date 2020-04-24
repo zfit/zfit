@@ -159,7 +159,8 @@ html_theme_options = {
         ("Getting started", "getting_started"),
         ("Intro", "introduction"),
         ("Project", "project"),
-        ("API", "API"),
+        ("API", "user_api"),
+        # ("Dev API", "full_api"),
         # ("Link", "http://example.com", True),
     ],
 
