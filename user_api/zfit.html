@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>minimizers_scipy &#8212; zfit 0.5.2.dev1+g1663ce5 documentation</title>
+    <title>zfit package &#8212; zfit 0.5.2.dev1+g1663ce5 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -14,6 +14,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="zfit API" href="../user_api.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -213,10 +214,10 @@
 </ul>
 </li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../user_api.html">zfit API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_api/zfit.html#submodules">Submodules</a><ul class="simple">
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_api.html">zfit API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">zfit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -236,7 +237,10 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">minimizers_scipy</a></li>
+<li><a class="reference internal" href="#">zfit package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -267,62 +271,13 @@
   <div class="row">
     <div class="body span12 content" role="main">
       
-  <div class="section" id="module-zfit.minimizers.minimizers_scipy">
-<span id="minimizers-scipy"></span><h1>minimizers_scipy<a class="headerlink" href="#module-zfit.minimizers.minimizers_scipy" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt id="zfit.minimizers.minimizers_scipy.Scipy">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.minimizers.minimizers_scipy.</code><code class="sig-name descname">Scipy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">minimizer</span><span class="o">=</span><span class="default_value">'L-BFGS-B'</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbosity</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">minimizer_options</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizers_scipy.html#Scipy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer" title="zfit.minimizers.baseminimizer.BaseMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseMinimizer</span></code></a></p>
-<dl class="py method">
-<dt id="zfit.minimizers.minimizers_scipy.Scipy.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="zfit.minimizers.minimizers_scipy.Scipy.minimize">
-<code class="sig-name descname">minimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult" title="zfit.minimizers.fitresult.FitResult">zfit.minimizers.fitresult.FitResult</a><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.minimize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fully minimize the <cite>loss</cite> with respect to <cite>params</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>loss</strong> (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><em>ZfitLoss</em></a>) – Loss to be minimized.</p></li>
-<li><p><strong>params</strong> (list(<cite>zfit.Parameter</cite>) – The parameters with respect to which to
-minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be taken from the <cite>loss</cite>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The fit result.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><cite>FitResult</cite></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.minimizers.minimizers_scipy.Scipy.step">
-<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform a single step in the minimization (if implemented).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>params</em>) – </p>
-</dd>
-</dl>
-<p>Returns:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.MinimizeStepNotImplementedError" title="zfit.util.exception.MinimizeStepNotImplementedError"><strong>MinimizeStepNotImplementedError</strong></a> – if the <cite>step</cite> method is not implemented in the minimizer.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.minimizers.minimizers_scipy.Scipy.tolerance">
-<em class="property">property </em><code class="sig-name descname">tolerance</code><a class="headerlink" href="#zfit.minimizers.minimizers_scipy.Scipy.tolerance" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="zfit-package">
+<h1>zfit package<a class="headerlink" href="#zfit-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</div>
 </div>
 
 
@@ -338,7 +293,7 @@ minimize the <cite>loss</cite>. If <cite>None</cite>, the parameters will be tak
         <br/>
         
 <div id="sourcelink">
-  <a href="../_sources/full_api/zfit.minimizers.minimizers_scipy.rst.txt"
+  <a href="../_sources/user_api/zfit.rst.txt"
      rel="nofollow">Source</a>
 </div>
       
