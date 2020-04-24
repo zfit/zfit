@@ -7,7 +7,7 @@ numpy>=1.16
 iminuit
 colorlog
 texttable
-tableformatter
+tabulate
 colored
 colorama
 ordered-set
