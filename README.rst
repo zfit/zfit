@@ -261,7 +261,7 @@ zfit has been developed with support from the University of Zürich and the Swis
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
 .. _documentation: https://zfit.readthedocs.io/en/latest/
-..  _stable documentation: https://zfit.readthedocs.io/en/0.5.0/
+..  _stable documentation: https://zfit.readthedocs.io/en/0.5.1/
 .. _API: https://zfit.readthedocs.io/en/latest/API.html
 
 

@@ -7,10 +7,11 @@ from typing import Dict, Union, Callable, Optional, Tuple
 
 import colored
 import numpy as np
-import tableformatter as tafo
 from colorama import Style
 from ordered_set import OrderedSet
+from tabulate import tabulate
 
+from .errors import compute_errors
 from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
@@ -18,8 +19,6 @@ from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
 from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
-
-from .errors import compute_errors
 
 
 def _minos_minuit(result, params, sigma=1.0):
@@ -375,14 +374,13 @@ class FitResult(ZfitResult):
         return method(result=self, params=params)
 
     def __str__(self):
-        string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n'
-        string += tafo.generate_table(
+        string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
+        string += tabulate(
             [[color_on_bool(self.converged), format_value(self.edm, highprec=False),
               format_value(self.fmin)]],
-            ['converged', 'edm', 'min value'],
-            # grid_style=tafo.SparseGrid()
+            ['converged', 'edm', 'min value'], tablefmt='fancy_grid'
         )
-        string += Style.BRIGHT + "Parameters\n"
+        string += '\n\n' + Style.BRIGHT + "Parameters\n" + Style.NORMAL
         string += str(self.params)
         return string
 
@@ -455,7 +453,7 @@ def color_on_bool(value, on_true=colored.bg(10), on_false=colored.bg(9)):
         value_add = on_true
     else:
         value_add = ''
-    value = value_add + str(value)
+    value = value_add + str(value) + colored.bg(15)
     return value
 
 
@@ -477,6 +475,5 @@ class ParamHolder(dict):  # no UserDict, we only want to change the __str__
             rows.append(row)
 
         order_keys = ['name'] + list(order_keys) + ['at limit']
-
-        return tafo.generate_table(rows, order_keys,
-                                   grid_style=tafo.AlternatingRowGrid(colored.bg(15), colored.bg(254)))
+        table = tabulate(rows, order_keys)
+        return table
