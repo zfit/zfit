@@ -23,8 +23,6 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 
-**UPGRADE zfit:** `Upgrade guide to 0.4.x <docs/project/upgrade_guide.rst>`_
-
 |zfit_logo|
 
 
