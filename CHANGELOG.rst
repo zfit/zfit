@@ -73,7 +73,7 @@ Major Features and Improvements
   - `zfit.run.set_mode` allows to set the policy for whether everything is run in eager mode (`graph=False`),
     everything in graph, or most of it (`graph=True`) or an optimized variant, doing graph building only with
    losses but not just models (e.g. `pdf` won't trigger a graph build, `loss.value()` will) with `graph='auto'`.
-   - The graph cache can be cleaned manually using `zfit.run.clear_graph_cache()` in order to prevent slowness
+  - The graph cache can be cleaned manually using `zfit.run.clear_graph_cache()` in order to prevent slowness
      in repeated tasks.
 
 - Switch for numerical gradients has been added as well in `zfit.run.set_mode(autograd=True/False)`.
