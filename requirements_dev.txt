@@ -9,6 +9,7 @@ Sphinx>=1.7.1
 sphinx_bootstrap_theme
 twine>=1.10.0
 setuptools>=30.3.0
+setupext-janitor
 
 pytest>=3.4.2,<5.4  # breaks unittests
 pytest-runner>=2.11.1

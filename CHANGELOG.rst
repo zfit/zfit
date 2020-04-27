@@ -69,12 +69,12 @@ Major Features and Improvements
 
 - Improved graph building and `z.function`
 
-  - the `z.function` can now, as with `tf.function`, be used either as a decorator without arguments or as a decorator with arguments. They are the same as in `tf.function`, except of a few additional ones.
-  - `zfit.run.set_mode` allows to set the policy for whether everything is run in eager mode (`graph=False`),
+  * the `z.function` can now, as with `tf.function`, be used either as a decorator without arguments or as a decorator with arguments. They are the same as in `tf.function`, except of a few additional ones.
+  * `zfit.run.set_mode` allows to set the policy for whether everything is run in eager mode (`graph=False`),
     everything in graph, or most of it (`graph=True`) or an optimized variant, doing graph building only with
-   losses but not just models (e.g. `pdf` won't trigger a graph build, `loss.value()` will) with `graph='auto'`.
-  - The graph cache can be cleaned manually using `zfit.run.clear_graph_cache()` in order to prevent slowness
-     in repeated tasks.
+    losses but not just models (e.g. `pdf` won't trigger a graph build, `loss.value()` will) with `graph='auto'`.
+  * The graph cache can be cleaned manually using `zfit.run.clear_graph_cache()` in order to prevent slowness
+    in repeated tasks.
 
 - Switch for numerical gradients has been added as well in `zfit.run.set_mode(autograd=True/False)`.
 - Resetting to the default can be done with `zfit.run.set_mode_default()`
@@ -188,7 +188,7 @@ Bug fixes and small changes
 ---------------------------
 - Add `use_minuit_grad` option to Minuit optimizer to use the internal gradient, often for more stable fits
 - added experimental flag `zfit.experimental_loss_penalty_nan`, which adds a penalty to the loss in case the value is
-   nan. Can help with the optimisation. Feedback welcome!
+  nan. Can help with the optimisation. Feedback welcome!
 
 Requirement changes
 -------------------
@@ -406,4 +406,4 @@ Beta stage and first pip release
 ==================
 
 
-* First creation of the package.
+- First creation of the package.
