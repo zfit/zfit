@@ -113,7 +113,11 @@ html_theme = "pydata_sphinx_theme"
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.
-html_logo = "images/zfit-fin_57x24.png"
+html_logo = "images/zfit-fin_400x168.png"
+
+html_theme_options = {
+    "github_url": "https://github.com/zfit/zfit",
+}
 
 # -- Options for HTMLHelp output ---------------------------------------
 
