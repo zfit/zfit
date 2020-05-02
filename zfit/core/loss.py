@@ -2,18 +2,17 @@
 
 import abc
 import warnings
-from typing import Optional, Union, List, Callable, Iterable, Tuple
+from typing import Optional, Union, List, Callable, Iterable, Tuple, Set
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-from .baseobject import BaseObject
-from .constraint import BaseConstraint, SimpleConstraint
-from .dependents import BaseDependentsMixin, _extract_dependencies
+from .baseobject import BaseNumeric
+from .constraint import BaseConstraint
+from .dependents import _extract_dependencies
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
 from .. import z, settings
 from ..util import ztyping
-from ..util.cache import GraphCachable
 from ..util.checks import NOT_SPECIFIED
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
@@ -70,11 +69,13 @@ def _constraint_check_convert(constraints):
         if isinstance(constr, BaseConstraint):
             checked_constraints.append(constr)
         else:
-            checked_constraints.append(SimpleConstraint(func=lambda: constr))
+            raise BreakingAPIChangeError("Constraints have to be of type `Constraint`, a simple"
+                                         " constraint from a function can be constructed with"
+                                         " `SimpleConstraint`.")
     return checked_constraints
 
 
-class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
+class BaseLoss(ZfitLoss, BaseNumeric):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
                  fit_range: ztyping.LimitsTypeInput = None,
@@ -94,7 +95,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
             constraints (Iterable[tf.Tensor): A Tensor representing a loss constraint. Using
                 `zfit.constraint.*` allows for easy use of predefined constraints.
         """
-        super().__init__(name=type(self).__name__)
+        super().__init__(name=type(self).__name__, params={})
         if fit_range is not None:
             warnings.warn("The fit_range argument is depreceated and will maybe removed in future releases. "
                           "It is preferred to define the range in the space"
@@ -112,6 +113,20 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._name = "UnnamedSubBaseLoss"
+
+    def _get_params(self,
+                    floating: Optional[bool] = True,
+                    is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        params = OrderedSet()
+        params = params.union(*(model.get_params(floating=floating, is_yield=False,
+                                                 extract_independent=extract_independent)
+                                for model in self.model))
+
+        params = params.union(*(constraint.get_params(floating=floating, is_yield=False,
+                                                      extract_independent=extract_independent)
+                                for constraint in self.constraints))
+        return params
 
     def _input_check(self, pdf, data, fit_range):
         if is_container(pdf) ^ is_container(data):
@@ -139,15 +154,6 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
         else:
             fit_range = convert_to_container(fit_range, non_containers=[tuple])
 
-        # simultaneous fit
-        # if is_container(pdf):
-        # if not is_container(fit_range) or not isinstance(fit_range[0], Space):
-        #     raise ValueError(
-        #         "If several pdfs are specified, the `fit_range` has to be given as a list of `Space` "
-        #         "objects and not as pure tuples.")
-
-        # else:
-        #     fit_range = pdf.convert_sort_space(limits=fit_range)  # fit_range may be a tuple
         if not len(pdf) == len(data) == len(fit_range):
             raise ValueError("pdf, data and fit_range don't have the same number of components:"
                              "\npdf: {}"
@@ -393,18 +399,22 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, dependents: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
+    def __init__(self, func: Callable, deps: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
+                 dependents: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
                  errordef: Optional[float] = None):
         """Loss from a (function returning a ) Tensor.
 
         Args:
             func: Callable that constructs the loss and returns a tensor.
-            dependents: The dependents (independent `zfit.Parameter`) of the loss. If not given, the dependents are
+            deps: The dependents (independent `zfit.Parameter`) of the loss. If not given, the dependents are
                 figured out automatically.
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
         """
-        if dependents is NOT_SPECIFIED:  # depreceation
+        if dependents is not NOT_SPECIFIED:
+            warnings.warn("`dependents` is deprecated and will be removed in the future, use `deps`"
+                          " instead as a keyword.")
+        if deps is NOT_SPECIFIED:  # depreceation
             raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
                                          "More information can be found in the upgrade guide on the website.")
 
@@ -416,14 +426,20 @@ class SimpleLoss(BaseLoss):
         self._simple_errordef = errordef
         self._errordef = errordef
         self.computed_gradients = {}
-        dependents = convert_to_container(dependents, container=OrderedSet)
-        self._simple_func_dependents = _extract_dependencies(dependents)
+        deps = convert_to_container(deps, container=OrderedSet)
+        self._simple_func_deps = _extract_dependencies(deps)
 
         super().__init__(model=[], data=[], fit_range=[])
 
     def _get_dependencies(self):
-        dependents = self._simple_func_dependents
+        dependents = self._simple_func_deps
         return dependents
+
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        params = super()._get_params(floating, is_yield, extract_independent)
+        params = params.union(self._simple_func_deps)
+        return params
 
     @property
     def errordef(self):

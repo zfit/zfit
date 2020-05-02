@@ -753,7 +753,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class ZfitLoss(ZfitObject, ZfitDependenciesMixin, metaclass=ABCMeta):
+class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @abstractmethod
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:

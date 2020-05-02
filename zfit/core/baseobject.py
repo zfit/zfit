@@ -139,61 +139,10 @@ class BaseNumeric(GraphCachable, BaseDependentsMixin, BaseParametrized, ZfitNume
         super().__init__(name=name, **kwargs)
         self.add_cache_deps(self.params.values())
 
-
-
     @property
     def dtype(self) -> tf.DType:
         """The dtype of the object"""
         return self._dtype
-
-    # def get_params(self, floating: Optional[bool] = True,
-    #                yields: Optional[bool] = None,
-    #                extract_independent: Optional[bool] = True,
-    #                only_floating: bool = True) -> Set[ZfitParameter]:
-    #     """Recursively collect parameters that this object depends on according to the filter criteria.
-    #
-    #     Which parameters should be included can be steered using the arguments as a filter.
-    #      - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as
-    #         parameters that are fixed.
-    #      - **True**: only return parameters that fulfil this criterion
-    #      - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return
-    #         only parameters that are not floating.
-    #
-    #     Args:
-    #         floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`
-    #         yields: if a parameter is a yield of the _current_ model. This won't be applied recursively, but may include
-    #            yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
-    #            model depends on other yields (or also non-yields), this will be included. If, however, just submodels
-    #            depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
-    #            included.
-    #         extract_independent: If the parameter is not an independent parameter, i.e. if it is not a
-    #             `ZfitIndependentParameter`, it will extract all independent parameters that dependent parameters
-    #             depend on.
-    #     """
-    #
-    #     # def get_params(self, only_floating: bool = False, names: ztyping.ParamsNameOpt = None) -> List["ZfitParameter"]:
-    #     #     """Return the parameters. If it is empty, automatically return all floating variables.
-    #     #
-    #     #     Args:
-    #     #         only_floating (): If True, return only the floating parameters.
-    #     #         names (): The names of the parameters to return.
-    #     #
-    #     #     Returns:
-    #     #         list(`ZfitParameters`):
-    #     #     """
-    #     #     if isinstance(names, str):
-    #     #         names = (names,)
-    #     #     if names is not None:
-    #     #         missing_names = set(names).difference(self.params.keys())
-    #     #         if missing_names:
-    #     #             raise KeyError("The following names are not valid parameter names")
-    #     #         params = [self.params[name] for name in names]
-    #     #     else:
-    #     params = list(self.params.values())
-    #
-    #     if only_floating:
-    #         params = self._filter_floating_params(params=params)
-    #     return params
 
     @staticmethod
     def _filter_floating_params(params):
