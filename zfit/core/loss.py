@@ -17,6 +17,7 @@ from ..util.checks import NOT_SPECIFIED
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
     BreakingAPIChangeError
+from ..util.warnings import warn_advanced_feature
 from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
     automatic_value_gradients_hessian, numerical_value_gradients_hessian
 
@@ -145,12 +146,18 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if fit_range is None:
             fit_range = []
             for p, d in zip(pdf, data):
+                non_consistent = {'data': [], 'model': [], 'range': []}
                 if not p.norm_range == d.data_range:
-                    raise IntentionAmbiguousError(f"No `fit_range` is specified and `pdf` {p} as "
-                                                  f"well as `data` {d} have different ranges they "
-                                                  f"are defined in. Either make them (all) consistent "
-                                                  f"or specify the `fit_range`")
+                    non_consistent['data'].append(d)
+                    non_consistent['model'].append(p)
+                    non_consistent['range'].append((p.norm_range, d.data_range))
                 fit_range.append(p.norm_range)
+            if non_consistent['range']:
+                warn_advanced_feature(f"PDFs {non_consistent['model']} as "
+                                      f"well as `data` {non_consistent['data']}"
+                                      f" have different ranges {non_consistent['range']} they"
+                                      f" are defined in. The data range will cut the data while the"
+                                      f" norm range defines the normalization.")
         else:
             fit_range = convert_to_container(fit_range, non_containers=[tuple])
 
