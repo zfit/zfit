@@ -46,22 +46,33 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
         log_probs = tf.math.log(probs)
-        if data.weights is not None:
-            log_probs *= data.weights  # because it's prob ** weights
-        nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
+        nll = _nll_calc_unbinned_tf(log_probs=log_probs,
+                                    weights=data.weights if data.weights is not None else None)
         nll_finished = nll
     return nll_finished
 
 
-def _nll_constraints_tf(constraints):
-    if not constraints:
-        return z.constant(0.)  # adding 0 to nll
-    probs = []
-    for param, dist in constraints.items():
-        probs.append(dist.pdf(param))
-    # probs = [dist.pdf(param) for param, dist in constraints.items()]
-    constraints_neg_log_prob = -tf.reduce_sum(input_tensor=tf.math.log(probs))
-    return constraints_neg_log_prob
+@z.function
+def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
+    if weights is not None:
+        log_probs *= weights  # because it's prob ** weights
+    if log_offset:
+        log_probs -= log_offset
+    nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
+    return nll
+
+
+# OLD remove?
+# def _nll_constraints_tf(constraints):
+#     if not constraints:
+#         return z.constant(0.)  # adding 0 to nll
+#     probs = []
+#     for param, dist in constraints.items():
+#         probs.append(dist.pdf(param))
+#     probs = tf.concat(probs)
+#     # probs = [dist.pdf(param) for param, dist in constraints.items()]
+#     constraints_neg_log_prob = _nll_calc_unbinned_tf(probs=probs)
+#     return constraints_neg_log_prob
 
 
 def _constraint_check_convert(constraints):
@@ -393,13 +404,20 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
     @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
         nll = super()._loss_func(model=model, data=data, fit_range=fit_range, constraints=constraints)
-        poisson_terms = []
+        yields = []
+        nevents_collected = []
         for mod, dat in zip(model, data):
             if not mod.is_extended:
                 raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
             nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
-            poisson_terms.append(-mod.get_yield() + z.to_real(nevents) * tf.math.log(mod.get_yield()))
-        nll -= tf.reduce_sum(input_tensor=poisson_terms)
+            nevents = tf.cast(nevents, tf.float64)
+            nevents_collected.append(nevents)
+            yields.append(mod.get_yield())
+        yields = tf.stack(yields, axis=0)
+        nevents_collected = tf.stack(nevents_collected, axis=0)
+
+        term_new = tf.nn.log_poisson_loss(nevents_collected, tf.math.log(yields))
+        nll += tf.reduce_sum(term_new, axis=0)
         return nll
 
 
