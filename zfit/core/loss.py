@@ -163,12 +163,13 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                     non_consistent['model'].append(p)
                     non_consistent['range'].append((p.norm_range, d.data_range))
                 fit_range.append(p.norm_range)
-            if non_consistent['range']:
+            if non_consistent['range']:  # TODO: test
                 warn_advanced_feature(f"PDFs {non_consistent['model']} as "
                                       f"well as `data` {non_consistent['data']}"
                                       f" have different ranges {non_consistent['range']} they"
                                       f" are defined in. The data range will cut the data while the"
-                                      f" norm range defines the normalization.")
+                                      f" norm range defines the normalization.",
+                                      identifier='inconsistent_fitrange')
         else:
             fit_range = convert_to_container(fit_range, non_containers=[tuple])
 
