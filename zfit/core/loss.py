@@ -427,7 +427,7 @@ class SimpleLoss(BaseLoss):
     def __init__(self, func: Callable, deps: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
                  dependents: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
                  errordef: Optional[float] = None):
-        """Loss from a (function returning a ) Tensor.
+        """Loss from a (function returning a) Tensor.
 
         Args:
             func: Callable that constructs the loss and returns a tensor.
