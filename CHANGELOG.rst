@@ -18,6 +18,8 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+ - added `get_params` to loss
+ - fix a bug with the `fixed_params` when creating a sampler
 
 Experimental
 ------------
