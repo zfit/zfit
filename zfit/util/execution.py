@@ -119,8 +119,10 @@ class RunManager:
         evaluated_args = [eval_object(arg) for arg in flattened_args]
         values = tf.nest.pack_sequence_as(args, flat_sequence=evaluated_args)
 
-        was_container = is_container(args[0]) and not isinstance(args[0], np.ndarray, )
-        if not was_container and values:
+        # was_container = is_container(args[0]) and not isinstance(args[0], np.ndarray, )
+        # if not was_container and values:
+        #     values = values[0]
+        if len(args) == 1:
             values = values[0]
         return values
 

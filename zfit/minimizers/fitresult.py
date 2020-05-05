@@ -1,5 +1,5 @@
 #  Copyright (c) 2020 zfit
-
+import contextlib
 import itertools
 import warnings
 from collections import OrderedDict
@@ -14,6 +14,7 @@ from tabulate import tabulate
 from .errors import compute_errors
 from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
+from ..core.parameter import set_values
 from ..settings import run
 from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
@@ -178,6 +179,19 @@ class FitResult(ZfitResult):
     def valid(self):
         return self._valid
 
+    @contextlib.contextmanager
+    def _input_check_reset_params(self, params):
+        params = self._input_check_params(params=params)
+        old_values = run(params)
+        try:
+            yield params
+        except Exception as error:
+            warnings.warn("Exception occurred, parameter values are not reset and in an arbitrary, last"
+                          " used state. If this happens during normal operation, make sure you reset the values.",
+                          RuntimeWarning)
+            raise
+        set_values(params=params, values=old_values)
+
     def _input_check_params(self, params):
         if params is not None:
             params = convert_to_container(params)
@@ -219,11 +233,11 @@ class FitResult(ZfitResult):
         all_params = list(self.params.keys())
         uncached_params = self._get_uncached_params(params=all_params, method_name=error_name)
 
-        if uncached_params:
-            error_dict = self._hesse(params=uncached_params, method=method)
-            self._cache_errors(error_name=error_name, errors=error_dict)
+        with self._input_check_reset_params(params) as params:
+            if uncached_params:  # TODO: this logic doesn't make sense?
+                error_dict = self._hesse(params=uncached_params, method=method)
+                self._cache_errors(error_name=error_name, errors=error_dict)
 
-        params = self._input_check_params(params)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
         return all_errors
 
@@ -305,20 +319,20 @@ class FitResult(ZfitResult):
         if method == 'zfit_error':
             warnings.warn("'zfit_error' is still experimental and may fails.", ExperimentalFeatureWarning)
 
-        params = self._input_check_params(params)
-        uncached_params = self._get_uncached_params(params=params, method_name=error_name)
+        with self._input_check_reset_params(params) as params:
+            uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
-        new_result = None
+            new_result = None
 
-        if uncached_params:
-            error_dict, new_result = self._error(params=uncached_params, method=method, sigma=sigma)
-            if new_result is None:
-                self._cache_errors(error_name=error_name, errors=error_dict)
-            else:
-                msg = "Invalid, a new minimum was found."
-                self._cache_errors(error_name=error_name, errors={p: msg for p in params})
-                self._valid = False
-                new_result._cache_errors(error_name=error_name, errors=error_dict)
+            if uncached_params:
+                error_dict, new_result = self._error(params=uncached_params, method=method, sigma=sigma)
+                if new_result is None:
+                    self._cache_errors(error_name=error_name, errors=error_dict)
+                else:
+                    msg = "Invalid, a new minimum was found."
+                    self._cache_errors(error_name=error_name, errors={p: msg for p in params})
+                    self._valid = False
+                    new_result._cache_errors(error_name=error_name, errors=error_dict)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
 
         return all_errors, new_result
@@ -354,8 +368,8 @@ class FitResult(ZfitResult):
                 method = "minuit_hesse"
             # LEGACY END
 
-        params = self._input_check_params(params)
-        covariance = self._covariance(method=method)
+        with self._input_check_reset_params(params) as params:
+            covariance = self._covariance(method=method)
         covariance = {k: covariance[k] for k in itertools.product(params, params)}
 
         if as_dict:
