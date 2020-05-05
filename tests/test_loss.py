@@ -102,7 +102,7 @@ def test_unbinned_simultaneous_nll():
     nll_object = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
                                        data=[test_values, test_values2],
                                        )
-    minimizer = Minuit()
+    minimizer = Minuit(tolerance=1e-5)
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1, mu2, sigma2])
     params = status.params
     assert set(nll_object.get_params()) == {mu1, mu2, sigma1, sigma2}
