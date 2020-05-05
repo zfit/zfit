@@ -62,19 +62,6 @@ def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
     return nll
 
 
-# OLD remove?
-# def _nll_constraints_tf(constraints):
-#     if not constraints:
-#         return z.constant(0.)  # adding 0 to nll
-#     probs = []
-#     for param, dist in constraints.items():
-#         probs.append(dist.pdf(param))
-#     probs = tf.concat(probs)
-#     # probs = [dist.pdf(param) for param, dist in constraints.items()]
-#     constraints_neg_log_prob = _nll_calc_unbinned_tf(probs=probs)
-#     return constraints_neg_log_prob
-
-
 def _constraint_check_convert(constraints):
     checked_constraints = []
     for constr in constraints:
@@ -369,20 +356,8 @@ class UnbinnedNLL(BaseLoss):
 
     @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
-        # with tf.GradientTape(persistent=True) as tape:
         nll = self._loss_func_watched(constraints, data, fit_range, model)
 
-        # variables = tape.watched_variables()
-        # gradients = tape.gradient(nll, sources=variables)
-        # if any(grad is None for grad in tf.unstack(gradients, axis=0)):
-        #     none_dict = {var: grad for var, grad in zip(variables, tf.unstack(gradients, axis=0)) if grad is None}
-        #     raise LogicalUndefinedOperationError(f"One or more gradients are None and therefore the function does not"
-        #                                          f" depend on them:"
-        #                                          f" {none_dict}")
-        # for param, grad in zip(variables, gradients):
-        # if param in self.computed_gradients:
-        #     continue
-        # self.computed_gradients[param] = grad
         return nll
 
     @z.function(wraps='loss')
