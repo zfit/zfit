@@ -96,6 +96,22 @@ def test_fmin(minimizer_class_and_kwargs):
     assert pytest.approx(results['cur_val']) == result.fmin
 
 
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+def test_params_at_limit(minimizer_class_and_kwargs):
+    loss, (param_a, param_b, param_c) = create_loss(n=5000)
+    old_lower = param_a.lower
+    param_a.lower = param_a.upper
+    param_a.upper += 5
+    minimizer = zfit.minimize.Minuit(use_minuit_grad=True, tolerance=0.1)
+    result = minimizer.minimize(loss)
+    assert param_a.at_limit
+    assert result.params_at_limit
+    param_a.lower = old_lower
+    assert not param_a.at_limit
+    assert result.params_at_limit
+    assert not result.valid
+
+
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_covariance(minimizer_class_and_kwargs):

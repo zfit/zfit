@@ -109,17 +109,17 @@ class FitResult(ZfitResult):
                 won't be altered.
         """
         super().__init__()
+
         self._status = status
         self._converged = converged
         self._params = self._input_convert_params(params)
+        self._params_at_limit = any(param.at_limit for param in self.params)
         self._edm = edm
         self._fmin = fmin
         self._info = info
         self._loss = loss
         self._minimizer = minimizer
         self._valid = True
-        # self.param_error = OrderedDict((p, {}) for p in params)
-        # self.param_hesse = OrderedDict((p, {}) for p in params)
 
     def _input_convert_params(self, params):
         params = ParamHolder((p, {"value": v}) for p, v in params.items())
@@ -177,7 +177,11 @@ class FitResult(ZfitResult):
 
     @property
     def valid(self):
-        return self._valid
+        return self._valid and not self.params_at_limit and self.converged
+
+    @property
+    def params_at_limit(self):
+        return self._params_at_limit
 
     @contextlib.contextmanager
     def _input_check_reset_params(self, params):
