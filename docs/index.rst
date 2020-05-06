@@ -32,14 +32,7 @@ Source code can be found in `our github page <https://github.com/zfit/zfit/>`_.
 .. toctree::
     :maxdepth: 2
 
-    getting_started
-    intro/index
-    project/index
-
-.. toctree::
-    :maxdepth: 1
-
+    whats_new/index
+    getting_started/index
     user_api/index
-
-
-
+    project/index

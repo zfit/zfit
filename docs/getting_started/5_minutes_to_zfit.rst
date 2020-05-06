@@ -1,6 +1,6 @@
-===============
-Getting started
-===============
+=================
+5 Minutes to zfit
+=================
 
 The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.
 
@@ -166,7 +166,7 @@ As already mentioned, there is no dedicated plotting feature within zfit. Howeve
     >>> plt.plot(x_plot, y_plot*data_np.shape[0]/80*obs.area(), color='xkcd:blue')
     >>> plt.show()
 
-.. image:: images/Gaussian.png
+.. image:: ../images/Gaussian.png
 
 The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to ``zfit.run``, a specialised wrapper around ``tf.Session().run``.
 While actions like ``minimize`` or ``sample`` return Python objects (including numpy arrays or scalars), functions like ``pdf`` or ``integrate`` return TensorFlow graphs, which are lazy-evaluated.

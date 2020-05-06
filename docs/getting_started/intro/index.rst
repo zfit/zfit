@@ -5,7 +5,6 @@ Introduction
 Following and introduction to the elements of zfit
 
 .. toctree::
-    :titlesonly:
     :maxdepth: 1
 
     space
