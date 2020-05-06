@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.sample &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>zfit.core.sample &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -368,8 +368,7 @@
 <div class="viewcode-block" id="EventSpace.iter_areas"><a class="viewcode-back" href="../../../full_api/zfit.core.sample.html#zfit.core.sample.EventSpace.iter_areas">[docs]</a>    <span class="k">def</span> <span class="nf">iter_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">rel</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Currently, only rel with one limits is implemented in EventSpace&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,)</span>  <span class="c1"># TODO: remove HACK, use tensors?</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot be called with an event space.&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,)</span>  <span class="c1"># TODO: remove HACK, use tensors?</span></div>
 
 <div class="viewcode-block" id="EventSpace.add"><a class="viewcode-back" href="../../../full_api/zfit.core.sample.html#zfit.core.sample.EventSpace.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">SpaceOrSpacesTypeInput</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot be called with an event space.&quot;</span><span class="p">)</span></div>

@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>interfaces &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>interfaces &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -1091,7 +1091,7 @@ with <cite>z.unstack_x()</cite> as can be done with data.</p>
 <dl class="py class">
 <dt id="zfit.core.interfaces.ZfitLoss">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.core.interfaces.</code><code class="sig-name descname">ZfitLoss</code><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitObject</span></code></a>, <a class="reference internal" href="#zfit.core.interfaces.ZfitDependenciesMixin" title="zfit.core.interfaces.ZfitDependenciesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitDependenciesMixin</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#zfit.core.interfaces.ZfitObject" title="zfit.core.interfaces.ZfitObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitObject</span></code></a></p>
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitLoss.add_constraints">
 <em class="property">abstract </em><code class="sig-name descname">add_constraints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">constraints</span><span class="p">:</span> <span class="n">List<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitLoss.add_constraints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.add_constraints" title="Permalink to this definition">¶</a></dt>
@@ -1111,20 +1111,6 @@ with <cite>z.unstack_x()</cite> as can be done with data.</p>
 <dt id="zfit.core.interfaces.ZfitLoss.fit_range">
 <em class="property">abstract property </em><code class="sig-name descname">fit_range</code><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.fit_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt id="zfit.core.interfaces.ZfitLoss.get_cache_deps">
-<em class="property">abstract </em><code class="sig-name descname">get_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.get_cache_deps" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="zfit.core.interfaces.ZfitLoss.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitLoss.get_dependencies" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED FUNCTION</p>
-<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
-Instructions for updating:
-Use <cite>get_params</cite> instead if you want to retrieve the independent parameters or <cite>get_cache_deps</cite> in case you need the numerical cache dependents (advanced).</p>
-</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitLoss.gradients">

@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.execution &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>zfit.util.execution &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -386,8 +386,10 @@
         <span class="n">evaluated_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">eval_object</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">flattened_args</span><span class="p">]</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">pack_sequence_as</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">flat_sequence</span><span class="o">=</span><span class="n">evaluated_args</span><span class="p">)</span>
 
-        <span class="n">was_container</span> <span class="o">=</span> <span class="n">is_container</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">was_container</span> <span class="ow">and</span> <span class="n">values</span><span class="p">:</span>
+        <span class="c1"># was_container = is_container(args[0]) and not isinstance(args[0], np.ndarray, )</span>
+        <span class="c1"># if not was_container and values:</span>
+        <span class="c1">#     values = values[0]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">values</span>
 

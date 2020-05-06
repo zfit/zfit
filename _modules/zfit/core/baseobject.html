@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.baseobject &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>zfit.core.baseobject &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -406,61 +406,10 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_deps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
-
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">DType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;The dtype of the object&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>
-
-    <span class="c1"># def get_params(self, floating: Optional[bool] = True,</span>
-    <span class="c1">#                yields: Optional[bool] = None,</span>
-    <span class="c1">#                extract_independent: Optional[bool] = True,</span>
-    <span class="c1">#                only_floating: bool = True) -&gt; Set[ZfitParameter]:</span>
-    <span class="c1">#     &quot;&quot;&quot;Recursively collect parameters that this object depends on according to the filter criteria.</span>
-    <span class="c1">#</span>
-    <span class="c1">#     Which parameters should be included can be steered using the arguments as a filter.</span>
-    <span class="c1">#      - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as</span>
-    <span class="c1">#         parameters that are fixed.</span>
-    <span class="c1">#      - **True**: only return parameters that fulfil this criterion</span>
-    <span class="c1">#      - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return</span>
-    <span class="c1">#         only parameters that are not floating.</span>
-    <span class="c1">#</span>
-    <span class="c1">#     Args:</span>
-    <span class="c1">#         floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`</span>
-    <span class="c1">#         yields: if a parameter is a yield of the _current_ model. This won&#39;t be applied recursively, but may include</span>
-    <span class="c1">#            yields if they do also represent a parameter parametrizing the shape. So if the yield of the current</span>
-    <span class="c1">#            model depends on other yields (or also non-yields), this will be included. If, however, just submodels</span>
-    <span class="c1">#            depend on a yield (as their yield) and it is not correlated to the output of our model, they won&#39;t be</span>
-    <span class="c1">#            included.</span>
-    <span class="c1">#         extract_independent: If the parameter is not an independent parameter, i.e. if it is not a</span>
-    <span class="c1">#             `ZfitIndependentParameter`, it will extract all independent parameters that dependent parameters</span>
-    <span class="c1">#             depend on.</span>
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#</span>
-    <span class="c1">#     # def get_params(self, only_floating: bool = False, names: ztyping.ParamsNameOpt = None) -&gt; List[&quot;ZfitParameter&quot;]:</span>
-    <span class="c1">#     #     &quot;&quot;&quot;Return the parameters. If it is empty, automatically return all floating variables.</span>
-    <span class="c1">#     #</span>
-    <span class="c1">#     #     Args:</span>
-    <span class="c1">#     #         only_floating (): If True, return only the floating parameters.</span>
-    <span class="c1">#     #         names (): The names of the parameters to return.</span>
-    <span class="c1">#     #</span>
-    <span class="c1">#     #     Returns:</span>
-    <span class="c1">#     #         list(`ZfitParameters`):</span>
-    <span class="c1">#     #     &quot;&quot;&quot;</span>
-    <span class="c1">#     #     if isinstance(names, str):</span>
-    <span class="c1">#     #         names = (names,)</span>
-    <span class="c1">#     #     if names is not None:</span>
-    <span class="c1">#     #         missing_names = set(names).difference(self.params.keys())</span>
-    <span class="c1">#     #         if missing_names:</span>
-    <span class="c1">#     #             raise KeyError(&quot;The following names are not valid parameter names&quot;)</span>
-    <span class="c1">#     #         params = [self.params[name] for name in names]</span>
-    <span class="c1">#     #     else:</span>
-    <span class="c1">#     params = list(self.params.values())</span>
-    <span class="c1">#</span>
-    <span class="c1">#     if only_floating:</span>
-    <span class="c1">#         params = self._filter_floating_params(params=params)</span>
-    <span class="c1">#     return params</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_filter_floating_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>

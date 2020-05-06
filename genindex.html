@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>Index &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="index.html"><img src="_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -1032,6 +1032,8 @@
         <li><a href="full_api/zfit.util.exception.html#zfit.util.exception.SpaceIncompatibleError.args">(zfit.util.exception.SpaceIncompatibleError attribute)</a>
 </li>
         <li><a href="full_api/zfit.util.exception.html#zfit.util.exception.SpecificFunctionNotImplementedError.args">(zfit.util.exception.SpecificFunctionNotImplementedError attribute)</a>
+</li>
+        <li><a href="full_api/zfit.util.exception.html#zfit.util.exception.StandardControlFlow.args">(zfit.util.exception.StandardControlFlow attribute)</a>
 </li>
         <li><a href="full_api/zfit.util.exception.html#zfit.util.exception.SubclassingError.args">(zfit.util.exception.SubclassingError attribute)</a>
 </li>
@@ -2549,6 +2551,16 @@
 </li>
         <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF.dtype">(zfit.core.interfaces.ZfitPDF property)</a>
 </li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.BaseLoss.dtype">(zfit.core.loss.BaseLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.CachedLoss.dtype">(zfit.core.loss.CachedLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.ExtendedUnbinnedNLL.dtype">(zfit.core.loss.ExtendedUnbinnedNLL property)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.SimpleLoss.dtype">(zfit.core.loss.SimpleLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL.dtype">(zfit.core.loss.UnbinnedNLL property)</a>
+</li>
         <li><a href="full_api/zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter.dtype">(zfit.core.parameter.BaseComposedParameter property)</a>
 </li>
         <li><a href="full_api/zfit.core.parameter.html#zfit.core.parameter.BaseParameter.dtype">(zfit.core.parameter.BaseParameter property)</a>
@@ -2578,6 +2590,14 @@
         <li><a href="full_api/zfit.func.html#zfit.func.SimpleFunc.dtype">(zfit.func.SimpleFunc property)</a>
 </li>
         <li><a href="full_api/zfit.func.html#zfit.func.SumFunc.dtype">(zfit.func.SumFunc property)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.BaseLoss.dtype">(zfit.loss.BaseLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.ExtendedUnbinnedNLL.dtype">(zfit.loss.ExtendedUnbinnedNLL property)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.SimpleLoss.dtype">(zfit.loss.SimpleLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.UnbinnedNLL.dtype">(zfit.loss.UnbinnedNLL property)</a>
 </li>
         <li><a href="full_api/zfit.models.basefunctor.html#zfit.models.basefunctor.FunctorMixin.dtype">(zfit.models.basefunctor.FunctorMixin property)</a>
 </li>
@@ -3431,8 +3451,6 @@
 </li>
         <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitIndependentParameter.get_cache_deps">(zfit.core.interfaces.ZfitIndependentParameter method)</a>
 </li>
-        <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss.get_cache_deps">(zfit.core.interfaces.ZfitLoss method)</a>
-</li>
         <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel.get_cache_deps">(zfit.core.interfaces.ZfitModel method)</a>
 </li>
         <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitNumericParametrized.get_cache_deps">(zfit.core.interfaces.ZfitNumericParametrized method)</a>
@@ -3630,8 +3648,6 @@
         <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitFunc.get_dependencies">(zfit.core.interfaces.ZfitFunc method)</a>
 </li>
         <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitIndependentParameter.get_dependencies">(zfit.core.interfaces.ZfitIndependentParameter method)</a>
-</li>
-        <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss.get_dependencies">(zfit.core.interfaces.ZfitLoss method)</a>
 </li>
         <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel.get_dependencies">(zfit.core.interfaces.ZfitModel method)</a>
 </li>
@@ -3893,6 +3909,16 @@
 </li>
         <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF.get_params">(zfit.core.interfaces.ZfitPDF method)</a>
 </li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.BaseLoss.get_params">(zfit.core.loss.BaseLoss method)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.CachedLoss.get_params">(zfit.core.loss.CachedLoss method)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.ExtendedUnbinnedNLL.get_params">(zfit.core.loss.ExtendedUnbinnedNLL method)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.SimpleLoss.get_params">(zfit.core.loss.SimpleLoss method)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL.get_params">(zfit.core.loss.UnbinnedNLL method)</a>
+</li>
         <li><a href="full_api/zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter.get_params">(zfit.core.parameter.BaseComposedParameter method)</a>
 </li>
         <li><a href="full_api/zfit.core.parameter.html#zfit.core.parameter.BaseParameter.get_params">(zfit.core.parameter.BaseParameter method)</a>
@@ -3916,6 +3942,14 @@
         <li><a href="full_api/zfit.func.html#zfit.func.SimpleFunc.get_params">(zfit.func.SimpleFunc method)</a>
 </li>
         <li><a href="full_api/zfit.func.html#zfit.func.SumFunc.get_params">(zfit.func.SumFunc method)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.BaseLoss.get_params">(zfit.loss.BaseLoss method)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.ExtendedUnbinnedNLL.get_params">(zfit.loss.ExtendedUnbinnedNLL method)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.SimpleLoss.get_params">(zfit.loss.SimpleLoss method)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.UnbinnedNLL.get_params">(zfit.loss.UnbinnedNLL method)</a>
 </li>
         <li><a href="full_api/zfit.models.basefunctor.html#zfit.models.basefunctor.FunctorMixin.get_params">(zfit.models.basefunctor.FunctorMixin method)</a>
 </li>
@@ -6864,6 +6898,16 @@
 </li>
         <li><a href="full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF.params">(zfit.core.interfaces.ZfitPDF property)</a>
 </li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.BaseLoss.params">(zfit.core.loss.BaseLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.CachedLoss.params">(zfit.core.loss.CachedLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.ExtendedUnbinnedNLL.params">(zfit.core.loss.ExtendedUnbinnedNLL property)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.SimpleLoss.params">(zfit.core.loss.SimpleLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.core.loss.html#zfit.core.loss.UnbinnedNLL.params">(zfit.core.loss.UnbinnedNLL property)</a>
+</li>
         <li><a href="full_api/zfit.core.parameter.html#zfit.core.parameter.BaseComposedParameter.params">(zfit.core.parameter.BaseComposedParameter property)</a>
 </li>
         <li><a href="full_api/zfit.core.parameter.html#zfit.core.parameter.BaseParameter.params">(zfit.core.parameter.BaseParameter property)</a>
@@ -6887,6 +6931,14 @@
         <li><a href="full_api/zfit.func.html#zfit.func.SimpleFunc.params">(zfit.func.SimpleFunc property)</a>
 </li>
         <li><a href="full_api/zfit.func.html#zfit.func.SumFunc.params">(zfit.func.SumFunc property)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.BaseLoss.params">(zfit.loss.BaseLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.ExtendedUnbinnedNLL.params">(zfit.loss.ExtendedUnbinnedNLL property)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.SimpleLoss.params">(zfit.loss.SimpleLoss property)</a>
+</li>
+        <li><a href="full_api/zfit.loss.html#zfit.loss.UnbinnedNLL.params">(zfit.loss.UnbinnedNLL property)</a>
 </li>
         <li><a href="full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.params">(zfit.minimizers.fitresult.FitResult property)</a>
 </li>
@@ -6997,6 +7049,8 @@
         <li><a href="full_api/zfit.pdf.html#zfit.pdf.ZPDF.params">(zfit.pdf.ZPDF property)</a>
 </li>
       </ul></li>
+      <li><a href="full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.params_at_limit">params_at_limit() (zfit.minimizers.fitresult.FitResult property)</a>
+</li>
       <li><a href="full_api/zfit.core.basefunc.html#zfit.core.basefunc.BaseFunc.partial_analytic_integrate">partial_analytic_integrate() (zfit.core.basefunc.BaseFunc method)</a>
 
       <ul>
@@ -9307,6 +9361,8 @@
 </li>
       <li><a href="full_api/zfit.z.zextension.html#zfit.z.zextension.stack_x">stack_x() (in module zfit.z.zextension)</a>
 </li>
+      <li><a href="full_api/zfit.util.exception.html#zfit.util.exception.StandardControlFlow">StandardControlFlow</a>
+</li>
       <li><a href="full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.status">status() (zfit.minimizers.fitresult.FitResult property)</a>
 </li>
       <li><a href="full_api/zfit.minimize.html#zfit.minimize.Adam.step">step() (zfit.minimize.Adam method)</a>
@@ -10167,6 +10223,8 @@
         <li><a href="full_api/zfit.util.exception.html#zfit.util.exception.SpaceIncompatibleError.with_traceback">(zfit.util.exception.SpaceIncompatibleError method)</a>
 </li>
         <li><a href="full_api/zfit.util.exception.html#zfit.util.exception.SpecificFunctionNotImplementedError.with_traceback">(zfit.util.exception.SpecificFunctionNotImplementedError method)</a>
+</li>
+        <li><a href="full_api/zfit.util.exception.html#zfit.util.exception.StandardControlFlow.with_traceback">(zfit.util.exception.StandardControlFlow method)</a>
 </li>
         <li><a href="full_api/zfit.util.exception.html#zfit.util.exception.SubclassingError.with_traceback">(zfit.util.exception.SubclassingError method)</a>
 </li>

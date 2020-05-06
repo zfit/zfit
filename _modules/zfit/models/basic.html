@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.models.basic &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>zfit.models.basic &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -340,13 +340,13 @@
         <span class="n">lambda_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;lambda&#39;</span><span class="p">]</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">()</span>
         <span class="n">probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numerics_shifted_exp</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">lambda_</span><span class="o">=</span><span class="n">lambda_</span><span class="p">)</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_all_finite</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Exponendial pdf </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> has non valid values. This is likely caused&quot;</span>
-                                              <span class="sa">f</span><span class="s2">&quot;by numerical problems: if the exponential is too steep, this will&quot;</span>
-                                              <span class="sa">f</span><span class="s2">&quot;yield NaNs or infs. Make sure that your lambda is small enough and/or&quot;</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_all_finite</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Exponential PDF </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> has non valid values. This is likely caused&quot;</span>
+                                              <span class="sa">f</span><span class="s2">&quot; by numerical problems: if the exponential is too steep, this will&quot;</span>
+                                              <span class="sa">f</span><span class="s2">&quot; yield NaNs or infs. Make sure that your lambda is small enough and/or&quot;</span>
                                               <span class="sa">f</span><span class="s2">&quot; the initial space is in the same&quot;</span>
                                               <span class="sa">f</span><span class="s2">&quot; region as your data (and norm_range, if explicitly set differently).&quot;</span>
                                               <span class="sa">f</span><span class="s2">&quot; If this issue still persists, please oben an issue on Github:&quot;</span>
-                                              <span class="sa">f</span><span class="s2">&quot;https://github.com/zfit/zfit&quot;</span><span class="p">)</span>
+                                              <span class="sa">f</span><span class="s2">&quot; https://github.com/zfit/zfit&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">probs</span>  <span class="c1"># Don&#39;t use exp! will overflow.</span>
 
     <span class="k">def</span> <span class="nf">_numerics_shifted_exp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">lambda_</span><span class="p">):</span>  <span class="c1"># needed due to overflow in exp otherwise, prevents by shift</span>
@@ -451,6 +451,7 @@
 
 <span class="n">limits</span> <span class="o">=</span> <span class="n">Space</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">ANY_UPPER</span><span class="p">))</span>
 <span class="n">Exponential</span><span class="o">.</span><span class="n">register_analytic_integral</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">_exp_integral_from_any_to_any</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
+
 </pre></div>
 
     </div>

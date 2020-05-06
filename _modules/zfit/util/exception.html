@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.exception &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>zfit.util.exception &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -450,6 +450,12 @@
 
 <span class="sd">    Preferably use more specific exceptions</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="StandardControlFlow"><a class="viewcode-back" href="../../../full_api/zfit.util.exception.html#zfit.exception.StandardControlFlow">[docs]</a><span class="k">class</span> <span class="nc">StandardControlFlow</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An exception that inherits from this class will be regarded as part of the standard control flow</span>
+<span class="sd">    and not as an Error. For example, if a function raises that values are NaN, this is often intercepted</span>
+<span class="sd">    on purpose.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="SpecificFunctionNotImplementedError"><a class="viewcode-back" href="../../../full_api/zfit.util.exception.html#zfit.exception.SpecificFunctionNotImplementedError">[docs]</a><span class="k">class</span> <span class="nc">SpecificFunctionNotImplementedError</span><span class="p">(</span><span class="n">FunctionNotImplementedError</span><span class="p">):</span>

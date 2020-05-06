@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -266,7 +266,7 @@
       
   <h1>Source code for zfit.minimizers.fitresult</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
-
+<span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
@@ -281,6 +281,7 @@
 <span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">compute_errors</span>
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">ZfitResult</span>
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
+<span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="kn">import</span> <span class="n">set_values</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WeightsNotImplementedError</span>
@@ -375,17 +376,17 @@
 <span class="sd">                won&#39;t be altered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">status</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_converged</span> <span class="o">=</span> <span class="n">converged</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_convert_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params_at_limit</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">at_limit</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_edm</span> <span class="o">=</span> <span class="n">edm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fmin</span> <span class="o">=</span> <span class="n">fmin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_info</span> <span class="o">=</span> <span class="n">info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="n">loss</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_minimizer</span> <span class="o">=</span> <span class="n">minimizer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_valid</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="c1"># self.param_error = OrderedDict((p, {}) for p in params)</span>
-        <span class="c1"># self.param_hesse = OrderedDict((p, {}) for p in params)</span>
 
     <span class="k">def</span> <span class="nf">_input_convert_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">ParamHolder</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
@@ -443,7 +444,24 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_at_limit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">params_at_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params_at_limit</span>
+
+    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+    <span class="k">def</span> <span class="nf">_input_check_reset_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">old_values</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">params</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Exception occurred, parameter values are not reset and in an arbitrary, last&quot;</span>
+                          <span class="s2">&quot; used state. If this happens during normal operation, make sure you reset the values.&quot;</span><span class="p">,</span>
+                          <span class="ne">RuntimeWarning</span><span class="p">)</span>
+            <span class="k">raise</span>
+        <span class="n">set_values</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">old_values</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_input_check_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -486,11 +504,11 @@
         <span class="n">all_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">uncached_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uncached_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">all_params</span><span class="p">,</span> <span class="n">method_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">uncached_params</span><span class="p">:</span>
-            <span class="n">error_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hesse</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">uncached_params</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_reset_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">uncached_params</span><span class="p">:</span>  <span class="c1"># TODO: this logic doesn&#39;t make sense?</span>
+                <span class="n">error_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hesse</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">uncached_params</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">)</span>
 
-        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">all_errors</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">error_name</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">all_errors</span></div>
 
@@ -572,20 +590,20 @@
         <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;zfit_error&#39;</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;&#39;zfit_error&#39; is still experimental and may fails.&quot;</span><span class="p">,</span> <span class="n">ExperimentalFeatureWarning</span><span class="p">)</span>
 
-        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-        <span class="n">uncached_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uncached_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_reset_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">uncached_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uncached_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">)</span>
 
-        <span class="n">new_result</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">new_result</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">uncached_params</span><span class="p">:</span>
-            <span class="n">error_dict</span><span class="p">,</span> <span class="n">new_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">uncached_params</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">new_result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid, a new minimum was found.&quot;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">msg</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">})</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_valid</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">new_result</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">uncached_params</span><span class="p">:</span>
+                <span class="n">error_dict</span><span class="p">,</span> <span class="n">new_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">uncached_params</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">new_result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid, a new minimum was found.&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">msg</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_valid</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">new_result</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">)</span>
         <span class="n">all_errors</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">error_name</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">all_errors</span><span class="p">,</span> <span class="n">new_result</span></div>
@@ -621,8 +639,8 @@
                 <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;minuit_hesse&quot;</span>
             <span class="c1"># LEGACY END</span>
 
-        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-        <span class="n">covariance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covariance</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_reset_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">covariance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covariance</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
         <span class="n">covariance</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">covariance</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">params</span><span class="p">)}</span>
 
         <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>

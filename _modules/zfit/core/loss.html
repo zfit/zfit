@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.loss &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>zfit.core.loss &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -269,22 +269,22 @@
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Set</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
 
-<span class="kn">from</span> <span class="nn">.baseobject</span> <span class="kn">import</span> <span class="n">BaseObject</span>
-<span class="kn">from</span> <span class="nn">.constraint</span> <span class="kn">import</span> <span class="n">BaseConstraint</span><span class="p">,</span> <span class="n">SimpleConstraint</span>
-<span class="kn">from</span> <span class="nn">.dependents</span> <span class="kn">import</span> <span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">_extract_dependencies</span>
+<span class="kn">from</span> <span class="nn">.baseobject</span> <span class="kn">import</span> <span class="n">BaseNumeric</span>
+<span class="kn">from</span> <span class="nn">.constraint</span> <span class="kn">import</span> <span class="n">BaseConstraint</span>
+<span class="kn">from</span> <span class="nn">.dependents</span> <span class="kn">import</span> <span class="n">_extract_dependencies</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">ZfitModel</span><span class="p">,</span> <span class="n">ZfitData</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span><span class="p">,</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">GraphCachable</span>
 <span class="kn">from</span> <span class="nn">..util.checks</span> <span class="kn">import</span> <span class="n">NOT_SPECIFIED</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span><span class="p">,</span> <span class="n">is_container</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">IntentionAmbiguousError</span><span class="p">,</span> <span class="n">NotExtendedPDFError</span><span class="p">,</span> <span class="n">WorkInProgressError</span><span class="p">,</span> \
     <span class="n">BreakingAPIChangeError</span>
+<span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">warn_advanced_feature</span>
 <span class="kn">from</span> <span class="nn">..z.math</span> <span class="kn">import</span> <span class="n">numerical_gradient</span><span class="p">,</span> <span class="n">autodiff_gradient</span><span class="p">,</span> <span class="n">autodiff_value_gradients</span><span class="p">,</span> <span class="n">numerical_value_gradients</span><span class="p">,</span> \
     <span class="n">automatic_value_gradients_hessian</span><span class="p">,</span> <span class="n">numerical_value_gradients_hessian</span>
 
@@ -313,22 +313,20 @@
         <span class="k">with</span> <span class="n">data</span><span class="o">.</span><span class="n">set_data_range</span><span class="p">(</span><span class="n">fit_range</span><span class="p">):</span>
             <span class="n">probs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">fit_range</span><span class="p">)</span>
         <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">log_probs</span> <span class="o">*=</span> <span class="n">data</span><span class="o">.</span><span class="n">weights</span>  <span class="c1"># because it&#39;s prob ** weights</span>
-        <span class="n">nll</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">=</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">nll</span> <span class="o">=</span> <span class="n">_nll_calc_unbinned_tf</span><span class="p">(</span><span class="n">log_probs</span><span class="o">=</span><span class="n">log_probs</span><span class="p">,</span>
+                                    <span class="n">weights</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">nll_finished</span> <span class="o">=</span> <span class="n">nll</span>
     <span class="k">return</span> <span class="n">nll_finished</span>
 
 
-<span class="k">def</span> <span class="nf">_nll_constraints_tf</span><span class="p">(</span><span class="n">constraints</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">constraints</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>  <span class="c1"># adding 0 to nll</span>
-    <span class="n">probs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">constraints</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">probs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
-    <span class="c1"># probs = [dist.pdf(param) for param, dist in constraints.items()]</span>
-    <span class="n">constraints_neg_log_prob</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">probs</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">constraints_neg_log_prob</span>
+<span class="nd">@z</span><span class="o">.</span><span class="n">function</span>
+<span class="k">def</span> <span class="nf">_nll_calc_unbinned_tf</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_offset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log_probs</span> <span class="o">*=</span> <span class="n">weights</span>  <span class="c1"># because it&#39;s prob ** weights</span>
+    <span class="k">if</span> <span class="n">log_offset</span><span class="p">:</span>
+        <span class="n">log_probs</span> <span class="o">-=</span> <span class="n">log_offset</span>
+    <span class="n">nll</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">=</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nll</span>
 
 
 <span class="k">def</span> <span class="nf">_constraint_check_convert</span><span class="p">(</span><span class="n">constraints</span><span class="p">):</span>
@@ -337,11 +335,13 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constr</span><span class="p">,</span> <span class="n">BaseConstraint</span><span class="p">):</span>
             <span class="n">checked_constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constr</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">checked_constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SimpleConstraint</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">constr</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">BreakingAPIChangeError</span><span class="p">(</span><span class="s2">&quot;Constraints have to be of type `Constraint`, a simple&quot;</span>
+                                         <span class="s2">&quot; constraint from a function can be constructed with&quot;</span>
+                                         <span class="s2">&quot; `SimpleConstraint`.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">checked_constraints</span>
 
 
-<div class="viewcode-block" id="BaseLoss"><a class="viewcode-back" href="../../../full_api/zfit.loss.html#zfit.core.loss.BaseLoss">[docs]</a><span class="k">class</span> <span class="nc">BaseLoss</span><span class="p">(</span><span class="n">BaseDependentsMixin</span><span class="p">,</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">GraphCachable</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseLoss"><a class="viewcode-back" href="../../../full_api/zfit.loss.html#zfit.core.loss.BaseLoss">[docs]</a><span class="k">class</span> <span class="nc">BaseLoss</span><span class="p">(</span><span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">BaseNumeric</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ModelsInputType</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DataInputType</span><span class="p">,</span>
                  <span class="n">fit_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -361,7 +361,7 @@
 <span class="sd">            constraints (Iterable[tf.Tensor): A Tensor representing a loss constraint. Using</span>
 <span class="sd">                `zfit.constraint.*` allows for easy use of predefined constraints.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{})</span>
         <span class="k">if</span> <span class="n">fit_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The fit_range argument is depreceated and will maybe removed in future releases. &quot;</span>
                           <span class="s2">&quot;It is preferred to define the range in the space&quot;</span>
@@ -380,6 +380,20 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;UnnamedSubBaseLoss&quot;</span>
 
+    <span class="k">def</span> <span class="nf">_get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                    <span class="n">floating</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="n">is_yield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">extract_independent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="s2">&quot;ZfitParameter&quot;</span><span class="p">]:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedSet</span><span class="p">()</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">floating</span><span class="o">=</span><span class="n">floating</span><span class="p">,</span> <span class="n">is_yield</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                 <span class="n">extract_independent</span><span class="o">=</span><span class="n">extract_independent</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">))</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">constraint</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">floating</span><span class="o">=</span><span class="n">floating</span><span class="p">,</span> <span class="n">is_yield</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                      <span class="n">extract_independent</span><span class="o">=</span><span class="n">extract_independent</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">params</span>
+
     <span class="k">def</span> <span class="nf">_input_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">is_container</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">^</span> <span class="n">is_container</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`pdf` and `data` either both have to be a list or not.&quot;</span><span class="p">)</span>
@@ -397,24 +411,22 @@
         <span class="k">if</span> <span class="n">fit_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fit_range</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+                <span class="n">non_consistent</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;range&#39;</span><span class="p">:</span> <span class="p">[]}</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">norm_range</span> <span class="o">==</span> <span class="n">d</span><span class="o">.</span><span class="n">data_range</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">IntentionAmbiguousError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No `fit_range` is specified and `pdf` </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> as &quot;</span>
-                                                  <span class="sa">f</span><span class="s2">&quot;well as `data` </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2"> have different ranges they &quot;</span>
-                                                  <span class="sa">f</span><span class="s2">&quot;are defined in. Either make them (all) consistent &quot;</span>
-                                                  <span class="sa">f</span><span class="s2">&quot;or specify the `fit_range`&quot;</span><span class="p">)</span>
+                    <span class="n">non_consistent</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                    <span class="n">non_consistent</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                    <span class="n">non_consistent</span><span class="p">[</span><span class="s1">&#39;range&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="o">.</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">data_range</span><span class="p">))</span>
                 <span class="n">fit_range</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">norm_range</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">non_consistent</span><span class="p">[</span><span class="s1">&#39;range&#39;</span><span class="p">]:</span>  <span class="c1"># TODO: test</span>
+                <span class="n">warn_advanced_feature</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PDFs </span><span class="si">{</span><span class="n">non_consistent</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> as &quot;</span>
+                                      <span class="sa">f</span><span class="s2">&quot;well as `data` </span><span class="si">{</span><span class="n">non_consistent</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                                      <span class="sa">f</span><span class="s2">&quot; have different ranges </span><span class="si">{</span><span class="n">non_consistent</span><span class="p">[</span><span class="s1">&#39;range&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> they&quot;</span>
+                                      <span class="sa">f</span><span class="s2">&quot; are defined in. The data range will cut the data while the&quot;</span>
+                                      <span class="sa">f</span><span class="s2">&quot; norm range defines the normalization.&quot;</span><span class="p">,</span>
+                                      <span class="n">identifier</span><span class="o">=</span><span class="s1">&#39;inconsistent_fitrange&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fit_range</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">fit_range</span><span class="p">,</span> <span class="n">non_containers</span><span class="o">=</span><span class="p">[</span><span class="nb">tuple</span><span class="p">])</span>
 
-        <span class="c1"># simultaneous fit</span>
-        <span class="c1"># if is_container(pdf):</span>
-        <span class="c1"># if not is_container(fit_range) or not isinstance(fit_range[0], Space):</span>
-        <span class="c1">#     raise ValueError(</span>
-        <span class="c1">#         &quot;If several pdfs are specified, the `fit_range` has to be given as a list of `Space` &quot;</span>
-        <span class="c1">#         &quot;objects and not as pure tuples.&quot;)</span>
-
-        <span class="c1"># else:</span>
-        <span class="c1">#     fit_range = pdf.convert_sort_space(limits=fit_range)  # fit_range may be a tuple</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">fit_range</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pdf, data and fit_range don&#39;t have the same number of components:&quot;</span>
                              <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">pdf: </span><span class="si">{}</span><span class="s2">&quot;</span>
@@ -611,20 +623,8 @@
 
     <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_loss_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">,</span> <span class="n">constraints</span><span class="p">):</span>
-        <span class="c1"># with tf.GradientTape(persistent=True) as tape:</span>
         <span class="n">nll</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func_watched</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
 
-        <span class="c1"># variables = tape.watched_variables()</span>
-        <span class="c1"># gradients = tape.gradient(nll, sources=variables)</span>
-        <span class="c1"># if any(grad is None for grad in tf.unstack(gradients, axis=0)):</span>
-        <span class="c1">#     none_dict = {var: grad for var, grad in zip(variables, tf.unstack(gradients, axis=0)) if grad is None}</span>
-        <span class="c1">#     raise LogicalUndefinedOperationError(f&quot;One or more gradients are None and therefore the function does not&quot;</span>
-        <span class="c1">#                                          f&quot; depend on them:&quot;</span>
-        <span class="c1">#                                          f&quot; {none_dict}&quot;)</span>
-        <span class="c1"># for param, grad in zip(variables, gradients):</span>
-        <span class="c1"># if param in self.computed_gradients:</span>
-        <span class="c1">#     continue</span>
-        <span class="c1"># self.computed_gradients[param] = grad</span>
         <span class="k">return</span> <span class="n">nll</span>
 
     <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
@@ -647,31 +647,42 @@
     <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_loss_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">,</span> <span class="n">constraints</span><span class="p">):</span>
         <span class="n">nll</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_loss_func</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="n">fit_range</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span>
-        <span class="n">poisson_terms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">yields</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">nevents_collected</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">mod</span><span class="p">,</span> <span class="n">dat</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">mod</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">NotExtendedPDFError</span><span class="p">(</span><span class="s2">&quot;The pdf </span><span class="si">{}</span><span class="s2"> is not extended but has to be (for an extended fit)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mod</span><span class="p">))</span>
             <span class="n">nevents</span> <span class="o">=</span> <span class="n">dat</span><span class="o">.</span><span class="n">n_events</span> <span class="k">if</span> <span class="n">dat</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">dat</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
-            <span class="n">poisson_terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">mod</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span> <span class="o">+</span> <span class="n">z</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">nevents</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()))</span>
-        <span class="n">nll</span> <span class="o">-=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">input_tensor</span><span class="o">=</span><span class="n">poisson_terms</span><span class="p">)</span>
+            <span class="n">nevents</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">nevents</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">nevents_collected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nevents</span><span class="p">)</span>
+            <span class="n">yields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">get_yield</span><span class="p">())</span>
+        <span class="n">yields</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">yields</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">nevents_collected</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">nevents_collected</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">term_new</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">log_poisson_loss</span><span class="p">(</span><span class="n">nevents_collected</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">yields</span><span class="p">))</span>
+        <span class="n">nll</span> <span class="o">+=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">term_new</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">nll</span></div>
 
 
 <div class="viewcode-block" id="SimpleLoss"><a class="viewcode-back" href="../../../full_api/zfit.loss.html#zfit.core.loss.SimpleLoss">[docs]</a><span class="k">class</span> <span class="nc">SimpleLoss</span><span class="p">(</span><span class="n">BaseLoss</span><span class="p">):</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;SimpleLoss&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">dependents</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">NOT_SPECIFIED</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">deps</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">NOT_SPECIFIED</span><span class="p">,</span>
+                 <span class="n">dependents</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Parameter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">NOT_SPECIFIED</span><span class="p">,</span>
                  <span class="n">errordef</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Loss from a (function returning a ) Tensor.</span>
+        <span class="sd">&quot;&quot;&quot;Loss from a (function returning a) Tensor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            func: Callable that constructs the loss and returns a tensor.</span>
-<span class="sd">            dependents: The dependents (independent `zfit.Parameter`) of the loss. If not given, the dependents are</span>
+<span class="sd">            deps: The dependents (independent `zfit.Parameter`) of the loss. If not given, the dependents are</span>
 <span class="sd">                figured out automatically.</span>
 <span class="sd">            errordef: Definition of which change in the loss corresponds to a change of 1 sigma.</span>
 <span class="sd">                For example, 1 for Chi squared, 0.5 for negative log-likelihood.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">dependents</span> <span class="ow">is</span> <span class="n">NOT_SPECIFIED</span><span class="p">:</span>  <span class="c1"># depreceation</span>
+        <span class="k">if</span> <span class="n">dependents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">NOT_SPECIFIED</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`dependents` is deprecated and will be removed in the future, use `deps`&quot;</span>
+                          <span class="s2">&quot; instead as a keyword.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deps</span> <span class="ow">is</span> <span class="n">NOT_SPECIFIED</span><span class="p">:</span>  <span class="c1"># depreceation</span>
             <span class="k">raise</span> <span class="n">BreakingAPIChangeError</span><span class="p">(</span><span class="s2">&quot;Dependents need to be specified explicitly due to the upgrade to 0.4.&quot;</span>
                                          <span class="s2">&quot;More information can be found in the upgrade guide on the website.&quot;</span><span class="p">)</span>
 
@@ -683,14 +694,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_simple_errordef</span> <span class="o">=</span> <span class="n">errordef</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_errordef</span> <span class="o">=</span> <span class="n">errordef</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">computed_gradients</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">dependents</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">dependents</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="n">OrderedSet</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span> <span class="o">=</span> <span class="n">_extract_dependencies</span><span class="p">(</span><span class="n">dependents</span><span class="p">)</span>
+        <span class="n">deps</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">deps</span><span class="p">,</span> <span class="n">container</span><span class="o">=</span><span class="n">OrderedSet</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_deps</span> <span class="o">=</span> <span class="n">_extract_dependencies</span><span class="p">(</span><span class="n">deps</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="p">[],</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">fit_range</span><span class="o">=</span><span class="p">[])</span>
 
     <span class="k">def</span> <span class="nf">_get_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_dependents</span>
+        <span class="n">dependents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_deps</span>
         <span class="k">return</span> <span class="n">dependents</span>
+
+    <span class="k">def</span> <span class="nf">_get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floating</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">is_yield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">extract_independent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="s2">&quot;ZfitParameter&quot;</span><span class="p">]:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_params</span><span class="p">(</span><span class="n">floating</span><span class="p">,</span> <span class="n">is_yield</span><span class="p">,</span> <span class="n">extract_independent</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_simple_func_deps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">params</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">errordef</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

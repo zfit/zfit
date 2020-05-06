@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.constraint &#8212; zfit 0.5.1.dev15+g5d1292f documentation</title>
+    <title>zfit.core.constraint &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.1.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -312,7 +312,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">_get_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">DependentsType</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_extract_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">_extract_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">floating</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="SimpleConstraint"><a class="viewcode-back" href="../../../full_api/zfit.core.constraint.html#zfit.constraint.SimpleConstraint">[docs]</a><span class="k">class</span> <span class="nc">SimpleConstraint</span><span class="p">(</span><span class="n">BaseConstraint</span><span class="p">):</span>
