@@ -1,6 +1,6 @@
-==================
-zfit introduction
-==================
+============
+Introduction
+============
 
 Following and introduction to the elements of zfit
 

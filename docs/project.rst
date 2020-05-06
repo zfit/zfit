@@ -1,6 +1,6 @@
-==================
-zfit Project
-==================
+=======
+Project
+=======
 
 Following and introduction to the elements of zfit
 
