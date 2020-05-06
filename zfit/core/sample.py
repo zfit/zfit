@@ -273,12 +273,13 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         else:
             weights_scaling = prob_max / weights_max
 
-        weights_scaled = weights_scaling * weights * (1 + 1e-8)  # numerical epsilon
+        weights_scaled = (weights_scaling * weights
+                          # * (1 + 1e-8)
+                          )  # numerical epsilon
         random_thresholds = thresholds_unscaled * weights_scaled
         if run.numeric_checks:
             invalid_probs_weights = tf.greater(probabilities, weights_scaled)
             failed_weights = tf.boolean_mask(tensor=weights_scaled, mask=invalid_probs_weights)
-            failed_probs = tf.boolean_mask(tensor=probabilities, mask=invalid_probs_weights)
 
             # def bias_print():
             #     tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."
