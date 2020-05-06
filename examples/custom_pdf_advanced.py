@@ -1,6 +1,7 @@
 #  Copyright (c) 2020 zfit
 
 import tensorflow as tf
+
 import zfit
 from zfit import z
 
@@ -24,7 +25,7 @@ class CustomPDF2D(zfit.pdf.BasePDF):
         param3 = self.params['param3']
 
         # just a fantasy function
-        probs = param1 * tf.cos(energy ** 2) + tf.math.log(param2 * momentum) + param3
+        probs = param1 * tf.cos(energy ** 2) + tf.math.log(param2 * momentum ** 2) + param3
         return probs
 
 
@@ -40,14 +41,14 @@ def integral_full(x, limits, norm_range, params, model):
     lower = z.convert_to_tensor(lower)
     upper = z.convert_to_tensor(upper)
 
-    # calculate the integral here, dummy integral
+    # calculate the integral here, dummy integral, wrong!
     integral = param1 * param2 * param3 + z.reduce_sum([lower, upper])
     return integral
 
 
 # define the space over which it is defined. Here, we use the axes
-lower_full = ((-10, zfit.Space.ANY_LOWER),)
-upper_full = ((10, zfit.Space.ANY_UPPER),)
+lower_full = (-10, zfit.Space.ANY_LOWER)
+upper_full = (10, zfit.Space.ANY_UPPER)
 integral_full_limits = zfit.Space(axes=(0, 1),
                                   limits=(lower_full, upper_full))
 
@@ -68,7 +69,7 @@ def integral_axis1(x, limits, norm_range, params, model):
     upper = z.convert_to_tensor(upper)
 
     # calculate the integral here, dummy integral
-    integral = data_0 * param1 * param2 * param3 + z.reduce_sum([lower, upper])
+    integral = data_0 ** 2 * param1 * param2 * param3 + z.reduce_sum([lower, upper])
     return integral
 
 
@@ -80,3 +81,8 @@ integral_axis1_limits = zfit.Space(axes=(1,),
 
 CustomPDF2D.register_analytic_integral(func=integral_axis1,
                                        limits=integral_axis1_limits)
+
+if __name__ == '__main__':
+    obs = zfit.Space('obs1', (-10, 10)) * zfit.Space('obs2', (-3, 5))
+    pdf = CustomPDF2D(1, 2, 3, obs=obs)
+    sample = pdf.sample(n=1000)

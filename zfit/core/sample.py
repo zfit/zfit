@@ -102,7 +102,6 @@ class EventSpace(Space):
         if not rel:
             raise RuntimeError("Currently, only rel with one limits is implemented in EventSpace")
         return (1.,)  # TODO: remove HACK, use tensors?
-        raise RuntimeError("Cannot be called with an event space.")
 
     def add(self, other: ztyping.SpaceOrSpacesTypeInput):
         raise RuntimeError("Cannot be called with an event space.")

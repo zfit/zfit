@@ -45,7 +45,7 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
         raise NotImplementedError
 
     def _get_dependencies(self) -> ztyping.DependentsType:
-        return _extract_dependencies(self.get_params())
+        return _extract_dependencies(self.get_params(floating=None))
 
 
 class SimpleConstraint(BaseConstraint):

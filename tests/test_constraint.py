@@ -67,7 +67,7 @@ def test_gaussian_constraint_matrix():
     sigma = np.array([[1, 0.3],
                       [0.3, 0.5]])
 
-    trueval = true_multinormal_constr_value(x=zfit.run(params)[0], mean=observed, cov=sigma)
+    trueval = true_multinormal_constr_value(x=zfit.run(params), mean=observed, cov=sigma)
 
     constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
     constr_np = zfit.run(constr.value())

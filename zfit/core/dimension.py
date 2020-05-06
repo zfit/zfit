@@ -118,6 +118,8 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]
     spaces = convert_to_container(spaces, container=tuple)
     all_obs = []
     for space in spaces:
+        if space.obs is None:
+            return False
         for ob in space.obs:
             if ob not in all_obs:
                 all_obs.append(ob)

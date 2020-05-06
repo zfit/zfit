@@ -183,12 +183,25 @@ def test_sampling_floating(gauss_factory):
     gauss_full_sample = gauss.create_sampler(n=10000,
                                              limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3),
                                              fixed_params=False)
+
+    gauss_full_sample_fixed = gauss.create_sampler(n=10000,
+                                                   limits=(
+                                                       mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3),
+                                                   fixed_params=True)
     gauss_full_sample.resample()
+    gauss_full_sample_fixed.resample()
+    assert set(gauss_full_sample_fixed.fixed_params) == {mu, sigma}
     sampled_gauss1_full = gauss_full_sample.numpy()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
     assert mu_sampled == pytest.approx(mu_true, rel=0.07)
     assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+
+    sampled_gauss1_full_fixed = gauss_full_sample_fixed.numpy()
+    mu_sampled_fixed = np.mean(sampled_gauss1_full_fixed)
+    sigma_sampled_fixed = np.std(sampled_gauss1_full_fixed)
+    assert mu_sampled_fixed == pytest.approx(mu_true, rel=0.07)
+    assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
 
     mu_diff = 0.7
     with mu.set_value(mu_true - mu_diff):
@@ -198,6 +211,12 @@ def test_sampling_floating(gauss_factory):
         assert max(sampled_from_gauss1[:, 0]) <= high
         assert min(sampled_from_gauss1[:, 0]) >= low
         assert n_draws == len(sampled_from_gauss1[:, 0])
+
+        sampled_gauss1_full_fixed = gauss_full_sample_fixed.numpy()
+        mu_sampled_fixed = np.mean(sampled_gauss1_full_fixed)
+        sigma_sampled_fixed = np.std(sampled_gauss1_full_fixed)
+        assert mu_sampled_fixed == pytest.approx(mu_true, rel=0.07)
+        assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
 
         gauss_full_sample.resample()
         sampled_gauss1_full = gauss_full_sample.numpy()

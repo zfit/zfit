@@ -73,13 +73,13 @@ class Exponential(BasePDF):
         lambda_ = self.params['lambda']
         x = x.unstack_x()
         probs = self._numerics_shifted_exp(x=x, lambda_=lambda_)
-        tf.debugging.assert_all_finite(probs, f"Exponendial pdf {self} has non valid values. This is likely caused"
-                                              f"by numerical problems: if the exponential is too steep, this will"
-                                              f"yield NaNs or infs. Make sure that your lambda is small enough and/or"
+        tf.debugging.assert_all_finite(probs, f"Exponential PDF {self} has non valid values. This is likely caused"
+                                              f" by numerical problems: if the exponential is too steep, this will"
+                                              f" yield NaNs or infs. Make sure that your lambda is small enough and/or"
                                               f" the initial space is in the same"
                                               f" region as your data (and norm_range, if explicitly set differently)."
                                               f" If this issue still persists, please oben an issue on Github:"
-                                              f"https://github.com/zfit/zfit")
+                                              f" https://github.com/zfit/zfit")
         return probs  # Don't use exp! will overflow.
 
     def _numerics_shifted_exp(self, x, lambda_):  # needed due to overflow in exp otherwise, prevents by shift
@@ -184,3 +184,4 @@ def _exp_integral_func_shifting(lambd, lower, upper, model):
 
 limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
 Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)
+
