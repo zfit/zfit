@@ -1,8 +1,9 @@
-================================
-zfit: scalable pythonic fitting
-================================
-
 |zfit_logo|
+
+=========================
+Scalable pythonic fitting
+=========================
+
 
 
 .. |zfit_logo| image:: images/zfit-fin_400x168.png
