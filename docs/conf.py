@@ -117,6 +117,14 @@ html_logo = "images/zfit-fin_400x168.png"
 
 html_theme_options = {
     "github_url": "https://github.com/zfit/zfit",
+    "use_edit_page_button": True,
+}
+
+html_context = {
+    "github_user": "zfit",
+    "github_repo": "zfit",
+    "github_version": "develop",
+    "doc_path": "docs",
 }
 
 # -- Options for HTMLHelp output ---------------------------------------
