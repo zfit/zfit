@@ -118,6 +118,7 @@ html_logo = "images/zfit-fin_400x168.png"
 html_theme_options = {
     "github_url": "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
+    "search_bar_text": "Search zfit..."
 }
 
 html_context = {
