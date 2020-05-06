@@ -50,8 +50,6 @@ def crystalball_integral(limits, params, model):
     n = params['n']
 
     lower, upper = limits._rect_limits_tf
-    lower = lower
-    upper = upper
 
     integral = crystalball_integral_func(mu, sigma, alpha, n, lower, upper)
     return integral
