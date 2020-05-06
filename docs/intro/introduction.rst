@@ -8,9 +8,9 @@ Following and introduction to the elements of zfit
     :titlesonly:
     :maxdepth: 1
 
-    intro/space
-    intro/parameter
-    intro/model
-    intro/data
-    intro/loss
-    intro/minimize
+    space
+    parameter
+    model
+    data
+    loss
+    minimize

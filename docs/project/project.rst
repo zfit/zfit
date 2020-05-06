@@ -8,9 +8,9 @@ Following and introduction to the elements of zfit
     :titlesonly:
     :maxdepth: 1
 
-    project/installation
-    project/contributing
-    project/upgrade_guide
-    project/changelog
-    project/authors
+    installation
+    contributing
+    upgrade_guide
+    changelog
+    authors
 

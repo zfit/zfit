@@ -34,13 +34,13 @@ Source code can be found in `our github page <https://github.com/zfit/zfit/>`_.
     :maxdepth: 2
 
     getting_started
-    introduction
-    project
+    intro/introduction
+    project/project
 
 .. toctree::
     :maxdepth: 1
 
-    user_api
+    user_api/user_api
 
 
 
