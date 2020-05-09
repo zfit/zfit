@@ -220,7 +220,8 @@ class FunctionWrapperRegistry:
         return concrete_func
 
 
-def function_factory(func=None, **kwargs):
+# equivalent to tf.function
+def function(func=None, **kwargs):
     if callable(func):
         wrapper = FunctionWrapperRegistry()
         return wrapper(func)
@@ -228,9 +229,6 @@ def function_factory(func=None, **kwargs):
         raise ValueError("All argument have to be key-word only. `func` must not be used")
     else:
         return FunctionWrapperRegistry(**kwargs)
-
-
-tf_function = function_factory
 
 
 # legacy, remove 0.6

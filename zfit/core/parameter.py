@@ -708,6 +708,10 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
     def _get_dependencies(self) -> ztyping.DependentsType:
         return OrderedSet()
 
+    @property
+    def static_value(self):
+        return self._value_np
+
     def __repr__(self):
         value = self._value_np
         return f"<zfit.param.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"

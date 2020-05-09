@@ -9,8 +9,8 @@ import math as mt
 
 import numpy as np
 import tensorflow as tf
-
 from zfit import z
+
 from ..core.basepdf import BasePDF
 from ..core.space import Space, ANY_LOWER, ANY_UPPER
 from ..util import ztyping
@@ -61,7 +61,7 @@ class Exponential(BasePDF):
         params = {'lambda': lambda_}
         super().__init__(obs, name=name, params=params, **kwargs)
 
-        self._numerics_data_shift_value = None
+        self._numerics_data_shift = 0.
 
         if not self.space.has_limits:
             warn_advanced_feature("Exponential pdf relies on a shift of the input towards 0 to keep the numerical "
@@ -88,10 +88,6 @@ class Exponential(BasePDF):
     def _shift_x(self, x):
         return x - self._numerics_data_shift
 
-    @property
-    def _numerics_data_shift(self):
-        return z.constant(0.) if self._numerics_data_shift_value is None else self._numerics_data_shift_value
-
     @contextlib.contextmanager
     def _set_numerics_data_shift(self, limits):
         if limits:
@@ -108,10 +104,10 @@ class Exponential(BasePDF):
 
             value = (upper_val + lower_val) / 2
 
-            old_value = self._numerics_data_shift_value
-            self._numerics_data_shift_value = value
+            old_value = self._numerics_data_shift
+            self._numerics_data_shift = value
             yield
-            self._numerics_data_shift_value = old_value
+            self._numerics_data_shift = old_value
         else:
             yield
 
