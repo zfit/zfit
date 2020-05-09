@@ -61,7 +61,7 @@ class Exponential(BasePDF):
         params = {'lambda': lambda_}
         super().__init__(obs, name=name, params=params, **kwargs)
 
-        self._numerics_data_shift = 0.
+        self._calc_numerics_data_shift = lambda: z.constant(0.)
 
         if not self.space.has_limits:
             warn_advanced_feature("Exponential pdf relies on a shift of the input towards 0 to keep the numerical "
@@ -86,28 +86,29 @@ class Exponential(BasePDF):
         return probs  # Don't use exp! will overflow.
 
     def _shift_x(self, x):
-        return x - self._numerics_data_shift
+        return x - self._calc_numerics_data_shift()
 
     @contextlib.contextmanager
     def _set_numerics_data_shift(self, limits):
         if limits:
+            def calc_numerics_data_shift():
+                lower, upper = [], []
+                for limit in limits:
+                    low, up = limit.rect_limits
+                    lower.append(z.convert_to_tensor(low[:, 0]))
+                    upper.append(z.convert_to_tensor(up[:, 0]))
+                lower = z.convert_to_tensor(lower)
+                upper = z.convert_to_tensor(upper)
+                lower_val = tf.math.reduce_min(lower, axis=0)
+                upper_val = tf.math.reduce_max(upper, axis=0)
 
-            lower, upper = [], []
-            for limit in limits:
-                low, up = limit.rect_limits
-                lower.append(z.convert_to_tensor(low[:, 0]))
-                upper.append(z.convert_to_tensor(up[:, 0]))
-            lower = z.convert_to_tensor(lower)
-            upper = z.convert_to_tensor(upper)
-            lower_val = tf.math.reduce_min(lower, axis=0)
-            upper_val = tf.math.reduce_max(upper, axis=0)
+                return (upper_val + lower_val) / 2
 
-            value = (upper_val + lower_val) / 2
+            old_value = self._calc_numerics_data_shift
 
-            old_value = self._numerics_data_shift
-            self._numerics_data_shift = value
+            self._calc_numerics_data_shift = calc_numerics_data_shift
             yield
-            self._numerics_data_shift = old_value
+            self._calc_numerics_data_shift = old_value
         else:
             yield
 
