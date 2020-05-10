@@ -18,8 +18,9 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
- - added `get_params` to loss
- - fix a bug with the `fixed_params` when creating a sampler
+- added `get_params` to loss
+- fix a bug with the `fixed_params` when creating a sampler
+- improve exponential PDF stability and shift when normalized
 
 Experimental
 ------------
