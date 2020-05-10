@@ -4,6 +4,7 @@ os:
 python:
     - "3.6"
     - "3.7"
+    - "3.8"
 install:
     - pip install -U pip
     - pip install -U tox-travis
