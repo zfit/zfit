@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.basemodel &#8212; zfit 0.5.2.dev14+gcadc75e documentation</title>
+    <title>zfit.core.basemodel &#8212; zfit 0.5.2.dev29+ga63ace3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev14</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev29</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -272,6 +272,7 @@
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">builtins</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">suppress</span>
@@ -659,7 +660,8 @@
         <span class="sd">&quot;&quot;&quot;Register an inverse analytical integral, the inverse (unnormalized) cdf.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            func ():</span>
+<span class="sd">            func (): A function with the signature `func(x, params)`, where `x` is a Data object</span>
+<span class="sd">                and `params` is a dict.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
@@ -1029,7 +1031,14 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">AnalyticSamplingNotImplementedError</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">icdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_analytic_integral</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">icdf</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">icdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">icdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;icdf function does not have the right signature: </span><span class="si">{</span><span class="n">icdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BaseModel.create_sampler"><a class="viewcode-back" href="../../../full_api/zfit.core.basemodel.html#zfit.core.basefunc.BaseModel.create_sampler">[docs]</a>    <span class="k">def</span> <span class="nf">create_sampler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">nSamplingTypeIn</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                        <span class="n">fixed_params</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Sampler&quot;</span><span class="p">:</span>

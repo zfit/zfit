@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.testing &#8212; zfit 0.5.2.dev14+gcadc75e documentation</title>
+    <title>zfit.core.testing &#8212; zfit 0.5.2.dev29+ga63ace3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev14</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev29</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -284,15 +284,21 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tester&quot;</span><span class="p">,</span> <span class="s2">&quot;setup_function&quot;</span><span class="p">,</span> <span class="s2">&quot;teardown_function&quot;</span><span class="p">]</span>
 
+<span class="n">old_graph_mode</span> <span class="o">=</span> <span class="kc">None</span>
+
 
 <div class="viewcode-block" id="setup_function"><a class="viewcode-back" href="../../../full_api/zfit.core.testing.html#zfit.core.testing.setup_function">[docs]</a><span class="k">def</span> <span class="nf">setup_function</span><span class="p">():</span>
-    <span class="k">pass</span></div>
+    <span class="k">global</span> <span class="n">old_graph_mode</span>
+    <span class="kn">import</span> <span class="nn">zfit</span>
+    <span class="n">old_graph_mode</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">current_policy_graph</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="teardown_function"><a class="viewcode-back" href="../../../full_api/zfit.core.testing.html#zfit.core.testing.teardown_function">[docs]</a><span class="k">def</span> <span class="nf">teardown_function</span><span class="p">():</span>
     <span class="n">ZfitParameterMixin</span><span class="o">.</span><span class="n">_existing_params</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
-    <span class="n">clear_graph_cache</span><span class="p">()</span></div>
+    <span class="n">clear_graph_cache</span><span class="p">()</span>
+    <span class="kn">import</span> <span class="nn">zfit</span>
+    <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="n">old_graph_mode</span><span class="p">)</span></div>
 
 
 <span class="k">class</span> <span class="nc">BaseTester</span><span class="p">:</span>

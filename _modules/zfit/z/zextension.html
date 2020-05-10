@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.z.zextension &#8212; zfit 0.5.2.dev14+gcadc75e documentation</title>
+    <title>zfit.z.zextension &#8212; zfit 0.5.2.dev29+ga63ace3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev14</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev29</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -487,7 +487,8 @@
         <span class="k">return</span> <span class="n">concrete_func</span></div>
 
 
-<div class="viewcode-block" id="function_factory"><a class="viewcode-back" href="../../../full_api/zfit.z.zextension.html#zfit.core.basefunc.function_factory">[docs]</a><span class="k">def</span> <span class="nf">function_factory</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="c1"># equivalent to tf.function</span>
+<div class="viewcode-block" id="function"><a class="viewcode-back" href="../../../full_api/zfit.z.zextension.html#zfit.core.basefunc.function">[docs]</a><span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
         <span class="n">wrapper</span> <span class="o">=</span> <span class="n">FunctionWrapperRegistry</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">wrapper</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
@@ -495,9 +496,6 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All argument have to be key-word only. `func` must not be used&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">FunctionWrapperRegistry</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-
-<span class="n">tf_function</span> <span class="o">=</span> <span class="n">function_factory</span>
 
 
 <span class="c1"># legacy, remove 0.6</span>

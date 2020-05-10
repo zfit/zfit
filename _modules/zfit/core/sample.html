@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.sample &#8212; zfit 0.5.2.dev14+gcadc75e documentation</title>
+    <title>zfit.core.sample &#8212; zfit 0.5.2.dev29+ga63ace3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev14</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev29</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -481,7 +481,7 @@
 
         <span class="k">if</span> <span class="n">dynamic_array_shape</span><span class="p">:</span>
             <span class="c1"># TODO: move all this fixed numbers out into settings</span>
-            <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">/</span> <span class="n">eff</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span>  <span class="c1"># just to make sure</span>
+            <span class="n">n_to_produce</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ztf</span><span class="o">.</span><span class="n">to_real</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">)</span> <span class="o">/</span> <span class="n">eff</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span>  <span class="c1"># just to make sure</span>
             <span class="c1"># TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)</span>
             <span class="n">max_produce_cap</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">800000</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_positive</span><span class="p">(</span><span class="n">n_to_produce</span><span class="p">,</span> <span class="s2">&quot;n_to_produce went negative, overflow?&quot;</span><span class="p">)</span>
@@ -540,12 +540,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">weights_scaling</span> <span class="o">=</span> <span class="n">prob_max</span> <span class="o">/</span> <span class="n">weights_max</span>
 
-        <span class="n">weights_scaled</span> <span class="o">=</span> <span class="n">weights_scaling</span> <span class="o">*</span> <span class="n">weights</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>  <span class="c1"># numerical epsilon</span>
+        <span class="n">weights_scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">weights_scaling</span> <span class="o">*</span> <span class="n">weights</span>
+                          <span class="c1"># * (1 + 1e-8)</span>
+                          <span class="p">)</span>  <span class="c1"># numerical epsilon</span>
         <span class="n">random_thresholds</span> <span class="o">=</span> <span class="n">thresholds_unscaled</span> <span class="o">*</span> <span class="n">weights_scaled</span>
         <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
             <span class="n">invalid_probs_weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">weights_scaled</span><span class="p">)</span>
             <span class="n">failed_weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">weights_scaled</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">invalid_probs_weights</span><span class="p">)</span>
-            <span class="n">failed_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">invalid_probs_weights</span><span class="p">)</span>
 
             <span class="c1"># def bias_print():</span>
             <span class="c1">#     tf.print(&quot;HACK WARNING: if the following is NOT empty, your sampling _may_ be biased.&quot;</span>

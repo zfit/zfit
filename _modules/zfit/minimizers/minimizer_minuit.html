@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.5.2.dev14+gcadc75e documentation</title>
+    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.5.2.dev29+ga63ace3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev14</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev29</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -276,8 +276,8 @@
 
 <span class="kn">from</span> <span class="nn">.baseminimizer</span> <span class="kn">import</span> <span class="n">BaseMinimizer</span><span class="p">,</span> <span class="n">ZfitStrategy</span><span class="p">,</span> <span class="n">print_params</span><span class="p">,</span> <span class="n">print_gradients</span>
 <span class="kn">from</span> <span class="nn">.fitresult</span> <span class="kn">import</span> <span class="n">FitResult</span>
-<span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span>
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span>
+<span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span>
 <span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">GraphCachable</span>
 
 
@@ -429,15 +429,6 @@
             <span class="k">return</span> <span class="n">gradients_values</span>
 
         <span class="n">grad_func</span> <span class="o">=</span> <span class="n">grad_func</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_tfgrad</span> <span class="k">else</span> <span class="kc">None</span>
-
-        <span class="c1"># estimate initial step_size</span>
-        <span class="c1"># TODO: test and doc below, refactor to baseclass?</span>
-
-        <span class="c1"># params_no_step_size = [p for p in params if p._step_size is None]</span>
-        <span class="c1"># _, init_grad, init_hesse_diag = loss.value_gradients_hessian(params_no_step_size,</span>
-        <span class="c1">#                                                              hessian=&#39;diag&#39;)</span>
-        <span class="c1"># for param, init_hess in zip(params_no_step_size, init_hesse_diag):</span>
-        <span class="c1">#     param.set_value(1 / init_hess)</span>
 
         <span class="n">minimizer</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">Minuit</span><span class="o">.</span><span class="n">from_array_func</span><span class="p">(</span><span class="n">fcn</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start_values</span><span class="p">,</span>
                                                    <span class="n">error</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">params_name</span><span class="p">,</span>

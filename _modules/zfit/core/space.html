@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.core.space &#8212; zfit 0.5.2.dev14+gcadc75e documentation</title>
+    <title>zfit.core.space &#8212; zfit 0.5.2.dev29+ga63ace3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev14</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev29</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -1308,7 +1308,13 @@
                                      <span class="n">func_obs</span><span class="o">=</span><span class="n">func_obs</span><span class="p">,</span> <span class="n">func_axes</span><span class="o">=</span><span class="n">func_axes</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_limits</span></div>
 
 
 <div class="viewcode-block" id="Space"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space">[docs]</a><span class="k">class</span> <span class="nc">Space</span><span class="p">(</span><span class="n">BaseSpace</span><span class="p">):</span>
@@ -3115,7 +3121,8 @@
         <span class="n">new_space</span> <span class="o">=</span> <span class="n">combine_spaces</span><span class="p">(</span><span class="o">*</span><span class="n">spaces</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">LimitsIncompatibleError</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">new_space</span><span class="p">)</span></div>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 
 <div class="viewcode-block" id="add_spaces_old"><a class="viewcode-back" href="../../../full_api/zfit.core.space.html#zfit.add_spaces_old">[docs]</a><span class="k">def</span> <span class="nf">add_spaces_old</span><span class="p">(</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;zfit.Space&quot;</span><span class="p">]):</span>
