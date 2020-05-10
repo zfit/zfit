@@ -17,15 +17,21 @@ from ..util.container import convert_to_container
 
 __all__ = ["tester", "setup_function", "teardown_function"]
 
+old_graph_mode = None
+
 
 def setup_function():
-    pass
+    global old_graph_mode
+    import zfit
+    old_graph_mode = zfit.run.current_policy_graph()
 
 
 def teardown_function():
     ZfitParameterMixin._existing_params.clear()
 
     clear_graph_cache()
+    import zfit
+    zfit.run.set_mode(old_graph_mode)
 
 
 class BaseTester:

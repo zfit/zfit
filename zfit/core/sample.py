@@ -214,7 +214,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
-            n_to_produce = tf.cast(ztf.to_real(n_to_produce) / eff * 1.1, dtype=tf.int32) + 10  # just to make sure
+            n_to_produce = tf.cast(ztf.to_real(n_to_produce) / eff * 1.1, dtype=tf.int32) + 3  # just to make sure
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.constant(800000, dtype=tf.int32)
             tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
@@ -273,12 +273,13 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         else:
             weights_scaling = prob_max / weights_max
 
-        weights_scaled = weights_scaling * weights * (1 + 1e-8)  # numerical epsilon
+        weights_scaled = (weights_scaling * weights
+                          # * (1 + 1e-8)
+                          )  # numerical epsilon
         random_thresholds = thresholds_unscaled * weights_scaled
         if run.numeric_checks:
             invalid_probs_weights = tf.greater(probabilities, weights_scaled)
             failed_weights = tf.boolean_mask(tensor=weights_scaled, mask=invalid_probs_weights)
-            failed_probs = tf.boolean_mask(tensor=probabilities, mask=invalid_probs_weights)
 
             # def bias_print():
             #     tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."

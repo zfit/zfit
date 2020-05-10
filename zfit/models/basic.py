@@ -4,13 +4,13 @@ build larger models.
 """
 
 #  Copyright (c) 2020 zfit
-
+import contextlib
 import math as mt
 
 import numpy as np
 import tensorflow as tf
-
 from zfit import z
+
 from ..core.basepdf import BasePDF
 from ..core.space import Space, ANY_LOWER, ANY_UPPER
 from ..util import ztyping
@@ -60,6 +60,9 @@ class Exponential(BasePDF):
         """
         params = {'lambda': lambda_}
         super().__init__(obs, name=name, params=params, **kwargs)
+
+        self._calc_numerics_data_shift = lambda: z.constant(0.)
+
         if not self.space.has_limits:
             warn_advanced_feature("Exponential pdf relies on a shift of the input towards 0 to keep the numerical "
                                   f"stability high. The space {self.space} does not have limits set and no shift"
@@ -72,7 +75,7 @@ class Exponential(BasePDF):
     def _unnormalized_pdf(self, x):
         lambda_ = self.params['lambda']
         x = x.unstack_x()
-        probs = self._numerics_shifted_exp(x=x, lambda_=lambda_)
+        probs = z.exp(lambda_ * (self._shift_x(x)))
         tf.debugging.assert_all_finite(probs, f"Exponential PDF {self} has non valid values. This is likely caused"
                                               f" by numerical problems: if the exponential is too steep, this will"
                                               f" yield NaNs or infs. Make sure that your lambda is small enough and/or"
@@ -82,59 +85,65 @@ class Exponential(BasePDF):
                                               f" https://github.com/zfit/zfit")
         return probs  # Don't use exp! will overflow.
 
-    def _numerics_shifted_exp(self, x, lambda_):  # needed due to overflow in exp otherwise, prevents by shift
-        return z.exp(lambda_ * (x - self._numerics_data_shift))
+    def _shift_x(self, x):
+        return x - self._calc_numerics_data_shift()
 
+    @contextlib.contextmanager
     def _set_numerics_data_shift(self, limits):
-        lower, upper = [], []
-        for limit in limits:
-            low, up = limit.rect_limits_np
-            lower.append(low)
-            upper.append(up)
-        lower_val = min(lower)
-        upper_val = max(upper)
+        if limits:
+            def calc_numerics_data_shift():
+                lower, upper = [], []
+                for limit in limits:
+                    low, up = limit.rect_limits
+                    lower.append(z.convert_to_tensor(low[:, 0]))
+                    upper.append(z.convert_to_tensor(up[:, 0]))
+                lower = z.convert_to_tensor(lower)
+                upper = z.convert_to_tensor(upper)
+                lower_val = tf.math.reduce_min(lower, axis=0)
+                upper_val = tf.math.reduce_max(upper, axis=0)
 
-        value = (upper_val + lower_val) / 2
-        value = z.unstable.gather(value, 0, axis=-1)  # removing the last dimension
+                return (upper_val + lower_val) / 2
 
-        # if max(abs(lower_val - value), abs(upper_val - value)) > 710:
-        #     warnings.warn(
-        #         "Boundaries can be too wide for exponential (assuming lambda ~ 1), expect `inf` in exp(x) and `NaN`s."
-        #         "(upper - lower) * lambda should be smaller than 1400 roughly",
-        #         category=RuntimeWarning)
+            old_value = self._calc_numerics_data_shift
 
-        self._numerics_data_shift = value
+            self._calc_numerics_data_shift = calc_numerics_data_shift
+            yield
+            self._calc_numerics_data_shift = old_value
+        else:
+            yield
 
     # All hooks are needed to set the right shift when "entering" the pdf. The norm range is taken where both are
     # available. No special need needs to be taken for sampling (it samples from the correct region, the limits, and
     # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
-    # def _single_hook_integrate(self, limits, norm_range, name='_hook_integrate'):
-    #     with self._set_numerics_data_shift(limits=limits):
-    #         return super()._single_hook_integrate(limits, norm_range, name)
+    def _single_hook_integrate(self, limits, norm_range):
+        with self._set_numerics_data_shift(norm_range):
+            return super()._single_hook_integrate(limits, norm_range)
+
+    def _single_hook_analytic_integrate(self, limits, norm_range):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_analytic_integrate(limits, norm_range)
+
     #
-    # def _single_hook_analytic_integrate(self, limits, norm_range, name="_hook_analytic_integrate"):
+    def _single_hook_numeric_integrate(self, limits, norm_range):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_numeric_integrate(limits, norm_range)
+
+    def _single_hook_partial_integrate(self, x, limits, norm_range):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_partial_integrate(x, limits, norm_range)
+
+    def _single_hook_partial_analytic_integrate(self, x, limits, norm_range):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_partial_analytic_integrate(x, limits, norm_range)
+
+    def _single_hook_partial_numeric_integrate(self, x, limits, norm_range):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_partial_numeric_integrate(x, limits, norm_range)
+
+    # def _single_hook_normalization(self, limits):
     #     with self._set_numerics_data_shift(limits=limits):
-    #         return super()._single_hook_analytic_integrate(limits, norm_range, name)
-    #
-    # def _single_hook_numeric_integrate(self, limits, norm_range, name='_hook_numeric_integrate'):
-    #     with self._set_numerics_data_shift(limits=limits):
-    #         return super()._single_hook_numeric_integrate(limits, norm_range, name)
-    #
-    # def _single_hook_partial_integrate(self, x, limits, norm_range, name='_hook_partial_integrate'):
-    #     with self._set_numerics_data_shift(limits=limits):
-    #         return super()._single_hook_partial_integrate(x, limits, norm_range, name)
-    #
-    # def _single_hook_partial_analytic_integrate(self, x, limits, norm_range, name='_hook_partial_analytic_integrate'):
-    #     with self._set_numerics_data_shift(limits=limits):
-    #         return super()._single_hook_partial_analytic_integrate(x, limits, norm_range, name)
-    #
-    # def _single_hook_partial_numeric_integrate(self, x, limits, norm_range, name='_hook_partial_numeric_integrate'):
-    #     with self._set_numerics_data_shift(limits=limits):
-    #         return super()._single_hook_partial_numeric_integrate(x, limits, norm_range, name)
-    #
-    # def _single_hook_normalization(self, limits, name):
-    #     with self._set_numerics_data_shift(limits=limits):
-    #         return super()._single_hook_normalization(limits, name)
+    #         return super()._single_hook_normalization(limits)
+
     #
     # # TODO: remove component_norm_range? But needed for integral?
     # def _single_hook_unnormalized_pdf(self, x, name):
@@ -146,17 +155,18 @@ class Exponential(BasePDF):
     #     else:
     #         return super()._single_hook_unnormalized_pdf(x, name)
     #
-    # def _single_hook_pdf(self, x, norm_range, name):
-    #     with self._set_numerics_data_shift(limits=norm_range):
-    #         return super()._single_hook_pdf(x, norm_range, name)
+    def _single_hook_pdf(self, x, norm_range):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_pdf(x, norm_range)
+
     #
-    # def _single_hook_log_pdf(self, x, norm_range, name):
-    #     with self._set_numerics_data_shift(limits=norm_range):
-    #         return super()._single_hook_log_pdf(x, norm_range, name)
-    #
-    # def _single_hook_sample(self, n, limits, name):
-    #     with self._set_numerics_data_shift(limits=limits):
-    #         return super()._single_hook_sample(n, limits, name)
+    def _single_hook_log_pdf(self, x, norm_range):
+        with self._set_numerics_data_shift(limits=norm_range):
+            return super()._single_hook_log_pdf(x, norm_range)
+
+    def _single_hook_sample(self, n, limits):
+        with self._set_numerics_data_shift(limits=limits):
+            return super()._single_hook_sample(n, limits)
 
 
 def _exp_integral_from_any_to_any(limits, params, model):
@@ -171,7 +181,7 @@ def _exp_integral_from_any_to_any(limits, params, model):
 
 def _exp_integral_func_shifting(lambd, lower, upper, model):
     def raw_integral(x):
-        return model._numerics_shifted_exp(x=x, lambda_=lambd) / lambd  # needed due to overflow in exp otherwise
+        return z.exp(lambd * (model._shift_x(x))) / lambd  # needed due to overflow in exp otherwise
 
     lower_int = raw_integral(x=z.constant(lower))
     upper_int = raw_integral(x=z.constant(upper))
@@ -179,9 +189,15 @@ def _exp_integral_func_shifting(lambd, lower, upper, model):
     return integral
 
 
-# Exponential.register_inverse_analytic_integral()  # TODO: register icdf for exponential
+def exp_icdf(x, params, model):
+    lambd = params['lambda']
+    x = z.unstack_x(x)
+    x = model._shift_x(x)
+    return z.log(lambd * x) / lambd
 
+
+# Exponential.register_inverse_analytic_integral(exp_icdf)  # TODO: register icdf for exponential
+# TODO: cleanup, make cdf registrable _and_ inverse integral, but real
 
 limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
 Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)
-
