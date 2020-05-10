@@ -8,6 +8,7 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+ - Python 3.8 support
 
 Breaking changes
 ------------------
