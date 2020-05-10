@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>tensorflow.python.ops.variables &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
+    <title>tensorflow.python.ops.variables &#8212; zfit 0.5.2.dev14+gcadc75e documentation</title>
     <link rel="stylesheet" href="../../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../../index.html"><img src="../../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev14</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -288,6 +288,7 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">os</span>
+
 <span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="kn">import</span> <span class="n">attr_value_pb2</span>
@@ -850,8 +851,8 @@
 <span class="sd">        value of the variable; if False will return the assign op.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the assignment has completed.</span>
+<span class="sd">      The updated variable. If `read_value` is false, instead returns None in</span>
+<span class="sd">      Eager mode and the assign op in graph mode.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -868,8 +869,8 @@
 <span class="sd">        value of the variable; if False will return the assign op.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the addition has completed.</span>
+<span class="sd">      The updated variable. If `read_value` is false, instead returns None in</span>
+<span class="sd">      Eager mode and the assign op in graph mode.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -886,8 +887,8 @@
 <span class="sd">        value of the variable; if False will return the assign op.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the subtraction has completed.</span>
+<span class="sd">      The updated variable. If `read_value` is false, instead returns None in</span>
+<span class="sd">      Eager mode and the assign op in graph mode.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -900,8 +901,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered subtraction has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -917,8 +917,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered addition has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -935,8 +934,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered maximization has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -953,8 +951,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered minimization has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -970,8 +967,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered multiplication has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -987,8 +983,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered division has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1004,8 +999,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered assignment has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1051,8 +1045,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered assignment has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1102,8 +1095,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered subtraction has completed.</span>
+<span class="sd">      The updated variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -1150,8 +1142,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered addition has completed.</span>
+<span class="sd">      The updated variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -1198,8 +1189,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered assignment has completed.</span>
+<span class="sd">      The updated variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -1353,8 +1343,8 @@
 
   <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_USE_EQUALITY</span> <span class="ow">and</span> <span class="n">ops</span><span class="o">.</span><span class="n">executing_eagerly_outside_functions</span><span class="p">():</span>  <span class="c1"># pylint: disable=protected-access</span>
-      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Variable is unhashable if Tensor equality is enabled. &quot;</span>
-                      <span class="s2">&quot;Instead, use tensor.experimental_ref() as the key.&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Variable is unhashable. &quot;</span>
+                      <span class="s2">&quot;Instead, use tensor.ref() as the key.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -1486,56 +1476,48 @@
   <span class="k">def</span> <span class="nf">_get_save_slice_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_slice_info</span>
 
+  <span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Use ref() instead.&quot;</span><span class="p">)</span>
   <span class="k">def</span> <span class="nf">experimental_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="c1"># tf.Tensor also has the same experimental_ref() API.  If you update the</span>
-    <span class="c1"># documenation here, please update tf.Tensor.experimental_ref() as well.</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">ref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># tf.Tensor also has the same ref() API.  If you update the</span>
+    <span class="c1"># documentation here, please update tf.Tensor.ref() as well.</span>
     <span class="sd">&quot;&quot;&quot;Returns a hashable reference object to this Variable.</span>
 
-<span class="sd">    Warning: Experimental API that could be changed or removed.</span>
-
-<span class="sd">    The primary usecase for this API is to put variables in a set/dictionary.</span>
+<span class="sd">    The primary use case for this API is to put variables in a set/dictionary.</span>
 <span class="sd">    We can&#39;t put variables in a set/dictionary as `variable.__hash__()` is no</span>
 <span class="sd">    longer available starting Tensorflow 2.0.</span>
 
-<span class="sd">    ```python</span>
-<span class="sd">    import tensorflow as tf</span>
+<span class="sd">    The following will raise an exception starting 2.0</span>
 
-<span class="sd">    x = tf.Variable(5)</span>
-<span class="sd">    y = tf.Variable(10)</span>
-<span class="sd">    z = tf.Variable(10)</span>
+<span class="sd">    &gt;&gt;&gt; x = tf.Variable(5)</span>
+<span class="sd">    &gt;&gt;&gt; y = tf.Variable(10)</span>
+<span class="sd">    &gt;&gt;&gt; z = tf.Variable(10)</span>
+<span class="sd">    &gt;&gt;&gt; variable_set = {x, y, z}</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    TypeError: Variable is unhashable. Instead, use tensor.ref() as the key.</span>
+<span class="sd">    &gt;&gt;&gt; variable_dict = {x: &#39;five&#39;, y: &#39;ten&#39;}</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    TypeError: Variable is unhashable. Instead, use tensor.ref() as the key.</span>
 
-<span class="sd">    # The followings will raise an exception starting 2.0</span>
-<span class="sd">    # TypeError: Variable is unhashable if Variable equality is enabled.</span>
-<span class="sd">    variable_set = {x, y, z}</span>
-<span class="sd">    variable_dict = {x: &#39;five&#39;, y: &#39;ten&#39;}</span>
-<span class="sd">    ```</span>
+<span class="sd">    Instead, we can use `variable.ref()`.</span>
 
-<span class="sd">    Instead, we can use `variable.experimental_ref()`.</span>
-
-<span class="sd">    ```python</span>
-<span class="sd">    variable_set = {x.experimental_ref(),</span>
-<span class="sd">                    y.experimental_ref(),</span>
-<span class="sd">                    z.experimental_ref()}</span>
-
-<span class="sd">    print(x.experimental_ref() in variable_set)</span>
-<span class="sd">    ==&gt; True</span>
-
-<span class="sd">    variable_dict = {x.experimental_ref(): &#39;five&#39;,</span>
-<span class="sd">                     y.experimental_ref(): &#39;ten&#39;,</span>
-<span class="sd">                     z.experimental_ref(): &#39;ten&#39;}</span>
-
-<span class="sd">    print(variable_dict[y.experimental_ref()])</span>
-<span class="sd">    ==&gt; ten</span>
-<span class="sd">    ```</span>
+<span class="sd">    &gt;&gt;&gt; variable_set = {x.ref(), y.ref(), z.ref()}</span>
+<span class="sd">    &gt;&gt;&gt; x.ref() in variable_set</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; variable_dict = {x.ref(): &#39;five&#39;, y.ref(): &#39;ten&#39;, z.ref(): &#39;ten&#39;}</span>
+<span class="sd">    &gt;&gt;&gt; variable_dict[y.ref()]</span>
+<span class="sd">    &#39;ten&#39;</span>
 
 <span class="sd">    Also, the reference object provides `.deref()` function that returns the</span>
 <span class="sd">    original Variable.</span>
 
-<span class="sd">    ```python</span>
-<span class="sd">    x = tf.Variable(5)</span>
-<span class="sd">    print(x.experimental_ref().deref())</span>
-<span class="sd">    ==&gt; &lt;tf.Variable &#39;Variable:0&#39; shape=() dtype=int32, numpy=5&gt;</span>
-<span class="sd">    ```</span>
+<span class="sd">    &gt;&gt;&gt; x = tf.Variable(5)</span>
+<span class="sd">    &gt;&gt;&gt; x.ref().deref()</span>
+<span class="sd">    &lt;tf.Variable &#39;Variable:0&#39; shape=() dtype=int32, numpy=5&gt;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">object_identity</span><span class="o">.</span><span class="n">Reference</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -1591,9 +1573,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
       <span class="sd">&quot;&quot;&quot;Computes the spec string used for saving.&quot;&quot;&quot;</span>
-      <span class="n">full_shape_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_shape</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
+      <span class="n">full_shape_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_shape</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
       <span class="n">sl_spec</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-          <span class="p">[</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_shape</span><span class="p">)])</span>
+          <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_shape</span><span class="p">))</span>
       <span class="k">return</span> <span class="n">full_shape_str</span> <span class="o">+</span> <span class="n">sl_spec</span>
 
     <span class="k">def</span> <span class="nf">to_proto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_scope</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

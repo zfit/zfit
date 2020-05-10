@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>tensorflow.python.ops.resource_variable_ops &#8212; zfit 0.5.2.dev13+g6c67a14 documentation</title>
+    <title>tensorflow.python.ops.resource_variable_ops &#8212; zfit 0.5.2.dev14+gcadc75e documentation</title>
     <link rel="stylesheet" href="../../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../../index.html"><img src="../../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev13</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev14</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -288,13 +288,15 @@
 
 <span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">weakref</span>
 
 <span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="kn">import</span> <span class="n">attr_value_pb2</span>
 <span class="kn">from</span> <span class="nn">tensorflow.core.framework</span> <span class="kn">import</span> <span class="n">variable_pb2</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">_pywrap_utils</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">pywrap_tensorflow</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.client</span> <span class="kn">import</span> <span class="n">pywrap_tf_session</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="kn">import</span> <span class="n">context</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.eager</span> <span class="kn">import</span> <span class="n">tape</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">auto_control_deps_utils</span> <span class="k">as</span> <span class="n">acd</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">constant_op</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">cpp_shape_inference_pb2</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">dtypes</span>
@@ -319,10 +321,17 @@
 <span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated_args</span>
 
 
+<span class="n">acd</span><span class="o">.</span><span class="n">register_read_only_resource_op</span><span class="p">(</span><span class="s2">&quot;ReadVariableOp&quot;</span><span class="p">)</span>
+<span class="n">acd</span><span class="o">.</span><span class="n">register_read_only_resource_op</span><span class="p">(</span><span class="s2">&quot;VariableShape&quot;</span><span class="p">)</span>
+<span class="n">acd</span><span class="o">.</span><span class="n">register_read_only_resource_op</span><span class="p">(</span><span class="s2">&quot;ResourceGather&quot;</span><span class="p">)</span>
+<span class="n">acd</span><span class="o">.</span><span class="n">register_read_only_resource_op</span><span class="p">(</span><span class="s2">&quot;ResourceGatherNd&quot;</span><span class="p">)</span>
+<span class="n">acd</span><span class="o">.</span><span class="n">register_read_only_resource_op</span><span class="p">(</span><span class="s2">&quot;_ReadVariablesOp&quot;</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">get_resource_handle_data</span><span class="p">(</span><span class="n">graph_op</span><span class="p">):</span>
   <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">graph_op</span><span class="p">)</span> <span class="o">==</span> <span class="n">ops</span><span class="o">.</span><span class="n">Tensor</span>  <span class="c1"># pylint: disable=unidiomatic-typecheck</span>
 
-  <span class="n">handle_data</span> <span class="o">=</span> <span class="n">pywrap_tensorflow</span><span class="o">.</span><span class="n">GetHandleShapeAndType</span><span class="p">(</span>
+  <span class="n">handle_data</span> <span class="o">=</span> <span class="n">pywrap_tf_session</span><span class="o">.</span><span class="n">GetHandleShapeAndType</span><span class="p">(</span>
       <span class="n">graph_op</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">_c_graph</span><span class="p">,</span> <span class="n">graph_op</span><span class="o">.</span><span class="n">_as_tf_output</span><span class="p">())</span>  <span class="c1"># pylint: disable=protected-access</span>
 
   <span class="k">return</span> <span class="n">cpp_shape_inference_pb2</span><span class="o">.</span><span class="n">CppShapeInferenceResult</span><span class="o">.</span><span class="n">HandleData</span><span class="o">.</span><span class="n">FromString</span><span class="p">(</span>
@@ -357,10 +366,12 @@
   <span class="n">ranks</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">unknown_rank</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">shapes</span><span class="p">]</span>
   <span class="n">shapes</span> <span class="o">=</span> <span class="p">[[</span><span class="n">d</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">dim</span><span class="p">]</span>  <span class="c1"># pylint: disable=g-complex-comprehension</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">unknown_rank</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">shapes</span><span class="p">]</span>
-  <span class="n">pywrap_tensorflow</span><span class="o">.</span><span class="n">TF_GraphSetOutputHandleShapesAndTypes_wrapper</span><span class="p">(</span>
+  <span class="n">pywrap_tf_session</span><span class="o">.</span><span class="n">TF_GraphSetOutputHandleShapesAndTypes_wrapper</span><span class="p">(</span>
       <span class="n">tensor</span><span class="o">.</span><span class="n">_op</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_c_graph</span><span class="p">,</span>  <span class="c1"># pylint: disable=protected-access</span>
       <span class="n">tensor</span><span class="o">.</span><span class="n">_as_tf_output</span><span class="p">(),</span>  <span class="c1"># pylint: disable=protected-access</span>
-      <span class="n">shapes</span><span class="p">,</span> <span class="n">ranks</span><span class="p">,</span> <span class="n">types</span><span class="p">)</span>
+      <span class="n">shapes</span><span class="p">,</span>
+      <span class="n">ranks</span><span class="p">,</span>
+      <span class="n">types</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_combine_handle_data</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">):</span>
@@ -614,6 +625,7 @@
       <span class="n">cached_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
       <span class="n">save_slice_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
       <span class="n">handle_deleter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">caching_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
       <span class="o">**</span><span class="n">unused_kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates a variable from a handle.</span>
 
@@ -654,6 +666,11 @@
 <span class="sd">      save_slice_info: Metadata for variable partitioning.</span>
 <span class="sd">      handle_deleter: EagerResourceDeleter responsible for cleaning up the</span>
 <span class="sd">        handle.</span>
+<span class="sd">      caching_device: Optional device string or function describing where the</span>
+<span class="sd">        Variable should be cached for reading.  Defaults to the Variable&#39;s</span>
+<span class="sd">        device.  If not `None`, caches on another device.  Typical use is to</span>
+<span class="sd">        cache on the device where the Ops using the Variable reside, to</span>
+<span class="sd">        deduplicate copying through `Switch` and other conditional statements.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">init_scope</span><span class="p">():</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph_mode</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">()</span>
@@ -668,6 +685,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_initializer_op</span> <span class="o">=</span> <span class="n">initializer_op</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_is_initialized_op</span> <span class="o">=</span> <span class="n">is_initialized_op</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_graph_element</span> <span class="o">=</span> <span class="n">graph_element</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_caching_device</span> <span class="o">=</span> <span class="n">caching_device</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_cached_value</span> <span class="o">=</span> <span class="n">cached_value</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_distribute_strategy</span> <span class="o">=</span> <span class="n">distribute_strategy</span>
     <span class="c1"># Store the graph key so optimizers know how to only retrieve variables from</span>
@@ -763,6 +781,9 @@
   <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The shape of this variable.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
+
+  <span class="k">def</span> <span class="nf">set_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="o">.</span><span class="n">merge_with</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_shape_as_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -876,9 +897,19 @@
 
   <span class="k">def</span> <span class="nf">_read_variable_op</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">variable_accessed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">gen_resource_variable_ops</span><span class="o">.</span><span class="n">read_variable_op</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handle</span><span class="p">,</span>
-                                                        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
-    <span class="n">_maybe_set_handle_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">read_and_set_handle</span><span class="p">():</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="n">gen_resource_variable_ops</span><span class="o">.</span><span class="n">read_variable_op</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handle</span><span class="p">,</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+      <span class="n">_maybe_set_handle_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_caching_device&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">colocate_with</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_caching_device</span><span class="p">):</span>
+          <span class="n">result</span> <span class="o">=</span> <span class="n">read_and_set_handle</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="n">read_and_set_handle</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
       <span class="c1"># Note that if a control flow context is active the input of the read op</span>
@@ -985,10 +1016,6 @@
     <span class="k">return</span> <span class="n">ResourceVariable</span><span class="p">(</span>
         <span class="n">variable_def</span><span class="o">=</span><span class="n">variable_def</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="n">import_scope</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">set_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Unsupported.&quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;ResourceVariable does not implement set_shape()&quot;</span><span class="p">)</span>
-
   <span class="n">__array_priority__</span> <span class="o">=</span> <span class="mi">100</span>
 
   <span class="k">def</span> <span class="nf">is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1079,7 +1106,7 @@
 <span class="sd">      it will return the `Operation` that does the assignment, and when in eager</span>
 <span class="sd">      mode it will return `None`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Note: not depending on the cached value here since this can used to</span>
+    <span class="c1"># Note: not depending on the cached value here since this can be used to</span>
     <span class="c1"># initialize the variable.</span>
     <span class="k">with</span> <span class="n">_handle_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">):</span>
       <span class="n">value_tensor</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
@@ -1110,8 +1137,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered subtraction has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1131,8 +1157,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered addition has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1153,8 +1178,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered maximization has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1175,8 +1199,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered minimization has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1196,8 +1219,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered multiplication has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1217,8 +1239,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered division has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1238,8 +1259,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered subtraction has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1289,8 +1309,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered subtraction has completed.</span>
+<span class="sd">      The updated variable.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      TypeError: if `sparse_delta` is not an `IndexedSlices`.</span>
@@ -1344,8 +1363,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered subtraction has completed.</span>
+<span class="sd">      The updated variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_read</span><span class="p">(</span><span class="n">gen_state_ops</span><span class="o">.</span><span class="n">resource_scatter_nd_sub</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">updates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
@@ -1394,8 +1412,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered subtraction has completed.</span>
+<span class="sd">      The updated variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_read</span><span class="p">(</span><span class="n">gen_state_ops</span><span class="o">.</span><span class="n">resource_scatter_nd_add</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">updates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
@@ -1444,8 +1461,7 @@
 <span class="sd">      name: the name of the operation.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
-<span class="sd">      the scattered subtraction has completed.</span>
+<span class="sd">      The updated variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_read</span><span class="p">(</span><span class="n">gen_state_ops</span><span class="o">.</span><span class="n">resource_scatter_nd_update</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">updates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
@@ -1469,10 +1485,17 @@
               <span class="n">new_axis_mask</span><span class="o">=</span><span class="n">new_axis_mask</span><span class="p">,</span>
               <span class="n">shrink_axis_mask</span><span class="o">=</span><span class="n">shrink_axis_mask</span><span class="p">))</span>
 
+  <span class="k">def</span> <span class="fm">__complex__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">complex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+
   <span class="k">def</span> <span class="fm">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">int32</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">int64</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Non-integer variable can&#39;t be converted to integer.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+
+  <span class="k">def</span> <span class="nf">__long__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">long</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+
+  <span class="k">def</span> <span class="fm">__float__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
 
   <span class="k">def</span> <span class="nf">_dense_var_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_ref</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">del</span> <span class="n">name</span>
@@ -1783,8 +1806,10 @@
       <span class="n">collections</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">collections</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">ops</span><span class="o">.</span><span class="n">GraphKeys</span><span class="o">.</span><span class="n">TRAINABLE_VARIABLES</span><span class="p">]</span>
     <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">init_scope</span><span class="p">():</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph_mode</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">()</span>
-      <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="p">[]</span>
-                          <span class="k">if</span> <span class="n">init_from_fn</span> <span class="k">else</span> <span class="p">[</span><span class="n">initial_value</span><span class="p">])</span> <span class="k">as</span> <span class="n">name</span><span class="p">:</span>
+      <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span>
+          <span class="n">name</span><span class="p">,</span>
+          <span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">init_from_fn</span> <span class="k">else</span> <span class="p">[</span><span class="n">initial_value</span><span class="p">],</span>
+          <span class="n">skip_on_eager</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">name</span><span class="p">:</span>
         <span class="c1"># pylint: disable=protected-access</span>
         <span class="n">handle_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">name_from_scope_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph_mode</span><span class="p">:</span>
@@ -1884,6 +1909,12 @@
               <span class="n">_maybe_set_handle_data</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">cached_value</span><span class="p">)</span>
           <span class="k">else</span><span class="p">:</span>
             <span class="n">cached_value</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">cached_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="c1"># Store the variable object so that the original variable can be</span>
+          <span class="c1"># accessed to generate functions that are compatible with SavedModel.</span>
+          <span class="n">cached_value</span><span class="o">.</span><span class="n">_cached_variable</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
           <span class="c1"># Eager variables are only added to collections if they are part of an</span>
           <span class="c1"># eager variable store (otherwise in an interactive session they would</span>
@@ -1899,7 +1930,7 @@
           <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">unique_id</span><span class="o">=</span><span class="n">unique_id</span><span class="p">,</span> <span class="n">handle_name</span><span class="o">=</span><span class="n">handle_name</span><span class="p">,</span>
           <span class="n">graph_element</span><span class="o">=</span><span class="n">graph_element</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">initial_value</span><span class="p">,</span>
           <span class="n">initializer_op</span><span class="o">=</span><span class="n">initializer_op</span><span class="p">,</span> <span class="n">is_initialized_op</span><span class="o">=</span><span class="n">is_initialized_op</span><span class="p">,</span>
-          <span class="n">cached_value</span><span class="o">=</span><span class="n">cached_value</span><span class="p">)</span>
+          <span class="n">cached_value</span><span class="o">=</span><span class="n">cached_value</span><span class="p">,</span> <span class="n">caching_device</span><span class="o">=</span><span class="n">caching_device</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_init_from_proto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_def</span><span class="p">,</span> <span class="n">import_scope</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes from `VariableDef` proto.&quot;&quot;&quot;</span>
@@ -2020,7 +2051,7 @@
     <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">init_scope</span><span class="p">():</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph_mode</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">init_scope</span><span class="p">():</span>
-      <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Variable&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">name</span><span class="p">:</span>
+      <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="n">skip_on_eager</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">name</span><span class="p">:</span>
         <span class="n">handle_name</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">name_from_scope_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph_mode</span><span class="p">:</span>
           <span class="n">shared_name</span> <span class="o">=</span> <span class="n">handle_name</span>
@@ -2083,8 +2114,7 @@
     <span class="c1"># Only create a graph_element if we&#39;re in session.run-land as only</span>
     <span class="c1"># session.run requires a preexisting tensor to evaluate. Otherwise we can</span>
     <span class="c1"># avoid accidentally reading the variable.</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">()</span>
-        <span class="ow">or</span> <span class="n">ops</span><span class="o">.</span><span class="n">get_default_graph</span><span class="p">()</span><span class="o">.</span><span class="n">_building_function</span><span class="p">):</span>  <span class="c1"># pylint: disable=protected-access</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">()</span> <span class="ow">or</span> <span class="n">ops</span><span class="o">.</span><span class="n">inside_function</span><span class="p">():</span>
       <span class="n">graph_element</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">parent_op</span><span class="p">]):</span>
@@ -2116,6 +2146,74 @@
                                                           <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
       <span class="n">_maybe_set_handle_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
       <span class="k">return</span> <span class="n">result</span>
+
+  <span class="k">def</span> <span class="nf">assign_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">assign_sub</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                                                     <span class="n">read_value</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">assign_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                                                     <span class="n">read_value</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+                                                 <span class="n">read_value</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_sub</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span>
+                                                      <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_add</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span>
+                                                      <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_max</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span>
+                                                      <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_min</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span>
+                                                      <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_mul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_mul</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span>
+                                                      <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_div</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_div</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span>
+                                                      <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_update</span><span class="p">(</span><span class="n">sparse_delta</span><span class="p">,</span>
+                                                         <span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">batch_scatter_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">batch_scatter_update</span><span class="p">(</span>
+          <span class="n">sparse_delta</span><span class="p">,</span> <span class="n">use_locking</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_nd_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_nd_sub</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_nd_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_nd_add</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_nd_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_nd_update</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span>
+                                                            <span class="n">name</span><span class="p">)</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">op</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
