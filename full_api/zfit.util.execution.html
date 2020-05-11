@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>execution &#8212; zfit 0.5.2.dev29+ga63ace3 documentation</title>
+    <title>execution &#8212; zfit 0.5.2.dev31+g043baa8 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev29</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev31</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -311,29 +311,16 @@ any side-effects other than that.</p>
 <dl class="py method">
 <dt id="zfit.util.execution.RunManager.current_policy_autograd">
 <code class="sig-name descname">current_policy_autograd</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_autograd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_autograd" title="Permalink to this definition">¶</a></dt>
-<dd><p>The current policy for using the automatic gradient or falling back to the numerical</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>If autograd is being used.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
-</dd>
-</dl>
+<dd><p>DEPRECATED! Use <cite>get_autograd_mode</cite> instead.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zfit.util.execution.RunManager.current_policy_graph">
 <code class="sig-name descname">current_policy_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the current policy for graph building.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The current policy. For more information, check <code class="xref py py-meth docutils literal notranslate"><span class="pre">set_mode()</span></code>.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
+<dd><p>DEPRECEATED! Use <cite>get_graph_mode</cite> instead. (deprecated)</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>get_graph_mode</cite> instead.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -351,7 +338,7 @@ Use clear_graph_caches instead.</p>
 <dd><p>DEPRECEATED! Enable eager makes tensorflow run like numpy. Useful for debugging. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
-Use <cite>set_mode(graph=False)</cite></p>
+Use <cite>set_graph_mode(False)</cite></p>
 <p>Do NOT directly mix it with Numpy (and if, also enable the numberical gradient).</p>
 <p>This can BREAK in the future.</p>
 </dd></dl>
@@ -366,6 +353,34 @@ Use <cite>current_policy_graph() is False</cite></p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.util.execution.RunManager.get_autograd_mode">
+<code class="sig-name descname">get_autograd_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.get_autograd_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.get_autograd_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current policy for using the automatic gradient or falling back to the numerical</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>If autograd is being used.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.get_graph_mode">
+<code class="sig-name descname">get_graph_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.get_graph_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.get_graph_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current policy for graph building.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The current policy. For more information, check <code class="xref py py-meth docutils literal notranslate"><span class="pre">set_mode()</span></code>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.mode">
 <em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#zfit.util.execution.RunManager.mode" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -374,6 +389,35 @@ Use <cite>current_policy_graph() is False</cite></p>
 <dt id="zfit.util.execution.RunManager.n_cpu">
 <em class="property">property </em><code class="sig-name descname">n_cpu</code><a class="headerlink" href="#zfit.util.execution.RunManager.n_cpu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.set_autograd_mode">
+<code class="sig-name descname">set_autograd_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">autograd</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_autograd_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_autograd_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use automatic or numerical gradients.</p>
+<p>zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
+An interactive tutorial can be found at <a class="reference external" href="https://github.com/zfit/zfit-tutorials">https://github.com/zfit/zfit-tutorials</a></p>
+<p><strong>automatic gradient</strong></p>
+<p>A strong feature of TensorFlow is the possibility to derive an analytic expression for the gradient
+by successively applying the chain rule to all of its operations. This is <em>independent</em> of whether the code
+is run in graph or eager execution, but requires all operations that are dynamic to be <cite>tf.*</cite> operations.
+For example, multiplying by a constant (constant as in <em>not chaning ever</em>) does not require the constant to
+be a <cite>tf.constant(…)</cite> but can be a Python scalar. For example, it is also fine to use a fixed template shape
+using Numpy (Scipy etc), as the template shape will stay constant (this requires though to use a
+<cite>z.py_function</cite> to work, but this is another story about graph mode or not).</p>
+<p>To allow to have dynamic numpy operations in a component, preferably wrapped with <cite>z.py_function</cite> instead of
+forced eager, and to still retrieve a meaningful gradient, a numerical gradient has to be used.
+In general, this can be achieved by setting the <cite>autograd</cite> to False. Any derivative received will then be
+numerically computed. Furthermore, some minimizers (e.g. <a class="reference internal" href="zfit.minimize.html#zfit.minimize.Minuit" title="zfit.minimize.Minuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Minuit</span></code></a>) have their own way
+of calculating gradients, which can be faster.
+Disabling <cite>autograd</cite> and using the zfit builting numerical way of calculating the gradients and hessian can
+be less stable and may raises errors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>autograd</strong> – Whether the automatic gradient feature of TensorFlow should be used or a numerical procedure
+instead. If any non-constant Python (numpy, scipy,…) code is used inside, this should be switched on.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.util.execution.RunManager.set_cpus_explicit">
@@ -392,8 +436,8 @@ independently in parallel.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.execution.RunManager.set_mode">
-<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="p">:</span> <span class="n">Union[bool, str, dict, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">autograd</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_mode" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.execution.RunManager.set_graph_mode">
+<code class="sig-name descname">set_graph_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_graph_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_graph_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the policy for graph building and the usage of automatic vs numerical gradients.</p>
 <p>zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
 An interactive tutorial can be found at <a class="reference external" href="https://github.com/zfit/zfit-tutorials">https://github.com/zfit/zfit-tutorials</a></p>
@@ -478,31 +522,15 @@ for everything to have the same behavior in the pdf as when the loss is called.<
 </li>
 </ul>
 </div></blockquote>
-<p><strong>automatic gradient</strong></p>
-<p>Another strong feature of TensorFlow is the possibility to derive an analytic expression for the gradient
-by successively applying the chain rule to all of its operations. This is <em>independent</em> of whether the code
-is run in graph or eager execution, but requires all operations that are dynamic to be <cite>tf.*</cite> operations.
-For example, multiplying by a constant (constant as in <em>not chaning ever</em>) does not require the constant to
-be a <cite>tf.constant(…)</cite> but can be a Python scalar. For example, it is also fine to use a fixed template shape
-using Numpy (Scipy etc), as the template shape will stay constant (this requires though to use a
-<cite>z.py_function</cite> to work, but this is another story about graph mode or not).</p>
-<p>To allow to have dynamic numpy operations in a component, preferably wrapped with <cite>z.py_function</cite> instead of
-forced eager, and to still retrieve a meaningful gradient, a numerical gradient has to be used.
-In general, this can be achieved by setting the <cite>autograd</cite> to False. Any derivative received will then be
-numerically computed. Furthermore, some minimizers (e.g. <a class="reference internal" href="zfit.minimize.html#zfit.minimize.Minuit" title="zfit.minimize.Minuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Minuit</span></code></a>) have their own way
-of calculating gradients, which can be faster.
-Disabling <cite>autograd</cite> and using the zfit builting numerical way of calculating the gradients and hessian can
-be less stable and may raises errors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>graph</strong> – <p>Policy for when to build a graph with which function. Currently allowed values are
+<dd class="field-odd"><p><strong>graph</strong> – <p>Policy for when to build a graph with which function. Currently allowed values are
 - <cite>True</cite>: this will make all <code class="xref py py-func docutils literal notranslate"><span class="pre">zfit.z.function()</span></code> decorated function to be traced. Useful</p>
 <blockquote>
 <div><p>to have a consistent behavior overall, as e.g. a PDF may not be traced if <cite>pdf</cite> or <cite>integrate</cite> is
 called, but may be traced when inside a loss.</p>
 </div></blockquote>
-<ul>
+<ul class="simple">
 <li><p><cite>False</cite>: this will make everything execute immediately, like Numpy (this is <strong>not enough</strong> to be
 fully Numpy compatible in the sense of using <cite>, also see the `autograd</cite> option)</p></li>
 <li><p>’auto’: Something in between, where sampling (currently) and the loss builds a graph but
@@ -512,12 +540,18 @@ eagerly.</p></li>
 (see also <code class="xref py py-func docutils literal notranslate"><span class="pre">function()</span></code> for more information about this) with a boolean that switches
 explicitly on/off the graph building for this type of decorated functions.</p></li>
 </ul>
-</p></li>
-<li><p><strong>autograd</strong> – Whether the automatic gradient feature of TensorFlow should be used or a numerical procedure
-instead. If any non-constant Python (numpy, scipy,…) code is used inside, this should be switched on.</p></li>
-</ul>
+</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.set_mode">
+<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="p">:</span> <span class="n">Union[bool, str, dict, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">autograd</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED! Use <cite>set_graph_mode</cite> or <cite>set_autograd_mode</cite>. (deprecated)</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>set_graph_mode</cite> or <cite>set_autograd_mode</cite>.</p>
 </dd></dl>
 
 <dl class="py method">

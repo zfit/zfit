@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.util.execution &#8212; zfit 0.5.2.dev29+ga63ace3 documentation</title>
+    <title>zfit.util.execution &#8212; zfit 0.5.2.dev31+g043baa8 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev29</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev31</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -274,11 +274,12 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">from</span> <span class="nn">.legacy</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
-<span class="kn">from</span> <span class="nn">.container</span> <span class="kn">import</span> <span class="n">DotDict</span><span class="p">,</span> <span class="n">is_container</span>
+<span class="kn">from</span> <span class="nn">.container</span> <span class="kn">import</span> <span class="n">DotDict</span>
+<span class="kn">from</span> <span class="nn">.exception</span> <span class="kn">import</span> <span class="n">IllegalInGraphModeError</span>
+<span class="kn">from</span> <span class="nn">.legacy</span> <span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">.temporary</span> <span class="kn">import</span> <span class="n">TemporarilySet</span>
 
 
 <div class="viewcode-block" id="RunManager"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager">[docs]</a><span class="k">class</span> <span class="nc">RunManager</span><span class="p">:</span>
@@ -394,7 +395,7 @@
         <span class="k">return</span> <span class="n">values</span>
 
 <div class="viewcode-block" id="RunManager.experimental_enable_eager"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.experimental_enable_eager">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;Use `set_mode(graph=False)`&quot;</span><span class="p">)</span>
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;Use `set_graph_mode(False)`&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">experimental_enable_eager</span><span class="p">(</span><span class="n">eager</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;DEPRECEATED! Enable eager makes tensorflow run like numpy. Useful for debugging.</span>
 
@@ -407,147 +408,164 @@
         <span class="kn">from</span> <span class="nn">.graph</span> <span class="kn">import</span> <span class="n">jit</span>
         <span class="n">jit</span><span class="o">.</span><span class="n">_set_all</span><span class="p">(</span><span class="ow">not</span> <span class="n">eager</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RunManager.set_mode"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.set_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">autograd</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RunManager.set_graph_mode"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.set_graph_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_graph_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;Set the policy for graph building and the usage of automatic vs numerical gradients.</span>
 
-<span class="sd">        zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.</span>
-<span class="sd">        An interactive tutorial can be found at https://github.com/zfit/zfit-tutorials</span>
+<span class="sd">            zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.</span>
+<span class="sd">            An interactive tutorial can be found at https://github.com/zfit/zfit-tutorials</span>
 
-<span class="sd">        **Graph building**</span>
+<span class="sd">            **Graph building**</span>
 
-<span class="sd">        It has two ways to be run where the first</span>
-<span class="sd">        defaults to the normal mode we are in except inside a :py:func:`~zfit.z.function` decorated function. Setting</span>
-<span class="sd">        the mode allows to control the behavior of decorated functions to not always trigger a graph building.</span>
+<span class="sd">            It has two ways to be run where the first</span>
+<span class="sd">            defaults to the normal mode we are in except inside a :py:func:`~zfit.z.function` decorated function. Setting</span>
+<span class="sd">            the mode allows to control the behavior of decorated functions to not always trigger a graph building.</span>
 
-<span class="sd">         - **numpy-like/eager**: in this mode, the syntax slightly differs from pure numpy but is similar. For example,</span>
-<span class="sd">            `tf.sqrt`, `tf.math.log` etc. The return values are `EagerTensors` that represent &quot;wrapped Numpy arrays&quot; and</span>
-<span class="sd">            can directly be used with any Numpy function. They can explicitly be converted to a Numpy array with</span>
-<span class="sd">            `zfit.run(EagerTensor)`, which takes also care of nested structures and already existing `np.ndarrays`,</span>
-<span class="sd">            or just a `.numpy()` method.</span>
-<span class="sd">            The difference to Numpy is that TensorFlow tries to optimize the calculation slightly beforehand and may</span>
-<span class="sd">            also executes on the GPU. This will result in a slight performance penalty for *very small* computations</span>
-<span class="sd">            compared to Numpy, on the other hand an improved performance for larger computations.</span>
+<span class="sd">             - **numpy-like/eager**: in this mode, the syntax slightly differs from pure numpy but is similar. For example,</span>
+<span class="sd">                `tf.sqrt`, `tf.math.log` etc. The return values are `EagerTensors` that represent &quot;wrapped Numpy arrays&quot; and</span>
+<span class="sd">                can directly be used with any Numpy function. They can explicitly be converted to a Numpy array with</span>
+<span class="sd">                `zfit.run(EagerTensor)`, which takes also care of nested structures and already existing `np.ndarrays`,</span>
+<span class="sd">                or just a `.numpy()` method.</span>
+<span class="sd">                The difference to Numpy is that TensorFlow tries to optimize the calculation slightly beforehand and may</span>
+<span class="sd">                also executes on the GPU. This will result in a slight performance penalty for *very small* computations</span>
+<span class="sd">                compared to Numpy, on the other hand an improved performance for larger computations.</span>
 
-<span class="sd">         - **graph**: a function can be decorated with :py:func:`~zfit.z.function`, which will *not* execute its</span>
-<span class="sd">            content immediately, but first trace it and build a graph. This is done by *recording all `tf.*` operations</span>
-<span class="sd">            and adding them to the graph while any Python operation, e.g. `np.random.*` will use a fixed value added</span>
-<span class="sd">            to the graph. Building a graph greatly reduces the flexibility, since only `tf.*` operations can</span>
-<span class="sd">            effectively be used to have dynamics in there, on the other hand it can greatly increase the performance.</span>
-<span class="sd">            When the graph is built, it is cached (for later re-use), optimized and then executed.</span>
-<span class="sd">            Calling a `tf.function` decorated</span>
-<span class="sd">            function does therefore not make an actualy difference *for the caller*. But it is a difference on how the</span>
-<span class="sd">            function behaves.</span>
+<span class="sd">             - **graph**: a function can be decorated with :py:func:`~zfit.z.function`, which will *not* execute its</span>
+<span class="sd">                content immediately, but first trace it and build a graph. This is done by *recording all `tf.*` operations</span>
+<span class="sd">                and adding them to the graph while any Python operation, e.g. `np.random.*` will use a fixed value added</span>
+<span class="sd">                to the graph. Building a graph greatly reduces the flexibility, since only `tf.*` operations can</span>
+<span class="sd">                effectively be used to have dynamics in there, on the other hand it can greatly increase the performance.</span>
+<span class="sd">                When the graph is built, it is cached (for later re-use), optimized and then executed.</span>
+<span class="sd">                Calling a `tf.function` decorated</span>
+<span class="sd">                function does therefore not make an actualy difference *for the caller*. But it is a difference on how the</span>
+<span class="sd">                function behaves.</span>
 
-<span class="sd">            .. code-block:: python</span>
+<span class="sd">                .. code-block:: python</span>
 
-<span class="sd">                @z.function</span>
-<span class="sd">                def add_rnd(x):</span>
-<span class="sd">                     res1 = x + np.random.uniform()  # returns a Python scalar. This exact scalar will be constant</span>
-<span class="sd">                     res2 = x + z.random.uniform(shape=())  # returns a tf.Tensor. This will be flexible</span>
-<span class="sd">                     return res1, res2</span>
+<span class="sd">                    @z.function</span>
+<span class="sd">                    def add_rnd(x):</span>
+<span class="sd">                         res1 = x + np.random.uniform()  # returns a Python scalar. This exact scalar will be constant</span>
+<span class="sd">                         res2 = x + z.random.uniform(shape=())  # returns a tf.Tensor. This will be flexible</span>
+<span class="sd">                         return res1, res2</span>
 
-<span class="sd">                res_np1, res_tf1 = add_rnd(5)</span>
-<span class="sd">                res_np2, res_tf2 = add_rnd(5)</span>
+<span class="sd">                    res_np1, res_tf1 = add_rnd(5)</span>
+<span class="sd">                    res_np2, res_tf2 = add_rnd(5)</span>
 
-<span class="sd">                assert res_np1 == res_np2  # they will be the same!</span>
-<span class="sd">                assert res_tf1 != res_tf2  # these differ</span>
+<span class="sd">                    assert res_np1 == res_np2  # they will be the same!</span>
+<span class="sd">                    assert res_tf1 != res_tf2  # these differ</span>
 
-<span class="sd">            While writing TensorFlow is just like Numpy, if we build a graph, only `tf.*` dynamics &quot;survives&quot;.</span>
-<span class="sd">            Important: while values are usually constant, changing a :py:class:`zfit.Parameter` value with</span>
-<span class="sd">            :py:meth:`~zfit.Parameter.set_value(...)` *will* change the value in the graph as well.</span>
+<span class="sd">                While writing TensorFlow is just like Numpy, if we build a graph, only `tf.*` dynamics &quot;survives&quot;.</span>
+<span class="sd">                Important: while values are usually constant, changing a :py:class:`zfit.Parameter` value with</span>
+<span class="sd">                :py:meth:`~zfit.Parameter.set_value(...)` *will* change the value in the graph as well.</span>
 
-<span class="sd">                        .. code-block:: python</span>
+<span class="sd">                            .. code-block:: python</span>
 
-<span class="sd">                @z.function</span>
-<span class="sd">                def add(x, param):</span>
-<span class="sd">                     return x + param</span>
+<span class="sd">                    @z.function</span>
+<span class="sd">                    def add(x, param):</span>
+<span class="sd">                         return x + param</span>
 
-<span class="sd">                param = zfit.Parameter(&#39;param1&#39;, 36)</span>
-<span class="sd">                assert add_rnd(5, param) == 41</span>
-<span class="sd">                param.set_value(6)</span>
-<span class="sd">                assert add_rnd(5, param) == 42  # the value changed!</span>
+<span class="sd">                    param = zfit.Parameter(&#39;param1&#39;, 36)</span>
+<span class="sd">                    assert add_rnd(5, param) == 41</span>
+<span class="sd">                    param.set_value(6)</span>
+<span class="sd">                    assert add_rnd(5, param) == 42  # the value changed!</span>
 
-<span class="sd">            Every graph generation takes some additional time and is stored, consuming memory and slowing down the</span>
-<span class="sd">            overall execution process.</span>
-<span class="sd">            To clear all caches and force a rebuild of the graph, `zfit.run.clear_graph_cache()` can be used.</span>
+<span class="sd">                Every graph generation takes some additional time and is stored, consuming memory and slowing down the</span>
+<span class="sd">                overall execution process.</span>
+<span class="sd">                To clear all caches and force a rebuild of the graph, `zfit.run.clear_graph_cache()` can be used.</span>
 
-<span class="sd">            If a function is not decorated with `z.function`, this does not guarantee that it is executed in eager,</span>
-<span class="sd">            as an outer function may uses a decorator. A typical case is the loss, which is decorated. Therefore,</span>
-<span class="sd">            any Model called inside will be evaluated with a graph building first.</span>
-
-
-<span class="sd">            **When to use what**:</span>
-<span class="sd">             - Any repeated call (as a typical call to the loss function in the minimization process) is usually</span>
-<span class="sd">               better suited within a `z.function`.</span>
-<span class="sd">             - A single call (e.g. for plotting) or repeated calls *with different arguments* should rather be run</span>
-<span class="sd">               *without* a graph built first</span>
-<span class="sd">             - Debugging is usually way easier without graph building. Therefore, set the graph mode to `False`</span>
-<span class="sd">             - If the minimization fails but the pdf works without graph, maybe the graph mode can be switched on</span>
-<span class="sd">               for everything to have the same behavior in the pdf as when the loss is called.</span>
+<span class="sd">                If a function is not decorated with `z.function`, this does not guarantee that it is executed in eager,</span>
+<span class="sd">                as an outer function may uses a decorator. A typical case is the loss, which is decorated. Therefore,</span>
+<span class="sd">                any Model called inside will be evaluated with a graph building first.</span>
 
 
-<span class="sd">        **automatic gradient**</span>
+<span class="sd">                **When to use what**:</span>
+<span class="sd">                 - Any repeated call (as a typical call to the loss function in the minimization process) is usually</span>
+<span class="sd">                   better suited within a `z.function`.</span>
+<span class="sd">                 - A single call (e.g. for plotting) or repeated calls *with different arguments* should rather be run</span>
+<span class="sd">                   *without* a graph built first</span>
+<span class="sd">                 - Debugging is usually way easier without graph building. Therefore, set the graph mode to `False`</span>
+<span class="sd">                 - If the minimization fails but the pdf works without graph, maybe the graph mode can be switched on</span>
+<span class="sd">                   for everything to have the same behavior in the pdf as when the loss is called.</span>
 
-<span class="sd">        Another strong feature of TensorFlow is the possibility to derive an analytic expression for the gradient</span>
-<span class="sd">        by successively applying the chain rule to all of its operations. This is *independent* of whether the code</span>
-<span class="sd">        is run in graph or eager execution, but requires all operations that are dynamic to be `tf.*` operations.</span>
-<span class="sd">        For example, multiplying by a constant (constant as in *not chaning ever*) does not require the constant to</span>
-<span class="sd">        be a `tf.constant(...)` but can be a Python scalar. For example, it is also fine to use a fixed template shape</span>
-<span class="sd">        using Numpy (Scipy etc), as the template shape will stay constant (this requires though to use a</span>
-<span class="sd">        `z.py_function` to work, but this is another story about graph mode or not).</span>
+<span class="sd">            Args:</span>
+<span class="sd">                graph: Policy for when to build a graph with which function. Currently allowed values are</span>
+<span class="sd">                  - `True`: this will make all :py:func:`zfit.z.function` decorated function to be traced. Useful</span>
+<span class="sd">                    to have a consistent behavior overall, as e.g. a PDF may not be traced if `pdf` or `integrate` is</span>
+<span class="sd">                    called, but may be traced when inside a loss.</span>
+<span class="sd">                  - `False`: this will make everything execute immediately, like Numpy (this is **not enough** to be</span>
+<span class="sd">                    fully Numpy compatible in the sense of using `, also see the `autograd` option)</span>
+<span class="sd">                  - &#39;auto&#39;: Something in between, where sampling (currently) and the loss builds a graph but</span>
+<span class="sd">                    all model methods, such as `pdf`, `integrate` (except of `*sample*`) do not and are executed</span>
+<span class="sd">                    eagerly.</span>
+<span class="sd">                  - (**advanced and experimental!**): a dictionary containing the string of a wrapped function identifier</span>
+<span class="sd">                    (see also :py:func:`~zfit.z.function` for more information about this) with a boolean that switches</span>
+<span class="sd">                    explicitly on/off the graph building for this type of decorated functions.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">IllegalInGraphModeError</span><span class="p">(</span><span class="s2">&quot;Cannot change the execution mode of graph inside a `z.function`&quot;</span>
+                                          <span class="s2">&quot; decorated function. Only possible in an eager context.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_set_graph_mode</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_graph_mode</span><span class="p">)</span></div>
 
-<span class="sd">        To allow to have dynamic numpy operations in a component, preferably wrapped with `z.py_function` instead of</span>
-<span class="sd">        forced eager, and to still retrieve a meaningful gradient, a numerical gradient has to be used.</span>
-<span class="sd">        In general, this can be achieved by setting the `autograd` to False. Any derivative received will then be</span>
-<span class="sd">        numerically computed. Furthermore, some minimizers (e.g. :py:class:`~zfit.minimize.Minuit`) have their own way</span>
-<span class="sd">        of calculating gradients, which can be faster.</span>
-<span class="sd">        Disabling `autograd` and using the zfit builting numerical way of calculating the gradients and hessian can</span>
-<span class="sd">        be less stable and may raises errors.</span>
+<div class="viewcode-block" id="RunManager.set_autograd_mode"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.set_autograd_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_autograd_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">autograd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use automatic or numerical gradients.</span>
 
+<span class="sd">            zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.</span>
+<span class="sd">            An interactive tutorial can be found at https://github.com/zfit/zfit-tutorials</span>
 
+<span class="sd">            **automatic gradient**</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            graph: Policy for when to build a graph with which function. Currently allowed values are</span>
-<span class="sd">              - `True`: this will make all :py:func:`zfit.z.function` decorated function to be traced. Useful</span>
-<span class="sd">                to have a consistent behavior overall, as e.g. a PDF may not be traced if `pdf` or `integrate` is</span>
-<span class="sd">                called, but may be traced when inside a loss.</span>
-<span class="sd">              - `False`: this will make everything execute immediately, like Numpy (this is **not enough** to be</span>
-<span class="sd">                fully Numpy compatible in the sense of using `, also see the `autograd` option)</span>
-<span class="sd">              - &#39;auto&#39;: Something in between, where sampling (currently) and the loss builds a graph but</span>
-<span class="sd">                all model methods, such as `pdf`, `integrate` (except of `*sample*`) do not and are executed</span>
-<span class="sd">                eagerly.</span>
-<span class="sd">              - (**advanced and experimental!**): a dictionary containing the string of a wrapped function identifier</span>
-<span class="sd">                (see also :py:func:`~zfit.z.function` for more information about this) with a boolean that switches</span>
-<span class="sd">                explicitly on/off the graph building for this type of decorated functions.</span>
-<span class="sd">            autograd: Whether the automatic gradient feature of TensorFlow should be used or a numerical procedure</span>
-<span class="sd">              instead. If any non-constant Python (numpy, scipy,...) code is used inside, this should be switched on.</span>
+<span class="sd">            A strong feature of TensorFlow is the possibility to derive an analytic expression for the gradient</span>
+<span class="sd">            by successively applying the chain rule to all of its operations. This is *independent* of whether the code</span>
+<span class="sd">            is run in graph or eager execution, but requires all operations that are dynamic to be `tf.*` operations.</span>
+<span class="sd">            For example, multiplying by a constant (constant as in *not chaning ever*) does not require the constant to</span>
+<span class="sd">            be a `tf.constant(...)` but can be a Python scalar. For example, it is also fine to use a fixed template shape</span>
+<span class="sd">            using Numpy (Scipy etc), as the template shape will stay constant (this requires though to use a</span>
+<span class="sd">            `z.py_function` to work, but this is another story about graph mode or not).</span>
+
+<span class="sd">            To allow to have dynamic numpy operations in a component, preferably wrapped with `z.py_function` instead of</span>
+<span class="sd">            forced eager, and to still retrieve a meaningful gradient, a numerical gradient has to be used.</span>
+<span class="sd">            In general, this can be achieved by setting the `autograd` to False. Any derivative received will then be</span>
+<span class="sd">            numerically computed. Furthermore, some minimizers (e.g. :py:class:`~zfit.minimize.Minuit`) have their own way</span>
+<span class="sd">            of calculating gradients, which can be faster.</span>
+<span class="sd">            Disabling `autograd` and using the zfit builting numerical way of calculating the gradients and hessian can</span>
+<span class="sd">            be less stable and may raises errors.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                autograd: Whether the automatic gradient feature of TensorFlow should be used or a numerical procedure</span>
+<span class="sd">                  instead. If any non-constant Python (numpy, scipy,...) code is used inside, this should be switched on.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">jit_mode</span> <span class="o">=</span> <span class="n">graph</span>
-        <span class="kn">from</span> <span class="nn">.graph</span> <span class="kn">import</span> <span class="n">jit</span> <span class="k">as</span> <span class="n">jit_obj</span>
+        <span class="k">return</span> <span class="n">TemporarilySet</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">autograd</span><span class="p">,</span> <span class="n">setter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_set_autograd_mode</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_autograd_mode</span><span class="p">)</span></div>
 
-        <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">autograd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Both graph and autograd are None. Specify at least one.&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="RunManager.set_mode"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.set_mode">[docs]</a>    <span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Use `set_graph_mode` or `set_autograd_mode`.&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">set_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">autograd</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;DEPRECATED! Use `set_graph_mode` or `set_autograd_mode`.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">autograd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_autograd_mode</span><span class="p">(</span><span class="n">autograd</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_graph_mode</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></div>
 
-        <span class="k">if</span> <span class="n">jit_mode</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">jit_obj</span><span class="o">.</span><span class="n">_set_all</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">jit_mode</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="n">jit_obj</span><span class="o">.</span><span class="n">_set_all</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">jit_mode</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
-            <span class="n">jit_obj</span><span class="o">.</span><span class="n">_set_default</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">jit_mode</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">jit_obj</span><span class="o">.</span><span class="n">_update_allowed</span><span class="p">(</span><span class="n">jit_mode</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">jit_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">jit_mode</span><span class="si">}</span><span class="s2"> is not a valid keyword to the `jit` behavior. Use either &quot;</span>
-                             <span class="sa">f</span><span class="s2">&quot;True, False, &#39;default&#39; or a dict. You can read more about it in the docs.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">jit_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[</span><span class="s1">&#39;graph&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph</span>
-
+    <span class="k">def</span> <span class="nf">_set_autograd_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">autograd</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">autograd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">settings</span>
             <span class="n">settings</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">numerical_grad</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">autograd</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[</span><span class="s1">&#39;autograd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">autograd</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[</span><span class="s1">&#39;autograd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">autograd</span>
 
-<div class="viewcode-block" id="RunManager.current_policy_graph"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.current_policy_graph">[docs]</a>    <span class="k">def</span> <span class="nf">current_policy_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_set_graph_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">.graph</span> <span class="kn">import</span> <span class="n">jit</span> <span class="k">as</span> <span class="n">jit_obj</span>
+        <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">jit_obj</span><span class="o">.</span><span class="n">_set_all</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">jit_obj</span><span class="o">.</span><span class="n">_set_all</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">graph</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+            <span class="n">jit_obj</span><span class="o">.</span><span class="n">_set_default</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">jit_obj</span><span class="o">.</span><span class="n">_update_allowed</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">graph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">graph</span><span class="si">}</span><span class="s2"> is not a valid keyword to the `jit` behavior. Use either &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;True, False, &#39;default&#39; or a dict. You can read more about it in the docs.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">[</span><span class="s1">&#39;graph&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph</span>
+
+<div class="viewcode-block" id="RunManager.get_graph_mode"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.get_graph_mode">[docs]</a>    <span class="k">def</span> <span class="nf">get_graph_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Return the current policy for graph building.</span>
 
 <span class="sd">        Returns:</span>
@@ -555,7 +573,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">[</span><span class="s1">&#39;graph&#39;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="RunManager.current_policy_autograd"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.current_policy_autograd">[docs]</a>    <span class="k">def</span> <span class="nf">current_policy_autograd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="RunManager.current_policy_graph"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.current_policy_graph">[docs]</a>    <span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Use `get_graph_mode` instead.&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">current_policy_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;DEPRECEATED! Use `get_graph_mode` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_graph_mode</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="RunManager.get_autograd_mode"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.get_autograd_mode">[docs]</a>    <span class="k">def</span> <span class="nf">get_autograd_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;The current policy for using the automatic gradient or falling back to the numerical</span>
 
 <span class="sd">        Returns:</span>
@@ -563,6 +587,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">[</span><span class="s1">&#39;autograd&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="RunManager.current_policy_autograd"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.current_policy_autograd">[docs]</a>    <span class="k">def</span> <span class="nf">current_policy_autograd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;DEPRECATED! Use `get_autograd_mode` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_autograd_mode</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="RunManager.set_mode_default"><a class="viewcode-back" href="../../../full_api/zfit.util.execution.html#zfit.util.execution.RunManager.set_mode_default">[docs]</a>    <span class="k">def</span> <span class="nf">set_mode_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reset the mode to the default of `graph` = &#39;auto&#39; and `autograd` = True.&quot;&quot;&quot;</span>

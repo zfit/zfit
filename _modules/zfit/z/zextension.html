@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.z.zextension &#8212; zfit 0.5.2.dev29+ga63ace3 documentation</title>
+    <title>zfit.z.zextension &#8212; zfit 0.5.2.dev31+g043baa8 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2.dev29</b></span>
+        <span class="navbar-text pull-left"><b>0.5.2.dev31</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -516,7 +516,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;numerical_grad&#39;</span><span class="p">]:</span>
         <span class="n">warn_advanced_feature</span><span class="p">(</span><span class="s2">&quot;Using py_function without numerical gradients. If the Python code does not contain any&quot;</span>
                               <span class="s2">&quot; parametrization by `zfit.Parameter` or similar, this can work out. Otherwise, in case&quot;</span>
-                              <span class="s2">&quot; it depends on those, you may want to set `zfit.run.set_mode(autograd=False)`.&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot; it depends on those, you may want to set `zfit.run.set_autograd_mode(=False)`.&quot;</span><span class="p">,</span>
                               <span class="n">identifier</span><span class="o">=</span><span class="s2">&quot;py_func_autograd&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">inp</span><span class="o">=</span><span class="n">inp</span><span class="p">,</span> <span class="n">Tout</span><span class="o">=</span><span class="n">Tout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
