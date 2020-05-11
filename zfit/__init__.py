@@ -86,11 +86,11 @@ def _maybe_disable_jit():
                       DeprecationWarning)
     arg = arg2 if arg1 is None else arg1
     if arg is not None:
-        run.set_mode(graph=bool(int(arg)))
+        run.set_graph_mode(bool(int(arg)))
 
     graph = os.environ.get("ZFIT_MODE_GRAPH")
     if graph is not None:
-        run.set_mode(graph=bool(int(graph)))
+        run.set_graph_mode(bool(int(graph)))
 
 
 # experimental flags

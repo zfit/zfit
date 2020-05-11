@@ -23,7 +23,7 @@ old_graph_mode = None
 def setup_function():
     global old_graph_mode
     import zfit
-    old_graph_mode = zfit.run.current_policy_graph()
+    old_graph_mode = zfit.run.get_graph_mode()
 
 
 def teardown_function():
