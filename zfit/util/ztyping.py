@@ -27,7 +27,7 @@ RectLimitsNPReturnType = Tuple[np.ndarray, np.ndarray]
 
 RectLimitsInputType = Union[LowerRectTypeInput, UpperRectTypeInput]
 
-LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]
+LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool, 'zfit.Space']
 LimitsTypeSimpleInput = Union[Tuple[float, float], bool]
 LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]
