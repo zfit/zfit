@@ -8,7 +8,9 @@ Develop
 
 Major Features and Improvements
 -------------------------------
- - Python 3.8 support
+- Python 3.8 and TF 2.2 support
+- easier debugigng with `set_graph_mode` that can also be used temporarily
+  with a context manager. False will make everything execute Numpy-like.
 
 Breaking changes
 ------------------
@@ -29,6 +31,8 @@ Experimental
 
 Requirement changes
 -------------------
+
+- TensorFlow >= 2.2
 
 Thanks
 ------
