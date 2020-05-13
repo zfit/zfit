@@ -124,7 +124,7 @@ class EventSpace(Space):
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
                          sample_and_weights_factory: Callable = UniformSampleAndWeights,
                          dtype=ztypes.float, prob_max: Union[None, int] = None,
-                         efficiency_estimation: float = 1.0) -> tf.Tensor:
+                         efficiency_estimation: float = 0.5) -> tf.Tensor:
     """Accept reject sample from a probability distribution.
 
     Args:
