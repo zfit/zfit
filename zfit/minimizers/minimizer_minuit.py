@@ -9,8 +9,8 @@ import tensorflow as tf
 
 from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_gradients
 from .fitresult import FitResult
-from ..core.parameter import Parameter
 from ..core.interfaces import ZfitLoss
+from ..core.parameter import Parameter
 from ..util.cache import GraphCachable
 
 
@@ -162,15 +162,6 @@ class Minuit(BaseMinimizer, GraphCachable):
             return gradients_values
 
         grad_func = grad_func if self._use_tfgrad else None
-
-        # estimate initial step_size
-        # TODO: test and doc below, refactor to baseclass?
-
-        # params_no_step_size = [p for p in params if p._step_size is None]
-        # _, init_grad, init_hesse_diag = loss.value_gradients_hessian(params_no_step_size,
-        #                                                              hessian='diag')
-        # for param, init_hess in zip(params_no_step_size, init_hesse_diag):
-        #     param.set_value(1 / init_hess)
 
         minimizer = iminuit.Minuit.from_array_func(fcn=func, start=start_values,
                                                    error=errors, limit=limits, name=params_name,

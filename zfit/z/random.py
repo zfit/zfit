@@ -5,7 +5,7 @@ from typing import Union, Iterable, Any
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .zextension import tf_function as function
+from .zextension import function as function
 
 __all__ = ["counts_multinomial"]
 

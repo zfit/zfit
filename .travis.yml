@@ -4,6 +4,7 @@ os:
 python:
     - "3.6"
     - "3.7"
+    - "3.8"
 install:
     - pip install -U pip
     - pip install -U tox-travis
@@ -15,10 +16,10 @@ script:
     - echo "TensorFlow version:" && pip install coverage 2>&1 | tail -n 11
     - python -c 'import tensorflow as tf; print(tf.__version__)'
     #    Ignore test_minimizer due to memory leak bug in tf.py_function that leads to num_grad leaking.
-    - travis_wait 20 coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir} --ignore=tests/test_minimizer
+    - travis_wait 30 coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir} --ignore=tests/test_minimizer
     # PRIVATE BELOW, ONLY FOR TESTING
     - export ZFIT_DO_JIT=0
-    - travis_wait 20 coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir} --ignore=tests/test_minimizer
+    - travis_wait 30 coverage run --source=/home/travis/build/zfit/ --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test --basetemp={envtmpdir} --ignore=tests/test_minimizer
     - export ZFIT_DO_JIT=1  # reset
     - coverage report
     - bash utils/ci/test_examples.sh

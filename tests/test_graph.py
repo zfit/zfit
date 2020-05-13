@@ -22,7 +22,7 @@ def test_modes():
     func(5)
     func(5)
     assert counts == 1
-    zfit.run.set_mode(graph=False)
+    zfit.run.set_graph_mode(False)
     func(5)
     assert counts == 2
     zfit.run.set_mode_default()
@@ -36,7 +36,7 @@ def test_modes():
     func(5)
     assert counts == 3
 
-    zfit.run.set_mode(autograd=False)
+    zfit.run.set_autograd_mode(False)
     assert zfit.settings.options.numerical_grad
     zfit.run.set_mode_default()
     assert not zfit.settings.options.numerical_grad

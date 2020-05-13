@@ -1,5 +1,5 @@
 """The setup script."""
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import os
 from setuptools import setup, find_packages
@@ -41,8 +41,9 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering :: Physics',
-        ],
+    ],
 
     maintainer="zfit",
     maintainer_email='zfit@physik.uzh.ch',
@@ -53,7 +54,7 @@ setup(
     include_package_data=True,
     keywords='TensorFlow, model, fitting, scalable, HEP',
     name='zfit',
-    python_requires=">=3.6, <3.8",  # 3.8 not yet supported by Tensorflow 2.
+    python_requires=">=3.6",
     packages=find_packages(include=['zfit', 'zfit.z',
                                     'zfit.util', 'zfit.core', "zfit.minimizers", 'zfit.models']),
     setup_requires=setup_requirements,

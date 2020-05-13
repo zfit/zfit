@@ -18,7 +18,7 @@ def poisson(n=None, pdfs: Iterable[ZfitPDF] = None):
         if not_extended:
             raise NotExtendedPDFError("The following pdfs are not extended but need to be: {}".format(not_extended))
         if len(pdfs) > 1:
-            raise ValueError("More then one model (currently) not supported.")
+            raise ValueError("More than one model (currently) not supported.")
 
         # single pdf only implementation here
         yield_ = pdfs[0].get_yield()

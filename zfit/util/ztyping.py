@@ -27,7 +27,7 @@ RectLimitsNPReturnType = Tuple[np.ndarray, np.ndarray]
 
 RectLimitsInputType = Union[LowerRectTypeInput, UpperRectTypeInput]
 
-LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool]
+LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool, 'zfit.Space']
 LimitsTypeSimpleInput = Union[Tuple[float, float], bool]
 LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]
@@ -71,7 +71,8 @@ PDFInputType = Union['zfit.core.interfaces.ZfitPDF',
 FuncInputType = Union['zfit.core.interfaces.ZfitFunc',
                       Iterable['zfit.core.interfaces.ZfitFunc']]
 
-NumericalScalarType = Union[int, float, complex, tf.Tensor]
+NumericalScalarType = Union[int, float, complex, tf.Tensor, "zfit.core.interfaces.ZfitParameter"]
+NumericalType = Union[int, float, np.ndarray, tf.Tensor, "zfit.core.interfaces.ZfitParameter"]
 
 # Integer sampling
 nSamplingTypeIn = Union[int, tf.Tensor, str]

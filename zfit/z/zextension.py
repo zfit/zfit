@@ -220,7 +220,8 @@ class FunctionWrapperRegistry:
         return concrete_func
 
 
-def function_factory(func=None, **kwargs):
+# equivalent to tf.function
+def function(func=None, **kwargs):
     if callable(func):
         wrapper = FunctionWrapperRegistry()
         return wrapper(func)
@@ -228,9 +229,6 @@ def function_factory(func=None, **kwargs):
         raise ValueError("All argument have to be key-word only. `func` must not be used")
     else:
         return FunctionWrapperRegistry(**kwargs)
-
-
-tf_function = function_factory
 
 
 # legacy, remove 0.6
@@ -251,7 +249,7 @@ def py_function(func, inp, Tout, name=None):
     if not settings.options['numerical_grad']:
         warn_advanced_feature("Using py_function without numerical gradients. If the Python code does not contain any"
                               " parametrization by `zfit.Parameter` or similar, this can work out. Otherwise, in case"
-                              " it depends on those, you may want to set `zfit.run.set_mode(autograd=False)`.",
+                              " it depends on those, you may want to set `zfit.run.set_autograd_mode(=False)`.",
                               identifier="py_func_autograd")
 
     return tf.py_function(func=func, inp=inp, Tout=Tout, name=name)

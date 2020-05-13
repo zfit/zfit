@@ -2,7 +2,6 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2020 zfit
-import inspect
 import warnings
 
 from pkg_resources import get_distribution
@@ -20,10 +19,12 @@ __credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>",
                "Albert Puig <apuignav@gmail.com",
                "Rafael Silva Coutinho <rafael.silva.coutinho@cern.ch>", ]
 
-__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension",
+__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension", "exception",
+           "sample",
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
+
 
 #  Copyright (c) 2019 zfit
 
@@ -66,7 +67,7 @@ from . import z
 from . import z as ztf  # legacy
 from .settings import ztypes
 
-from . import constraint, pdf, minimize, loss, core, data, func, param, dimension
+from . import constraint, pdf, minimize, loss, core, data, func, param, dimension, exception, sample
 from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
 from .core.space import Space, convert_to_space, supports
 from .core.data import Data
@@ -79,16 +80,21 @@ def _maybe_disable_jit():
     import os
     arg1 = os.environ.get("ZFIT_DO_JIT")
     arg2 = os.environ.get("ZFIT_EXPERIMENTAL_DO_JIT")
+    arg3 = os.environ.get("ZFIT_MODE_GRAPH")
+    if arg3 is not None:
+        warnings.warn("Depreceated to use `ZFIT_MODE_GRAPH`, use `ZFIT_GRAPH_MODE` instead.",
+                      DeprecationWarning)
 
     if not arg1 is None and arg2 is None:
-        warnings.warn("Depreceated to use `ZFIT_EXPERIMENTAL_DO_JIT`, use `ZFIT_MODE_GRAPH` instead.")
+        warnings.warn("Depreceated to use `ZFIT_EXPERIMENTAL_DO_JIT`, use `ZFIT_GRAPH_MODE` instead.",
+                      DeprecationWarning)
     arg = arg2 if arg1 is None else arg1
     if arg is not None:
-        run.set_mode(graph=bool(int(arg)))
+        run.set_graph_mode(bool(int(arg)))
 
-    graph = os.environ.get("ZFIT_MODE_GRAPH")
+    graph = os.environ.get("ZFIT_GRAPH_MODE")
     if graph is not None:
-        run.set_mode(graph=bool(int(graph)))
+        run.set_graph_mode(bool(int(graph)))
 
 
 # experimental flags

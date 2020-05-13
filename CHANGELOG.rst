@@ -28,6 +28,29 @@ Requirement changes
 Thanks
 ------
 
+0.5.2 (13.05.2020)
+==================
+
+
+Major Features and Improvements
+-------------------------------
+- Python 3.8 and TF 2.2 support
+- easier debugigng with `set_graph_mode` that can also be used temporarily
+  with a context manager. False will make everything execute Numpy-like.
+
+Bug fixes and small changes
+---------------------------
+- added `get_params` to loss
+- fix a bug with the `fixed_params` when creating a sampler
+- improve exponential PDF stability and shift when normalized
+- improve accept reject sampling to account for low statistics
+
+
+Requirement changes
+-------------------
+
+- TensorFlow >= 2.2
+
 0.5.1 (24.04.2020)
 ==================
 (0.5.0 was skipped)

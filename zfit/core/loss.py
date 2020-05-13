@@ -2,22 +2,22 @@
 
 import abc
 import warnings
-from typing import Optional, Union, List, Callable, Iterable, Tuple
+from typing import Optional, Union, List, Callable, Iterable, Tuple, Set
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-from .baseobject import BaseObject
-from .constraint import BaseConstraint, SimpleConstraint
-from .dependents import BaseDependentsMixin, _extract_dependencies
+from .baseobject import BaseNumeric
+from .constraint import BaseConstraint
+from .dependents import _extract_dependencies
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
 from .. import z, settings
 from ..util import ztyping
-from ..util.cache import GraphCachable
 from ..util.checks import NOT_SPECIFIED
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
     BreakingAPIChangeError
+from ..util.warnings import warn_advanced_feature
 from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
     automatic_value_gradients_hessian, numerical_value_gradients_hessian
 
@@ -46,22 +46,20 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
         log_probs = tf.math.log(probs)
-        if data.weights is not None:
-            log_probs *= data.weights  # because it's prob ** weights
-        nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
+        nll = _nll_calc_unbinned_tf(log_probs=log_probs,
+                                    weights=data.weights if data.weights is not None else None)
         nll_finished = nll
     return nll_finished
 
 
-def _nll_constraints_tf(constraints):
-    if not constraints:
-        return z.constant(0.)  # adding 0 to nll
-    probs = []
-    for param, dist in constraints.items():
-        probs.append(dist.pdf(param))
-    # probs = [dist.pdf(param) for param, dist in constraints.items()]
-    constraints_neg_log_prob = -tf.reduce_sum(input_tensor=tf.math.log(probs))
-    return constraints_neg_log_prob
+@z.function
+def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
+    if weights is not None:
+        log_probs *= weights  # because it's prob ** weights
+    if log_offset:
+        log_probs -= log_offset
+    nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
+    return nll
 
 
 def _constraint_check_convert(constraints):
@@ -70,11 +68,13 @@ def _constraint_check_convert(constraints):
         if isinstance(constr, BaseConstraint):
             checked_constraints.append(constr)
         else:
-            checked_constraints.append(SimpleConstraint(func=lambda: constr))
+            raise BreakingAPIChangeError("Constraints have to be of type `Constraint`, a simple"
+                                         " constraint from a function can be constructed with"
+                                         " `SimpleConstraint`.")
     return checked_constraints
 
 
-class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
+class BaseLoss(ZfitLoss, BaseNumeric):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
                  fit_range: ztyping.LimitsTypeInput = None,
@@ -94,7 +94,7 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
             constraints (Iterable[tf.Tensor): A Tensor representing a loss constraint. Using
                 `zfit.constraint.*` allows for easy use of predefined constraints.
         """
-        super().__init__(name=type(self).__name__)
+        super().__init__(name=type(self).__name__, params={})
         if fit_range is not None:
             warnings.warn("The fit_range argument is depreceated and will maybe removed in future releases. "
                           "It is preferred to define the range in the space"
@@ -113,6 +113,20 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
         super().__init_subclass__(**kwargs)
         cls._name = "UnnamedSubBaseLoss"
 
+    def _get_params(self,
+                    floating: Optional[bool] = True,
+                    is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        params = OrderedSet()
+        params = params.union(*(model.get_params(floating=floating, is_yield=False,
+                                                 extract_independent=extract_independent)
+                                for model in self.model))
+
+        params = params.union(*(constraint.get_params(floating=floating, is_yield=False,
+                                                      extract_independent=extract_independent)
+                                for constraint in self.constraints))
+        return params
+
     def _input_check(self, pdf, data, fit_range):
         if is_container(pdf) ^ is_container(data):
             raise ValueError("`pdf` and `data` either both have to be a list or not.")
@@ -130,24 +144,22 @@ class BaseLoss(BaseDependentsMixin, ZfitLoss, GraphCachable, BaseObject):
         if fit_range is None:
             fit_range = []
             for p, d in zip(pdf, data):
+                non_consistent = {'data': [], 'model': [], 'range': []}
                 if not p.norm_range == d.data_range:
-                    raise IntentionAmbiguousError(f"No `fit_range` is specified and `pdf` {p} as "
-                                                  f"well as `data` {d} have different ranges they "
-                                                  f"are defined in. Either make them (all) consistent "
-                                                  f"or specify the `fit_range`")
+                    non_consistent['data'].append(d)
+                    non_consistent['model'].append(p)
+                    non_consistent['range'].append((p.norm_range, d.data_range))
                 fit_range.append(p.norm_range)
+            if non_consistent['range']:  # TODO: test
+                warn_advanced_feature(f"PDFs {non_consistent['model']} as "
+                                      f"well as `data` {non_consistent['data']}"
+                                      f" have different ranges {non_consistent['range']} they"
+                                      f" are defined in. The data range will cut the data while the"
+                                      f" norm range defines the normalization.",
+                                      identifier='inconsistent_fitrange')
         else:
             fit_range = convert_to_container(fit_range, non_containers=[tuple])
 
-        # simultaneous fit
-        # if is_container(pdf):
-        # if not is_container(fit_range) or not isinstance(fit_range[0], Space):
-        #     raise ValueError(
-        #         "If several pdfs are specified, the `fit_range` has to be given as a list of `Space` "
-        #         "objects and not as pure tuples.")
-
-        # else:
-        #     fit_range = pdf.convert_sort_space(limits=fit_range)  # fit_range may be a tuple
         if not len(pdf) == len(data) == len(fit_range):
             raise ValueError("pdf, data and fit_range don't have the same number of components:"
                              "\npdf: {}"
@@ -344,20 +356,8 @@ class UnbinnedNLL(BaseLoss):
 
     @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
-        # with tf.GradientTape(persistent=True) as tape:
         nll = self._loss_func_watched(constraints, data, fit_range, model)
 
-        # variables = tape.watched_variables()
-        # gradients = tape.gradient(nll, sources=variables)
-        # if any(grad is None for grad in tf.unstack(gradients, axis=0)):
-        #     none_dict = {var: grad for var, grad in zip(variables, tf.unstack(gradients, axis=0)) if grad is None}
-        #     raise LogicalUndefinedOperationError(f"One or more gradients are None and therefore the function does not"
-        #                                          f" depend on them:"
-        #                                          f" {none_dict}")
-        # for param, grad in zip(variables, gradients):
-        # if param in self.computed_gradients:
-        #     continue
-        # self.computed_gradients[param] = grad
         return nll
 
     @z.function(wraps='loss')
@@ -380,31 +380,42 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
     @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
         nll = super()._loss_func(model=model, data=data, fit_range=fit_range, constraints=constraints)
-        poisson_terms = []
+        yields = []
+        nevents_collected = []
         for mod, dat in zip(model, data):
             if not mod.is_extended:
                 raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
             nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
-            poisson_terms.append(-mod.get_yield() + z.to_real(nevents) * tf.math.log(mod.get_yield()))
-        nll -= tf.reduce_sum(input_tensor=poisson_terms)
+            nevents = tf.cast(nevents, tf.float64)
+            nevents_collected.append(nevents)
+            yields.append(mod.get_yield())
+        yields = tf.stack(yields, axis=0)
+        nevents_collected = tf.stack(nevents_collected, axis=0)
+
+        term_new = tf.nn.log_poisson_loss(nevents_collected, tf.math.log(yields))
+        nll += tf.reduce_sum(term_new, axis=0)
         return nll
 
 
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, dependents: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
+    def __init__(self, func: Callable, deps: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
+                 dependents: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
                  errordef: Optional[float] = None):
-        """Loss from a (function returning a ) Tensor.
+        """Loss from a (function returning a) Tensor.
 
         Args:
             func: Callable that constructs the loss and returns a tensor.
-            dependents: The dependents (independent `zfit.Parameter`) of the loss. If not given, the dependents are
+            deps: The dependents (independent `zfit.Parameter`) of the loss. If not given, the dependents are
                 figured out automatically.
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
         """
-        if dependents is NOT_SPECIFIED:  # depreceation
+        if dependents is not NOT_SPECIFIED:
+            warnings.warn("`dependents` is deprecated and will be removed in the future, use `deps`"
+                          " instead as a keyword.")
+        if deps is NOT_SPECIFIED:  # depreceation
             raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
                                          "More information can be found in the upgrade guide on the website.")
 
@@ -416,14 +427,20 @@ class SimpleLoss(BaseLoss):
         self._simple_errordef = errordef
         self._errordef = errordef
         self.computed_gradients = {}
-        dependents = convert_to_container(dependents, container=OrderedSet)
-        self._simple_func_dependents = _extract_dependencies(dependents)
+        deps = convert_to_container(deps, container=OrderedSet)
+        self._simple_func_deps = _extract_dependencies(deps)
 
         super().__init__(model=[], data=[], fit_range=[])
 
     def _get_dependencies(self):
-        dependents = self._simple_func_dependents
+        dependents = self._simple_func_deps
         return dependents
+
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        params = super()._get_params(floating, is_yield, extract_independent)
+        params = params.union(self._simple_func_deps)
+        return params
 
     @property
     def errordef(self):

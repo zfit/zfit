@@ -102,9 +102,11 @@ def test_unbinned_simultaneous_nll():
     nll_object = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
                                        data=[test_values, test_values2],
                                        )
-    minimizer = Minuit()
+    minimizer = Minuit(tolerance=1e-5)
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1, mu2, sigma2])
     params = status.params
+    assert set(nll_object.get_params()) == {mu1, mu2, sigma1, sigma2}
+
     assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
     assert params[mu2]['value'] == pytest.approx(np.mean(test_values_np2), rel=0.005)
     assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
@@ -146,6 +148,7 @@ def test_unbinned_nll(weights, sigma):
 def test_add():
     param1 = zfit.Parameter("param1", 1.)
     param2 = zfit.Parameter("param2", 2.)
+    param3 = zfit.Parameter("param3", 2.)
 
     pdfs = [0] * 4
     pdfs[0] = Gauss(param1, 4, obs=obs1)
@@ -166,7 +169,7 @@ def test_add():
     ranges[3] = Space(limits=(4, 7), obs=obs1)
 
     constraint1 = zfit.constraint.nll_gaussian(params=param1, observation=1., uncertainty=0.5)
-    constraint2 = zfit.constraint.nll_gaussian(params=param2, observation=2., uncertainty=0.25)
+    constraint2 = zfit.constraint.nll_gaussian(params=param3, observation=2., uncertainty=0.25)
     merged_contraints = [constraint1, constraint2]
 
     nll1 = UnbinnedNLL(model=pdfs[0], data=datas[0], fit_range=ranges[0], constraints=constraint1)
@@ -189,6 +192,7 @@ def test_add():
         return z.reduce_sum([c.value() for c in constraints]).numpy()
 
     assert eval_constraint(simult_nll.constraints) == eval_constraint(merged_contraints)
+    assert set(simult_nll.get_params()) == {param1, param2, param3}
 
 
 # @pytest.mark.xfail  # TODO(TF2): grads not supported, use numerical ones? Or calculate on the fly?
@@ -199,7 +203,7 @@ def test_gradients(chunksize):
     zfit.run.chunking.max_n_points = chunksize
 
     initial1 = 1.
-    initial2 = 2;
+    initial2 = 2
     param1 = zfit.Parameter("param1", initial1)
     param2 = zfit.Parameter("param2", initial2)
 
@@ -254,12 +258,12 @@ def test_simple_loss():
                                     + (c_param - true_c) ** 4) + 0.42
         return tf.reduce_sum(input_tensor=tf.math.log(probs))
 
-    loss_deps = zfit.loss.SimpleLoss(func=loss_func, dependents=param_list)
+    loss_deps = zfit.loss.SimpleLoss(func=loss_func, deps=param_list)
     # loss = zfit.loss.SimpleLoss(func=loss_func)
-    loss = zfit.loss.SimpleLoss(func=loss_func, dependents=param_list)
+    loss = zfit.loss.SimpleLoss(func=loss_func, deps=param_list)
 
     assert loss_deps.get_cache_deps() == set(param_list)
-    # assert loss.get_dependents() == set(param_list)  # TODO: uncomment if auto deps available again?
+    assert set(loss_deps.get_params()) == set(param_list)
 
     loss_tensor = loss_func()
     loss_value_np = loss_tensor.numpy()

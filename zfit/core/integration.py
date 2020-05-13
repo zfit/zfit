@@ -24,7 +24,7 @@ from ..util.exception import WorkInProgressError, AnalyticIntegralNotImplemented
 
 
 @supports()
-def auto_integrate(func, limits, n_axes, x=None, method="AUTO", dtype=ztypes.float,
+def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztypes.float,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
                    mc_options=None):
     if method == "AUTO":  # TODO unfinished, other methods?
@@ -485,13 +485,10 @@ class AnalyticIntegral:
             raise AnalyticIntegralNotImplementedError(
                 f"Integral is available for axes {axes}, but not for limits {limits}")
 
-        if x is None:
-            try:
-                integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params, model=model)
-            except TypeError:
-                integral = integral_fn(limits=limits, norm_range=norm_range, params=params, model=model)
-        else:
+        try:
             integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params, model=model)
+        except TypeError:
+            integral = integral_fn(limits=limits, norm_range=norm_range, params=params, model=model)
         return integral
 
 
