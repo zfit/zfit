@@ -3,6 +3,7 @@
 from typing import Callable, Union, Iterable, List, Optional, Tuple
 
 import tensorflow as tf
+from tensorflow_probability import distributions as tfd
 
 import zfit
 from zfit import z
@@ -118,11 +119,12 @@ class EventSpace(Space):
         return id(self)
 
 
+# TODO: estimate maximum initially?
 @z.function(wraps='sample')
 def accept_reject_sample(prob: Callable, n: int, limits: Space,
                          sample_and_weights_factory: Callable = UniformSampleAndWeights,
                          dtype=ztypes.float, prob_max: Union[None, int] = None,
-                         efficiency_estimation: float = 1.0) -> tf.Tensor:
+                         efficiency_estimation: float = 0.5) -> tf.Tensor:
     """Accept reject sample from a probability distribution.
 
     Args:
@@ -163,7 +165,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     Returns:
         tf.Tensor:
     """
+    prob_max_init = prob_max
     multiple_limits = len(limits) > 1
+    overestimate_factor_scaling = 1.25
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.cast(n, dtype=tf.int32)
@@ -194,11 +198,13 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                             element_shape=(limits.n_obs,))
 
     @z.function(wraps='tensor')
-    def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling):
+    def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling,
+                            weights_maximum, prob_maximum):
         return tf.greater(n, n_produced)
 
     @z.function(wraps='tensor')
-    def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.):
+    def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.,
+                    weights_maximum=0., prob_maximum=0.):
         eff = tf.reduce_max(input_tensor=[eff, ztf.to_real(1e-6)])
 
         n_to_produce = n - n_produced
@@ -246,20 +252,20 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         if run.numeric_checks:
             tf.debugging.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)
 
-        probabilities = tf.identity(probabilities)
-        if prob_max is None or weights_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
-            # TODO(Mayou36): This control dependency is needed because otherwise the max won't be determined
-            # correctly. A bug report on will be filled (WIP).
-            # The behavior is very odd: if we do not force a kind of copy, the `reduce_max` returns
-            # a value smaller by a factor of 1e-14
-            # UPDATE: this works now? Was it just a one-time bug?
+        if prob_max_init is None or weights_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
 
             # safety margin, predicting future, improve for small samples?
-            weights_maximum = tf.reduce_max(input_tensor=weights)
+            weights_maximum_new = tf.reduce_max(input_tensor=weights)
+            weights_maximum = tf.maximum(weights_maximum, weights_maximum_new)
+            # if run.numeric_checks:
+            #     tf.debugging.assert_greater_equal(weights, weights_maximum * 1e-5, message="The ")
             weights_clipped = tf.maximum(weights, weights_maximum * 1e-5)
             # prob_weights_ratio = probabilities / weights
-            prob_weights_ratio = probabilities / weights_clipped
-            max_prob_weights_ratio = tf.reduce_max(input_tensor=prob_weights_ratio)
+            prob_maximum_new = tf.reduce_max(probabilities)
+            prob_maximum = tf.maximum(prob_maximum, prob_maximum_new)
+            # prob_weights_ratio = probabilities / weights_clipped
+            prob_weights_ratio_max = tf.reduce_max(probabilities / weights_clipped)
+            max_prob_weights_ratio = tf.maximum(prob_maximum / weights_maximum, prob_weights_ratio_max)
             # clipping means that we don't scale more for a certain threshold
             # to properly account for very small numbers, the thresholds should be scaled to match the ratio
             # but if a weight of a sample is very low (compared to the other weights), this would force the acceptance
@@ -268,8 +274,25 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # TODO(Mayou36): make ratio_threshold a global setting
             # max_prob_weights_ratio_clipped = tf.minimum(max_prob_weights_ratio,
             #                                             min_prob_weights_ratio * ratio_threshold)
-            max_prob_weights_ratio_clipped = max_prob_weights_ratio
-            weights_scaling = tf.maximum(weights_scaling, max_prob_weights_ratio_clipped * (1 + 1e-2))
+            # max_prob_weights_ratio_clipped = max_prob_weights_ratio
+            new_scaling_needed = max_prob_weights_ratio > weights_scaling
+            old_scaling = weights_scaling
+            weights_scaling = tf.cond(new_scaling_needed,
+                                      lambda: max_prob_weights_ratio * overestimate_factor_scaling,
+                                      lambda: weights_scaling)
+
+            def calc_new_n_produced():
+                n_produced_float = tf.cast(n_produced, dtype=ztypes.float)
+                binomial = tfd.Binomial(n_produced_float, probs=old_scaling / weights_scaling)
+                return tf.cast(tf.round(binomial.sample()), dtype=tf.int32)
+
+            n_produced = tf.cond(new_scaling_needed,
+                                 calc_new_n_produced,
+                                 lambda: n_produced)
+            # TODO: for fixed array shape?
+            # weights_scaling = tf.maximum(max_prob_weights_ratio, weights_scaling)
+
+            # weights_scaling = tf.maximum(weights_scaling, max_prob_weights_ratio_clipped * (1 + 1e-2))
         else:
             weights_scaling = prob_max / weights_max
 
@@ -332,12 +355,17 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         # efficiency (estimate) of how many samples we get
         eff = tf.reduce_max(input_tensor=[ztf.to_real(n_produced_new), ztf.to_real(1.)]) / tf.reduce_max(
             input_tensor=[ztf.to_real(n_total_drawn), ztf.to_real(1.)])
-        return n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled, weights_scaling
+        return (
+            n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled, weights_scaling, weights_maximum,
+            prob_maximum)
 
     efficiency_estimation = ztf.to_real(efficiency_estimation)
     weights_scaling = ztf.constant(0.)
+    weights_maximum = ztf.constant(0.)
+    prob_maximum = ztf.constant(0.)
     loop_vars = (
-        n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled, weights_scaling)
+        n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled, weights_scaling,
+        weights_maximum, prob_maximum)
 
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
                                  loop_vars=loop_vars,
