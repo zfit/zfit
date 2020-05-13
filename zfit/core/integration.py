@@ -24,7 +24,7 @@ from ..util.exception import WorkInProgressError, AnalyticIntegralNotImplemented
 
 
 @supports()
-def auto_integrate(func, limits, n_axes, x=None, method="AUTO", dtype=ztypes.float,
+def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztypes.float,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
                    mc_options=None):
     if method == "AUTO":  # TODO unfinished, other methods?
