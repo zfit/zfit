@@ -110,7 +110,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         return tfd_analytic_sample(n=n, dist=self.distribution, limits=limits)
 
 
-class KernelDensity(WrapDistribution):
+class KernelDensityTFP(WrapDistribution):
 
     def __init__(self, loc: ztyping.ParamTypeInput, scale: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
                  kernel: tfp.distributions.Distribution = tfp.distributions.Normal,
