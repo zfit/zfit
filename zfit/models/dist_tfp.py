@@ -171,12 +171,20 @@ class KernelDensityTFP(WrapDistribution):
         return integral  # TODO: generalize for VectorSpaces
 
 
+# class GaussianKDE1DimExactV1(KernelDensityTFP):
+#     _N_OBS = 1
+#
+#     def __init__(self, data: ztyping.ParamTypeInput, bandwidth: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
+#                  weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "GaussianKDE1DimV1"):
+#         super().__init__(data, bandwidth, obs, kernel=tfp.distributions.Normal, weights=weights, name=name)
+
+
 class Gauss(WrapDistribution):
     _N_OBS = 1
 
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
                  name: str = "Gauss"):
-        """Gaussian or Normal distribution with a mean (mu) and a standartdevation (sigma).
+        """Gaussian or Normal distribution with a mean (mu) and a standartdeviation (sigma).
 
         The gaussian shape is defined as
 
