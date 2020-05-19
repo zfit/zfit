@@ -49,7 +49,7 @@ and well integrated into `scikit-hep <https://scikit-hep.org/>`_, the HEP Python
   related content
 
 
-If you use zfit in research, please consider `citing <https://arxiv.org/abs/1910.13429>`_.
+If you use zfit in **research**, please consider `citing <https://www.sciencedirect.com/science/article/pii/S2352711019303851>`_.
 
 *N.B.*: zfit is currently in *beta stage*, so while most core parts are established, some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
