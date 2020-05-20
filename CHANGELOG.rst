@@ -12,13 +12,14 @@ Major Features and Improvements
 Breaking changes
 ------------------
 
-Depreceations
+Deprecations
 -------------
 
 
 Bug fixes and small changes
 ---------------------------
 - fix color wrong in printout of results, params
+- add correlation method to FitResult
 
 Experimental
 ------------
@@ -122,7 +123,7 @@ Breaking changes
 - Integrals of extended PDFs are not extended anymore, but `ext_integrate` now returns the
   integral multiplied by the yield.
 
-Depreceations
+Deprecations
 -------------
 - `ComposedParameter` takes now `params` instead of `dependents` as argument, it acts now as
   the arguments to the `value_fn`. To stay future compatible, create e.g. `def value_fn(p1, pa2)`
