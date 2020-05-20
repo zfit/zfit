@@ -452,7 +452,7 @@ def format_value(value, highprec=True):
         if 'error' in value:
             value = value['error']
             value = f"{value:> 6.2g}"
-            value = f'+/-{" " * (7 - len(value))}' + value
+            value = f'+/-{" " * (8 - len(value))}' + value
         if 'lower' in value and 'upper' in value:
             lower = value['lower']
             upper = value['upper']
