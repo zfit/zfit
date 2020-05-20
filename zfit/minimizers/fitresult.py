@@ -358,7 +358,7 @@ class FitResult(ZfitResult):
             Args:
                 params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
                     the covariance matrix. If `params` is `None`, use all *floating* parameters.
-                method (str or Callbel): The method to use to calculate the covariance matrix. Valid choices are
+                method (str or Callable): The method to use to calculate the covariance matrix. Valid choices are
                     {'minuit_hesse', 'hesse_np'} or a Callable.
                 as_dict (bool): Default `False`. If `True` then returns a dictionnary.
 
@@ -393,6 +393,29 @@ class FitResult(ZfitResult):
 
         params = list(self.params.keys())
         return method(result=self, params=params)
+
+    def correlation(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
+        """Calculate the correlation matrix for `params`.
+
+            Args:
+                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
+                    the correlation matrix. If `params` is `None`, use all *floating* parameters.
+                method (str or Callable): The method to use to calculate the correlation matrix. Valid choices are
+                    {'minuit_hesse', 'hesse_np'} or a Callable.
+                as_dict (bool): Default `False`. If `True` then returns a dictionnary.
+
+            Returns:
+                2D `numpy.array` of shape (N, N);
+                `dict`(param1, param2) -> correlation if `as_dict == True`.
+        """
+
+        covariance = self.covariance(params=params, method=method, as_dict=False)
+        correlation = covariance_to_correlation(covariance)
+
+        if as_dict:
+            return matrix_to_dict(params, correlation)
+        else:
+            return correlation
 
     def __str__(self):
         string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
@@ -440,6 +463,11 @@ def matrix_to_dict(params, matrix):
                 matrix_dict[(pj, pi)] = matrix[i, j]
 
     return matrix_dict
+
+
+def covariance_to_correlation(covariance):
+    diag = np.diag(1 / np.diag(covariance) ** 0.5)
+    return np.matmul(diag, np.matmul(covariance, diag))
 
 
 def format_value(value, highprec=True):
