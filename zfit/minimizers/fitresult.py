@@ -399,8 +399,8 @@ class FitResult(ZfitResult):
         string += tabulate(
             [[color_on_bool(self.converged), format_value(self.edm, highprec=False),
               format_value(self.fmin)]],
-            ['converged', 'edm', 'min value'], tablefmt='fancy_grid'
-        )
+            ['converged', 'edm', 'min value'], tablefmt='fancy_grid',
+            disable_numparse=True)
         string += '\n\n' + Style.BRIGHT + "Parameters\n" + Style.NORMAL
         string += str(self.params)
         return string
@@ -496,5 +496,5 @@ class ParamHolder(dict):  # no UserDict, we only want to change the __str__
             rows.append(row)
 
         order_keys = ['name'] + list(order_keys) + ['at limit']
-        table = tabulate(rows, order_keys)
+        table = tabulate(rows, order_keys, numalign="right")
         return table
