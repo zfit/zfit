@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.3.dev5+gfca9cad documentation</title>
+    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.3.dev6+gc8f9df0 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev5</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev6</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -672,8 +672,8 @@
         <span class="n">string</span> <span class="o">+=</span> <span class="n">tabulate</span><span class="p">(</span>
             <span class="p">[[</span><span class="n">color_on_bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">),</span> <span class="n">format_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edm</span><span class="p">,</span> <span class="n">highprec</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
               <span class="n">format_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmin</span><span class="p">)]],</span>
-            <span class="p">[</span><span class="s1">&#39;converged&#39;</span><span class="p">,</span> <span class="s1">&#39;edm&#39;</span><span class="p">,</span> <span class="s1">&#39;min value&#39;</span><span class="p">],</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;fancy_grid&#39;</span>
-        <span class="p">)</span>
+            <span class="p">[</span><span class="s1">&#39;converged&#39;</span><span class="p">,</span> <span class="s1">&#39;edm&#39;</span><span class="p">,</span> <span class="s1">&#39;min value&#39;</span><span class="p">],</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s1">&#39;fancy_grid&#39;</span><span class="p">,</span>
+            <span class="n">disable_numparse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">string</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">+</span> <span class="s2">&quot;Parameters</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">NORMAL</span>
         <span class="n">string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">string</span>
@@ -769,7 +769,7 @@
             <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
         <span class="n">order_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">order_keys</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;at limit&#39;</span><span class="p">]</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">order_keys</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">order_keys</span><span class="p">,</span> <span class="n">numalign</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">table</span></div>
 </pre></div>
 
