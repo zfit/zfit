@@ -154,13 +154,14 @@ def test_correlation(minimizer_class_and_kwargs):
 
     cor_mat = result.correlation(params=[a, b, c])
     cov_mat = result.covariance(params=[a, b, c])
+    cor_dict = result.correlation(params=[a, b], as_dict=True)
 
     np.testing.assert_allclose(np.diag(cor_mat), 1.0)
 
     a_error = hesse[a]['error']
     b_error = hesse[b]['error']
     assert pytest.approx(cor_mat[0, 1], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
-
+    assert pytest.approx(cor_dict[(a, b)], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_errors(minimizer_class_and_kwargs):
