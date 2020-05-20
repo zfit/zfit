@@ -1,6 +1,7 @@
 #  Copyright (c) 2020 zfit
 import contextlib
 import itertools
+import math
 import warnings
 from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional, Tuple
@@ -492,7 +493,7 @@ def format_value(value, highprec=True):
             upper = value['upper']
             lower_sign = f"{np.sign(lower): >+}"[0]
             upper_sign = f"{np.sign(upper): >+}"[0]
-            lower, upper = f"{lower: >6.2g}"[1:], f"{upper: >6.2g}"
+            lower, upper = f"{np.abs(lower): >6.2g}", f"{upper: >6.2g}"
             lower = lower_sign + " " * (7 - len(lower)) + lower
             upper = upper_sign + " " * (7 - len(upper)) + upper
             # lower += " t" * (11 - len(lower))
