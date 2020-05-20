@@ -142,6 +142,26 @@ def test_covariance(minimizer_class_and_kwargs):
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)
 
 
+@pytest.mark.flaky(reruns=3)
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+def test_correlation(minimizer_class_and_kwargs):
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results['result']
+    hesse = result.hesse()
+    a = results['a_param']
+    b = results['b_param']
+    c = results['c_param']
+
+    cor_mat = result.correlation(params=[a, b, c])
+    cov_mat = result.covariance(params=[a, b, c])
+
+    np.testing.assert_allclose(np.diag(cor_mat), 1.0)
+
+    a_error = hesse[a]['error']
+    b_error = hesse[b]['error']
+    assert pytest.approx(cor_mat[0, 1], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
+
+
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_errors(minimizer_class_and_kwargs):
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
