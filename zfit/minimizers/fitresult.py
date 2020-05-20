@@ -417,7 +417,7 @@ class FitResult(ZfitResult):
         else:
             return correlation
 
-    def __str__(self):
+    def get_str(self, tablefmt="simple"):
         string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
         string += tabulate(
             [[color_on_bool(self.converged), format_value(self.edm, highprec=False),
@@ -428,11 +428,17 @@ class FitResult(ZfitResult):
         string += str(self.params)
         return string
 
+    def __str__(self):
+        return self.get_str()
+
     def _repr_pretty_(self, p, cycle):
         if cycle:
             p.text(self.__repr__())
             return
         p.text(self.__str__())
+
+    def  _repr_html_(self):
+        pass
 
 
 def dict_to_matrix(params, matrix_dict):
