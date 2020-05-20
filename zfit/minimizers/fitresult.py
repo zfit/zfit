@@ -479,13 +479,18 @@ def format_value(value, highprec=True):
     if isinstance(value, (dict, m_error_class)):
         if 'error' in value:
             value = value['error']
-            value = f"+/- {value:> 6.2g}"
+            value = f"{value:> 6.2g}"
+            value = f'+/-{" " * (7 - len(value))}' + value
         if 'lower' in value and 'upper' in value:
             lower = value['lower']
             upper = value['upper']
-            lower, upper = f"{lower: >+6.2g}", f"{upper: >+6.2g}"
-            lower += " " * (9 - len(lower))
-            value = lower + upper
+            lower_sign = f"{np.sign(lower): >+}"[0]
+            upper_sign = f"{np.sign(upper): >+}"[0]
+            lower, upper = f"{lower: >6.2g}"[1:], f"{upper: >6.2g}"
+            lower = lower_sign + " " * (7 - len(lower)) + lower
+            upper = upper_sign + " " * (7 - len(upper)) + upper
+            # lower += " t" * (11 - len(lower))
+            value = lower + " " * 3 + upper
 
     if isinstance(value, float):
         if highprec:
@@ -524,5 +529,5 @@ class ParamHolder(dict):  # no UserDict, we only want to change the __str__
             rows.append(row)
 
         order_keys = ['name'] + list(order_keys) + ['at limit']
-        table = tabulate(rows, order_keys, numalign="right")
+        table = tabulate(rows, order_keys, numalign="right", stralign='right', colalign=('left',))
         return table
