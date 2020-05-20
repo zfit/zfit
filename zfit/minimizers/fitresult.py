@@ -8,6 +8,7 @@ from typing import Dict, Union, Callable, Optional, Tuple
 import colored
 import numpy as np
 from colorama import Style
+from colorama import init
 from ordered_set import OrderedSet
 from tabulate import tabulate
 
@@ -20,6 +21,8 @@ from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
 from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
+
+init(autoreset=True)
 
 
 def _minos_minuit(result, params, sigma=1.0):
@@ -471,7 +474,7 @@ def color_on_bool(value, on_true=colored.bg(10), on_false=colored.bg(9)):
         value_add = on_true
     else:
         value_add = ''
-    value = value_add + str(value) + colored.bg(15)
+    value = value_add + str(value) + Style.RESET_ALL
     return value
 
 

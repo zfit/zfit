@@ -18,6 +18,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- fix color wrong in printout of results, params
 
 Experimental
 ------------
