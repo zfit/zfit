@@ -1,7 +1,6 @@
 #  Copyright (c) 2020 zfit
 import contextlib
 import itertools
-import math
 import warnings
 from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional, Tuple
@@ -414,11 +413,12 @@ class FitResult(ZfitResult):
         correlation = covariance_to_correlation(covariance)
 
         if as_dict:
+            params = self._input_check_params(params)
             return matrix_to_dict(params, correlation)
         else:
             return correlation
 
-    def get_str(self, tablefmt="simple"):
+    def __str__(self):
         string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
         string += tabulate(
             [[color_on_bool(self.converged), format_value(self.edm, highprec=False),
@@ -429,17 +429,11 @@ class FitResult(ZfitResult):
         string += str(self.params)
         return string
 
-    def __str__(self):
-        return self.get_str()
-
     def _repr_pretty_(self, p, cycle):
         if cycle:
             p.text(self.__repr__())
             return
         p.text(self.__str__())
-
-    def  _repr_html_(self):
-        pass
 
 
 def dict_to_matrix(params, matrix_dict):
@@ -493,7 +487,7 @@ def format_value(value, highprec=True):
             upper = value['upper']
             lower_sign = f"{np.sign(lower): >+}"[0]
             upper_sign = f"{np.sign(upper): >+}"[0]
-            lower, upper = f"{np.abs(lower): >6.2g}", f"{upper: >6.2g}"
+            lower, upper = f"{lower: >6.2g}"[1:], f"{upper: >6.2g}"
             lower = lower_sign + " " * (7 - len(lower)) + lower
             upper = upper_sign + " " * (7 - len(upper)) + upper
             # lower += " t" * (11 - len(lower))
