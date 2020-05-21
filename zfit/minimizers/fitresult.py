@@ -421,9 +421,12 @@ class FitResult(ZfitResult):
     def __str__(self):
         string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
         string += tabulate(
-            [[color_on_bool(self.converged), format_value(self.edm, highprec=False),
+            [[color_on_bool(self.valid), color_on_bool(self.converged, on_true=False),
+              color_on_bool(self.params_at_limit, on_true=colored.bg(9), on_false=False),
+              format_value(self.edm, highprec=False),
               format_value(self.fmin)]],
-            ['converged', 'edm', 'min value'], tablefmt='fancy_grid',
+            ['valid', 'converged', 'param at limit', 'edm', 'min value'],
+            tablefmt='fancy_grid',
             disable_numparse=True)
         string += '\n\n' + Style.BRIGHT + "Parameters\n" + Style.NORMAL
         string += str(self.params)

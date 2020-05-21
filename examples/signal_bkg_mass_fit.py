@@ -42,5 +42,5 @@ print(result)
 
 # do the error calculations, here with minos
 param_hesse = result.hesse()
-param_errors, _ = result.errors()
+param_errors, new_result = result.errors()
 print(result.params)
