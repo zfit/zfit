@@ -41,6 +41,6 @@ result = minimizer.minimize(nll)
 print(result)
 
 # do the error calculations, here with minos
-param_errors = result.hesse()
-param_errors = result.errors()
+param_hesse = result.hesse()
+param_errors, _ = result.errors()
 print(result.params)

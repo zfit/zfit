@@ -68,7 +68,7 @@ minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
 
 # do the error calculations, here with minos
-param_errors = result.errors()
+param_errors, _ = result.errors()
 
 plt.figure()
 plt.title("After fitting")
