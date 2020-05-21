@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Changelog &#8212; zfit 0.5.3.dev9+gad7b699 documentation</title>
+    <title>Changelog &#8212; zfit 0.5.3.dev20+gca31560 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev9</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev20</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -130,7 +130,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#major-features-and-improvements">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#breaking-changes">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#depreceations">Depreceations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deprecations">Deprecations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#experimental">Experimental</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#requirement-changes">Requirement changes</a></li>
@@ -146,7 +146,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id5">0.5.1 (24.04.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id6">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id7">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id8">Depreceations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">Deprecations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id9">Bug fixes and small changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id10">Experimental</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id11">Requirement changes</a></li>
@@ -248,7 +248,7 @@
 <li><a class="reference internal" href="#develop">Develop</a><ul>
 <li><a class="reference internal" href="#major-features-and-improvements">Major Features and Improvements</a></li>
 <li><a class="reference internal" href="#breaking-changes">Breaking changes</a></li>
-<li><a class="reference internal" href="#depreceations">Depreceations</a></li>
+<li><a class="reference internal" href="#deprecations">Deprecations</a></li>
 <li><a class="reference internal" href="#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
 <li><a class="reference internal" href="#experimental">Experimental</a></li>
 <li><a class="reference internal" href="#requirement-changes">Requirement changes</a></li>
@@ -264,7 +264,7 @@
 <li><a class="reference internal" href="#id5">0.5.1 (24.04.2020)</a><ul>
 <li><a class="reference internal" href="#id6">Major Features and Improvements</a></li>
 <li><a class="reference internal" href="#id7">Breaking changes</a></li>
-<li><a class="reference internal" href="#id8">Depreceations</a></li>
+<li><a class="reference internal" href="#id8">Deprecations</a></li>
 <li><a class="reference internal" href="#id9">Bug fixes and small changes</a></li>
 <li><a class="reference internal" href="#id10">Experimental</a></li>
 <li><a class="reference internal" href="#id11">Requirement changes</a></li>
@@ -373,13 +373,14 @@
 <div class="section" id="breaking-changes">
 <h3>Breaking changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
 </div>
-<div class="section" id="depreceations">
-<h3>Depreceations<a class="headerlink" href="#depreceations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="deprecations">
+<h3>Deprecations<a class="headerlink" href="#deprecations" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="bug-fixes-and-small-changes">
 <h3>Bug fixes and small changes<a class="headerlink" href="#bug-fixes-and-small-changes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>fix color wrong in printout of results, params</p></li>
+<li><p>add correlation method to FitResult</p></li>
 </ul>
 </div>
 <div class="section" id="experimental">
@@ -485,7 +486,7 @@ integral multiplied by the yield.</p></li>
 </ul>
 </div>
 <div class="section" id="id8">
-<h3>Depreceations<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<h3>Deprecations<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>ComposedParameter</cite> takes now <cite>params</cite> instead of <cite>dependents</cite> as argument, it acts now as
 the arguments to the <cite>value_fn</cite>. To stay future compatible, create e.g. <cite>def value_fn(p1, pa2)</cite>

@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>fitresult &#8212; zfit 0.5.3.dev9+gad7b699 documentation</title>
+    <title>fitresult &#8212; zfit 0.5.3.dev20+gca31560 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev9</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev20</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -128,7 +128,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#develop">Develop</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#depreceations">Depreceations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#deprecations">Deprecations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental">Experimental</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
@@ -144,7 +144,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id5">0.5.1 (24.04.2020)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id6">Major Features and Improvements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id7">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Depreceations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Deprecations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Bug fixes and small changes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id10">Experimental</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Requirement changes</a></li>
@@ -317,6 +317,27 @@ won’t be altered.</p></li>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="zfit.minimizers.fitresult.FitResult.correlation">
+<code class="sig-name descname">correlation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Callable<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">as_dict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.correlation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.correlation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the correlation matrix for <cite>params</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (list(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>)) – The parameters to calculate
+the correlation matrix. If <cite>params</cite> is <cite>None</cite>, use all <em>floating</em> parameters.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>Callable</em>) – The method to use to calculate the correlation matrix. Valid choices are
+{‘minuit_hesse’, ‘hesse_np’} or a Callable.</p></li>
+<li><p><strong>as_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Default <cite>False</cite>. If <cite>True</cite> then returns a dictionnary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>2D <cite>numpy.array</cite> of shape (N, N);
+<cite>dict`(param1, param2) -&gt; correlation if `as_dict == True</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.minimizers.fitresult.FitResult.covariance">
 <code class="sig-name descname">covariance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Callable<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">as_dict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.covariance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.FitResult.covariance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the covariance matrix for <cite>params</cite>.</p>
@@ -325,7 +346,7 @@ won’t be altered.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>params</strong> (list(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>)) – The parameters to calculate
 the covariance matrix. If <cite>params</cite> is <cite>None</cite>, use all <em>floating</em> parameters.</p></li>
-<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>Callbel</em>) – The method to use to calculate the covariance matrix. Valid choices are
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>Callable</em>) – The method to use to calculate the covariance matrix. Valid choices are
 {‘minuit_hesse’, ‘hesse_np’} or a Callable.</p></li>
 <li><p><strong>as_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Default <cite>False</cite>. If <cite>True</cite> then returns a dictionnary.</p></li>
 </ul>
@@ -568,6 +589,11 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <dl class="py function">
 <dt id="zfit.minimizers.fitresult.color_on_bool">
 <code class="sig-prename descclassname">zfit.minimizers.fitresult.</code><code class="sig-name descname">color_on_bool</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">on_true</span><span class="o">=</span><span class="default_value">'\x1b[48;5;10m'</span></em>, <em class="sig-param"><span class="n">on_false</span><span class="o">=</span><span class="default_value">'\x1b[48;5;9m'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#color_on_bool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.color_on_bool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="zfit.minimizers.fitresult.covariance_to_correlation">
+<code class="sig-prename descclassname">zfit.minimizers.fitresult.</code><code class="sig-name descname">covariance_to_correlation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">covariance</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#covariance_to_correlation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.fitresult.covariance_to_correlation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
