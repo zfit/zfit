@@ -5,7 +5,4 @@ requires = [
     "wheel"
 ]
 
-[tool.setuptools_scm]
-write_to = "src/zfit/version.py"
-
 build-backend = "setuptools.build_meta"
