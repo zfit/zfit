@@ -19,6 +19,8 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 - fix color wrong in printout of results, params
+- packaging: moved to pyproject.toml and a setup.cfg mainly, development requirements can
+  be installed with the `dev` extra as (e.g.) `pip install zfit[dev]`
 
 Experimental
 ------------
