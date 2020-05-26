@@ -7,8 +7,8 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-# with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as requirements_file:
-#     requirements = requirements_file.read().splitlines()
+with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as requirements_file:
+    requirements = requirements_file.read().splitlines()
 
 with open(os.path.join(here, 'requirements_dev.txt'), encoding='utf-8') as requirements_dev_file:
     requirements_dev = requirements_dev_file.read().splitlines()
@@ -49,7 +49,7 @@ setup(
     # maintainer="zfit",
     # maintainer_email='zfit@physik.uzh.ch',
     # description="scalable pythonic model fitting for high energy physics",
-    # install_requires=requirements,
+    install_requires=requirements,
     # license="BSD 3-Clause",
     # long_description=readme + '\n\n' + changelog,
     # include_package_data=True,
