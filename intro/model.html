@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Building a model &#8212; zfit 0.5.3.dev22+ge4b9c37 documentation</title>
+    <title>Building a model &#8212; zfit 0.5.3.dev24+g9b2d32c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev22</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev24</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -433,64 +433,6 @@ With this new PDF one can access the same feature of the predefined PDFs, e.g.</
 <span class="gp">&gt;&gt;&gt; </span><span class="n">probs</span>    <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
-<dl>
-<dt>Finally, we could also improve the description of the PDF by providing a analytical integral for the</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;obs1&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">std</span>  <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;std&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_gauss</span> <span class="o">=</span> <span class="n">MyGauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># For instance integral probabilities</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">integral</span> <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">probs</span>    <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-</div>
-</dd>
-<dt>Finally, we could also improve the description of the PDF by providing a analytical integral for the</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;obs1&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">std</span>  <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;std&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_gauss</span> <span class="o">=</span> <span class="n">MyGauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># For instance integral probabilities</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">integral</span> <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">probs</span>    <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-</div>
-</dd>
-<dt>Finally, we could also improve the description of the PDF by providing a analytical integral for the</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;obs1&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">std</span>  <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;std&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_gauss</span> <span class="o">=</span> <span class="n">MyGauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># For instance integral probabilities</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">integral</span> <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">probs</span>    <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-</div>
-</dd>
-<dt>Finally, we could also improve the description of the PDF by providing a analytical integral for the</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;obs1&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">std</span>  <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;std&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_gauss</span> <span class="o">=</span> <span class="n">MyGauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># For instance integral probabilities</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">integral</span> <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">probs</span>    <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-</pre></div>
-</div>
-</dd>
-</dl>
 <p>Finally, we could also improve the description of the PDF by providing a analytical integral for the <code class="docutils literal notranslate"><span class="pre">MyGauss</span></code> PDF:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">gauss_integral_from_any_to_any</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
 <span class="gp">... </span>   <span class="p">(</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
@@ -545,82 +487,6 @@ will take which value via <cite>param_values</cite> or by changing the attribute
 <span class="go">    ...    result = minimizer.minimize(nll)</span>
 <span class="go">    ...</span>
 <span class="go">    ...    # safe the result, collect the values, calculate errors...</span>
-
-<span class="go">Here we fixed all parameters as they have been initialized and then sample. If we do not provide any</span>
-<span class="go">arguments to</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=1000,fixed_params=True)</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)</span>
-
-<span class="go">    &gt;&gt;&gt; minimizer = zfit.minimize.Minuit()</span>
-
-<span class="go">    &gt;&gt;&gt; for run_number in n_runs:</span>
-<span class="go">    ...    # initialize the parameters randomly</span>
-<span class="go">    ...    sampler.resample()  # now the resampling gets executed</span>
-<span class="go">    ...</span>
-<span class="go">    ...    mu.set_value(np.random.normal())</span>
-<span class="go">    ...    sigma.set_value(abs(np.random.normal()))</span>
-<span class="go">    ...</span>
-<span class="go">    ...    result = minimizer.minimize(nll)</span>
-<span class="go">    ...</span>
-<span class="go">    ...    # safe the result, collect the values, calculate errors...</span>
-
-<span class="go">Here we fixed all parameters as they have been initialized and then sample. If we do not provide any</span>
-<span class="go">arguments to</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=1000,fixed_params=True)</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)</span>
-
-<span class="go">    &gt;&gt;&gt; minimizer = zfit.minimize.Minuit()</span>
-
-<span class="go">    &gt;&gt;&gt; for run_number in n_runs:</span>
-<span class="go">    ...    # initialize the parameters randomly</span>
-<span class="go">    ...    sampler.resample()  # now the resampling gets executed</span>
-<span class="go">    ...</span>
-<span class="go">    ...    mu.set_value(np.random.normal())</span>
-<span class="go">    ...    sigma.set_value(abs(np.random.normal()))</span>
-<span class="go">    ...</span>
-<span class="go">    ...    result = minimizer.minimize(nll)</span>
-<span class="go">    ...</span>
-<span class="go">    ...    # safe the result, collect the values, calculate errors...</span>
-
-<span class="go">Here we fixed all parameters as they have been initialized and then sample. If we do not provide any</span>
-<span class="go">arguments to</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=1000,fixed_params=True)</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)</span>
-
-<span class="go">    &gt;&gt;&gt; minimizer = zfit.minimize.Minuit()</span>
-
-<span class="go">    &gt;&gt;&gt; for run_number in n_runs:</span>
-<span class="go">    ...    # initialize the parameters randomly</span>
-<span class="go">    ...    sampler.resample()  # now the resampling gets executed</span>
-<span class="go">    ...</span>
-<span class="go">    ...    mu.set_value(np.random.normal())</span>
-<span class="go">    ...    sigma.set_value(abs(np.random.normal()))</span>
-<span class="go">    ...</span>
-<span class="go">    ...    result = minimizer.minimize(nll)</span>
-<span class="go">    ...</span>
-<span class="go">    ...    # safe the result, collect the values, calculate errors...</span>
-
-<span class="go">Here we fixed all parameters as they have been initialized and then sample. If we do not provide any</span>
-<span class="go">arguments to</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">()</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">run_number</span> <span class="ow">in</span> <span class="n">n_runs</span><span class="p">:</span>
-<span class="gp">... </span>   <span class="c1"># initialize the parameters randomly</span>
-<span class="gp">... </span>   <span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>  <span class="c1"># now the resampling gets executed</span>
-<span class="gp">...</span>
-<span class="gp">... </span>   <span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
-<span class="gp">... </span>   <span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">()))</span>
-<span class="gp">...</span>
-<span class="gp">... </span>   <span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
-<span class="gp">...</span>
-<span class="gp">... </span>   <span class="c1"># safe the result, collect the values, calculate errors...</span>
 </pre></div>
 </div>
 <p>Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
@@ -630,50 +496,6 @@ arguments to <cite>resample</cite>, this will always sample now from the distrib
 </div></blockquote>
 <p>To give another, though not very useful example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu1, sigma1, mu2, sigma2</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=1000,fixed_params=[mu1, mu2])</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)</span>
-
-<span class="go">    &gt;&gt;&gt; sampler.resample()  # now it sampled</span>
-
-<span class="go">    &gt;&gt;&gt; # do something with nll</span>
-<span class="go">    &gt;&gt;&gt; minimizer.minimize(nll)  # minimize</span>
-
-<span class="go">    &gt;&gt;&gt; sampler.resample()</span>
-<span class="go">    &gt;&gt;&gt; # note that the nll, being dependent on</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=1000,fixed_params=[mu1, mu2])</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)</span>
-
-<span class="go">    &gt;&gt;&gt; sampler.resample()  # now it sampled</span>
-
-<span class="go">    &gt;&gt;&gt; # do something with nll</span>
-<span class="go">    &gt;&gt;&gt; minimizer.minimize(nll)  # minimize</span>
-
-<span class="go">    &gt;&gt;&gt; sampler.resample()</span>
-<span class="go">    &gt;&gt;&gt; # note that the nll, being dependent on</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=1000,fixed_params=[mu1, mu2])</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)</span>
-
-<span class="go">    &gt;&gt;&gt; sampler.resample()  # now it sampled</span>
-
-<span class="go">    &gt;&gt;&gt; # do something with nll</span>
-<span class="go">    &gt;&gt;&gt; minimizer.minimize(nll)  # minimize</span>
-
-<span class="go">    &gt;&gt;&gt; sampler.resample()</span>
-<span class="go">    &gt;&gt;&gt; # note that the nll, being dependent on</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=1000,fixed_params=[mu1, mu2])</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)</span>
-
-<span class="go">    &gt;&gt;&gt; sampler.resample()  # now it sampled</span>
-
-<span class="go">    &gt;&gt;&gt; # do something with nll</span>
-<span class="go">    &gt;&gt;&gt; minimizer.minimize(nll)  # minimize</span>
-
-<span class="go">    &gt;&gt;&gt; sampler.resample()</span>
-<span class="go">    &gt;&gt;&gt; # note that the nll, being dependent on</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="p">[</span><span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
@@ -699,91 +521,6 @@ using the following argument. Reusing the example above</p>
 <p>If some parameters are constrained to values observed from external measurements, usually Gaussian constraints,
 then sampling of the observed values might be needed to obtain an unbiased sample from the model. Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># same model depending on mu1, sigma1, mu2, sigma2</span>
-
-<span class="go">    &gt;&gt;&gt; from contextlib import ExitStack</span>
-
-<span class="go">    &gt;&gt;&gt; constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]</span>
-<span class="go">    ...                                                 mu=[sigma1, sigma2],</span>
-<span class="go">    ...                                                 sigma=[0.1, 0.05])</span>
-
-<span class="go">    &gt;&gt;&gt; n_samples = 1000</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=n_samples,fixed_params=[mu1, mu2])</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)</span>
-
-<span class="go">    &gt;&gt;&gt; constr_values = constraint.sample(n=n_samples)</span>
-
-<span class="go">    &gt;&gt;&gt; for i in range(n_samples):</span>
-<span class="go">    ...     sampler.resample()</span>
-<span class="go">    ...     # do something with nll</span>
-<span class="go">    ...     with ExitStack() as stack:</span>
-<span class="go">    ...         for x, v in constr.items():</span>
-<span class="go">    ...             stack.enter_context(x.set_value(v))</span>
-<span class="go">    ...         minimizer.minimize(nll)  # minimize</span>
-
-<span class="go">    &gt;&gt;&gt; from contextlib import ExitStack</span>
-
-<span class="go">    &gt;&gt;&gt; constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]</span>
-<span class="go">    ...                                                 mu=[sigma1, sigma2],</span>
-<span class="go">    ...                                                 sigma=[0.1, 0.05])</span>
-
-<span class="go">    &gt;&gt;&gt; n_samples = 1000</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=n_samples,fixed_params=[mu1, mu2])</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)</span>
-
-<span class="go">    &gt;&gt;&gt; constr_values = constraint.sample(n=n_samples)</span>
-
-<span class="go">    &gt;&gt;&gt; for i in range(n_samples):</span>
-<span class="go">    ...     sampler.resample()</span>
-<span class="go">    ...     # do something with nll</span>
-<span class="go">    ...     with ExitStack() as stack:</span>
-<span class="go">    ...         for x, v in constr.items():</span>
-<span class="go">    ...             stack.enter_context(x.set_value(v))</span>
-<span class="go">    ...         minimizer.minimize(nll)  # minimize</span>
-
-<span class="go">    &gt;&gt;&gt; from contextlib import ExitStack</span>
-
-<span class="go">    &gt;&gt;&gt; constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]</span>
-<span class="go">    ...                                                 mu=[sigma1, sigma2],</span>
-<span class="go">    ...                                                 sigma=[0.1, 0.05])</span>
-
-<span class="go">    &gt;&gt;&gt; n_samples = 1000</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=n_samples,fixed_params=[mu1, mu2])</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)</span>
-
-<span class="go">    &gt;&gt;&gt; constr_values = constraint.sample(n=n_samples)</span>
-
-<span class="go">    &gt;&gt;&gt; for i in range(n_samples):</span>
-<span class="go">    ...     sampler.resample()</span>
-<span class="go">    ...     # do something with nll</span>
-<span class="go">    ...     with ExitStack() as stack:</span>
-<span class="go">    ...         for x, v in constr.items():</span>
-<span class="go">    ...             stack.enter_context(x.set_value(v))</span>
-<span class="go">    ...         minimizer.minimize(nll)  # minimize</span>
-
-<span class="go">    &gt;&gt;&gt; from contextlib import ExitStack</span>
-
-<span class="go">    &gt;&gt;&gt; constraint = zfit.constraint.GaussianConstraint(x=[1.0, 0.5]</span>
-<span class="go">    ...                                                 mu=[sigma1, sigma2],</span>
-<span class="go">    ...                                                 sigma=[0.1, 0.05])</span>
-
-<span class="go">    &gt;&gt;&gt; n_samples = 1000</span>
-
-<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=n_samples,fixed_params=[mu1, mu2])</span>
-<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)</span>
-
-<span class="go">    &gt;&gt;&gt; constr_values = constraint.sample(n=n_samples)</span>
-
-<span class="go">    &gt;&gt;&gt; for i in range(n_samples):</span>
-<span class="go">    ...     sampler.resample()</span>
-<span class="go">    ...     # do something with nll</span>
-<span class="go">    ...     with ExitStack() as stack:</span>
-<span class="go">    ...         for x, v in constr.items():</span>
-<span class="go">    ...             stack.enter_context(x.set_value(v))</span>
-<span class="go">    ...         minimizer.minimize(nll)  # minimize</span>
-
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">GaussianConstraint</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
@@ -830,7 +567,7 @@ then sampling of the observed values might be needed to obtain an unbiased sampl
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.<br/>
     </p>
   </div>
 </footer>
