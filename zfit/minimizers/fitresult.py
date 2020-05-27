@@ -358,7 +358,7 @@ class FitResult(ZfitResult):
             Args:
                 params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
                     the covariance matrix. If `params` is `None`, use all *floating* parameters.
-                method (str or Callbel): The method to use to calculate the covariance matrix. Valid choices are
+                method (str or Callable): The method to use to calculate the covariance matrix. Valid choices are
                     {'minuit_hesse', 'hesse_np'} or a Callable.
                 as_dict (bool): Default `False`. If `True` then returns a dictionnary.
 
@@ -394,13 +394,40 @@ class FitResult(ZfitResult):
         params = list(self.params.keys())
         return method(result=self, params=params)
 
+    def correlation(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
+        """Calculate the correlation matrix for `params`.
+
+            Args:
+                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
+                    the correlation matrix. If `params` is `None`, use all *floating* parameters.
+                method (str or Callable): The method to use to calculate the correlation matrix. Valid choices are
+                    {'minuit_hesse', 'hesse_np'} or a Callable.
+                as_dict (bool): Default `False`. If `True` then returns a dictionnary.
+
+            Returns:
+                2D `numpy.array` of shape (N, N);
+                `dict`(param1, param2) -> correlation if `as_dict == True`.
+        """
+
+        covariance = self.covariance(params=params, method=method, as_dict=False)
+        correlation = covariance_to_correlation(covariance)
+
+        if as_dict:
+            params = self._input_check_params(params)
+            return matrix_to_dict(params, correlation)
+        else:
+            return correlation
+
     def __str__(self):
         string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
         string += tabulate(
-            [[color_on_bool(self.converged), format_value(self.edm, highprec=False),
+            [[color_on_bool(self.valid), color_on_bool(self.converged, on_true=False),
+              color_on_bool(self.params_at_limit, on_true=colored.bg(9), on_false=False),
+              format_value(self.edm, highprec=False),
               format_value(self.fmin)]],
-            ['converged', 'edm', 'min value'], tablefmt='fancy_grid'
-        )
+            ['valid', 'converged', 'param at limit', 'edm', 'min value'],
+            tablefmt='fancy_grid',
+            disable_numparse=True)
         string += '\n\n' + Style.BRIGHT + "Parameters\n" + Style.NORMAL
         string += str(self.params)
         return string
@@ -442,6 +469,11 @@ def matrix_to_dict(params, matrix):
     return matrix_dict
 
 
+def covariance_to_correlation(covariance):
+    diag = np.diag(1 / np.diag(covariance) ** 0.5)
+    return np.matmul(diag, np.matmul(covariance, diag))
+
+
 def format_value(value, highprec=True):
     try:
         import iminuit
@@ -451,13 +483,18 @@ def format_value(value, highprec=True):
     if isinstance(value, (dict, m_error_class)):
         if 'error' in value:
             value = value['error']
-            value = f"+/- {value:> 6.2g}"
+            value = f"{value:> 6.2g}"
+            value = f'+/-{" " * (8 - len(value))}' + value
         if 'lower' in value and 'upper' in value:
             lower = value['lower']
             upper = value['upper']
-            lower, upper = f"{lower: >+6.2g}", f"{upper: >+6.2g}"
-            lower += " " * (9 - len(lower))
-            value = lower + upper
+            lower_sign = f"{np.sign(lower): >+}"[0]
+            upper_sign = f"{np.sign(upper): >+}"[0]
+            lower, upper = f"{np.abs(lower): >6.2g}", f"{upper: >6.2g}"
+            lower = lower_sign + " " * (7 - len(lower)) + lower
+            upper = upper_sign + " " * (7 - len(upper)) + upper
+            # lower += " t" * (11 - len(lower))
+            value = lower + " " * 3 + upper
 
     if isinstance(value, float):
         if highprec:
@@ -496,5 +533,5 @@ class ParamHolder(dict):  # no UserDict, we only want to change the __str__
             rows.append(row)
 
         order_keys = ['name'] + list(order_keys) + ['at limit']
-        table = tabulate(rows, order_keys)
+        table = tabulate(rows, order_keys, numalign="right", stralign='right', colalign=('left',))
         return table
