@@ -152,7 +152,7 @@ def _rootf(**kwargs):
 # def _rootf(**kwargs):
 #     return optimize.brentq(**kwargs)
 
-def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
+def compute_errors_old(result, params, sigma=1, rootf=_rootf, rtol=0.01):
     """
     Computes asymmetric errors of parameters by profiling the loss function in the fit result.
 
@@ -199,8 +199,95 @@ def compute_errors(result, params, sigma=1, rootf=_rootf, rtol=0.01):
         if new_result.fmin >= new_found_fmin:
             raise RuntimeError("A new minimum was discovered but the minimizer was not able to find this on himself. "
                                "This behavior is currently an exception but will most likely change in the future.")
-        to_return, new_result_ = compute_errors(result=new_result, params=params, sigma=sigma,
+        to_return, new_result_ = compute_errors_old(result=new_result, params=params, sigma=sigma,
                                                 rootf=rootf, rtol=rtol)
+        if new_result_ is not None:
+            new_result = new_result_
+
+    return to_return, new_result
+
+
+def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr"):
+    """
+    Computes asymmetric errors of parameters by profiling the loss function in the fit result.
+
+    Args:
+        result (`FitResult`): fit result
+        params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate the
+            errors error. If None, use all parameters.
+        sigma (float): Errors are calculated with respect to `sigma` std deviations.
+        rtol (float, default=0.01): relative tolerance between the computed and the exact roots
+        method (string, defautl='hybr'): type of solver, `method` argument of scipy.optimize.root
+
+    Returns:
+        `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which
+            contains two keys 'lower' and 'upper', holding the calculated errors.
+            Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
+        `FitResult` or `None`: a fit result is returned when a new minimum is found during the loss scan
+    """
+
+    params = convert_to_container(params)
+    new_result = None
+
+    all_params = list(result.params.keys())
+    loss = result.loss
+    errordef = loss.errordef
+    fmin = result.fmin
+    rtol *= errordef
+    minimizer = result.minimizer
+
+    covariance = result.covariance(as_dict=True)
+    set_values(all_params, result)
+
+    try:
+
+        to_return = {}
+        for param in params:
+            param_error = result.hesse(params=param)[param]["error"]
+            param_value = result.params[param]["value"]
+            other_params = [p for p in all_params if p != param]
+
+            initial_values = {"lower": [], "upper": []}
+            direction = {"lower": -sigma, "upper": sigma}
+
+            for ap in all_params:
+                for d in ["lower", "upper"]:
+                    # shift parameters, other than param, using covariance matrix
+                    ap_value = result.params[ap]["value"]
+                    ap_value += direction[d] * covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
+                    initial_values[d].append(ap_value)
+
+            def func(values):
+
+                with set_values(all_params, values):
+                    loss_value, gradients = loss.value_gradients(params=other_params)
+                    shifted_loss = loss_value.numpy() - fmin - errordef
+                    gradient = np.array(gradients)
+
+                if shifted_loss < -errordef - minimizer.tolerance:
+                    set_values(all_params, values)  # set values to the new minimum
+                    raise NewMinimum("A new is minimum found.")
+
+                return np.concatenate([[shifted_loss], gradient])
+
+            to_return[param] = {}
+            for d in ["lower", "upper"]:
+                roots = optimize.root(fun=func, x0=initial_values[d], tol=rtol, method=method)
+                to_return[param][d] = roots.x[all_params.index(param)] - param_value
+
+    except NewMinimum as e:
+        from .. import settings
+        if settings.get_verbosity() >= 5:
+            print(e)
+        minimizer = result.minimizer
+        loss = result.loss
+        new_found_fmin = loss.value()
+        new_result = minimizer.minimize(loss=loss)
+        if new_result.fmin >= new_found_fmin:
+            raise RuntimeError("A new minimum was discovered but the minimizer was not able to find this on himself. "
+                               "This behavior is currently an exception but will most likely change in the future.")
+        to_return, new_result_ = compute_errors(result=new_result, params=params, sigma=sigma, rtol=rtol,
+                                                method=method)
         if new_result_ is not None:
             new_result = new_result_
 
