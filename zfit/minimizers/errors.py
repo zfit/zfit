@@ -217,7 +217,7 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr"):
             errors error. If None, use all parameters.
         sigma (float): Errors are calculated with respect to `sigma` std deviations.
         rtol (float, default=0.01): relative tolerance between the computed and the exact roots
-        method (string, defautl='hybr'): type of solver, `method` argument of scipy.optimize.root
+        method (string, defautl='hybr'): type of solver, `method` argument of `scipy.optimize.root`
 
     Returns:
         `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which
