@@ -21,7 +21,7 @@ Bug fixes and small changes
 - fix color wrong in printout of results, params
 - add correlation method to FitResult
 - change zfit internal algorithm (`zfit_error`) to compute error/intervals from the profile likelihood,
-which is 2/3 times faster than previous algorithm.
+which is 2-3 times faster than previous algorithm.
 
 Experimental
 ------------
