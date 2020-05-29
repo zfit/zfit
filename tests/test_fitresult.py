@@ -51,9 +51,6 @@ def create_fitresult(minimizer_class_and_kwargs):
     minimizer = minimizer_class(**minimizer_kwargs)
 
     result = minimizer.minimize(loss=loss)
-    print(result)
-    result.status
-    result.info
     cur_val = loss.value().numpy()
     aval, bval, cval = [v.numpy() for v in (a_param, b_param, c_param)]
 
