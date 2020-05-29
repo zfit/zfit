@@ -186,9 +186,10 @@ def test_errors(minimizer_class_and_kwargs):
 
 
 # @pytest.mark.skip  # currently, fmin is not correct, loops, see: https://github.com/scikit-hep/iminuit/issues/395
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_new_minimum(minimizer_class_and_kwargs):
-    loss, params = create_loss(5000)
+    loss, params = create_loss(10000)
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)

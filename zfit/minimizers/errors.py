@@ -1,6 +1,7 @@
 #  Copyright (c) 2020 zfit
 
 import numpy as np
+import tensorflow as tf
 from scipy import optimize
 
 from ..param import set_values
@@ -9,6 +10,9 @@ from ..util.container import convert_to_container
 
 class NewMinimum(Exception):
     """Exception class for cases where a new minimum is found."""
+    pass
+
+class FailEvalLossNaN(Exception):
     pass
 
 
@@ -67,15 +71,22 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covarianc
             def func(values):
 
                 with set_values(all_params, values):
-                    loss_value, gradients = loss.value_gradients(params=other_params)
+                    try:
+                        loss_value, gradients = loss.value_gradients(params=other_params)
+                    except tf.errors.InvalidArgumentError:
+                        msg = (f"The evaluation of the errors of {param.name} failed due to too many NaNs"
+                               " being produced in the loss and/or its gradients. This is most probably"
+                               " caused by negative values returned from the PDF.")
+                        raise FailEvalLossNaN(msg)
+
                     shifted_loss = loss_value.numpy() - fmin - errordef
-                    gradient = np.array(gradients)
+                    gradients = np.array(gradients)
 
                 if shifted_loss < -errordef - minimizer.tolerance:
                     set_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new is minimum found.")
 
-                return np.concatenate([[shifted_loss], gradient])
+                return np.concatenate([[shifted_loss], gradients])
 
             to_return[param] = {}
             for d in ["lower", "upper"]:
