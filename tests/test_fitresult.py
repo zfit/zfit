@@ -170,17 +170,18 @@ def test_correlation(minimizer_class_and_kwargs):
 
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-def test_errors(minimizer_class_and_kwargs):
+@pytest.mark.parametrize("sigma", [1, 2])
+def test_errors(minimizer_class_and_kwargs, sigma):
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results['result']
     a = results['a_param']
     b = results['b_param']
     c = results['c_param']
 
-    z_errors, new_result = result.errors(method="zfit_error")
+    z_errors, new_result = result.errors(method="zfit_error", sigma=sigma)
     if new_result is not None:
         result = new_result
-    minos_errors, _ = result.errors(method="minuit_minos")
+    minos_errors, _ = result.errors(method="minuit_minos", sigma=sigma)
 
     for param in [a, b, c]:
         z_error_param = z_errors[param]

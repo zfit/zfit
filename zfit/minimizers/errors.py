@@ -79,7 +79,7 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covarianc
                                " caused by negative values returned from the PDF.")
                         raise FailEvalLossNaN(msg)
 
-                    shifted_loss = loss_value.numpy() - fmin - errordef * sigma
+                    shifted_loss = loss_value.numpy() - fmin - errordef * sigma**2
                     gradients = np.array(gradients)
 
                 if shifted_loss < -errordef - minimizer.tolerance:
