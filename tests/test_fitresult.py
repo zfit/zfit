@@ -51,9 +51,6 @@ def create_fitresult(minimizer_class_and_kwargs):
     minimizer = minimizer_class(**minimizer_kwargs)
 
     result = minimizer.minimize(loss=loss)
-    print(result)
-    result.status
-    result.info
     cur_val = loss.value().numpy()
     aval, bval, cval = [v.numpy() for v in (a_param, b_param, c_param)]
 
@@ -170,6 +167,7 @@ def test_correlation(minimizer_class_and_kwargs):
     b_error = hesse[b]['error']
     assert pytest.approx(cor_mat[0, 1], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
     assert pytest.approx(cor_dict[(a, b)], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
+
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_errors(minimizer_class_and_kwargs):
