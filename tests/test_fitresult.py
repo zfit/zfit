@@ -51,6 +51,9 @@ def create_fitresult(minimizer_class_and_kwargs):
     minimizer = minimizer_class(**minimizer_kwargs)
 
     result = minimizer.minimize(loss=loss)
+    print(result)
+    result.status
+    result.info
     cur_val = loss.value().numpy()
     aval, bval, cval = [v.numpy() for v in (a_param, b_param, c_param)]
 
@@ -143,6 +146,9 @@ def test_covariance(minimizer_class_and_kwargs):
 
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)
 
+    with pytest.raises(KeyError):
+        result.covariance(params=[a, b, c], method="hesse")
+
 
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
@@ -183,6 +189,9 @@ def test_errors(minimizer_class_and_kwargs):
         minos_errors_param = minos_errors[param]
         for dir in ["lower", "upper"]:
             assert pytest.approx(z_error_param[dir], rel=0.03) == minos_errors_param[dir]
+
+    with pytest.raises(KeyError):
+        result.errors(method="error")
 
 
 # @pytest.mark.skip  # currently, fmin is not correct, loops, see: https://github.com/scikit-hep/iminuit/issues/395
