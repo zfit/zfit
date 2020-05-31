@@ -348,7 +348,10 @@
     <span class="c1"># numgrad_was_none = settings.options.numerical_grad is None</span>
     <span class="c1"># if numgrad_was_none:</span>
     <span class="c1">#     settings.options.numerical_grad = True</span>
-    <span class="n">covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">value_gradients_hessian</span><span class="p">(</span><span class="n">params</span><span class="p">)[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">gradient</span><span class="p">,</span> <span class="n">hessian</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">value_gradients_hessian</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">hessian</span><span class="p">)</span>
+
     <span class="c1"># if numgrad_was_none:</span>
     <span class="c1">#     settings.options.numerical_grad = None</span>
 

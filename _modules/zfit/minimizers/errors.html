@@ -274,6 +274,7 @@
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
 
 <span class="kn">from</span> <span class="nn">..param</span> <span class="kn">import</span> <span class="n">set_values</span>
@@ -285,147 +286,11 @@
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="pll"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.pll">[docs]</a><span class="k">def</span> <span class="nf">pll</span><span class="p">(</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;FitResult&#39;</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Compute minimum profile likelihood for given parameters and values.&quot;&quot;&quot;</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-    <span class="n">values</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-
-    <span class="n">verbosity</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">verbosity</span>
-    <span class="n">minimizer</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">with</span> <span class="n">set_values</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-            <span class="n">param</span><span class="o">.</span><span class="n">floating</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="n">minimum</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-        <span class="n">param</span><span class="o">.</span><span class="n">floating</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">minimizer</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="n">verbosity</span>
-
-    <span class="k">return</span> <span class="n">minimum</span></div>
+<div class="viewcode-block" id="FailEvalLossNaN"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.FailEvalLossNaN">[docs]</a><span class="k">class</span> <span class="nc">FailEvalLossNaN</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="get_crossing_value"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.get_crossing_value">[docs]</a><span class="k">def</span> <span class="nf">get_crossing_value</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Find the crossing point between the profiled loss function, for given parameters, and the value of</span>
-<span class="sd">    `errordef` for a given direction (positive / negative).</span>
-<span class="sd">    `errordef` = 1 for a chisquare fit, = 0.5 for a likelihood fit.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">all_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span>
-    <span class="n">errordef</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">errordef</span>
-    <span class="n">fmin</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fmin</span>
-    <span class="n">minimizer</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">minimizer</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">minimizer</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">*</span> <span class="mf">0.5</span>
-    <span class="n">rtol</span> <span class="o">*=</span> <span class="n">errordef</span>
-
-    <span class="n">set_values</span><span class="p">(</span><span class="n">all_params</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
-
-    <span class="n">covariance</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">covariance</span><span class="p">(</span><span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">step_size_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">ap</span><span class="p">:</span> <span class="n">ap</span><span class="o">.</span><span class="n">step_size</span> <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">}</span>
-    <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">:</span>
-        <span class="n">ap</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[(</span><span class="n">ap</span><span class="p">,</span> <span class="n">ap</span><span class="p">)]</span> <span class="o">**</span> <span class="mf">0.5</span>
-
-    <span class="n">to_return</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-        <span class="n">param_error</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">hesse</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">param</span><span class="p">)[</span><span class="n">param</span><span class="p">][</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
-        <span class="n">param_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
-        <span class="n">exp_root</span> <span class="o">=</span> <span class="n">param_value</span> <span class="o">+</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">param_error</span>  <span class="c1"># expected root</span>
-
-        <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ap</span> <span class="o">==</span> <span class="n">param</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># shift parameters, other than param, using covariance matrix</span>
-            <span class="n">ap_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">ap</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
-            <span class="n">ap_value</span> <span class="o">+=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">covariance</span><span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">ap</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">errordef</span> <span class="o">/</span> <span class="n">param_error</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
-            <span class="n">ap</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">ap_value</span><span class="p">)</span>
-
-        <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># TODO: round for better floating point comparison?</span>
-
-        <span class="k">def</span> <span class="nf">shifted_pll</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Computes the pll, with the minimum substracted and shifted by minus the `errordef`, for a</span>
-<span class="sd">            given parameter.</span>
-<span class="sd">            `errordef` = 1 for a chisquare fit, = 0.5 for a likelihood fit.</span>
-
-<span class="sd">            The function raises a `NewMinimum` exception if the value of the shifted `pll` is less than</span>
-<span class="sd">            `- errordef`.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
-                <span class="n">pll_result</span> <span class="o">=</span> <span class="n">pll</span><span class="p">(</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-                <span class="n">cache</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">pll_result</span><span class="o">.</span><span class="n">fmin</span> <span class="o">-</span> <span class="n">fmin</span> <span class="o">-</span> <span class="n">errordef</span>
-                <span class="k">if</span> <span class="n">cache</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">errordef</span> <span class="o">-</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">tolerance</span><span class="p">:</span>
-                    <span class="n">set_values</span><span class="p">(</span><span class="n">pll_result</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">pll_result</span><span class="p">)</span>  <span class="c1"># set values to the new minimum</span>
-                    <span class="k">raise</span> <span class="n">NewMinimum</span><span class="p">(</span><span class="s2">&quot;A new is minimum found.&quot;</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
-
-        <span class="n">exp_shifted_pll</span> <span class="o">=</span> <span class="n">shifted_pll</span><span class="p">(</span><span class="n">exp_root</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">exp_shifted_pll</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.0005</span><span class="p">):</span>
-            <span class="n">root</span> <span class="o">=</span> <span class="n">exp_root</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">linear_interp</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
-                <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">                Linear interpolation between the minimum of the `shifted_pll` curve and its expected root,</span>
-<span class="sd">                assuming it is a parabolic curve.</span>
-<span class="sd">                &quot;&quot;&quot;</span>
-                <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">exp_root</span> <span class="o">-</span> <span class="n">param_value</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">exp_shifted_pll</span> <span class="o">+</span> <span class="n">errordef</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">param_value</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">errordef</span><span class="p">)</span> <span class="o">*</span> <span class="n">slope</span>
-
-            <span class="n">bound_interp</span> <span class="o">=</span> <span class="n">linear_interp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">exp_shifted_pll</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
-                <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">exp_root</span>
-                <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">bound_interp</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">bound_interp</span>
-                <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">exp_root</span>
-
-            <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">lower_bound</span>
-
-            <span class="c1"># Check if the `shifted_pll` function has the same sign at the lower and upper bounds.</span>
-            <span class="c1"># If they have the same sign, the window given to the root finding algorithm is increased.</span>
-
-            <span class="n">nsigma</span> <span class="o">=</span> <span class="mf">1.5</span>
-            <span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">shifted_pll</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">))</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">shifted_pll</span><span class="p">(</span><span class="n">upper_bound</span><span class="p">)):</span>
-                <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">shifted_pll</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                        <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">param_value</span> <span class="o">-</span> <span class="n">nsigma</span> <span class="o">*</span> <span class="n">param_error</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">param_value</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">shifted_pll</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                        <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">param_value</span> <span class="o">+</span> <span class="n">nsigma</span> <span class="o">*</span> <span class="n">param_error</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">param_value</span>
-
-                <span class="n">nsigma</span> <span class="o">+=</span> <span class="mf">0.5</span>
-
-            <span class="n">root</span><span class="p">,</span> <span class="n">results</span> <span class="o">=</span> <span class="n">rootf</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">shifted_pll</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">upper_bound</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span>
-                                  <span class="n">full_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="n">to_return</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">root</span>
-
-    <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">:</span>
-        <span class="n">ap</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="n">step_size_dict</span><span class="p">[</span><span class="n">ap</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">to_return</span></div>
-
-
-<span class="k">def</span> <span class="nf">_rootf</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">optimize</span><span class="o">.</span><span class="n">toms748</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-
-<span class="c1"># def _rootf(**kwargs):</span>
-<span class="c1">#     return optimize.brentq(**kwargs)</span>
-
-<div class="viewcode-block" id="compute_errors"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.compute_errors">[docs]</a><span class="k">def</span> <span class="nf">compute_errors</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rootf</span><span class="o">=</span><span class="n">_rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_errors"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.errors.html#zfit.minimizers.errors.compute_errors">[docs]</a><span class="k">def</span> <span class="nf">compute_errors</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;hybr&quot;</span><span class="p">,</span> <span class="n">covariance_method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes asymmetric errors of parameters by profiling the loss function in the fit result.</span>
 
@@ -434,8 +299,10 @@
 <span class="sd">        params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate the</span>
 <span class="sd">            errors error. If None, use all parameters.</span>
 <span class="sd">        sigma (float): Errors are calculated with respect to `sigma` std deviations.</span>
-<span class="sd">        rootf (callable): function used to find the roots of the loss function</span>
 <span class="sd">        rtol (float, default=0.01): relative tolerance between the computed and the exact roots</span>
+<span class="sd">        method (str, defautl=&#39;hybr&#39;): type of solver, `method` argument of `scipy.optimize.root_</span>
+<span class="sd">        covariance_method (str or Callable): The method to use to calculate the correlation matrix. Valid choices are</span>
+<span class="sd">            {&#39;minuit_hesse&#39;, &#39;hesse_np&#39;} or a Callable.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which</span>
@@ -447,19 +314,57 @@
     <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
     <span class="n">new_result</span> <span class="o">=</span> <span class="kc">None</span>
 
+    <span class="n">all_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span>
+    <span class="n">errordef</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">errordef</span>
+    <span class="n">fmin</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fmin</span>
+    <span class="n">rtol</span> <span class="o">*=</span> <span class="n">errordef</span>
+    <span class="n">minimizer</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">minimizer</span>
+
+    <span class="n">covariance</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">covariance</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">covariance_method</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">set_values</span><span class="p">(</span><span class="n">all_params</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
     <span class="k">try</span><span class="p">:</span>
-
-        <span class="n">upper_values</span> <span class="o">=</span> <span class="n">get_crossing_value</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
-                                          <span class="n">rootf</span><span class="o">=</span><span class="n">rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
-
-        <span class="n">lower_values</span> <span class="o">=</span> <span class="n">get_crossing_value</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">direction</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
-                                          <span class="n">rootf</span><span class="o">=</span><span class="n">rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
 
         <span class="n">to_return</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-            <span class="n">fitted_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
-            <span class="n">to_return</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lower&quot;</span><span class="p">:</span> <span class="n">lower_values</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">-</span> <span class="n">fitted_value</span><span class="p">,</span>
-                                <span class="s2">&quot;upper&quot;</span><span class="p">:</span> <span class="n">upper_values</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">-</span> <span class="n">fitted_value</span><span class="p">}</span>
+            <span class="n">param_error</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">param</span><span class="p">)]</span><span class="o">**</span><span class="mf">0.5</span>
+            <span class="n">param_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+            <span class="n">other_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_params</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">param</span><span class="p">]</span>
+
+            <span class="n">initial_values</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lower&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;upper&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lower&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">sigma</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">}</span>
+
+            <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">all_params</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">]:</span>
+                    <span class="n">ap_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">ap</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+                    <span class="n">ap_value</span> <span class="o">+=</span> <span class="n">direction</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">*</span> <span class="n">covariance</span><span class="p">[(</span><span class="n">param</span><span class="p">,</span> <span class="n">ap</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">errordef</span> <span class="o">/</span> <span class="n">param_error</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+                    <span class="n">initial_values</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ap_value</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+
+                <span class="k">with</span> <span class="n">set_values</span><span class="p">(</span><span class="n">all_params</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">loss_value</span><span class="p">,</span> <span class="n">gradients</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">value_gradients</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">other_params</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">tf</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">InvalidArgumentError</span><span class="p">:</span>
+                        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The evaluation of the errors of </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> failed due to too many NaNs&quot;</span>
+                               <span class="s2">&quot; being produced in the loss and/or its gradients. This is most probably&quot;</span>
+                               <span class="s2">&quot; caused by negative values returned from the PDF.&quot;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="n">FailEvalLossNaN</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+                    <span class="n">shifted_loss</span> <span class="o">=</span> <span class="n">loss_value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="o">-</span> <span class="n">fmin</span> <span class="o">-</span> <span class="n">errordef</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span>
+                    <span class="n">gradients</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">shifted_loss</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">errordef</span> <span class="o">-</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">tolerance</span><span class="p">:</span>
+                    <span class="n">set_values</span><span class="p">(</span><span class="n">all_params</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>  <span class="c1"># set values to the new minimum</span>
+                    <span class="k">raise</span> <span class="n">NewMinimum</span><span class="p">(</span><span class="s2">&quot;A new is minimum found.&quot;</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">shifted_loss</span><span class="p">],</span> <span class="n">gradients</span><span class="p">])</span>
+
+            <span class="n">to_return</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">]:</span>
+                <span class="n">roots</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">root</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">initial_values</span><span class="p">[</span><span class="n">d</span><span class="p">],</span> <span class="n">tol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+                <span class="n">to_return</span><span class="p">[</span><span class="n">param</span><span class="p">][</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">roots</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">all_params</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">param</span><span class="p">)]</span> <span class="o">-</span> <span class="n">param_value</span>
 
     <span class="k">except</span> <span class="n">NewMinimum</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">settings</span>
@@ -472,8 +377,8 @@
         <span class="k">if</span> <span class="n">new_result</span><span class="o">.</span><span class="n">fmin</span> <span class="o">&gt;=</span> <span class="n">new_found_fmin</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;A new minimum was discovered but the minimizer was not able to find this on himself. &quot;</span>
                                <span class="s2">&quot;This behavior is currently an exception but will most likely change in the future.&quot;</span><span class="p">)</span>
-        <span class="n">to_return</span><span class="p">,</span> <span class="n">new_result_</span> <span class="o">=</span> <span class="n">compute_errors</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">new_result</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
-                                                <span class="n">rootf</span><span class="o">=</span><span class="n">rootf</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
+        <span class="n">to_return</span><span class="p">,</span> <span class="n">new_result_</span> <span class="o">=</span> <span class="n">compute_errors</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">new_result</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span>
+                                                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">new_result_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">new_result</span> <span class="o">=</span> <span class="n">new_result_</span>
 

@@ -276,6 +276,24 @@
   <div class="section" id="module-zfit.minimizers.errors">
 <span id="errors"></span><h1>errors<a class="headerlink" href="#module-zfit.minimizers.errors" title="Permalink to this headline">¶</a></h1>
 <dl class="py exception">
+<dt id="zfit.minimizers.errors.FailEvalLossNaN">
+<em class="property">exception </em><code class="sig-prename descclassname">zfit.minimizers.errors.</code><code class="sig-name descname">FailEvalLossNaN</code><a class="reference internal" href="../_modules/zfit/minimizers/errors.html#FailEvalLossNaN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.errors.FailEvalLossNaN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<dl class="py attribute">
+<dt id="zfit.minimizers.errors.FailEvalLossNaN.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#zfit.minimizers.errors.FailEvalLossNaN.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimizers.errors.FailEvalLossNaN.with_traceback">
+<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.minimizers.errors.FailEvalLossNaN.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
 <dt id="zfit.minimizers.errors.NewMinimum">
 <em class="property">exception </em><code class="sig-prename descclassname">zfit.minimizers.errors.</code><code class="sig-name descname">NewMinimum</code><a class="reference internal" href="../_modules/zfit/minimizers/errors.html#NewMinimum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.errors.NewMinimum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
@@ -296,7 +314,7 @@ set self.__traceback__ to tb and return self.</p>
 
 <dl class="py function">
 <dt id="zfit.minimizers.errors.compute_errors">
-<code class="sig-prename descclassname">zfit.minimizers.errors.</code><code class="sig-name descname">compute_errors</code><span class="sig-paren">(</span><em class="sig-param">result</em>, <em class="sig-param">params</em>, <em class="sig-param">sigma=1</em>, <em class="sig-param">rootf=&lt;function _rootf&gt;</em>, <em class="sig-param">rtol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/errors.html#compute_errors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.errors.compute_errors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.minimizers.errors.</code><code class="sig-name descname">compute_errors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">rtol</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'hybr'</span></em>, <em class="sig-param"><span class="n">covariance_method</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/errors.html#compute_errors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.errors.compute_errors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes asymmetric errors of parameters by profiling the loss function in the fit result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -305,8 +323,10 @@ set self.__traceback__ to tb and return self.</p>
 <li><p><strong>params</strong> (list(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>)) – The parameters to calculate the
 errors error. If None, use all parameters.</p></li>
 <li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Errors are calculated with respect to <cite>sigma</cite> std deviations.</p></li>
-<li><p><strong>rootf</strong> (<em>callable</em>) – function used to find the roots of the loss function</p></li>
 <li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>default=0.01</em>) – relative tolerance between the computed and the exact roots</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>defautl='hybr'</em>) – type of solver, <cite>method</cite> argument of <a href="#id1"><span class="problematic" id="id2">`</span></a><a href="#id3"><span class="problematic" id="id4">scipy.optimize.root_</span></a></p></li>
+<li><p><strong>covariance_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>Callable</em>) – The method to use to calculate the correlation matrix. Valid choices are
+{‘minuit_hesse’, ‘hesse_np’} or a Callable.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -322,20 +342,6 @@ Example: result[par1][‘upper’] -&gt; the asymmetric upper error of ‘par1�
 <dd class="field-odd"><p><cite>OrderedDict</cite></p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="zfit.minimizers.errors.get_crossing_value">
-<code class="sig-prename descclassname">zfit.minimizers.errors.</code><code class="sig-name descname">get_crossing_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">direction</span></em>, <em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">rootf</span></em>, <em class="sig-param"><span class="n">rtol</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/errors.html#get_crossing_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.errors.get_crossing_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the crossing point between the profiled loss function, for given parameters, and the value of
-<cite>errordef</cite> for a given direction (positive / negative).
-<cite>errordef</cite> = 1 for a chisquare fit, = 0.5 for a likelihood fit.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="zfit.minimizers.errors.pll">
-<code class="sig-prename descclassname">zfit.minimizers.errors.</code><code class="sig-name descname">pll</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">minimizer</span></em>, <em class="sig-param"><span class="n">loss</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span> &#x2192; FitResult<a class="reference internal" href="../_modules/zfit/minimizers/errors.html#pll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimizers.errors.pll" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute minimum profile likelihood for given parameters and values.</p>
 </dd></dl>
 
 </div>
