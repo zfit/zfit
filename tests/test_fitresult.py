@@ -172,21 +172,27 @@ def test_correlation(minimizer_class_and_kwargs):
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.parametrize("sigma", [1, 2])
 def test_errors(minimizer_class_and_kwargs, sigma):
+    n_max_trials = 7  # how often to try to find a new minimum
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results['result']
     a = results['a_param']
     b = results['b_param']
     c = results['c_param']
 
-    z_errors, new_result = result.errors(method="zfit_error", sigma=sigma)
-    minos_errors, _ = result.errors(method="minuit_minos", sigma=sigma)
-    if new_result is None:
-        # @marinang this test seems to fail when a new minimum is found
-        for param in [a, b, c]:
-            z_error_param = z_errors[param]
-            minos_errors_param = minos_errors[param]
-        for dir in ["lower", "upper"]:
-            assert pytest.approx(z_error_param[dir], rel=0.03) == minos_errors_param[dir]
+    for n_trial in range(n_max_trials):
+        z_errors, new_result = result.errors(method="zfit_error", sigma=sigma)
+        minos_errors, _ = result.errors(method="minuit_minos", sigma=sigma)
+        if new_result is None:
+            break
+    else:  # no break occured
+        assert False, "Always a new minimum was found, cannot perform test."
+
+    # @marinang this test seems to fail when a new minimum is found
+    for param in [a, b, c]:
+        z_error_param = z_errors[param]
+        minos_errors_param = minos_errors[param]
+    for dir in ["lower", "upper"]:
+        assert pytest.approx(z_error_param[dir], rel=0.03) == minos_errors_param[dir]
 
     with pytest.raises(KeyError):
         result.errors(method="error")
