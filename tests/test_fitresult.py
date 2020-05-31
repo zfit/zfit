@@ -172,7 +172,7 @@ def test_correlation(minimizer_class_and_kwargs):
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.parametrize("sigma", [1, 2])
 def test_errors(minimizer_class_and_kwargs, sigma):
-    n_max_trials = 7  # how often to try to find a new minimum
+    n_max_trials = 5  # how often to try to find a new minimum
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results['result']
     a = results['a_param']
