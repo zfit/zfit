@@ -1,10 +1,6 @@
 #  Copyright (c) 2020 zfit
 
-import numpy as np
 import zfit
-import matplotlib.pyplot as plt
-
-n_bins = 50
 
 # create space
 obs = zfit.Space("x", limits=(-10, 10))
