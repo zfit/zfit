@@ -184,6 +184,8 @@ def test_errors(minimizer_class_and_kwargs, sigma):
         minos_errors, _ = result.errors(method="minuit_minos", sigma=sigma)
         if new_result is None:
             break
+        else:
+            result = new_result
     else:  # no break occured
         assert False, "Always a new minimum was found, cannot perform test."
 
