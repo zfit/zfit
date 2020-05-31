@@ -22,6 +22,8 @@ Bug fixes and small changes
 - packaging: moved to pyproject.toml and a setup.cfg mainly, development requirements can
   be installed with the `dev` extra as (e.g.) `pip install zfit[dev]`
 - add correlation method to FitResult
+- change zfit internal algorithm (`zfit_error`) to compute error/intervals from the profile likelihood,
+which is 2-3 times faster than previous algorithm.
 
 Experimental
 ------------

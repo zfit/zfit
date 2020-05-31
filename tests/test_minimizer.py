@@ -160,4 +160,4 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
 
     else:
         with pytest.raises(TypeError):
-            _ = result.errors(params=mu_param)
+            _ = result.errors(params=mu_param, method="minuit_minos")
