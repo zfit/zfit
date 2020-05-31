@@ -180,6 +180,7 @@ def test_errors(minimizer_class_and_kwargs, sigma):
 
     z_errors, new_result = result.errors(method="zfit_error", sigma=sigma)
     minos_errors, _ = result.errors(method="minuit_minos", sigma=sigma)
+    print(result)
     if new_result is None:
         # @marinang this test seems to fail when a new minimum is found
         for param in [a, b, c]:

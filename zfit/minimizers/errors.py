@@ -12,6 +12,7 @@ class NewMinimum(Exception):
     """Exception class for cases where a new minimum is found."""
     pass
 
+
 class FailEvalLossNaN(Exception):
     pass
 
@@ -26,7 +27,7 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covarianc
             errors error. If None, use all parameters.
         sigma (float): Errors are calculated with respect to `sigma` std deviations.
         rtol (float, default=0.01): relative tolerance between the computed and the exact roots
-        method (string, defautl='hybr'): type of solver, `method` argument of `scipy.optimize.root_
+        method (str, defautl='hybr'): type of solver, `method` argument of `scipy.optimize.root_
         covariance_method (str or Callable): The method to use to calculate the correlation matrix. Valid choices are
             {'minuit_hesse', 'hesse_np'} or a Callable.
 
@@ -63,7 +64,6 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covarianc
 
             for ap in all_params:
                 for d in ["lower", "upper"]:
-                    # shift parameters, other than param, using covariance matrix
                     ap_value = result.params[ap]["value"]
                     ap_value += direction[d] * covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
                     initial_values[d].append(ap_value)
