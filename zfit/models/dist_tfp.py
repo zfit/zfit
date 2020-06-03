@@ -92,8 +92,6 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
     def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
-        # value = x.value()
-        # probs = tf.reshape(self.distribution.prob(value=value, name="unnormalized_pdf"), shape=(-1,))
         value = z.unstack_x(x)  # TODO: use this? change shaping below?
         probs = self.distribution.prob(value=value, name="unnormalized_pdf")
         return probs  # TODO batch shape just removed
