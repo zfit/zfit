@@ -630,7 +630,10 @@
         <span class="n">unstacked_x</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reorder_indices_list</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unstacked_x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">always_list</span><span class="p">:</span>
             <span class="n">unstacked_x</span> <span class="o">=</span> <span class="n">unstacked_x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">unstacked_x</span></div></div>
+        <span class="k">return</span> <span class="n">unstacked_x</span></div>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AnalyticIntegral"><a class="viewcode-back" href="../../../full_api/zfit.core.integration.html#zfit.core.integration.AnalyticIntegral">[docs]</a><span class="k">class</span> <span class="nc">AnalyticIntegral</span><span class="p">:</span>

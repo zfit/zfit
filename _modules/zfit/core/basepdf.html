@@ -329,6 +329,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
 <span class="kn">from</span> <span class="nn">zfit.core.sample</span> <span class="kn">import</span> <span class="n">extended_sampling</span>
@@ -410,10 +411,10 @@
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_func_to_integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnormalized_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_func_to_sample_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnormalized_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">norm_range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Space</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
@@ -495,7 +496,8 @@
     <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">SpecificFunctionNotImplementedError</span>
 
-<div class="viewcode-block" id="BasePDF.unnormalized_pdf"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.core.basepdf.BasePDF.unnormalized_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">component_norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
+<div class="viewcode-block" id="BasePDF.unnormalized_pdf"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.core.basepdf.BasePDF.unnormalized_pdf">[docs]</a>    <span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Use `pdf(norm_range=False)` instead&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">,</span> <span class="n">component_norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">XType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;PDF &quot;unnormalized&quot;. Use `functions` for unnormalized pdfs. this is only for performance in special cases.</span>
 
 <span class="sd">        Args:</span>
@@ -597,7 +599,7 @@
 
     <span class="k">def</span> <span class="nf">_fallback_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
         <span class="n">pdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_unnormalized_pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">has_limits</span><span class="p">:</span>  <span class="c1"># needed?</span>
+        <span class="k">if</span> <span class="n">norm_range</span><span class="o">.</span><span class="n">has_limits</span><span class="p">:</span>
             <span class="n">pdf</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hook_normalization</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pdf</span>
 
