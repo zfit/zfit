@@ -284,7 +284,7 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disase
 
     def _unnormalized_pdf(self, x: ztyping.XType):
 
-        return tf.math.reduce_prod([pdf.pdf(x, norm_range=False)(x)
+        return tf.math.reduce_prod([pdf.pdf(x, norm_range=False)
                                     for pdf in self.pdfs], axis=0)
 
     def _pdf(self, x, norm_range):

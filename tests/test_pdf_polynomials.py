@@ -46,11 +46,11 @@ def test_polynomials(poly_cfg, coeffs):
     lower, upper = obs1.rect_limits
     x = np.random.uniform(size=(1000,), low=lower, high=upper)
     y_poly = polynomial.pdf(x)
-    y_poly_u = polynomial.pdf(x, norm_range=False)(x)
+    y_poly_u = polynomial.pdf(x, norm_range=False)
     y_poly2 = polynomial2.pdf(x)
-    y_poly2_u = polynomial2.pdf(x, norm_range=False)(x)
+    y_poly2_u = polynomial2.pdf(x, norm_range=False)
     y_poly_coeff0 = polynomial_coeff0.pdf(x)
-    y_poly_coeff0_u = polynomial_coeff0.pdf(x, norm_range=False)(x)
+    y_poly_coeff0_u = polynomial_coeff0.pdf(x, norm_range=False)
     y_poly_np, y_poly2_np, y_poly_coeff0_np = [y_poly.numpy(), y_poly2.numpy(), y_poly_coeff0.numpy()]
     y_polyu_np, y_poly2u_np, y_polyu_coeff0_np = [y_poly_u.numpy(), y_poly2_u.numpy(), y_poly_coeff0_u.numpy()]
     np.testing.assert_allclose(y_polyu_np, y_poly2u_np)

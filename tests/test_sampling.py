@@ -70,6 +70,22 @@ class TmpGaussian(zfit.pdf.BasePDF):
             2 * sigma ** 2))  # non-normalized gaussian
 
 
+class TmpGaussianPDFNonNormed(zfit.pdf.BasePDF):
+
+    def __init__(self, obs, mu, sigma, params=None,
+                 name: str = "BasePDF", **kwargs):
+        params = {'mu': mu, 'sigma': sigma}
+        super().__init__(obs, params, name=name, **kwargs)
+
+    def _pdf(self, x, norm_range=False):
+        x = x.unstack_x()
+        mu = self.params['mu']
+        sigma = self.params['sigma']
+
+        return ztf.exp((-(x - mu) ** 2) / (
+            2 * sigma ** 2))  # non-normalized gaussian
+
+
 def create_test_gauss1():
     mu2 = zfit.Parameter("mu2_sampling1", mu_true, mu_true - 2., mu_true + 7.)
     sigma2 = zfit.Parameter("sigma2_sampling1", sigma_true, sigma_true - 10., sigma_true + 5.)
@@ -78,7 +94,15 @@ def create_test_gauss1():
     return test_gauss1, mu2, sigma2
 
 
-gaussian_dists = [lambda: create_gauss1(), lambda: create_test_gauss1()]
+def create_test_pdf_overriden_gauss1():
+    mu2 = zfit.Parameter("mu2_sampling1", mu_true, mu_true - 2., mu_true + 7.)
+    sigma2 = zfit.Parameter("sigma2_sampling1", sigma_true, sigma_true - 10., sigma_true + 5.)
+
+    test_gauss1 = TmpGaussianPDFNonNormed(name="test_pdf_nonnormed_gauss1", mu=mu2, sigma=sigma2, obs=obs1)
+    return test_gauss1, mu2, sigma2
+
+
+gaussian_dists = [create_gauss1, create_test_gauss1]
 
 
 @pytest.mark.flaky(2)  # sampling
@@ -107,7 +131,7 @@ def test_multiple_limits_sampling(gauss_factory):
     assert np.std(sample2.value()) == pytest.approx(sigma_true, rel_tolerance)
 
 
-@pytest.mark.parametrize('gauss_factory', gaussian_dists)
+@pytest.mark.parametrize('gauss_factory', gaussian_dists + [create_test_pdf_overriden_gauss1])
 def test_sampling_fixed(gauss_factory):
     gauss, mu, sigma = gauss_factory()
 
