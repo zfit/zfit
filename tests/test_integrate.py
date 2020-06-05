@@ -262,7 +262,7 @@ def test_mc_partial_integration():
 
 def test_analytic_integral():
     class DistFunc3(zbasepdf.BasePDF):
-        def _unnormalized_pdf(self, x, norm_range=False):
+        def _unnormalized_pdf(self, x):
             return func3_2deps(x)
 
     mu_true = 1.4
@@ -294,7 +294,7 @@ def test_analytic_integral():
 
 def test_analytic_integral_selection():
     class DistFuncInts(zbasepdf.BasePDF):
-        def _unnormalized_pdf(self, x, norm_range=False):
+        def _unnormalized_pdf(self, x):
             return x ** 2
 
     int1 = lambda x: 1  # on purpose wrong signature but irrelevant (not called, only test bookkeeping)

@@ -10,8 +10,10 @@ Their implementation is often non-trivial.
 from collections import OrderedDict
 from typing import List, Optional
 
+import numpy as np
 import tensorflow as tf
 
+from .. import z
 from ..core.basepdf import BasePDF
 from ..core.coordinates import convert_to_obs_str
 from ..core.interfaces import ZfitPDF, ZfitModel, ZfitData
@@ -182,15 +184,24 @@ class SumPDF(BaseFunctor):
         else:
             return super()._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    def _unnormalized_pdf(self, x):
-
-        # TODO: cleanup component ranges
-        # norm_range = self._get_component_norm_range()
-        # return self._pdf(x=x, norm_range=norm_range)
+    def _unnormalized_pdf(self, x):  # NOT _pdf, as the normalization range can differ
         pdfs = self.pdfs
         fracs = self.params.values()
-        prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
-        return prob
+        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
+        prob = np.sum(probs, axis=0)
+        # prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
+        return z.convert_to_tensor(prob)
+
+    def _pdf(self, x, norm_range):  # NOT _pdf, as the normalization range can differ
+        equal_norm_ranges = len(set([pdf.norm_range for pdf in self.pdfs] + [norm_range])) == 1
+        if not equal_norm_ranges:
+            raise SpecificFunctionNotImplementedError
+        pdfs = self.pdfs
+        fracs = self.params.values()
+        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
+        prob = np.sum(probs, axis=0)
+        # prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
+        return z.convert_to_tensor(prob)
 
     # TODO(SUM): remove the below? Not needed anymore?
     # def _set_yield(self, value: Union[Parameter, None]):
@@ -215,8 +226,9 @@ class SumPDF(BaseFunctor):
                      for pdf, frac in zip(pdfs, fracs)]
         # TODO(SUM): change the below? broadcast integrals?
         # integral = tf.reduce_sum(input_tensor=integrals, axis=0)
-        integral = tf.math.accumulate_n(integrals)
-        return integral
+        integral = np.sum(integrals, axis=0)
+        # integral = tf.math.accumulate_n(integrals)
+        return z.convert_to_tensor(integral)
 
     @supports(multiple_limits=True)
     def _analytic_integrate(self, limits, norm_range):
@@ -232,8 +244,9 @@ class SumPDF(BaseFunctor):
 
         # TODO(SUM): change the below? broadcast integrals?
         # integral = tf.reduce_sum(input_tensor=integrals)
-        integral = tf.math.accumulate_n(integrals)
-        return integral
+        integral = np.sum(integrals, axis=0)
+        # integral = tf.math.accumulate_n(integrals)
+        return z.convert_to_tensor(integral)
 
     @supports(multiple_limits=True)
     def _partial_integrate(self, x, limits, norm_range):
@@ -243,8 +256,9 @@ class SumPDF(BaseFunctor):
 
         partial_integral = [pdf.partial_integrate(x=x, limits=limits) * frac  # do NOT propagate the norm_range!
                             for pdf, frac in zip(pdfs, fracs)]
-        partial_integral = tf.math.accumulate_n(partial_integral)
-        return partial_integral
+        partial_integral = np.sum(partial_integral, axis=0)
+        # partial_integral = tf.math.accumulate_n(partial_integral)
+        return z.convert_to_tensor(partial_integral)
 
     @supports(multiple_limits=True)
     def _partial_analytic_integrate(self, x, limits, norm_range):
@@ -258,8 +272,9 @@ class SumPDF(BaseFunctor):
             raise AnalyticIntegralNotImplementedError(
                 "partial_analytic_integrate of pdf {name} is not implemented in this"
                 " SumPDF, as at least one sub-pdf does not implement it.") from error
-        partial_integral = tf.math.accumulate_n(partial_integral)
-        return partial_integral
+        partial_integral = np.sum(partial_integral, axis=0)
+        # partial_integral = tf.math.accumulate_n(partial_integral)
+        return z.convert_to_tensor(partial_integral)
 
     @supports(multiple_limits=True)
     def _sample(self, n, limits):
@@ -278,19 +293,22 @@ class SumPDF(BaseFunctor):
         return sample
 
 
-class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disasembling components subsets of obs
+class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disassembling components subsets of obs
     def __init__(self, pdfs: List[ZfitPDF], obs: ztyping.ObsTypeInput = None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
     def _unnormalized_pdf(self, x: ztyping.XType):
 
-        return tf.math.reduce_prod([pdf.pdf(x, norm_range=False)
-                                    for pdf in self.pdfs], axis=0)
+        probs = [pdf.pdf(x, norm_range=False) for pdf in self.pdfs]
+        return z.convert_to_tensor(np.prod(probs, axis=0))
+        # return tf.math.reduce_prod(probs, axis=0)
 
     def _pdf(self, x, norm_range):
-        if all(not dep for dep in self._model_same_obs):
+        equal_norm_ranges = len(set([pdf.norm_range for pdf in self.pdfs] + [norm_range])) == 1
+        if all(not dep for dep in self._model_same_obs) and equal_norm_ranges:
 
             probs = [pdf.pdf(x=x) for pdf in self.pdfs]
-            return tf.reduce_prod(input_tensor=probs, axis=0)
+            return z.convert_to_tensor(np.prod(probs, axis=0))
+            # return tf.reduce_prod(input_tensor=probs, axis=0)
         else:
             raise SpecificFunctionNotImplementedError
