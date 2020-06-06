@@ -11,22 +11,18 @@ from collections import OrderedDict
 from typing import Union
 
 import numpy as np
-
+import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
-import tensorflow as tf
-
-
 
 from zfit import z
-from ..util.exception import OverdefinedError, VectorizedLimitsNotImplementedError
-from ..util import ztyping
-from ..settings import ztypes
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitParameter, ZfitData
-from ..core.space import no_norm_range, supports
+from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter
-from ..core.space import Space
+from ..core.space import supports, Space
+from ..settings import ztypes
+from ..util import ztyping
+from ..util.exception import OverdefinedError
 
 
 @supports()
@@ -171,12 +167,53 @@ class KernelDensityTFP(WrapDistribution):
         return integral  # TODO: generalize for VectorSpaces
 
 
-# class GaussianKDE1DimExactV1(KernelDensityTFP):
-#     _N_OBS = 1
-#
-#     def __init__(self, data: ztyping.ParamTypeInput, bandwidth: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
-#                  weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "GaussianKDE1DimV1"):
-#         super().__init__(data, bandwidth, obs, kernel=tfp.distributions.Normal, weights=weights, name=name)
+class GaussianKDE1DimExactV1(WrapDistribution):
+    _N_OBS = 1
+
+    def __init__(self, data: ztyping.ParamTypeInput, bandwidth: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
+                 weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "GaussianKDE1DimV1"):
+        """One dimensional Kernel Density Esimation using a Gaussian and either a broadcasting or a per-event bandwidth
+
+        Args:
+            data: 1-D Tensor-like. The positions of the `kernel`. Determines how many kernels will be created.
+            bandwidth: Broadcastable to the batch and event shape of the distribution. A scalar will simply broadcast
+                to `data` for a 1-D distribution.
+            obs: Observables
+            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
+            name: Name of the PDF
+        """
+
+        if isinstance(data, ZfitData):
+            if data.weights is not None:
+                if weights is not None:
+                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
+                else:
+                    weights = data.weights
+
+            data = z.unstack_x(data)
+
+        shape_data = tf.shape(data)
+        size = tf.cast(shape_data[0], dtype=ztypes.float)
+        if weights is not None:
+            probs = weights / tf.reduce_sum(weights)
+        else:
+            probs = tf.broadcast_to(1 / size, shape=(tf.cast(size, tf.int32),))
+        categorical = tfd.Categorical(probs=probs)  # no grad -> no need to recreate
+
+        def kernel_factory():
+            return tfp.distributions.Normal(loc=data, scale=bandwidth)
+
+        dist_kwargs = lambda: dict(mixture_distribution=categorical,
+                                   components_distribution=kernel_factory())
+        distribution = tfd.MixtureSameFamily
+        params = {'bandwidth': bandwidth}
+        super().__init__(obs=obs,
+                         params=params,
+                         dist_params={},
+                         dist_kwargs=dist_kwargs,
+                         distribution=distribution,
+                         name=name)
+        self._data_weights = weights
 
 
 class Gauss(WrapDistribution):
