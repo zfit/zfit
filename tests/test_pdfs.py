@@ -41,8 +41,6 @@ def true_gaussian_sum(x):
     return sum_gauss
 
 
-
-
 def create_params(name_add=""):
     mu1 = Parameter("mu1" + name_add, mu1_true)
     mu2 = Parameter("mu2" + name_add, mu2_true)
@@ -118,7 +116,7 @@ def test_prod_gauss_nd():
     probs_np = probs.numpy()
     np.testing.assert_allclose(true_probs, probs_np, rtol=1e-2)
 
-from line_profiler import LineProfiler
+
 @pytest.mark.flaky(reruns=3)
 def test_prod_gauss_nd_mixed():
     norm_range = (-5, 4)
@@ -156,6 +154,7 @@ def test_prod_gauss_nd_mixed():
     true_probs_np = true_probs.numpy()
     assert np.average(probs_np * limits_4d.area()) == pytest.approx(1., rel=0.33)  # low n mc
     np.testing.assert_allclose(true_probs_np, probs_np, rtol=2e-2)
+
 
 def test_func_sum():
     sum_gauss = sum_gaussians()
