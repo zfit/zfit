@@ -6,7 +6,8 @@ A FunctorBase class is provided to make handling the models easier.
 Their implementation is often non-trivial.
 """
 #  Copyright (c) 2020 zfit
-
+import functools
+import operator
 from collections import OrderedDict
 from typing import List, Optional
 
@@ -188,7 +189,7 @@ class SumPDF(BaseFunctor):
         pdfs = self.pdfs
         fracs = self.params.values()
         probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
-        prob = np.sum(probs, axis=0)
+        prob = functools.reduce(operator.add, probs)
         # prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
         return z.convert_to_tensor(prob)
 
@@ -199,22 +200,9 @@ class SumPDF(BaseFunctor):
         pdfs = self.pdfs
         fracs = self.params.values()
         probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
-        prob = np.sum(probs, axis=0)
+        prob = functools.reduce(operator.add, probs)
         # prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
         return z.convert_to_tensor(prob)
-
-    # TODO(SUM): remove the below? Not needed anymore?
-    # def _set_yield(self, value: Union[Parameter, None]):
-    #     # TODO: what happens now with the daughters?
-    #     if all(self.pdfs_extended) and self.is_extended and value is not None:  # to be able to set the yield in the
-    #         raise AlreadyExtendedPDFError("Cannot set the yield of a PDF with extended daughters.")
-    #     # TODO(SUM): why was that needed?
-    #     # elif all(self.pdfs_extended) and self.is_extended and value is None:  # not extended anymore
-    #     #     reciprocal_yield = convert_to_parameter(lambda: tf.math.reciprocal(self.get_yield()),
-    #     #                                             dependents=self.get_yield())
-    #     #     self._maybe_extended_fracs = [reciprocal_yield] * len(self._maybe_extended_fracs)
-    #     else:
-    #         super()._set_yield(value=value)
 
     @supports(multiple_limits=True)
     def _integrate(self, limits, norm_range):
@@ -226,7 +214,7 @@ class SumPDF(BaseFunctor):
                      for pdf, frac in zip(pdfs, fracs)]
         # TODO(SUM): change the below? broadcast integrals?
         # integral = tf.reduce_sum(input_tensor=integrals, axis=0)
-        integral = np.sum(integrals, axis=0)
+        integral = functools.reduce(operator.add, integrals)
         # integral = tf.math.accumulate_n(integrals)
         return z.convert_to_tensor(integral)
 
@@ -244,7 +232,7 @@ class SumPDF(BaseFunctor):
 
         # TODO(SUM): change the below? broadcast integrals?
         # integral = tf.reduce_sum(input_tensor=integrals)
-        integral = np.sum(integrals, axis=0)
+        integral = functools.reduce(operator.add, integrals)
         # integral = tf.math.accumulate_n(integrals)
         return z.convert_to_tensor(integral)
 
@@ -256,7 +244,7 @@ class SumPDF(BaseFunctor):
 
         partial_integral = [pdf.partial_integrate(x=x, limits=limits) * frac  # do NOT propagate the norm_range!
                             for pdf, frac in zip(pdfs, fracs)]
-        partial_integral = np.sum(partial_integral, axis=0)
+        partial_integral = functools.reduce(operator.add, partial_integral)
         # partial_integral = tf.math.accumulate_n(partial_integral)
         return z.convert_to_tensor(partial_integral)
 
@@ -272,7 +260,7 @@ class SumPDF(BaseFunctor):
             raise AnalyticIntegralNotImplementedError(
                 "partial_analytic_integrate of pdf {name} is not implemented in this"
                 " SumPDF, as at least one sub-pdf does not implement it.") from error
-        partial_integral = np.sum(partial_integral, axis=0)
+        partial_integral = functools.reduce(operator.add, partial_integral)
         # partial_integral = tf.math.accumulate_n(partial_integral)
         return z.convert_to_tensor(partial_integral)
 
@@ -300,7 +288,7 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
     def _unnormalized_pdf(self, x: ztyping.XType):
 
         probs = [pdf.pdf(x, norm_range=False) for pdf in self.pdfs]
-        return z.convert_to_tensor(np.prod(probs, axis=0))
+        return z.convert_to_tensor(functools.reduce(operator.mul, probs))
         # return tf.math.reduce_prod(probs, axis=0)
 
     def _pdf(self, x, norm_range):
@@ -308,7 +296,7 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
         if all(not dep for dep in self._model_same_obs) and equal_norm_ranges:
 
             probs = [pdf.pdf(x=x) for pdf in self.pdfs]
-            return z.convert_to_tensor(np.prod(probs, axis=0))
+            return z.convert_to_tensor(functools.reduce(operator.mul, probs))
             # return tf.reduce_prod(input_tensor=probs, axis=0)
         else:
             raise SpecificFunctionNotImplementedError
