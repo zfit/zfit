@@ -3,6 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>loss &#8212; zfit 0.5.2 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -11,7 +12,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
@@ -277,7 +278,7 @@
 <span id="loss"></span><h1>loss<a class="headerlink" href="#module-zfit.core.loss" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="zfit.core.loss.BaseLoss">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">BaseLoss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel">zfit.core.interfaces.ZfitModel</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel">zfit.core.interfaces.ZfitModel</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.Data<span class="p">, </span>Iterable<span class="p">[</span>zfit.Data<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">fit_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constraints</span><span class="p">:</span> <span class="n">Union[Iterable[Union[zfit.core.interfaces.ZfitConstraint, Callable]], zfit.core.interfaces.ZfitConstraint, Callable, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.loss.</code><code class="sig-name descname">BaseLoss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel">zfit.core.interfaces.ZfitModel</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitModel" title="zfit.core.interfaces.ZfitModel">zfit.core.interfaces.ZfitModel</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>zfit.Data<span class="p">, </span>Iterable<span class="p">[</span>zfit.Data<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">fit_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constraints</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>Iterable<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitConstraint" title="zfit.core.interfaces.ZfitConstraint">zfit.core.interfaces.ZfitConstraint</a><span class="p">, </span>Callable<span class="p">]</span><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitConstraint" title="zfit.core.interfaces.ZfitConstraint">zfit.core.interfaces.ZfitConstraint</a><span class="p">, </span>Callable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/loss.html#BaseLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.loss.BaseLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitLoss</span></code></a>, <a class="reference internal" href="zfit.core.baseobject.html#zfit.core.baseobject.BaseNumeric" title="zfit.core.baseobject.BaseNumeric"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.baseobject.BaseNumeric</span></code></a></p>
 <p>A “simultaneous fit” can be performed by giving one or more <cite>model</cite>, <cite>data</cite>, <cite>fit_range</cite>
 to the loss. The length of each has to match the length of the others.</p>
@@ -361,7 +362,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.loss.BaseLoss.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.BaseLoss.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -559,7 +560,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.loss.CachedLoss.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.CachedLoss.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -758,7 +759,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.loss.ExtendedUnbinnedNLL.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.ExtendedUnbinnedNLL.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -954,7 +955,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.loss.SimpleLoss.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.SimpleLoss.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1153,7 +1154,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.loss.UnbinnedNLL.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.loss.UnbinnedNLL.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1292,7 +1293,7 @@ included.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.0.<br/>
     </p>
   </div>
 </footer>

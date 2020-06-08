@@ -3,6 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>parameter &#8212; zfit 0.5.2 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -11,7 +12,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
@@ -278,7 +279,7 @@
 <p>Define Parameter which holds the value.</p>
 <dl class="py class">
 <dt id="zfit.core.parameter.BaseComposedParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">BaseComposedParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">value_fn</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'BaseComposedParameter'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#BaseComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.BaseComposedParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">BaseComposedParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#BaseComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.BaseComposedParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.parameter.ZfitParameterMixin" title="zfit.core.parameter.ZfitParameterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ZfitParameterMixin</span></code></a>, <a class="reference internal" href="#zfit.core.parameter.OverloadableMixin" title="zfit.core.parameter.OverloadableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.OverloadableMixin</span></code></a>, <a class="reference internal" href="#zfit.core.parameter.BaseParameter" title="zfit.core.parameter.BaseParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseParameter</span></code></a></p>
 <dl class="py method">
 <dt id="zfit.core.parameter.BaseComposedParameter.add_cache_deps">
@@ -328,7 +329,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.parameter.BaseComposedParameter.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.BaseComposedParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.BaseComposedParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -442,7 +443,7 @@ included.</p></li>
 
 <dl class="py class">
 <dt id="zfit.core.parameter.BaseParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">BaseParameter</code><a class="reference internal" href="../_modules/zfit/core/parameter.html#BaseParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.BaseParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">BaseParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#BaseParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.BaseParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitParameter</span></code></a></p>
 <dl class="py method">
 <dt id="zfit.core.parameter.BaseParameter.dtype">
@@ -462,7 +463,7 @@ included.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.BaseParameter.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.BaseParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.BaseParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -538,7 +539,7 @@ included.</p></li>
 
 <dl class="py class">
 <dt id="zfit.core.parameter.ComplexParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">ComplexParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value_fn</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.complex128</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComplexParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">ComplexParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComplexParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComplexParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.parameter.ComposedParameter" title="zfit.core.parameter.ComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ComposedParameter</span></code></a></p>
 <p>Create a complex parameter.</p>
 <div class="admonition warning">
@@ -617,7 +618,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.parameter.ComplexParameter.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComplexParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -746,7 +747,7 @@ included.</p></li>
 
 <dl class="py class">
 <dt id="zfit.core.parameter.ComposedParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">ComposedParameter</code><span class="sig-paren">(</span><em class="sig-param">name: str, value_fn: Callable, params: Union[Dict[str, zfit.core.interfaces.ZfitParameter], Iterable[zfit.core.interfaces.ZfitParameter], zfit.core.interfaces.ZfitParameter] = &lt;class 'zfit.util.checks.NotSpecified'&gt;, dtype: tensorflow.python.framework.dtypes.DType = tf.float64, dependents: Union[Dict[str, zfit.core.interfaces.ZfitParameter], Iterable[zfit.core.interfaces.ZfitParameter], zfit.core.interfaces.ZfitParameter] = &lt;class 'zfit.util.checks.NotSpecified'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">ComposedParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ComposedParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ComposedParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.parameter.BaseComposedParameter" title="zfit.core.parameter.BaseComposedParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseComposedParameter</span></code></a></p>
 <p>Arbitrary composition of parameters.</p>
 <p>A <cite>ComposedParameter</cite> allows for arbitrary combinations of parameters and correlations</p>
@@ -811,7 +812,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.parameter.ComposedParameter.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ComposedParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -925,7 +926,7 @@ included.</p></li>
 
 <dl class="py class">
 <dt id="zfit.core.parameter.ConstantParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">ConstantParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.float64</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ConstantParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ConstantParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">ConstantParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#ConstantParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.ConstantParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.parameter.OverloadableMixin" title="zfit.core.parameter.OverloadableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.OverloadableMixin</span></code></a>, <a class="reference internal" href="#zfit.core.parameter.ZfitParameterMixin" title="zfit.core.parameter.ZfitParameterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ZfitParameterMixin</span></code></a>, <a class="reference internal" href="#zfit.core.parameter.BaseParameter" title="zfit.core.parameter.BaseParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseParameter</span></code></a></p>
 <dl class="py method">
 <dt id="zfit.core.parameter.ConstantParameter.add_cache_deps">
@@ -975,7 +976,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.parameter.ConstantParameter.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ConstantParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ConstantParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1089,7 +1090,7 @@ included.</p></li>
 
 <dl class="py class">
 <dt id="zfit.core.parameter.MetaBaseParameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">MetaBaseParameter</code><a class="reference internal" href="../_modules/zfit/core/parameter.html#MetaBaseParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.MetaBaseParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">MetaBaseParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">bases</span></em>, <em class="sig-param"><span class="n">namespace</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#MetaBaseParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.MetaBaseParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.variables.VariableMetaclass</span></code>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABCMeta" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABCMeta</span></code></a></p>
 <dl class="py method">
 <dt id="zfit.core.parameter.MetaBaseParameter.__instancecheck__">
@@ -1140,7 +1141,7 @@ included.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.OverloadableMixin.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.OverloadableMixin.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.OverloadableMixin.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1216,7 +1217,7 @@ included.</p></li>
 
 <dl class="py class">
 <dt id="zfit.core.parameter.Parameter">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">Parameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">lower_limit</span><span class="p">:</span> <span class="n">Union[int, float, complex, tensorflow.python.framework.ops.Tensor, zfit.core.interfaces.ZfitParameter, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">upper_limit</span><span class="p">:</span> <span class="n">Union[int, float, complex, tensorflow.python.framework.ops.Tensor, zfit.core.interfaces.ZfitParameter, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">step_size</span><span class="p">:</span> <span class="n">Union[int, float, complex, tensorflow.python.framework.ops.Tensor, zfit.core.interfaces.ZfitParameter, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="p">:</span> <span class="n">tensorflow.python.framework.dtypes.DType</span> <span class="o">=</span> <span class="default_value">tf.float64</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.Parameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">Parameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.Parameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.core.parameter.ZfitParameterMixin" title="zfit.core.parameter.ZfitParameterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ZfitParameterMixin</span></code></a>, <a class="reference internal" href="#zfit.core.parameter.TFBaseVariable" title="zfit.core.parameter.TFBaseVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.TFBaseVariable</span></code></a>, <a class="reference internal" href="#zfit.core.parameter.BaseParameter" title="zfit.core.parameter.BaseParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseParameter</span></code></a>, <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitIndependentParameter" title="zfit.core.interfaces.ZfitIndependentParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.interfaces.ZfitIndependentParameter</span></code></a></p>
 <p>Class for fit parameters, derived from TF Variable class.</p>
 <p>name : name of the parameter,
@@ -1481,7 +1482,7 @@ Can be <cite>None</cite> if no constraint was passed.</p>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.Parameter.count_up_to">
-<code class="sig-name descname">count_up_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limit</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.count_up_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">count_up_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.count_up_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Increments this variable until it reaches <cite>limit</cite>. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1530,7 +1531,7 @@ distinct.</p>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.Parameter.experimental_ref">
-<code class="sig-name descname">experimental_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.experimental_ref" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">experimental_ref</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.experimental_ref" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1567,7 +1568,7 @@ Use ref() instead.</p>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.Parameter.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1656,7 +1657,7 @@ included.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.Parameter.initialized_value">
-<code class="sig-name descname">initialized_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.initialized_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initialized_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.initialized_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value of the initialized variable. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1707,7 +1708,7 @@ has run.</p>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.Parameter.load">
-<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">session</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.Parameter.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load new value into this variable. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1780,7 +1781,7 @@ default session is used.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.Parameter.randomize">
-<code class="sig-name descname">randomize</code><span class="sig-paren">(</span><em class="sig-param">minval: Union[int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">zfit.core.interfaces.ZfitParameter</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">maxval: Union[int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">zfit.core.interfaces.ZfitParameter</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">sampler: Callable = &lt;function random_uniform&gt;</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter.randomize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.Parameter.randomize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">randomize</code><span class="sig-paren">(</span><em class="sig-param">minval: Optional[Union[int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">maxval: Optional[Union[int</em>, <em class="sig-param">float</em>, <em class="sig-param">complex</em>, <em class="sig-param">tensorflow.python.framework.ops.Tensor</em>, <em class="sig-param">zfit.core.interfaces.ZfitParameter]] = None</em>, <em class="sig-param">sampler: Callable = &lt;function random_uniform&gt;</em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/parameter.html#Parameter.randomize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.Parameter.randomize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the parameter with a randomised value between minval and maxval and return it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2267,7 +2268,7 @@ in the specified name scope.</p>
 
 <dl class="py class">
 <dt id="zfit.core.parameter.TFBaseVariable">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">TFBaseVariable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initial_value</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">trainable</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">collections</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">validate_shape</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">caching_device</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">variable_def</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">import_scope</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constraint</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">distribute_strategy</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">synchronization</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">aggregation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#TFBaseVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">TFBaseVariable</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#TFBaseVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.ops.resource_variable_ops.ResourceVariable</span></code></p>
 <p>Creates a variable.</p>
 <dl class="field-list simple">
@@ -2557,7 +2558,7 @@ Can be <cite>None</cite> if no constraint was passed.</p>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.TFBaseVariable.count_up_to">
-<code class="sig-name descname">count_up_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limit</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable.count_up_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">count_up_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable.count_up_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Increments this variable until it reaches <cite>limit</cite>. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -2606,7 +2607,7 @@ distinct.</p>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.TFBaseVariable.experimental_ref">
-<code class="sig-name descname">experimental_ref</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable.experimental_ref" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">experimental_ref</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable.experimental_ref" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -2651,7 +2652,7 @@ Use ref() instead.</p>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.TFBaseVariable.initialized_value">
-<code class="sig-name descname">initialized_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable.initialized_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initialized_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable.initialized_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value of the initialized variable. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -2697,7 +2698,7 @@ has run.</p>
 
 <dl class="py method">
 <dt id="zfit.core.parameter.TFBaseVariable.load">
-<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">session</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable.load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.TFBaseVariable.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load new value into this variable. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -3159,7 +3160,7 @@ in the specified name scope.</p>
 
 <dl class="py class">
 <dt id="zfit.core.parameter.WrappedVariable">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">WrappedVariable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initial_value</span></em>, <em class="sig-param"><span class="n">constraint</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#WrappedVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.WrappedVariable" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.parameter.</code><code class="sig-name descname">WrappedVariable</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/parameter.html#WrappedVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.parameter.WrappedVariable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
 <dt id="zfit.core.parameter.WrappedVariable.assign">
@@ -3250,7 +3251,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.core.parameter.ZfitParameterMixin.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ZfitParameterMixin.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.parameter.ZfitParameterMixin.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -3399,7 +3400,7 @@ included.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.0.<br/>
     </p>
   </div>
 </footer>

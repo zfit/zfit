@@ -3,6 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>coordinates &#8212; zfit 0.5.2 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -11,7 +12,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
@@ -389,7 +390,7 @@ If axes is already set and <cite>overwrite</cite> is False, raise an error.</p>
 
 <dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.with_axes">
-<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union[int, Iterable[int], None]</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#zfit.core.coordinates.Coordinates" title="zfit.core.coordinates.Coordinates">zfit.core.coordinates.Coordinates</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#zfit.core.coordinates.Coordinates" title="zfit.core.coordinates.Coordinates">zfit.core.coordinates.Coordinates</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new instance that has <cite>axes</cite>; sorted by or set or dropped.</p>
 <blockquote>
 <div><p>The behavior is as follows:</p>
@@ -442,7 +443,7 @@ is raised.</p>
 
 <dl class="py method">
 <dt id="zfit.core.coordinates.Coordinates.with_obs">
-<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, None]</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#zfit.core.coordinates.Coordinates" title="zfit.core.coordinates.Coordinates">zfit.core.coordinates.Coordinates</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#zfit.core.coordinates.Coordinates" title="zfit.core.coordinates.Coordinates">zfit.core.coordinates.Coordinates</a><a class="reference internal" href="../_modules/zfit/core/coordinates.html#Coordinates.with_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.coordinates.Coordinates.with_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new instance that has <cite>obs</cite>; sorted by or set or dropped.</p>
 <p>The behavior is as follows:</p>
 <blockquote>
@@ -541,7 +542,7 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.0.<br/>
     </p>
   </div>
 </footer>

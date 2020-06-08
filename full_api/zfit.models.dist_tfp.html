@@ -3,6 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>dist_tfp &#8212; zfit 0.5.2 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -11,7 +12,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
@@ -332,7 +333,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.apply_yield">
-<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -367,7 +368,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.convert_sort_space">
-<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -414,7 +415,7 @@ arguments to override with new value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>yield_</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
+<li><p><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
 <li><p><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -426,7 +427,7 @@ arguments to override with new value.</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.create_projection_pdf">
-<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <dl class="field-list simple">
@@ -523,7 +524,7 @@ been created with when it resamples.</p></li>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -597,7 +598,24 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.integrate">
 <code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.is_extended">
@@ -715,7 +733,25 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.partial_integrate">
 <code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.partial_integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.partial_numeric_integrate">
@@ -851,7 +887,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -867,7 +903,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.ExponentialTFP.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">component_norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.ExponentialTFP.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -976,7 +1012,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.apply_yield">
-<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1011,7 +1047,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.convert_sort_space">
-<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -1058,7 +1094,7 @@ arguments to override with new value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>yield_</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
+<li><p><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
 <li><p><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -1070,7 +1106,7 @@ arguments to override with new value.</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.create_projection_pdf">
-<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <dl class="field-list simple">
@@ -1167,7 +1203,7 @@ been created with when it resamples.</p></li>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1241,7 +1277,24 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.integrate">
 <code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.is_extended">
@@ -1359,7 +1412,25 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.partial_integrate">
 <code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.partial_integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.partial_numeric_integrate">
@@ -1495,7 +1566,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1511,7 +1582,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Gauss.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">component_norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Gauss.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1615,7 +1686,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.apply_yield">
-<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1650,7 +1721,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.convert_sort_space">
-<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -1697,7 +1768,7 @@ arguments to override with new value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>yield_</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
+<li><p><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
 <li><p><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -1709,7 +1780,7 @@ arguments to override with new value.</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.create_projection_pdf">
-<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <dl class="field-list simple">
@@ -1806,7 +1877,7 @@ been created with when it resamples.</p></li>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1880,7 +1951,24 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.integrate">
 <code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.is_extended">
@@ -1998,7 +2086,25 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.partial_integrate">
 <code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.partial_integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.partial_numeric_integrate">
@@ -2134,7 +2240,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2150,7 +2256,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.TruncatedGauss.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">component_norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.TruncatedGauss.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -2252,7 +2358,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.apply_yield">
-<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2287,7 +2393,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.convert_sort_space">
-<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -2334,7 +2440,7 @@ arguments to override with new value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>yield_</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
+<li><p><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
 <li><p><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -2346,7 +2452,7 @@ arguments to override with new value.</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.create_projection_pdf">
-<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <dl class="field-list simple">
@@ -2443,7 +2549,7 @@ been created with when it resamples.</p></li>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -2517,7 +2623,24 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.integrate">
 <code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.is_extended">
@@ -2635,7 +2758,25 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.partial_integrate">
 <code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.partial_integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.partial_numeric_integrate">
@@ -2771,7 +2912,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2787,7 +2928,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.Uniform.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">component_norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.Uniform.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -2879,7 +3020,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.apply_yield">
-<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.apply_yield" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">log</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.apply_yield" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a norm_range is given, the value will be multiplied by the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2914,7 +3055,7 @@ If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>Zfi
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.convert_sort_space">
-<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union[str, Iterable[str], zfit.Space, zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.convert_sort_space" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_sort_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.convert_sort_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the inputs (using eventually <cite>obs</cite>, <cite>axes</cite>) to <code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code> and sort them according to
 own <cite>obs</cite>.</p>
 <dl class="field-list simple">
@@ -2961,7 +3102,7 @@ arguments to override with new value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>yield_</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
+<li><p><strong>yield</strong> (numeric, <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – </p></li>
 <li><p><strong>name_addition</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
@@ -2973,7 +3114,7 @@ arguments to override with new value.</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.create_projection_pdf">
-<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_projection_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits_to_integrate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.create_projection_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PDF projection by integrating out some of the dimensions.</p>
 <p>The new projection pdf is still fully dependent on the pdf it was created with.</p>
 <dl class="field-list simple">
@@ -3070,7 +3211,7 @@ been created with when it resamples.</p></li>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -3144,7 +3285,24 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.integrate">
 <code class="sig-name descname">integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Integrate the function over <cite>limits</cite> (normalized over <cite>norm_range</cite> if not False).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to normalize over or False to integrate the
+unnormalized probability</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the integral value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.is_extended">
@@ -3262,7 +3420,25 @@ included.</p></li>
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.partial_integrate">
 <code class="sig-name descname">partial_integrate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.partial_integrate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Partially integrate the function over the <cite>limits</cite> and evaluate it at <cite>x</cite>.</p>
+<p>Dimension of <cite>limits</cite> and <cite>x</cite> have to add up to the full dimension and be therefore equal
+to the dimensions of <cite>norm_range</cite> (if not False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numerical</em>) – The value at which the partially integrated function will be evaluated</p></li>
+<li><p><strong>limits</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – the limits to integrate over. Can contain only some axes</p></li>
+<li><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, False) – the limits to normalize over. Has to have all axes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of the partially integrated function evaluated at <cite>x</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.partial_numeric_integrate">
@@ -3398,7 +3574,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -3414,7 +3590,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.dist_tfp.WrapDistribution.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">component_norm_range</span><span class="p">:</span> <span class="n">Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None]</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.dist_tfp.WrapDistribution.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -3454,7 +3630,7 @@ Use <cite>pdf(norm_range=False)</cite> instead</p>
 
 <dl class="py function">
 <dt id="zfit.models.dist_tfp.tfd_analytic_sample">
-<code class="sig-prename descclassname">zfit.models.dist_tfp.</code><code class="sig-name descname">tfd_analytic_sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">multiple_limits</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Callable<a class="reference internal" href="../_modules/zfit/models/dist_tfp.html#tfd_analytic_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.dist_tfp.tfd_analytic_sample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.models.dist_tfp.</code><code class="sig-name descname">tfd_analytic_sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/dist_tfp.html#tfd_analytic_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.dist_tfp.tfd_analytic_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample analytically with a <cite>tfd.Distribution</cite> within the limits. No preprocessing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -3495,7 +3671,7 @@ Use <cite>pdf(norm_range=False)</cite> instead</p>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.0.<br/>
     </p>
   </div>
 </footer>
