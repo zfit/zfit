@@ -124,6 +124,9 @@ def test_covariance(minimizer_class_and_kwargs):
     b = results['b_param']
     c = results['c_param']
 
+    with pytest.raises(KeyError):
+        result.covariance(params=[a, b, c], method="hesse")
+
     cov_mat_3 = result.covariance(params=[a, b, c])
     cov_mat_2 = result.covariance(params=[c, b])
     cov_dict = result.covariance(params=[a, b, c], as_dict=True)
@@ -142,9 +145,6 @@ def test_covariance(minimizer_class_and_kwargs):
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np")
 
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)
-
-    with pytest.raises(KeyError):
-        result.covariance(params=[a, b, c], method="hesse")
 
 
 @pytest.mark.flaky(reruns=3)
