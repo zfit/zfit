@@ -4,13 +4,9 @@ Fixes #
 ## Proposed Changes
 
   -
-  -
-  -
 
 ## Tests added
 
-  -
-  -
   -
   
 ## Checklist
