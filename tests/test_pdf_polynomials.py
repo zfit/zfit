@@ -4,6 +4,7 @@ import copy
 import numpy as np
 import pytest
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 import zfit
 # noinspection PyUnresolvedReferences
@@ -24,7 +25,7 @@ coeffs_parametrization = [
 ]
 
 rel_integral = 7e-2
-default_sampling = 60000
+default_sampling = 100000
 
 poly_pdfs = [(zfit.pdf.Legendre, default_sampling),
              (zfit.pdf.Chebyshev, default_sampling),
