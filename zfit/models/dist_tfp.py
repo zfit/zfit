@@ -16,6 +16,7 @@ import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 
 from zfit import z
+from . import kde
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter
@@ -170,7 +171,8 @@ class KernelDensityTFP(WrapDistribution):
 class GaussianKDE1DimExactV1(WrapDistribution):
     _N_OBS = 1
 
-    def __init__(self, data: ztyping.ParamTypeInput, bandwidth: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
+    def __init__(self, obs: ztyping.ObsTypeInput, data: ztyping.ParamTypeInput,
+                 bandwidth: ztyping.ParamTypeInput = None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "GaussianKDE1DimV1"):
         """One dimensional Kernel Density Esimation using a Gaussian and either a broadcasting or a per-event bandwidth
 
@@ -182,7 +184,8 @@ class GaussianKDE1DimExactV1(WrapDistribution):
             weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
             name: Name of the PDF
         """
-
+        if bandwidth is None:
+            bandwidth = 'silverman'
         if isinstance(data, ZfitData):
             if data.weights is not None:
                 if weights is not None:
@@ -201,12 +204,12 @@ class GaussianKDE1DimExactV1(WrapDistribution):
         categorical = tfd.Categorical(probs=probs)  # no grad -> no need to recreate
 
         def kernel_factory():
-            return tfp.distributions.Normal(loc=data, scale=bandwidth)
+            return tfp.distributions.Normal(loc=data, scale=self.bandwidth)
 
         dist_kwargs = lambda: dict(mixture_distribution=categorical,
                                    components_distribution=kernel_factory())
         distribution = tfd.MixtureSameFamily
-        params = {'bandwidth': bandwidth}
+        params = {}
         super().__init__(obs=obs,
                          params=params,
                          dist_params={},
@@ -214,6 +217,19 @@ class GaussianKDE1DimExactV1(WrapDistribution):
                          distribution=distribution,
                          name=name)
         self._data_weights = weights
+        if isinstance(bandwidth, str):
+            if bandwidth == 'silverman':
+                bandwidth = kde.bandwidth_silverman(data)
+            elif bandwidth == 'scott':
+                bandwidth = kde.bandwidth_scott(data)
+            elif bandwidth == 'adaptiveV1':
+                # make a first estimation of the bandwidth
+                self.bandwidth = kde.bandwidth_silverman(data)
+                bandwidth = kde.bandwidth_adaptiveV1(data=data, bandwidth=self.bandwidth, func=self.pdf)
+            else:
+                raise ValueError(f"Cannot use {bandwidth} as a bandwidth method. Use numerical or a defined string.")
+
+        self.bandwidth = bandwidth
 
 
 class Gauss(WrapDistribution):
