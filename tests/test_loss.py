@@ -107,10 +107,10 @@ def test_unbinned_simultaneous_nll():
     params = status.params
     assert set(nll_object.get_params()) == {mu1, mu2, sigma1, sigma2}
 
-    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=0.005)
-    assert params[mu2]['value'] == pytest.approx(np.mean(test_values_np2), rel=0.005)
-    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=0.005)
-    assert params[sigma2]['value'] == pytest.approx(np.std(test_values_np2), rel=0.005)
+    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=0.007)
+    assert params[mu2]['value'] == pytest.approx(np.mean(test_values_np2), rel=0.007)
+    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=0.007)
+    assert params[sigma2]['value'] == pytest.approx(np.std(test_values_np2), rel=0.007)
 
 
 @pytest.mark.flaky(3)

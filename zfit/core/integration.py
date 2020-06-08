@@ -359,6 +359,9 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
             unstacked_x = unstacked_x[0]
         return unstacked_x
 
+    def __hash__(self) -> int:
+        return id(self)
+
 
 class AnalyticIntegral:
     def __init__(self, *args, **kwargs):
