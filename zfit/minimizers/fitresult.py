@@ -235,16 +235,14 @@ class FitResult(ZfitResult):
                 raise ValueError("Need to specify `error_name` or use a string as `method`")
             error_name = method
 
-        all_params = list(self.params.keys())
-        uncached_params = self._get_uncached_params(params=all_params, method_name=error_name)
-
         with self._input_check_reset_params(params) as params:
-            if uncached_params:  # TODO: this logic doesn't make sense?
+            uncached_params = self._get_uncached_params(params=params, method_name=error_name)
+            if uncached_params:
                 error_dict = self._hesse(params=uncached_params, method=method)
                 self._cache_errors(error_name=error_name, errors=error_dict)
 
-        all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
-        return all_errors
+        errors = OrderedDict((p, self.params[p][error_name]) for p in params)
+        return errors
 
     def _cache_errors(self, error_name, errors):
         for param, errors in errors.items():
@@ -373,12 +371,12 @@ class FitResult(ZfitResult):
                 method = "minuit_hesse"
             # LEGACY END
 
-        if not self._covariance_dict:
+        if method not in self._covariance_dict:
             with self._input_check_reset_params(params) as params:
-                self._covariance_dict = self._covariance(method=method)
+                self._covariance_dict[method] = self._covariance(method=method)
 
         params = self._input_check_params(params)
-        covariance = {k: self._covariance_dict[k] for k in itertools.product(params, params)}
+        covariance = {k: self._covariance_dict[method][k] for k in itertools.product(params, params)}
 
         if as_dict:
             return covariance

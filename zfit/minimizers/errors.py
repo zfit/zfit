@@ -123,11 +123,12 @@ def numerical_pdf_jacobian(func, params):
 
 def autodiff_pdf_jacobian(func, params):
 
-    with tf.GradientTape(persistent=False,  # needs to be persistent for a call from hessian.
+    with tf.GradientTape(persistent=True,  # needs to be persistent for a call from hessian.
                          watch_accessed_variables=False) as tape:
         tape.watch(params)
         values = func()
-    jacobian = tape.jacobian(values, params)
+    jacobian = tape.jacobian(values, params, experimental_use_pfor=False)
+    del tape
     return np.array(jacobian)
 
 
