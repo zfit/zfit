@@ -10,7 +10,7 @@ from zfit import ztypes
 
 
 def test_simple_kde():
-    expected_int = 5 / 6
+    expected_integral = 5 / 6
     h = zfit.Parameter("h", 0.9)
 
     size = 5000
@@ -18,7 +18,6 @@ def test_simple_kde():
     # data = np.concatenate([data, np.random.uniform(size=size * 1, low=-5, high=2.3)])
     # data = tf.random.poisson(shape=(13000,), lam=7, dtype=ztypes.float)
     limits = (-15, 5)
-    norm_range = (-15, 17)
     kde = zfit.models.dist_tfp.GaussianKDE1DimExactV1(data=data, bandwidth=h, obs=zfit.Space("obs1", limits=limits))
     kde_adaptive = zfit.models.dist_tfp.GaussianKDE1DimExactV1(data=data, bandwidth='adaptiveV1',
                                                                obs=zfit.Space("obs1", limits=limits))
@@ -40,7 +39,7 @@ def test_simple_kde():
     plt.show()
 
     rel_tol = 0.04
-    assert zfit.run(integral) == pytest.approx(expected_int, rel=rel_tol)
-    assert zfit.run(integral) == pytest.approx(expected_int, rel=rel_tol)
-    assert zfit.run(integral_adaptive) == pytest.approx(expected_int, rel=rel_tol)
-    assert zfit.run(integral_silverman) == pytest.approx(expected_int, rel=rel_tol)
+    assert zfit.run(integral) == pytest.approx(expected_integral, rel=rel_tol)
+    assert zfit.run(integral) == pytest.approx(expected_integral, rel=rel_tol)
+    assert zfit.run(integral_adaptive) == pytest.approx(expected_integral, rel=rel_tol)
+    assert zfit.run(integral_silverman) == pytest.approx(expected_integral, rel=rel_tol)
