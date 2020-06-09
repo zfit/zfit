@@ -26,7 +26,7 @@ Bug fixes and small changes
 - change zfit internal algorithm (`zfit_error`) to compute error/intervals from the profile likelihood,
   which is 2-3 times faster than previous algorithm.
 - add `from_minuit` constructor to `FitResult` allowing to create it when
-  using directly iminuit.
+  using directly iminuit
 
 Experimental
 ------------
