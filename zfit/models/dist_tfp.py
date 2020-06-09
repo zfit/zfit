@@ -8,22 +8,17 @@ Therefore a convenient wrapper as well as a lot of implementations are provided.
 #  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
-from typing import Union
 
-import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 
 from zfit import z
-from . import kde
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter
 from ..core.space import supports, Space
 from ..settings import ztypes
 from ..util import ztyping
-from ..util.exception import OverdefinedError
 
 
 @supports()
@@ -165,77 +160,6 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 #         integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
 #         integral = z.reduce_sum(integral * self._weights_loc, axis=-1) / self._weights_sum
 #         return integral  # TODO: generalize for VectorSpaces
-
-
-class GaussianKDE1DimExactV1(WrapDistribution):
-    _N_OBS = 1
-
-    def __init__(self, obs: ztyping.ObsTypeInput, data: ztyping.ParamTypeInput,
-                 bandwidth: ztyping.ParamTypeInput = None,
-                 weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "GaussianKDE1DimV1"):
-        """One dimensional Kernel Density Estimation with a Gaussian Kernel.
-
-        Args:
-            data: 1-D Tensor-like. The positions of the `kernel`. Determines how many kernels will be created.
-            bandwidth: Broadcastable to the batch and event shape of the distribution. A scalar will simply broadcast
-                to `data` for a 1-D distribution.
-            obs: Observables
-            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
-            name: Name of the PDF
-        """
-        if bandwidth is None:
-            bandwidth = 'silverman'
-        if isinstance(data, ZfitData):
-            if data.weights is not None:
-                if weights is not None:
-                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
-                else:
-                    weights = data.weights
-
-            data = z.unstack_x(data)
-
-        shape_data = tf.shape(data)
-        size = tf.cast(shape_data[0], dtype=ztypes.float)
-        if weights is not None:
-            probs = weights / tf.reduce_sum(weights)
-        else:
-            probs = tf.broadcast_to(1 / size, shape=(tf.cast(size, tf.int32),))
-        categorical = tfd.Categorical(probs=probs)  # no grad -> no need to recreate
-
-        bandwidth_param = None
-        if isinstance(bandwidth, str):
-            if bandwidth == 'silverman':
-                bandwidth = kde.bandwidth_silverman(data)
-            elif bandwidth == 'scott':
-                bandwidth = kde.bandwidth_scott(data)
-            elif bandwidth == 'adaptiveV1':
-                # make a first estimation of the bandwidth by creating an instance of itself
-                kde_silverman = type(self)(obs=obs, data=data, bandwidth='silverman', weights=weights,
-                                           name=f"INTERNAL_{name}")
-                bandwidth = kde.bandwidth_adaptiveV1(data=data, bandwidth=kde_silverman.bandwidth,
-                                                     func=kde_silverman.pdf)
-                bandwidth_param = 'adaptiveV1'
-            else:
-                raise ValueError(f"Cannot use {bandwidth} as a bandwidth method. Use numerical or a defined string.")
-
-        bandwidth_param = -999 if bandwidth_param == 'adaptiveV1' else bandwidth  # TODO: multiparam for bandwidth?
-
-        def kernel_factory():
-            return tfp.distributions.Normal(loc=data, scale=self.bandwidth)
-
-        dist_kwargs = lambda: dict(mixture_distribution=categorical,
-                                   components_distribution=kernel_factory())
-        distribution = tfd.MixtureSameFamily
-
-        params = {'bandwidth': bandwidth_param}
-        super().__init__(obs=obs,
-                         params=params,
-                         dist_params={},
-                         dist_kwargs=dist_kwargs,
-                         distribution=distribution,
-                         name=name)
-        self._data_weights = weights
-        self.bandwidth = bandwidth
 
 
 class Gauss(WrapDistribution):
