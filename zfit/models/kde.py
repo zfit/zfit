@@ -62,15 +62,23 @@ class GaussianKDE1DimExactV1(WrapDistribution):
                  weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "GaussianKDE1DimV1"):
         r"""One dimensional Kernel Density Estimation with a Gaussian Kernel.
 
+        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+
         .. math::
 
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
+        where the kernel in this case is a Gaussian
+
+        .. math::
+            K = \exp \Big(\frac{(x - x_i)^2}{\sigma^2}\Big)
+
+
         The bandwidth of the kernel can be estimated in different ways. It can either be a global bandwidth,
-        corresponding to a single value, or a local bandwidth
+        corresponding to a single value, or a local bandwidth, each corresponding to one data point
 
         Args:
-            data: 1-D Tensor-like. The positions of the `kernel`. Determines how many kernels will be created.
+            data: 1-D Tensor-like. The positions of the `kernel`, the :math:`x_i`. Determines how many kernels will be created.
             bandwidth: Broadcastable to the batch and event shape of the distribution. A scalar will simply broadcast
                 to `data` for a 1-D distribution.
             obs: Observables
