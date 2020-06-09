@@ -6,11 +6,11 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd
 
-from ..core.interfaces import ZfitData
 from .dist_tfp import WrapDistribution
+from .. import z, ztypes
+from ..core.interfaces import ZfitData
 from ..util import ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
-from .. import z, ztypes
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):
@@ -60,7 +60,11 @@ class GaussianKDE1DimExactV1(WrapDistribution):
     def __init__(self, obs: ztyping.ObsTypeInput, data: ztyping.ParamTypeInput,
                  bandwidth: ztyping.ParamTypeInput = None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "GaussianKDE1DimV1"):
-        """One dimensional Kernel Density Estimation with a Gaussian Kernel.
+        r"""One dimensional Kernel Density Estimation with a Gaussian Kernel.
+
+        .. math::
+
+            f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
         The bandwidth of the kernel can be estimated in different ways. It can either be a global bandwidth,
         corresponding to a single value, or a local bandwidth
