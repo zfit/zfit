@@ -274,7 +274,6 @@
   <h1>Source code for zfit.minimizers.minimizer_minuit</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">iminuit</span>
@@ -452,24 +451,8 @@
             <span class="n">minimizer_setter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="n">minimizer</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">migrad</span><span class="p">(</span><span class="o">**</span><span class="n">minimize_options</span><span class="p">)</span>
-        <span class="n">params_result</span> <span class="o">=</span> <span class="p">[</span><span class="n">p_dict</span> <span class="k">for</span> <span class="n">p_dict</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
-        <span class="n">result_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">params_result</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">result_vals</span><span class="p">)</span>
-
-        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_eval&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nfcn&#39;</span><span class="p">],</span>
-                <span class="s1">&#39;n_iter&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ncalls&#39;</span><span class="p">],</span>
-                <span class="c1"># &#39;grad&#39;: result[&#39;jac&#39;],</span>
-                <span class="c1"># &#39;message&#39;: result[&#39;message&#39;],</span>
-                <span class="s1">&#39;original&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
-        <span class="n">edm</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;edm&#39;</span><span class="p">]</span>
-        <span class="n">fmin</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;fval&#39;</span><span class="p">]</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>
-        <span class="n">converged</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;is_valid&#39;</span><span class="p">]</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">params_result</span><span class="p">))</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">FitResult</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">edm</span><span class="o">=</span><span class="n">edm</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="n">fmin</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
-                           <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">converged</span><span class="o">=</span><span class="n">converged</span><span class="p">,</span>
-                           <span class="n">minimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="n">fitresult</span> <span class="o">=</span> <span class="n">FitResult</span><span class="o">.</span><span class="n">from_minuit</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">fitresult</span>
 
 <div class="viewcode-block" id="Minuit.copy"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.minimizer_minuit.html#zfit.minimize.Minuit.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tmp_minimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span>

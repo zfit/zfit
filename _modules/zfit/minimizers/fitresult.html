@@ -277,12 +277,12 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterable</span>
 
 <span class="kn">import</span> <span class="nn">colored</span>
+<span class="kn">import</span> <span class="nn">iminuit</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Style</span>
-<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">init</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Style</span><span class="p">,</span> <span class="n">init</span>
 <span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
 
@@ -291,6 +291,7 @@
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
 <span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="kn">import</span> <span class="n">set_values</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WeightsNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">ExperimentalFeatureWarning</span>
@@ -317,7 +318,7 @@
 
 <span class="k">def</span> <span class="nf">_covariance_minuit</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
     <span class="c1"># check if no weights in data</span>
-    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">]):</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">WeightsNotImplementedError</span><span class="p">(</span><span class="s2">&quot;Weights are not supported with minuit hesse.&quot;</span><span class="p">)</span>
 
     <span class="n">fitresult</span> <span class="o">=</span> <span class="n">result</span>
@@ -359,7 +360,7 @@
     <span class="k">return</span> <span class="n">matrix_to_dict</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">covariance</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="FitResult"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult">[docs]</a><span class="k">class</span> <span class="nc">FitResult</span><span class="p">(</span><span class="n">ZfitResult</span><span class="p">):</span>
+<div class="viewcode-block" id="FitResult"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult">[docs]</a><span class="k">class</span> <span class="nc">FitResult</span><span class="p">(</span><span class="n">ZfitResult</span><span class="p">):</span>
     <span class="n">_default_hesse</span> <span class="o">=</span> <span class="s2">&quot;hesse_np&quot;</span>
     <span class="n">_hesse_methods</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;minuit_hesse&quot;</span><span class="p">:</span> <span class="n">_covariance_minuit</span><span class="p">,</span> <span class="s2">&quot;hesse_np&quot;</span><span class="p">:</span> <span class="n">_covariance_np</span><span class="p">}</span>
     <span class="n">_default_error</span> <span class="o">=</span> <span class="s2">&quot;zfit_error&quot;</span>
@@ -402,12 +403,52 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_valid</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="nf">_input_convert_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="n">ParamHolder</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">params</span>
+        <span class="k">return</span> <span class="n">ParamHolder</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">_get_uncached_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="p">):</span>
-        <span class="n">params_uncached</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">params_uncached</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
+
+<div class="viewcode-block" id="FitResult.from_minuit"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.from_minuit">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_minuit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">result</span><span class="p">:</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">MigradResult</span><span class="p">,</span>
+                    <span class="n">minimizer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">Minuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;FitResult&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by</span>
+<span class="sd">        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding</span>
+<span class="sd">        zfit objects.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            loss: zfit Loss that was minimized.</span>
+<span class="sd">            params: Iterable of the zfit parameters that were floating during the minimization.</span>
+<span class="sd">            result: Return value of the iminuit migrad command.</span>
+<span class="sd">            minimizer: Instance of the iminuit Minuit that was used to minimize the loss.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            `FitResult`: A `FitResult` as if zfit Minuit was used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">.minimizer_minuit</span> <span class="kn">import</span> <span class="n">Minuit</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">Minuit</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">minimizer</span><span class="p">,</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">Minuit</span><span class="p">):</span>
+                <span class="n">minimizer_new</span> <span class="o">=</span> <span class="n">Minuit</span><span class="p">()</span>
+                <span class="n">minimizer_new</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="n">minimizer</span>
+                <span class="n">minimizer</span> <span class="o">=</span> <span class="n">minimizer_new</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Minimizer </span><span class="si">{</span><span class="n">minimizer</span><span class="si">}</span><span class="s2"> not supported. Use `Minuit` from zfit or from iminuit.&quot;</span><span class="p">)</span>
+        <span class="n">params_result</span> <span class="o">=</span> <span class="p">[</span><span class="n">p_dict</span> <span class="k">for</span> <span class="n">p_dict</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">result_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">params_result</span><span class="p">]</span>
+        <span class="n">set_values</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">result_vals</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_eval&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nfcn&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;n_iter&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ncalls&#39;</span><span class="p">],</span>
+                <span class="c1"># &#39;grad&#39;: result[&#39;jac&#39;],</span>
+                <span class="c1"># &#39;message&#39;: result[&#39;message&#39;],</span>
+                <span class="s1">&#39;original&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+        <span class="n">edm</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;edm&#39;</span><span class="p">]</span>
+        <span class="n">fmin</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;fval&#39;</span><span class="p">]</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;is_valid&#39;</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">params_result</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">edm</span><span class="o">=</span><span class="n">edm</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="n">fmin</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
+                   <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">converged</span><span class="o">=</span><span class="n">converged</span><span class="p">,</span>
+                   <span class="n">minimizer</span><span class="o">=</span><span class="n">minimizer</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -420,8 +461,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            numeric</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">edm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edm</span>
-        <span class="k">return</span> <span class="n">edm</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edm</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">minimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -439,13 +479,11 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            numeric</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmin</span>
-        <span class="k">return</span> <span class="n">fmin</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmin</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
-        <span class="k">return</span> <span class="n">status</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -483,7 +521,7 @@
             <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">params</span>
 
-<div class="viewcode-block" id="FitResult.hesse"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.hesse">[docs]</a>    <span class="k">def</span> <span class="nf">hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.hesse"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.hesse">[docs]</a>    <span class="k">def</span> <span class="nf">hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
               <span class="n">error_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Calculate for `params` the symmetric error using the Hessian/covariance matrix.</span>
 
@@ -533,7 +571,7 @@
         <span class="n">covariance_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covariance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">covariance_dict</span><span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)]</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">})</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FitResult.error"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.error"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
               <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;DEPRECATED! Use &#39;errors&#39; instead</span>
 <span class="sd">            Args:</span>
@@ -562,7 +600,7 @@
                       <span class="s2">&quot;errors, new_res = result.errors()&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="FitResult.errors"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.errors">[docs]</a>    <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.errors"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.errors">[docs]</a>    <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">OrderedDict</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;FitResult&#39;</span><span class="p">]]:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculate and set for `params` the asymmetric error using the set error method.</span>
 
@@ -629,7 +667,7 @@
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following method is not a valid, implemented method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FitResult.covariance"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.covariance">[docs]</a>    <span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="FitResult.covariance"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.covariance">[docs]</a>    <span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the covariance matrix for `params`.</span>
 
 <span class="sd">            Args:</span>
@@ -671,7 +709,7 @@
         <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FitResult.correlation"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.correlation">[docs]</a>    <span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="FitResult.correlation"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.correlation">[docs]</a>    <span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the correlation matrix for `params`.</span>
 
 <span class="sd">            Args:</span>
@@ -716,7 +754,7 @@
         <span class="n">p</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="dict_to_matrix"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.dict_to_matrix">[docs]</a><span class="k">def</span> <span class="nf">dict_to_matrix</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">matrix_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="dict_to_matrix"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.dict_to_matrix">[docs]</a><span class="k">def</span> <span class="nf">dict_to_matrix</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">matrix_dict</span><span class="p">):</span>
     <span class="n">nparams</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
     <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nparams</span><span class="p">,</span> <span class="n">nparams</span><span class="p">))</span>
 
@@ -731,7 +769,7 @@
     <span class="k">return</span> <span class="n">matrix</span></div>
 
 
-<div class="viewcode-block" id="matrix_to_dict"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.matrix_to_dict">[docs]</a><span class="k">def</span> <span class="nf">matrix_to_dict</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+<div class="viewcode-block" id="matrix_to_dict"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.matrix_to_dict">[docs]</a><span class="k">def</span> <span class="nf">matrix_to_dict</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
     <span class="n">nparams</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
     <span class="n">matrix_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -746,12 +784,12 @@
     <span class="k">return</span> <span class="n">matrix_dict</span></div>
 
 
-<div class="viewcode-block" id="covariance_to_correlation"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.covariance_to_correlation">[docs]</a><span class="k">def</span> <span class="nf">covariance_to_correlation</span><span class="p">(</span><span class="n">covariance</span><span class="p">):</span>
+<div class="viewcode-block" id="covariance_to_correlation"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.covariance_to_correlation">[docs]</a><span class="k">def</span> <span class="nf">covariance_to_correlation</span><span class="p">(</span><span class="n">covariance</span><span class="p">):</span>
     <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">covariance</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">covariance</span><span class="p">,</span> <span class="n">diag</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="format_value"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.format_value">[docs]</a><span class="k">def</span> <span class="nf">format_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">highprec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="format_value"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.format_value">[docs]</a><span class="k">def</span> <span class="nf">format_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">highprec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">iminuit</span>
         <span class="n">m_error_class</span> <span class="o">=</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">MError</span>
@@ -781,7 +819,7 @@
     <span class="k">return</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="color_on_bool"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.color_on_bool">[docs]</a><span class="k">def</span> <span class="nf">color_on_bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">on_true</span><span class="o">=</span><span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">on_false</span><span class="o">=</span><span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">9</span><span class="p">)):</span>
+<div class="viewcode-block" id="color_on_bool"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.color_on_bool">[docs]</a><span class="k">def</span> <span class="nf">color_on_bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">on_true</span><span class="o">=</span><span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">on_false</span><span class="o">=</span><span class="n">colored</span><span class="o">.</span><span class="n">bg</span><span class="p">(</span><span class="mi">9</span><span class="p">)):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">on_false</span><span class="p">:</span>
         <span class="n">value_add</span> <span class="o">=</span> <span class="n">on_false</span>
     <span class="k">elif</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">on_true</span><span class="p">:</span>
@@ -792,7 +830,7 @@
     <span class="k">return</span> <span class="n">value</span></div>
 
 
-<div class="viewcode-block" id="ParamHolder"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.ParamHolder">[docs]</a><span class="k">class</span> <span class="nc">ParamHolder</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>  <span class="c1"># no UserDict, we only want to change the __str__</span>
+<div class="viewcode-block" id="ParamHolder"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.ParamHolder">[docs]</a><span class="k">class</span> <span class="nc">ParamHolder</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>  <span class="c1"># no UserDict, we only want to change the __str__</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">order_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;hesse&#39;</span><span class="p">]</span>

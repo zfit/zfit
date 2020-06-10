@@ -389,7 +389,8 @@ be installed with the <cite>dev</cite> extra as (e.g.) <cite>pip install zfit[de
 <li><p>Fix shape issue in TFP distributions for partial integration</p></li>
 <li><p>change zfit internal algorithm (<cite>zfit_error</cite>) to compute error/intervals from the profile likelihood,
 which is 2-3 times faster than previous algorithm.</p></li>
-<li><p>fix broadcasting and partial integral failure with composite PDFs.</p></li>
+<li><p>add <cite>from_minuit</cite> constructor to <cite>FitResult</cite> allowing to create it when
+using directly iminuit</p></li>
 </ul>
 </div>
 <div class="section" id="experimental">

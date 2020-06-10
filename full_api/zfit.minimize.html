@@ -480,6 +480,271 @@ exceeded, the fallback will be used and an error is raised.
 </dd></dl>
 
 <dl class="py class">
+<dt id="zfit.minimize.FitResult">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.minimize.</code><code class="sig-name descname">FitResult</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">edm</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">fmin</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">converged</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span></em>, <em class="sig-param"><span class="n">info</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em>, <em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">minimizer</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer">zfit.minimizers.interface.ZfitMinimizer</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.FitResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitResult" title="zfit.minimizers.interface.ZfitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.interface.ZfitResult</span></code></a></p>
+<p>Create a <cite>FitResult</cite> from a minimization. Store parameter values, minimization infos and calculate errors.</p>
+<p>Any errors calculated are saved under <cite>self.params</cite> dictionary with {parameter: {error_name1: {‘low’: value
+‘high’: value or similar}}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (OrderedDict[<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>, float]) – Result of the fit where each</p>
+</dd>
+</dl>
+<p>:param <a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> key has the value: from the minimum found by the minimizer.
+:param edm: The estimated distance to minimum, estimated by the minimizer (if available)
+:type edm: Union[int, float]
+:param fmin: The minimum of the function found by the minimizer
+:type fmin: Union[numpy.float64, float]
+:param status: A status code (if available)
+:type status: int
+:param converged: Whether the fit has successfully converged or not.
+:type converged: bool
+:param info: Additional information (if available) like <em>number of function calls</em> and the</p>
+<blockquote>
+<div><p>original minimizer return message.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loss</strong> (<em>Union</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><em>ZfitLoss</em></a><em>]</em>) – The loss function that was minimized. Contains also the pdf, data etc.</p></li>
+<li><p><strong>minimizer</strong> (<a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer"><em>ZfitMinimizer</em></a>) – Minimizer that was used to obtain this <cite>FitResult</cite> and will be used to
+calculate certain errors. If the minimizer is state-based (like “iminuit”), then this is a copy
+and the state of other <cite>FitResults</cite> or of the <em>actual</em> minimizer that performed the minimization
+won’t be altered.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.converged">
+<em class="property">property </em><code class="sig-name descname">converged</code><a class="headerlink" href="#zfit.minimize.FitResult.converged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.correlation">
+<code class="sig-name descname">correlation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Callable<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">as_dict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.correlation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.FitResult.correlation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the correlation matrix for <cite>params</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (list(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>)) – The parameters to calculate
+the correlation matrix. If <cite>params</cite> is <cite>None</cite>, use all <em>floating</em> parameters.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>Callable</em>) – The method to use to calculate the correlation matrix. Valid choices are
+{‘minuit_hesse’, ‘hesse_np’} or a Callable.</p></li>
+<li><p><strong>as_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Default <cite>False</cite>. If <cite>True</cite> then returns a dictionnary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>2D <cite>numpy.array</cite> of shape (N, N);
+<cite>dict`(param1, param2) -&gt; correlation if `as_dict == True</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.covariance">
+<code class="sig-name descname">covariance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Callable<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">as_dict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.covariance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.FitResult.covariance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the covariance matrix for <cite>params</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (list(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>)) – The parameters to calculate
+the covariance matrix. If <cite>params</cite> is <cite>None</cite>, use all <em>floating</em> parameters.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>Callable</em>) – The method to use to calculate the covariance matrix. Valid choices are
+{‘minuit_hesse’, ‘hesse_np’} or a Callable.</p></li>
+<li><p><strong>as_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Default <cite>False</cite>. If <cite>True</cite> then returns a dictionnary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>2D <cite>numpy.array</cite> of shape (N, N);
+<cite>dict`(param1, param2) -&gt; covariance if `as_dict == True</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.edm">
+<em class="property">property </em><code class="sig-name descname">edm</code><a class="headerlink" href="#zfit.minimize.FitResult.edm" title="Permalink to this definition">¶</a></dt>
+<dd><p>The estimated distance to the minimum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.error">
+<code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Callable<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span> <span class="o">=</span> <span class="default_value">1.0</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.OrderedDict" title="(in Python v3.8)">collections.OrderedDict</a><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.FitResult.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED! Use ‘errors’ instead
+:param params: The parameters or their names to calculate the</p>
+<blockquote>
+<div><p>errors. If <cite>params</cite> is <cite>None</cite>, use all <em>floating</em> parameters.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>Callable</em>) – The method to use to calculate the errors. Valid choices are
+{‘minuit_minos’} or a Callable.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – <p>Errors are calculated with respect to <cite>sigma</cite> std deviations. The definition
+of 1 sigma depends on the loss function and is defined there.</p>
+<p>For example, the negative log-likelihood (without the factor of 2) has a correspondents
+of <span class="math notranslate nohighlight">\(\Delta\)</span> NLL of 1 corresponds to 1 std deviation.</p>
+</p></li>
+<li><p><strong>error_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name for the error in the dictionary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A <cite>OrderedDict</cite> containing as keys the parameter names and as value a <cite>dict</cite> which</dt><dd><p>contains (next to probably more things) two keys ‘lower’ and ‘upper’,
+holding the calculated errors.
+Example: result[‘par1’][‘upper’] -&gt; the asymmetric upper error of ‘par1’</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>OrderedDict</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.errors">
+<code class="sig-name descname">errors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Callable<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span> <span class="o">=</span> <span class="default_value">1.0</span></em><span class="sig-paren">)</span> &#x2192; Tuple[collections.OrderedDict, Union[None, zfit.minimizers.fitresult.FitResult]]<a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.errors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.FitResult.errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate and set for <cite>params</cite> the asymmetric error using the set error method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (list(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> or str)) – The parameters or their names to calculate the
+errors. If <cite>params</cite> is <cite>None</cite>, use all <em>floating</em> parameters.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>Callable</em>) – The method to use to calculate the errors. Valid choices are
+{‘minuit_minos’} or a Callable.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – <p>Errors are calculated with respect to <cite>sigma</cite> std deviations. The definition
+of 1 sigma depends on the loss function and is defined there.</p>
+<p>For example, the negative log-likelihood (without the factor of 2) has a correspondents
+of <span class="math notranslate nohighlight">\(\Delta\)</span> NLL of 1 corresponds to 1 std deviation.</p>
+</p></li>
+<li><p><strong>error_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name for the error in the dictionary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A <cite>OrderedDict</cite> containing as keys the parameter and as value a <cite>dict</cite> which</dt><dd><p>contains (next to probably more things) two keys ‘lower’ and ‘upper’,
+holding the calculated errors.
+Example: result[par1][‘upper’] -&gt; the asymmetric upper error of ‘par1’</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>OrderedDict</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.fmin">
+<em class="property">property </em><code class="sig-name descname">fmin</code><a class="headerlink" href="#zfit.minimize.FitResult.fmin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function value at the minimum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.from_minuit">
+<em class="property">classmethod </em><code class="sig-name descname">from_minuit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss">zfit.core.interfaces.ZfitLoss</a></span></em>, <em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">result</span><span class="p">:</span> <span class="n">iminuit.util.MigradResult</span></em>, <em class="sig-param"><span class="n">minimizer</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.minimizers.interface.html#zfit.minimizers.interface.ZfitMinimizer" title="zfit.minimizers.interface.ZfitMinimizer">zfit.minimizers.interface.ZfitMinimizer</a><span class="p">, </span>iminuit._libiminuit.Minuit<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult" title="zfit.minimizers.fitresult.FitResult">zfit.minimizers.fitresult.FitResult</a><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.from_minuit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.FitResult.from_minuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <cite>FitResult</cite> from a :py:class:~`iminuit.util.MigradResult` returned by
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">iminuit.Minuit.migrad()</span></code> and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
+zfit objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loss</strong> – zfit Loss that was minimized.</p></li>
+<li><p><strong>params</strong> – Iterable of the zfit parameters that were floating during the minimization.</p></li>
+<li><p><strong>result</strong> – Return value of the iminuit migrad command.</p></li>
+<li><p><strong>minimizer</strong> – Instance of the iminuit Minuit that was used to minimize the loss.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A <cite>FitResult</cite> as if zfit Minuit was used.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>FitResult</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.hesse">
+<code class="sig-name descname">hesse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Callable<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.OrderedDict" title="(in Python v3.8)">collections.OrderedDict</a><a class="reference internal" href="../_modules/zfit/minimizers/fitresult.html#FitResult.hesse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.FitResult.hesse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate for <cite>params</cite> the symmetric error using the Hessian/covariance matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (list(<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>)) – The parameters  to calculate the
+Hessian symmetric error. If None, use all parameters.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – the method to calculate the covariance matrix. Can be {‘minuit_hesse’, ‘hesse_np’} or a callable.</p></li>
+<li><p><strong>error_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name for the error in the dictionary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl>
+<dt>Result of the hessian (symmetric) error as dict with each parameter holding</dt><dd><p>the error dict {‘error’: sym_error}.</p>
+<p>So given param_a (from zfit.Parameter(.))
+<cite>error_a = result.hesse(params=param_a)[param_a][‘error’]</cite>
+error_a is the hessian error.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>OrderedDict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.info">
+<em class="property">property </em><code class="sig-name descname">info</code><a class="headerlink" href="#zfit.minimize.FitResult.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.loss">
+<em class="property">property </em><code class="sig-name descname">loss</code><a class="headerlink" href="#zfit.minimize.FitResult.loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.minimizer">
+<em class="property">property </em><code class="sig-name descname">minimizer</code><a class="headerlink" href="#zfit.minimize.FitResult.minimizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.params">
+<em class="property">property </em><code class="sig-name descname">params</code><a class="headerlink" href="#zfit.minimize.FitResult.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.params_at_limit">
+<em class="property">property </em><code class="sig-name descname">params_at_limit</code><a class="headerlink" href="#zfit.minimize.FitResult.params_at_limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.status">
+<em class="property">property </em><code class="sig-name descname">status</code><a class="headerlink" href="#zfit.minimize.FitResult.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.minimize.FitResult.valid">
+<em class="property">property </em><code class="sig-name descname">valid</code><a class="headerlink" href="#zfit.minimize.FitResult.valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="zfit.minimize.Minuit">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.minimize.</code><code class="sig-name descname">Minuit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">strategy</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.ZfitStrategy" title="zfit.minimizers.baseminimizer.ZfitStrategy">zfit.minimizers.baseminimizer.ZfitStrategy</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">minimize_strategy</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbosity</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">5</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ncall</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">10000</span></em>, <em class="sig-param"><span class="n">use_minuit_grad</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">minimizer_options</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/minimizers/minimizer_minuit.html#Minuit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.minimize.Minuit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.minimizers.baseminimizer.html#zfit.minimizers.baseminimizer.BaseMinimizer" title="zfit.minimizers.baseminimizer.BaseMinimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.minimizers.baseminimizer.BaseMinimizer</span></code></a>, <a class="reference internal" href="zfit.util.cache.html#zfit.util.cache.GraphCachable" title="zfit.util.cache.GraphCachable"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.util.cache.GraphCachable</span></code></a></p>
