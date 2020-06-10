@@ -137,6 +137,20 @@ class FitResult(ZfitResult):
     @classmethod
     def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: iminuit.util.MigradResult,
                     minimizer: Union[ZfitMinimizer, iminuit.Minuit]) -> 'FitResult':
+        """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
+        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
+        zfit objects.
+
+        Args:
+            loss: zfit Loss that was minimized.
+            params: Iterable of the zfit parameters that were floating during the minimization.
+            result: Return value of the iminuit migrad command.
+            minimizer: Instance of the iminuit Minuit that was used to minimize the loss.
+
+        Returns:
+            `FitResult`: A `FitResult` as if zfit Minuit was used.
+        """
+
         from .minimizer_minuit import Minuit
         if not isinstance(minimizer, Minuit):
             if isinstance(minimizer, iminuit.Minuit):
