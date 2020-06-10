@@ -6,7 +6,7 @@ from scipy import optimize
 import itertools
 import numdifftools
 
-from .. import settings
+from .. import z, settings
 from ..param import set_values
 from ..util.container import convert_to_container
 
@@ -121,15 +121,28 @@ def numerical_pdf_jacobian(func, params):
     return jacobian
 
 
+@z.function
 def autodiff_pdf_jacobian(func, params):
 
-    with tf.GradientTape(persistent=True,  # needs to be persistent for a call from hessian.
-                         watch_accessed_variables=False) as tape:
-        tape.watch(params)
-        values = func()
-    jacobian = tape.jacobian(values, params, experimental_use_pfor=False)
-    del tape
-    return np.array(jacobian)
+    # with tf.GradientTape(persistent=False,
+    #                      watch_accessed_variables=False) as tape:
+    #     tape.watch(params)
+    #     values = func()
+    # jacobian = z.convert_to_tensor(tape.jacobian(values, params, experimental_use_pfor=False))
+    # return jacobian
+
+    columns = []
+
+    for p in params:
+        vector = np.zeros(len(params))
+        vector[params.index(p)] = 1.
+        with tf.autodiff.ForwardAccumulator(params, list(vector)) as acc:
+            values = func()
+        columns.append(acc.jvp(values))
+
+    jacobian = z.convert_to_tensor(columns)
+
+    return jacobian
 
 
 def covariance_with_weights(method, result, params):
@@ -156,7 +169,7 @@ def covariance_with_weights(method, result, params):
 
         jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params)
     else:
-        jacobian = autodiff_pdf_jacobian(func=func, params=params)
+        jacobian = autodiff_pdf_jacobian(func=func, params=params).numpy()
 
     C = np.matmul(jacobian, jacobian.T)
     covariance = np.matmul(Hinv, np.matmul(C, Hinv))
