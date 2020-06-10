@@ -9,7 +9,7 @@ import inspect
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Dict, Union, Callable, List, Tuple
+from typing import Dict, Union, Callable, List, Tuple, Optional
 
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
@@ -221,7 +221,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise NotImplementedError("Are the gradients needed?")
 
-    def _check_input_norm_range(self, norm_range, none_is_error=False) -> Union[Space, bool]:
+    def _check_input_norm_range(self, norm_range, none_is_error=False) -> Optional[ZfitSpace]:
         """Convert to :py:class:`~zfit.Space`.
 
         Args:

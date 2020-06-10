@@ -25,7 +25,8 @@ Bug fixes and small changes
 - Fix shape issue in TFP distributions for partial integration
 - change zfit internal algorithm (`zfit_error`) to compute error/intervals from the profile likelihood,
   which is 2-3 times faster than previous algorithm.
-- fix broadcasting and partial integral failure with composite PDFs.
+- add `from_minuit` constructor to `FitResult` allowing to create it when
+  using directly iminuit
 
 Experimental
 ------------

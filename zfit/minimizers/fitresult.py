@@ -3,12 +3,12 @@ import contextlib
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Dict, Union, Callable, Optional, Tuple
+from typing import Dict, Union, Callable, Optional, Tuple, Iterable
 
 import colored
+import iminuit
 import numpy as np
-from colorama import Style
-from colorama import init
+from colorama import Style, init
 from ordered_set import OrderedSet
 from tabulate import tabulate
 
@@ -17,6 +17,7 @@ from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import set_values
 from ..settings import run
+from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
 from ..util.warnings import ExperimentalFeatureWarning
@@ -43,7 +44,7 @@ def _minos_minuit(result, params, sigma=1.0):
 
 def _covariance_minuit(result, params):
     # check if no weights in data
-    if any([data.weights is not None for data in result.loss.data]):
+    if any(data.weights is not None for data in result.loss.data):
         raise WeightsNotImplementedError("Weights are not supported with minuit hesse.")
 
     fitresult = result
@@ -128,12 +129,52 @@ class FitResult(ZfitResult):
         self._valid = True
 
     def _input_convert_params(self, params):
-        params = ParamHolder((p, {"value": v}) for p, v in params.items())
-        return params
+        return ParamHolder((p, {"value": v}) for p, v in params.items())
 
     def _get_uncached_params(self, params, method_name):
-        params_uncached = [p for p in params if self.params[p].get(method_name) is None]
-        return params_uncached
+        return [p for p in params if self.params[p].get(method_name) is None]
+
+    @classmethod
+    def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: iminuit.util.MigradResult,
+                    minimizer: Union[ZfitMinimizer, iminuit.Minuit]) -> 'FitResult':
+        """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
+        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
+        zfit objects.
+
+        Args:
+            loss: zfit Loss that was minimized.
+            params: Iterable of the zfit parameters that were floating during the minimization.
+            result: Return value of the iminuit migrad command.
+            minimizer: Instance of the iminuit Minuit that was used to minimize the loss.
+
+        Returns:
+            `FitResult`: A `FitResult` as if zfit Minuit was used.
+        """
+
+        from .minimizer_minuit import Minuit
+        if not isinstance(minimizer, Minuit):
+            if isinstance(minimizer, iminuit.Minuit):
+                minimizer_new = Minuit()
+                minimizer_new._minuit_minimizer = minimizer
+                minimizer = minimizer_new
+            else:
+                raise ValueError(f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit.")
+        params_result = [p_dict for p_dict in result[1]]
+        result_vals = [res["value"] for res in params_result]
+        set_values(params, values=result_vals)
+        info = {'n_eval': result[0]['nfcn'],
+                'n_iter': result[0]['ncalls'],
+                # 'grad': result['jac'],
+                # 'message': result['message'],
+                'original': result[0]}
+        edm = result[0]['edm']
+        fmin = result[0]['fval']
+        status = -999
+        converged = result[0]['is_valid']
+        params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
+        return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
+                   status=status, converged=converged,
+                   minimizer=minimizer)
 
     @property
     def params(self):
@@ -146,8 +187,7 @@ class FitResult(ZfitResult):
         Returns:
             numeric
         """
-        edm = self._edm
-        return edm
+        return self._edm
 
     @property
     def minimizer(self):
@@ -165,13 +205,11 @@ class FitResult(ZfitResult):
         Returns:
             numeric
         """
-        fmin = self._fmin
-        return fmin
+        return self._fmin
 
     @property
     def status(self):
-        status = self._status
-        return status
+        return self._status
 
     @property
     def info(self):
