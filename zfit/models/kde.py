@@ -48,6 +48,11 @@ def _bandwidth_silverman_KDEV1(data, *_, **__):
     return bandwidth_silverman(data)
 
 
+@z.function(wraps='tensor')
+def min_std_or_iqr(x):
+    return tf.minimum(tf.math.reduce_std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25)))
+
+
 class GaussianKDE1DimExactV1(WrapDistribution):
     _N_OBS = 1
 
