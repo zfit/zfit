@@ -754,8 +754,11 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
 
     def __repr__(self):
-        value = self.value()
-        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
+        if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
+            value = f'{self.numpy():.4g}'
+        else:
+            value = "graph-node"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' params={self.params} value={value}>"
 
 
 class ComplexParameter(ComposedParameter):
