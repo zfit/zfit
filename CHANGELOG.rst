@@ -12,6 +12,7 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- change name of `Gauss`, `Uniform` and `TruncatedGauss` to remove the `'_tfp'` at the end of the name
 
 Deprecations
 -------------
