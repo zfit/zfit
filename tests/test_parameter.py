@@ -89,7 +89,8 @@ def test_repr():
         assert 'graph-node' in repr_value
         assert 'graph-node' in repr_value2
 
-    tf_call()
+    if zfit.run.get_graph_mode():  # only test if running in graph mode
+        tf_call()
 
 
 def test_composed_param():
