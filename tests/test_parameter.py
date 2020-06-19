@@ -70,6 +70,19 @@ def test_complex_param():
     assert cos(arg_val) == pytest.approx(param3.real.numpy(), rel=1e-6)
 
 
+def test_repr():
+    val = 1543
+    param1 = Parameter('param1', val)
+    repr_value = repr(param1)
+    assert str(val) in repr_value
+
+    @z.function
+    def tf_call():
+        repr_value = repr(param1)
+        assert str(val) not in repr_value
+        assert 'graph-node' not in repr_value
+
+
 def test_composed_param():
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
@@ -112,6 +125,7 @@ def test_shape_composed_parameter():
 
     def compose():
         return tf.square(a) - b
+
     c = ComposedParameter(name='c', value_fn=compose, dependents=[a, b])
     assert c.shape.rank == 0
 

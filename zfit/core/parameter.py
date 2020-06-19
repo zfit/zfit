@@ -593,11 +593,11 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         super().__del__()
 
     def __repr__(self):
-        if hasattr(self, "numpy"):  # more explicit: we check for exactly this attribute, nothing inside numpy
-            value = self.numpy()
+        if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
+            value = f'{self.numpy():.4g}'
         else:
             value = "graph-node"
-        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value:.4g}>"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value}>"
 
     # LEGACY, deprecate?
     @property
@@ -793,7 +793,7 @@ class ComplexParameter(ComposedParameter):
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(name=name,
                     value_fn=lambda: tf.cast(
-                        tf.complex(mod*tf.math.cos(arg), mod*tf.math.sin(arg)),
+                        tf.complex(mod * tf.math.cos(arg), mod * tf.math.sin(arg)),
                         dtype=dtype),
                     params=[mod, arg])
         param._mod = mod
