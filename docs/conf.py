@@ -15,19 +15,6 @@ import zfit
 project_dir = Path(__file__).parents[1]
 sys.path.insert(0, str(project_dir))
 
-
-# build the API documentation
-# def setup(app):
-#     """
-#     Args:
-#         app:
-#     """
-#     cmd_autodoc = 'MAKE_DOCS_PATH="$(pwd -P)" &&'
-#     cmd_autodoc += "SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members " \
-#                    "sphinx-apidoc -o ${MAKE_DOCS_PATH}/full_api ${MAKE_DOCS_PATH}/../zfit  -fMeT"
-#     cmd_customize = " && python3 ${MAKE_DOCS_PATH}/full_api/tools/change_headline.py ${MAKE_DOCS_PATH}/full_api/zfit.*"
-#     os.system(cmd_autodoc + cmd_customize)
-
 # -- General configuration ---------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
