@@ -43,12 +43,14 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.mathjax',
               'sphinx.ext.githubpages',
-              'sphinx.ext.napoleon'
+              'sphinx.ext.napoleon',
+              'sphinx_autodoc_typehints',  # must be imported after napoleon to properly work.
+              # See https://github.com/agronholm/sphinx-autodoc-typehints/issues/15
               ]
 
-using_numpy_style = False  # False -> google style
 
-# Napoleon settings (convert numpy/google docstrings to proper ReST
+# Napoleon settings (convert numpy/google docstrings to proper ReST)
+using_numpy_style = False  # False -> google style
 napoleon_google_docstring = not using_numpy_style
 napoleon_numpy_docstring = using_numpy_style
 napoleon_include_init_with_doc = False
@@ -60,6 +62,19 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
+
+# # sphinx_autodoc_typehints settings
+# # if True, set typing.TYPE_CHECKING to True to enable “expensive” typing imports
+# set_type_checking_flag = False
+# # if True, class names are always fully qualified (e.g. module.for.Class). If False, just the class
+# # name displays (e.g. Class)
+# typehints_fully_qualified = False
+# # (default: False): If False, do not add type info for undocumented parameters. If True, add stub documentation for
+# # undocumented parameters to be able to add type info.
+# always_document_param_types = False
+# # (default: True): If False, never add an :rtype: directive. If True, add the :rtype: directive if no existing :rtype:
+# # is found.
+# typehints_document_rtype = True
 
 # also doc __init__ docstrings
 autoclass_content = 'both'
