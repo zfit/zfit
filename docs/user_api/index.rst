@@ -15,7 +15,7 @@ Most classes and functions are documented with docstrings, but don't hesitate to
 
     zfit.constraint
     zfit.data
-    zfit.dimension
+..    zfit.dimension
     zfit.exception
     zfit.func
     zfit.loss
