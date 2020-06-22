@@ -39,11 +39,11 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a data holder from a `dataset` used to feed into `models`.
 
         Args:
-            dataset (): A dataset storing the actual values
-            obs (): Observables where the data is defined in
-            name (): Name of the `Data`
-            iterator_feed_dict ():
-            dtype ():
+            dataset: A dataset storing the actual values
+            obs: Observables where the data is defined in
+            name: Name of the `Data`
+            iterator_feed_dict:
+            dtype: |dtype_arg_descr|
         """
         if name is None:
             name = "Data"
