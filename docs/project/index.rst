@@ -7,5 +7,5 @@ Project
     :maxdepth: 1
 
     contributing
-    bla <authors>
+    authors
 
