@@ -74,7 +74,7 @@ pygments_style = 'sphinx'
 with open('subst_types.txt') as subst_types:
     rst_epilog = subst_types.read()
 
-html_favicon = "images/zfit-fin_400x168.png"
+html_favicon = "images/zfit-favicon.png"
 
 
 # -- Napoleon settings ---------------------------------------------
