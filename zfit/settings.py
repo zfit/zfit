@@ -53,6 +53,7 @@ advanced_warnings = DotDict({
     'sum_extended_frac': True,
     'exp_shift': True,
     'py_func_autograd': True,
+    'inconsistent_fitrange': True,
     'all': True,
 })
 

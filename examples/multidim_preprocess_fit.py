@@ -1,6 +1,7 @@
 #  Copyright (c) 2020 zfit
 
 import numpy as np
+
 import zfit
 
 # create space
@@ -43,5 +44,5 @@ result = minimizer.minimize(nll)
 print(result.params)
 
 # do the error calculations, here with minos
-param_errors = result.errors()
+param_errors, _ = result.errors()
 print(param_errors)

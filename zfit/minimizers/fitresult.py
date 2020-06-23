@@ -1,24 +1,29 @@
 #  Copyright (c) 2020 zfit
-
+import contextlib
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Dict, Union, Callable, Optional, Tuple
+from typing import Dict, Union, Callable, Optional, Tuple, Iterable
 
 import colored
+import iminuit
 import numpy as np
-from colorama import Style
+from colorama import Style, init
 from ordered_set import OrderedSet
 from tabulate import tabulate
 
 from .errors import compute_errors
 from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
+from ..core.parameter import set_values
 from ..settings import run
+from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
 from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
+
+init(autoreset=True)
 
 
 def _minos_minuit(result, params, sigma=1.0):
@@ -39,7 +44,7 @@ def _minos_minuit(result, params, sigma=1.0):
 
 def _covariance_minuit(result, params):
     # check if no weights in data
-    if any([data.weights is not None for data in result.loss.data]):
+    if any(data.weights is not None for data in result.loss.data):
         raise WeightsNotImplementedError("Weights are not supported with minuit hesse.")
 
     fitresult = result
@@ -71,7 +76,10 @@ def _covariance_np(result, params):
     # numgrad_was_none = settings.options.numerical_grad is None
     # if numgrad_was_none:
     #     settings.options.numerical_grad = True
-    covariance = np.linalg.inv(result.loss.value_gradients_hessian(params)[2])
+
+    _, gradient, hessian = result.loss.value_gradients_hessian(params)
+    covariance = np.linalg.inv(hessian)
+
     # if numgrad_was_none:
     #     settings.options.numerical_grad = None
 
@@ -108,25 +116,65 @@ class FitResult(ZfitResult):
                 won't be altered.
         """
         super().__init__()
+
         self._status = status
         self._converged = converged
         self._params = self._input_convert_params(params)
+        self._params_at_limit = any(param.at_limit for param in self.params)
         self._edm = edm
         self._fmin = fmin
         self._info = info
         self._loss = loss
         self._minimizer = minimizer
         self._valid = True
-        # self.param_error = OrderedDict((p, {}) for p in params)
-        # self.param_hesse = OrderedDict((p, {}) for p in params)
 
     def _input_convert_params(self, params):
-        params = ParamHolder((p, {"value": v}) for p, v in params.items())
-        return params
+        return ParamHolder((p, {"value": v}) for p, v in params.items())
 
     def _get_uncached_params(self, params, method_name):
-        params_uncached = [p for p in params if self.params[p].get(method_name) is None]
-        return params_uncached
+        return [p for p in params if self.params[p].get(method_name) is None]
+
+    @classmethod
+    def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: iminuit.util.MigradResult,
+                    minimizer: Union[ZfitMinimizer, iminuit.Minuit]) -> 'FitResult':
+        """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
+        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
+        zfit objects.
+
+        Args:
+            loss: zfit Loss that was minimized.
+            params: Iterable of the zfit parameters that were floating during the minimization.
+            result: Return value of the iminuit migrad command.
+            minimizer: Instance of the iminuit Minuit that was used to minimize the loss.
+
+        Returns:
+            `FitResult`: A `FitResult` as if zfit Minuit was used.
+        """
+
+        from .minimizer_minuit import Minuit
+        if not isinstance(minimizer, Minuit):
+            if isinstance(minimizer, iminuit.Minuit):
+                minimizer_new = Minuit()
+                minimizer_new._minuit_minimizer = minimizer
+                minimizer = minimizer_new
+            else:
+                raise ValueError(f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit.")
+        params_result = [p_dict for p_dict in result[1]]
+        result_vals = [res["value"] for res in params_result]
+        set_values(params, values=result_vals)
+        info = {'n_eval': result[0]['nfcn'],
+                'n_iter': result[0]['ncalls'],
+                # 'grad': result['jac'],
+                # 'message': result['message'],
+                'original': result[0]}
+        edm = result[0]['edm']
+        fmin = result[0]['fval']
+        status = -999
+        converged = result[0]['is_valid']
+        params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
+        return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
+                   status=status, converged=converged,
+                   minimizer=minimizer)
 
     @property
     def params(self):
@@ -139,8 +187,7 @@ class FitResult(ZfitResult):
         Returns:
             numeric
         """
-        edm = self._edm
-        return edm
+        return self._edm
 
     @property
     def minimizer(self):
@@ -158,13 +205,11 @@ class FitResult(ZfitResult):
         Returns:
             numeric
         """
-        fmin = self._fmin
-        return fmin
+        return self._fmin
 
     @property
     def status(self):
-        status = self._status
-        return status
+        return self._status
 
     @property
     def info(self):
@@ -176,7 +221,24 @@ class FitResult(ZfitResult):
 
     @property
     def valid(self):
-        return self._valid
+        return self._valid and not self.params_at_limit and self.converged
+
+    @property
+    def params_at_limit(self):
+        return self._params_at_limit
+
+    @contextlib.contextmanager
+    def _input_check_reset_params(self, params):
+        params = self._input_check_params(params=params)
+        old_values = run(params)
+        try:
+            yield params
+        except Exception as error:
+            warnings.warn("Exception occurred, parameter values are not reset and in an arbitrary, last"
+                          " used state. If this happens during normal operation, make sure you reset the values.",
+                          RuntimeWarning)
+            raise
+        set_values(params=params, values=old_values)
 
     def _input_check_params(self, params):
         if params is not None:
@@ -219,11 +281,11 @@ class FitResult(ZfitResult):
         all_params = list(self.params.keys())
         uncached_params = self._get_uncached_params(params=all_params, method_name=error_name)
 
-        if uncached_params:
-            error_dict = self._hesse(params=uncached_params, method=method)
-            self._cache_errors(error_name=error_name, errors=error_dict)
+        with self._input_check_reset_params(params) as params:
+            if uncached_params:  # TODO: this logic doesn't make sense?
+                error_dict = self._hesse(params=uncached_params, method=method)
+                self._cache_errors(error_name=error_name, errors=error_dict)
 
-        params = self._input_check_params(params)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
         return all_errors
 
@@ -305,20 +367,20 @@ class FitResult(ZfitResult):
         if method == 'zfit_error':
             warnings.warn("'zfit_error' is still experimental and may fails.", ExperimentalFeatureWarning)
 
-        params = self._input_check_params(params)
-        uncached_params = self._get_uncached_params(params=params, method_name=error_name)
+        with self._input_check_reset_params(params) as params:
+            uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
-        new_result = None
+            new_result = None
 
-        if uncached_params:
-            error_dict, new_result = self._error(params=uncached_params, method=method, sigma=sigma)
-            if new_result is None:
-                self._cache_errors(error_name=error_name, errors=error_dict)
-            else:
-                msg = "Invalid, a new minimum was found."
-                self._cache_errors(error_name=error_name, errors={p: msg for p in params})
-                self._valid = False
-                new_result._cache_errors(error_name=error_name, errors=error_dict)
+            if uncached_params:
+                error_dict, new_result = self._error(params=uncached_params, method=method, sigma=sigma)
+                if new_result is None:
+                    self._cache_errors(error_name=error_name, errors=error_dict)
+                else:
+                    msg = "Invalid, a new minimum was found."
+                    self._cache_errors(error_name=error_name, errors={p: msg for p in params})
+                    self._valid = False
+                    new_result._cache_errors(error_name=error_name, errors=error_dict)
         all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
 
         return all_errors, new_result
@@ -337,7 +399,7 @@ class FitResult(ZfitResult):
             Args:
                 params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
                     the covariance matrix. If `params` is `None`, use all *floating* parameters.
-                method (str or Callbel): The method to use to calculate the covariance matrix. Valid choices are
+                method (str or Callable): The method to use to calculate the covariance matrix. Valid choices are
                     {'minuit_hesse', 'hesse_np'} or a Callable.
                 as_dict (bool): Default `False`. If `True` then returns a dictionnary.
 
@@ -354,8 +416,8 @@ class FitResult(ZfitResult):
                 method = "minuit_hesse"
             # LEGACY END
 
-        params = self._input_check_params(params)
-        covariance = self._covariance(method=method)
+        with self._input_check_reset_params(params) as params:
+            covariance = self._covariance(method=method)
         covariance = {k: covariance[k] for k in itertools.product(params, params)}
 
         if as_dict:
@@ -373,13 +435,40 @@ class FitResult(ZfitResult):
         params = list(self.params.keys())
         return method(result=self, params=params)
 
+    def correlation(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
+        """Calculate the correlation matrix for `params`.
+
+            Args:
+                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
+                    the correlation matrix. If `params` is `None`, use all *floating* parameters.
+                method (str or Callable): The method to use to calculate the correlation matrix. Valid choices are
+                    {'minuit_hesse', 'hesse_np'} or a Callable.
+                as_dict (bool): Default `False`. If `True` then returns a dictionnary.
+
+            Returns:
+                2D `numpy.array` of shape (N, N);
+                `dict`(param1, param2) -> correlation if `as_dict == True`.
+        """
+
+        covariance = self.covariance(params=params, method=method, as_dict=False)
+        correlation = covariance_to_correlation(covariance)
+
+        if as_dict:
+            params = self._input_check_params(params)
+            return matrix_to_dict(params, correlation)
+        else:
+            return correlation
+
     def __str__(self):
         string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
         string += tabulate(
-            [[color_on_bool(self.converged), format_value(self.edm, highprec=False),
+            [[color_on_bool(self.valid), color_on_bool(self.converged, on_true=False),
+              color_on_bool(self.params_at_limit, on_true=colored.bg(9), on_false=False),
+              format_value(self.edm, highprec=False),
               format_value(self.fmin)]],
-            ['converged', 'edm', 'min value'], tablefmt='fancy_grid'
-        )
+            ['valid', 'converged', 'param at limit', 'edm', 'min value'],
+            tablefmt='fancy_grid',
+            disable_numparse=True)
         string += '\n\n' + Style.BRIGHT + "Parameters\n" + Style.NORMAL
         string += str(self.params)
         return string
@@ -421,6 +510,11 @@ def matrix_to_dict(params, matrix):
     return matrix_dict
 
 
+def covariance_to_correlation(covariance):
+    diag = np.diag(1 / np.diag(covariance) ** 0.5)
+    return np.matmul(diag, np.matmul(covariance, diag))
+
+
 def format_value(value, highprec=True):
     try:
         import iminuit
@@ -430,13 +524,18 @@ def format_value(value, highprec=True):
     if isinstance(value, (dict, m_error_class)):
         if 'error' in value:
             value = value['error']
-            value = f"+/- {value:> 6.2g}"
+            value = f"{value:> 6.2g}"
+            value = f'+/-{" " * (8 - len(value))}' + value
         if 'lower' in value and 'upper' in value:
             lower = value['lower']
             upper = value['upper']
-            lower, upper = f"{lower: >+6.2g}", f"{upper: >+6.2g}"
-            lower += " " * (9 - len(lower))
-            value = lower + upper
+            lower_sign = f"{np.sign(lower): >+}"[0]
+            upper_sign = f"{np.sign(upper): >+}"[0]
+            lower, upper = f"{np.abs(lower): >6.2g}", f"{upper: >6.2g}"
+            lower = lower_sign + " " * (7 - len(lower)) + lower
+            upper = upper_sign + " " * (7 - len(upper)) + upper
+            # lower += " t" * (11 - len(lower))
+            value = lower + " " * 3 + upper
 
     if isinstance(value, float):
         if highprec:
@@ -453,7 +552,7 @@ def color_on_bool(value, on_true=colored.bg(10), on_false=colored.bg(9)):
         value_add = on_true
     else:
         value_add = ''
-    value = value_add + str(value) + colored.bg(15)
+    value = value_add + str(value) + Style.RESET_ALL
     return value
 
 
@@ -475,5 +574,5 @@ class ParamHolder(dict):  # no UserDict, we only want to change the __str__
             rows.append(row)
 
         order_keys = ['name'] + list(order_keys) + ['at limit']
-        table = tabulate(rows, order_keys)
+        table = tabulate(rows, order_keys, numalign="right", stralign='right', colalign=('left',))
         return table

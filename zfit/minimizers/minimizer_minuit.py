@@ -1,6 +1,5 @@
 #  Copyright (c) 2020 zfit
 
-from collections import OrderedDict
 from typing import List
 
 import iminuit
@@ -9,8 +8,8 @@ import tensorflow as tf
 
 from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_gradients
 from .fitresult import FitResult
-from ..core.parameter import Parameter
 from ..core.interfaces import ZfitLoss
+from ..core.parameter import Parameter
 from ..util.cache import GraphCachable
 
 
@@ -163,15 +162,6 @@ class Minuit(BaseMinimizer, GraphCachable):
 
         grad_func = grad_func if self._use_tfgrad else None
 
-        # estimate initial step_size
-        # TODO: test and doc below, refactor to baseclass?
-
-        # params_no_step_size = [p for p in params if p._step_size is None]
-        # _, init_grad, init_hesse_diag = loss.value_gradients_hessian(params_no_step_size,
-        #                                                              hessian='diag')
-        # for param, init_hess in zip(params_no_step_size, init_hesse_diag):
-        #     param.set_value(1 / init_hess)
-
         minimizer = iminuit.Minuit.from_array_func(fcn=func, start=start_values,
                                                    error=errors, limit=limits, name=params_name,
                                                    grad=grad_func,
@@ -187,24 +177,8 @@ class Minuit(BaseMinimizer, GraphCachable):
             minimizer_setter)
         self._minuit_minimizer = minimizer
         result = minimizer.migrad(**minimize_options)
-        params_result = [p_dict for p_dict in result[1]]
-        result_vals = [res["value"] for res in params_result]
-        self._update_params(params, values=result_vals)
-
-        info = {'n_eval': result[0]['nfcn'],
-                'n_iter': result[0]['ncalls'],
-                # 'grad': result['jac'],
-                # 'message': result['message'],
-                'original': result[0]}
-        edm = result[0]['edm']
-        fmin = result[0]['fval']
-        status = -999
-        converged = result[0]['is_valid']
-        params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
-        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
-                           status=status, converged=converged,
-                           minimizer=self.copy())
-        return result
+        fitresult = FitResult.from_minuit(loss=loss, params=params, result=result, minimizer=self.copy())
+        return fitresult
 
     def copy(self):
         tmp_minimizer = self._minuit_minimizer

@@ -8,16 +8,26 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- add correlation method to FitResult
 
 Breaking changes
 ------------------
+- change name of `Gauss`, `Uniform` and `TruncatedGauss` to remove the `'_tfp'` at the end of the name
 
-Depreceations
+Deprecations
 -------------
 
 
 Bug fixes and small changes
 ---------------------------
+- fix color wrong in printout of results, params
+- packaging: moved to pyproject.toml and a setup.cfg mainly, development requirements can
+  be installed with the `dev` extra as (e.g.) `pip install zfit[dev]`
+- Fix shape issue in TFP distributions for partial integration
+- change zfit internal algorithm (`zfit_error`) to compute error/intervals from the profile likelihood,
+  which is 2-3 times faster than previous algorithm.
+- add `from_minuit` constructor to `FitResult` allowing to create it when
+  using directly iminuit
 
 Experimental
 ------------
@@ -27,6 +37,29 @@ Requirement changes
 
 Thanks
 ------
+
+0.5.2 (13.05.2020)
+==================
+
+
+Major Features and Improvements
+-------------------------------
+- Python 3.8 and TF 2.2 support
+- easier debugigng with `set_graph_mode` that can also be used temporarily
+  with a context manager. False will make everything execute Numpy-like.
+
+Bug fixes and small changes
+---------------------------
+- added `get_params` to loss
+- fix a bug with the `fixed_params` when creating a sampler
+- improve exponential PDF stability and shift when normalized
+- improve accept reject sampling to account for low statistics
+
+
+Requirement changes
+-------------------
+
+- TensorFlow >= 2.2
 
 0.5.1 (24.04.2020)
 ==================
@@ -98,7 +131,7 @@ Breaking changes
 - Integrals of extended PDFs are not extended anymore, but `ext_integrate` now returns the
   integral multiplied by the yield.
 
-Depreceations
+Deprecations
 -------------
 - `ComposedParameter` takes now `params` instead of `dependents` as argument, it acts now as
   the arguments to the `value_fn`. To stay future compatible, create e.g. `def value_fn(p1, pa2)`

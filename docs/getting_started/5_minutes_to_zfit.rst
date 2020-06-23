@@ -1,5 +1,5 @@
 =================
-5 Minutes to zfit
+5 minutes to zfit
 =================
 
 The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.
@@ -74,27 +74,12 @@ As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the 
 
 .. code-block:: pycon
 
-    >>> param_errors = result.errors()
+    >>> param_errors, _ = result.errors()
     >>> for var, errors in param_errors.items():
     ...   print('{}: ^{{+{}}}_{{{}}}'.format(var.name, errors['upper'], errors['lower']))
     mu: ^{+0.00998104141841555}_{-0.009981515893414316}
     sigma: ^{+0.007099472590970696}_{-0.0070162654764939734}
 
-Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results.
-The object
-    >>> param_errors = result.errors()
-    >>> for var, errors in param_errors.items():
-    ...   print('{}: ^{{+{}}}_{{{}}}'.format(var.name, errors['upper'], errors['lower']))
-    mu: ^{+0.00998104141841555}_{-0.009981515893414316}
-    sigma: ^{+0.007099472590970696}_{-0.0070162654764939734}
-
-Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results.
-The object
-    >>> param_errors = result.error()
-    >>> for var, errors in param_errors.items():
-    ...   print('{}: ^{{+{}}}_{{{}}}'.format(var.name, errors['upper'], errors['lower']))
-    mu: ^{+0.00998104141841555}_{-0.009981515893414316}
-    sigma: ^{+0.007099472590970696}_{-0.0070162654764939734}
 
 Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results.
 The object ``result`` (:py:class:`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:
@@ -135,38 +120,12 @@ As already mentioned, there is no dedicated plotting feature within zfit. Howeve
     >>> plt.errorbar(bin_centres, counts, yerr=err, fmt='o', color='xkcd:black')
 
     >>> x_plot = np.linspace(lower[-1][0], upper[0][0], num=1000)
-    >>> y_plot = zfit.run(gauss.pdf(x_plot,norm_range=obs))
-
-    >>> plt.plot(x_plot, y_plot
-    >>> # Some simple matplotlib configurations
-    >>> import matplotlib.pyplot as plt
-    >>> lower, upper = obs.limits
-    >>> data_np = zfit.run(data)
-    >>> counts, bin_edges = np.histogram(data_np, 80, range=(lower[-1][0], upper[0][0]))
-    >>> bin_centres = (bin_edges[:-1] + bin_edges[1:])/2.
-    >>> err = np.sqrt(counts)
-    >>> plt.errorbar(bin_centres, counts, yerr=err, fmt='o', color='xkcd:black')
-
-    >>> x_plot = np.linspace(lower[-1][0], upper[0][0], num=1000)
-    >>> y_plot = zfit.run(gauss.pdf(x_plot,norm_range=obs))
-
-    >>> plt.plot(x_plot, y_plot
-    >>> # Some simple matplotlib configurations
-    >>> import matplotlib.pyplot as plt
-    >>> lower, upper = obs.limits
-    >>> data_np = zfit.run(data)
-    >>> counts, bin_edges = np.histogram(data_np, 80, range=(lower[-1][0], upper[0][0]))
-    >>> bin_centres = (bin_edges[:-1] + bin_edges[1:])/2.
-    >>> err = np.sqrt(counts)
-    >>> plt.errorbar(bin_centres, counts, yerr=err, fmt='o', color='xkcd:black')
-
-    >>> x_plot = np.linspace(lower[-1][0], upper[0][0], num=1000)
     >>> y_plot = zfit.run(gauss.pdf(x_plot, norm_range=obs))
 
     >>> plt.plot(x_plot, y_plot*data_np.shape[0]/80*obs.area(), color='xkcd:blue')
     >>> plt.show()
 
-.. image:: ../images/Gaussian.png
+.. image:: images/Gaussian.png
 
 The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to ``zfit.run``, a specialised wrapper around ``tf.Session().run``.
 While actions like ``minimize`` or ``sample`` return Python objects (including numpy arrays or scalars), functions like ``pdf`` or ``integrate`` return TensorFlow graphs, which are lazy-evaluated.

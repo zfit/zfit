@@ -185,6 +185,12 @@ class FunctionNotImplementedError(ZfitNotImplementedError):
     """
 
 
+class StandardControlFlow(Exception):
+    """An exception that inherits from this class will be regarded as part of the standard control flow
+    and not as an Error. For example, if a function raises that values are NaN, this is often intercepted
+    on purpose."""
+
+
 class SpecificFunctionNotImplementedError(FunctionNotImplementedError):
     """If a specific function, e.g. by the user is not implemented"""
 

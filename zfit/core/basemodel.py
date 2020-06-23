@@ -5,10 +5,11 @@
 import abc
 import builtins
 import contextlib
+import inspect
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Dict, Union, Callable, List, Tuple
+from typing import Dict, Union, Callable, List, Tuple, Optional
 
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
@@ -220,7 +221,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise NotImplementedError("Are the gradients needed?")
 
-    def _check_input_norm_range(self, norm_range, none_is_error=False) -> Union[Space, bool]:
+    def _check_input_norm_range(self, norm_range, none_is_error=False) -> Optional[ZfitSpace]:
         """Convert to :py:class:`~zfit.Space`.
 
         Args:
@@ -392,7 +393,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Register an inverse analytical integral, the inverse (unnormalized) cdf.
 
         Args:
-            func ():
+            func (): A function with the signature `func(x, params)`, where `x` is a Data object
+                and `params` is a dict.
         """
         if cls._inverse_analytic_integral:
             cls._inverse_analytic_integral[0] = func
@@ -762,7 +764,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if not self._inverse_analytic_integral:
             raise AnalyticSamplingNotImplementedError
         else:
-            return self._inverse_analytic_integral[0](x=x, params=self.params)
+            icdf = self._inverse_analytic_integral[0]
+            params = inspect.signature(icdf).parameters
+            if len(params) == 2:
+                return icdf(x=x, params=self.params)
+            elif len(params) == 3:
+                return icdf(x=x, params=self.params, model=self)
+            else:
+                raise RuntimeError(f"icdf function does not have the right signature: {icdf}")
 
     def create_sampler(self, n: ztyping.nSamplingTypeIn = None, limits: ztyping.LimitsType = None,
                        fixed_params: Union[bool, List[ZfitParameter], Tuple[ZfitParameter]] = True) -> "Sampler":

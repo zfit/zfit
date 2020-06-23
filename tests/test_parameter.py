@@ -70,6 +70,29 @@ def test_complex_param():
     assert cos(arg_val) == pytest.approx(param3.real.numpy(), rel=1e-6)
 
 
+def test_repr():
+    val = 1543
+    val2 = 1543 ** 2
+    param1 = Parameter('param1', val)
+    param2 = zfit.ComposedParameter('comp1', lambda x: x ** 2, params=param1)
+    repr_value = repr(param1)
+    repr_value2 = repr(param2)
+    assert str(val) in repr_value
+    assert str(val) in repr_value2
+
+    @z.function
+    def tf_call():
+        repr_value = repr(param1)
+        repr_value2 = repr(param2)
+        assert str(val) not in repr_value
+        assert str(val2) not in repr_value2
+        assert 'graph-node' in repr_value
+        assert 'graph-node' in repr_value2
+
+    if zfit.run.get_graph_mode():  # only test if running in graph mode
+        tf_call()
+
+
 def test_composed_param():
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
@@ -112,6 +135,7 @@ def test_shape_composed_parameter():
 
     def compose():
         return tf.square(a) - b
+
     c = ComposedParameter(name='c', value_fn=compose, dependents=[a, b])
     assert c.shape.rank == 0
 

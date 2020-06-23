@@ -29,7 +29,7 @@ from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleEr
     ObsIncompatibleError, DataIsBatchedError
 from ..util.temporary import TemporarilySet
 
-
+# TODO: make cut only once, then remember
 class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     BATCH_SIZE = 1000000  # 1 mio
 

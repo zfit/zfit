@@ -92,9 +92,8 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
     def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
-        value = x.value()
-        # value = z.unstack_x(x)  # TODO: use this? change shaping below?
-        probs = tf.reshape(self.distribution.prob(value=value, name="unnormalized_pdf"), shape=(-1,))
+        value = z.unstack_x(x)  # TODO: use this? change shaping below?
+        probs = self.distribution.prob(value=value, name="unnormalized_pdf")
         return probs  # TODO batch shape just removed
 
     # TODO: register integral?
@@ -201,7 +200,7 @@ class Gauss(WrapDistribution):
         params = OrderedDict((('mu', mu), ('sigma', sigma)))
         dist_params = dict(loc=mu, scale=sigma)
         distribution = tfp.distributions.Normal
-        super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name + "_tfp")
+        super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name)
 
 
 class ExponentialTFP(WrapDistribution):
@@ -212,7 +211,7 @@ class ExponentialTFP(WrapDistribution):
         params = OrderedDict((('tau', tau),))
         dist_params = dict(rate=tau)
         distribution = tfp.distributions.Exponential
-        super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name + "_tfp")
+        super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name)
 
 
 class Uniform(WrapDistribution):
@@ -232,7 +231,7 @@ class Uniform(WrapDistribution):
         params = OrderedDict((("low", low), ("high", high)))
         dist_params = dict(low=low, high=high)
         distribution = tfp.distributions.Uniform
-        super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name + "_tfp")
+        super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name)
 
 
 class TruncatedGauss(WrapDistribution):

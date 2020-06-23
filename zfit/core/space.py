@@ -1041,7 +1041,13 @@ class BaseSpace(ZfitSpace, BaseObject):
                                      func_obs=func_obs, func_axes=func_axes)
 
     def __len__(self):
-        return sum(1 for _ in self)
+        if not self:
+            return 0
+        else:
+            return sum(1 for _ in self)
+
+    def __bool__(self):
+        return self.has_limits
 
 
 class Space(BaseSpace):
@@ -2848,7 +2854,8 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
         new_space = combine_spaces(*spaces)
     except LimitsIncompatibleError:
         return False
-    return bool(new_space)
+    else:
+        return True
 
 
 def add_spaces_old(spaces: Iterable["zfit.Space"]):
