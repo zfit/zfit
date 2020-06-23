@@ -63,8 +63,8 @@ setup(
     tests_require=test_requirements,
     extras_require={
         'dev': requirements_dev
-    }
+    },
     # url='https://github.com/zfit/zfit',
-    # use_scm_version=True,
+    use_scm_version=True,
     # zip_safe=False,
 )
