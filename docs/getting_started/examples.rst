@@ -46,6 +46,9 @@ Simultanous fit
 ---------------
 .. literalinclude:: /../examples/simultaneous_fit.py
 
+
+.. _spaces-example:
+
 Spaces
 ------
 .. literalinclude:: /../examples/spaces.py

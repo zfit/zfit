@@ -11,7 +11,9 @@ That is, the probability that X takes on a value in the interval :math:`[a, b]` 
 In other words, in order to a function to be a PDF it must satisfy two criteria:
 1. :math:`f(x) \geq 0` for all x;
 2. :math:`\int^{\infty}_{-\infty}f(x)dx =` are under the entire graph of :math:`f(x)=1`.
-In zfit these distinctions are respected, *i.e.*, a function can be converted into a PDF by imposing the basic two criteria above... _basic-model:
+In zfit these distinctions are respected, *i.e.*, a function can be converted into a PDF by imposing the basic two criteria above.
+
+.. _basic-model:
 
 Predefined PDFs and basic properties
 ------------------------------------
@@ -247,8 +249,8 @@ A typical example of toys would therefore look like
         ...    # safe the result, collect the values, calculate errors...
 
 Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
-arguments to `resample`, this will always sample now from the distribution with the parameters set to the
- values when the sampler was created.
+arguments to `resample`, this will always sample now from the distribution with the parameters set to the values when
+the sampler was created.
 
 
 To give another, though not very useful example:

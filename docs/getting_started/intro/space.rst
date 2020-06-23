@@ -121,8 +121,8 @@ the operators product `*` or addition `+` respectively their functional API :py:
 and :py:func:`zfit.dimension.add_spaces` can be used.
 
 
-A working code example of :py:class:`~zfit.Space` handling is provided in `spaces.py` in
-:doc:`examples <../../examples/spaces.py>`.
+A working code example of :py:class:`~zfit.Space` handling is provided in :ref:`spaces.py <spaces-example>`.
+
 
 
 Using the limits

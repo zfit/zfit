@@ -125,7 +125,7 @@ As already mentioned, there is no dedicated plotting feature within zfit. Howeve
     >>> plt.plot(x_plot, y_plot*data_np.shape[0]/80*obs.area(), color='xkcd:blue')
     >>> plt.show()
 
-.. image:: images/Gaussian.png
+.. image:: ../images/Gaussian.png
 
 The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to ``zfit.run``, a specialised wrapper around ``tf.Session().run``.
 While actions like ``minimize`` or ``sample`` return Python objects (including numpy arrays or scalars), functions like ``pdf`` or ``integrate`` return TensorFlow graphs, which are lazy-evaluated.

@@ -9,7 +9,7 @@ helps, and credit will always be given.
 
 * You can report bugs at https://github.com/zfit/zfit/issues.
 * You can send feedback by filing an issue at https://github.com/zfit/zfit/issues or,
-for more informal discussions, you can also join our `Gitter channel <https://gitter.im/zfit/zfit>`_.
+  for more informal discussions, you can also join our `Gitter channel <https://gitter.im/zfit/zfit>`_.
 
 
 Get Started!
