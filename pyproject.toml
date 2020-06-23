@@ -2,6 +2,7 @@
 requires = [
     "setuptools>=42",
     "setuptools_scm[toml]>=3.4",
+    "setuptools_scm_git_archive",
     "wheel"
 ]
 
