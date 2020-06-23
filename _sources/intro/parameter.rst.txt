@@ -58,7 +58,8 @@ A parameter can be composed of several other parameters. They can be used equiva
 
     >>> mu2 = zfit.Parameter("mu_two", 7)
 
-    >>> dependent_func = lambda: mu * 5 + mu2  # or any kind of computation
+    >>> def dependent_func(mu, mu2):
+    ...     return mu * 5 + mu2  # or any kind of computation
     >>> dep_param = zfit.ComposedParameter("dependent_param", dependent_func, dependents=[mu, mu2])
 
     >>> dependents = dep_param.get_params()  # returns ordered-set(mu, mu2)

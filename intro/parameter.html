@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parameter &#8212; zfit 0.5.2 documentation</title>
+    <title>Parameter &#8212; zfit 0.5.3.dev76+ga27d9cc documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -40,7 +40,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.2</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev76</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -327,7 +327,8 @@ parameter evaluated with the new value at run-time:</p>
 <p>A parameter can be composed of several other parameters. They can be used equivalently to <a class="reference internal" href="../full_api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mu2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu_two&quot;</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dependent_func</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">mu</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">mu2</span>  <span class="c1"># or any kind of computation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">dependent_func</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">mu2</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">mu</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">mu2</span>  <span class="c1"># or any kind of computation</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dep_param</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">ComposedParameter</span><span class="p">(</span><span class="s2">&quot;dependent_param&quot;</span><span class="p">,</span> <span class="n">dependent_func</span><span class="p">,</span> <span class="n">dependents</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dependents</span> <span class="o">=</span> <span class="n">dep_param</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span>  <span class="c1"># returns ordered-set(mu, mu2)</span>
