@@ -182,14 +182,14 @@ class GaussianConstraint(TFProbabilityConstraint):
 
     def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType,
                  uncertainty: ztyping.NumericalScalarType):
-        """Gaussian constraints on a list of parameters to some observed values with uncertainties.
+        r"""Gaussian constraints on a list of parameters to some observed values with uncertainties.
 
         A Gaussian constraint is defined as the likelihood of `params` given the `observations` and `uncertainty` from
         a different measurement.
 
 
         .. math::
-            constraint = Gauss(observation; params, uncertainty)
+            \text{constraint} = \text{Gauss}(\text{observation}; \text{params}, \text{uncertainty})
 
 
         Args:
