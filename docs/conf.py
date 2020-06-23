@@ -6,7 +6,6 @@
 # zfit documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
 
-import os
 import sys
 from pathlib import Path
 
@@ -20,7 +19,6 @@ sys.path.insert(0, str(project_dir))
 # If your documentation needs a minimal Sphinx version, state it here.
 #
 needs_sphinx = '3.0.0'
-
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -76,6 +74,8 @@ pygments_style = 'sphinx'
 with open('subst_types.txt') as subst_types:
     rst_epilog = subst_types.read()
 
+html_favicon = "images/zfit-fin_400x168.png"
+
 
 # -- Napoleon settings ---------------------------------------------
 
@@ -92,7 +92,6 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 
-
 # -- sphinx_autodoc_typehints settings ---------------------------------------------
 
 # if True, set typing.TYPE_CHECKING to True to enable “expensive” typing imports
@@ -107,17 +106,14 @@ always_document_param_types = True
 # is found.
 typehints_document_rtype = True
 
-
 # -- autodoc settings ---------------------------------------------
 
 # also doc __init__ docstrings
 autoclass_content = 'both'
 
-
 # -- sphinx.ext.todo settings ---------------------------------------------
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
-
 
 # -- Options for HTML output -------------------------------------------
 
@@ -132,16 +128,18 @@ html_theme = "pydata_sphinx_theme"
 html_logo = "images/zfit-fin_400x168.png"
 
 html_theme_options = {
-    "github_url": "https://github.com/zfit/zfit",
+    "github_url"          : "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
-    "search_bar_text": "Search zfit..."
+    "search_bar_text"     : "Search zfit...",
+    "navigation_with_keys": True,
+    "search_bar_position" : "sidebar",
 }
 
 html_context = {
-    "github_user": "zfit",
-    "github_repo": "zfit",
+    "github_user"   : "zfit",
+    "github_repo"   : "zfit",
     "github_version": "develop",
-    "doc_path": "docs",
+    "doc_path"      : "docs",
 }
 
 # -- Options for HTMLHelp output ---------------------------------------
@@ -204,4 +202,3 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
-
