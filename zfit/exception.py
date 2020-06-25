@@ -1,4 +1,9 @@
 #  Copyright (c) 2020 zfit
+"""
+.. todo:: Add module docstring.
+"""
+
+
 from .util.exception import NameAlreadyTakenError, IllegalInGraphModeError, NormRangeNotImplementedError, \
     MultipleLimitsNotImplementedError, VectorizedLimitsNotImplementedError, AnalyticIntegralNotImplementedError, \
     AnalyticSamplingNotImplementedError, AnalyticNotImplementedError, FunctionNotImplementedError, \
