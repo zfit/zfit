@@ -3,7 +3,8 @@ API reference
 =============
 
 This is the API reference for the zfit fitting package.
-Most classes and functions are documented with docstrings, but don't hesitate to contact us if this documentation is insufficient!
+Most classes and functions are documented with docstrings, but don't hesitate to contact us if this documentation is
+insufficient!
 
 .. attention::
     This document is in the process of being built. If you want to add to it you can simply click the 'Edit this
@@ -15,8 +16,8 @@ Most classes and functions are documented with docstrings, but don't hesitate to
 
     zfit.constraint
     zfit.data
-..    zfit.dimension
-    zfit.exception
+    zfit.dimension
+..    zfit.exception
     zfit.func
     zfit.loss
     zfit.minimize

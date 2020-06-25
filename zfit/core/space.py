@@ -1405,10 +1405,10 @@ class Space(BaseSpace):
 
     @property
     def n_events(self) -> Union[int, None]:
-        """
+        """Return the number of events, the dimension of the first shape.
 
         Returns:
-            int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
+            int, None: Number of events, the dimension of the first shape. If this is > 1 or None,
                 it's vectorized.
         """
         if not self.has_limits:
@@ -1568,6 +1568,7 @@ class Space(BaseSpace):
         The behavior is as follows:
 
          * obs are already set:
+
            * input obs are None: the observables will be dropped. If no axes are set, an error
              will be raised, as no coordinates will be assigned to this instance anymore.
            * input obs are not None: the instance will be sorted by the incoming obs. If axes or other
@@ -1577,6 +1578,7 @@ class Space(BaseSpace):
              If a strict superset is given (and allow_superset is True), the obs will be sorted accordingly as
              if the obs not contained in the instances obs were not in the input obs.
          * obs are not set:
+
            * if the input obs are None, the same object is returned.
            * if the input obs are not None, they will be set as-is and now correspond to the already
              existing axes in the object.
@@ -1615,35 +1617,37 @@ class Space(BaseSpace):
                   allow_subset: bool = True) -> ZfitSpace:
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
-            The behavior is as follows:
+        The behavior is as follows:
 
-             * axes are already set:
-               * input axes are None: the axes will be dropped. If no observables are set, an error
-                 will be raised, as no coordinates will be assigned to this instance anymore.
-               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
-                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.
-                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
-                 be used to retrieve a subspace of limits, data etc.
-                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
-                 if the axes not contained in the instances axes were not present in the input axes.
-             * axes are not set:
-               * if the input axes are None, the same object is returned.
-               * if the input axes are not None, they will be set as-is and now correspond to the already
-                 existing obs in the object.
+         * axes are already set:
 
-            Args:
-                axes: Axes to sort/associate this instance with
-                allow_superset: if False and a strict superset of the own axeservables is given, an error
-                is raised.
-                allow_subset:if False and a strict subset of the own axeservables is given, an error
-                is raised.
+           * input axes are None: the axes will be dropped. If no observables are set, an error
+             will be raised, as no coordinates will be assigned to this instance anymore.
+           * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
+             objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+             If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
+             be used to retrieve a subspace of limits, data etc.
+             If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
+             if the axes not contained in the instances axes were not present in the input axes.
+         * axes are not set:
 
-            Returns:
-                :py:class:`~zfit.Space`: a copy of the object with the new ordering/axes
-            Raises:
-                CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
-                AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
-                    allow_allow_subset is False
+           * if the input axes are None, the same object is returned.
+           * if the input axes are not None, they will be set as-is and now correspond to the already
+             existing obs in the object.
+
+        Args:
+            axes: Axes to sort/associate this instance with
+            allow_superset: if False and a strict superset of the own axeservables is given, an error
+            is raised.
+            allow_subset:if False and a strict subset of the own axeservables is given, an error
+            is raised.
+
+        Returns:
+            :py:class:`~zfit.Space`: a copy of the object with the new ordering/axes
+        Raises:
+            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         if axes is None:  # drop axes
             if self.axes is None:
