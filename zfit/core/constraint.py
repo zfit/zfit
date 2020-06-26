@@ -8,6 +8,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
+import zfit
 from zfit import z
 from .baseobject import BaseNumeric
 from .dependents import _extract_dependencies
@@ -201,7 +202,7 @@ class GaussianConstraint(TFProbabilityConstraint):
                 matrix of the observed values. Can either be a single value, a list of values, an array or a tensor.
                 Corresponds to the sigma of the Gaussian distribution.
         Raises:
-            ShapeIncompatibleError: if params, mu and sigma don't have incompatible shapes
+            ShapeIncompatibleError: if params, mu and sigma have incompatible shapes
         """
 
         observation = convert_to_container(observation, tuple)
