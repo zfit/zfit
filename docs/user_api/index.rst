@@ -18,8 +18,8 @@ insufficient!
     zfit.data
     zfit.dimension
     zfit.exception
-..    zfit.func
-    zfit.loss
+    zfit.func
+..    zfit.loss
     zfit.minimize
     zfit.param
     zfit.pdf
