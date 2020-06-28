@@ -57,3 +57,5 @@ def test_simple_kde():
 
     sample = kde_adaptive.sample(1000)
     sample2 = kde_adaptive_trunc.sample(1000)
+    assert sample.nevents == 1000
+    assert sample2.nevents == 1000
