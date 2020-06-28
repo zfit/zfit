@@ -21,7 +21,7 @@ from ..core.space import supports, Space
 from ..settings import ztypes
 from ..util import ztyping
 
-
+# TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
 @supports()
 def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeInput):
     """Sample analytically with a `tfd.Distribution` within the limits. No preprocessing.
