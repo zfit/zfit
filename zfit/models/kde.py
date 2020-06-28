@@ -8,7 +8,7 @@ from tensorflow_probability.python import distributions as tfd
 
 from .dist_tfp import WrapDistribution
 from .. import z, ztypes
-from ..core.interfaces import ZfitData
+from ..core.interfaces import ZfitData, ZfitSpace
 from ..util import ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
 
@@ -34,9 +34,9 @@ def bandwidth_adaptiveV1(data, func):
     return bandwidth
 
 
-def _adaptive_bandwidth_KDEV1(constructor, obs, data, weights, name):
+def _adaptive_bandwidth_KDEV1(constructor, obs, data, weights, name, truncate):
     kde_silverman = constructor(obs=obs, data=data, bandwidth='silverman', weights=weights,
-                                name=f"INTERNAL_{name}")
+                                name=f"INTERNAL_{name}", truncate=truncate)
     return bandwidth_adaptiveV1(data=data, func=kde_silverman.pdf)
 
 
@@ -53,7 +53,7 @@ def min_std_or_iqr(x):
     return tf.minimum(tf.math.reduce_std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25)))
 
 
-class GaussianKDE1DimExactV1(WrapDistribution):
+class GaussianKDE1DimV1(WrapDistribution):
     _N_OBS = 1
 
     _bandwidth_methods = {
@@ -64,7 +64,8 @@ class GaussianKDE1DimExactV1(WrapDistribution):
 
     def __init__(self, obs: ztyping.ObsTypeInput, data: ztyping.ParamTypeInput,
                  bandwidth: ztyping.ParamTypeInput = None,
-                 weights: Union[None, np.ndarray, tf.Tensor] = None, name: str = "GaussianKDE1DimV1"):
+                 weights: Union[None, np.ndarray, tf.Tensor] = None, truncate: bool = True,
+                 name: str = "GaussianKDE1DimV1"):
         r"""One dimensional Kernel Density Estimation with a Gaussian Kernel.
 
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
@@ -84,10 +85,12 @@ class GaussianKDE1DimExactV1(WrapDistribution):
 
         Args:
             data: 1-D Tensor-like. The positions of the `kernel`, the :math:`x_i`. Determines how many kernels will be created.
-            bandwidth: Broadcastable to the batch and event shape of the distribution. A scalar will simply broadcast
+            bandwidth: Bandwidth of the kernel. Broadcastable to the batch and event shape of the distribution. A scalar will simply broadcast
                 to `data` for a 1-D distribution.
             obs: Observables
             weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
+            truncate: If a truncated Gaussian kernel should be used with the limits given by the `obs` lower and
+                upper limits. This can cause NaNs in case datapoints are outside of the limits.
             name: Name of the PDF
         """
         if bandwidth is None:
@@ -121,15 +124,28 @@ class GaussianKDE1DimExactV1(WrapDistribution):
                 raise ValueError(f"Cannot use {bandwidth} as a bandwidth method. Use a numerical value or one of"
                                  f" the defined methods: {list(self._bandwidth_methods.keys())}")
             bandwidth = bw_method(constructor=type(self), obs=obs, data=data, weights=weights,
-                                  name=f"INTERNAL_{name}")
+                                  name=f"INTERNAL_{name}", truncate=truncate)
 
         bandwidth_param = -999 if bandwidth_param == 'adaptiveV1' else bandwidth  # TODO: multiparam for bandwidth?
 
         params = {'bandwidth': bandwidth_param}
 
         # create distribution factory
-        def kernel_factory():
-            return tfp.distributions.Normal(loc=self._data, scale=self._bandwidth)
+        if truncate:
+            if not isinstance(obs, ZfitSpace):
+                raise ValueError(f"`obs` has to be a `ZfitSpace` if `truncated` is True.")
+            inside = obs.inside(data)
+            all_inside = tf.reduce_all(inside)
+            tf.debugging.assert_equal(all_inside, True, message="Not all data points are inside the limits but"
+                                                                " a truncate kernel was chosen.")
+
+            def kernel_factory():
+                return tfp.distributions.TruncatedNormal(loc=self._data, scale=self._bandwidth,
+                                                         low=self.space.rect_lower,
+                                                         high=self.space.rect_upper)
+        else:
+            def kernel_factory():
+                return tfp.distributions.Normal(loc=self._data, scale=self._bandwidth)
 
         dist_kwargs = lambda: dict(mixture_distribution=categorical,
                                    components_distribution=kernel_factory())
@@ -145,3 +161,4 @@ class GaussianKDE1DimExactV1(WrapDistribution):
         self._data_weights = weights
         self._bandwidth = bandwidth
         self._data = data
+        self._truncate = truncate

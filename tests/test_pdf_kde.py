@@ -16,16 +16,26 @@ def test_simple_kde():
 
     size = 5000
     data = np.random.normal(size=size, loc=2, scale=3)
+
+    limits = (-15, 5)
+    obs = zfit.Space("obs1", limits=limits)
+    data_truncated = obs.filter(data)
     # data = np.concatenate([data, np.random.uniform(size=size * 1, low=-5, high=2.3)])
     # data = tf.random.poisson(shape=(13000,), lam=7, dtype=ztypes.float)
-    limits = (-15, 5)
-    kde = zfit.models.kde.GaussianKDE1DimExactV1(data=data, bandwidth=h, obs=zfit.Space("obs1", limits=limits))
-    kde_adaptive = zfit.models.kde.GaussianKDE1DimExactV1(data=data, bandwidth='adaptiveV1',
-                                                          obs=zfit.Space("obs1", limits=limits))
-    kde_silverman = zfit.models.kde.GaussianKDE1DimExactV1(data=data, bandwidth='silverman',
-                                                           obs=zfit.Space("obs1", limits=limits))
+    kde = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth=h, obs=obs,
+                                            truncate=False)
+    kde_adaptive = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='adaptiveV1',
+                                                     obs=obs,
+                                                     truncate=False)
+    kde_silverman = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='silverman',
+                                                      obs=obs,
+                                                      truncate=False)
+    kde_adaptive_trunc = zfit.models.kde.GaussianKDE1DimV1(data=data_truncated, bandwidth='adaptiveV1',
+                                                           obs=obs,
+                                                           truncate=True)
 
     integral = kde.integrate(limits=limits, norm_range=False)
+    integral_trunc = kde_adaptive_trunc.integrate(limits=limits, norm_range=False)
     integral_adaptive = kde_adaptive.integrate(limits=limits, norm_range=False)
     integral_silverman = kde_silverman.integrate(limits=limits, norm_range=False)
 
@@ -40,7 +50,7 @@ def test_simple_kde():
     # plt.show()
 
     rel_tol = 0.04
-    assert zfit.run(integral) == pytest.approx(expected_integral, rel=rel_tol)
+    assert zfit.run(integral_trunc) == pytest.approx(1., rel=rel_tol)
     assert zfit.run(integral) == pytest.approx(expected_integral, rel=rel_tol)
     assert zfit.run(integral_adaptive) == pytest.approx(expected_integral, rel=rel_tol)
     assert zfit.run(integral_silverman) == pytest.approx(expected_integral, rel=rel_tol)
