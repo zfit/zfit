@@ -66,7 +66,8 @@ class GaussianKDE1DimV1(WrapDistribution):
                  bandwidth: ztyping.ParamTypeInput = None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None, truncate: bool = True,
                  name: str = "GaussianKDE1DimV1"):
-        r"""One dimensional Kernel Density Estimation with a Gaussian Kernel.
+        r"""EXPERIMENTAL, `FEEDBACK WELCOME <https://github.com/zfit/zfit/issues/new?assignees=&labels=&template=other.md&title=>`_
+        One dimensional Kernel Density Estimation with a Gaussian Kernel.
 
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -85,8 +86,9 @@ class GaussianKDE1DimV1(WrapDistribution):
 
         Args:
             data: 1-D Tensor-like. The positions of the `kernel`, the :math:`x_i`. Determines how many kernels will be created.
-            bandwidth: Bandwidth of the kernel. Broadcastable to the batch and event shape of the distribution. A scalar will simply broadcast
-                to `data` for a 1-D distribution.
+            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
+                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
+                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
             obs: Observables
             weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
             truncate: If a truncated Gaussian kernel should be used with the limits given by the `obs` lower and
