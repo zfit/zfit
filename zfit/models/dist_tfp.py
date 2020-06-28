@@ -14,6 +14,7 @@ import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 
 from zfit import z
+from zfit.util.exception import AnalyticIntegralNotImplementedError, AnalyticSamplingNotImplementedError
 from ..core.basepdf import BasePDF
 from ..core.parameter import convert_to_parameter
 from ..core.space import supports, Space
@@ -41,7 +42,10 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     prob_sample = z.random.uniform(shape=shape, minval=lower_prob_lim,
                                    maxval=upper_prob_lim)
     prob_sample.set_shape((None, 1))
-    sample = dist.quantile(prob_sample)
+    try:
+        sample = dist.quantile(prob_sample)
+    except NotImplementedError:
+        raise AnalyticSamplingNotImplementedError
     sample.set_shape((None, limits.n_obs))
     return sample
 

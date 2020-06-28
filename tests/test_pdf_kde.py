@@ -54,3 +54,6 @@ def test_simple_kde():
     assert zfit.run(integral) == pytest.approx(expected_integral, rel=rel_tol)
     assert zfit.run(integral_adaptive) == pytest.approx(expected_integral, rel=rel_tol)
     assert zfit.run(integral_silverman) == pytest.approx(expected_integral, rel=rel_tol)
+
+    sample = kde_adaptive.sample(1000)
+    sample2 = kde_adaptive_trunc.sample(1000)
