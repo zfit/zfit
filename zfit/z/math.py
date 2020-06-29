@@ -6,6 +6,7 @@ from typing import Iterable, Callable, Optional
 import numdifftools
 import tensorflow as tf
 
+from . import function
 from ..settings import ztypes
 from ..util.container import convert_to_container
 
@@ -264,3 +265,9 @@ def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["z
                                                              ))
     del tape
     return loss, gradients, computed_hessian
+
+
+@function(wraps="tensor")
+def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):
+    log_mean = tf.reduce_mean(tf.math.log(input_tensor), axis=axis, keepdims=keepdims)
+    return tf.math.exp(log_mean)

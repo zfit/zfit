@@ -185,7 +185,7 @@ class FunctionWrapperRegistry:
     def __call__(self, func):
         wrapped_func = self.tf_function(func)
         cache = self.function_cache[func]
-        from zfit.util.cache import FunctionCacheHolder
+        from ..util.cache import FunctionCacheHolder
 
         def concrete_func(*args, **kwargs):
 
