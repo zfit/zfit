@@ -1,0 +1,8 @@
+kde
+===
+
+.. automodule:: zfit.models.kde
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

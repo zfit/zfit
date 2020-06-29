@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.z.math &#8212; zfit 0.5.3.dev78+g4375877 documentation</title>
+    <title>zfit.z.math &#8212; zfit 0.5.3.dev100+g9857c27 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev78</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev100</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -280,6 +280,7 @@
 <span class="kn">import</span> <span class="nn">numdifftools</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">function</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 
@@ -538,6 +539,12 @@
                                                              <span class="p">))</span>
     <span class="k">del</span> <span class="n">tape</span>
     <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">gradients</span><span class="p">,</span> <span class="n">computed_hessian</span></div>
+
+
+<span class="nd">@function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s2">&quot;tensor&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">reduce_geometric_mean</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">log_mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="n">keepdims</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_mean</span><span class="p">)</span>
 </pre></div>
 
     </div>

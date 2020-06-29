@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>dist_tfp &#8212; zfit 0.5.3.dev78+g4375877 documentation</title>
+    <title>dist_tfp &#8212; zfit 0.5.3.dev100+g9857c27 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev78</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev100</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -945,7 +945,7 @@ Use <cite>pdf(norm_range=False)</cite> instead</p>
 <dt id="zfit.models.dist_tfp.Gauss">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.models.dist_tfp.</code><code class="sig-name descname">Gauss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mu</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">sigma</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter">zfit.core.interfaces.ZfitParameter</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.8)">complex</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'Gauss'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/dist_tfp.html#Gauss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.dist_tfp.Gauss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#zfit.models.dist_tfp.WrapDistribution" title="zfit.models.dist_tfp.WrapDistribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.models.dist_tfp.WrapDistribution</span></code></a></p>
-<p>Gaussian or Normal distribution with a mean (mu) and a standartdevation (sigma).</p>
+<p>Gaussian or Normal distribution with a mean (mu) and a standartdeviation (sigma).</p>
 <p>The gaussian shape is defined as</p>
 <div class="math notranslate nohighlight">
 \[f(x \mid \mu, \sigma^2) = e^{ -\frac{(x - \mu)^{2}}{2\sigma^2} }\]</div>

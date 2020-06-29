@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.z.zextension &#8212; zfit 0.5.3.dev78+g4375877 documentation</title>
+    <title>zfit.z.zextension &#8212; zfit 0.5.3.dev100+g9857c27 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev78</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev100</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -459,7 +459,7 @@
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="n">wrapped_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tf_function</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="n">cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_cache</span><span class="p">[</span><span class="n">func</span><span class="p">]</span>
-        <span class="kn">from</span> <span class="nn">zfit.util.cache</span> <span class="kn">import</span> <span class="n">FunctionCacheHolder</span>
+        <span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">FunctionCacheHolder</span>
 
         <span class="k">def</span> <span class="nf">concrete_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 

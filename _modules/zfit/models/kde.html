@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zfit.models.kde &#8212; zfit 0.5.3.dev100+g9857c27 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-2.3.2/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+        <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
+          zfit</a>
+        <span class="navbar-text pull-left"><b>0.5.3.dev100</b></span>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="divider-vertical"></li>
+            
+                <li><a href="../../../getting_started.html">Getting started</a></li>
+                <li><a href="../../../introduction.html">Intro</a></li>
+                <li><a href="../../../project.html">Project</a></li>
+                <li><a href="../../../user_api.html">API</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Overview <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-did-just-happen">What did just happen?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">zfit introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/parameter.html">Parameter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/model.html">Building a model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#composite-pdf">Composite PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#extended-pdf">Extended PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#custom-pdf">Custom PDF</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#tensor-sampling">Tensor sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/data.html">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/loss.html">Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#adding-constraints">Adding constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../intro/minimize.html">Minimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project.html">zfit Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#stable-release">Stable release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#from-sources">From sources</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/upgrade_guide.html">Upgrade guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/upgrade_guide.html#dependents">Dependents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#deprecations">Deprecations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental">Experimental</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.5.2 (13.05.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id5">0.5.1 (24.04.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id6">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Deprecations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id10">Experimental</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id13">0.4.3 (11.3.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id14">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id17">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id18">0.4.2 (27.2.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id20">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id22">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id24">0.4.1 (12.1.20)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id25">Major Features and Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id26">0.4.0 (7.1.2020)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id28">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id30">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id31">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id32">0.3.7 (6.12.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id36">Requirement changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id37">0.3.6 (12.10.19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id39">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id40">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id41">Requirement changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id42">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id43">0.3.4 (30-07-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id44">Major Features and Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id45">Behavioral changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id46">Bug fixes and small changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id47">Thanks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id48">0.3.3 (15-05-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id49">0.3.2 (01-05-19)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id50">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id51">0.3.1 (30-04-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id52">0.3.0 (2019-03-20)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id53">0.0.1 (2018-03-22)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html">Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#authors">Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_api.html">zfit API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_api/zfit.html">zfit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../user_api/zfit.html#submodules">Submodules</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body span12 content" role="main">
+      
+  <h1>Source code for zfit.models.kde</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
+<span class="kn">from</span> <span class="nn">tensorflow_probability.python</span> <span class="kn">import</span> <span class="n">distributions</span> <span class="k">as</span> <span class="n">tfd</span>
+
+<span class="kn">from</span> <span class="nn">.dist_tfp</span> <span class="kn">import</span> <span class="n">WrapDistribution</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">z</span><span class="p">,</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitSpace</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">OverdefinedError</span><span class="p">,</span> <span class="n">ShapeIncompatibleError</span>
+
+
+<div class="viewcode-block" id="bandwidth_rule_of_thumb"><a class="viewcode-back" href="../../../full_api/zfit.models.kde.html#zfit.models.kde.bandwidth_rule_of_thumb">[docs]</a><span class="k">def</span> <span class="nf">bandwidth_rule_of_thumb</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">min_std_or_iqr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">5.</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor</span></div>
+
+
+<div class="viewcode-block" id="bandwidth_silverman"><a class="viewcode-back" href="../../../full_api/zfit.models.kde.html#zfit.models.kde.bandwidth_silverman">[docs]</a><span class="k">def</span> <span class="nf">bandwidth_silverman</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">bandwidth_rule_of_thumb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="bandwidth_scott"><a class="viewcode-back" href="../../../full_api/zfit.models.kde.html#zfit.models.kde.bandwidth_scott">[docs]</a><span class="k">def</span> <span class="nf">bandwidth_scott</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">bandwidth_rule_of_thumb</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.059</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="bandwidth_adaptiveV1"><a class="viewcode-back" href="../../../full_api/zfit.models.kde.html#zfit.models.kde.bandwidth_adaptiveV1">[docs]</a><span class="k">def</span> <span class="nf">bandwidth_adaptiveV1</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">run</span>
+    <span class="n">run</span><span class="o">.</span><span class="n">assert_executing_eagerly</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">bandwidth</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">min_std_or_iqr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">/</span> <span class="n">func</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">bandwidth</span> <span class="o">*=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">5.</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.059</span>
+    <span class="k">return</span> <span class="n">bandwidth</span></div>
+
+
+<span class="k">def</span> <span class="nf">_adaptive_bandwidth_KDEV1</span><span class="p">(</span><span class="n">constructor</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">truncate</span><span class="p">):</span>
+    <span class="n">kde_silverman</span> <span class="o">=</span> <span class="n">constructor</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">bandwidth</span><span class="o">=</span><span class="s1">&#39;silverman&#39;</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
+                                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;INTERNAL_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">truncate</span><span class="o">=</span><span class="n">truncate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bandwidth_adaptiveV1</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">kde_silverman</span><span class="o">.</span><span class="n">pdf</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_bandwidth_scott_KDEV1</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">bandwidth_scott</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_bandwidth_silverman_KDEV1</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">bandwidth_silverman</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;tensor&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">min_std_or_iqr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_std</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="n">tfp</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">75</span><span class="p">)</span> <span class="o">-</span> <span class="n">tfp</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">25</span><span class="p">)))</span>
+
+
+<div class="viewcode-block" id="GaussianKDE1DimV1"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.models.kde.GaussianKDE1DimV1">[docs]</a><span class="k">class</span> <span class="nc">GaussianKDE1DimV1</span><span class="p">(</span><span class="n">WrapDistribution</span><span class="p">):</span>
+    <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">_bandwidth_methods</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;scott&#39;</span><span class="p">:</span> <span class="n">_bandwidth_scott_KDEV1</span><span class="p">,</span>
+        <span class="s1">&#39;silverman&#39;</span><span class="p">:</span> <span class="n">_bandwidth_silverman_KDEV1</span><span class="p">,</span>
+        <span class="s1">&#39;adaptiveV1&#39;</span><span class="p">:</span> <span class="n">_adaptive_bandwidth_KDEV1</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
+                 <span class="n">bandwidth</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">weights</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">truncate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;GaussianKDE1DimV1&quot;</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;EXPERIMENTAL, `FEEDBACK WELCOME &lt;https://github.com/zfit/zfit/issues/new?assignees=&amp;labels=&amp;template=other.md&amp;title=&gt;`_</span>
+<span class="sd">        One dimensional, (truncated) Kernel Density Estimation with a Gaussian Kernel.</span>
+
+<span class="sd">        Kernel Density Estimation is a non-parametric method to approximate the density of given points.</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)</span>
+
+<span class="sd">        where the kernel in this case is a (truncated) Gaussian</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            K = \exp \Big(\frac{(x - x_i)^2}{\sigma^2}\Big)</span>
+
+
+<span class="sd">        The bandwidth of the kernel can be estimated in different ways. It can either be a global bandwidth,</span>
+<span class="sd">        corresponding to a single value, or a local bandwidth, each corresponding to one data point</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: 1-D Tensor-like. The positions of the `kernel`, the :math:`x_i`. Determines how many kernels will be created.</span>
+<span class="sd">            bandwidth: Bandwidth of the kernel. Valid options are {&#39;silverman&#39;, &#39;scott&#39;, &#39;adaptiveV1&#39;} or a numerical.</span>
+<span class="sd">                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.</span>
+<span class="sd">                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.</span>
+<span class="sd">            obs: Observables</span>
+<span class="sd">            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`</span>
+<span class="sd">            truncate: If a truncated Gaussian kernel should be used with the limits given by the `obs` lower and</span>
+<span class="sd">                upper limits. This can cause NaNs in case datapoints are outside of the limits.</span>
+<span class="sd">            name: Name of the PDF</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">bandwidth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bandwidth</span> <span class="o">=</span> <span class="s1">&#39;silverman&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">OverdefinedError</span><span class="p">(</span><span class="s2">&quot;Cannot specify weights and use a `ZfitData` with weights.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">weights</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">weights</span>
+
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;KDE is 1 dimensional, but data </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">n_obs</span><span class="si">}</span><span class="s2"> observables.&quot;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># create fraction for the sum</span>
+        <span class="n">shape_data</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">shape_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">probs</span> <span class="o">=</span> <span class="n">weights</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">size</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">),))</span>
+        <span class="n">categorical</span> <span class="o">=</span> <span class="n">tfd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">probs</span><span class="o">=</span><span class="n">probs</span><span class="p">)</span>  <span class="c1"># no grad -&gt; no need to recreate</span>
+
+        <span class="c1"># estimate bandwidth</span>
+        <span class="n">bandwidth_param</span> <span class="o">=</span> <span class="n">bandwidth</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">bw_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bandwidth_methods</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">bw_method</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot use </span><span class="si">{</span><span class="n">bandwidth</span><span class="si">}</span><span class="s2"> as a bandwidth method. Use a numerical value or one of&quot;</span>
+                                 <span class="sa">f</span><span class="s2">&quot; the defined methods: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bandwidth_methods</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">bandwidth</span> <span class="o">=</span> <span class="n">bw_method</span><span class="p">(</span><span class="n">constructor</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
+                                  <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;INTERNAL_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">truncate</span><span class="o">=</span><span class="n">truncate</span><span class="p">)</span>
+
+        <span class="n">bandwidth_param</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span> <span class="k">if</span> <span class="n">bandwidth_param</span> <span class="o">==</span> <span class="s1">&#39;adaptiveV1&#39;</span> <span class="k">else</span> <span class="n">bandwidth</span>  <span class="c1"># TODO: multiparam for bandwidth?</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bandwidth&#39;</span><span class="p">:</span> <span class="n">bandwidth_param</span><span class="p">}</span>
+
+        <span class="c1"># create distribution factory</span>
+        <span class="k">if</span> <span class="n">truncate</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">ZfitSpace</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`obs` has to be a `ZfitSpace` if `truncated` is True.&quot;</span><span class="p">)</span>
+            <span class="n">inside</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">inside</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">all_inside</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">(</span><span class="n">inside</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">all_inside</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Not all data points are inside the limits but&quot;</span>
+                                                                <span class="s2">&quot; a truncate kernel was chosen.&quot;</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">kernel_factory</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">tfp</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">TruncatedNormal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_bandwidth</span><span class="p">,</span>
+                                                         <span class="n">low</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">rect_lower</span><span class="p">,</span>
+                                                         <span class="n">high</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">rect_upper</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">kernel_factory</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">tfp</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_bandwidth</span><span class="p">)</span>
+
+        <span class="n">dist_kwargs</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mixture_distribution</span><span class="o">=</span><span class="n">categorical</span><span class="p">,</span>
+                                   <span class="n">components_distribution</span><span class="o">=</span><span class="n">kernel_factory</span><span class="p">())</span>
+        <span class="n">distribution</span> <span class="o">=</span> <span class="n">tfd</span><span class="o">.</span><span class="n">MixtureSameFamily</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
+                         <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+                         <span class="n">dist_params</span><span class="o">=</span><span class="p">{},</span>
+                         <span class="n">dist_kwargs</span><span class="o">=</span><span class="n">dist_kwargs</span><span class="p">,</span>
+                         <span class="n">distribution</span><span class="o">=</span><span class="n">distribution</span><span class="p">,</span>
+                         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_weights</span> <span class="o">=</span> <span class="n">weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bandwidth</span> <span class="o">=</span> <span class="n">bandwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_truncate</span> <span class="o">=</span> <span class="n">truncate</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+        <br/>
+        
+      
+    </p>
+    <p>
+        &copy; Copyright Copyright 2018, zfit.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

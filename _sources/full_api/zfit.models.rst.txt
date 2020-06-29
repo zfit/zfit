@@ -18,6 +18,7 @@ Submodules
    zfit.models.dist_tfp
    zfit.models.functions
    zfit.models.functor
+   zfit.models.kde
    zfit.models.physics
    zfit.models.polynomials
    zfit.models.special

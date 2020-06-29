@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.util.cache &#8212; zfit 0.5.3.dev78+g4375877 documentation</title>
+    <title>zfit.util.cache &#8212; zfit 0.5.3.dev100+g9857c27 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev78</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev100</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -335,7 +335,6 @@
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
-<span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitSpace</span>
 
 
 <div class="viewcode-block" id="ZfitGraphCachable"><a class="viewcode-back" href="../../../full_api/zfit.util.cache.html#zfit.ZfitGraphCachable">[docs]</a><span class="k">class</span> <span class="nc">ZfitGraphCachable</span><span class="p">:</span>
@@ -520,6 +519,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            tuple</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># is initialized before the core</span>
+        <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitSpace</span>
+
         <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="n">combined</span> <span class="o">=</span> <span class="p">[]</span>

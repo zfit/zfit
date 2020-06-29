@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.models.dist_tfp &#8212; zfit 0.5.3.dev78+g4375877 documentation</title>
+    <title>zfit.models.dist_tfp &#8212; zfit 0.5.3.dev100+g9857c27 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev78</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev100</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -282,27 +282,20 @@
 <span class="c1">#  Copyright (c) 2020 zfit</span>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
 <span class="kn">import</span> <span class="nn">tensorflow_probability.python.distributions</span> <span class="k">as</span> <span class="nn">tfd</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-
-
 
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">OverdefinedError</span><span class="p">,</span> <span class="n">VectorizedLimitsNotImplementedError</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">zfit.util.exception</span> <span class="kn">import</span> <span class="n">AnalyticIntegralNotImplementedError</span><span class="p">,</span> <span class="n">AnalyticSamplingNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="kn">import</span> <span class="n">BasePDF</span>
-<span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitParameter</span><span class="p">,</span> <span class="n">ZfitData</span>
-<span class="kn">from</span> <span class="nn">..core.space</span> <span class="kn">import</span> <span class="n">no_norm_range</span><span class="p">,</span> <span class="n">supports</span>
 <span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="kn">import</span> <span class="n">convert_to_parameter</span>
-<span class="kn">from</span> <span class="nn">..core.space</span> <span class="kn">import</span> <span class="n">Space</span>
+<span class="kn">from</span> <span class="nn">..core.space</span> <span class="kn">import</span> <span class="n">supports</span><span class="p">,</span> <span class="n">Space</span>
+<span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 
-
+<span class="c1"># TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?</span>
 <div class="viewcode-block" id="tfd_analytic_sample"><a class="viewcode-back" href="../../../full_api/zfit.models.dist_tfp.html#zfit.models.dist_tfp.tfd_analytic_sample">[docs]</a><span class="nd">@supports</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">tfd_analytic_sample</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dist</span><span class="p">:</span> <span class="n">tfd</span><span class="o">.</span><span class="n">Distribution</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Sample analytically with a `tfd.Distribution` within the limits. No preprocessing.</span>
@@ -323,7 +316,10 @@
     <span class="n">prob_sample</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="n">lower_prob_lim</span><span class="p">,</span>
                                    <span class="n">maxval</span><span class="o">=</span><span class="n">upper_prob_lim</span><span class="p">)</span>
     <span class="n">prob_sample</span><span class="o">.</span><span class="n">set_shape</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-    <span class="n">sample</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">prob_sample</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">prob_sample</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AnalyticSamplingNotImplementedError</span>
     <span class="n">sample</span><span class="o">.</span><span class="n">set_shape</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="n">limits</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">sample</span></div>
 
@@ -377,14 +373,13 @@
         <span class="n">lower</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
         <span class="n">upper</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_all_finite</span><span class="p">((</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span> <span class="s2">&quot;Are infinite limits needed? Causes troubles with NaNs&quot;</span><span class="p">)</span>
-        <span class="n">integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">integral</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_analytic_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">:</span> <span class="n">Space</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tfd_analytic_sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span></div>
 
 
-<span class="c1"># class KernelDensity(WrapDistribution):</span>
+<span class="c1"># class KernelDensityTFP(WrapDistribution):</span>
 <span class="c1">#</span>
 <span class="c1">#     def __init__(self, loc: ztyping.ParamTypeInput, scale: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,</span>
 <span class="c1">#                  kernel: tfp.distributions.Distribution = tfp.distributions.Normal,</span>
@@ -450,7 +445,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mu</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span>
                  <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Gauss&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Gaussian or Normal distribution with a mean (mu) and a standartdevation (sigma).</span>
+        <span class="sd">&quot;&quot;&quot;Gaussian or Normal distribution with a mean (mu) and a standartdeviation (sigma).</span>
 
 <span class="sd">        The gaussian shape is defined as</span>
 
