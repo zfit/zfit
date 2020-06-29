@@ -14,7 +14,7 @@ from ..util.exception import OverdefinedError, ShapeIncompatibleError
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):
-    return tf.math.reduce_std(data) * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.) * factor
+    return min_std_or_iqr(data) * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.) * factor
 
 
 def bandwidth_silverman(data):
@@ -29,7 +29,7 @@ def bandwidth_adaptiveV1(data, func):
     from .. import run
     run.assert_executing_eagerly()
     data = z.convert_to_tensor(data)
-    bandwidth = z.sqrt(tf.math.reduce_std(data) / func(data))
+    bandwidth = z.sqrt(min_std_or_iqr(data) / func(data))
     bandwidth *= tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.) * 1.059
     return bandwidth
 

@@ -38,7 +38,7 @@ def test_simple_kde():
     integral_trunc = kde_adaptive_trunc.integrate(limits=limits, norm_range=False)
     integral_adaptive = kde_adaptive.integrate(limits=limits, norm_range=False)
     integral_silverman = kde_silverman.integrate(limits=limits, norm_range=False)
-
+    #
     # import matplotlib.pyplot as plt
     # plt.plot(data, kde_adaptive.pdf(data), 'x')
     #
