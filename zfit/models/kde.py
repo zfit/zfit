@@ -64,10 +64,10 @@ class GaussianKDE1DimV1(WrapDistribution):
 
     def __init__(self, obs: ztyping.ObsTypeInput, data: ztyping.ParamTypeInput,
                  bandwidth: ztyping.ParamTypeInput = None,
-                 weights: Union[None, np.ndarray, tf.Tensor] = None, truncate: bool = True,
+                 weights: Union[None, np.ndarray, tf.Tensor] = None, truncate: bool = False,
                  name: str = "GaussianKDE1DimV1"):
         r"""EXPERIMENTAL, `FEEDBACK WELCOME <https://github.com/zfit/zfit/issues/new?assignees=&labels=&template=other.md&title=>`_
-        One dimensional Kernel Density Estimation with a Gaussian Kernel.
+        One dimensional, (truncated) Kernel Density Estimation with a Gaussian Kernel.
 
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -75,7 +75,7 @@ class GaussianKDE1DimV1(WrapDistribution):
 
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
-        where the kernel in this case is a Gaussian
+        where the kernel in this case is a (truncated) Gaussian
 
         .. math::
             K = \exp \Big(\frac{(x - x_i)^2}{\sigma^2}\Big)
