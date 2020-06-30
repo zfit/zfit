@@ -15,6 +15,9 @@ zfit: scalable pythonic fitting
 .. image:: https://travis-ci.org/zfit/zfit.svg?branch=develop
    :target: https://travis-ci.org/zfit/zfit
 
+.. image:: https://github.com/zfit/zfit/workflows/Python%20package/badge.svg
+   :target: https://github.com/zfit/zfit/actions
+
 .. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
    :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
 
@@ -37,7 +40,7 @@ zfit: scalable pythonic fitting
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
 `TensorFlow <https://www.tensorflow.org/>`_ as its computational backend
 and is optimised for simple and direct manipulation of probability density functions. The project is affiliated with
-and well integrated into `scikit-hep <https://scikit-hep.org/>`_, the HEP Python ecosystem.
+and well integrated into `Scikit-HEP <https://scikit-hep.org/>`_, the HEP Python ecosystem.
 
 - **Tutorials**: `Interactive IPython Tutorials <https://github.com/zfit/zfit-tutorials>`_
 - **Quick start**: `Example scripts <examples>`_
