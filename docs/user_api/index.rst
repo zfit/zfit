@@ -19,6 +19,7 @@ insufficient!
     zfit.dimension
     zfit.exception
     zfit.func
+    zfit.util.typing
 ..    zfit.loss
     zfit.minimize
     zfit.param
