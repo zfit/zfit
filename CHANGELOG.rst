@@ -9,9 +9,10 @@ Develop
 Major Features and Improvements
 -------------------------------
 - add correlation method to FitResult
-- Gaussian Kernel Density Estimation in one dimension `zfit.pdf.GaussianKDE1DimV1` implementation with fixed and
+- Gaussian (Truncated) Kernel Density Estimation in one dimension `zfit.pdf.GaussianKDE1DimV1` implementation with fixed and
   adaptive bandwidth added as V1. This
   is a feature that needs to be improved and feedback is welcome
+- Non-relativistic Breit-Wigner PDF implementation added.
 
 Breaking changes
 ------------------
