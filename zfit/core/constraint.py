@@ -8,7 +8,6 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
-import zfit
 from zfit import z
 from .baseobject import BaseNumeric
 from .dependents import _extract_dependencies
