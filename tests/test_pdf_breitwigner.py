@@ -8,12 +8,8 @@ from zfit import Parameter
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.dist_tfp import Gauss
 
-mu1_true = 1.
-mu2_true = 2.
-mu3_true = 0.6
-sigma1_true = 1.4
-sigma2_true = 2.3
-sigma3_true = 1.8
+mean1_true = 1.
+width1_true = 1.4
 
 test_values = np.random.uniform(low=-3, high=5, size=100)
 norm_range1 = (-4., 2.)
@@ -22,28 +18,8 @@ obs1 = 'obs1'
 limits1 = zfit.Space(obs=obs1, limits=(-0.3, 1.5))
 
 
-def create_gauss():
-    mu1 = Parameter("mu1", mu1_true)
-    mu2 = Parameter("mu2", mu2_true)
-    mu3 = Parameter("mu3", mu3_true)
-    sigma1 = Parameter("sigma1", sigma1_true)
-    sigma2 = Parameter("sigma2", sigma2_true)
-    sigma3 = Parameter("sigma3", sigma3_true)
-    gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1")
-    normal1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="normal1")
-    gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2")
-    normal2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="normal2")
-    gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3")
-    normal3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="normal3")
-    return gauss1, gauss2, gauss3, normal1, normal2, normal3
-
-
-# gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
-
-
 def test_gauss1():
-    gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
-
+    bw1 = zfit.pdf.
     probs1 = gauss1.pdf(x=test_values, norm_range=norm_range1)
     probs1_tfp = normal1.pdf(x=test_values, norm_range=norm_range1)
     probs1 = probs1.numpy()

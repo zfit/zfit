@@ -89,8 +89,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
         value = z.unstack_x(x)  # TODO: use this? change shaping below?
-        probs = self.distribution.prob(value=value, name="unnormalized_pdf")
-        return probs  # TODO batch shape just removed
+        return self.distribution.prob(value=value, name="unnormalized_pdf")
 
     # TODO: register integral?
     @supports()
@@ -248,6 +247,38 @@ class TruncatedGauss(WrapDistribution):
         params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
         distribution = tfp.distributions.TruncatedNormal
         dist_params = dict(loc=mu, scale=sigma, low=low, high=high)
+        super().__init__(distribution=distribution, dist_params=dist_params,
+                         obs=obs, params=params, name=name)
+
+
+class BreitWigner(WrapDistribution):
+    _N_OBS = 1
+
+    def __init__(self,
+                 mean: ztyping.ParamTypeInput,
+                 width: ztyping.ParamTypeInput,
+                 obs: ztyping.ObsTypeInput,
+                 name: str = "BreitWigner"):
+        r"""Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.
+
+        The (unnormalized) shape of the non-relativistic Breit-Wigner is given by
+
+        .. math::
+
+            \frac{1}{\gamma \left[1 + \left(\frac{E - E_0}{\gamma}\right)^2\right]}
+
+        with :math:`E_0` the mean and :math:`\gamma` the width of the distribution.
+
+        Args:
+            mean: Invariant mass of the unstable particle.
+            width: Width of the shape.
+            obs: Observables and normalization range the pdf is defined in
+            name: Name of the PDF
+        """
+        mean, width = self._check_input_params(mean, width)
+        params = OrderedDict((('mean', mean), ('width', width)))
+        distribution = tfp.distributions.Cauchy
+        dist_params = dict(loc=mean, scale=width)
         super().__init__(distribution=distribution, dist_params=dist_params,
                          obs=obs, params=params, name=name)
 
