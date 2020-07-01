@@ -31,6 +31,7 @@ Bug fixes and small changes
   which is 2-3 times faster than previous algorithm.
 - add `from_minuit` constructor to `FitResult` allowing to create it when
   using directly iminuit
+- fix possible bias with sampling using accept-reject
 
 Experimental
 ------------

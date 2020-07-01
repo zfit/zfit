@@ -167,7 +167,12 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     """
     prob_max_init = prob_max
     multiple_limits = len(limits) > 1
-    overestimate_factor_scaling = 1.25
+    if prob_max is None:
+        n_min_to_produce = 10000
+        overestimate_factor_scaling = 1.25
+    else:  # if an exact estimation is given
+        n_min_to_produce = 0
+        overestimate_factor_scaling = 1.
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.cast(n, dtype=tf.int32)
@@ -199,12 +204,12 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
     @z.function(wraps='tensor')
     def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling,
-                            weights_maximum, prob_maximum):
+                            weights_maximum, prob_maximum, n_min_to_produce):
         return tf.greater(n, n_produced)
 
     @z.function(wraps='tensor')
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.,
-                    weights_maximum=0., prob_maximum=0.):
+                    weights_maximum=0., prob_maximum=0., n_min_to_produce=10000):
         eff = tf.reduce_max(input_tensor=[eff, ztf.to_real(1e-6)])
 
         n_to_produce = n - n_produced
@@ -221,6 +226,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
             n_to_produce = tf.cast(ztf.to_real(n_to_produce) / eff * 1.1, dtype=tf.int32) + 3  # just to make sure
+            n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
+            n_min_to_produce -= tf.maximum(n_to_produce, 0)  # reduce to minimum of 0
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.constant(800000, dtype=tf.int32)
             tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
@@ -357,7 +364,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             input_tensor=[ztf.to_real(n_total_drawn), ztf.to_real(1.)])
         return (
             n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled, weights_scaling, weights_maximum,
-            prob_maximum)
+            prob_maximum, n_min_to_produce
+        )
 
     efficiency_estimation = ztf.to_real(efficiency_estimation)
     weights_scaling = ztf.constant(0.)
@@ -365,7 +373,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     prob_maximum = ztf.constant(0.)
     loop_vars = (
         n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled, weights_scaling,
-        weights_maximum, prob_maximum)
+        weights_maximum, prob_maximum, n_min_to_produce)
 
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
                                  loop_vars=loop_vars,
