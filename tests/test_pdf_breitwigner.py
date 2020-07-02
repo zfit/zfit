@@ -21,7 +21,7 @@ def test_breitwigner1():
     test_values = tf.random.uniform(minval=-2, maxval=4, shape=(100,))
     mean = zfit.Parameter('mean', mean1_true, -10, 10)
     width = zfit.Parameter('width', width1_true)
-    bw1 = zfit.pdf.BreitWigner(mean=mean, width=width, obs=obs1)
+    bw1 = zfit.pdf.Cauchy(m=mean, gamma=width, obs=obs1)
 
     probs1 = bw1.pdf(x=test_values)
     # TODO: add scipy dist?
