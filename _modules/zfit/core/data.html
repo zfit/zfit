@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.core.data &#8212; zfit 0.5.3.dev115+geadc7de documentation</title>
+    <title>zfit.core.data &#8212; zfit 0.5.3.dev116+g746c4b3 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev115</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev116</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -422,8 +422,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitSpace&quot;</span><span class="p">:</span>
-        <span class="n">space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space</span>
-        <span class="k">return</span> <span class="n">space</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space</span>
 
 
     <span class="c1"># constructors</span>
@@ -642,7 +641,7 @@
             <span class="n">value</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># cast data to right type</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 
@@ -660,7 +659,7 @@
             <span class="c1"># values = list(values[self.obs.index(o)] for o in obs if o in self.obs)</span>
         <span class="k">if</span> <span class="n">perm_indices</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">always_list</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">perm_indices</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">perm_indices</span><span class="p">]</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">stack_x</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">value</span>
@@ -706,7 +705,6 @@
         <span class="k">del</span> <span class="n">name</span>
         <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dtype</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-                <span class="c1"># return ValueError(&quot;From Mayou36&quot;, self.dtype)</span>
                 <span class="k">return</span> <span class="bp">NotImplemented</span>
         <span class="k">if</span> <span class="n">as_ref</span><span class="p">:</span>
             <span class="c1"># return &quot;NEVER READ THIS&quot;</span>
@@ -780,8 +778,10 @@
         <span class="k">return</span> <span class="n">space</span></div>
 
     <span class="k">def</span> <span class="nf">_get_nevents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">nevents</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">nevents</span></div>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;zfit.Data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> obs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s1">&gt;&#39;</span></div>
 
 
 <div class="viewcode-block" id="SampleData"><a class="viewcode-back" href="../../../full_api/zfit.core.data.html#zfit.core.data.SampleData">[docs]</a><span class="k">class</span> <span class="nc">SampleData</span><span class="p">(</span><span class="n">Data</span><span class="p">):</span>
@@ -902,7 +902,10 @@
             <span class="n">new_sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_func</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
             <span class="c1"># self.sample_holder.assign(new_sample)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sample_holder</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">new_sample</span><span class="p">,</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_initial_resampled</span> <span class="o">=</span> <span class="kc">True</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initial_resampled</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;Sampler: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> obs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s1">&gt;&#39;</span></div>
 
 
 <span class="k">def</span> <span class="nf">_dense_var_to_tensor</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_ref</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
