@@ -28,11 +28,6 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 
-
-
-|scikit-hep_logo|
-
-
 .. |zfit_logo| image:: docs/images/zfit-fin-hires.png
    :target: https://github.com/zfit/zfit
    :alt: zfit logo
