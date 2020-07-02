@@ -192,9 +192,9 @@ class GaussianConstraint(TFProbabilityConstraint):
 
 
         Args:
-            params: The parameters to constraint; corresponds to mu in the Gaussian
+            params: The parameters to constraint; corresponds to x in the Gaussian
                 distribution.
-            observation: observed values of the parameter; corresponds to the x argument
+            observation: observed values of the parameter; corresponds to mu
                 in the Gaussian distribution.
             uncertainty: Uncertainties or covariance/error
                 matrix of the observed values. Can either be a single value, a list of values, an array or a tensor.
