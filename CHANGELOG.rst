@@ -2,9 +2,12 @@
 Changelog
 *********
 
-Develop
-=======
 
+
+0.5.3 (02.07.20)
+================
+
+Kernel density estimation for 1 dimension.
 
 Major Features and Improvements
 -------------------------------
@@ -18,8 +21,6 @@ Breaking changes
 ------------------
 - change human-readable name of `Gauss`, `Uniform` and `TruncatedGauss` to remove the `'_tfp'` at the end of the name
 
-Deprecations
--------------
 
 
 Bug fixes and small changes
@@ -34,14 +35,10 @@ Bug fixes and small changes
   using directly iminuit
 - fix possible bias with sampling using accept-reject
 
-Experimental
-------------
-
 Requirement changes
 -------------------
+- pin down cloudpickle version (upstream bug with pip install) and TF, TFP versions
 
-Thanks
-------
 
 0.5.2 (13.05.2020)
 ==================
