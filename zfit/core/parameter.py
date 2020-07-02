@@ -644,8 +644,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         self._value_fn = value_fn
 
     def _get_dependencies(self):
-        dependents = _extract_dependencies(list(self.params.values()))
-        return dependents
+        return _extract_dependencies(list(self.params.values()))
 
     @property
     def floating(self):

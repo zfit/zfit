@@ -258,7 +258,7 @@ class Cauchy(WrapDistribution):
                  m: ztyping.ParamTypeInput,
                  gamma: ztyping.ParamTypeInput,
                  obs: ztyping.ObsTypeInput,
-                 name: str = "BreitWigner"):
+                 name: str = "Cauchy"):
         r"""Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.
 
         The (unnormalized) shape of the non-relativistic Breit-Wigner is given by
@@ -282,6 +282,3 @@ class Cauchy(WrapDistribution):
         super().__init__(distribution=distribution, dist_params=dist_params,
                          obs=obs, params=params, name=name)
 
-
-if __name__ == '__main__':
-    exp1 = ExponentialTFP(tau=5., obs=['a'])
