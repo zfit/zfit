@@ -20,8 +20,8 @@ insufficient!
     zfit.exception
     zfit.func
     zfit.loss
-..    zfit.minimize
-    zfit.param
+    zfit.minimize
+..    zfit.param
     zfit.pdf
     zfit.sample
     zfit.settings

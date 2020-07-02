@@ -17,7 +17,6 @@ from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import set_values
 from ..settings import run
-from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WeightsNotImplementedError
 from ..util.warnings import ExperimentalFeatureWarning
@@ -96,13 +95,13 @@ class FitResult(ZfitResult):
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
         """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
 
-        Any errors calculated are saved under `self.params` dictionary with {parameter: {error_name1: {'low': value
-        'high': value or similar}}
+        Any errors calculated are saved under `self.params` dictionary with::
+
+            {parameter: {error_name1: {'low': value, 'high': value or similar}}
 
         Args:
             params (OrderedDict[:py:class:`~zfit.Parameter`, float]): Result of the fit where each
-            :py:class:`~zfit.Parameter` key has the value
-                from the minimum found by the minimizer.
+               :py:class:`~zfit.Parameter` key has the value from the minimum found by the minimizer.
             edm (Union[int, float]): The estimated distance to minimum, estimated by the minimizer (if available)
             fmin (Union[numpy.float64, float]): The minimum of the function found by the minimizer
             status (int): A status code (if available)
@@ -299,25 +298,29 @@ class FitResult(ZfitResult):
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.0) -> OrderedDict:
-        r"""DEPRECATED! Use 'errors' instead
-            Args:
-                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the
-                     errors. If `params` is `None`, use all *floating* parameters.
-                method (str or Callable): The method to use to calculate the errors. Valid choices are
-                    {'minuit_minos'} or a Callable.
-                sigma (float): Errors are calculated with respect to `sigma` std deviations. The definition
-                    of 1 sigma depends on the loss function and is defined there.
+        r"""
 
-                    For example, the negative log-likelihood (without the factor of 2) has a correspondents
-                    of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
-                error_name (str): The name for the error in the dictionary.
+        .. deprecated:: unknown
+            Use :func:`errors` instead.
+
+        Args:
+            params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the
+                 errors. If `params` is `None`, use all *floating* parameters.
+            method (str or Callable): The method to use to calculate the errors. Valid choices are
+                {'minuit_minos'} or a Callable.
+            sigma (float): Errors are calculated with respect to `sigma` std deviations. The definition
+                of 1 sigma depends on the loss function and is defined there.
+
+                For example, the negative log-likelihood (without the factor of 2) has a correspondents
+                of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
+            error_name (str): The name for the error in the dictionary.
 
 
-            Returns:
-                `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which
-                    contains (next to probably more things) two keys 'lower' and 'upper',
-                    holding the calculated errors.
-                    Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
+        Returns:
+            `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+                contains (next to probably more things) two keys 'lower' and 'upper',
+                holding the calculated errors.
+                Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
         warnings.warn("`error` is depreceated, use `errors` instead. This will return not only the errors but also "
                       "(a possible) new FitResult if a minimum was found. So change"

@@ -81,8 +81,9 @@ class PushbackStrategy(BaseStrategy):
 
         The counter indicates how many NaNs occurred in a row. The `nan_tolerance` is the upper limit, if this is
         exceeded, the fallback will be used and an error is raised.
+
         Args:
-            nan_penalty: Value to add to the previous loss in order to penalize the step taken
+            nan_penalty: Value to add to the previous loss in order to penalize the step taken.
             nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.
         """
         super().__init__(**kwargs)
@@ -109,18 +110,19 @@ DefaultStrategy = PushbackStrategy
 
 
 class DefaultToyStrategy(DefaultStrategy, ToyStrategyFail):
-    """Same as `DefaultStrategy`, but does not raise an error on full failure, instead return an invalid FitResult.
+    """Same as :py:class:`DefaultStrategy`, but does not raise an error on full failure, instead return an invalid
+    FitResult.
 
     This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a
-    failure instead of rising an error."""
+    failure instead of rising an error.
+    """
 
 
 class BaseMinimizer(ZfitMinimizer):
     """Minimizer for loss functions.
 
     Additional `minimizer_options` (given as **kwargs) can be accessed and changed via the
-    attribute (dict) `minimizer.minimizer_options`
-
+    attribute (dict) `minimizer.minimizer_options`.
     """
     _DEFAULT_TOLERANCE = 1e-3
 
