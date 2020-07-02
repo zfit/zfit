@@ -187,21 +187,20 @@ class GaussianConstraint(TFProbabilityConstraint):
         A Gaussian constraint is defined as the likelihood of `params` given the `observations` and `uncertainty` from
         a different measurement.
 
-
         .. math::
             \text{constraint} = \text{Gauss}(\text{observation}; \text{params}, \text{uncertainty})
 
 
         Args:
-            params (list(zfit.Parameter)): The parameters to constraint; corresponds to mu in the Gaussian
+            params: The parameters to constraint; corresponds to mu in the Gaussian
                 distribution.
-            observation (numerical, list(numerical)): observed values of the parameter; corresponds to the x argument
+            observation: observed values of the parameter; corresponds to the x argument
                 in the Gaussian distribution.
-            uncertainty (numerical, list(numerical) or array/tensor): Uncertainties or covariance/error
+            uncertainty: Uncertainties or covariance/error
                 matrix of the observed values. Can either be a single value, a list of values, an array or a tensor.
                 Corresponds to the sigma of the Gaussian distribution.
         Raises:
-            ShapeIncompatibleError: if params, mu and sigma have incompatible shapes
+            ShapeIncompatibleError: If params, mu and sigma have incompatible shapes.
         """
 
         observation = convert_to_container(observation, tuple)
