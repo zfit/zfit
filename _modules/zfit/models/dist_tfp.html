@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.models.dist_tfp &#8212; zfit 0.5.3.dev106+g80b3158 documentation</title>
+    <title>zfit.models.dist_tfp &#8212; zfit 0.5.3.dev113+g48156a8 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.3.dev106</b></span>
+        <span class="navbar-text pull-left"><b>0.5.3.dev113</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -363,8 +363,7 @@
 
     <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;zfit.Data&quot;</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># TODO: use this? change shaping below?</span>
-        <span class="n">probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">prob</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;unnormalized_pdf&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">probs</span>  <span class="c1"># TODO batch shape just removed</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">prob</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;unnormalized_pdf&quot;</span><span class="p">)</span>
 
     <span class="c1"># TODO: register integral?</span>
     <span class="nd">@supports</span><span class="p">()</span>
@@ -522,6 +521,38 @@
         <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(((</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="n">low</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="n">high</span><span class="p">)))</span>
         <span class="n">distribution</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">TruncatedNormal</span>
         <span class="n">dist_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">high</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="n">distribution</span><span class="p">,</span> <span class="n">dist_params</span><span class="o">=</span><span class="n">dist_params</span><span class="p">,</span>
+                         <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Cauchy"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.models.dist_tfp.Cauchy">[docs]</a><span class="k">class</span> <span class="nc">Cauchy</span><span class="p">(</span><span class="n">WrapDistribution</span><span class="p">):</span>
+    <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">m</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
+                 <span class="n">gamma</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
+                 <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BreitWigner&quot;</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.</span>
+
+<span class="sd">        The (unnormalized) shape of the non-relativistic Breit-Wigner is given by</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \frac{1}{\gamma \left[1 + \left(\frac{x - m}{\gamma}\right)^2\right]}</span>
+
+<span class="sd">        with :math:`m` the mean and :math:`\gamma` the width of the distribution.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            m: Invariant mass of the unstable particle.</span>
+<span class="sd">            gamma: Width of the shape.</span>
+<span class="sd">            obs: Observables and normalization range the pdf is defined in</span>
+<span class="sd">            name: Name of the PDF</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_params</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(((</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;gamma&#39;</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)))</span>
+        <span class="n">distribution</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Cauchy</span>
+        <span class="n">dist_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">gamma</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="n">distribution</span><span class="p">,</span> <span class="n">dist_params</span><span class="o">=</span><span class="n">dist_params</span><span class="p">,</span>
                          <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
