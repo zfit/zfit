@@ -19,10 +19,10 @@ insufficient!
     zfit.dimension
     zfit.exception
     zfit.func
-    zfit.util.typing
-..    zfit.loss
-    zfit.minimize
+    zfit.loss
+..    zfit.minimize
     zfit.param
     zfit.pdf
     zfit.sample
     zfit.settings
+    zfit.util.typing
