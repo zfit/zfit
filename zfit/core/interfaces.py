@@ -605,7 +605,6 @@ class ZfitDependenciesMixin:
                                         "independent parameters or `get_cache_deps` in case you need "
                                         "the numerical cache dependents (advanced).")
     def get_dependencies(self, only_floating: bool = True) -> ztyping.DependentsType:
-        from zfit.util.exception import BreakingAPIChangeError
         # raise BreakingAPIChangeError
         return self.get_cache_deps(only_floating=only_floating)
 
@@ -872,7 +871,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         raise NotImplementedError
 
     @abstractmethod
-    def sample(self, n: int, limits: ztyping.LimitsType = None, name: str = "sample") -> ztyping.XType:
+    def sample(self, n: int, limits: ztyping.LimitsType = None) -> ztyping.XType:
         """Sample `n` points within `limits` from the model.
 
         Args:

@@ -2,31 +2,43 @@
 Changelog
 *********
 
-Develop
-=======
 
+
+0.5.3 (02.07.20)
+================
+
+Kernel density estimation for 1 dimension.
 
 Major Features and Improvements
 -------------------------------
+- add correlation method to FitResult
+- Gaussian (Truncated) Kernel Density Estimation in one dimension `zfit.pdf.GaussianKDE1DimV1` implementation with fixed and
+  adaptive bandwidth added as V1. This
+  is a feature that needs to be improved and feedback is welcome
+- Non-relativistic Breit-Wigner PDF, called Cauchy, implementation added.
 
 Breaking changes
 ------------------
+- change human-readable name of `Gauss`, `Uniform` and `TruncatedGauss` to remove the `'_tfp'` at the end of the name
 
-Depreceations
--------------
 
 
 Bug fixes and small changes
 ---------------------------
-
-Experimental
-------------
+- fix color wrong in printout of results, params
+- packaging: moved to pyproject.toml and a setup.cfg mainly, development requirements can
+  be installed with the `dev` extra as (e.g.) `pip install zfit[dev]`
+- Fix shape issue in TFP distributions for partial integration
+- change zfit internal algorithm (`zfit_error`) to compute error/intervals from the profile likelihood,
+  which is 2-3 times faster than previous algorithm.
+- add `from_minuit` constructor to `FitResult` allowing to create it when
+  using directly iminuit
+- fix possible bias with sampling using accept-reject
 
 Requirement changes
 -------------------
+- pin down cloudpickle version (upstream bug with pip install) and TF, TFP versions
 
-Thanks
-------
 
 0.5.2 (13.05.2020)
 ==================
@@ -121,7 +133,7 @@ Breaking changes
 - Integrals of extended PDFs are not extended anymore, but `ext_integrate` now returns the
   integral multiplied by the yield.
 
-Depreceations
+Deprecations
 -------------
 - `ComposedParameter` takes now `params` instead of `dependents` as argument, it acts now as
   the arguments to the `value_fn`. To stay future compatible, create e.g. `def value_fn(p1, pa2)`

@@ -593,11 +593,11 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         super().__del__()
 
     def __repr__(self):
-        if hasattr(self, "numpy"):  # more explicit: we check for exactly this attribute, nothing inside numpy
-            value = self.numpy()
+        if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
+            value = f'{self.numpy():.4g}'
         else:
             value = "graph-node"
-        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value:.4g}>"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value}>"
 
     # LEGACY, deprecate?
     @property
@@ -644,8 +644,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         self._value_fn = value_fn
 
     def _get_dependencies(self):
-        dependents = _extract_dependencies(list(self.params.values()))
-        return dependents
+        return _extract_dependencies(list(self.params.values()))
 
     @property
     def floating(self):
@@ -754,8 +753,11 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
 
     def __repr__(self):
-        value = self.value()
-        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
+        if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
+            value = f'{self.numpy():.4g}'
+        else:
+            value = "graph-node"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' params={self.params} value={value}>"
 
 
 class ComplexParameter(ComposedParameter):
@@ -793,7 +795,7 @@ class ComplexParameter(ComposedParameter):
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(name=name,
                     value_fn=lambda: tf.cast(
-                        tf.complex(mod*tf.math.cos(arg), mod*tf.math.sin(arg)),
+                        tf.complex(mod * tf.math.cos(arg), mod * tf.math.sin(arg)),
                         dtype=dtype),
                     params=[mod, arg])
         param._mod = mod

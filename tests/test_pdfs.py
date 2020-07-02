@@ -41,8 +41,6 @@ def true_gaussian_sum(x):
     return sum_gauss
 
 
-
-
 def create_params(name_add=""):
     mu1 = Parameter("mu1" + name_add, mu1_true)
     mu2 = Parameter("mu2" + name_add, mu2_true)
@@ -238,4 +236,4 @@ def test_extended_gauss():
 
 
 if __name__ == '__main__':
-    test_extended_gauss()
+    test_prod_gauss_nd()

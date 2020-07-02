@@ -11,10 +11,10 @@ Most classes and functions are documented with docstrings, but don't hesitate to
     full_api/zfit
     full_api/zfit.pdf
     full_api/zfit.func
+    full_api/zfit.param
     full_api/zfit.data
     full_api/zfit.loss
     full_api/zfit.constraint
     full_api/zfit.minimize
-    full_api/zfit.minimizers.fitresult
     full_api/zfit.settings
     full_api/zfit.z

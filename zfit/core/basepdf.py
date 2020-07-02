@@ -56,6 +56,7 @@ from contextlib import suppress
 from typing import Union, Type, Dict, Optional, Set
 
 import tensorflow as tf
+from tensorflow.python import deprecated
 
 from zfit import z
 from zfit.core.sample import extended_sampling
@@ -137,10 +138,10 @@ class BasePDF(ZfitPDF, BaseModel):
         return tuple(convert_to_parameter(p) for p in params)
 
     def _func_to_integrate(self, x: ztyping.XType):
-        return self.unnormalized_pdf(x)
+        return self.pdf(x, norm_range=False)
 
     def _func_to_sample_from(self, x):
-        return self.unnormalized_pdf(x)
+        return self.pdf(x, norm_range=False)
 
     @property
     def norm_range(self) -> Union[Space, None, bool]:
@@ -222,6 +223,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _unnormalized_pdf(self, x):
         raise SpecificFunctionNotImplementedError
 
+    @deprecated(None, "Use `pdf(norm_range=False)` instead")
     def unnormalized_pdf(self, x: ztyping.XType, component_norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
         """PDF "unnormalized". Use `functions` for unnormalized pdfs. this is only for performance in special cases.
 
@@ -324,7 +326,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _fallback_pdf(self, x, norm_range):
         pdf = self._call_unnormalized_pdf(x)
-        if norm_range.has_limits:  # needed?
+        if norm_range.has_limits:
             pdf /= self._hook_normalization(limits=norm_range)
         return pdf
 

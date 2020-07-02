@@ -1,10 +1,6 @@
 #  Copyright (c) 2020 zfit
 
-import numpy as np
 import zfit
-import matplotlib.pyplot as plt
-
-n_bins = 50
 
 # create space
 obs = zfit.Space("x", limits=(-10, 10))
@@ -41,6 +37,6 @@ result = minimizer.minimize(nll)
 print(result)
 
 # do the error calculations, here with minos
-param_errors = result.hesse()
-param_errors = result.errors()
+param_hesse = result.hesse()
+param_errors, new_result = result.errors()
 print(result.params)

@@ -4,6 +4,8 @@ import pytest
 
 import zfit
 from zfit import z
+from zfit.minimizers.fitresult import FitResult
+from zfit.minimizers.errors import compute_errors
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
@@ -141,63 +143,101 @@ def test_covariance(minimizer_class_and_kwargs):
 
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)
 
+    with pytest.raises(KeyError):
+        result.covariance(params=[a, b, c], method="hesse")
+
+
+@pytest.mark.flaky(reruns=3)
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+def test_correlation(minimizer_class_and_kwargs):
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results['result']
+    hesse = result.hesse()
+    a = results['a_param']
+    b = results['b_param']
+    c = results['c_param']
+
+    cor_mat = result.correlation(params=[a, b, c])
+    cov_mat = result.covariance(params=[a, b, c])
+    cor_dict = result.correlation(params=[a, b], as_dict=True)
+
+    np.testing.assert_allclose(np.diag(cor_mat), 1.0)
+
+    a_error = hesse[a]['error']
+    b_error = hesse[b]['error']
+    assert pytest.approx(cor_mat[0, 1], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
+    assert pytest.approx(cor_dict[(a, b)], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
+
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-def test_errors(minimizer_class_and_kwargs):
+@pytest.mark.parametrize("sigma", [1, 2])
+def test_errors(minimizer_class_and_kwargs, sigma):
+    n_max_trials = 5  # how often to try to find a new minimum
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results['result']
     a = results['a_param']
     b = results['b_param']
     c = results['c_param']
 
-    z_errors, new_result = result.errors(method="zfit_error")
-    if new_result is not None:
-        result = new_result
-    minos_errors, _ = result.errors(method="minuit_minos")
+    for n_trial in range(n_max_trials):
+        z_errors, new_result = result.errors(method="zfit_error", sigma=sigma)
+        minos_errors, _ = result.errors(method="minuit_minos", sigma=sigma)
+        if new_result is None:
+            break
+        else:
+            result = new_result
+    else:  # no break occured
+        assert False, "Always a new minimum was found, cannot perform test."
+    print(result)
 
+    # @marinang this test seems to fail when a new minimum is found
     for param in [a, b, c]:
         z_error_param = z_errors[param]
         minos_errors_param = minos_errors[param]
-        for dir in ["lower", "upper"]:
-            assert pytest.approx(z_error_param[dir], rel=0.03) == minos_errors_param[dir]
+    for dir in ["lower", "upper"]:
+        assert pytest.approx(z_error_param[dir], rel=0.03) == minos_errors_param[dir]
+
+    with pytest.raises(KeyError):
+        result.errors(method="error")
 
 
-@pytest.mark.skip  # currently, fmin is not correct, loops, see: https://github.com/scikit-hep/iminuit/issues/395
+# @pytest.mark.skip  # currently, fmin is not correct, loops, see: https://github.com/scikit-hep/iminuit/issues/395
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_new_minimum(minimizer_class_and_kwargs):
-    loss, params = create_loss(2000)
+    loss, params = create_loss(10000)
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
 
+    a_param, b_param, c_param = params
+
     if test_error:
-        ntoys = 10  # TODO: increase again?
 
-        new_minimum_found = False
+        b_param.floating = False
+        b_param.set_value(3.7)
+        c_param.floating = False
+        result = minimizer.minimize(loss=loss)
+        b_param.floating = True
+        c_param.floating = True
 
-        for n in range(ntoys):
-            params_random_values = {p: np.random.uniform(p.lower_limit, p.upper_limit, ntoys) for p in params}
+        params_dict = {p: p.numpy() for p in params}
+        hacked_result = FitResult(params=params_dict, edm=result.edm, fmin=result.fmin, info=result.info,
+                                  loss=loss, status=result.status, converged=result.converged,
+                                  minimizer=minimizer.copy())
 
-            try:
-                zfit.param.set_values(params, [params_random_values[p][n] for p in params])
-                result_n = minimizer.minimize(loss=loss)
-                errors, new_result_n = result_n.errors(method='zfit_error')
+        method = lambda **kwgs: compute_errors(covariance_method="hesse_np", **kwgs)
 
-                if new_result_n is not None:
-                    new_minimum_found = True
-                    break
+        errors, new_result = hacked_result.errors(params=params, method=method, error_name="interval")
 
-            except RuntimeError:
-                continue
+        assert new_result is not None
 
-        assert new_minimum_found
-
-        assert result_n.valid is False
+        assert hacked_result.valid is False
         for p in params:
             assert errors[p] == "Invalid, a new minimum was found."
 
-        assert new_result_n.valid is True
-        errors, _ = new_result_n.errors()
+        assert new_result.valid is True
+        errors, _ = new_result.errors()
         for param in params:
             assert errors[param]["lower"] < 0
             assert errors[param]["upper"] > 0

@@ -61,7 +61,6 @@ import tensorflow as tf
 
 from . import ztyping
 from .container import convert_to_container
-from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 
 
 class ZfitGraphCachable:
@@ -246,6 +245,9 @@ class FunctionCacheHolder(GraphCachable):
         Returns:
             tuple
         """
+        # is initialized before the core
+        from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
+
         args = list(args)
         kwargs = list(kwargs.keys()) + list(kwargs.values())
         combined = []

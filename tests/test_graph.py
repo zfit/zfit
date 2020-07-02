@@ -40,3 +40,15 @@ def test_modes():
     assert zfit.settings.options.numerical_grad
     zfit.run.set_mode_default()
     assert not zfit.settings.options.numerical_grad
+
+    with zfit.run.set_graph_mode(True):
+        assert zfit.run.get_graph_mode()
+        with zfit.run.set_graph_mode(False):
+            assert not zfit.run.get_graph_mode()
+        assert zfit.run.get_graph_mode()
+
+    with zfit.run.set_autograd_mode(True):
+        assert zfit.run.get_autograd_mode()
+        with zfit.run.set_autograd_mode(False):
+            assert not zfit.run.get_autograd_mode()
+        assert zfit.run.get_autograd_mode()

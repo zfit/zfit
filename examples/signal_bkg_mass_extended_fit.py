@@ -43,5 +43,6 @@ minimizer = zfit.minimize.Minuit(verbosity=7)
 result = minimizer.minimize(nll)
 print(result.params)
 # do the error calculations, here with hesse, than with minos
-param_errors = result.hesse()
-param_errors = result.errors()
+param_hesse = result.hesse()
+param_errors, _ = result.errors()  # this returns a new FitResult if a new minimum was found
+print(result.valid)  # check if the result is still valid

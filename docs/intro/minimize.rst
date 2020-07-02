@@ -50,30 +50,18 @@ If this argument is not provided or ``params=None``, all the floating parameters
 The result of the fit is return as a :py:class:`~zfit.minimizers.fitresult.FitResult` object, which provides access the minimiser state.
 zfit separates the minimisation of the loss function with respect to the error calculation in order to give the freedom of calculating this error whenever needed.
 The :py:func:`~zfit.minimizers.fitresult.FitResult.error` method can be used to perform the CPU-intensive error calculation.
+It returns two objects, the first are the parameter errors and the second is a new `FitResult` *in case a new
+minimum was found during the profiling*; this will also render the original result invalid as can
+be check with `result.valid`.
 
 .. code-block:: pycon
 
-    >>> param_errors = result.errors()
+    >>> param_errors, _ = result.errors()
     >>> for var, errors in param_errors.items():
     ...   print('{}: ^{{+{}}}_{{-{}}}'.format(var.name, errors['upper'], errors['lower']))
     mu: ^{+0.00998104141841555}_{--0.009981515893414316}
     sigma: ^{+0.007099472590970696}_{--0.0070162654764939734}
 
-
-The
-    >>> param_errors = result.errors()
-    >>> for var, errors in param_errors.items():
-    ...   print('{}: ^{{+{}}}_{{-{}}}'.format(var.name, errors['upper'], errors['lower']))
-    mu: ^{+0.00998104141841555}_{--0.009981515893414316}
-    sigma: ^{+0.007099472590970696}_{--0.0070162654764939734}
-
-
-The
-    >>> param_errors = result.error()
-    >>> for var, errors in param_errors.items():
-    ...   print('{}: ^{{+{}}}_{{-{}}}'.format(var.name, errors['upper'], errors['lower']))
-    mu: ^{+0.00998104141841555}_{--0.009981515893414316}
-    sigma: ^{+0.007099472590970696}_{--0.0070162654764939734}
 
 
 The ``result`` object also provides access the minimiser state:
