@@ -1,5 +1,5 @@
 pip>=9.0.1
-setuptools_scm[toml]>=3.4,
+setuptools_scm[toml]>=3.4
 setuptools_scm_git_archive,
 bumpversion>=0.5.3
 wheel>=0.29.0
