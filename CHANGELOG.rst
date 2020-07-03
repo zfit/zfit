@@ -2,31 +2,7 @@
 Changelog
 *********
 
-Develop
-=======
 
-
-Major Features and Improvements
--------------------------------
-
-Breaking changes
-------------------
-
-Depreceations
--------------
-
-
-Bug fixes and small changes
----------------------------
-
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
 
 
 0.5.3 (02.07.20)
