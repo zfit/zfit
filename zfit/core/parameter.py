@@ -26,8 +26,8 @@ from .dependents import _extract_dependencies
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
-from ..serialization.interfaces import ZfitSerializable
-from ..serialization.zfit_repr import ZfitRepr, zfit_repr
+# from ..serialization.interfaces import ZfitSerializable
+# from ..serialization.zfit_repr import ZfitRepr, zfit_repr
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import invalidate_graph
@@ -288,18 +288,19 @@ register_tensor_conversion(WrappedVariable, overload_operators=True)
 # register_tensor_conversion(ComposedVariable, overload_operators=True)
 
 
-class BaseParameter(ZfitParameter, ZfitSerializable, metaclass=MetaBaseParameter):
+class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
+    pass
 
-    def to_repr(self) -> ZfitRepr:
-        BaseParameterRepr = zfit_repr(
-            name='BaseParameter',
-            field_structure={'name': str, 'value': Tensor},
-        )
-        return BaseParameterRepr(fields={'name': self.name, 'value': self.value()})
-
-    @classmethod
-    def from_repr(cls, rep: ZfitRepr) -> 'ZfitSerializable':
-        pass
+    # def to_repr(self) -> ZfitRepr:
+    #     BaseParameterRepr = zfit_repr(
+    #         name='BaseParameter',
+    #         field_structure={'name': str, 'value': Tensor},
+    #     )
+    #     return BaseParameterRepr(fields={'name': self.name, 'value': self.value()})
+    #
+    # @classmethod
+    # def from_repr(cls, rep: ZfitRepr) -> 'ZfitSerializable':
+    #     pass
 
 
 class ZfitParameterMixin(BaseNumeric):

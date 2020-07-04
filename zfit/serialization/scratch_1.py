@@ -1,3 +1,5 @@
+#  Copyright (c) 2020 zfit
+
 from dataclasses import asdict
 
 from zfit import Parameter
@@ -7,4 +9,4 @@ p = Parameter('mu', 3)
 serializer = BaseParameterSerializer()
 rep = p.to_repr()
 print(asdict(rep))
-print(serializer.dumps(rep))
+print(serializer.dump(rep))

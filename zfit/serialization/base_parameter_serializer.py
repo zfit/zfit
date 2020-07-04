@@ -1,11 +1,12 @@
-from zfit.serialization.interfaces import ZfitSerializer
+#  Copyright (c) 2020 zfit
+
+from zfit.serialization.interfaces import ZfitArranger
 from zfit.serialization.zfit_repr import ZfitRepr
 
 
-class BaseParameterSerializer(ZfitSerializer):
-    def dumps(self, rep: ZfitRepr) -> str:
+class BaseParameterSerializer(ZfitArranger):
+    def dump(self, rep: ZfitRepr) -> str:
         return str(rep)
 
-    def loads(self, string: str) -> ZfitRepr:
+    def load(self, string: str) -> ZfitRepr:
         ...
-

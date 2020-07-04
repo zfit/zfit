@@ -1,4 +1,7 @@
+#  Copyright (c) 2020 zfit
+
 from abc import ABC, abstractmethod
+from typing import Any, Dict
 
 from zfit.serialization.zfit_repr import ZfitRepr
 
@@ -15,12 +18,5 @@ class ZfitSerializable(ABC):
         ...
 
 
-class ZfitSerializer(ABC):
 
-    @abstractmethod
-    def dumps(self, rep: ZfitRepr) -> str:
-        ...
-
-    @abstractmethod
-    def loads(self, string: str) -> ZfitRepr:
         ...
