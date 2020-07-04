@@ -12,7 +12,9 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 # TF backwards compatibility
+from dataclasses import asdict
 from ordered_set import OrderedSet
+from tensorflow import Tensor
 from tensorflow.python import ops, array_ops
 from tensorflow.python.client.session import register_session_run_conversion_functions
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
@@ -24,6 +26,8 @@ from .dependents import _extract_dependencies
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
+from ..serialization.interfaces import ZfitSerializable
+from ..serialization.zfit_repr import ZfitRepr, zfit_repr
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import invalidate_graph
@@ -63,7 +67,7 @@ class OverloadableMixin(ZfitParameter):
         if dtype and not dtype.is_compatible_with(self.dtype):
             raise ValueError(
                 "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, self.dtype.name))
+                "of type '%s'"%(dtype.name, self.dtype.name))
         if as_ref:
             if hasattr(self, '_ref'):
                 return self._ref()
@@ -284,15 +288,18 @@ register_tensor_conversion(WrappedVariable, overload_operators=True)
 # register_tensor_conversion(ComposedVariable, overload_operators=True)
 
 
-class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
-    pass
-    # @property
-    # def dtype(self) -> tf.DType:
-    #     return self.value().dtype
-    #
-    # @property
-    # def shape(self):
-    #     return self.value().shape
+class BaseParameter(ZfitParameter, ZfitSerializable, metaclass=MetaBaseParameter):
+
+    def to_repr(self) -> ZfitRepr:
+        BaseParameterRepr = zfit_repr(
+            name='BaseParameter',
+            field_structure={'name': str, 'value': Tensor},
+        )
+        return BaseParameterRepr(fields={'name': self.name, 'value': self.value()})
+
+    @classmethod
+    def from_repr(cls, rep: ZfitRepr) -> 'ZfitSerializable':
+        pass
 
 
 class ZfitParameterMixin(BaseNumeric):
@@ -461,8 +468,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             return tf.constant(False)
 
         # Adding a slight tolerance to make sure we're not tricked by numerics
-        at_lower = z.unstable.less_equal(self.value(), self.lower + (tf.math.abs(self.lower * 1e-5)))
-        at_upper = z.unstable.greater_equal(self.value(), self.upper - (tf.math.abs(self.upper * 1e-5)))
+        at_lower = z.unstable.less_equal(self.value(), self.lower + (tf.math.abs(self.lower*1e-5)))
+        at_upper = z.unstable.greater_equal(self.value(), self.upper - (tf.math.abs(self.upper*1e-5)))
         return z.unstable.logical_or(at_lower, at_upper)
 
     def value(self):
@@ -796,7 +803,7 @@ class ComplexParameter(ComposedParameter):
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(name=name,
                     value_fn=lambda: tf.cast(
-                        tf.complex(mod * tf.math.cos(arg), mod * tf.math.sin(arg)),
+                        tf.complex(mod*tf.math.cos(arg), mod*tf.math.sin(arg)),
                         dtype=dtype),
                     params=[mod, arg])
         param._mod = mod
@@ -836,7 +843,7 @@ class ComplexParameter(ComposedParameter):
     def arg(self):
         arg = self._arg
         if arg is None:
-            arg = tf.math.atan(self.imag / self.real)
+            arg = tf.math.atan(self.imag/self.real)
         return arg
 
 
