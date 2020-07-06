@@ -353,6 +353,11 @@ class UnbinnedNLL(BaseLoss):
     def __init__(self, model, data, fit_range=None, constraints=None):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
+        extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
+        if extended_pdfs:
+            warn_advanced_feature("Extended PDFs are given to a normal UnbinnedNLL. This won't take the yield "
+                                  "into account and simply treat the PDFs as non-extended PDFs. To create an "
+                                  "extended NLL, use the `ExtendedUnbinnedNLL`.", identifier='extended_in_UnbinnedNLL')
 
     @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
@@ -367,6 +372,11 @@ class UnbinnedNLL(BaseLoss):
             constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
         return nll
+
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        is_yield = False  # the loss does not depend on the yields
+        return super()._get_params(floating, is_yield, extract_independent)
 
     # def _cache_add_constraints(self, constraints):
     #     if self._cache.get('loss') is not None:

@@ -63,7 +63,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         minimizer_setter = {}
         minimizer_setter['strategy'] = minimizer_options.pop('strategy')
         if self.verbosity > 6:
-            minuit_verbosity = self.verbosity
+            minuit_verbosity = 3
         elif self.verbosity > 2:
             minuit_verbosity = 1
         else:
