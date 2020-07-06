@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>data &#8212; zfit 0.5.4.dev2+g4ae58b1 documentation</title>
+    <title>data &#8212; zfit 0.5.4.dev3+g74925df documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev2</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev3</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -525,12 +525,12 @@ column.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.data.Data.set_data_range">
-<code class="sig-name descname">set_data_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.set_data_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.set_data_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_data_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_range</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.set_data_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.set_data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.data.Data.set_weights">
-<code class="sig-name descname">set_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.set_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.set_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span><span class="p">:</span> <span class="n">Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.set_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.set_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set (temporarily) the weights of the dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -541,12 +541,12 @@ column.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.data.Data.sort_by_axes">
-<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.sort_by_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.sort_by_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.data.Data.sort_by_obs">
-<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.sort_by_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/data.html#Data.sort_by_obs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.data.Data.sort_by_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -868,12 +868,12 @@ column.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.data.SampleData.set_data_range">
-<code class="sig-name descname">set_data_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_data_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_data_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_range</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.data.SampleData.set_weights">
-<code class="sig-name descname">set_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span><span class="p">:</span> <span class="n">Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.set_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set (temporarily) the weights of the dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -884,12 +884,12 @@ column.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.data.SampleData.sort_by_axes">
-<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.data.SampleData.sort_by_obs">
-<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.SampleData.sort_by_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1214,12 +1214,12 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.data.Sampler.set_data_range">
-<code class="sig-name descname">set_data_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_data_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_data_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_range</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_data_range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.data.Sampler.set_weights">
-<code class="sig-name descname">set_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span><span class="p">:</span> <span class="n">Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.set_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set (temporarily) the weights of the dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1230,12 +1230,12 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.data.Sampler.sort_by_axes">
-<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.data.Sampler.sort_by_obs">
-<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_by_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.data.Sampler.sort_by_obs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1321,7 +1321,7 @@ anything else then a numerical or tf.Tensor, this can’t be used.</p></li>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
     </p>
   </div>
 </footer>

@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>physics &#8212; zfit 0.5.4.dev2+g4ae58b1 documentation</title>
+    <title>physics &#8212; zfit 0.5.4.dev3+g74925df documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev2</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev3</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -547,7 +547,7 @@ been created with when it resamples.</p></li>
 
 <dl class="py method">
 <dt id="zfit.models.physics.CrystalBall.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -910,7 +910,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.physics.CrystalBall.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -926,7 +926,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.physics.CrystalBall.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">component_norm_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.physics.CrystalBall.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1236,7 +1236,7 @@ been created with when it resamples.</p></li>
 
 <dl class="py method">
 <dt id="zfit.models.physics.DoubleCB.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1599,7 +1599,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.physics.DoubleCB.set_norm_range">
-<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.set_norm_range" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_norm_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">norm_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.set_norm_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the normalization range (temporarily if used with contextmanager).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1615,7 +1615,7 @@ or a valid string. Currently implemented:</p>
 
 <dl class="py method">
 <dt id="zfit.models.physics.DoubleCB.unnormalized_pdf">
-<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unnormalized_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">component_norm_range</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.models.physics.DoubleCB.unnormalized_pdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>PDF “unnormalized”. Use <cite>functions</cite> for unnormalized pdfs. this is only for performance in special cases. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1690,7 +1690,7 @@ Use <cite>pdf(norm_range=False)</cite> instead</p>
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
     </p>
   </div>
 </footer>

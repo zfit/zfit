@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>interfaces &#8212; zfit 0.5.4.dev2+g4ae58b1 documentation</title>
+    <title>interfaces &#8212; zfit 0.5.4.dev3+g74925df documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev2</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev3</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -349,7 +349,7 @@
 
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitDependenciesMixin.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitDependenciesMixin.get_dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitDependenciesMixin.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/interfaces.html#ZfitDependenciesMixin.get_dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.interfaces.ZfitDependenciesMixin.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -415,7 +415,7 @@ Use <cite>get_params</cite> instead if you want to retrieve the independent para
 
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitFunc.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitFunc.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -625,7 +625,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitIndependentParameter.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitIndependentParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitIndependentParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1176,7 +1176,7 @@ with <cite>z.unstack_x()</cite> as can be done with data.</p>
 
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitModel.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitModel.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1351,7 +1351,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitNumericParametrized.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitNumericParametrized.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitNumericParametrized.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1665,7 +1665,7 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
 
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitPDF.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitPDF.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1870,7 +1870,7 @@ to the dimensions of <cite>norm_range</cite> (if not False)</p>
 
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitParameter.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -1955,7 +1955,7 @@ included.</p></li>
 
 <dl class="py method">
 <dt id="zfit.core.interfaces.ZfitParametrized.get_dependencies">
-<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitParametrized.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.interfaces.ZfitParametrized.get_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED FUNCTION</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -2679,7 +2679,7 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
     </p>
   </div>
 </footer>

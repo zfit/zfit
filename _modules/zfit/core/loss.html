@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.core.loss &#8212; zfit 0.5.4.dev2+g4ae58b1 documentation</title>
+    <title>zfit.core.loss &#8212; zfit 0.5.4.dev3+g74925df documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev2</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev3</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -634,6 +634,11 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="o">=</span><span class="n">fit_range</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_errordef</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">extended_pdfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="k">if</span> <span class="n">pdf</span><span class="o">.</span><span class="n">is_extended</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">extended_pdfs</span><span class="p">:</span>
+            <span class="n">warn_advanced_feature</span><span class="p">(</span><span class="s2">&quot;Extended PDFs are given to a normal UnbinnedNLL. This won&#39;t take the yield &quot;</span>
+                                  <span class="s2">&quot;into account and simply treat the PDFs as non-extended PDFs. To create an &quot;</span>
+                                  <span class="s2">&quot;extended NLL, use the `ExtendedUnbinnedNLL`.&quot;</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="s1">&#39;extended_in_UnbinnedNLL&#39;</span><span class="p">)</span>
 
     <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;loss&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_loss_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span><span class="p">,</span> <span class="n">constraints</span><span class="p">):</span>
@@ -647,7 +652,12 @@
         <span class="k">if</span> <span class="n">constraints</span><span class="p">:</span>
             <span class="n">constraints</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">constraints</span><span class="p">])</span>
             <span class="n">nll</span> <span class="o">+=</span> <span class="n">constraints</span>
-        <span class="k">return</span> <span class="n">nll</span></div>
+        <span class="k">return</span> <span class="n">nll</span>
+
+    <span class="k">def</span> <span class="nf">_get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floating</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">is_yield</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">extract_independent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="s2">&quot;ZfitParameter&quot;</span><span class="p">]:</span>
+        <span class="n">is_yield</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># the loss does not depend on the yields</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_params</span><span class="p">(</span><span class="n">floating</span><span class="p">,</span> <span class="n">is_yield</span><span class="p">,</span> <span class="n">extract_independent</span><span class="p">)</span></div>
 
     <span class="c1"># def _cache_add_constraints(self, constraints):</span>
     <span class="c1">#     if self._cache.get(&#39;loss&#39;) is not None:</span>
@@ -758,7 +768,7 @@
     </p>
     <p>
         &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.1.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
     </p>
   </div>
 </footer>
