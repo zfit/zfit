@@ -1,40 +1,10 @@
 #  Copyright (c) 2020 zfit
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Dict, Any, ClassVar, Union
 
+from typing import Dict, Any, Union
 
-@dataclass
-class ZfitRepr:
-    """Intermediate representation of a zfit object needed to dump and load said object."""
-    uid: str  # human readable, unique identifier; "type"
-    fields: Dict[str, 'ZfitRepr'] = field(default_factory=dict)
-    value: Any = field(default=None)
-
-    field_structure: ClassVar[Dict[str, Any]] = field(init=False)
-
-    def __post_init__(self):
-        self.validate()
-
-    def validate(self):
-        for field_name, field_value in self.fields.items():
-            assert isinstance(field_value, self.field_structure[field_name])
-
-
-class ZfitArranger(ABC):
-
-    @abstractmethod
-    def dump(self, rep: ZfitRepr) -> Dict['str', Any]:
-        return {'type': rep.uid}
-
-    @abstractmethod
-    def load(self, struct: Dict[str, Any]) -> ZfitRepr:
-        return {}
-
-
-class StrRepr(ZfitRepr):
-    pass
+from zfit.serialization.interfaces import ZfitArranger, ZfitRepr
+from zfit.serialization.repr import StrRepr, ParamRepr, FloatRepr, BoolRepr, IndependentParamRepr
 
 
 class StrArranger(ZfitArranger):
@@ -44,16 +14,6 @@ class StrArranger(ZfitArranger):
 
     def load(self, struct: str) -> StrRepr:
         return StrRepr(uid='str', value=struct)
-
-
-class ParamRepr(ZfitRepr):
-    field_structure = {'name': StrRepr}
-
-    # def __init_subclass__(cls, **kwargs):
-    #     cls.field_structure = cls.field_structure.copy()
-
-
-# def recursive_dump(structure: Dict['str': ZfitRepr]):
 
 
 class ParamArranger(ZfitArranger):
@@ -69,10 +29,6 @@ class ParamArranger(ZfitArranger):
         return rep
 
 
-class FloatRepr(ZfitRepr):
-    pass
-
-
 class FloatArranger(ZfitArranger):
 
     def dump(self, rep: ZfitRepr) -> str:
@@ -82,10 +38,6 @@ class FloatArranger(ZfitArranger):
         return FloatRepr(uid='float', value=float(struct))
 
 
-class BoolRepr(ZfitRepr):
-    pass
-
-
 class BoolArranger(ZfitArranger):
 
     def dump(self, rep: ZfitRepr) -> Dict['str', Any]:
@@ -93,17 +45,6 @@ class BoolArranger(ZfitArranger):
 
     def load(self, struct: str) -> ZfitRepr:
         return BoolRepr(uid='bool', value=bool(struct))
-
-
-class IndependentParamRepr(ParamRepr):
-    field_structure = {**ParamRepr.field_structure, **{
-        'step_size': FloatRepr,
-        'value': FloatRepr,
-        # 'lower': Optional[FloatRepr],
-        # 'upper': Optional[FloatRepr],
-        'floating': BoolRepr
-
-    }}
 
 
 class IndependentParamArranger(ParamArranger):
@@ -154,22 +95,3 @@ class IndependentParamArranger(ParamArranger):
         rep = super().load(struct)
         fields.update(rep.fields)
         return IndependentParamRepr(uid=struct['type'], fields=fields)
-
-
-if __name__ == '__main__':
-    import zfit
-
-    param = zfit.Parameter('asdf', 10)
-    param_repr = IndependentParamRepr(uid="IndepParam",
-                                      fields={'name': StrRepr(uid='str', value=param.name),
-                                              'value': FloatRepr(uid='float', value=float(param.value())),
-                                              'step_size': FloatRepr(uid='float', value=float(param.step_size))
-                                              })
-
-    dump = IndependentParamArranger().dump(param_repr)
-    print(dump)
-    load_dump = IndependentParamArranger().load(dump)
-    print(load_dump)
-    # load_dump.fields['name'].value += '_loaded'
-    param_loaded = zfit.Parameter(**{k: rep.value for k, rep in load_dump.fields.items()})
-    print(param_loaded)
