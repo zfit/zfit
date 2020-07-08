@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loss &#8212; zfit 0.5.4.dev5+gcaab824 documentation</title>
+    <title>Loss &#8212; zfit 0.5.4.dev7+ga020890 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -40,7 +40,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev5</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev7</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -308,7 +308,9 @@ As an example, we can create an unbinned negative log-likelihood loss (<a class=
 These constraints are specified as a list of penalty terms, which can be any object inheriting from <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConstraint</span></code> that is simply added to the calculation of the loss.</p>
 <p>Useful implementations of penalties can be found in the <a class="reference internal" href="../full_api/zfit.constraint.html#module-zfit.constraint" title="zfit.constraint"><code class="xref py py-mod docutils literal notranslate"><span class="pre">zfit.constraint</span></code></a> module.
 For example, if we wanted to add a gaussian constraint on the <code class="docutils literal notranslate"><span class="pre">mu</span></code> parameter of the previous model, we would write:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">GaussianConstraint</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mf">5279.</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">10.</span><span class="p">))</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">GaussianConstraint</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                               <span class="n">observation</span><span class="o">=</span><span class="mf">5279.</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                               <span class="n">uncertainty</span><span class="o">=</span><span class="mf">10.</span><span class="p">)</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_loss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model_cb</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>                                <span class="n">data</span><span class="p">,</span>
