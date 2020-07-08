@@ -101,7 +101,7 @@ set_type_checking_flag = False
 typehints_fully_qualified = False
 # (default: False): If False, do not add ktype info for undocumented parameters. If True, add stub documentation for
 # undocumented parameters to be able to add type info.
-always_document_param_types = True
+always_document_param_types = False
 # (default: True): If False, never add an :rtype: directive. If True, add the :rtype: directive if no existing :rtype:
 # is found.
 typehints_document_rtype = True
@@ -110,6 +110,10 @@ typehints_document_rtype = True
 
 # also doc __init__ docstrings
 autoclass_content = 'both'
+autodoc_default_options = {
+    'show-inheritance': True,
+}
+autodoc_inherit_docstrings = False
 
 # -- sphinx.ext.todo settings ---------------------------------------------
 # If true, `todo` and `todoList` produce output, else they produce nothing.
