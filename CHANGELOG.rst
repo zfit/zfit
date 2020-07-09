@@ -11,6 +11,7 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- `minimize(params=...)` now filters correctly non-floating parameters.
 
 Depreceations
 -------------
@@ -18,6 +19,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- `minimize(params=...)` automatically extracts independent parameters.
 
 Experimental
 ------------

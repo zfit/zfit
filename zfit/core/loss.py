@@ -118,7 +118,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                     is_yield: Optional[bool] = None,
                     extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
         params = OrderedSet()
-        params = params.union(*(model.get_params(floating=floating, is_yield=False,
+        params = params.union(*(model.get_params(floating=floating, is_yield=is_yield,
                                                  extract_independent=extract_independent)
                                 for model in self.model))
 
@@ -365,6 +365,10 @@ class UnbinnedNLL(BaseLoss):
 
         return nll
 
+    @property
+    def is_extended(self):
+        return False
+
     @z.function(wraps='loss')
     def _loss_func_watched(self, constraints, data, fit_range, model):
         nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range)
@@ -375,7 +379,8 @@ class UnbinnedNLL(BaseLoss):
 
     def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
                     extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
-        is_yield = False  # the loss does not depend on the yields
+        if not self.is_extended:
+            is_yield = False  # the loss does not depend on the yields
         return super()._get_params(floating, is_yield, extract_independent)
 
     # def _cache_add_constraints(self, constraints):
@@ -405,6 +410,10 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         term_new = tf.nn.log_poisson_loss(nevents_collected, tf.math.log(yields))
         nll += tf.reduce_sum(term_new, axis=0)
         return nll
+
+    @property
+    def is_extended(self):
+        return True
 
 
 class SimpleLoss(BaseLoss):

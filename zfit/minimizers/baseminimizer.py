@@ -7,18 +7,25 @@ Definition of minimizers, wrappers etc.
 import abc
 import collections
 import copy
+import warnings
+from abc import abstractmethod
+from collections import OrderedDict
+from contextlib import ExitStack
+import copy
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import List, Union, Iterable, Mapping
 
 import numpy as np
 import texttable as tt
+from ordered_set import OrderedSet
 
 from .fitresult import FitResult
 from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
+from ..util.container import convert_to_container
 from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError
 
 
@@ -144,30 +151,41 @@ class BaseMinimizer(ZfitMinimizer):
         self._max_steps = 5000
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
-        if isinstance(params, (str, ZfitParameter)) or (not hasattr(params, "__len__") and params is not None):
-            params = [params, ]
-            params = self._filter_floating_params(params)
-        if params is None or isinstance(params[0], str):
-            params = loss.get_cache_deps(only_floating=only_floating)
+
+        params = convert_to_container(params)
+        if params is None:
+            params = loss.get_params(only_floating=only_floating)
             params = list(params)
+        else:
+            params_indep = []
+            for param in params:
+                if param.independent:
+                    params_indep.append(param)
+                else:
+                    params_indep.extend(param.get_params(only_floating=only_floating))
+            params = params_indep
+
+        if only_floating:
+            params = self._filter_floating_params(params)
         if not params:
             raise RuntimeError("No parameter for minimization given/found. Cannot minimize.")
         return params
 
     @staticmethod
     def _filter_floating_params(params):
-        params = [param for param in params if param.floating]
-        return params
+        non_floating = [param for param in params if not param.floating]
+        if non_floating:  # legacy warning
+            warnings.warn(f"CHANGED BEHAVIOR! Non-floating parameters {non_floating} will not be used in the "
+                          f"minimization.")
+        return [param for param in params if param.floating]
 
     @staticmethod
     def _extract_load_method(params):
-        params_load = [param.load for param in params]
-        return params_load
+        return [param.load for param in params]
 
     @staticmethod
     def _extract_param_names(params):
-        names = [param.name for param in params]
-        return names
+        return [param.name for param in params]
 
     def _check_gradients(self, params, gradients):
         non_dependents = [param for param, grad in zip(params, gradients) if grad is None]
