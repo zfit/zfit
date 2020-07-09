@@ -12,3 +12,4 @@ colored
 colorama
 ordered-set
 numdifftools
+bidict>=0.19

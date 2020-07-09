@@ -10,6 +10,11 @@ from dataclasses import dataclass, field
 class ZfitSerializable(ABC):
     """Abstract interface of zfit object that is serializable."""
 
+    def __init_subclass__(cls) -> None:
+        super().__init_subclass__()
+        if not hasattr(cls, 'Repr'):
+            raise NotImplementedError(f"{cls} is not correctly implemented, it needs to have a `Repr` attribute.")
+
     @abstractmethod
     def to_repr(self) -> 'ZfitRepr':
         ...
@@ -18,6 +23,8 @@ class ZfitSerializable(ABC):
     @abstractmethod
     def from_repr(cls, rep: 'ZfitRepr') -> 'ZfitSerializable':
         ...
+
+
 
 
 @dataclass

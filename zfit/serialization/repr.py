@@ -22,9 +22,9 @@ class ParamRepr(ZfitRepr):
 class IndependentParamRepr(ParamRepr):
     field_structure = {**ParamRepr.field_structure, **{
         'step_size': FloatRepr,
-        'value'    : FloatRepr,
-        # 'lower': Optional[FloatRepr],
-        # 'upper': Optional[FloatRepr],
-        'floating' : BoolRepr
+        'value': FloatRepr,
+        'lower': FloatRepr,
+        'upper': FloatRepr,
+        'floating': BoolRepr
 
     }}

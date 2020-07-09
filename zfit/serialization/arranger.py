@@ -95,3 +95,4 @@ class IndependentParamArranger(ParamArranger):
         rep = super().load(struct)
         fields.update(rep.fields)
         return IndependentParamRepr(uid=struct['type'], fields=fields)
+
