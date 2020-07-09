@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.5.4.dev8+gc255344 documentation</title>
+    <title>zfit.minimizers.baseminimizer &#8212; zfit 0.5.4.dev13+g9a20afd documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev8</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev13</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -288,18 +288,25 @@
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">texttable</span> <span class="k">as</span> <span class="nn">tt</span>
+<span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
 
 <span class="kn">from</span> <span class="nn">.fitresult</span> <span class="kn">import</span> <span class="n">FitResult</span>
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">ZfitMinimizer</span>
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">MinimizeNotImplementedError</span><span class="p">,</span> <span class="n">MinimizeStepNotImplementedError</span>
 
 
@@ -425,30 +432,41 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_max_steps</span> <span class="o">=</span> <span class="mi">5000</span>
 
     <span class="k">def</span> <span class="nf">_check_input_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">only_floating</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">ZfitParameter</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;__len__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">params</span><span class="p">,</span> <span class="p">]</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_floating_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">get_cache_deps</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="n">only_floating</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="n">only_floating</span><span class="p">)</span>
             <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params_indep</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">independent</span><span class="p">:</span>
+                    <span class="n">params_indep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">params_indep</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">only_floating</span><span class="o">=</span><span class="n">only_floating</span><span class="p">))</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">params_indep</span>
+
+        <span class="k">if</span> <span class="n">only_floating</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_floating_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No parameter for minimization given/found. Cannot minimize.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">params</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_filter_floating_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">params</span>
+        <span class="n">non_floating</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">non_floating</span><span class="p">:</span>  <span class="c1"># legacy warning</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CHANGED BEHAVIOR! Non-floating parameters </span><span class="si">{</span><span class="n">non_floating</span><span class="si">}</span><span class="s2"> will not be used in the &quot;</span>
+                          <span class="sa">f</span><span class="s2">&quot;minimization.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_extract_load_method</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
-        <span class="n">params_load</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">load</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">params_load</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">load</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_extract_param_names</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
-        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">names</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_check_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">gradients</span><span class="p">):</span>
         <span class="n">non_dependents</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">grad</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">gradients</span><span class="p">)</span> <span class="k">if</span> <span class="n">grad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
