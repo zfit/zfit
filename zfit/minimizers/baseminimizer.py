@@ -18,12 +18,14 @@ from typing import List, Union, Iterable, Mapping
 
 import numpy as np
 import texttable as tt
+from ordered_set import OrderedSet
 
 from .fitresult import FitResult
 from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
+from ..util.container import convert_to_container
 from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError
 
 
@@ -149,11 +151,20 @@ class BaseMinimizer(ZfitMinimizer):
         self._max_steps = 5000
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
-        if isinstance(params, (str, ZfitParameter)) or (not hasattr(params, "__len__") and params is not None):
-            params = [params, ]
-        if params is None or isinstance(params[0], str):
+
+        params = convert_to_container(params)
+        if params is None:
             params = loss.get_params(only_floating=only_floating)
             params = list(params)
+        else:
+            params_indep = []
+            for param in params:
+                if param.independent:
+                    params_indep.append(param)
+                else:
+                    params_indep.extend(param.get_params(only_floating=only_floating))
+            params = params_indep
+
         if only_floating:
             params = self._filter_floating_params(params)
         if not params:

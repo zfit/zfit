@@ -76,6 +76,23 @@ def test_floating_flag():
     assert sigma not in result.params
 
 
+def test_dependent_param_extraction():
+    obs = zfit.Space("x", limits=(-2, 3))
+    mu = zfit.Parameter("mu", 1.2, -4, 6)
+    sigma = zfit.Parameter("sigma", 1.3, 0.1, 10)
+    sigma1 = zfit.ComposedParameter('sigma1', lambda sigma, mu: sigma + mu, [sigma, mu])
+    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma1, obs=obs)
+    normal_np = np.random.normal(loc=2., scale=3., size=10)
+    data = zfit.Data.from_numpy(obs=obs, array=normal_np)
+    nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
+    minimizer = zfit.minimize.Minuit()
+    params_checked = minimizer._check_input_params(nll, params=[mu, sigma1])
+    assert {mu, sigma} == set(params_checked)
+    sigma.floating = False
+    params_checked = minimizer._check_input_params(nll, params=[mu, sigma1])
+    assert {mu, } == set(params_checked)
+
+
 # @pytest.mark.run(order=4)
 @pytest.mark.parametrize("chunksize", [3000, 100000])
 # skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
