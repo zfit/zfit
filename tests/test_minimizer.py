@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 import pytest
 import tensorflow as tf
+import numpy as np
 
 import zfit.minimizers.baseminimizer as zmin
 import zfit.minimizers.optimizers_tf
