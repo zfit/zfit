@@ -1,7 +1,5 @@
 #  Copyright (c) 2020 zfit
-"""
-.. todo:: Add module docstring.
-"""
+""".. todo:: Add module docstring."""
 
 
 from .util.exception import NameAlreadyTakenError, IllegalInGraphModeError, NormRangeNotImplementedError, \

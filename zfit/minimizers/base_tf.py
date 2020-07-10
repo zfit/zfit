@@ -7,7 +7,7 @@ from .baseminimizer import BaseMinimizer
 
 
 class WrapOptimizer(BaseMinimizer):
-    """Todo: Write documentation for api."""
+    # Todo: Write documentation for api.
     def __init__(self, optimizer, tolerance=None, verbosity=None, name=None, **kwargs):
         if tolerance is None:
             tolerance = 1e-5
