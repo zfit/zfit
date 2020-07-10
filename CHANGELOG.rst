@@ -8,17 +8,46 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+
+Breaking changes
+------------------
+- `minimize(params=...)` now filters correctly non-floating parameters.
+
+Depreceations
+-------------
+
+
+Bug fixes and small changes
+---------------------------
+- `minimize(params=...)` automatically extracts independent parameters.
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
+0.5.3 (02.07.20)
+================
+
+Kernel density estimation for 1 dimension.
+
+Major Features and Improvements
+-------------------------------
 - add correlation method to FitResult
-- Gaussian Kernel Density Estimation in one dimension `zfit.pdf.GaussianKDE1DimV1` implementation with fixed and
+- Gaussian (Truncated) Kernel Density Estimation in one dimension `zfit.pdf.GaussianKDE1DimV1` implementation with fixed and
   adaptive bandwidth added as V1. This
   is a feature that needs to be improved and feedback is welcome
+- Non-relativistic Breit-Wigner PDF, called Cauchy, implementation added.
 
 Breaking changes
 ------------------
 - change human-readable name of `Gauss`, `Uniform` and `TruncatedGauss` to remove the `'_tfp'` at the end of the name
 
-Deprecations
--------------
 
 
 Bug fixes and small changes
@@ -33,14 +62,10 @@ Bug fixes and small changes
   using directly iminuit
 - fix possible bias with sampling using accept-reject
 
-Experimental
-------------
-
 Requirement changes
 -------------------
+- pin down cloudpickle version (upstream bug with pip install) and TF, TFP versions
 
-Thanks
-------
 
 0.5.2 (13.05.2020)
 ==================

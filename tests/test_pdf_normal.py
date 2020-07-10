@@ -76,4 +76,4 @@ def test_truncated_gauss():
     inside_probs_gauss = probs_gauss_np[bool_index_inside]
 
     assert inside_probs_gauss == pytest.approx(inside_probs_truncated, rel=1e-3)
-    assert all(0 == outside_probs_truncated)
+    assert all(outside_probs_truncated == 0)

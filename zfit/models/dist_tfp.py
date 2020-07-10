@@ -89,8 +89,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
         value = z.unstack_x(x)  # TODO: use this? change shaping below?
-        probs = self.distribution.prob(value=value, name="unnormalized_pdf")
-        return probs  # TODO batch shape just removed
+        return self.distribution.prob(value=value, name="unnormalized_pdf")
 
     # TODO: register integral?
     @supports()
@@ -252,5 +251,34 @@ class TruncatedGauss(WrapDistribution):
                          obs=obs, params=params, name=name)
 
 
-if __name__ == '__main__':
-    exp1 = ExponentialTFP(tau=5., obs=['a'])
+class Cauchy(WrapDistribution):
+    _N_OBS = 1
+
+    def __init__(self,
+                 m: ztyping.ParamTypeInput,
+                 gamma: ztyping.ParamTypeInput,
+                 obs: ztyping.ObsTypeInput,
+                 name: str = "Cauchy"):
+        r"""Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.
+
+        The (unnormalized) shape of the non-relativistic Breit-Wigner is given by
+
+        .. math::
+
+            \frac{1}{\gamma \left[1 + \left(\frac{x - m}{\gamma}\right)^2\right]}
+
+        with :math:`m` the mean and :math:`\gamma` the width of the distribution.
+
+        Args:
+            m: Invariant mass of the unstable particle.
+            gamma: Width of the shape.
+            obs: Observables and normalization range the pdf is defined in
+            name: Name of the PDF
+        """
+        m, gamma = self._check_input_params(m, gamma)
+        params = OrderedDict((('m', m), ('gamma', gamma)))
+        distribution = tfp.distributions.Cauchy
+        dist_params = dict(loc=m, scale=gamma)
+        super().__init__(distribution=distribution, dist_params=dist_params,
+                         obs=obs, params=params, name=name)
+

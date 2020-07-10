@@ -647,12 +647,15 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         self._value_fn = value_fn
 
     def _get_dependencies(self):
-        dependents = _extract_dependencies(list(self.params.values()))
-        return dependents
+        return _extract_dependencies(list(self.params.values()))
 
     @property
     def floating(self):
         raise LogicalUndefinedOperationError("Cannot be floating or not. Look at the dependencies.")
+
+    @floating.setter
+    def floating(self, value):
+        raise LogicalUndefinedOperationError("Cannot set floating or not. Set in the dependencies (`get_params`).")
 
     @property
     def params(self):
@@ -711,6 +714,10 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
     @property
     def floating(self):
         return False
+
+    @floating.setter
+    def floating(self, value):
+        raise LogicalUndefinedOperationError("Cannot set a ConstantParameter to floating. Use a `Parameter` instead.")
 
     @property
     def independent(self) -> bool:

@@ -118,7 +118,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                     is_yield: Optional[bool] = None,
                     extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
         params = OrderedSet()
-        params = params.union(*(model.get_params(floating=floating, is_yield=False,
+        params = params.union(*(model.get_params(floating=floating, is_yield=is_yield,
                                                  extract_independent=extract_independent)
                                 for model in self.model))
 
@@ -353,12 +353,21 @@ class UnbinnedNLL(BaseLoss):
     def __init__(self, model, data, fit_range=None, constraints=None):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
+        extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
+        if extended_pdfs:
+            warn_advanced_feature("Extended PDFs are given to a normal UnbinnedNLL. This won't take the yield "
+                                  "into account and simply treat the PDFs as non-extended PDFs. To create an "
+                                  "extended NLL, use the `ExtendedUnbinnedNLL`.", identifier='extended_in_UnbinnedNLL')
 
     @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
         nll = self._loss_func_watched(constraints, data, fit_range, model)
 
         return nll
+
+    @property
+    def is_extended(self):
+        return False
 
     @z.function(wraps='loss')
     def _loss_func_watched(self, constraints, data, fit_range, model):
@@ -367,6 +376,12 @@ class UnbinnedNLL(BaseLoss):
             constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
         return nll
+
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        if not self.is_extended:
+            is_yield = False  # the loss does not depend on the yields
+        return super()._get_params(floating, is_yield, extract_independent)
 
     # def _cache_add_constraints(self, constraints):
     #     if self._cache.get('loss') is not None:
@@ -395,6 +410,10 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         term_new = tf.nn.log_poisson_loss(nevents_collected, tf.math.log(yields))
         nll += tf.reduce_sum(term_new, axis=0)
         return nll
+
+    @property
+    def is_extended(self):
+        return True
 
 
 class SimpleLoss(BaseLoss):

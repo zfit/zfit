@@ -151,8 +151,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
 
     @property
     def space(self) -> "ZfitSpace":
-        space = self._space
-        return space
+        return self._space
 
 
     # constructors
@@ -371,7 +370,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             value = tf.expand_dims(value, -1)
 
         # cast data to right type
-        if not value.dtype == self.dtype:
+        if value.dtype != self.dtype:
             value = tf.cast(value, dtype=self.dtype)
         return value
 
@@ -389,7 +388,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
             value = z.unstack_x(value, always_list=True)
-            value = list(value[i] for i in perm_indices)
+            value = [value[i] for i in perm_indices]
             value = z.stack_x(value)
 
         return value
@@ -435,7 +434,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         del name
         if dtype is not None:
             if dtype != self.dtype:
-                # return ValueError("From Mayou36", self.dtype)
                 return NotImplemented
         if as_ref:
             # return "NEVER READ THIS"
@@ -509,8 +507,10 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         return space
 
     def _get_nevents(self):
-        nevents = tf.shape(input=self.value())[0]
-        return nevents
+        return tf.shape(input=self.value())[0]
+
+    def __str__(self) -> str:
+        return f'<zfit.Data: {self.name} obs={self.obs}>'
 
 
 class SampleData(Data):
@@ -632,6 +632,9 @@ class Sampler(Data):
             # self.sample_holder.assign(new_sample)
             self.sample_holder.assign(new_sample, read_value=False)
             self._initial_resampled = True
+
+    def __str__(self) -> str:
+        return f'<Sampler: {self.name} obs={self.obs}>'
 
 
 def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
