@@ -16,7 +16,7 @@ class BFGS(BaseMinimizer):
     def __init__(self, strategy: ZfitStrategy = None, tolerance: float = 1e-5, verbosity: int = 5,
                  max_calls: int = 3000,
                  name: str = "BFGS_TFP", options: Mapping = None) -> None:
-        """
+        """# Todo write description for api.
 
         Args:
             strategy (ZfitStrategy): Strategy that handles NaN and more (to come, experimental)
