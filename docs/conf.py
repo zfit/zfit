@@ -110,6 +110,7 @@ typehints_document_rtype = True
 
 # also doc __init__ docstrings
 autoclass_content = 'both'
+autodoc_member_order = 'bysource'
 autodoc_default_options = {
     'show-inheritance': True,
 }
