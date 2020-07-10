@@ -10,15 +10,10 @@ import copy
 import warnings
 from abc import abstractmethod
 from collections import OrderedDict
-from contextlib import ExitStack
-import copy
-from abc import abstractmethod
-from collections import OrderedDict
 from typing import List, Union, Iterable, Mapping
 
 import numpy as np
 import texttable as tt
-from ordered_set import OrderedSet
 
 from .fitresult import FitResult
 from .interface import ZfitMinimizer
@@ -105,7 +100,7 @@ class PushbackStrategy(BaseStrategy):
             last_loss = values.get('old_loss')
             if last_loss is not None:
 
-                loss_evaluated = last_loss + self.nan_penalty * nan_counter
+                loss_evaluated = last_loss + self.nan_penalty*nan_counter
             else:
                 loss_evaluated = values.get('loss')
             return loss_evaluated
