@@ -1,6 +1,7 @@
 #  Copyright (c) 2020 zfit
 import tensorflow as tf
 import tensorflow_probability as tfp
+import tensorflow_addons as tfa
 
 from .functor import BaseFunctor
 from .. import z
@@ -78,9 +79,15 @@ class FFTConv1DV1(BaseFunctor):
             padding='SAME',
             data_format='NWC'
         )
-        conv = tf.reshape(conv, (-1,))
-        prob = tfp.math.interp_regular_1d_grid(x=x,
-                                               x_ref_min=self._x_func_min,
-                                               x_ref_max=self._x_func_max,
-                                               y_ref=conv)
+        # conv = tf.reshape(conv, (-1,))
+        # prob = tfp.math.interp_regular_1d_grid(x=x,
+        #                                        x_ref_min=self._x_func_min,
+        #                                        x_ref_max=self._x_func_max,
+        #                                        y_ref=conv)
+        prob = tfa.image.interpolate_spline(train_points=tf.reshape(self._x_func, (1, -1, 1)),
+                                            train_values=conv,
+                                            query_points=tf.reshape(x, (1, -1, 1)),
+                                            order=4)
+        prob = tf.reshape(prob, (-1,))
+
         return prob
