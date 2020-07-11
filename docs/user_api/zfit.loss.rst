@@ -3,7 +3,9 @@ Loss
 
 .. todo:: Fill overview page
 
-.. toctree::
+.. autosummary::
+    :toctree:
+
     zfit.loss.ExtendedUnbinnedNLL
     zfit.loss.UnbinnedNLL
     zfit.loss.BaseLoss

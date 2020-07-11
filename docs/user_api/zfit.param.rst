@@ -3,7 +3,9 @@ Parameter
 
 .. todo:: Fill overview page
 
-.. toctree::
+.. autosummary::
+    :toctree:
+
     zfit.param.ConstantParameter
     zfit.param.Parameter
     zfit.param.ComposedParameter

@@ -3,7 +3,9 @@ Func
 
 .. todo:: Fill overview page
 
-.. toctree::
+.. autosummary::
+    :toctree:
+
     zfit.func.BaseFunc
     zfit.func.SimpleFunc
     zfit.func.ProdFunc
