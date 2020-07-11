@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Changelog &#8212; zfit 0.5.4.dev13+g9a20afd documentation</title>
+    <title>Changelog &#8212; zfit 0.5.4.dev15+g606de6c documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -40,7 +40,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev13</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev15</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -388,6 +388,7 @@
 <div class="section" id="breaking-changes">
 <h3>Breaking changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li><p>Minuit uses its own, internal gradient by default. To change this back, use <cite>use_minuit_grad=False</cite></p></li>
 <li><p><cite>minimize(params=…)</cite> now filters correctly non-floating parameters.</p></li>
 </ul>
 </div>
@@ -397,6 +398,7 @@
 <div class="section" id="bug-fixes-and-small-changes">
 <h3>Bug fixes and small changes<a class="headerlink" href="#bug-fixes-and-small-changes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li><p>ncalls is not correctly using the internal heuristc or the ncalls explicitly</p></li>
 <li><p><cite>minimize(params=…)</cite> automatically extracts independent parameters.</p></li>
 </ul>
 </div>
@@ -405,6 +407,10 @@
 </div>
 <div class="section" id="requirement-changes">
 <h3>Requirement changes<a class="headerlink" href="#requirement-changes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>upgrade to iminuit&gt;=1.4</p></li>
+<li><p>remove cloudpickle hack fix</p></li>
+</ul>
 </div>
 <div class="section" id="thanks">
 <h3>Thanks<a class="headerlink" href="#thanks" title="Permalink to this headline">¶</a></h3>

@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.5.4.dev13+g9a20afd documentation</title>
+    <title>zfit.minimizers.minimizer_minuit &#8212; zfit 0.5.4.dev15+g606de6c documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev13</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev15</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -281,7 +281,7 @@
   <h1>Source code for zfit.minimizers.minimizer_minuit</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">iminuit</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -299,7 +299,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="n">ZfitStrategy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">minimize_strategy</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">ncall</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">use_minuit_grad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">minimizer_options</span><span class="p">):</span>
+                 <span class="n">ncall</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">use_minuit_grad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">minimizer_options</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Args:</span>
@@ -313,14 +313,14 @@
 <span class="sd">            use_minuit_grad (bool): If True, iminuit uses it&#39;s internal numerical gradient calculation instead of the</span>
 <span class="sd">                (analytic/numerical) gradient provided by TensorFlow/zfit.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">minimizer_options</span><span class="p">[</span><span class="s1">&#39;ncall&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ncall</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">minimize_strategy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">minimizer_options</span><span class="p">[</span><span class="s1">&#39;ncall&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">ncall</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ncall</span>
+        <span class="k">if</span> <span class="n">minimize_strategy</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;minimize_strategy has to be 0, 1 or 2, not </span><span class="si">{</span><span class="n">minimize_strategy</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
         <span class="n">minimizer_options</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minimize_strategy</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span> <span class="n">verbosity</span><span class="o">=</span><span class="n">verbosity</span><span class="p">,</span>
                          <span class="n">minimizer_options</span><span class="o">=</span><span class="n">minimizer_options</span><span class="p">)</span>
-        <span class="n">use_minuit_grad</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">use_minuit_grad</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">use_minuit_grad</span>
+        <span class="n">use_minuit_grad</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">use_minuit_grad</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">use_minuit_grad</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_minuit_minimizer</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_use_tfgrad</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">use_minuit_grad</span>
 
