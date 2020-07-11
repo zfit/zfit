@@ -11,6 +11,7 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- Minuit uses its own, internal gradient by default. To change this back, use `use_minuit_grad=False`
 - `minimize(params=...)` now filters correctly non-floating parameters.
 
 Depreceations
@@ -19,6 +20,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- ncalls is not correctly using the internal heuristc or the ncalls explicitly
 - `minimize(params=...)` automatically extracts independent parameters.
 
 Experimental
@@ -26,6 +28,8 @@ Experimental
 
 Requirement changes
 -------------------
+- upgrade to iminuit>=1.4
+- remove cloudpickle hack fix
 
 Thanks
 ------

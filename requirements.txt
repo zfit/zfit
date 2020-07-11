@@ -4,7 +4,7 @@ scipy>=1.2
 uproot
 pandas
 numpy>=1.16
-iminuit
+iminuit>=1.4
 colorlog
 texttable
 tabulate
@@ -12,4 +12,3 @@ colored
 colorama
 ordered-set
 numdifftools
-cloudpickle==1.3  # from TFP, why not working with pip?!

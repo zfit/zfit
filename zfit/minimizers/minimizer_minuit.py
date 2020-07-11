@@ -1,6 +1,6 @@
 #  Copyright (c) 2020 zfit
 
-from typing import List
+from typing import List, Optional
 
 import iminuit
 import numpy as np
@@ -18,7 +18,7 @@ class Minuit(BaseMinimizer, GraphCachable):
 
     def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tolerance: float = None,
                  verbosity: int = 5, name: str = None,
-                 ncall: int = 10000, use_minuit_grad: bool = None, **minimizer_options):
+                 ncall: Optional[int] = None, use_minuit_grad: bool = None, **minimizer_options):
         """
 
         Args:
@@ -32,14 +32,14 @@ class Minuit(BaseMinimizer, GraphCachable):
             use_minuit_grad (bool): If True, iminuit uses it's internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit.
         """
-        minimizer_options['ncall'] = ncall
-        if not minimize_strategy in range(3):
+        minimizer_options['ncall'] = 0 if ncall is None else ncall
+        if minimize_strategy not in range(3):
             raise ValueError(f"minimize_strategy has to be 0, 1 or 2, not {minimize_strategy}.")
         minimizer_options['strategy'] = minimize_strategy
 
         super().__init__(name=name, strategy=strategy, tolerance=tolerance, verbosity=verbosity,
                          minimizer_options=minimizer_options)
-        use_minuit_grad = False if use_minuit_grad is None else use_minuit_grad
+        use_minuit_grad = True if use_minuit_grad is None else use_minuit_grad
         self._minuit_minimizer = None
         self._use_tfgrad = not use_minuit_grad
 
