@@ -1,13 +1,12 @@
 #  Copyright (c) 2020 zfit
 import tensorflow as tf
-import tensorflow_probability as tfp
 import tensorflow_addons as tfa
 
 from .functor import BaseFunctor
 from .. import z
 from ..core.basepdf import BasePDF
 from ..util import exception, ztyping
-from ..util.exception import WorkInProgressError
+from ..util.exception import WorkInProgressError, ShapeIncompatibleError
 
 
 class FFTConv1DV1(BaseFunctor):
@@ -44,6 +43,14 @@ class FFTConv1DV1(BaseFunctor):
         if limits_func.n_limits > 1:
             raise WorkInProgressError("Multiple Limits not implemented")
 
+        if func.n_obs != kernel.n_obs:
+            raise ShapeIncompatibleError("Func and Kernel need to have (currently) the same number of obs,"
+                                         f" currently are func: {func.n_obs} and kernel: {kernel.n_obs}")
+        if not func.n_obs == limits_func.n_obs == limits_kernel.n_obs:
+            raise ShapeIncompatibleError("Func and Kernel limits need to have (currently) the same number of obs,"
+                                         f" are {limits_func.n_obs} and {limits_kernel.n_obs} with the func n_obs"
+                                         f" {func.n_obs}")
+
         if npoints is None:
             npoints_scaling = 100
             npoints = tf.cast(limits_kernel.rect_area() / limits_func.rect_area() * npoints_scaling, tf.int32)[0]
@@ -52,7 +59,7 @@ class FFTConv1DV1(BaseFunctor):
                            message="Number of points automatically calculated to be used for the FFT"
                                    " based convolution exceeds 1e6. If you want to use this number - "
                                    "or an even higher value, use explicitly the `npoints` argument.")
-        x_func_min, x_func_max = limits_func.limit1d
+        x_func_min, x_func_max = limits_func.rect_limits
         if stretch_limits_func:
             add_to_limit = limits_func.rect_area()[0] * 0.2
             x_func_min -= add_to_limit
@@ -64,7 +71,6 @@ class FFTConv1DV1(BaseFunctor):
         self._x_func_max = x_func_max
         self._x_func = x_func
         self._x_kernel = -x_kernel
-        # self._npoints = npoints
 
     # @z.function
     def _unnormalized_pdf(self, x):
