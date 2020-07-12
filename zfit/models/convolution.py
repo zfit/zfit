@@ -59,7 +59,7 @@ class FFTConv1DV1(BaseFunctor):
                            message="Number of points automatically calculated to be used for the FFT"
                                    " based convolution exceeds 1e6. If you want to use this number - "
                                    "or an even higher value, use explicitly the `npoints` argument.")
-        x_func_min, x_func_max = limits_func.rect_limits
+        x_func_min, x_func_max = limits_func.limit1d
         if stretch_limits_func:
             add_to_limit = limits_func.rect_area()[0] * 0.2
             x_func_min -= add_to_limit
