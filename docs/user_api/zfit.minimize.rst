@@ -15,7 +15,5 @@ Minimize
     zfit.minimize.BFGS
     zfit.minimize.DefaultStrategy
     zfit.minimize.DefaultToyStrategy
-    zfit.minimize.PushbackStrategy
+    zfit.minimizers.baseminimizer.PushbackStrategy
     zfit.minimize.FitResult
-
-
