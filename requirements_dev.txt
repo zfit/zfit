@@ -10,6 +10,7 @@ coverage>=4.5.1
 Sphinx>=3.0.0
 pydata-sphinx-theme
 sphinx-autodoc-typehints
+sphinx-copybutton
 twine>=1.10.0
 setuptools>=30.3.0
 setupext-janitor

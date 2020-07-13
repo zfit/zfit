@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.githubpages',
     # See https://github.com/agronholm/sphinx-autodoc-typehints/issues/15
     'sphinx.ext.todo',
+    'sphinx_copybutton',
 ]
 
 # The suffix(es) of source filenames.
