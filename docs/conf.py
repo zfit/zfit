@@ -25,14 +25,15 @@ needs_sphinx = '3.0.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'sphinx_autodoc_typehints',  # must be imported after napoleon to properly work.
+    'sphinx_autodoc_typehints',
+    # sphinx_autodoc_typehints must be imported after napoleon to properly work.
+    # See https://github.com/agronholm/sphinx-autodoc-typehints/issues/15
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.githubpages',
-    # See https://github.com/agronholm/sphinx-autodoc-typehints/issues/15
     'sphinx.ext.todo',
     'sphinx_copybutton',
 ]
