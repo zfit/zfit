@@ -1,10 +1,10 @@
-Parameter
----------
+Param
+-----
 
 .. todo:: Fill overview page
 
 .. autosummary::
-    :toctree:
+    :toctree: param
 
     zfit.param.ConstantParameter
     zfit.param.Parameter

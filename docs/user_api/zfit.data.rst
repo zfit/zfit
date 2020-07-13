@@ -4,4 +4,4 @@ Data
 .. py:currentmodule:: zfit.data
 
 .. autoclass:: Data
-    :members:
+    :members: data

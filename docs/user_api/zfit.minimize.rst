@@ -6,7 +6,7 @@ Minimize
 .. todo:: Maybe group minimizer Strategies?
 
 .. autosummary::
-    :toctree:
+    :toctree: minimize
 
     zfit.minimize.WrapOptimizer
     zfit.minimize.Adam

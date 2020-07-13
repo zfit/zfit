@@ -4,7 +4,7 @@ PDF
 .. todo:: Fill overview page
 
 .. autosummary::
-    :toctree:
+    :toctree: pdf
 
     zfit.pdf.BasePDF
     zfit.pdf.BaseFunctor

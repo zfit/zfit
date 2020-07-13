@@ -4,7 +4,7 @@ Dimension
 .. todo:: Fill overview page
 
 .. autosummary::
-    :toctree:
+    :toctree: dimension
 
     zfit.dimension.Space
     zfit.dimension.combine_spaces

@@ -125,7 +125,7 @@ autodoc_inherit_docstrings = False
 # -- autosummary settings ---------------------------------------------
 
 autosummary_generate = True
-autosummary_generate_overwrite = False
+autosummary_generate_overwrite = True
 
 # -- sphinx.ext.todo settings ---------------------------------------------
 # If true, `todo` and `todoList` produce output, else they produce nothing.
