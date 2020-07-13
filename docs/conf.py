@@ -149,6 +149,9 @@ html_theme_options = {
     "search_bar_text"     : "Search zfit...",
     "navigation_with_keys": True,
     "search_bar_position" : "sidebar",
+    "external_links"      : [
+        {"name": "Ask on Stack Overflow", "url": "https://stackoverflow.com/questions/ask?tags=zfit"},
+    ],
 }
 
 html_context = {
