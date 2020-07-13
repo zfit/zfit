@@ -24,5 +24,5 @@ insufficient!
     zfit.param
     zfit.pdf
     zfit.util.typing
-..  zfit.sample
+    zfit.sample
     zfit.settings

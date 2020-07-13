@@ -1,4 +1,4 @@
-zfit Typing
+zfit typing
 -----------
 
 .. automodule:: zfit.util.ztyping
