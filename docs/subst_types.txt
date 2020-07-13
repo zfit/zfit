@@ -14,5 +14,7 @@
 
 .. |norm_range_arg_descr| replace:: The normalization range over which the function will be normalized (to 1).
 
+.. |name_arg_descr| replace:: This is the stub description for names. Change it in docs/subst_types.txt.
+
 .. |Space_ref| replace:: :py:class:`~zfit.Space`
 

@@ -22,7 +22,7 @@ insufficient!
     zfit.loss
     zfit.minimize
     zfit.param
-..    zfit.pdf
-    zfit.sample
+    zfit.pdf
+..    zfit.sample
     zfit.settings
     zfit.util.typing

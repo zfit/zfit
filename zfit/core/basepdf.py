@@ -145,11 +145,10 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @property
     def norm_range(self) -> Union[Space, None, bool]:
-        """Return the current normalization range. If None and the `obs`have limits, they are returned.
+        """Return the current normalization range. If None and the `obs` have limits, they are returned.
 
         Returns:
-            :py:class:`~zfit.Space` or None: The current normalization range
-
+            :py:class:`~zfit.Space` or None: The current normalization range.
         """
         norm_range = self._norm_range
         if norm_range is None:

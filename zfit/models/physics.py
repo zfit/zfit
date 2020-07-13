@@ -162,7 +162,7 @@ class CrystalBall(BasePDF):
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
                  alpha: ztyping.ParamTypeInput, n: ztyping.ParamTypeInput,
                  obs: ztyping.ObsTypeInput, name: str = "CrystalBall", dtype: Type = ztypes.float):
-        """`Crystal Ball shaped PDF`__. A combination of a Gaussian with an powerlaw tail.
+        """Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
 
         The function is defined as follows:
 
@@ -220,8 +220,7 @@ class DoubleCB(BasePDF):
                  alphal: ztyping.ParamTypeInput, nl: ztyping.ParamTypeInput,
                  alphar: ztyping.ParamTypeInput, nr: ztyping.ParamTypeInput,
                  obs: ztyping.ObsTypeInput, name: str = "DoubleCB", dtype: Type = ztypes.float):
-        """`Double sided Crystal Ball shaped PDF`__. A combination of two CB using the **mu** (not a frac).
-        on each side.
+        """Double sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
 
         The function is defined as follows:
 
@@ -255,7 +254,6 @@ class DoubleCB(BasePDF):
             obs (:py:class:`~zfit.Space`):
             name (str):
             dtype (tf.DType):
-
         """
         params = {'mu': mu,
                   'sigma': sigma,

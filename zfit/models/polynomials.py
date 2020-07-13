@@ -160,7 +160,7 @@ class Legendre(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
             (n+1) P_{n+1}(x) = (2n + 1) x P_{n}(x) - n P_{n-1}(x)
@@ -218,7 +218,7 @@ class Chebyshev(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
             T_{n+1}(x) = 2 x T_{n}(x) - T_{n-1}(x)
@@ -301,7 +301,7 @@ class Chebyshev2(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
             T_{n+1}(x) = 2 x T_{n}(x) - T_{n-1}(x)
@@ -410,7 +410,7 @@ class Laguerre(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
 
@@ -505,7 +505,7 @@ class Hermite(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
 
