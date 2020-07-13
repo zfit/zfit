@@ -7,8 +7,8 @@ Dimension
     :toctree:
 
     zfit.dimension.Space
-    zfit.dimension.Space.combine_spaces
-    zfit.dimension.Space.add_spaces
+    zfit.dimension.combine_spaces
+    zfit.dimension.add_spaces
     zfit.dimension.Coordinates
 
 

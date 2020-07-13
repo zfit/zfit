@@ -1,7 +1,5 @@
 Coordinates
 -----------
 
-.. py:currentmodule:: zfit.dimension
-
-.. autoclass:: Coordinates
+.. autoclass:: zfit.dimension.Coordinates
     :members:

@@ -1,7 +1,5 @@
 Space
 -----
 
-.. py:currentmodule:: zfit.dimension
-
-.. autoclass:: Space
+.. autoclass:: zfit.dimension.Space
     :members:
