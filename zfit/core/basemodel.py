@@ -1060,7 +1060,7 @@ class SimpleModelSubclassMixin:
         try:
             params = OrderedDict((name, kwargs.pop(name)) for name in self._PARAMS)
         except KeyError:
-            raise ValueError("The following parameters are not given (as keyword arguments): "
+            raise ValueError("The following parameters are not given (as keyword arguments): {}"
                              "".format([k for k in self._PARAMS if k not in kwargs]))
         super().__init__(params=params, *args, **kwargs)
         # super().__init__(params=params, *args, **kwargs)  # use if upper fails

@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2020 zfit
 
 import zfit
 from zfit import z
@@ -9,7 +9,7 @@ class CustomPDF(zfit.pdf.ZPDF):
     _PARAMS = ['alpha']  # specify which parameters to take
 
     def _unnormalized_pdf(self, x):  # implement function
-        data = x.unstack_x()
+        data = z.unstack_x(x)
         alpha = self.params['alpha']
 
         return z.exp(alpha * data)
