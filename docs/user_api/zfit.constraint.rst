@@ -12,3 +12,4 @@ Use Constraint to constrain your models parameters.
 
     zfit.constraint.SimpleConstraint
     zfit.constraint.GaussianConstraint
+    zfit.constraint.nll_gaussian
