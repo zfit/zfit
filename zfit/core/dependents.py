@@ -34,7 +34,7 @@ def _extract_dependencies(zfit_objects: Iterable[ZfitObject]) -> ztyping.Depende
         zfit_objects:
 
     Returns:
-        set(zfit.Parameter): A set of independent Parameters
+        A set of independent Parameters
     """
     zfit_objects = convert_to_container(zfit_objects)
     dependents = (obj.get_cache_deps(only_floating=False) for obj in zfit_objects)

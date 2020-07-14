@@ -148,7 +148,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the current normalization range. If None and the `obs` have limits, they are returned.
 
         Returns:
-            :py:class:`~zfit.Space` or None: The current normalization range.
+            The current normalization range.
         """
         norm_range = self._norm_range
         if norm_range is None:
@@ -198,7 +198,7 @@ class BasePDF(ZfitPDF, BaseModel):
             limits: The limits on where to normalize over
 
         Returns:
-            Tensor: the normalization value
+            the normalization value
         """
         limits = self._check_input_limits(limits=limits)
 
@@ -233,7 +233,7 @@ class BasePDF(ZfitPDF, BaseModel):
                 pdfs.
 
         Returns:
-            :py:class:`tf.Tensor`: 1-dimensional :py:class:`tf.Tensor` containing the unnormalized pdf.
+            1-dimensional :py:class:`tf.Tensor` containing the unnormalized pdf.
         """
         if component_norm_range is not None:
             raise BreakingAPIChangeError("component norm range should not be given anymore. If you want to set the norm"
@@ -341,7 +341,7 @@ class BasePDF(ZfitPDF, BaseModel):
           norm_range: :py:class:`~zfit.Space` to normalize over
 
         Returns:
-          log_pdf: a `Tensor` of type `self.dtype`.
+          a `Tensor` of type `self.dtype`.
         """
         norm_range = self._check_input_norm_range(norm_range)
         with self._convert_sort_x(x) as x:
@@ -380,7 +380,7 @@ class BasePDF(ZfitPDF, BaseModel):
                 unnormalized probability
 
         Returns:
-            :py:class`tf.Tensor`: the integral value as a scalar with shape ()
+            the integral value as a scalar with shape ()
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -484,7 +484,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the yield (only for extended models).
 
         Returns:
-            :py:class:`~zfit.Parameter`: the yield of the current model or None
+            the yield of the current model or None
         """
         # if not self.is_extended:
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
@@ -517,7 +517,7 @@ class BasePDF(ZfitPDF, BaseModel):
             limits_to_integrate:
 
         Returns:
-            ZfitPDF: a pdf without the dimensions from `limits_to_integrate`.
+            a pdf without the dimensions from `limits_to_integrate`.
         """
         from ..models.special import SimpleFunctorPDF
 
@@ -541,7 +541,7 @@ class BasePDF(ZfitPDF, BaseModel):
             arguments to override with new value.
 
         Returns:
-          model: A new instance of `type(self)` initialized from the union
+          A new instance of `type(self)` initialized from the union
             of self.parameters and override_parameters, i.e.,
             `dict(self.parameters, **override_parameters)`.
         """

@@ -26,7 +26,7 @@ _COPY_DOCSTRING = """Creates a copy of the {zfit_type}.
             arguments to override with new value.
 
         Returns:
-          {zfit_type}: A new instance of `type(self)` initialized from the union
+          A new instance of `type(self)` initialized from the union
             of self.parameters and override_parameters_kwargs, i.e.,
             `dict(self.parameters, **overwrite_params)`.
         """

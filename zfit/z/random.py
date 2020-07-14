@@ -23,7 +23,7 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
         logits: Same as probs but from [-inf, inf] (will be transformet to [0, 1])
 
     Returns:
-        :py:class:`tf.Tensor`: shape (k,) tensor containing the number of draws.
+        shape (k,) tensor containing the number of draws.
     """
     total_count = tf.convert_to_tensor(total_count)
     probs = tf.convert_to_tensor(probs) if probs is not None else probs

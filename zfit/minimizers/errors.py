@@ -32,7 +32,7 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covarianc
             {'minuit_hesse', 'hesse_np'} or a Callable.
 
     Returns:
-        `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which
+        A `OrderedDict` containing as keys the parameter and as value a `dict` which
             contains two keys 'lower' and 'upper', holding the calculated errors.
             Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
         `FitResult` or `None`: a fit result is returned when a new minimum is found during the loss scan

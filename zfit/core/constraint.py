@@ -126,7 +126,6 @@ class ProbabilityConstraint(BaseConstraint):
         Args:
             n: The number of samples to be generated.
         Returns:
-            Dict(Parameter: n_samples)
         """
         sample = self._sample(n=n)
         return {p: sample[:, i] for i, p in enumerate(self.observation)}

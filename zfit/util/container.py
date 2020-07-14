@@ -53,6 +53,6 @@ def is_container(obj):
         obj:
 
     Returns:
-        bool: True if it is a *container*, otherwise False
+        True if it is a *container*, otherwise False
     """
     return isinstance(obj, (list, tuple))

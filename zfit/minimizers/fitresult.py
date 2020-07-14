@@ -147,7 +147,7 @@ class FitResult(ZfitResult):
             minimizer: Instance of the iminuit Minuit that was used to minimize the loss.
 
         Returns:
-            `FitResult`: A `FitResult` as if zfit Minuit was used.
+            A `FitResult` as if zfit Minuit was used.
         """
 
         from .minimizer_minuit import Minuit
@@ -257,7 +257,7 @@ class FitResult(ZfitResult):
             error_name: The name for the error in the dictionary.
 
         Returns:
-            OrderedDict: Result of the hessian (symmetric) error as dict with each parameter holding
+            Result of the hessian (symmetric) error as dict with each parameter holding
                 the error dict {'error': sym_error}.
 
                 So given param_a (from zfit.Parameter(.))
@@ -317,7 +317,7 @@ class FitResult(ZfitResult):
 
 
         Returns:
-            `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+            A `OrderedDict` containing as keys the parameter names and as value a `dict` which
                 contains (next to probably more things) two keys 'lower' and 'upper',
                 holding the calculated errors.
                 Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
@@ -347,7 +347,7 @@ class FitResult(ZfitResult):
 
 
             Returns:
-                `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which
+                A `OrderedDict` containing as keys the parameter and as value a `dict` which
                     contains (next to probably more things) two keys 'lower' and 'upper',
                     holding the calculated errors.
                     Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'

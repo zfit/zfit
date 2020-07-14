@@ -32,7 +32,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
         limits: Limits to sample from within
 
     Returns:
-        `tf.Tensor` (n, n_obs): The sampled data with the number of samples and the number of observables.
+        The sampled data with the number of samples and the number of observables.
     """
     lower_bound, upper_bound = limits.rect_limits
     lower_prob_lim = dist.cdf(lower_bound)

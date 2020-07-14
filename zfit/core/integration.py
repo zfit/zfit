@@ -69,7 +69,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         importance_sampling:
 
     Returns:
-        numerical: the integral
+        the integral
     """
     if axes is not None and n_axes is not None:
         raise ValueError("Either specify axes or n_axes")
@@ -411,7 +411,7 @@ class AnalyticIntegral:
             axes:
 
         Returns:
-            Union[None, Integral]: Return a callable that integrated over the given limits.
+            Return a callable that integrated over the given limits.
         """
         limits = convert_to_space(limits=limits, axes=axes)
 

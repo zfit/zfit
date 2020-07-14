@@ -222,7 +222,7 @@ class BaseMinimizer(ZfitMinimizer):
             values: New values for the parameters.
 
         Returns:
-            list(empty, :py:class:`~tf.Operation`): List of assign operations if `use_op`, otherwise empty. The output
+            List of assign operations if `use_op`, otherwise empty. The output
                 can therefore be directly used as argument to :py:func:`~tf.control_dependencies`.
         """
         if len(params) == 1 and len(values) > 1:
@@ -256,7 +256,7 @@ class BaseMinimizer(ZfitMinimizer):
                 minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
 
         Returns:
-            `FitResult`: The fit result.
+            The fit result.
         """
         params = self._check_input_params(loss=loss, params=params, only_floating=True)
         try:

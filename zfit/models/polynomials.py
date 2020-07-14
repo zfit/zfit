@@ -22,7 +22,7 @@ def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
         limits: 1-D limits
 
     Returns:
-        tf.Tensor: the rescaled tensor.
+        the rescaled tensor.
     """
     lim_low, lim_high = limits.limit1d
     x = (2 * x - lim_low - lim_high) / (lim_high - lim_low)

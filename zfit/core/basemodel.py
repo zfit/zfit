@@ -291,7 +291,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 unnormalized probability
 
         Returns:
-            :py:class`tf.Tensor`: the integral value as a scalar with shape ()
+            the integral value as a scalar with shape ()
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -413,7 +413,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             norm_range: the limits to normalize over
 
         Returns:
-            Tensor: the integral value
+            the integral value
         Raises:
             AnalyticIntegralNotImplementedError: If no analytical integral is available (for this limits).
             NormRangeNotImplementedError: if the *norm_range* argument is not supported. This
@@ -484,7 +484,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             norm_range: the limits to normalize over
 
         Returns:
-            Tensor: the integral value
+            the integral value
 
         """
         norm_range = self._check_input_norm_range(norm_range)
@@ -545,7 +545,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             norm_range: the limits to normalize over. Has to have all axes
 
         Returns:
-            Tensor: the value of the partially integrated function evaluated at `x`.
+            the value of the partially integrated function evaluated at `x`.
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -628,7 +628,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             norm_range: the limits to normalize over. Has to have all axes
 
         Returns:
-            Tensor: the value of the partially integrated function evaluated at `x`.
+            the value of the partially integrated function evaluated at `x`.
 
         Raises:
             AnalyticIntegralNotImplementedError: if the *analytic* integral (over this limits) is not implemented
@@ -706,7 +706,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             norm_range: the limits to normalize over. Has to have all axes
 
         Returns:
-            Tensor: the value of the partially integrated function evaluated at `x`.
+            the value of the partially integrated function evaluated at `x`.
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)

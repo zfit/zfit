@@ -40,7 +40,7 @@ def interpolate(t, c):
         c: Tensor of coordinates for which the interpolation is performed
 
     Returns:
-        tf.Tensor: 1D tensor of interpolated value
+        1D tensor of interpolated value
     """
     rank = len(t.get_shape())
     ind = tf.cast(tf.floor(c), tf.int32)
@@ -64,7 +64,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
             derivatives will be taken.
 
     Returns:
-        `tf.Tensor`: gradients
+        gradients
     """
     params = convert_to_container(params)
 
@@ -95,7 +95,7 @@ def numerical_value_gradients(func: Callable, params: Iterable["zfit.Parameter"]
                 derivatives will be taken.
 
         Returns:
-            tuple(`tf.Tensor`, `tf.Tensor`): value, gradient
+            value, gradient
     """
     return func(), numerical_gradient(func, params)
 
@@ -109,7 +109,7 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
                 derivatives will be taken.
 
         Returns:
-            `tf.Tensor`: hessian matrix
+            hessian matrix
     """
     params = convert_to_container(params)
 
@@ -153,7 +153,7 @@ def numerical_value_gradients_hessian(func: Callable, params: Iterable["zfit.Par
                 derivatives will be taken.
 
         Returns:
-            tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix
+            value, gradient and hessian matrix
     """
     value, gradients = numerical_value_gradients(func, params)
     hessian = numerical_hessian(func, params, hessian=hessian)
@@ -174,7 +174,7 @@ def autodiff_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.
                 derivatives will be taken.
 
         Returns:
-            `tf.Tensor`: gradient
+            gradient
     """
     return autodiff_value_gradients(func, params)[1]
 
@@ -192,7 +192,7 @@ def autodiff_value_gradients(func: Callable, params: Iterable["zfit.Parameter"])
                 derivatives will be taken.
 
         Returns:
-            tuple(`tf.Tensor`, `tf.Tensor`): value and gradient
+            value and gradient
     """
     with tf.GradientTape(persistent=False,  # needs to be persistent for a call from hessian.
                          watch_accessed_variables=False) as tape:
@@ -215,7 +215,7 @@ def autodiff_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessian
                 derivatives will be taken.
 
         Returns:
-            `tf.Tensor`: hessian matrix
+            hessian matrix
     """
 
     return automatic_value_gradients_hessian(func, params, hessian=hessian)[2]
@@ -236,7 +236,7 @@ def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["z
                 derivatives will be taken.
 
         Returns:
-            tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix
+            value, gradient and hessian matrix
     """
     if params is None:
         raise ValueError("Parameters have to be specified, are currently None.")
