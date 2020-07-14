@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.models.kde &#8212; zfit 0.5.4.dev18+g5847869 documentation</title>
+    <title>zfit.models.kde &#8212; zfit 0.5.4.dev19+ge8b7216 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev18</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev19</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -379,6 +379,8 @@
         <span class="k">if</span> <span class="n">bandwidth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">bandwidth</span> <span class="o">=</span> <span class="s1">&#39;silverman&#39;</span>
 
+        <span class="n">original_data</span> <span class="o">=</span> <span class="n">data</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -444,6 +446,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_data_weights</span> <span class="o">=</span> <span class="n">weights</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bandwidth</span> <span class="o">=</span> <span class="n">bandwidth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_original_data</span> <span class="o">=</span> <span class="n">original_data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_truncate</span> <span class="o">=</span> <span class="n">truncate</span></div>
 </pre></div>
 

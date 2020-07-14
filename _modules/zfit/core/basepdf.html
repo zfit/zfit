@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.core.basepdf &#8212; zfit 0.5.4.dev18+g5847869 documentation</title>
+    <title>zfit.core.basepdf &#8212; zfit 0.5.4.dev19+ge8b7216 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev18</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev19</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -828,12 +828,11 @@
 <span class="sd">            `dict(self.parameters, **override_parameters)`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_range</span>
-        <span class="c1"># if obs.limits is None:</span>
-        <span class="c1">#     obs = self.space</span>
 
         <span class="c1"># HACK(Mayou36): remove once copy is proper implemented</span>
         <span class="kn">from</span> <span class="nn">..models.dist_tfp</span> <span class="kn">import</span> <span class="n">WrapDistribution</span>
         <span class="kn">from</span> <span class="nn">..models.polynomials</span> <span class="kn">import</span> <span class="n">RecursivePolynomial</span>
+        <span class="kn">from</span> <span class="nn">..models.kde</span> <span class="kn">import</span> <span class="n">GaussianKDE1DimV1</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">WrapDistribution</span><span class="p">:</span>  <span class="c1"># NOT isinstance! Because e.g. Gauss wraps that and takes different args</span>
             <span class="n">parameters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_distribution</span><span class="p">,</span> <span class="n">dist_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">)</span>
@@ -844,6 +843,9 @@
             <span class="n">lambda_</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;lambda&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">lambda_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;lambda_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lambda_</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">GaussianKDE1DimV1</span><span class="p">:</span>
+            <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_original_data</span>
 
         <span class="c1"># HACK(Mayou36): copy the polynomial correct, replace &#39;c_0&#39; with coeff0/coeff_0 or similar</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RecursivePolynomial</span><span class="p">):</span>
