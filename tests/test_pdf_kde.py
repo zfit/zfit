@@ -10,6 +10,18 @@ import zfit.models.kde
 from zfit import ztypes
 
 
+def test_copy_kde():
+    size = 500
+    data = np.random.normal(size=size, loc=2, scale=3)
+
+    limits = (-15, 5)
+    obs = zfit.Space("obs1", limits=limits)
+    kde_adaptive = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='adaptiveV1',
+                                                     obs=obs,
+                                                     truncate=False)
+    kde_adaptive.copy()
+
+
 def test_simple_kde():
     expected_integral = 5 / 6
     h = zfit.Parameter("h", 0.9)
@@ -20,8 +32,6 @@ def test_simple_kde():
     limits = (-15, 5)
     obs = zfit.Space("obs1", limits=limits)
     data_truncated = obs.filter(data)
-    # data = np.concatenate([data, np.random.uniform(size=size * 1, low=-5, high=2.3)])
-    # data = tf.random.poisson(shape=(13000,), lam=7, dtype=ztypes.float)
     kde = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth=h, obs=obs,
                                             truncate=False)
     kde_adaptive = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='adaptiveV1',

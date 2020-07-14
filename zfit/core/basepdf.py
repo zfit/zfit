@@ -547,12 +547,11 @@ class BasePDF(ZfitPDF, BaseModel):
             `dict(self.parameters, **override_parameters)`.
         """
         obs = self.norm_range
-        # if obs.limits is None:
-        #     obs = self.space
 
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution
         from ..models.polynomials import RecursivePolynomial
+        from ..models.kde import GaussianKDE1DimV1
 
         if type(self) == WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = dict(distribution=self._distribution, dist_params=self.dist_params)
@@ -563,6 +562,9 @@ class BasePDF(ZfitPDF, BaseModel):
             lambda_ = parameters.pop('lambda', None)
             if lambda_ is not None:
                 parameters['lambda_'] = lambda_
+
+        if type(self) == GaussianKDE1DimV1:
+            parameters['data'] = self._original_data
 
         # HACK(Mayou36): copy the polynomial correct, replace 'c_0' with coeff0/coeff_0 or similar
         if isinstance(self, RecursivePolynomial):

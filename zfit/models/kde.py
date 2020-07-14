@@ -98,6 +98,8 @@ class GaussianKDE1DimV1(WrapDistribution):
         if bandwidth is None:
             bandwidth = 'silverman'
 
+        original_data = data
+
         if isinstance(data, ZfitData):
             if data.weights is not None:
                 if weights is not None:
@@ -163,4 +165,5 @@ class GaussianKDE1DimV1(WrapDistribution):
         self._data_weights = weights
         self._bandwidth = bandwidth
         self._data = data
+        self._original_data = original_data
         self._truncate = truncate
