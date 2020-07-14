@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.core.baseobject &#8212; zfit 0.5.4.dev15+g606de6c documentation</title>
+    <title>zfit.core.baseobject &#8212; zfit 0.5.4.dev17+g001b002 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev15</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev17</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -296,22 +296,6 @@
 <span class="kn">from</span> <span class="nn">..util.checks</span> <span class="kn">import</span> <span class="n">NotSpecified</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">DotDict</span><span class="p">,</span> <span class="n">convert_to_container</span>
 
-<span class="n">_COPY_DOCSTRING</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Creates a copy of the </span><span class="si">{zfit_type}</span><span class="s2">.</span>
-
-<span class="s2">        Note: the copy </span><span class="si">{zfit_type}</span><span class="s2"> may continue to depend on the original</span>
-<span class="s2">        initialization arguments.</span>
-
-<span class="s2">        Args:</span>
-<span class="s2">          name (str):</span>
-<span class="s2">          **overwrite_parameters: String/value dictionary of initialization</span>
-<span class="s2">            arguments to override with new value.</span>
-
-<span class="s2">        Returns:</span>
-<span class="s2">          </span><span class="si">{zfit_type}</span><span class="s2">: A new instance of `type(self)` initialized from the union</span>
-<span class="s2">            of self.parameters and override_parameters_kwargs, i.e.,</span>
-<span class="s2">            `dict(self.parameters, **overwrite_params)`.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
-
 
 <div class="viewcode-block" id="BaseObject"><a class="viewcode-back" href="../../../full_api/zfit.core.baseobject.html#zfit.BaseObject">[docs]</a><span class="k">class</span> <span class="nc">BaseObject</span><span class="p">(</span><span class="n">ZfitObject</span><span class="p">):</span>
 
@@ -324,8 +308,6 @@
     <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_repr</span> <span class="o">=</span> <span class="n">DotDict</span><span class="p">()</span>  <span class="c1"># TODO: make repr more sophisticated</span>
-        <span class="c1"># cls._repr.zfit_type = cls</span>
-        <span class="c1"># cls.copy.__doc__ = _COPY_DOCSTRING.format(zfit_type=cls.__name__)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
