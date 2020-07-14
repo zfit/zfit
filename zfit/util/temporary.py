@@ -39,10 +39,10 @@ class TemporarilySet:
          42
 
         Args:
-            value (Any): The value to be (temporarily) set (and returned if a context manager is applied).
-            setter (Callable): The setter function with a signature that is compatible to the call:
+            value: The value to be (temporarily) set (and returned if a context manager is applied).
+            setter: The setter function with a signature that is compatible to the call:
                 `setter(value, *setter_args, **setter_kwargs)`
-            getter (Callable): The getter function with a signature that is compatible to the call:
+            getter: The getter function with a signature that is compatible to the call:
                 `getter(*getter_args, **getter_kwargs)`
          """
         self.setter = setter

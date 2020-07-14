@@ -62,12 +62,12 @@ def check_numerics(tensor: Any, message: Any, name: Any = None):
     """Check whether a tensor is finite and not NaN. Extends TF by accepting complex types as well.
 
     Args:
-        tensor (:py:class:~`tensorflow.python.framework.ops.Tensor`):
-        message (str):
-        name (Union[None, None, None]):
+        tensor:
+        message:
+        name:
 
     Returns:
-        tensorflow.python.framework.ops.Tensor:
+
     """
     if tensor.dtype in (tf.complex64, tf.complex128):
         real_check = tf.debugging.check_numerics(tensor=tf.math.real(tensor), message=message, name=name)

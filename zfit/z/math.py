@@ -15,11 +15,11 @@ def poly_complex(*args, real_x=False):
     """Complex polynomial with the last arg being x.
 
     Args:
-        *args (tf.Tensor or equ.): Coefficients of the polynomial
-        real_x (bool): If True, x is assumed to be real.
+        *args: Coefficients of the polynomial
+        real_x: If True, x is assumed to be real.
 
     Returns:
-        tf.Tensor:
+
     """
     from .. import z
 
@@ -36,11 +36,11 @@ def interpolate(t, c):
     """Multilinear interpolation on a rectangular grid of arbitrary number of dimensions.
 
     Args:
-        t (tf.Tensor): Grid (of rank N)
-        c (tf.Tensor): Tensor of coordinates for which the interpolation is performed
+        t: Grid (of rank N)
+        c: Tensor of coordinates for which the interpolation is performed
 
     Returns:
-        tf.Tensor: 1D tensor of interpolated value
+        1D tensor of interpolated value
     """
     rank = len(t.get_shape())
     ind = tf.cast(tf.floor(c), tf.int32)
@@ -59,12 +59,12 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
     """Calculate numerically the gradients of func() with respect to `params`.
 
     Args:
-        func (Callable): Function without arguments that depends on `params`
-        params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+        func: Function without arguments that depends on `params`
+        params: Parameters that `func` implicitly depends on and with respect to which the
             derivatives will be taken.
 
     Returns:
-        `tf.Tensor`: gradients
+        Gradients
     """
     params = convert_to_container(params)
 
@@ -90,12 +90,12 @@ def numerical_value_gradients(func: Callable, params: Iterable["zfit.Parameter"]
     """Calculate numerically the gradients of `func()` with respect to `params`, also returns the value of `func()`.
 
         Args:
-            func (Callable): Function without arguments that depends on `params`
-            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on `params`
+            params: Parameters that `func` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
-            tuple(`tf.Tensor`, `tf.Tensor`): value, gradient
+            Value, gradient
     """
     return func(), numerical_gradient(func, params)
 
@@ -104,12 +104,12 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
     """Calculate numerically the hessian matrix of func with respect to `params`.
 
         Args:
-            func (Callable): Function without arguments that depends on `params`
-            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on `params`
+            params: Parameters that `func` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
-            `tf.Tensor`: hessian matrix
+            Hessian matrix
     """
     params = convert_to_container(params)
 
@@ -148,12 +148,12 @@ def numerical_value_gradients_hessian(func: Callable, params: Iterable["zfit.Par
     """Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
 
         Args:
-            func (Callable): Function without arguments that depends on `params`
-            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on `params`
+            params: Parameters that `func` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
-            tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix
+            Value, gradient and hessian matrix
     """
     value, gradients = numerical_value_gradients(func, params)
     hessian = numerical_hessian(func, params, hessian=hessian)
@@ -169,12 +169,12 @@ def autodiff_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.
     TensorFlow implements this and anything using `tf.*` operations only can use this technique.
 
         Args:
-            func (Callable): Function without arguments that depends on `params`
-            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on `params`
+            params: Parameters that `func` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
-            `tf.Tensor`: gradient
+            Gradient
     """
     return autodiff_value_gradients(func, params)[1]
 
@@ -187,12 +187,12 @@ def autodiff_value_gradients(func: Callable, params: Iterable["zfit.Parameter"])
     TensorFlow implements this and anything using `tf.*` operations only can use this technique.
 
         Args:
-            func (Callable): Function without arguments that depends on `params`
-            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on `params`
+            params: Parameters that `func` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
-            tuple(`tf.Tensor`, `tf.Tensor`): value and gradient
+            Value and gradient
     """
     with tf.GradientTape(persistent=False,  # needs to be persistent for a call from hessian.
                          watch_accessed_variables=False) as tape:
@@ -210,12 +210,12 @@ def autodiff_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessian
     TensorFlow implements this and anything using `tf.*` operations only can use this technique.
 
         Args:
-            func (Callable): Function without arguments that depends on `params`
-            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on `params`
+            params: Parameters that `func` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
-            `tf.Tensor`: hessian matrix
+            Hessian matrix
     """
 
     return automatic_value_gradients_hessian(func, params, hessian=hessian)[2]
@@ -231,12 +231,12 @@ def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["z
     TensorFlow implements this and anything using `tf.*` operations only can use this technique.
 
         Args:
-            func (Callable): Function without arguments that depends on `params`
-            params (ZfitParameter): Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on `params`
+            params: Parameters that `func` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
-            tuple(`tf.Tensor`, `tf.Tensor`, `tf.Tensor`): value, gradient and hessian matrix
+            Value, gradient and hessian matrix
     """
     if params is None:
         raise ValueError("Parameters have to be specified, are currently None.")

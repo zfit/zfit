@@ -81,13 +81,13 @@ class SumPDF(BaseFunctor):
                 frac_integral = pdf.integrate(...) * frac
 
         Args:
-            pdfs (pdf): The pdfs to be added.
-            fracs (iterable): Coefficients for the linear combination of the pdfs. Optional if *all* pdfs are extended.
+            pdfs: The pdfs to be added.
+            fracs: Coefficients for the linear combination of the pdfs. Optional if *all* pdfs are extended.
 
                 - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
                   The last coefficient will equal to 1 - sum(frac)
                 - len(frac) == len(pdf): the fracs will be used as is and no normalization attempt is taken.
-            name (str): |name_arg_descr|
+            name: |name_arg_descr|
 
         Raises
             ModelIncompatibleError: If model is incompatible.

@@ -19,7 +19,7 @@ class BaseDependentsMixin(ZfitDependenciesMixin):
         """Return a set of all independent :py:class:`~zfit.Parameter` that this object depends on.
 
         Args:
-            only_floating (bool): If `True`, only return floating :py:class:`~zfit.Parameter`
+            only_floating: If `True`, only return floating :py:class:`~zfit.Parameter`
         """
         dependencies = self._get_dependencies()
         if only_floating:
@@ -31,10 +31,10 @@ def _extract_dependencies(zfit_objects: Iterable[ZfitObject]) -> ztyping.Depende
     """Calls the :py:meth:`~BaseDependentsMixin.get_dependents` method on every object and returns a combined set.
 
     Args:
-        zfit_objects ():
+        zfit_objects:
 
     Returns:
-        set(zfit.Parameter): A set of independent Parameters
+        A set of independent Parameters
     """
     zfit_objects = convert_to_container(zfit_objects)
     dependents = (obj.get_cache_deps(only_floating=False) for obj in zfit_objects)

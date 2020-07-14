@@ -53,10 +53,10 @@ class Exponential(BasePDF):
         defined as :math:`\\frac{ e^{\\lambda \\cdot x}}{ \\int_{lower}^{upper} e^{\\lambda \\cdot x} dx}`
 
         Args:
-            lambda_ (:py:class:`~zfit.Parameter`): Accessed as parameter "lambda".
-            obs (:py:class:`~zfit.Space`): The :py:class:`~zfit.Space` the pdf is defined in.
-            name (str): Name of the pdf.
-            dtype (DType):
+            lambda_: Accessed as parameter "lambda".
+            obs: The :py:class:`~zfit.Space` the pdf is defined in.
+            name: Name of the pdf.
+            dtype:
         """
         params = {'lambda': lambda_}
         super().__init__(obs, name=name, params=params, **kwargs)
