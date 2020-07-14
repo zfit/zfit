@@ -448,6 +448,22 @@ class BasePDF(ZfitPDF, BaseModel):
         new_pdf._set_yield_inplace(value=yield_)
         return new_pdf
 
+    def set_yield(self, value):
+
+        """Make the model extended by setting a yield.
+
+        This does not alter the general behavior of the PDF. The `pdf` and `integrate` and similar methods will
+        continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+        via `get_yield`, the methods `ext_pdf` and `ext_integral` provide a version of `pdf` and `integrate`
+        respecetively that is multiplied by the yield.
+
+        These can be useful for plotting and for binned likelihoods.
+
+        Args:
+            value ():
+        """
+        self._set_yield(value=value)
+
     def _set_yield(self, value: ztyping.ParamTypeInput):
         if value is None:
             raise BreakingAPIChangeError("Cannot unset a yield (anymore).")
