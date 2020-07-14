@@ -59,8 +59,8 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
 
 
     Args:
-        spaces (Iterable[zfit.Space]):
-        allow_exact_match (bool): An exact overlap of two limits is counted as "not overlapping".
+        spaces:
+        allow_exact_match: An exact overlap of two limits is counted as "not overlapping".
             Example: limits from -1 to 3 and 4 to 5 to *NOT* overlap with the limits 4 to 5 *iff*
             `allow_exact_match` is True.
 
@@ -110,7 +110,7 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]
         returns ['obs1', 'obs3', 'obs2']
 
     Args:
-        spaces (): :py:class:`~zfit.Space`s to extract the obs from
+        spaces: :py:class:`~zfit.Space`s to extract the obs from
 
     Returns:
         List[str]: The observables as `str` or False if not every space has observables
@@ -137,7 +137,7 @@ def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool
         returns [1, 3, 2]
 
     Args:
-        spaces (): :py:class:`~zfit.Space`s to extract the axes from
+        spaces: :py:class:`~zfit.Space`s to extract the axes from
 
     Returns:
         List[int] or False: The axes as int or False if not every space has axes

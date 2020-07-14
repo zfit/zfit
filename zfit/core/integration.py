@@ -56,17 +56,17 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     """Monte Carlo integration of `func` over `limits`.
 
     Args:
-        func (callable): The function to be integrated over
-        limits (:py:class:`~ZfitSpace`): The limits of the integral
-        axes (tuple(int)): The row to integrate over. None means integration over all value
-        x (numeric): If a partial integration is performed, this are the value where x will be evaluated.
-        n_axes (int): the number of total dimensions (old?)
-        draws_per_dim (int): How many random points to draw per dimensions
-        method (str): Which integration method to use
-        dtype (dtype): |dtype_arg_descr|
-        mc_sampler (callable): A function that takes one argument (`n_draws` or similar) and returns
+        func: The function to be integrated over
+        limits: The limits of the integral
+        axes: The row to integrate over. None means integration over all value
+        x: If a partial integration is performed, this are the value where x will be evaluated.
+        n_axes: the number of total dimensions (old?)
+        draws_per_dim: How many random points to draw per dimensions
+        method: Which integration method to use
+        dtype: |dtype_arg_descr|
+        mc_sampler: A function that takes one argument (`n_draws` or similar) and returns
             random value between 0 and 1.
-        importance_sampling ():
+        importance_sampling:
 
     Returns:
         numerical: the integral
@@ -307,8 +307,8 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
         """Takes a list of tensors and "fakes" a dataset. Useful for tensors with non-matching shapes.
 
         Args:
-            sample (List[tf.Tensor]):
-            space ():
+            sample:
+            space:
         """
         if not isinstance(sample, list):
             raise TypeError("Sample has to be a list of tf.Tensors")
@@ -373,8 +373,8 @@ class AnalyticIntegral:
         """Return the maximal available axes to integrate over analytically for given limits
 
         Args:
-            limits (:py:class:`~zfit.Space`): The integral function will be able to integrate over this limits
-            axes (tuple): The axes over which (or over a subset) it will integrate
+            limits: The integral function will be able to integrate over this limits
+            axes: The axes over which (or over a subset) it will integrate
 
         Returns:
             Tuple[int]:
@@ -407,8 +407,8 @@ class AnalyticIntegral:
         """Return the integral over the `limits` with `axes` (or a subset of them).
 
         Args:
-            limits (:py:class:`~zfit.ZfitSpace`):
-            axes (Tuple[int]):
+            limits:
+            axes:
 
         Returns:
             Union[None, Integral]: Return a callable that integrated over the given limits.
@@ -427,14 +427,14 @@ class AnalyticIntegral:
         """Register an analytic integral.
 
         Args:
-            func (callable): The integral function. Takes 1 argument.
-            axes (tuple): |dims_arg_descr|
-            limits (:py:class:`~zfit.ZfitSpace`): |limits_arg_descr| `Limits` can be None if `func` works for any
+            func: The integral function. Takes 1 argument.
+            axes: |dims_arg_descr|
+            limits: |limits_arg_descr| `Limits` can be None if `func` works for any
             possible limits
-            priority (int): If two or more integrals can integrate over certain limits, the one with the higher
+            priority: If two or more integrals can integrate over certain limits, the one with the higher
                 priority is taken (usually around 0-100).
-            supports_norm_range (bool): If True, norm_range will (if needed) be given to `func` as an argument.
-            supports_multiple_limits (bool): If True, multiple limits may be given as an argument to `func`.
+            supports_norm_range: If True, norm_range will (if needed) be given to `func` as an argument.
+            supports_multiple_limits: If True, multiple limits may be given as an argument to `func`.
         """
 
         # if limits is False:
@@ -462,12 +462,12 @@ class AnalyticIntegral:
 
 
         Args:
-            x (numeric): If a partial integration is made, x are the value to be evaluated for the partial
+            x: If a partial integration is made, x are the value to be evaluated for the partial
                 integrated function. If a full integration is performed, this should be `None`.
-            limits (:py:class:`~zfit.ZfitSpace`): The limits to integrate
-            axes (Tuple[int]): The dimensions to integrate over
-            norm_range (bool): |norm_range_arg_descr|
-            params (dict): The parameters of the function
+            limits: The limits to integrate
+            axes: The dimensions to integrate over
+            norm_range: |norm_range_arg_descr|
+            params: The parameters of the function
 
 
         Returns:

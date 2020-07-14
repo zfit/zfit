@@ -131,7 +131,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Set (temporarily) the weights of the dataset.
 
         Args:
-            weights (`tf.Tensor`, np.ndarray, None):
+            weights:
 
 
         """
@@ -182,16 +182,16 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
 
         Args:
-            path (str):
-            treepath (str):
-            branches (List[str]]):
-            branches_alias (dict): A mapping from the `branches` (as keys) to the actual `observables` (as values).
+            path:
+            treepath:
+            branches:
+            branches_alias: A mapping from the `branches` (as keys) to the actual `observables` (as values).
                 This allows to have different `observable` names, independent of the branch name in the file.
-            weights (tf.Tensor, None, np.ndarray, str]): Weights of the data. Has to be 1-D and match the shape
+            weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents). Can be a column of the ROOT file by using a string corresponding to a
                 column.
-            name (str):
-            root_dir_options ():
+            name:
+            root_dir_options:
 
         Returns:
             `zfit.Data`:
@@ -240,11 +240,11 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
 
         Args:
-            df (`pandas.DataFrame`):
-            weights (tf.Tensor, None, np.ndarray, str]): Weights of the data. Has to be 1-D and match the shape
+            df:
+            weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents).
-            obs (`zfit.Space`):
-            name (str):
+            obs:
+            name:
         """
         if obs is None:
             obs = list(df.columns)
@@ -257,9 +257,9 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create `Data` from a `np.array`.
 
         Args:
-            obs ():
-            array (numpy.ndarray):
-            name (str):
+            obs:
+            array:
+            name:
 
         Returns:
             zfit.Data:
@@ -278,9 +278,9 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
 
         Args:
-            obs (Union[str, List[str]):
-            tensor (`tf.Tensor`):
-            name (str):
+            obs:
+            tensor:
+            name:
 
         Returns:
             zfit.core.Data:
@@ -302,7 +302,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a `pd.DataFrame` from `obs` as columns and return it.
 
         Args:
-            obs (): The observables to use as columns. If `None`, all observables are used.
+            obs: The observables to use as columns. If `None`, all observables are used.
 
         Returns:
 
@@ -319,8 +319,8 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Return the unstacked data: a list of tensors or a single Tensor.
 
         Args:
-            obs (): which observables to return
-            always_list (bool): If True, always return a list (also if length 1)
+            obs: which observables to return
+            always_list: If True, always return a list (also if length 1)
 
         Returns:
             List(tf.Tensor)
@@ -491,9 +491,9 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         own `obs`.
 
         Args:
-            obs ():
-            axes ():
-            limits ():
+            obs:
+            axes:
+            limits:
 
         Returns:
 
@@ -601,9 +601,9 @@ class Sampler(Data):
         a mapping with `param_values` from `Parameter` to the temporary `value`.
 
         Args:
-            param_values (Dict): a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
+            param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
                 `Parameter` will use the `value`.
-            n (int, tf.Tensor): the number of samples to produce. If the `Sampler` was created with
+            n: the number of samples to produce. If the `Sampler` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
         if n is None:

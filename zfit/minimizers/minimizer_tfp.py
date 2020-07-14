@@ -19,10 +19,10 @@ class BFGS(BaseMinimizer):
         """# Todo write description for api.
 
         Args:
-            strategy (ZfitStrategy): Strategy that handles NaN and more (to come, experimental)
-            tolerance (float): Difference between the function value that suffices to stop minimization
+            strategy: Strategy that handles NaN and more (to come, experimental)
+            tolerance: Difference between the function value that suffices to stop minimization
             verbosity: The higher, the more is printed. Between 1 and 10 typically
-            max_calls (int): Maximum number of calls, approximate
+            max_calls: Maximum number of calls, approximate
             name: Name of the Minimizer
             options: A `dict` containing the options given to the minimization function, overriding the default
         """

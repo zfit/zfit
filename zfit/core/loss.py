@@ -27,9 +27,9 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
     """Return unbinned negative log likelihood graph for a PDF
 
     Args:
-        model (ZfitModel): PDFs with a `.pdf` method. Has to be as many models as data
-        data (ZfitData):
-        fit_range ():
+        model: PDFs with a `.pdf` method. Has to be as many models as data
+        data:
+        fit_range:
 
     Returns:
         graph: the unbinned nll
@@ -86,12 +86,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         to the loss. The length of each has to match the length of the others.
 
         Args:
-            model (Iterable[ZfitModel]): The model or models to evaluate the data on
-            data (Iterable[ZfitData]): Data to use
-            fit_range (Iterable[:py:class:`~zfit.Space`]): The fitting range. It's the norm_range for the models (if
+            model: The model or models to evaluate the data on
+            data: Data to use
+            fit_range: The fitting range. It's the norm_range for the models (if
             they
                 have a norm_range) and the data_range for the data.
-            constraints (Iterable[tf.Tensor): A Tensor representing a loss constraint. Using
+            constraints: A Tensor representing a loss constraint. Using
                 `zfit.constraint.*` allows for easy use of predefined constraints.
         """
         super().__init__(name=type(self).__name__, params={})

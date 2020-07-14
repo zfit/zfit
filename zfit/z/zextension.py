@@ -38,9 +38,9 @@ def nth_pow(x, n, name=None):
     """Calculate the nth power of the complex Tensor x.
 
     Args:
-        x (tf.Tensor, complex):
-        n (int >= 0): Power
-        name (str): No effect, for API compatibility with tf.pow
+        x:
+        n: Power
+        name: No effect, for API compatibility with tf.pow
     """
     if not n >= 0:
         raise ValueError("n (power) has to be >= 0. Currently, n={}".format(n))
@@ -55,11 +55,11 @@ def unstack_x(value: Any, num: Any = None, axis: int = -1, always_list: bool = F
     """Unstack a Data object and return a list of (or a single) tensors in the right order.
 
     Args:
-        value ():
-        num (Union[]):
-        axis (int):
-        always_list (bool): If True, also return a list if only one element.
-        name (str):
+        value:
+        num:
+        axis:
+        always_list: If True, also return a list if only one element.
+        name:
 
     Returns:
         Union[List[tensorflow.python.framework.ops.Tensor], tensorflow.python.framework.ops.Tensor, None]:
@@ -93,14 +93,14 @@ def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values
     """Like :py:func:`tf.where` but fixes gradient `NaN` if func produces `NaN` with certain `values`.
 
     Args:
-        condition (:py:class:`tf.Tensor`): Same argument as to :py:func:`tf.where`, a boolean :py:class:`tf.Tensor`
-        func (Callable): Function taking `values` as argument and returning the tensor _in case
+        condition: Same argument as to :py:func:`tf.where`, a boolean :py:class:`tf.Tensor`
+        func: Function taking `values` as argument and returning the tensor _in case
             condition is True_. Equivalent `x` of :py:func:`tf.where` but as function.
-        safe_func (Callable): Function taking `values` as argument and returning the tensor
+        safe_func: Function taking `values` as argument and returning the tensor
             _in case the condition is False_, Equivalent `y` of :py:func:`tf.where` but as function.
-        values (:py:class:`tf.Tensor`): Values to be evaluated either by `func` or `safe_func` depending on
+        values: Values to be evaluated either by `func` or `safe_func` depending on
             `condition`.
-        value_safer (Callable): Function taking `values` as arguments and returns "safe" values
+        value_safer: Function taking `values` as arguments and returns "safe" values
             that won't cause troubles when given to`func` or by taking the gradient with respect
             to `func(value_safer(values))`.
 

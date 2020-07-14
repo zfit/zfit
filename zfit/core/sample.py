@@ -128,11 +128,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     """Accept reject sample from a probability distribution.
 
     Args:
-        prob (function): A function taking x a Tensor as an argument and returning the probability
+        prob: A function taking x a Tensor as an argument and returning the probability
             (or anything that is proportional to the probability).
-        n (int): Number of samples to produce
-        limits (:py:class:`~zfit.Space`): The limits to sample from
-        sample_and_weights_factory (Callable): An (immutable!) factory function that returns the following function:
+        n: Number of samples to produce
+        limits: The limits to sample from
+        sample_and_weights_factory: An (immutable!) factory function that returns the following function:
             A function that returns the sample to insert into `prob` and the weights
             (probability density) of each sample together with the random thresholds. The API looks as follows:
 
@@ -156,11 +156,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                     that the peaks coincide).
                 - n_produced: the number of events produced. Can deviate from the requested number.
 
-        dtype ():
-        prob_max (Union[None, int]): The maximum of the model function for the given limits. If None
+        dtype:
+        prob_max: The maximum of the model function for the given limits. If None
             is given, it will be automatically, safely estimated (by a 10% increase in computation time
             (constant weak scaling)).
-        efficiency_estimation (float): estimation of the initial sampling efficiency.
+        efficiency_estimation: estimation of the initial sampling efficiency.
 
     Returns:
         tf.Tensor:
@@ -397,7 +397,7 @@ def extract_extended_pdfs(pdfs: Union[Iterable[ZfitPDF], ZfitPDF]) -> List[ZfitP
     """Return all extended pdfs that are daughters.
 
     Args:
-        pdfs (Iterable[pdfs]):
+        pdfs:
 
     Returns:
         List[pdfs]:
@@ -427,8 +427,8 @@ def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) ->
     """Create a sample from extended pdfs by sampling poissonian using the yield.
 
     Args:
-        pdfs (iterable[ZfitPDF]):
-        limits (:py:class:`~zfit.Space`):
+        pdfs:
+        limits:
 
     Returns:
         Union[tf.Tensor]:

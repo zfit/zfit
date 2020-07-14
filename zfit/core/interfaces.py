@@ -142,7 +142,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
 
         Args:
-            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.
+            overwrite: If axes are already set, replace the axes with the autofilled ones.
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
@@ -173,7 +173,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
 
         Args:
-            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes
+            x: Tensor to be reordered, last dimension should be n_obs resp. n_axes
             x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
                 latter.
             x_axes: Axes associated with x.
@@ -549,9 +549,9 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
-            obs (str, Tuple[str]):
-            axes (int, Tuple[int]):
-            name ():
+            obs:
+            axes:
+            name:
 
         Returns:
 
@@ -695,9 +695,9 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
 
 
         Args:
-            minval (Numerical): The lower bound of the sampler. If not given, `lower_limit` is used.
-            maxval (Numerical): The upper bound of the sampler. If not given, `upper_limit` is used.
-            sampler (): A sampler with the same interface as `tf.random.uniform`
+            minval: The lower bound of the sampler. If not given, `lower_limit` is used.
+            maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
+            sampler: A sampler with the same interface as `tf.random.uniform`
 
         Returns:
             `tf.Tensor`: The sampled value
@@ -712,7 +712,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         manager.
 
         Args:
-            value (float): The value the parameter will take on.
+            value: The value the parameter will take on.
         """
         raise NotImplementedError
 
@@ -812,10 +812,10 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over
-            norm_range (tuple, :py:class:`~zfit.Space`): the limits to normalize over or False to integrate the
+            limits: the limits to integrate over
+            norm_range: the limits to normalize over or False to integrate the
                 unnormalized probability
-            name (str):
+            name:
 
         Returns:
             Tensor: the integral value
@@ -831,11 +831,11 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Register an analytic integral with the class.
 
         Args:
-            func ():
-            limits (): |limits_arg_descr|
-            priority (int):
-            supports_multiple_limits (bool):
-            supports_norm_range (bool):
+            func:
+            limits: |limits_arg_descr|
+            priority:
+            supports_multiple_limits:
+            supports_norm_range:
 
         Returns:
 
@@ -851,9 +851,9 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         to the dimensions of `norm_range` (if not False)
 
         Args:
-            x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes
+            x: The value at which the partially integrated function will be evaluated
+            limits: the limits to integrate over. Can contain only some axes
+            norm_range: the limits to normalize over. Has to have all axes
 
         Returns:
             Tensor: the value of the partially integrated function evaluated at `x`.
@@ -866,7 +866,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Register an inverse analytical integral, the inverse (unnormalized) cdf.
 
         Args:
-            func ():
+            func:
         """
         raise NotImplementedError
 
@@ -875,9 +875,9 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Sample `n` points within `limits` from the model.
 
         Args:
-            n (int): The number of samples to be generated
-            limits (tuple, :py:class:`~zfit.Space`): In which region to sample in
-            name (str):
+            n: The number of samples to be generated
+            limits: In which region to sample in
+            name:
 
         Returns:
             Tensor(n_obs, n_samples)

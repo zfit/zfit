@@ -22,13 +22,13 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covarianc
     Computes asymmetric errors of parameters by profiling the loss function in the fit result.
 
     Args:
-        result (`FitResult`): fit result
-        params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate the
+        result: fit result
+        params: The parameters to calculate the
             errors error. If None, use all parameters.
-        sigma (float): Errors are calculated with respect to `sigma` std deviations.
-        rtol (float, default=0.01): relative tolerance between the computed and the exact roots
-        method (str, defautl='hybr'): type of solver, `method` argument of `scipy.optimize.root_
-        covariance_method (str or Callable): The method to use to calculate the correlation matrix. Valid choices are
+        sigma: Errors are calculated with respect to `sigma` std deviations.
+        rtol: relative tolerance between the computed and the exact roots
+        method: type of solver, `method` argument of `scipy.optimize.root_
+        covariance_method: The method to use to calculate the correlation matrix. Valid choices are
             {'minuit_hesse', 'hesse_np'} or a Callable.
 
     Returns:

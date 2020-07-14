@@ -48,8 +48,8 @@ class BaseFunc(BaseModel, ZfitFunc):
         """The function evaluated at `x`.
 
         Args:
-            x (`Data`):
-            name (str):
+            x:
+            name:
 
         Returns:
             tf.Tensor:  # TODO(Mayou36): or dataset? Update: rather not, what would obs be?

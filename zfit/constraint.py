@@ -13,9 +13,9 @@ def nll_gaussian(params: ztyping.ParamTypeInput, observation: ztyping.NumericalS
                  uncertainty: ztyping.NumericalScalarType) -> tf.Tensor:
     """Return negative log likelihood graph for gaussian constraints on a list of parameters.
     Args:
-        params (list(zfit.Parameter)): The parameters to constraint
-        observation (numerical, list(numerical)): observed values of the parameter
-        uncertainty (numerical, list(numerical) or array/tensor): Uncertainties or covariance/error
+        params: The parameters to constraint
+        observation: observed values of the parameter
+        uncertainty: Uncertainties or covariance/error
             matrix of the observed values. Can either be a single value, a list of values, an array or a tensor
     Returns:
         `GaussianConstraint`: the constraint object

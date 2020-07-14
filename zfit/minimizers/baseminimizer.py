@@ -204,7 +204,7 @@ class BaseMinimizer(ZfitMinimizer):
         """Extract the current value if defined, otherwise random.
 
         Arguments:
-            params (Parameter):
+            params:
 
         Return:
             list(const): the current value of parameters
@@ -218,8 +218,8 @@ class BaseMinimizer(ZfitMinimizer):
         """Update `params` with `values`. Returns the assign op (if `use_op`, otherwise use a session to load the value.
 
         Args:
-            params (list(`ZfitParameter`)): The parameters to be updated
-            values (list(float, `np.ndarray`)): New values for the parameters.
+            params: The parameters to be updated
+            values: New values for the parameters.
 
         Returns:
             list(empty, :py:class:`~tf.Operation`): List of assign operations if `use_op`, otherwise empty. The output
@@ -236,7 +236,7 @@ class BaseMinimizer(ZfitMinimizer):
         """Perform a single step in the minimization (if implemented).
 
         Args:
-            params ():
+            params:
 
         Returns:
 
@@ -251,8 +251,8 @@ class BaseMinimizer(ZfitMinimizer):
         """Fully minimize the `loss` with respect to `params`.
 
         Args:
-            loss (ZfitLoss): Loss to be minimized.
-            params (list(`zfit.Parameter`): The parameters with respect to which to
+            loss: Loss to be minimized.
+            params: The parameters with respect to which to
                 minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
 
         Returns:

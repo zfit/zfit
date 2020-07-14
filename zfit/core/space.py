@@ -865,7 +865,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         """Input check: Convert `NOT_SPECIFIED` to None or check if obs are all strings.
 
         Args:
-            obs (str, List[str], None, NOT_SPECIFIED):
+            obs:
 
         Returns:
             type:
@@ -937,7 +937,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         In case the observables are different, the order of the first space is taken.
 
         Args:
-            other (:py:class:`~zfit.Space`):
+            other:
 
         Returns:
             :py:class:`~zfit.Space`:
@@ -950,7 +950,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         """Combine spaces with different obs (but consistent limits).
 
         Args:
-            other (:py:class:`~zfit.Space`):
+            other:
 
         Returns:
             :py:class:`~zfit.Space`:
@@ -1097,9 +1097,9 @@ class Space(BaseSpace):
 
 
         Args:
-            obs (str, List[str,...]):
-            limits ():
-            name (str):
+            obs:
+            limits:
+            name:
         """
         if name is None:
             name = "Space"
@@ -1119,7 +1119,7 @@ class Space(BaseSpace):
         """Check and sanitize the input limits as well as the rectangular limits.
 
         Args:
-            limit ():
+            limit:
 
         Returns:
             dict(obs/axes: ZfitLimit): Limits dictionary containing the observables and/or the axes as a key matching
@@ -1544,7 +1544,7 @@ class Space(BaseSpace):
         Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
 
         Args:
-            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes
+            x: Tensor to be reordered, last dimension should be n_obs resp. n_axes
             x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
                 latter.
             x_axes: Axes associated with x.
@@ -1740,7 +1740,7 @@ class Space(BaseSpace):
 
 
         Args:
-            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.
+            overwrite: If axes are already set, replace the axes with the autofilled ones.
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
@@ -1765,8 +1765,8 @@ class Space(BaseSpace):
         """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
-            obs (str, Tuple[str]): Observables of the subspace to return.
-            axes (int, Tuple[int]): Axes of the subspace to return.
+            obs: Observables of the subspace to return.
+            axes: Axes of the subspace to return.
             name: Human readable names
 
         Returns:
@@ -1811,9 +1811,9 @@ class Space(BaseSpace):
         `overwrite_overwrite_kwargs`.
 
         Args:
-            name (str): The new name. If not given, the new instance will be named the same as the
+            name: The new name. If not given, the new instance will be named the same as the
                 current one.
-            **overwrite_kwargs ():
+            **overwrite_kwargs:
 
         Returns:
             :py:class:`~zfit.Space`
@@ -1873,9 +1873,9 @@ class Space(BaseSpace):
 
         Args:
             rect_limits:
-            axes ():
-            limits ():
-            name (str):
+            axes:
+            limits:
+            name:
 
         Returns:
             :py:class:`~zfit.Space`
@@ -1939,7 +1939,7 @@ def add_spaces(*spaces: Iterable["ZfitSpace"], name=None):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
-        spaces (Iterable[:py:class:`~zfit.Space`]):
+        spaces:
 
     Returns:
         Union[None, :py:class:`~zfit.Space`, bool]:
@@ -1967,7 +1967,7 @@ def combine_spaces(*spaces: Iterable[Space]):
     is not unambiguous and `False` is returned
 
     Args:
-        spaces (List[:py:class:`~zfit.Space`]):
+        spaces:
 
     Returns:
         `zfit.Space` or False: Returns False if the limits don't coincide in one or more obs. Otherwise
@@ -2593,7 +2593,7 @@ class MultiSpace(BaseSpace):
 
 
         Args:
-            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.
+            overwrite: If axes are already set, replace the axes with the autofilled ones.
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
@@ -2619,8 +2619,8 @@ class MultiSpace(BaseSpace):
         """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
-            obs (str, Tuple[str]): Observables of the subspace to return.
-            axes (int, Tuple[int]): Axes of the subspace to return.
+            obs: Observables of the subspace to return.
+            axes: Axes of the subspace to return.
             name: Human readable names
 
         Returns:
@@ -2680,14 +2680,14 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
     """Convert *limits* to a :py:class:`~zfit.Space` object if not already None or False.
 
     Args:
-        obs (Union[Tuple[float, float], :py:class:`~zfit.Space`]):
-        limits ():
-        axes ():
-        overwrite_limits (bool): If `obs` or `axes` is a :py:class:`~zfit.Space` _and_ `limits` are given, return an instance
+        obs:
+        limits:
+        axes:
+        overwrite_limits: If `obs` or `axes` is a :py:class:`~zfit.Space` _and_ `limits` are given, return an instance
             of :py:class:`~zfit.Space` with the new limits. If the flag is `False`, the `limits` argument will be
             ignored if
-        one_dim_limits_only (bool):
-        simple_limits_only (bool):
+        one_dim_limits_only:
+        simple_limits_only:
 
     Returns:
         Union[:py:class:`~zfit.Space`, False, None]:
@@ -2801,8 +2801,8 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
     be catched by an earlier function that knows how to handle things.
 
     Args:
-        norm_range (bool): If False, no norm_range argument will be passed through resp. will be `None`
-        multiple_limits (bool): If False, only simple limits are to be expected and no iteration is
+        norm_range: If False, no norm_range argument will be passed through resp. will be `None`
+        multiple_limits: If False, only simple limits are to be expected and no iteration is
             therefore required.
     """
     decorator_stack = []
@@ -2849,7 +2849,7 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
     This function is useful to check if several spaces with *different* observables can be _combined_.
 
     Args:
-        spaces (List[zfit.Space]):
+        spaces:
 
     Returns:
         bool:
@@ -2866,7 +2866,7 @@ def add_spaces_old(spaces: Iterable["zfit.Space"]):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
-        spaces (Iterable[:py:class:`~zfit.Space`]):
+        spaces:
 
     Returns:
         Union[None, :py:class:`~zfit.Space`, bool]:

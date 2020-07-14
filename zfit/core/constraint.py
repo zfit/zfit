@@ -30,9 +30,9 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
         """Base class for constraints.
 
         Args:
-            dtype (DType): the dtype of the constraint
-            name (str): the name of the constraint
-            params (Dict(str, :py:class:`~zfit.Parameter`)): A dictionary with the internal name of the
+            dtype: the dtype of the constraint
+            name: the name of the constraint
+            params: A dictionary with the internal name of the
                 parameter and the parameters itself the constrains depends on
         """
         super().__init__(name=name, dtype=dtype, params=params, **kwargs)
@@ -80,10 +80,10 @@ class ProbabilityConstraint(BaseConstraint):
         """Base class for constraints using a probability density function.
 
         Args:
-            dtype (DType): the dtype of the constraint
-            name (str): the name of the constraint
-            params (list(zfit.Parameter)): The parameters to constraint
-            observation (list(numerical) or list(zfit.Parameter)): Observed values of the parameter
+            dtype: the dtype of the constraint
+            name: the name of the constraint
+            params: The parameters to constraint
+            observation: Observed values of the parameter
                 to constraint obtained from auxiliary measurements.
         """
 
@@ -124,7 +124,7 @@ class ProbabilityConstraint(BaseConstraint):
         """Sample `n` points from the probability density function for the observed value of the parameters.
 
         Args:
-            n (int, tf.Tensor): The number of samples to be generated.
+            n: The number of samples to be generated.
         Returns:
             Dict(Parameter: n_samples)
         """
@@ -149,7 +149,7 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         """ Base class for constraints using a probability density function from `tensorflow_probability`.
 
         Args:
-            distribution (`tensorflow_probability.distributions.Distribution`): The probability density function
+            distribution: The probability density function
                 used to constraint the parameters
 
         """

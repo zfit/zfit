@@ -217,7 +217,7 @@ class Coordinates(ZfitOrderableDimensional):
 
 
         Args:
-            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.
+            overwrite: If axes are already set, replace the axes with the autofilled ones.
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
@@ -297,7 +297,7 @@ class Coordinates(ZfitOrderableDimensional):
         Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
 
         Args:
-            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes
+            x: Tensor to be reordered, last dimension should be n_obs resp. n_axes
             x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
                 latter.
             x_axes: Axes associated with x.

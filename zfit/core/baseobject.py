@@ -21,7 +21,7 @@ _COPY_DOCSTRING = """Creates a copy of the {zfit_type}.
         initialization arguments.
 
         Args:
-          name (str):
+          name:
           **overwrite_parameters: String/value dictionary of initialization
             arguments to override with new value.
 

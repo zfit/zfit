@@ -544,7 +544,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         manager.
 
         Args:
-            value (float): The value the parameter will take on.
+            value: The value the parameter will take on.
         """
         super_assign = super().assign
 
@@ -563,9 +563,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
 
         Args:
-            minval (Numerical): The lower bound of the sampler. If not given, `lower_limit` is used.
-            maxval (Numerical): The upper bound of the sampler. If not given, `upper_limit` is used.
-            sampler (): A sampler with the same interface as `tf.random.uniform`
+            minval: The lower bound of the sampler. If not given, `lower_limit` is used.
+            maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
+            sampler: A sampler with the same interface as `tf.random.uniform`
 
         Returns:
             The sampled value

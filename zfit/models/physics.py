@@ -181,17 +181,15 @@ class CrystalBall(BasePDF):
             B = \\frac{n}{\\left| \\alpha \\right|}  - \\left| \\alpha \\right|
 
         Args:
-            mu (`zfit.Parameter`): The mean of the gaussian
-            sigma (`zfit.Parameter`): Standard deviation of the gaussian
-            alpha (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail
-            n (`zfit.Parameter`): Exponent of the powertail
-            obs (:py:class:`~zfit.Space`):
-            name (str):
-            dtype (tf.DType):
+            mu: The mean of the gaussian
+            sigma: Standard deviation of the gaussian
+            alpha: parameter where to switch from a gaussian to the powertail
+            n: Exponent of the powertail
+            obs:
+            name:
+            dtype:
 
         .. _CBShape: https://en.wikipedia.org/wiki/Crystal_Ball_function
-
-        __CBShape_
         """
         params = {'mu': mu,
                   'sigma': sigma,
@@ -243,17 +241,17 @@ class DoubleCB(BasePDF):
             B_{L/R} = \\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}  - \\left| \\alpha_{L/R} \\right|
 
         Args:
-            mu (`zfit.Parameter`): The mean of the gaussian
-            sigma (`zfit.Parameter`): Standard deviation of the gaussian
-            alphal (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail on the left
+            mu: The mean of the gaussian
+            sigma: Standard deviation of the gaussian
+            alphal: parameter where to switch from a gaussian to the powertail on the left
             side
-            nl (`zfit.Parameter`): Exponent of the powertail on the left side
-            alphar (`zfit.Parameter`): parameter where to switch from a gaussian to the powertail on the right
+            nl: Exponent of the powertail on the left side
+            alphar: parameter where to switch from a gaussian to the powertail on the right
             side
-            nr (`zfit.Parameter`): Exponent of the powertail on the right side
-            obs (:py:class:`~zfit.Space`):
-            name (str):
-            dtype (tf.DType):
+            nr: Exponent of the powertail on the right side
+            obs:
+            name:
+            dtype:
         """
         params = {'mu': mu,
                   'sigma': sigma,

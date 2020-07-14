@@ -80,7 +80,7 @@ def _BasePDF_register_check_support(has_support: bool):
     """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
 
     Args:
-        has_support (bool): If True, flags that it **requires** the `@supports` decorator. If False,
+        has_support: If True, flags that it **requires** the `@supports` decorator. If False,
             flags that the `@supports` decorator is **not allowed**.
 
     """
@@ -91,7 +91,7 @@ def _BasePDF_register_check_support(has_support: bool):
         """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
 
         Args:
-            func (function):
+            func:
 
         Returns:
             function:
@@ -160,7 +160,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Set the normalization range (temporarily if used with contextmanager).
 
         Args:
-            norm_range (tuple, :py:class:`~zfit.Space`):
+            norm_range:
 
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range)
@@ -195,7 +195,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
-            limits (tuple, :py:class:`~zfit.Space`): The limits on where to normalize over
+            limits: The limits on where to normalize over
 
         Returns:
             Tensor: the normalization value
@@ -227,8 +227,8 @@ class BasePDF(ZfitPDF, BaseModel):
         """PDF "unnormalized". Use `functions` for unnormalized pdfs. this is only for performance in special cases.
 
         Args:
-            x (numerical): The value, have to be convertible to a Tensor
-            component_norm_range (:py:class:`~zfit.Space`): The normalization range for the components. Needed for
+            x: The value, have to be convertible to a Tensor
+            component_norm_range: The normalization range for the components. Needed for
             certain composition
                 pdfs.
 
@@ -259,8 +259,8 @@ class BasePDF(ZfitPDF, BaseModel):
         """Probability density function scaled by yield, normalized over `norm_range`.
 
         Args:
-          x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+          x: `float` or `double` `Tensor`.
+          norm_range: :py:class:`~zfit.Space` to normalize over
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
@@ -274,8 +274,8 @@ class BasePDF(ZfitPDF, BaseModel):
         """Log of probability density function scaled by yield, normalized over `norm_range`.
 
         Args:
-          x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+          x: `float` or `double` `Tensor`.
+          norm_range: :py:class:`~zfit.Space` to normalize over
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
@@ -294,8 +294,8 @@ class BasePDF(ZfitPDF, BaseModel):
         """Probability density function, normalized over `norm_range`.
 
         Args:
-          x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+          x: `float` or `double` `Tensor`.
+          norm_range: :py:class:`~zfit.Space` to normalize over
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
@@ -337,8 +337,8 @@ class BasePDF(ZfitPDF, BaseModel):
         """Log probability density function normalized over `norm_range`.
 
         Args:
-          x (numerical): `float` or `double` `Tensor`.
-          norm_range (tuple, :py:class:`~zfit.Space`): :py:class:`~zfit.Space` to normalize over
+          x: `float` or `double` `Tensor`.
+          norm_range: :py:class:`~zfit.Space` to normalize over
 
         Returns:
           log_pdf: a `Tensor` of type `self.dtype`.
@@ -375,8 +375,8 @@ class BasePDF(ZfitPDF, BaseModel):
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
-            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
-            norm_range (tuple, :py:class:`~zfit.ZfitSpace`): the limits to normalize over or False to integrate the
+            limits: the limits to integrate over
+            norm_range: the limits to normalize over or False to integrate the
                 unnormalized probability
 
         Returns:
@@ -401,9 +401,9 @@ class BasePDF(ZfitPDF, BaseModel):
         """If a norm_range is given, the value will be multiplied by the yield.
 
         Args:
-            value (numerical):
-            norm_range ():
-            log (bool):
+            value:
+            norm_range:
+            log:
 
         Returns:
             numerical
@@ -420,7 +420,7 @@ class BasePDF(ZfitPDF, BaseModel):
         probability density function anymore but corresponds to a number probability.
 
         Args:
-            value ():
+            value:
         """
 
         self._set_yield(value=value)
@@ -429,8 +429,8 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return an extended version of this pdf with yield `yield_`. The parameters are shared.
 
         Args:
-            yield_ (numeric, :py:class:`~zfit.Parameter`):
-            name_addition (str):
+            yield_:
+            name_addition:
 
         Returns:
             :py:class:`~zfit.core.interfaces.ZfitPDF`
@@ -514,7 +514,7 @@ class BasePDF(ZfitPDF, BaseModel):
         The new projection pdf is still fully dependent on the pdf it was created with.
 
         Args:
-            limits_to_integrate (:py:class:`~zfit.Space`):
+            limits_to_integrate:
 
         Returns:
             ZfitPDF: a pdf without the dimensions from `limits_to_integrate`.
@@ -604,7 +604,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return a `Function` with the function `model(x, norm_range=norm_range)`.
 
         Args:
-            norm_range ():
+            norm_range:
         """
         from .operations import convert_pdf_to_func  # prevent circular import
 
