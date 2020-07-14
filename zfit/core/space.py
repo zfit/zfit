@@ -331,7 +331,7 @@ class Limit(ZfitLimit):
             limit:
 
         Returns:
-            limit object, bool
+
         """
         if is_range_definition(limit):  # as the above ANY
             dtype = object
@@ -497,7 +497,7 @@ class Limit(ZfitLimit):
         If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
 
         Returns:
-            if the rectangular limits are tensors.
+            If the rectangular limits are tensors.
         """
         try:
             _ = self.rect_limits_np
@@ -511,7 +511,7 @@ class Limit(ZfitLimit):
         """If the limits have never explicitly been set to a limit or to False.
 
         Returns:
-            bool:
+
         """
         return self._rect_limits is not None
 
@@ -520,7 +520,7 @@ class Limit(ZfitLimit):
         """If the limits have been set to False, so the object on purpose does not contain limits.
 
         Returns:
-            bool:
+
         """
         return self._rect_limits is False
 
@@ -529,7 +529,7 @@ class Limit(ZfitLimit):
         """If there are limits set and they are not false.
 
         Returns:
-            bool:
+
         """
         return not (self.limits_are_false or (not self.limits_are_set))
 
@@ -576,7 +576,7 @@ class Limit(ZfitLimit):
         """Compares two Limits for equality without graph mode allowed.
 
         Returns:
-            bool:
+
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -609,7 +609,7 @@ class Limit(ZfitLimit):
 
 
         Returns:
-            result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
 
@@ -624,7 +624,7 @@ class Limit(ZfitLimit):
         This can be used to determine whether a fitting range specification can handle another limit.
 
         Returns:
-            result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -868,7 +868,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             obs:
 
         Returns:
-            type:
+
         """
         if obs is None:
             if allow_none:
@@ -976,7 +976,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
 
         Returns:
-            result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -988,7 +988,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         """Compares two Limits for equality without graph mode allowed.
 
         Returns:
-            bool:
+
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -1009,7 +1009,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
 
         Returns:
-            result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -1023,7 +1023,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         This can be used to determine whether a fitting range specification can handle another limit.
 
         Returns:
-            result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -1357,7 +1357,7 @@ class Space(BaseSpace):
         If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
 
         Returns:
-            if the rectangular limits are tensors.
+            If the rectangular limits are tensors.
         """
         try:
             _ = self.rect_limits_np
@@ -1394,7 +1394,7 @@ class Space(BaseSpace):
         """Whether there are limits set and they are not false.
 
         Returns:
-            bool:
+
         """
         return self.limits_are_set and not self.limits_are_false
 
@@ -1423,7 +1423,7 @@ class Space(BaseSpace):
         """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
 
         Returns:
-            so `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.
+            So `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.
                 low_x is the lower limit in x, up_x is the upper limit in x etc.
 
         Raises:
@@ -1440,7 +1440,7 @@ class Space(BaseSpace):
         """Simplified `.limits` for exactly 1 obs, n limits: return the tuple(low_1, ..., low_n, up_1, ..., up_n).
 
         Returns:
-            so `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.
+            So `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.
                 low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.
 
         Raises:
@@ -1555,7 +1555,7 @@ class Space(BaseSpace):
                 self.axes to be the axes of x.
 
         Returns:
-            the reordered array-like object
+            The reordered array-like object
         """
         return self.coords.reorder_x(x=x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
 
@@ -1591,7 +1591,7 @@ class Space(BaseSpace):
             is raised.
 
         Returns:
-            a copy of the object with the new ordering/observables
+            A copy of the object with the new ordering/observables
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -1643,7 +1643,7 @@ class Space(BaseSpace):
             is raised.
 
         Returns:
-            a copy of the object with the new ordering/axes
+            A copy of the object with the new ordering/axes
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
             AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
@@ -1744,7 +1744,7 @@ class Space(BaseSpace):
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
-            the object with the new axes
+            The object with the new axes
 
         Raises:
             AxesIncompatibleError: if the axes are already set and `overwrite` is False.
@@ -1851,7 +1851,7 @@ class Space(BaseSpace):
         """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
 
         Returns:
-            so :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.
+            So :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.
 
         Raises:
             RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
@@ -2381,7 +2381,7 @@ class MultiSpace(BaseSpace):
         If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
 
         Returns:
-            if the rectangular limits are tensors.
+            If the rectangular limits are tensors.
         """
         return all(space.limits_are_tensors for space in self)
 
@@ -2408,7 +2408,7 @@ class MultiSpace(BaseSpace):
         """Whether there are limits set and they are not false.
 
         Returns:
-            bool:
+
         """
         try:
             return self.limits_are_set and not self.limits_are_false
@@ -2492,7 +2492,7 @@ class MultiSpace(BaseSpace):
             is raised.
 
         Returns:
-            a copy of the object with the new ordering/observables
+            A copy of the object with the new ordering/observables
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -2534,7 +2534,7 @@ class MultiSpace(BaseSpace):
                 is raised.
 
             Returns:
-                a copy of the object with the new ordering/axes
+                A copy of the object with the new ordering/axes
             Raises:
                 CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
                 AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
@@ -2597,7 +2597,7 @@ class MultiSpace(BaseSpace):
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
-            the object with the new axes
+            The object with the new axes
 
         Raises:
             AxesIncompatibleError: if the axes are already set and `overwrite` is False.
@@ -2852,7 +2852,7 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
         spaces:
 
     Returns:
-        bool:
+
     """
     try:
         new_space = combine_spaces(*spaces)

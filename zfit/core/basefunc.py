@@ -77,7 +77,7 @@ class BaseFunc(BaseModel, ZfitFunc):
         """Create a PDF out of the function
 
         Returns:
-            a PDF with the current function as the unnormalized probability.
+            A PDF with the current function as the unnormalized probability.
         """
         from zfit.core.operations import convert_func_to_pdf
         return convert_func_to_pdf(func=self)

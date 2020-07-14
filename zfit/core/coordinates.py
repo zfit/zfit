@@ -95,7 +95,7 @@ class Coordinates(ZfitOrderableDimensional):
             is raised.
 
         Returns:
-            a copy of the object with the new ordering/observables
+            A copy of the object with the new ordering/observables
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -163,7 +163,7 @@ class Coordinates(ZfitOrderableDimensional):
             is raised.
 
         Returns:
-            a copy of the object with the new ordering/axes
+            A copy of the object with the new ordering/axes
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
             AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
@@ -221,7 +221,7 @@ class Coordinates(ZfitOrderableDimensional):
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
-            the object with the new axes
+            The object with the new axes
 
         Raises:
             AxesIncompatibleError: if the axes are already set and `overwrite` is False.
@@ -308,7 +308,7 @@ class Coordinates(ZfitOrderableDimensional):
                 self.axes to be the axes of x.
 
         Returns:
-            the reordered array-like object
+            The reordered array-like object
         """
 
         x_reorder = x_obs is not None or x_axes is not None

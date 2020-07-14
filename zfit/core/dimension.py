@@ -65,7 +65,7 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
             `allow_exact_match` is True.
 
     Returns:
-        if there are overlapping limits.
+        If there are overlapping limits.
     """
     # TODO(Mayou36): add approx comparison global in zfit
     eps = 1e-8  # epsilon for float comparisons
@@ -160,7 +160,7 @@ def obs_subsets(dimensionals: Iterable[ZfitDimensional]) -> Dict[Set[str], ZfitD
         dimensionals: An Iterable containing two or more ZfitDimensional that should be split into the smallest subset.
 
     Returns:
-        dict with the keys being sets of observables and the values, an iterable, containing the ZfitDimensional
+        Dict with the keys being sets of observables and the values, an iterable, containing the ZfitDimensional
     """
     obs_dims = {}
     for dim in dimensionals:

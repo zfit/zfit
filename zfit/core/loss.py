@@ -32,7 +32,7 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
         fit_range:
 
     Returns:
-        the unbinned nll
+        The unbinned nll
 
     Raises:
         ValueError: if both `probs` and `log_probs` are specified.

@@ -262,7 +262,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             name:
 
         Returns:
-            zfit.Data:
+
         """
 
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, 'numpy')):
@@ -283,7 +283,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             name:
 
         Returns:
-            zfit.core.Data:
+
         """
         # dataset = LightDataset.from_tensor(tensor=tensor)
         if dtype is None:

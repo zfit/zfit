@@ -443,11 +443,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
     @property
     def has_limits(self) -> bool:
-        """If the parameter has limits set or not
+        """If the parameter has limits set or not."""
 
-        Returns:
-            bool
-        """
         no_limits = self._lower_limit is None and self._upper_limit is None
         return not no_limits
 

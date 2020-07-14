@@ -184,7 +184,7 @@ class FitResult(ZfitResult):
         """The estimated distance to the minimum.
 
         Returns:
-            numeric
+            Numeric
         """
         return self._edm
 
@@ -202,7 +202,7 @@ class FitResult(ZfitResult):
         """Function value at the minimum.
 
         Returns:
-            numeric
+            Numeric
         """
         return self._fmin
 

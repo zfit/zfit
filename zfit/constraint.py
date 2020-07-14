@@ -18,7 +18,7 @@ def nll_gaussian(params: ztyping.ParamTypeInput, observation: ztyping.NumericalS
         uncertainty: Uncertainties or covariance/error
             matrix of the observed values. Can either be a single value, a list of values, an array or a tensor
     Returns:
-        the constraint object
+        The constraint object
     Raises:
         ShapeIncompatibleError: if params, mu and sigma don't have the same size
     """

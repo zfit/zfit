@@ -73,7 +73,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
             is raised.
 
         Returns:
-            a copy of the object with the new ordering/observables
+            A copy of the object with the new ordering/observables
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -113,7 +113,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
                 is raised.
 
             Returns:
-                a copy of the object with the new ordering/axes
+                A copy of the object with the new ordering/axes
 
             Raises:
                 CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -146,7 +146,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
-            the object with the new axes
+            The object with the new axes
 
         Raises:
             AxesIncompatibleError: if the axes are already set and `overwrite` is False.
@@ -184,7 +184,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
                 self.axes to be the axes of x.
 
         Returns:
-            the reordered array-like object
+            The reordered array-like object
         """
         raise NotImplementedError
 
@@ -354,7 +354,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
 
         Returns:
-            if the rectangular limits are tensors.
+            If the rectangular limits are tensors.
         """
         raise NotImplementedError
 
@@ -371,21 +371,13 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def limits_are_false(self) -> bool:
-        """If the limits have been set to False, so the object on purpose does not contain limits.
-
-        Returns:
-            bool:
-        """
+        """Returns if the limits have been set to False, so the object on purpose does not contain limits."""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def has_limits(self) -> bool:
-        """Whether there are limits set and they are not false.
-
-        Returns:
-            bool:
-        """
+        """Whether there are limits set and they are not false."""
         raise NotImplementedError
 
     # TODO: remove from API?
@@ -420,7 +412,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
 
         Returns:
-            result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -429,9 +421,6 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @abstractmethod
     def __eq__(self, other: object) -> bool:
         """Compares two Limits for equality without graph mode allowed.
-
-        Returns:
-            bool:
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -454,7 +443,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
             allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
 
         Returns:
-            result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
 
@@ -468,7 +457,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         This can be used to determine whether a fitting range specification can handle another limit.
 
         Returns:
-            result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -719,11 +708,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
     @property
     @abstractmethod
     def has_limits(self) -> bool:
-        """If the parameter has limits set or not
-
-        Returns:
-            bool
-        """
+        """If the parameter has limits set or not."""
         raise NotImplementedError
 
     @property
@@ -747,7 +732,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         If the step size is not set, the `DEFAULT_STEP_SIZE` is used.
 
         Returns:
-            the step size
+            The step size
         """
         raise NotImplementedError
 
@@ -818,7 +803,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
             name:
 
         Returns:
-            the integral value
+            The integral value
         """
         raise NotImplementedError
 
@@ -856,7 +841,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
             norm_range: the limits to normalize over. Has to have all axes
 
         Returns:
-            the value of the partially integrated function evaluated at `x`.
+            The value of the partially integrated function evaluated at `x`.
         """
         raise NotImplementedError
 

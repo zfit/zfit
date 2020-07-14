@@ -69,7 +69,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
         importance_sampling:
 
     Returns:
-        the integral
+        The integral
     """
     if axes is not None and n_axes is not None:
         raise ValueError("Either specify axes or n_axes")

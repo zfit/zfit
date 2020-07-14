@@ -67,7 +67,7 @@ def check_numerics(tensor: Any, message: Any, name: Any = None):
         name:
 
     Returns:
-        tensorflow.python.framework.ops.Tensor:
+
     """
     if tensor.dtype in (tf.complex64, tf.complex128):
         real_check = tf.debugging.check_numerics(tensor=tf.math.real(tensor), message=message, name=name)

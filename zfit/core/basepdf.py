@@ -94,7 +94,7 @@ def _BasePDF_register_check_support(has_support: bool):
             func:
 
         Returns:
-            function:
+            Function:
         """
         name = func.__name__
         _BasePDF_USER_IMPL_METHODS_TO_CHECK[name] = has_support
@@ -198,7 +198,7 @@ class BasePDF(ZfitPDF, BaseModel):
             limits: The limits on where to normalize over
 
         Returns:
-            the normalization value
+            The normalization value
         """
         limits = self._check_input_limits(limits=limits)
 
@@ -341,7 +341,7 @@ class BasePDF(ZfitPDF, BaseModel):
           norm_range: :py:class:`~zfit.Space` to normalize over
 
         Returns:
-          a `Tensor` of type `self.dtype`.
+          A `Tensor` of type `self.dtype`.
         """
         norm_range = self._check_input_norm_range(norm_range)
         with self._convert_sort_x(x) as x:
@@ -380,7 +380,7 @@ class BasePDF(ZfitPDF, BaseModel):
                 unnormalized probability
 
         Returns:
-            the integral value as a scalar with shape ()
+            The integral value as a scalar with shape ()
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -406,7 +406,7 @@ class BasePDF(ZfitPDF, BaseModel):
             log:
 
         Returns:
-            numerical
+            Numerical
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
@@ -461,7 +461,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Flag to tell whether the model is extended or not.
 
         Returns:
-            bool:
+            A boolean.
         """
         return self._yield is not None
 
@@ -484,7 +484,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the yield (only for extended models).
 
         Returns:
-            the yield of the current model or None
+            The yield of the current model or None
         """
         # if not self.is_extended:
         #     raise zexception.ExtendedPDFError("PDF is not extended, cannot get yield.")
@@ -517,7 +517,7 @@ class BasePDF(ZfitPDF, BaseModel):
             limits_to_integrate:
 
         Returns:
-            a pdf without the dimensions from `limits_to_integrate`.
+            A pdf without the dimensions from `limits_to_integrate`.
         """
         from ..models.special import SimpleFunctorPDF
 

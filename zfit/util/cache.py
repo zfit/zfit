@@ -243,7 +243,7 @@ class FunctionCacheHolder(GraphCachable):
             kwargs: dict-like
 
         Returns:
-            tuple
+
         """
         # is initialized before the core
         from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
