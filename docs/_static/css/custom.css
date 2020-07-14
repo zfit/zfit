@@ -1,0 +1,23 @@
+/* This line is theme specific - it includes the base theme CSS */
+@import 'index.css';
+
+#navbar-main {
+    background-color: #2C3E50!important;
+}
+
+.navbar-brand>.logo {
+    filter: drop-shadow(1px 1px 0px #ffffff88);
+}
+
+.nav-link {
+    color: #ffffff88!important;
+}
+
+.navbar-nav>.active>.nav-link {
+    font-weight: 600;
+    color: #CB5628!important;
+}
+
+i.fa-github-square:before {
+    color: #ffffff88;
+}
