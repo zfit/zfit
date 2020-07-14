@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pdf &#8212; zfit 0.5.4.dev19+ge8b7216 documentation</title>
+    <title>pdf &#8212; zfit 0.5.4.dev20+g5e9a77e documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev19</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev20</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -911,6 +911,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.BaseFunctor.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.BaseFunctor.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.BaseFunctor.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.BaseFunctor.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1562,6 +1578,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.BasePDF.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/basepdf.html#BasePDF.set_yield"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.pdf.BasePDF.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -2238,6 +2270,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.Cauchy.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.Cauchy.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -2933,6 +2981,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.Chebyshev.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.Chebyshev.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.Chebyshev.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.Chebyshev.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -3623,6 +3687,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.Chebyshev2.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.Chebyshev2.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.Chebyshev2.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.Chebyshev2.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -4299,6 +4379,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.CrystalBall.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.CrystalBall.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -4993,6 +5089,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.DoubleCB.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.DoubleCB.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.DoubleCB.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.DoubleCB.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -5657,6 +5769,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.Exponential.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.Exponential.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -6336,6 +6464,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.Gauss.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.Gauss.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -7022,6 +7166,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.GaussianKDE1DimV1.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.GaussianKDE1DimV1.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -7717,6 +7877,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.Hermite.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.Hermite.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.Hermite.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.Hermite.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -8402,6 +8578,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.Laguerre.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.Laguerre.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -9096,6 +9288,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.Legendre.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.Legendre.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.Legendre.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.Legendre.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -9763,6 +9971,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.ProductPDF.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.ProductPDF.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -10448,6 +10672,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.RecursivePolynomial.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.RecursivePolynomial.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.RecursivePolynomial.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.RecursivePolynomial.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -11120,6 +11360,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.SimpleFunctorPDF.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.SimpleFunctorPDF.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.SimpleFunctorPDF.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.SimpleFunctorPDF.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -11771,6 +12027,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.SimplePDF.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.SimplePDF.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -12486,6 +12758,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.SumPDF.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.SumPDF.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.SumPDF.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.SumPDF.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -13155,6 +13443,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.TruncatedGauss.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.TruncatedGauss.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -13832,6 +14136,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.Uniform.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.Uniform.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.Uniform.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.Uniform.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -14494,6 +14814,22 @@ or a valid string. Currently implemented:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.pdf.WrapDistribution.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.WrapDistribution.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.pdf.WrapDistribution.space">
 <em class="property">property </em><code class="sig-name descname">space</code><a class="headerlink" href="#zfit.pdf.WrapDistribution.space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -15145,6 +15481,22 @@ or a valid string. Currently implemented:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>norm_range</strong> (tuple, <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.pdf.ZPDF.set_yield">
+<code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.pdf.ZPDF.set_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the model extended by setting a yield.</p>
+<p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
+continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
+respecetively that is multiplied by the yield.</p>
+<p>These can be useful for plotting and for binned likelihoods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>value</em>) – </p>
 </dd>
 </dl>
 </dd></dl>

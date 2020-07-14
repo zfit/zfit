@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.core.basepdf &#8212; zfit 0.5.4.dev19+ge8b7216 documentation</title>
+    <title>zfit.core.basepdf &#8212; zfit 0.5.4.dev20+g5e9a77e documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev19</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev20</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -728,6 +728,22 @@
         <span class="n">new_pdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name_addition</span><span class="p">))</span>
         <span class="n">new_pdf</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">yield_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_pdf</span></div>
+
+<div class="viewcode-block" id="BasePDF.set_yield"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.core.basepdf.BasePDF.set_yield">[docs]</a>    <span class="k">def</span> <span class="nf">set_yield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Make the model extended by setting a yield.</span>
+
+<span class="sd">        This does not alter the general behavior of the PDF. The `pdf` and `integrate` and similar methods will</span>
+<span class="sd">        continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed</span>
+<span class="sd">        via `get_yield`, the methods `ext_pdf` and `ext_integral` provide a version of `pdf` and `integrate`</span>
+<span class="sd">        respecetively that is multiplied by the yield.</span>
+
+<span class="sd">        These can be useful for plotting and for binned likelihoods.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_yield</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_set_yield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
