@@ -39,7 +39,7 @@ def nth_pow(x, n, name=None):
 
     Args:
         x:
-        n: Power
+        n: Power of x, has to be a positive int
         name: No effect, for API compatibility with tf.pow
     """
     if not n >= 0:
