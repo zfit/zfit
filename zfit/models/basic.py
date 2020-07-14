@@ -9,12 +9,12 @@ import math as mt
 
 import numpy as np
 import tensorflow as tf
-from zfit import z
 
+from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.space import Space, ANY_LOWER, ANY_UPPER
 from ..util import ztyping
-from ..util.exception import AnalyticIntegralNotImplementedError
+from ..util.exception import AnalyticIntegralNotImplementedError, BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 
 infinity = mt.inf
@@ -45,21 +45,25 @@ CustomGaussOLD.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
 class Exponential(BasePDF):
     _N_OBS = 1
 
-    def __init__(self, lambda_, obs: ztyping.ObsTypeInput, name: str = "Exponential",
-                 **kwargs):
+    def __init__(self, lam=None, obs: ztyping.ObsTypeInput = None, name: str = "Exponential", lambda_=None):
         """Exponential function exp(lambda * x).
 
         The function is normalized over a finite range and therefore a pdf. So the PDF is precisely
         defined as :math:`\\frac{ e^{\\lambda \\cdot x}}{ \\int_{lower}^{upper} e^{\\lambda \\cdot x} dx}`
 
         Args:
-            lambda_ (:py:class:`~zfit.Parameter`): Accessed as parameter "lambda".
+            lam (:py:class:`~zfit.Parameter`): Accessed as parameter "lambda".
             obs (:py:class:`~zfit.Space`): The :py:class:`~zfit.Space` the pdf is defined in.
             name (str): Name of the pdf.
             dtype (DType):
         """
-        params = {'lambda': lambda_}
-        super().__init__(obs, name=name, params=params, **kwargs)
+        if lambda_ is not None:
+            if lam is None:
+                lam = lambda_
+            else:
+                raise BreakingAPIChangeError("The 'lambda' parameter has been renamed from 'lambda_' to 'lam'.")
+        params = {'lambda': lam}
+        super().__init__(obs, name=name, params=params)
 
         self._calc_numerics_data_shift = lambda: z.constant(0.)
 

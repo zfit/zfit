@@ -412,7 +412,7 @@ class BasePDF(ZfitPDF, BaseModel):
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    @invalidate_graph
+    @deprecated(None, "Use the public `set_yield` instead.")
     def _set_yield_inplace(self, value: Union[ZfitParameter, float, None]):
         """Make the model extended by setting a yield.
 
@@ -450,7 +450,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def set_yield(self, value):
 
-        """Make the model extended by setting a yield.
+        """Make the model extended by setting a yield. If possible, prefer to use `create_extended`.
 
         This does not alter the general behavior of the PDF. The `pdf` and `integrate` and similar methods will
         continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
@@ -575,9 +575,9 @@ class BasePDF(ZfitPDF, BaseModel):
             # HACK END
 
             parameters = dict(self.params)
-            lambda_ = parameters.pop('lambda', None)
-            if lambda_ is not None:
-                parameters['lambda_'] = lambda_
+            lam = parameters.pop('lambda', None)
+            if lam is not None:
+                parameters['lam'] = lam
 
         if type(self) == GaussianKDE1DimV1:
             parameters['data'] = self._original_data

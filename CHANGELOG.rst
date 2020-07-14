@@ -22,6 +22,9 @@ Bug fixes and small changes
 ---------------------------
 - ncalls is not correctly using the internal heuristc or the ncalls explicitly
 - `minimize(params=...)` automatically extracts independent parameters.
+- fix copy issue of KDEV1 and change name to 'adaptive' (instead of 'adaptiveV1')
+- change exp name of `lambda_` to lam (in init)
+- add `set_yield` to BasePDF to allow setting the yield in place
 
 Experimental
 ------------
