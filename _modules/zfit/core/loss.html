@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.core.loss &#8212; zfit 0.5.4.dev25+g92364e8 documentation</title>
+    <title>zfit.core.loss &#8212; zfit 0.5.4.dev26+gc03a904 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev25</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev26</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -455,11 +455,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_cache_deps</span><span class="p">(</span><span class="n">cache_deps</span><span class="o">=</span><span class="n">fit_range</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fit_range</span>
 
-<div class="viewcode-block" id="BaseLoss.gradients"><a class="viewcode-back" href="../../../full_api/zfit.loss.html#zfit.core.loss.BaseLoss.gradients">[docs]</a>    <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_input_check_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cache_deps</span><span class="p">())</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="n">convert_to_container</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">params</span>
+
+<div class="viewcode-block" id="BaseLoss.gradients"><a class="viewcode-back" href="../../../full_api/zfit.loss.html#zfit.core.loss.BaseLoss.gradients">[docs]</a>    <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BaseLoss.add_constraints"><a class="viewcode-back" href="../../../full_api/zfit.loss.html#zfit.core.loss.BaseLoss.add_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">add_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="p">):</span>
@@ -536,6 +540,7 @@
         <span class="k">return</span> <span class="n">gradients</span>
 
 <div class="viewcode-block" id="BaseLoss.value_gradients"><a class="viewcode-back" href="../../../full_api/zfit.loss.html#zfit.core.loss.BaseLoss.value_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">value_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_gradients</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_value_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
@@ -547,6 +552,7 @@
 
 <div class="viewcode-block" id="BaseLoss.value_gradients_hessian"><a class="viewcode-back" href="../../../full_api/zfit.loss.html#zfit.core.loss.BaseLoss.value_gradients_hessian">[docs]</a>    <span class="k">def</span> <span class="nf">value_gradients_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span> <span class="n">hessian</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">numerical</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;numerical_grad&#39;</span><span class="p">]</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_gradients_hessian</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">hessian</span><span class="o">=</span><span class="n">hessian</span><span class="p">,</span> <span class="n">numerical</span><span class="o">=</span><span class="n">numerical</span><span class="p">)</span>
 
