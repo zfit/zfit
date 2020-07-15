@@ -6,7 +6,7 @@
 Scalable pythonic fitting
 =========================
 
-.. |zfit_logo| image:: images/zfit-fin_400x168.png
+.. |zfit_logo| image:: images/zfit-logo_400x168.png
    :target: https://github.com/zfit/zfit
    :alt: zfit logo
 
