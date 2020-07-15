@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.models.basic &#8212; zfit 0.5.4.dev21+gcdd76d7 documentation</title>
+    <title>zfit.models.basic &#8212; zfit 0.5.4.dev23+g99a4790 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev21</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev23</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -291,6 +291,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">import</span> <span class="nn">zfit.z.math</span>
 <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
 <span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="kn">import</span> <span class="n">BasePDF</span>
 <span class="kn">from</span> <span class="nn">..core.space</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">ANY_UPPER</span>
@@ -478,7 +479,7 @@
     <span class="n">lambd</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;lambda&#39;</span><span class="p">]</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_shift_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lambd</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">lambd</span></div>
+    <span class="k">return</span> <span class="n">zfit</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lambd</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">lambd</span></div>
 
 
 <span class="c1"># Exponential.register_inverse_analytic_integral(exp_icdf)  # TODO: register icdf for exponential</span>
