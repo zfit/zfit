@@ -7,6 +7,7 @@ Definition of minimizers, wrappers etc.
 import abc
 import collections
 import copy
+import warnings
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import List, Union, Iterable, Mapping
@@ -19,6 +20,7 @@ from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
+from ..util.container import convert_to_container
 from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError
 
 
@@ -81,8 +83,9 @@ class PushbackStrategy(BaseStrategy):
 
         The counter indicates how many NaNs occurred in a row. The `nan_tolerance` is the upper limit, if this is
         exceeded, the fallback will be used and an error is raised.
+
         Args:
-            nan_penalty: Value to add to the previous loss in order to penalize the step taken
+            nan_penalty: Value to add to the previous loss in order to penalize the step taken.
             nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.
         """
         super().__init__(**kwargs)
@@ -97,7 +100,7 @@ class PushbackStrategy(BaseStrategy):
             last_loss = values.get('old_loss')
             if last_loss is not None:
 
-                loss_evaluated = last_loss + self.nan_penalty * nan_counter
+                loss_evaluated = last_loss + self.nan_penalty*nan_counter
             else:
                 loss_evaluated = values.get('loss')
             return loss_evaluated
@@ -109,18 +112,19 @@ DefaultStrategy = PushbackStrategy
 
 
 class DefaultToyStrategy(DefaultStrategy, ToyStrategyFail):
-    """Same as `DefaultStrategy`, but does not raise an error on full failure, instead return an invalid FitResult.
+    """Same as :py:class:`DefaultStrategy`, but does not raise an error on full failure, instead return an invalid
+    FitResult.
 
     This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a
-    failure instead of rising an error."""
+    failure instead of rising an error.
+    """
 
 
 class BaseMinimizer(ZfitMinimizer):
     """Minimizer for loss functions.
 
     Additional `minimizer_options` (given as **kwargs) can be accessed and changed via the
-    attribute (dict) `minimizer.minimizer_options`
-
+    attribute (dict) `minimizer.minimizer_options`.
     """
     _DEFAULT_TOLERANCE = 1e-3
 
@@ -144,30 +148,41 @@ class BaseMinimizer(ZfitMinimizer):
         self._max_steps = 5000
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
-        if isinstance(params, (str, ZfitParameter)) or (not hasattr(params, "__len__") and params is not None):
-            params = [params, ]
-            params = self._filter_floating_params(params)
-        if params is None or isinstance(params[0], str):
-            params = loss.get_cache_deps(only_floating=only_floating)
+
+        params = convert_to_container(params)
+        if params is None:
+            params = loss.get_params(only_floating=only_floating)
             params = list(params)
+        else:
+            params_indep = []
+            for param in params:
+                if param.independent:
+                    params_indep.append(param)
+                else:
+                    params_indep.extend(param.get_params(only_floating=only_floating))
+            params = params_indep
+
+        if only_floating:
+            params = self._filter_floating_params(params)
         if not params:
             raise RuntimeError("No parameter for minimization given/found. Cannot minimize.")
         return params
 
     @staticmethod
     def _filter_floating_params(params):
-        params = [param for param in params if param.floating]
-        return params
+        non_floating = [param for param in params if not param.floating]
+        if non_floating:  # legacy warning
+            warnings.warn(f"CHANGED BEHAVIOR! Non-floating parameters {non_floating} will not be used in the "
+                          f"minimization.")
+        return [param for param in params if param.floating]
 
     @staticmethod
     def _extract_load_method(params):
-        params_load = [param.load for param in params]
-        return params_load
+        return [param.load for param in params]
 
     @staticmethod
     def _extract_param_names(params):
-        names = [param.name for param in params]
-        return names
+        return [param.name for param in params]
 
     def _check_gradients(self, params, gradients):
         non_dependents = [param for param, grad in zip(params, gradients) if grad is None]
@@ -189,7 +204,7 @@ class BaseMinimizer(ZfitMinimizer):
         """Extract the current value if defined, otherwise random.
 
         Arguments:
-            params (Parameter):
+            params:
 
         Return:
             list(const): the current value of parameters
@@ -203,11 +218,11 @@ class BaseMinimizer(ZfitMinimizer):
         """Update `params` with `values`. Returns the assign op (if `use_op`, otherwise use a session to load the value.
 
         Args:
-            params (list(`ZfitParameter`)): The parameters to be updated
-            values (list(float, `np.ndarray`)): New values for the parameters.
+            params: The parameters to be updated
+            values: New values for the parameters.
 
         Returns:
-            list(empty, :py:class:`~tf.Operation`): List of assign operations if `use_op`, otherwise empty. The output
+            List of assign operations if `use_op`, otherwise empty. The output
                 can therefore be directly used as argument to :py:func:`~tf.control_dependencies`.
         """
         if len(params) == 1 and len(values) > 1:
@@ -221,7 +236,7 @@ class BaseMinimizer(ZfitMinimizer):
         """Perform a single step in the minimization (if implemented).
 
         Args:
-            params ():
+            params:
 
         Returns:
 
@@ -236,12 +251,12 @@ class BaseMinimizer(ZfitMinimizer):
         """Fully minimize the `loss` with respect to `params`.
 
         Args:
-            loss (ZfitLoss): Loss to be minimized.
-            params (list(`zfit.Parameter`): The parameters with respect to which to
+            loss: Loss to be minimized.
+            params: The parameters with respect to which to
                 minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
 
         Returns:
-            `FitResult`: The fit result.
+            The fit result.
         """
         params = self._check_input_params(loss=loss, params=params, only_floating=True)
         try:

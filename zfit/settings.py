@@ -54,6 +54,7 @@ advanced_warnings = DotDict({
     'exp_shift': True,
     'py_func_autograd': True,
     'inconsistent_fitrange': True,
+    'extended_in_UnbinnedNLL': True,
     'all': True,
 })
 

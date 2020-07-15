@@ -1,6 +1,7 @@
 #  Copyright (c) 2020 zfit
 import numpy as np
 import pytest
+import scipy.stats
 
 import zfit
 # noinspection PyUnresolvedReferences
@@ -46,3 +47,10 @@ def test_numerical_hessian(graph):
     tf_hessian_diag_from_hessian = [tf_hessian[i, i] for i in range(len(params))]
     np.testing.assert_allclose(tf_hessian_diag_from_hessian, tf_hessian_diag, rtol=1e-4, atol=1e-10)
     np.testing.assert_allclose(num_hessian_diag, tf_hessian_diag, rtol=1e-4, atol=1e-10)
+
+
+def test_reduce_geometric_mean():
+    rnd1 = np.random.poisson(1000, size=(54, 14, 3)).astype(np.float64)
+    gmean_np = scipy.stats.mstats.gmean(rnd1, axis=None)
+    gmea_z = z.math.reduce_geometric_mean(rnd1)
+    np.testing.assert_allclose(gmea_z, gmean_np)

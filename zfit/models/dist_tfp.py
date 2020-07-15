@@ -8,27 +8,20 @@ Therefore a convenient wrapper as well as a lot of implementations are provided.
 #  Copyright (c) 2020 zfit
 
 from collections import OrderedDict
-from typing import Union
 
-import numpy as np
-
+import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
-import tensorflow as tf
-
-
 
 from zfit import z
-from ..util.exception import OverdefinedError, VectorizedLimitsNotImplementedError
-from ..util import ztyping
-from ..settings import ztypes
+from zfit.util.exception import AnalyticIntegralNotImplementedError, AnalyticSamplingNotImplementedError
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitParameter, ZfitData
-from ..core.space import no_norm_range, supports
 from ..core.parameter import convert_to_parameter
-from ..core.space import Space
+from ..core.space import supports, Space
+from ..settings import ztypes
+from ..util import ztyping
 
-
+# TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
 @supports()
 def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeInput):
     """Sample analytically with a `tfd.Distribution` within the limits. No preprocessing.
@@ -39,7 +32,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
         limits: Limits to sample from within
 
     Returns:
-        `tf.Tensor` (n, n_obs): The sampled data with the number of samples and the number of observables.
+        The sampled data with the number of samples and the number of observables.
     """
     lower_bound, upper_bound = limits.rect_limits
     lower_prob_lim = dist.cdf(lower_bound)
@@ -49,7 +42,10 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     prob_sample = z.random.uniform(shape=shape, minval=lower_prob_lim,
                                    maxval=upper_prob_lim)
     prob_sample.set_shape((None, 1))
-    sample = dist.quantile(prob_sample)
+    try:
+        sample = dist.quantile(prob_sample)
+    except NotImplementedError:
+        raise AnalyticSamplingNotImplementedError
     sample.set_shape((None, limits.n_obs))
     return sample
 
@@ -93,8 +89,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
         value = z.unstack_x(x)  # TODO: use this? change shaping below?
-        probs = self.distribution.prob(value=value, name="unnormalized_pdf")
-        return probs  # TODO batch shape just removed
+        return self.distribution.prob(value=value, name="unnormalized_pdf")
 
     # TODO: register integral?
     @supports()
@@ -103,14 +98,13 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         lower = z.unstack_x(lower)
         upper = z.unstack_x(upper)
         tf.debugging.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
-        integral = self.distribution.cdf(upper) - self.distribution.cdf(lower)
-        return integral
+        return self.distribution.cdf(upper) - self.distribution.cdf(lower)
 
     def _analytic_sample(self, n, limits: Space):
         return tfd_analytic_sample(n=n, dist=self.distribution, limits=limits)
 
 
-# class KernelDensity(WrapDistribution):
+# class KernelDensityTFP(WrapDistribution):
 #
 #     def __init__(self, loc: ztyping.ParamTypeInput, scale: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
 #                  kernel: tfp.distributions.Distribution = tfp.distributions.Normal,
@@ -176,7 +170,7 @@ class Gauss(WrapDistribution):
 
     def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput, obs: ztyping.ObsTypeInput,
                  name: str = "Gauss"):
-        """Gaussian or Normal distribution with a mean (mu) and a standartdevation (sigma).
+        """Gaussian or Normal distribution with a mean (mu) and a standartdeviation (sigma).
 
         The gaussian shape is defined as
 
@@ -191,10 +185,10 @@ class Gauss(WrapDistribution):
         The normalization changes for different normalization ranges
 
         Args:
-            mu (:py:class:`~zfit.Parameter`): Mean of the gaussian dist
-            sigma (:py:class:`~zfit.Parameter`): Standard deviation or spread of the gaussian
-            obs (:py:class:`~zfit.Space`): Observables and normalization range the pdf is defined in
-            name (str): Name of the pdf
+            mu: Mean of the gaussian dist
+            sigma: Standard deviation or spread of the gaussian
+            obs: Observables and normalization range the pdf is defined in
+            name: Name of the pdf
         """
         mu, sigma = self._check_input_params(mu, sigma)
         params = OrderedDict((('mu', mu), ('sigma', sigma)))
@@ -222,10 +216,10 @@ class Uniform(WrapDistribution):
         """Uniform distribution which is constant between `low`, `high` and zero outside.
 
         Args:
-            low (:py:class:`~zfit.Parameter`): Below this value, the pdf is zero.
-            high (:py:class:`~zfit.Parameter`): Above this value, the pdf is zero.
-            obs (:py:class:`~zfit.Space`): Observables and normalization range the pdf is defined in
-            name (str): Name of the pdf
+            low: Below this value, the pdf is zero.
+            high: Above this value, the pdf is zero.
+            obs: Observables and normalization range the pdf is defined in
+            name: Name of the pdf
         """
         low, high = self._check_input_params(low, high)
         params = OrderedDict((("low", low), ("high", high)))
@@ -242,12 +236,12 @@ class TruncatedGauss(WrapDistribution):
         """Gaussian distribution that is 0 outside of `low`, `high`. Equivalent to the product of Gauss and Uniform.
 
         Args:
-            mu (:py:class:`~zfit.Parameter`): Mean of the gaussian dist
-            sigma (:py:class:`~zfit.Parameter`): Standard deviation or spread of the gaussian
-            low (:py:class:`~zfit.Parameter`): Below this value, the pdf is zero.
-            high (:py:class:`~zfit.Parameter`): Above this value, the pdf is zero.
-            obs (:py:class:`~zfit.Space`): Observables and normalization range the pdf is defined in
-            name (str): Name of the pdf
+            mu: Mean of the gaussian dist
+            sigma: Standard deviation or spread of the gaussian
+            low: Below this value, the pdf is zero.
+            high: Above this value, the pdf is zero.
+            obs: Observables and normalization range the pdf is defined in
+            name: Name of the pdf
         """
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
         params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
@@ -257,5 +251,34 @@ class TruncatedGauss(WrapDistribution):
                          obs=obs, params=params, name=name)
 
 
-if __name__ == '__main__':
-    exp1 = ExponentialTFP(tau=5., obs=['a'])
+class Cauchy(WrapDistribution):
+    _N_OBS = 1
+
+    def __init__(self,
+                 m: ztyping.ParamTypeInput,
+                 gamma: ztyping.ParamTypeInput,
+                 obs: ztyping.ObsTypeInput,
+                 name: str = "Cauchy"):
+        r"""Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.
+
+        The (unnormalized) shape of the non-relativistic Breit-Wigner is given by
+
+        .. math::
+
+            \frac{1}{\gamma \left[1 + \left(\frac{x - m}{\gamma}\right)^2\right]}
+
+        with :math:`m` the mean and :math:`\gamma` the width of the distribution.
+
+        Args:
+            m: Invariant mass of the unstable particle.
+            gamma: Width of the shape.
+            obs: Observables and normalization range the pdf is defined in
+            name: Name of the PDF
+        """
+        m, gamma = self._check_input_params(m, gamma)
+        params = OrderedDict((('m', m), ('gamma', gamma)))
+        distribution = tfp.distributions.Cauchy
+        dist_params = dict(loc=m, scale=gamma)
+        super().__init__(distribution=distribution, dist_params=dist_params,
+                         obs=obs, params=params, name=name)
+

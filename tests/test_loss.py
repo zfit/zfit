@@ -81,11 +81,12 @@ def test_extended_unbinned_nll():
     test_values = z.constant(test_values_np)
     test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
     gaussian3, mu3, sigma3, yield3 = create_gauss3ext()
-    nll_object = zfit.loss.ExtendedUnbinnedNLL(model=gaussian3,
-                                               data=test_values,
-                                               fit_range=(-20, 20))
+    nll = zfit.loss.ExtendedUnbinnedNLL(model=gaussian3,
+                                        data=test_values,
+                                        fit_range=(-20, 20))
+    assert {mu3, sigma3, yield3} == nll.get_params()
     minimizer = Minuit()
-    status = minimizer.minimize(loss=nll_object)
+    status = minimizer.minimize(loss=nll)
     params = status.params
     assert params[mu3]['value'] == pytest.approx(np.mean(test_values_np), rel=0.007)
     assert params[sigma3]['value'] == pytest.approx(np.std(test_values_np), rel=0.007)
@@ -99,13 +100,14 @@ def test_unbinned_simultaneous_nll():
     test_values2 = zfit.Data.from_tensor(obs=obs1, tensor=test_values2)
     gaussian1, mu1, sigma1 = create_gauss1()
     gaussian2, mu2, sigma2 = create_gauss2()
-    nll_object = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
-                                       data=[test_values, test_values2],
-                                       )
+    gaussian2 = gaussian2.create_extended(zfit.Parameter('yield_gauss2', 5))
+    nll = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
+                                data=[test_values, test_values2],
+                                )
     minimizer = Minuit(tolerance=1e-5)
-    status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1, mu2, sigma2])
+    status = minimizer.minimize(loss=nll, params=[mu1, sigma1, mu2, sigma2])
     params = status.params
-    assert set(nll_object.get_params()) == {mu1, mu2, sigma1, sigma2}
+    assert set(nll.get_params()) == {mu1, mu2, sigma1, sigma2}
 
     assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=0.007)
     assert params[mu2]['value'] == pytest.approx(np.mean(test_values_np2), rel=0.007)

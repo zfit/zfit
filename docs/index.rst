@@ -1,9 +1,10 @@
-================================
-zfit: scalable pythonic fitting
-================================
+:notoc:
 
 |zfit_logo|
 
+=========================
+Scalable pythonic fitting
+=========================
 
 .. |zfit_logo| image:: images/zfit-fin_400x168.png
    :target: https://github.com/zfit/zfit
@@ -33,14 +34,7 @@ Source code can be found in `our github page <https://github.com/zfit/zfit/>`_.
 .. toctree::
     :maxdepth: 2
 
-    getting_started
-    introduction
-    project
-
-.. toctree::
-    :maxdepth: 1
-
-    user_api
-
-
-
+    whats_new/index
+    getting_started/index
+    user_api/index
+    project/index
