@@ -13,6 +13,7 @@ Breaking changes
 ------------------
 - Minuit uses its own, internal gradient by default. To change this back, use `use_minuit_grad=False`
 - `minimize(params=...)` now filters correctly non-floating parameters.
+- `z.log` has been moved to `z.math.log` (following TF)
 
 Depreceations
 -------------
