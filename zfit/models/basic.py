@@ -10,6 +10,7 @@ import math as mt
 import numpy as np
 import tensorflow as tf
 
+import zfit.z.math
 from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.space import Space, ANY_LOWER, ANY_UPPER
@@ -197,7 +198,7 @@ def exp_icdf(x, params, model):
     lambd = params['lambda']
     x = z.unstack_x(x)
     x = model._shift_x(x)
-    return z.log(lambd * x) / lambd
+    return zfit.z.math.log(lambd * x) / lambd
 
 
 # Exponential.register_inverse_analytic_integral(exp_icdf)  # TODO: register icdf for exponential

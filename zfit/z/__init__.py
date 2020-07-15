@@ -41,8 +41,9 @@ Some function are already wrapped, others are not. Best practice is to use `z` w
 # noinspection PyUnresolvedReferences
 
 
-from .wrapping_tf import (log, exp, random_normal, random_uniform, convert_to_tensor, reduce_sum, reduce_prod, square,
+from .wrapping_tf import (exp, random_normal, random_uniform, convert_to_tensor, reduce_sum, reduce_prod, square,
                           sqrt, complex, check_numerics, pow)
+from .math import log
 from .zextension import function as function
 from .zextension import (to_complex, to_real, constant, pi, abs_square, nth_pow, unstack_x, stack_x, safe_where,
                          run_no_nan, function_tf_input, function_sampling, py_function)
