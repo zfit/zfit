@@ -174,11 +174,15 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self.add_cache_deps(cache_deps=fit_range)
         return pdf, data, fit_range
 
-    def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
+    def _input_check_params(self, params):
         if params is None:
-            params = list(self.get_cache_deps())
+            params = list(self.get_params())
         else:
             params = convert_to_container(params)
+        return params
+
+    def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
+        params = self._input_check_params(params)
         return self._gradients(params=params)
 
     def add_constraints(self, constraints):
@@ -255,6 +259,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return gradients
 
     def value_gradients(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor]:
+        params = self._input_check_params(params)
         return self._value_gradients(params=params)
 
     def _value_gradients(self, params):
@@ -266,6 +271,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None) -> Tuple[
         tf.Tensor, tf.Tensor, tf.Tensor]:
+        params = self._input_check_params(params)
         numerical = settings.options['numerical_grad']
         vals = self._value_gradients_hessian(params=params, hessian=hessian, numerical=numerical)
 
