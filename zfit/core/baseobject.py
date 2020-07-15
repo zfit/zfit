@@ -15,22 +15,6 @@ from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
 from ..util.container import DotDict, convert_to_container
 
-_COPY_DOCSTRING = """Creates a copy of the {zfit_type}.
-
-        Note: the copy {zfit_type} may continue to depend on the original
-        initialization arguments.
-
-        Args:
-          name:
-          **overwrite_parameters: String/value dictionary of initialization
-            arguments to override with new value.
-
-        Returns:
-          A new instance of `type(self)` initialized from the union
-            of self.parameters and override_parameters_kwargs, i.e.,
-            `dict(self.parameters, **overwrite_params)`.
-        """
-
 
 class BaseObject(ZfitObject):
 
@@ -43,8 +27,6 @@ class BaseObject(ZfitObject):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._repr = DotDict()  # TODO: make repr more sophisticated
-        # cls._repr.zfit_type = cls
-        # cls.copy.__doc__ = _COPY_DOCSTRING.format(zfit_type=cls.__name__)
 
     @property
     def name(self) -> str:

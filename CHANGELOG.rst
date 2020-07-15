@@ -11,7 +11,9 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- Minuit uses its own, internal gradient by default. To change this back, use `use_minuit_grad=False`
 - `minimize(params=...)` now filters correctly non-floating parameters.
+- `z.log` has been moved to `z.math.log` (following TF)
 
 Depreceations
 -------------
@@ -19,13 +21,19 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- ncalls is not correctly using the internal heuristc or the ncalls explicitly
 - `minimize(params=...)` automatically extracts independent parameters.
+- fix copy issue of KDEV1 and change name to 'adaptive' (instead of 'adaptiveV1')
+- change exp name of `lambda_` to lam (in init)
+- add `set_yield` to BasePDF to allow setting the yield in place
 
 Experimental
 ------------
 
 Requirement changes
 -------------------
+- upgrade to iminuit>=1.4
+- remove cloudpickle hack fix
 
 Thanks
 ------

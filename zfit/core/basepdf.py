@@ -411,7 +411,7 @@ class BasePDF(ZfitPDF, BaseModel):
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
-    @invalidate_graph
+    @deprecated(None, "Use the public `set_yield` instead.")
     def _set_yield_inplace(self, value: Union[ZfitParameter, float, None]):
         """Make the model extended by setting a yield.
 
@@ -446,6 +446,22 @@ class BasePDF(ZfitPDF, BaseModel):
         new_pdf = self.copy(name=self.name + str(name_addition))
         new_pdf._set_yield_inplace(value=yield_)
         return new_pdf
+
+    def set_yield(self, value):
+
+        """Make the model extended by setting a yield. If possible, prefer to use `create_extended`.
+
+        This does not alter the general behavior of the PDF. The `pdf` and `integrate` and similar methods will
+        continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
+        via `get_yield`, the methods `ext_pdf` and `ext_integral` provide a version of `pdf` and `integrate`
+        respecetively that is multiplied by the yield.
+
+        These can be useful for plotting and for binned likelihoods.
+
+        Args:
+            value ():
+        """
+        self._set_yield(value=value)
 
     def _set_yield(self, value: ztyping.ParamTypeInput):
         if value is None:
@@ -546,12 +562,11 @@ class BasePDF(ZfitPDF, BaseModel):
             `dict(self.parameters, **override_parameters)`.
         """
         obs = self.norm_range
-        # if obs.limits is None:
-        #     obs = self.space
 
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution
         from ..models.polynomials import RecursivePolynomial
+        from ..models.kde import GaussianKDE1DimV1
 
         if type(self) == WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = dict(distribution=self._distribution, dist_params=self.dist_params)
@@ -559,9 +574,12 @@ class BasePDF(ZfitPDF, BaseModel):
             # HACK END
 
             parameters = dict(self.params)
-            lambda_ = parameters.pop('lambda', None)
-            if lambda_ is not None:
-                parameters['lambda_'] = lambda_
+            lam = parameters.pop('lambda', None)
+            if lam is not None:
+                parameters['lam'] = lam
+
+        if type(self) == GaussianKDE1DimV1:
+            parameters['data'] = self._original_data
 
         # HACK(Mayou36): copy the polynomial correct, replace 'c_0' with coeff0/coeff_0 or similar
         if isinstance(self, RecursivePolynomial):

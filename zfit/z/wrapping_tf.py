@@ -10,11 +10,6 @@ from ..settings import ztypes
 from ..util.legacy import deprecated
 
 
-def log(x, name=None):
-    x = _auto_upcast(x)
-    return _auto_upcast(tf.math.log(x=x, name=name))
-
-
 def exp(x, name=None):
     return _auto_upcast(tf.exp(x=x, name=name))
 

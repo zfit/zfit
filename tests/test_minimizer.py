@@ -31,7 +31,7 @@ def create_loss(obs1):
     lambda_param = zfit.Parameter("lambda", -0.04, -0.5, -0.0003, step_size=0.001)
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
-    exp1 = zfit.pdf.Exponential(lambda_=lambda_param, obs=obs1)
+    exp1 = zfit.pdf.Exponential(lam=lambda_param, obs=obs1)
 
     sum_pdf1 = zfit.pdf.SumPDF([gauss1, exp1], 0.8)
     # load params for sampling

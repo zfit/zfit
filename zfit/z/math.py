@@ -7,6 +7,7 @@ import numdifftools
 import tensorflow as tf
 
 from . import function
+from .tools import _auto_upcast
 from ..settings import ztypes
 from ..util.container import convert_to_container
 
@@ -271,3 +272,8 @@ def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["z
 def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):
     log_mean = tf.reduce_mean(tf.math.log(input_tensor), axis=axis, keepdims=keepdims)
     return tf.math.exp(log_mean)
+
+
+def log(x, name=None):
+    x = _auto_upcast(x)
+    return _auto_upcast(tf.math.log(x=x, name=name))

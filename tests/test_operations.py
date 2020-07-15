@@ -54,7 +54,7 @@ def test_param_func():
     param2 = Parameter('param2', 2.)
     param3 = Parameter('param3', 3., floating=False)
     param4 = Parameter('param4', 4.)
-    a = z.log(3. * param1) * tf.square(param2) - param3
+    a = z.math.log(3. * param1) * tf.square(param2) - param3
     func = SimpleFunc(func=lambda self, x: a * x, obs=obs1)
 
     new_func = param4 * func
