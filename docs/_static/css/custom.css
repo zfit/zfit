@@ -2,15 +2,16 @@
 @import 'index.css';
 
 #navbar-main {
-    background-color: #2C3E50!important;
+    background-color: #2F4858!important;
 }
 
-.navbar-brand>.logo {
-    filter: drop-shadow(1px 1px 0px #ffffff88);
-}
+/* This is kept for reference, in case the logo needs to be adjusted in the css. */
+/*.navbar-brand>.logo {*/
+/*    filter: drop-shadow(1px 1px 0px #ffffff88);*/
+/*}*/
 
 .nav-link {
-    color: #ffffff88!important;
+    color: #ffffffcc!important;
 }
 
 .navbar-nav>.active>.nav-link {
@@ -19,5 +20,5 @@
 }
 
 i.fa-github-square:before {
-    color: #ffffff88;
+    color: #ffffffcc;
 }
