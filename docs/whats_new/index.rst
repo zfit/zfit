@@ -1,6 +1,6 @@
-==========
-What's new
-==========
+===========
+What's new?
+===========
 
 .. toctree::
     :maxdepth: 2

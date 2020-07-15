@@ -80,6 +80,8 @@ pygments_style = 'sphinx'
 # Automatically add substitutions to all RST files.
 with open('subst_types.txt') as subst_types:
     rst_epilog = subst_types.read()
+with open('hyperlinks.txt') as hyperlinks:
+    rst_epilog += hyperlinks.read()
 
 html_favicon = "images/zfit-favicon.png"
 
