@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.core.basepdf &#8212; zfit 0.5.4.dev24+g0b692da documentation</title>
+    <title>zfit.core.basepdf &#8212; zfit 0.5.4.dev25+g92364e8 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev24</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev25</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -726,7 +726,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_extended</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">AlreadyExtendedPDFError</span><span class="p">(</span><span class="s2">&quot;This PDF is already extended, cannot create an extended one.&quot;</span><span class="p">)</span>
         <span class="n">new_pdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">name_addition</span><span class="p">))</span>
-        <span class="n">new_pdf</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">yield_</span><span class="p">)</span>
+        <span class="n">new_pdf</span><span class="o">.</span><span class="n">set_yield</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">yield_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_pdf</span></div>
 
 <div class="viewcode-block" id="BasePDF.set_yield"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.core.basepdf.BasePDF.set_yield">[docs]</a>    <span class="k">def</span> <span class="nf">set_yield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -897,7 +897,7 @@
         <span class="n">yield_</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;yield&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">new_instance</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="o">**</span><span class="n">parameters</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">yield_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">new_instance</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="n">yield_</span><span class="p">)</span>
+            <span class="n">new_instance</span><span class="o">.</span><span class="n">set_yield</span><span class="p">(</span><span class="n">yield_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_instance</span></div>
 
 <div class="viewcode-block" id="BasePDF.as_func"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.core.basepdf.BasePDF.as_func">[docs]</a>    <span class="k">def</span> <span class="nf">as_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>

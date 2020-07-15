@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.models.functor &#8212; zfit 0.5.4.dev24+g0b692da documentation</title>
+    <title>zfit.models.functor &#8212; zfit 0.5.4.dev25+g92364e8 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev24</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev25</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -453,7 +453,7 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">all_extended</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fracs_cleaned</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_set_yield_inplace</span><span class="p">(</span><span class="n">sum_yields</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_yield</span><span class="p">(</span><span class="n">sum_yields</span><span class="p">)</span>
             <span class="c1"># self.set_yield(sum_yields)  # TODO(SUM): why not the public method below?</span>
 
     <span class="nd">@property</span>
