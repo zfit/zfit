@@ -5,6 +5,7 @@ from zfit.serialization.interfaces import ZfitSerializable, ZfitArranger
 
 
 class SerializationRegistry:
+    """Registry to keep a map of the default serialization path for each :py:class:`Zfit.Serializable`."""
     versions = {}
 
     def __init__(self,
@@ -13,12 +14,12 @@ class SerializationRegistry:
                  uid_arr_map: Mapping[str, ZfitArranger]):
         super().__init__()
         if version in self.versions:
-            raise KeyError(f"{version} already a defined version.")
+            raise KeyError(f"{version} already exists. Cannot create version.")
         self.versions[version] = self
-        self.uid_impl_map = bidict.bidict(uid_impl_map)
-        self.uid_arr_map = bidict.bidict(uid_arr_map)
-        self.uid_repr_map = {}
+        self.serializable_by_uid = bidict.bidict(uid_impl_map)
+        self.arranger_by_uid = bidict.bidict(uid_arr_map)
+        self.repr_by_uid = {}
 
-    def register_implementation(self, impl: ZfitSerializable, uid: str):
-        self.uid_impl_map[uid] = impl
-        self.uid_repr_map[uid] = impl.Repr
+    def register(self, serializable: ZfitSerializable, uid: str):
+        self.serializable_by_uid[uid] = serializable
+        self.repr_by_uid[uid] = serializable.Repr
