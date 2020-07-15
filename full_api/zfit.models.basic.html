@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>basic &#8212; zfit 0.5.4.dev20+g5e9a77e documentation</title>
+    <title>basic &#8212; zfit 0.5.4.dev21+gcdd76d7 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev20</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev21</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -899,7 +899,7 @@ or a valid string. Currently implemented:</p>
 <dl class="py method">
 <dt id="zfit.models.basic.CustomGaussOLD.set_yield">
 <code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.CustomGaussOLD.set_yield" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make the model extended by setting a yield.</p>
+<dd><p>Make the model extended by setting a yield. If possible, prefer to use <cite>create_extended</cite>.</p>
 <p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
 continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
 via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>
@@ -959,7 +959,7 @@ Use <cite>pdf(norm_range=False)</cite> instead</p>
 
 <dl class="py class">
 <dt id="zfit.models.basic.Exponential">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.models.basic.</code><code class="sig-name descname">Exponential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lambda_</span></em>, <em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'Exponential'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/basic.html#Exponential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.basic.Exponential" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.models.basic.</code><code class="sig-name descname">Exponential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'Exponential'</span></em>, <em class="sig-param"><span class="n">lambda_</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/models/basic.html#Exponential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.models.basic.Exponential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.basepdf.html#zfit.core.basepdf.BasePDF" title="zfit.core.basepdf.BasePDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.basepdf.BasePDF</span></code></a></p>
 <p>Exponential function exp(lambda * x).</p>
 <p>The function is normalized over a finite range and therefore a pdf. So the PDF is precisely
@@ -967,7 +967,7 @@ defined as <span class="math notranslate nohighlight">\(\frac{ e^{\lambda \cdot 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lambda</strong> (<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – Accessed as parameter “lambda”.</p></li>
+<li><p><strong>lam</strong> (<a class="reference internal" href="zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – Accessed as parameter “lambda”.</p></li>
 <li><p><strong>obs</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – The <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> the pdf is defined in.</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the pdf.</p></li>
 <li><p><strong>dtype</strong> (<em>DType</em>) – </p></li>
@@ -1584,7 +1584,7 @@ or a valid string. Currently implemented:</p>
 <dl class="py method">
 <dt id="zfit.models.basic.Exponential.set_yield">
 <code class="sig-name descname">set_yield</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.models.basic.Exponential.set_yield" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make the model extended by setting a yield.</p>
+<dd><p>Make the model extended by setting a yield. If possible, prefer to use <cite>create_extended</cite>.</p>
 <p>This does not alter the general behavior of the PDF. The <cite>pdf</cite> and <cite>integrate</cite> and similar methods will
 continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed
 via <cite>get_yield</cite>, the methods <cite>ext_pdf</cite> and <cite>ext_integral</cite> provide a version of <cite>pdf</cite> and <cite>integrate</cite>

@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.core.basepdf &#8212; zfit 0.5.4.dev20+g5e9a77e documentation</title>
+    <title>zfit.core.basepdf &#8212; zfit 0.5.4.dev21+gcdd76d7 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev20</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev21</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -693,7 +693,7 @@
         <span class="n">norm_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_norm_range</span><span class="p">(</span><span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_yield</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="n">norm_range</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">)</span></div>
 
-    <span class="nd">@invalidate_graph</span>
+    <span class="nd">@deprecated</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Use the public `set_yield` instead.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_set_yield_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;Make the model extended by setting a yield.</span>
 
@@ -731,7 +731,7 @@
 
 <div class="viewcode-block" id="BasePDF.set_yield"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.core.basepdf.BasePDF.set_yield">[docs]</a>    <span class="k">def</span> <span class="nf">set_yield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 
-        <span class="sd">&quot;&quot;&quot;Make the model extended by setting a yield.</span>
+        <span class="sd">&quot;&quot;&quot;Make the model extended by setting a yield. If possible, prefer to use `create_extended`.</span>
 
 <span class="sd">        This does not alter the general behavior of the PDF. The `pdf` and `integrate` and similar methods will</span>
 <span class="sd">        continue to return the same - normalized to 1 - values. However, not only can this parameter be accessed</span>
@@ -856,9 +856,9 @@
             <span class="c1"># HACK END</span>
 
             <span class="n">parameters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
-            <span class="n">lambda_</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;lambda&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">lambda_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;lambda_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lambda_</span>
+            <span class="n">lam</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;lambda&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;lam&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lam</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="n">GaussianKDE1DimV1</span><span class="p">:</span>
             <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_original_data</span>

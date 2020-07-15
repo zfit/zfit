@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.models.basic &#8212; zfit 0.5.4.dev20+g5e9a77e documentation</title>
+    <title>zfit.models.basic &#8212; zfit 0.5.4.dev21+gcdd76d7 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev20</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev21</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -290,12 +290,12 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
 
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
 <span class="kn">from</span> <span class="nn">..core.basepdf</span> <span class="kn">import</span> <span class="n">BasePDF</span>
 <span class="kn">from</span> <span class="nn">..core.space</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">ANY_UPPER</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">AnalyticIntegralNotImplementedError</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">AnalyticIntegralNotImplementedError</span><span class="p">,</span> <span class="n">BreakingAPIChangeError</span>
 <span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">warn_advanced_feature</span>
 
 <span class="n">infinity</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">inf</span>
@@ -326,21 +326,25 @@
 <div class="viewcode-block" id="Exponential"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.models.basic.Exponential">[docs]</a><span class="k">class</span> <span class="nc">Exponential</span><span class="p">(</span><span class="n">BasePDF</span><span class="p">):</span>
     <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lambda_</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Exponential&quot;</span><span class="p">,</span>
-                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lambda_</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Exponential function exp(lambda * x).</span>
 
 <span class="sd">        The function is normalized over a finite range and therefore a pdf. So the PDF is precisely</span>
 <span class="sd">        defined as :math:`\\frac{ e^{\\lambda \\cdot x}}{ \\int_{lower}^{upper} e^{\\lambda \\cdot x} dx}`</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            lambda_ (:py:class:`~zfit.Parameter`): Accessed as parameter &quot;lambda&quot;.</span>
+<span class="sd">            lam (:py:class:`~zfit.Parameter`): Accessed as parameter &quot;lambda&quot;.</span>
 <span class="sd">            obs (:py:class:`~zfit.Space`): The :py:class:`~zfit.Space` the pdf is defined in.</span>
 <span class="sd">            name (str): Name of the pdf.</span>
 <span class="sd">            dtype (DType):</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="n">lambda_</span><span class="p">}</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lambda_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">lam</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">lam</span> <span class="o">=</span> <span class="n">lambda_</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BreakingAPIChangeError</span><span class="p">(</span><span class="s2">&quot;The &#39;lambda&#39; parameter has been renamed from &#39;lambda_&#39; to &#39;lam&#39;.&quot;</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lambda&#39;</span><span class="p">:</span> <span class="n">lam</span><span class="p">}</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_calc_numerics_data_shift</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
 

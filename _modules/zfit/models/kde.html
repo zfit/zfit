@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.models.kde &#8212; zfit 0.5.4.dev20+g5e9a77e documentation</title>
+    <title>zfit.models.kde &#8212; zfit 0.5.4.dev21+gcdd76d7 documentation</title>
     <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 
         <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
           zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev20</b></span>
+        <span class="navbar-text pull-left"><b>0.5.4.dev21</b></span>
 
         <div class="nav-collapse">
           <ul class="nav">
@@ -340,7 +340,8 @@
     <span class="n">_bandwidth_methods</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;scott&#39;</span><span class="p">:</span> <span class="n">_bandwidth_scott_KDEV1</span><span class="p">,</span>
         <span class="s1">&#39;silverman&#39;</span><span class="p">:</span> <span class="n">_bandwidth_silverman_KDEV1</span><span class="p">,</span>
-        <span class="s1">&#39;adaptiveV1&#39;</span><span class="p">:</span> <span class="n">_adaptive_bandwidth_KDEV1</span>
+        <span class="s1">&#39;adaptiveV1&#39;</span><span class="p">:</span> <span class="n">_adaptive_bandwidth_KDEV1</span><span class="p">,</span>
+        <span class="s1">&#39;adaptive&#39;</span><span class="p">:</span> <span class="n">_adaptive_bandwidth_KDEV1</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
@@ -367,7 +368,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            data: 1-D Tensor-like. The positions of the `kernel`, the :math:`x_i`. Determines how many kernels will be created.</span>
-<span class="sd">            bandwidth: Bandwidth of the kernel. Valid options are {&#39;silverman&#39;, &#39;scott&#39;, &#39;adaptiveV1&#39;} or a numerical.</span>
+<span class="sd">            bandwidth: Bandwidth of the kernel. Valid options are {&#39;silverman&#39;, &#39;scott&#39;, &#39;adaptive&#39;} or a numerical.</span>
 <span class="sd">                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.</span>
 <span class="sd">                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.</span>
 <span class="sd">            obs: Observables</span>
@@ -411,7 +412,8 @@
             <span class="n">bandwidth</span> <span class="o">=</span> <span class="n">bw_method</span><span class="p">(</span><span class="n">constructor</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
                                   <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;INTERNAL_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">truncate</span><span class="o">=</span><span class="n">truncate</span><span class="p">)</span>
 
-        <span class="n">bandwidth_param</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span> <span class="k">if</span> <span class="n">bandwidth_param</span> <span class="o">==</span> <span class="s1">&#39;adaptiveV1&#39;</span> <span class="k">else</span> <span class="n">bandwidth</span>  <span class="c1"># TODO: multiparam for bandwidth?</span>
+        <span class="n">bandwidth_param</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span> <span class="k">if</span> <span class="n">bandwidth_param</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s1">&#39;adaptiveV1&#39;</span><span class="p">,</span> <span class="s1">&#39;adaptive&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">bandwidth</span>  <span class="c1"># TODO: multiparam for bandwidth?</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bandwidth&#39;</span><span class="p">:</span> <span class="n">bandwidth_param</span><span class="p">}</span>
 
