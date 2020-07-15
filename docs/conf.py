@@ -119,6 +119,7 @@ autoclass_content = 'both'
 autodoc_member_order = 'bysource'
 autodoc_default_options = {
     'show-inheritance': True,
+    'inherited-members': True,
 }
 autodoc_inherit_docstrings = False
 
