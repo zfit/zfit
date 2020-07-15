@@ -6,6 +6,9 @@ import tensorflow as tf
 # space
 from ordered_set import OrderedSet
 
+# The #: symbols at the end of every type alias are for marking the module level variables
+# as documented, such that sphinx will document them.
+
 LowerTypeInput = Union[tf.Tensor, np.ndarray, Tuple[float], List[float], float]  #:
 LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]  #:
 
