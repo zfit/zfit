@@ -445,7 +445,7 @@ class BasePDF(ZfitPDF, BaseModel):
         if self.is_extended:
             raise AlreadyExtendedPDFError("This PDF is already extended, cannot create an extended one.")
         new_pdf = self.copy(name=self.name + str(name_addition))
-        new_pdf._set_yield_inplace(value=yield_)
+        new_pdf.set_yield(value=yield_)
         return new_pdf
 
     def set_yield(self, value):
@@ -616,7 +616,7 @@ class BasePDF(ZfitPDF, BaseModel):
         yield_ = parameters.pop('yield', None)
         new_instance = type(self)(**parameters)
         if yield_ is not None:
-            new_instance._set_yield_inplace(yield_)
+            new_instance.set_yield(yield_)
         return new_instance
 
     def as_func(self, norm_range: ztyping.LimitsType = False):

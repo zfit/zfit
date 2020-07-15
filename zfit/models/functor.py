@@ -172,7 +172,7 @@ class SumPDF(BaseFunctor):
 
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
         if all_extended and not fracs_cleaned:
-            self._set_yield_inplace(sum_yields)
+            self.set_yield(sum_yields)
             # self.set_yield(sum_yields)  # TODO(SUM): why not the public method below?
 
     @property
