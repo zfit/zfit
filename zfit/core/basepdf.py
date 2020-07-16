@@ -580,6 +580,9 @@ class BasePDF(ZfitPDF, BaseModel):
                 parameters['lam'] = lam
 
         if type(self) == GaussianKDE1DimV1:
+            raise RuntimeError("Cannot copy `GaussianKDE1DimV1` (yet). If you tried to make it extended, use "
+                               "`set_yield`"
+                               " instead and set it inplace.")
             parameters['data'] = self._original_data
 
         # HACK(Mayou36): copy the polynomial correct, replace 'c_0' with coeff0/coeff_0 or similar

@@ -360,7 +360,7 @@ class UnbinnedNLL(BaseLoss):
         super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
         self._errordef = 0.5
         extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
-        if extended_pdfs:
+        if extended_pdfs and type(self) == UnbinnedNLL:
             warn_advanced_feature("Extended PDFs are given to a normal UnbinnedNLL. This won't take the yield "
                                   "into account and simply treat the PDFs as non-extended PDFs. To create an "
                                   "extended NLL, use the `ExtendedUnbinnedNLL`.", identifier='extended_in_UnbinnedNLL')
