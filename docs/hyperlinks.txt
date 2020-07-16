@@ -1,0 +1,5 @@
+.. _Gitter channel: https://gitter.im/zfit/zfit
+
+.. _Stack Overflow: https://stackoverflow.com/questions/ask?tags=zfit
+
+.. _GitHub: https://github.com/zfit/zfit

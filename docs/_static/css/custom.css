@@ -1,0 +1,26 @@
+/*This css file is a bit of a hack for changing the look of pydata_sphinx_theme. As soon as */
+/*there will be an official way of doing this, we can change this.*/
+
+@import 'index.css';
+
+#navbar-main {
+    background-color: #2F4858!important;
+}
+
+/* This is kept for reference, in case the logo needs to be adjusted in the css. */
+/*.navbar-brand>.logo {*/
+/*    filter: drop-shadow(1px 1px 0px #ffffff88);*/
+/*}*/
+
+.nav-link {
+    color: #ffffffff!important;
+}
+
+.navbar-nav>.active>.nav-link {
+    font-weight: 600;
+    color: #CB5628!important;
+}
+
+i.fa-github-square:before {
+    color: #ffffffff;
+}

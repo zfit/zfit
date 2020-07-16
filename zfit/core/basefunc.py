@@ -48,11 +48,11 @@ class BaseFunc(BaseModel, ZfitFunc):
         """The function evaluated at `x`.
 
         Args:
-            x (`Data`):
-            name (str):
+            x:
+            name:
 
         Returns:
-            tf.Tensor:  # TODO(Mayou36): or dataset? Update: rather not, what would obs be?
+             # TODO(Mayou36): or dataset? Update: rather not, what would obs be?
         """
         with self._convert_sort_x(x) as x:
             return self._single_hook_value(x=x, name=name)
@@ -77,7 +77,7 @@ class BaseFunc(BaseModel, ZfitFunc):
         """Create a PDF out of the function
 
         Returns:
-            :py:class:`~zfit.core.interfaces.ZfitPDF`: a PDF with the current function as the unnormalized probability.
+            A PDF with the current function as the unnormalized probability.
         """
         from zfit.core.operations import convert_func_to_pdf
         return convert_func_to_pdf(func=self)

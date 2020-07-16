@@ -17,6 +17,7 @@ from ..util.exception import WorkInProgressError
 class Scipy(BaseMinimizer):
 
     def __init__(self, minimizer='L-BFGS-B', tolerance=None, verbosity=5, name=None, **minimizer_options):
+        # todo write docstring for api.
         if name is None:
             name = minimizer
         raise WorkInProgressError("Wrapper has not been updated to TF2. Use iminuit instead.")

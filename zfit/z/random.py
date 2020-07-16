@@ -17,13 +17,13 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
     """Get the number of counts for different classes with given probs/logits.
 
     Args:
-        total_count (int): The total number of draws.
+        total_count: The total number of draws.
         probs: Length k (number of classes) object where the k-1th entry contains the probability to
             get a single draw from the class k. Have to be from [0, 1] and sum up to 1.
         logits: Same as probs but from [-inf, inf] (will be transformet to [0, 1])
 
     Returns:
-        :py:class:`tf.Tensor`: shape (k,) tensor containing the number of draws.
+        Shape (k,) tensor containing the number of draws.
     """
     total_count = tf.convert_to_tensor(total_count)
     probs = tf.convert_to_tensor(probs) if probs is not None else probs

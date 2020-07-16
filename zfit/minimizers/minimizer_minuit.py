@@ -22,14 +22,14 @@ class Minuit(BaseMinimizer, GraphCachable):
         """
 
         Args:
-            strategy (): A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
+            strategy: A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
             the minimizer in certain situations.
-            minimize_strategy (int): A number used by minuit to define the strategy, either 0, 1 or 2.
-            tolerance (float): Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower then `tolerance`
-            verbosity (int): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
-            name (str): Name of the minimizer
-            ncall (int): Maximum number of minimization steps.
-            use_minuit_grad (bool): If True, iminuit uses it's internal numerical gradient calculation instead of the
+            minimize_strategy: A number used by minuit to define the strategy, either 0, 1 or 2.
+            tolerance: Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower then `tolerance`
+            verbosity: Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
+            name: Name of the minimizer
+            ncall: Maximum number of minimization steps.
+            use_minuit_grad: If True, iminuit uses it's internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit.
         """
         minimizer_options['ncall'] = 0 if ncall is None else ncall
