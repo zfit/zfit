@@ -1,5 +1,5 @@
-constraint
-==========
+zfit.core.constraint module
+===========================
 
 .. automodule:: zfit.core.constraint
    :members:

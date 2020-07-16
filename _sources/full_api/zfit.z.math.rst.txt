@@ -1,5 +1,5 @@
-math
-====
+zfit.z.math module
+==================
 
 .. automodule:: zfit.z.math
    :members:

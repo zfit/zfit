@@ -1,5 +1,5 @@
-minimizer\_tfp
-==============
+zfit.minimizers.minimizer\_tfp module
+=====================================
 
 .. automodule:: zfit.minimizers.minimizer_tfp
    :members:

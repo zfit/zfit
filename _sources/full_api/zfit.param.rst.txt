@@ -1,5 +1,5 @@
-param
-=====
+zfit.param module
+=================
 
 .. automodule:: zfit.param
    :members:

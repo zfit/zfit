@@ -1,5 +1,5 @@
-dist\_tfp
-=========
+zfit.models.dist\_tfp module
+============================
 
 .. automodule:: zfit.models.dist_tfp
    :members:

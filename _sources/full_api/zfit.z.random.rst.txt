@@ -1,5 +1,5 @@
-random
-======
+zfit.z.random module
+====================
 
 .. automodule:: zfit.z.random
    :members:

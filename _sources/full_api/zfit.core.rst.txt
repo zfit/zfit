@@ -1,5 +1,5 @@
-core
-====
+zfit.core package
+=================
 
 .. automodule:: zfit.core
    :members:

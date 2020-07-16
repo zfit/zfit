@@ -1,5 +1,5 @@
-integration
-===========
+zfit.core.integration module
+============================
 
 .. automodule:: zfit.core.integration
    :members:

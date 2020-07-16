@@ -1,5 +1,5 @@
-tf\_external\_optimizer
-=======================
+zfit.minimizers.tf\_external\_optimizer module
+==============================================
 
 .. automodule:: zfit.minimizers.tf_external_optimizer
    :members:

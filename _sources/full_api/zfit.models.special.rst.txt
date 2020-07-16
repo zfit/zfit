@@ -1,5 +1,5 @@
-special
-=======
+zfit.models.special module
+==========================
 
 .. automodule:: zfit.models.special
    :members:

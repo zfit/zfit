@@ -1,5 +1,5 @@
-loss
-====
+zfit.core.loss module
+=====================
 
 .. automodule:: zfit.core.loss
    :members:

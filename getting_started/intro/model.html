@@ -1,0 +1,525 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building a model &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/zfit-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Data" href="data.html" />
+    <link rel="prev" title="Parameter" href="parameter.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    
+    <a class="navbar-brand" href="../../index.html">
+      <img src="../../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="../index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+        
+          
+              <li class="">
+                  <a href="../installation.html">Installation</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../5_minutes_to_zfit.html">5 minutes to zfit</a>
+              </li>
+          
+        
+          
+
+              <li class="active">
+                  <a href="index.html">Introduction</a>
+                  <ul>
+                  
+                      <li class="">
+                          <a href="space.html">Space, Observable and Range</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="parameter.html">Parameter</a>
+                      </li>
+                  
+                      <li class="active">
+                          <a href="">Building a model</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="data.html">Data</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="loss.html">Loss</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="minimize.html">Minimization</a>
+                      </li>
+                  
+                  </ul>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../examples.html">Examples</a>
+              </li>
+          
+        
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#predefined-pdfs-and-basic-properties" class="nav-link">Predefined PDFs and basic properties</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#composite-pdf" class="nav-link">Composite PDF</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#extended-pdf" class="nav-link">Extended PDF</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#custom-pdf" class="nav-link">Custom PDF</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#sampling-from-a-model" class="nav-link">Sampling from a Model</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#tensor-sampling" class="nav-link">Tensor sampling</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#playing-with-toys-multiple-samplings" class="nav-link">Playing with toys: Multiple samplings</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+    </ul>
+</nav>
+
+
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/zfit/zfit/edit/develop/docs/getting_started/intro/model.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="building-a-model">
+<h1>Building a model<a class="headerlink" href="#building-a-model" title="Permalink to this headline">¶</a></h1>
+<p>In order to build a generic model the concept of function and distributed density functions (PDFs) need to be clarified.
+The PDF, or density of a continuous random variable, of X is a function f(x) that describes the relative likelihood for this random variable to take on a given value.
+In this sense, for any two numbers a and b with <span class="math notranslate nohighlight">\(a \leq b\)</span>,</p>
+<p><span class="math notranslate nohighlight">\(P(a \leq X \leq b) = \int^{b}_{a}f(X)dx\)</span></p>
+<p>That is, the probability that X takes on a value in the interval <span class="math notranslate nohighlight">\([a, b]\)</span> is the area above this interval and under the graph of the density function.
+In other words, in order to a function to be a PDF it must satisfy two criteria:
+1. <span class="math notranslate nohighlight">\(f(x) \geq 0\)</span> for all x;
+2. <span class="math notranslate nohighlight">\(\int^{\infty}_{-\infty}f(x)dx =\)</span> are under the entire graph of <span class="math notranslate nohighlight">\(f(x)=1\)</span>.
+In zfit these distinctions are respected, <em>i.e.</em>, a function can be converted into a PDF by imposing the basic two criteria above.</p>
+<div class="section" id="predefined-pdfs-and-basic-properties">
+<span id="basic-model"></span><h2>Predefined PDFs and basic properties<a class="headerlink" href="#predefined-pdfs-and-basic-properties" title="Permalink to this headline">¶</a></h2>
+<p>A series of predefined PDFs are available to the users and can be easily accessed using autocompletion (if available). In fact, all of these can also be seen in</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">__all__</span><span class="p">)</span>
+<span class="go">[&#39;BasePDF&#39;, &#39;BaseFunctor&#39;, &#39;Exponential&#39;, &#39;CrystalBall&#39;, &#39;DoubleCB&#39;, &#39;Gauss&#39;, &#39;Uniform&#39;, &#39;TruncatedGauss&#39;, &#39;WrapDistribution&#39;, &#39;Chebyshev&#39;, &#39;Legendre&#39;, &#39;Chebyshev2&#39;, &#39;Hermite&#39;, &#39;Laguerre&#39;, &#39;RecursivePolynomial&#39;, &#39;ProductPDF&#39;, &#39;SumPDF&#39;, &#39;ZPDF&#39;, &#39;SimplePDF&#39;, &#39;SimpleFunctorPDF&#39;]</span>
+</pre></div>
+</div>
+<p>These include the basic function but also some operations discussed below. Let’s consider the simple example of a <code class="docutils literal notranslate"><span class="pre">CrystalBall</span></code>.
+PDF objects must also be initialised giving their named parameters. For example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="mi">4800</span><span class="p">,</span> <span class="mi">6000</span><span class="p">))</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Creating the parameters for the crystal ball</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="mi">5279</span><span class="p">,</span> <span class="mi">5100</span><span class="p">,</span> <span class="mi">5300</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Single crystal Ball</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model_cb</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">CrystalBall</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this case the CB object corresponds to a normalised PDF. The main properties of a PDF, e.g. the probability for a given normalisation range or even
+to set a temporary normalisation range can be given as</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get the probabilities of some random generated events</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probs</span> <span class="o">=</span> <span class="n">model_cb</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># And now execute the tensorflow graph</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="go">[3.34187765e-05 3.34196917e-05 3.34202989e-05 3.34181458e-05</span>
+<span class="go"> 3.34172973e-05 3.34209238e-05 3.34164538e-05 3.34210950e-05</span>
+<span class="go"> 3.34201199e-05 3.34209360e-05]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># The norm range of the pdf can be changed any time by</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model_cb</span><span class="o">.</span><span class="n">set_norm_range</span><span class="p">((</span><span class="mi">5000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Another feature for the PDF is to calculate its integral in a certain limit. This can be easily achieved by</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Calculate the integral between 5000 and 5250 over the PDF normalized</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">integral_norm</span> <span class="o">=</span> <span class="n">model_cb</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="mi">5250</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>In this case the CB has been normalised using the range defined in the observable.
+Conversely, the <code class="docutils literal notranslate"><span class="pre">norm_range</span></code> in which the PDF is normalised can also be specified as input.</p>
+</div>
+<div class="section" id="composite-pdf">
+<h2>Composite PDF<a class="headerlink" href="#composite-pdf" title="Permalink to this headline">¶</a></h2>
+<p>A common feature in building composite models it the ability to combine in terms of sum and products different PDFs.
+There are two ways to create such models, either with the class API or with simple Python syntax.
+Let’s consider a second crystal ball with the same mean position and width, but different tail parameters</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># New tail parameters for the second CB</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;a2&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;n2&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># New crystal Ball function defined in the same observable range</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model_cb2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">CrystalBall</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">a2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can now combine these two PDFs to create a double Crystal Ball with a single mean and width through the <a class="reference internal" href="../../user_api/pdf/zfit.pdf.SumPDF.html#zfit.pdf.SumPDF" title="zfit.pdf.SumPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.pdf.SumPDF</span></code></a> class:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># or via the class API</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">double_cb_class</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">SumPDF</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="p">[</span><span class="n">model_cb</span><span class="p">,</span> <span class="n">model_cb2</span><span class="p">],</span> <span class="n">fracs</span><span class="o">=</span><span class="n">frac</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Notice that the new PDF has the same observables as the original ones, as they coincide.
+Alternatively one could consider having PDFs for different axis, which would then create a totalPDF with higher dimension.</p>
+<p>A simple extension of these operations is if we want to instead of a sum of PDFs, to model a two-dimensional Gaussian (e.g.):</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Defining two Gaussians in two different axis (obs)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu1&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma1&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gauss1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s2">&quot;obs1&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma1</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mu2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu2&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigma2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma2&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gauss2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s2">&quot;obs2&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma2</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Producing the product of two PDFs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prod_gauss</span> <span class="o">=</span> <span class="n">gauss1</span> <span class="o">*</span> <span class="n">gauss2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Or alternatively</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prod_gauss_class</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ProductPDF</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="p">[</span><span class="n">gauss2</span><span class="p">,</span> <span class="n">gauss1</span><span class="p">])</span>  <span class="c1"># notice the different order or the pdf</span>
+</pre></div>
+</div>
+<p>The new PDF is now in two dimensions.
+The order of the observables follows the order of the PDFs given.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;python syntax product obs&quot;</span><span class="p">,</span> <span class="n">prod_gauss</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
+<span class="go">[python syntax product obs (&#39;obs1&#39;, &#39;obs2&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;class API product obs&quot;</span><span class="p">,</span> <span class="n">prod_gauss_class</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
+<span class="go">[class API product obs (&#39;obs2&#39;, &#39;obs1&#39;)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="extended-pdf">
+<h2>Extended PDF<a class="headerlink" href="#extended-pdf" title="Permalink to this headline">¶</a></h2>
+<p>In the event there are different <em>species</em> of distributions in a given observable,
+the simple sum of PDFs does not a priori provides the absolute number of events for each specie but rather the fraction as seen above.
+An example is a Gaussian mass distribution with an exponential background, e.g.</p>
+<p><span class="math notranslate nohighlight">\(P = f_{S}\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^{2}}{2\sigma^{2}}} + (1 - f_{S}) e^{-\alpha x}\)</span></p>
+<p>Since we are interested to express a measurement of the number of events,
+the expression <span class="math notranslate nohighlight">\(M(x) = N_{S}S(x) + N_{B}B(x)\)</span> respect that M(x) is normalised to <span class="math notranslate nohighlight">\(N_{S} + N_{B} = N\)</span> instead of one.
+This means that <span class="math notranslate nohighlight">\(M(x)\)</span> is not a true PDF but rather an expression for two quantities, the shape and the number of events in the distributions.</p>
+<p>An extended PDF can be easily implemented in zfit in two ways:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a parameter for the number of events</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">yieldGauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;yieldGauss&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Extended PDF using a predefined method</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extended_gauss_method</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">create_extended</span><span class="p">(</span><span class="n">yieldGauss</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-pdf">
+<h2>Custom PDF<a class="headerlink" href="#custom-pdf" title="Permalink to this headline">¶</a></h2>
+<p>A fundamental design choice of zfit is the ability to create custom PDFs and functions in an easy way.
+Let’s consider a simplified implementation</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyGauss</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ZPDF</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="sd">&quot;&quot;&quot;Simple implementation of a Gaussian similar to :py:class`~zfit.pdf.Gauss` class&quot;&quot;&quot;</span>
+<span class="gp">... </span>   <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># dimension, can be omitted</span>
+<span class="gp">... </span>   <span class="n">_PARAMS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">]</span>  <span class="c1"># the name of the parameters</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="n">x</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">ztf</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>   <span class="n">mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span>
+<span class="gp">... </span>   <span class="n">std</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;std&#39;</span><span class="p">]</span>
+<span class="gp">... </span>   <span class="k">return</span> <span class="n">zfit</span><span class="o">.</span><span class="n">ztf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span><span class="o">/</span><span class="n">std</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is the basic information required for this custom PDF.
+With this new PDF one can access the same feature of the predefined PDFs, e.g.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;obs1&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mean</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">std</span>  <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;std&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_gauss</span> <span class="o">=</span> <span class="n">MyGauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># For instance integral probabilities</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">integral</span> <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probs</span>    <span class="o">=</span> <span class="n">my_gauss</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Finally, we could also improve the description of the PDF by providing a analytical integral for the <code class="docutils literal notranslate"><span class="pre">MyGauss</span></code> PDF:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">gauss_integral_from_any_to_any</span><span class="p">(</span><span class="n">limits</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="p">(</span><span class="n">lower</span><span class="p">,),</span> <span class="p">(</span><span class="n">upper</span><span class="p">,)</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limits</span>
+<span class="gp">... </span>   <span class="n">mean</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span>
+<span class="gp">... </span>   <span class="n">std</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;std&#39;</span><span class="p">]</span>
+<span class="gp">... </span>   <span class="c1"># Write you integral</span>
+<span class="gp">... </span>   <span class="k">return</span> <span class="mf">42.</span> <span class="c1"># Dummy value</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Register the integral</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">limits</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="o">.</span><span class="n">ANY_LOWER</span><span class="p">,</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="o">.</span><span class="n">ANY_UPPER</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MyGauss</span><span class="o">.</span><span class="n">register_analytic_integral</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">gauss_integral_from_any_to_any</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="sampling-from-a-model">
+<h3>Sampling from a Model<a class="headerlink" href="#sampling-from-a-model" title="Permalink to this headline">¶</a></h3>
+<p>In order to sample from model, there are two different methods,
+<a class="reference internal" href="../../full_api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample" title="zfit.core.basemodel.BaseModel.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a> for <strong>advanced</strong> sampling returning a Tensor, and
+<a class="reference internal" href="../../full_api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler" title="zfit.core.basemodel.BaseModel.create_sampler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sampler()</span></code></a> for <strong>multiple sampling</strong> as used for toys.</p>
+</div>
+<div class="section" id="tensor-sampling">
+<h3>Tensor sampling<a class="headerlink" href="#tensor-sampling" title="Permalink to this headline">¶</a></h3>
+<p>The sample from <a class="reference internal" href="../../full_api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.sample" title="zfit.core.basemodel.BaseModel.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a> is a Tensor that samples when executed.
+This is for an advanced usecase only</p>
+</div>
+<div class="section" id="playing-with-toys-multiple-samplings">
+<h3>Playing with toys: Multiple samplings<a class="headerlink" href="#playing-with-toys-multiple-samplings" title="Permalink to this headline">¶</a></h3>
+<p>The method <a class="reference internal" href="../../full_api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler" title="zfit.core.basemodel.BaseModel.create_sampler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sampler()</span></code></a> returns a sampler that can be used
+like a <code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code> object (e.g. for building a <a class="reference internal" href="../../full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitLoss" title="zfit.core.interfaces.ZfitLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitLoss</span></code></a>).
+The sampling itself is <em>not yet done</em> but only when <a class="reference internal" href="../../full_api/zfit.core.data.html#zfit.core.data.Sampler.resample" title="zfit.core.data.Sampler.resample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resample()</span></code></a> is
+invoked. The sample generated depends on the original pdf at this point, e.g. parameters have the
+value they have when the <a class="reference internal" href="../../full_api/zfit.core.data.html#zfit.core.data.Sampler.resample" title="zfit.core.data.Sampler.resample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resample()</span></code></a> is invoked. To have certain
+parameters fixed, they have to be specified <em>either</em> on <a class="reference internal" href="../../full_api/zfit.core.basemodel.html#zfit.core.basemodel.BaseModel.create_sampler" title="zfit.core.basemodel.BaseModel.create_sampler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_sampler()</span></code></a>
+via <cite>fixed_params</cite>, on <a class="reference internal" href="../../full_api/zfit.core.data.html#zfit.core.data.Sampler.resample" title="zfit.core.data.Sampler.resample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resample()</span></code></a> by specifying which parameter
+will take which value via <cite>param_values</cite> or by changing the attribute of <a class="reference internal" href="../../full_api/zfit.core.data.html#zfit.core.data.Sampler" title="zfit.core.data.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code></a>.</p>
+<p>How typically toys look like:
+.. _playing_with_toys:</p>
+<p>A typical example of toys would therefore look like</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu, sigma</span>
+
+<span class="go">    &gt;&gt;&gt; sampler = model.create_sampler(n=1000,fixed_params=True)</span>
+<span class="go">    &gt;&gt;&gt; nll = zfit.loss.UnbinnedNLL(model=model, data=sampler)</span>
+
+<span class="go">    &gt;&gt;&gt; minimizer = zfit.minimize.Minuit()</span>
+
+<span class="go">    &gt;&gt;&gt; for run_number in n_runs:</span>
+<span class="go">    ...    # initialize the parameters randomly</span>
+<span class="go">    ...    sampler.resample()  # now the resampling gets executed</span>
+<span class="go">    ...</span>
+<span class="go">    ...    mu.set_value(np.random.normal())</span>
+<span class="go">    ...    sigma.set_value(abs(np.random.normal()))</span>
+<span class="go">    ...</span>
+<span class="go">    ...    result = minimizer.minimize(nll)</span>
+<span class="go">    ...</span>
+<span class="go">    ...    # safe the result, collect the values, calculate errors...</span>
+</pre></div>
+</div>
+<p>Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
+arguments to <cite>resample</cite>, this will always sample now from the distribution with the parameters set to the values when
+the sampler was created.</p>
+<p>To give another, though not very useful example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a model depending on mu1, sigma1, mu2, sigma2</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="p">[</span><span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>  <span class="c1"># now it sampled</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># do something with nll</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>  <span class="c1"># minimize</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># note that the nll, being dependent on `sampler`, also changed!</span>
+</pre></div>
+</div>
+<p>The sample is now resampled with the <em>current values</em> (minimized values) of <cite>sigma1</cite>, <cite>sigma2</cite> and with
+the initial values of <cite>mu1</cite>, <cite>mu2</cite> (because they have been fixed).</p>
+<p>We can also specify the parameter values explicitly by
+using the following argument. Reusing the example above</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">param_values</span><span class="o">=</span><span class="p">{</span><span class="n">sigma1</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>The sample (and therefore also the sample the <cite>nll</cite> depends on) is now sampled with <cite>sigma1</cite> set to 5.</p>
+<p>If some parameters are constrained to values observed from external measurements, usually Gaussian constraints,
+then sampling of the observed values might be needed to obtain an unbiased sample from the model. Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># same model depending on mu1, sigma1, mu2, sigma2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constraint</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">constraint</span><span class="o">.</span><span class="n">GaussianConstraint</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+<span class="gp">... </span>                                                <span class="n">mu</span><span class="o">=</span><span class="p">[</span><span class="n">sigma1</span><span class="p">,</span> <span class="n">sigma2</span><span class="p">],</span>
+<span class="gp">... </span>                                                <span class="n">sigma</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n_samples</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sampler</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">fixed_params</span><span class="o">=</span><span class="p">[</span><span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraint</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">constr_values</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_samples</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_samples</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">sampler</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="c1"># do something with nll</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">constr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>            <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+<span class="gp">... </span>        <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>  <span class="c1"># minimize</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="parameter.html" title="previous page">Parameter</a>
+    <a class='right-next' id="next-link" href="data.html" title="next page">Data</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    <script src="../../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

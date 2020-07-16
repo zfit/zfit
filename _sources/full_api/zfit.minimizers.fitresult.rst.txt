@@ -1,5 +1,5 @@
-fitresult
-=========
+zfit.minimizers.fitresult module
+================================
 
 .. automodule:: zfit.minimizers.fitresult
    :members:

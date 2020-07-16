@@ -1,288 +1,154 @@
+
+
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>execution &#8212; zfit 0.5.4.dev26+gc03a904 documentation</title>
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <title>zfit.util.execution module &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/language_data.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../_static/zfit-favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-2.3.2/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
 
-  </head><body>
+    
+    <a class="navbar-brand" href="../index.html">
+      <img src="../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../getting_started/index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
 
-        <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
-          zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev26</b></span>
 
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
-            
-                <li><a href="../getting_started.html">Getting started</a></li>
-                <li><a href="../introduction.html">Intro</a></li>
-                <li><a href="../project.html">Project</a></li>
-                <li><a href="../user_api.html">API</a></li>
-            
-            
-              <li class="dropdown globaltoc-container">
-  <a role="button"
-     id="dLabelGlobalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="../index.html">Overview <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-      role="menu"
-      aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#what-did-just-happen">What did just happen?</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../introduction.html">zfit introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intro/space.html">Space, Observable and Range</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/space.html#definitions">Definitions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#functional-limits">Functional limits</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#combining-limits">Combining limits</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#using-the-limits">Using the limits</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/parameter.html">Parameter</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/model.html">Building a model</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#composite-pdf">Composite PDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#extended-pdf">Extended PDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#custom-pdf">Custom PDF</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#tensor-sampling">Tensor sampling</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/data.html">Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/loss.html">Loss</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/loss.html#adding-constraints">Adding constraints</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/minimize.html">Minimization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../project.html">zfit Project</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/installation.html">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../project/installation.html#stable-release">Stable release</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/installation.html#from-sources">From sources</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../project/contributing.html">Contributing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../project/contributing.html#get-started">Get Started!</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../project/upgrade_guide.html">Upgrade guide</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/upgrade_guide.html#dependents">Dependents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog.html">Changelog</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#develop">Develop</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#depreceations">Depreceations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental">Experimental</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id1">0.5.3 (02.07.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id6">0.5.2 (13.05.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id7">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id10">0.5.1 (24.04.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id12">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#deprecations">Deprecations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id13">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id14">Experimental</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id15">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id17">0.4.3 (11.3.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id20">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id21">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id22">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id25">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id26">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id28">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Major Features and Improvements</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id30">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id31">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id32">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id36">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id37">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id38">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id39">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id40">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id41">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id42">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id43">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id44">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id45">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id46">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id47">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id48">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id49">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id50">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id51">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id52">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id53">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id54">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bugfixes">Bugfixes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#improvements">Improvements</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id55">0.3.1 (30-04-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id56">0.3.0 (2019-03-20)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id57">0.0.1 (2018-03-22)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../project/authors.html">Development Lead</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/authors.html#authors">Authors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/authors.html#contributors">Contributors</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../user_api.html">zfit API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_api/zfit.html#submodules">Submodules</a><ul class="simple">
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</ul>
-</li>
-              
-                <li class="dropdown">
-  <a role="button"
-     id="dLabelLocalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="#">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"
-      role="menu"
-      aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">execution</a></li>
-</ul>
-</ul>
-</li>
-              
-            
-            
-            
-            
-            
-          </ul>
-
-          
-            
-<form class="navbar-form navbar-right" action="../search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div class="container">
-  <div class="row">
-    <div class="body span12 content" role="main">
       
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/zfit/zfit/edit/develop/docs/full_api/zfit.util.execution.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
   <div class="section" id="module-zfit.util.execution">
-<span id="execution"></span><h1>execution<a class="headerlink" href="#module-zfit.util.execution" title="Permalink to this headline">¶</a></h1>
+<span id="zfit-util-execution-module"></span><h1>zfit.util.execution module<a class="headerlink" href="#module-zfit.util.execution" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="zfit.util.execution.RunManager">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.util.execution.</code><code class="sig-name descname">RunManager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_cpu</span><span class="o">=</span><span class="default_value">'auto'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager" title="Permalink to this definition">¶</a></dt>
@@ -294,16 +160,9 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.execution.RunManager.aquire_cpu">
-<code class="sig-name descname">aquire_cpu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_cpu</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">- 1</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.aquire_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.aquire_cpu" title="Permalink to this definition">¶</a></dt>
+<dt id="zfit.util.execution.RunManager.mode">
+<em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#zfit.util.execution.RunManager.mode" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.execution.RunManager.assert_executing_eagerly">
-<code class="sig-name descname">assert_executing_eagerly</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.assert_executing_eagerly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.assert_executing_eagerly" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assert that the execution is eager and Python side effects are taken into account.</p>
-<p>This can be placed inside a model _in case python side-effects are <a href="#id1"><span class="problematic" id="id2">necessary_</span></a> and no other way is possible.</p>
-</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.util.execution.RunManager.chunksize">
@@ -311,44 +170,59 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.execution.RunManager.clear_graph_cache">
-<code class="sig-name descname">clear_graph_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.clear_graph_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.clear_graph_cache" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clear all generated graphs and effectively reset. Should not affect execution, only performance.</p>
-<p>In a simple fit scenario, this is not used. But if several fits are performed with different python objects
-such as a scan over a range (by changing the norm_range and creating a new dataset), doing minimization and
-therefore invoking the loss (by default creating a graph) will leave the graphs in the cache, even tough
-the already scanned ranges are not needed anymore.</p>
-<p>To clean, this function can be invoked. The only effect should be to speed up things, but should not have
-any side-effects other than that.</p>
+<dt id="zfit.util.execution.RunManager.n_cpu">
+<em class="property">property </em><code class="sig-name descname">n_cpu</code><a class="headerlink" href="#zfit.util.execution.RunManager.n_cpu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.set_n_cpu">
+<code class="sig-name descname">set_n_cpu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_cpu</span><span class="o">=</span><span class="default_value">'auto'</span></em>, <em class="sig-param"><span class="n">strict</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_n_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_n_cpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the number of cpus to be used by zfit. For more control, use <cite>set_cpus_explicit</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_cpu</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – Number of cpus, will be the number for inter-op parallelism</p></li>
+<li><p><strong>strict</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If strict, sets intra parallelism to 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.execution.RunManager.current_policy_autograd">
-<code class="sig-name descname">current_policy_autograd</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_autograd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_autograd" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED! Use <cite>get_autograd_mode</cite> instead.</p>
+<dt id="zfit.util.execution.RunManager.set_cpus_explicit">
+<code class="sig-name descname">set_cpus_explicit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intra</span></em>, <em class="sig-param"><span class="n">inter</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_cpus_explicit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_cpus_explicit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the number of threads (cpus) used for inter-op and intra-op parallelism</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>intra</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of threads used to perform an operation. For larger operations, e.g. large Tensors, this
+is usually beneficial to have &gt;= 2.</p></li>
+<li><p><strong>inter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Parallelization on the level of ops. This is beneficial, if many operations can be computed
+independently in parallel.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.execution.RunManager.current_policy_graph">
-<code class="sig-name descname">current_policy_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECEATED! Use <cite>get_graph_mode</cite> instead. (deprecated)</p>
-<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
-Instructions for updating:
-Use <cite>get_graph_mode</cite> instead.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.execution.RunManager.experimental_clear_caches">
-<code class="sig-name descname">experimental_clear_caches</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.experimental_clear_caches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_clear_caches" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED! Use <cite>clear_graph_caches</cite> instead. (deprecated)</p>
-<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
-Instructions for updating:
-Use clear_graph_caches instead.</p>
+<dt id="zfit.util.execution.RunManager.aquire_cpu">
+<code class="sig-name descname">aquire_cpu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_cpu</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.aquire_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.aquire_cpu" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zfit.util.execution.RunManager.experimental_enable_eager">
-<em class="property">static </em><code class="sig-name descname">experimental_enable_eager</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.experimental_enable_eager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_enable_eager" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">experimental_enable_eager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eager</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.experimental_enable_eager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_enable_eager" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECEATED! Enable eager makes tensorflow run like numpy. Useful for debugging. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -358,100 +232,8 @@ Use <cite>set_graph_mode(False)</cite></p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.execution.RunManager.experimental_is_eager">
-<em class="property">property </em><code class="sig-name descname">experimental_is_eager</code><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_is_eager" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED FUNCTION</p>
-<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
-Instructions for updating:
-Use <cite>current_policy_graph() is False</cite></p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.execution.RunManager.get_autograd_mode">
-<code class="sig-name descname">get_autograd_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.get_autograd_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.get_autograd_mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>The current policy for using the automatic gradient or falling back to the numerical</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>If autograd is being used.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.execution.RunManager.get_graph_mode">
-<code class="sig-name descname">get_graph_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.get_graph_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.get_graph_mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the current policy for graph building.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The current policy. For more information, check <code class="xref py py-meth docutils literal notranslate"><span class="pre">set_mode()</span></code>.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.execution.RunManager.mode">
-<em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#zfit.util.execution.RunManager.mode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.execution.RunManager.n_cpu">
-<em class="property">property </em><code class="sig-name descname">n_cpu</code><a class="headerlink" href="#zfit.util.execution.RunManager.n_cpu" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.execution.RunManager.set_autograd_mode">
-<code class="sig-name descname">set_autograd_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">autograd</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_autograd_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_autograd_mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Use automatic or numerical gradients.</p>
-<p>zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
-An interactive tutorial can be found at <a class="reference external" href="https://github.com/zfit/zfit-tutorials">https://github.com/zfit/zfit-tutorials</a></p>
-<p><strong>automatic gradient</strong></p>
-<p>A strong feature of TensorFlow is the possibility to derive an analytic expression for the gradient
-by successively applying the chain rule to all of its operations. This is <em>independent</em> of whether the code
-is run in graph or eager execution, but requires all operations that are dynamic to be <cite>tf.*</cite> operations.
-For example, multiplying by a constant (constant as in <em>not chaning ever</em>) does not require the constant to
-be a <cite>tf.constant(…)</cite> but can be a Python scalar. For example, it is also fine to use a fixed template shape
-using Numpy (Scipy etc), as the template shape will stay constant (this requires though to use a
-<cite>z.py_function</cite> to work, but this is another story about graph mode or not).</p>
-<p>To allow to have dynamic numpy operations in a component, preferably wrapped with <cite>z.py_function</cite> instead of
-forced eager, and to still retrieve a meaningful gradient, a numerical gradient has to be used.
-In general, this can be achieved by setting the <cite>autograd</cite> to False. Any derivative received will then be
-numerically computed. Furthermore, some minimizers (e.g. <a class="reference internal" href="zfit.minimize.html#zfit.minimize.Minuit" title="zfit.minimize.Minuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Minuit</span></code></a>) have their own way
-of calculating gradients, which can be faster.
-Disabling <cite>autograd</cite> and using the zfit builting numerical way of calculating the gradients and hessian can
-be less stable and may raises errors.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>autograd</strong> – Whether the automatic gradient feature of TensorFlow should be used or a numerical procedure
-instead. If any non-constant Python (numpy, scipy,…) code is used inside, this should be switched on.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.util.execution.RunManager.set_cpus_explicit">
-<code class="sig-name descname">set_cpus_explicit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intra</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">inter</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_cpus_explicit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_cpus_explicit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the number of threads (cpus) used for inter-op and intra-op parallelism</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>intra</strong> – Number of threads used to perform an operation. For larger operations, e.g. large Tensors, this
-is usually beneficial to have &gt;= 2.</p></li>
-<li><p><strong>inter</strong> – Parallelization on the level of ops. This is beneficial, if many operations can be computed
-independently in parallel.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt id="zfit.util.execution.RunManager.set_graph_mode">
-<code class="sig-name descname">set_graph_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_graph_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_graph_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_graph_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_graph_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_graph_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the policy for graph building and the usage of automatic vs numerical gradients.</p>
 <p>zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
 An interactive tutorial can be found at <a class="reference external" href="https://github.com/zfit/zfit-tutorials">https://github.com/zfit/zfit-tutorials</a></p>
@@ -538,7 +320,7 @@ for everything to have the same behavior in the pdf as when the loss is called.<
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>graph</strong> – <p>Policy for when to build a graph with which function. Currently allowed values are
+<dd class="field-odd"><p><strong>graph</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>]) – <p>Policy for when to build a graph with which function. Currently allowed values are
 - <cite>True</cite>: this will make all <code class="xref py py-func docutils literal notranslate"><span class="pre">zfit.z.function()</span></code> decorated function to be traced. Useful</p>
 <blockquote>
 <div><p>to have a consistent behavior overall, as e.g. a PDF may not be traced if <cite>pdf</cite> or <cite>integrate</cite> is
@@ -560,12 +342,94 @@ explicitly on/off the graph building for this type of decorated functions.</p></
 </dd></dl>
 
 <dl class="py method">
+<dt id="zfit.util.execution.RunManager.set_autograd_mode">
+<code class="sig-name descname">set_autograd_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">autograd</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_autograd_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_autograd_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use automatic or numerical gradients.</p>
+<p>zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
+An interactive tutorial can be found at <a class="reference external" href="https://github.com/zfit/zfit-tutorials">https://github.com/zfit/zfit-tutorials</a></p>
+<p><strong>automatic gradient</strong></p>
+<p>A strong feature of TensorFlow is the possibility to derive an analytic expression for the gradient
+by successively applying the chain rule to all of its operations. This is <em>independent</em> of whether the code
+is run in graph or eager execution, but requires all operations that are dynamic to be <cite>tf.*</cite> operations.
+For example, multiplying by a constant (constant as in <em>not chaning ever</em>) does not require the constant to
+be a <cite>tf.constant(…)</cite> but can be a Python scalar. For example, it is also fine to use a fixed template shape
+using Numpy (Scipy etc), as the template shape will stay constant (this requires though to use a
+<cite>z.py_function</cite> to work, but this is another story about graph mode or not).</p>
+<p>To allow to have dynamic numpy operations in a component, preferably wrapped with <cite>z.py_function</cite> instead of
+forced eager, and to still retrieve a meaningful gradient, a numerical gradient has to be used.
+In general, this can be achieved by setting the <cite>autograd</cite> to False. Any derivative received will then be
+numerically computed. Furthermore, some minimizers (e.g. <a class="reference internal" href="../user_api/minimize/zfit.minimize.Minuit.html#zfit.minimize.Minuit" title="zfit.minimize.Minuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">Minuit</span></code></a>) have their own way
+of calculating gradients, which can be faster.
+Disabling <cite>autograd</cite> and using the zfit builting numerical way of calculating the gradients and hessian can
+be less stable and may raises errors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>autograd</strong> – Whether the automatic gradient feature of TensorFlow should be used or a numerical procedure
+instead. If any non-constant Python (numpy, scipy,…) code is used inside, this should be switched on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zfit.util.execution.RunManager.set_mode">
-<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">autograd</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">autograd</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED! Use <cite>set_graph_mode</cite> or <cite>set_autograd_mode</cite>. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
 Use <cite>set_graph_mode</cite> or <cite>set_autograd_mode</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.get_graph_mode">
+<code class="sig-name descname">get_graph_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.get_graph_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.get_graph_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current policy for graph building.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The current policy. For more information, check <code class="xref py py-meth docutils literal notranslate"><span class="pre">set_mode()</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.current_policy_graph">
+<code class="sig-name descname">current_policy_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECEATED! Use <cite>get_graph_mode</cite> instead. (deprecated)</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>get_graph_mode</cite> instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.get_autograd_mode">
+<code class="sig-name descname">get_autograd_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.get_autograd_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.get_autograd_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current policy for using the automatic gradient or falling back to the numerical</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If autograd is being used.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.current_policy_autograd">
+<code class="sig-name descname">current_policy_autograd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.current_policy_autograd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.current_policy_autograd" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED! Use <cite>get_autograd_mode</cite> instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -575,49 +439,77 @@ Use <cite>set_graph_mode</cite> or <cite>set_autograd_mode</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.util.execution.RunManager.set_n_cpu">
-<code class="sig-name descname">set_n_cpu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_cpu</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'auto'</span></em>, <em class="sig-param"><span class="n">strict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.set_n_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.set_n_cpu" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the number of cpus to be used by zfit. For more control, use <cite>set_cpus_explicit</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n_cpu</strong> – Number of cpus, will be the number for inter-op parallelism</p></li>
-<li><p><strong>strict</strong> – If strict, sets intra parallelism to 1</p></li>
-</ul>
-</dd>
-</dl>
+<dt id="zfit.util.execution.RunManager.clear_graph_cache">
+<code class="sig-name descname">clear_graph_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.clear_graph_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.clear_graph_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all generated graphs and effectively reset. Should not affect execution, only performance.</p>
+<p>In a simple fit scenario, this is not used. But if several fits are performed with different python objects
+such as a scan over a range (by changing the norm_range and creating a new dataset), doing minimization and
+therefore invoking the loss (by default creating a graph) will leave the graphs in the cache, even tough
+the already scanned ranges are not needed anymore.</p>
+<p>To clean, this function can be invoked. The only effect should be to speed up things, but should not have
+any side-effects other than that.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.assert_executing_eagerly">
+<code class="sig-name descname">assert_executing_eagerly</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.assert_executing_eagerly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.assert_executing_eagerly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assert that the execution is eager and Python side effects are taken into account.</p>
+<p>This can be placed inside a model _in case python side-effects are <a href="#id1"><span class="problematic" id="id2">necessary_</span></a> and no other way is possible.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.experimental_is_eager">
+<em class="property">property </em><code class="sig-name descname">experimental_is_eager</code><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_is_eager" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED FUNCTION</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>current_policy_graph() is False</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.util.execution.RunManager.experimental_clear_caches">
+<code class="sig-name descname">experimental_clear_caches</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#RunManager.experimental_clear_caches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.RunManager.experimental_clear_caches" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED! Use <cite>clear_graph_caches</cite> instead. (deprecated)</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use clear_graph_caches instead.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt id="zfit.util.execution.eval_object">
-<code class="sig-prename descclassname">zfit.util.execution.</code><code class="sig-name descname">eval_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><a class="reference internal" href="../_modules/zfit/util/execution.html#eval_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.eval_object" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">zfit.util.execution.</code><code class="sig-name descname">eval_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/execution.html#eval_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.execution.eval_object" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 
 
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
     </div>
-      
-  </div>
-</div>
-<footer class="footer">
+
+    <script src="../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
   <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
-      
-        <br/>
-        
-<div id="sourcelink">
-  <a href="../_sources/full_api/zfit.util.execution.rst.txt"
-     rel="nofollow">Source</a>
-</div>
-      
-    </p>
     <p>
-        &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
     </p>
   </div>
 </footer>

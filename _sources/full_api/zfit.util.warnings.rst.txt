@@ -1,5 +1,5 @@
-warnings
-========
+zfit.util.warnings module
+=========================
 
 .. automodule:: zfit.util.warnings
    :members:

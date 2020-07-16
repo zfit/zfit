@@ -1,5 +1,5 @@
-container
-=========
+zfit.util.container module
+==========================
 
 .. automodule:: zfit.util.container
    :members:

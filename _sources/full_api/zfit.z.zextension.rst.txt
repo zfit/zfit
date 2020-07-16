@@ -1,5 +1,5 @@
-zextension
-==========
+zfit.z.zextension module
+========================
 
 .. automodule:: zfit.z.zextension
    :members:

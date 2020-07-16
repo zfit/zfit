@@ -1,5 +1,5 @@
-dependents
-==========
+zfit.core.dependents module
+===========================
 
 .. automodule:: zfit.core.dependents
    :members:

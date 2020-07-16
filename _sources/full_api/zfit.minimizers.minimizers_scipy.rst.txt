@@ -1,5 +1,5 @@
-minimizers\_scipy
-=================
+zfit.minimizers.minimizers\_scipy module
+========================================
 
 .. automodule:: zfit.minimizers.minimizers_scipy
    :members:

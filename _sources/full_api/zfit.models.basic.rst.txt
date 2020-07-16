@@ -1,5 +1,5 @@
-basic
-=====
+zfit.models.basic module
+========================
 
 .. automodule:: zfit.models.basic
    :members:

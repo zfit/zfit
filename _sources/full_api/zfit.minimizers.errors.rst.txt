@@ -1,5 +1,5 @@
-errors
-======
+zfit.minimizers.errors module
+=============================
 
 .. automodule:: zfit.minimizers.errors
    :members:

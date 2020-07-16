@@ -1,5 +1,5 @@
-optimizers\_tf
-==============
+zfit.minimizers.optimizers\_tf module
+=====================================
 
 .. automodule:: zfit.minimizers.optimizers_tf
    :members:

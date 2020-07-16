@@ -1,5 +1,5 @@
-z
-=
+zfit.z package
+==============
 
 .. automodule:: zfit.z
    :members:

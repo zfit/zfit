@@ -1,0 +1,573 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zfit typing &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../_static/zfit-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sample" href="zfit.sample.html" />
+    <link rel="prev" title="SimpleFunctorPDF" href="pdf/zfit.pdf.SimpleFunctorPDF.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    
+    <a class="navbar-brand" href="../index.html">
+      <img src="../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../getting_started/index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+      
+      
+        
+          
+              <li class="">
+                  <a href="zfit.constraint.html">Constraint</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.data.html">Data</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.dimension.html">Dimension</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.exception.html">Exception</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.func.html">Func</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.loss.html">Loss</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.minimize.html">Minimize</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.param.html">Param</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.pdf.html">PDF</a>
+              </li>
+          
+        
+          
+              <li class="active">
+                  <a href="">zfit typing</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.sample.html">Sample</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="zfit.settings.html">Settings</a>
+              </li>
+          
+        
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/zfit/zfit/edit/develop/docs/user_api/zfit.util.typing.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="module-zfit.util.ztyping">
+<span id="zfit-typing"></span><h1>zfit typing<a class="headerlink" href="#module-zfit.util.ztyping" title="Permalink to this headline">¶</a></h1>
+<dl class="py data">
+<dt id="zfit.util.ztyping.LowerTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LowerTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.LowerTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray, Tuple[float], List[float], float]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LowerTypeReturn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LowerTypeReturn</code><a class="headerlink" href="#zfit.util.ztyping.LowerTypeReturn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, None, bool]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.UpperTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">UpperTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.UpperTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray, Tuple[float], List[float], float]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.UpperTypeReturn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">UpperTypeReturn</code><a class="headerlink" href="#zfit.util.ztyping.UpperTypeReturn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, None, bool]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LowerRectTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LowerRectTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.LowerRectTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LowerRectTypeReturn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LowerRectTypeReturn</code><a class="headerlink" href="#zfit.util.ztyping.LowerRectTypeReturn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, None, bool]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.UpperRectTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">UpperRectTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.UpperRectTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray, Tuple[float], List[float], float]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.UpperRectTypeReturn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">UpperRectTypeReturn</code><a class="headerlink" href="#zfit.util.ztyping.UpperRectTypeReturn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, None, bool]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.RectLowerReturnType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">RectLowerReturnType</code><a class="headerlink" href="#zfit.util.ztyping.RectLowerReturnType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, float]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.RectUpperReturnType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">RectUpperReturnType</code><a class="headerlink" href="#zfit.util.ztyping.RectUpperReturnType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, float]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.RectLimitsReturnType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">RectLimitsReturnType</code><a class="headerlink" href="#zfit.util.ztyping.RectLimitsReturnType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Tuple[Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, float], Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, float]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.RectLimitsTFReturnType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">RectLimitsTFReturnType</code><a class="headerlink" href="#zfit.util.ztyping.RectLimitsTFReturnType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Tuple[tensorflow.python.framework.ops.Tensor, tensorflow.python.framework.ops.Tensor]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.RectLimitsNPReturnType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">RectLimitsNPReturnType</code><a class="headerlink" href="#zfit.util.ztyping.RectLimitsNPReturnType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Tuple[numpy.ndarray, numpy.ndarray]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.RectLimitsInputType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">RectLimitsInputType</code><a class="headerlink" href="#zfit.util.ztyping.RectLimitsInputType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LimitsType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LimitsType</code><a class="headerlink" href="#zfit.util.ztyping.LimitsType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[Tuple[Tuple[float, …]], Tuple[float, …], bool, zfit.Space]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LimitsTypeSimpleInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LimitsTypeSimpleInput</code><a class="headerlink" href="#zfit.util.ztyping.LimitsTypeSimpleInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[Tuple[float, float], bool]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LimitsTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LimitsTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.LimitsTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Optional[Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LimitsFuncTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LimitsFuncTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.LimitsFuncTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[zfit.core.interfaces.ZfitLimit, tensorflow.python.framework.ops.Tensor, numpy.ndarray, Iterable[float], float, Tuple[float], List[float], bool, None, Callable]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LimitsTypeReturn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LimitsTypeReturn</code><a class="headerlink" href="#zfit.util.ztyping.LimitsTypeReturn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[Tuple[numpy.ndarray, numpy.ndarray], None, bool]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.AxesTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">AxesTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.AxesTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[int, Iterable[int]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.AxesTypeReturn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">AxesTypeReturn</code><a class="headerlink" href="#zfit.util.ztyping.AxesTypeReturn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Optional[Tuple[int]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ObsTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ObsTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.ObsTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[str, Iterable[str], zfit.Space]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ObsTypeReturn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ObsTypeReturn</code><a class="headerlink" href="#zfit.util.ztyping.ObsTypeReturn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Optional[Tuple[str, …]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ObsType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ObsType</code><a class="headerlink" href="#zfit.util.ztyping.ObsType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Tuple[str]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.SpaceOrSpacesTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">SpaceOrSpacesTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.SpaceOrSpacesTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[zfit.Space, Iterable[zfit.Space]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.SpaceType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">SpaceType</code><a class="headerlink" href="#zfit.util.ztyping.SpaceType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.XType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">XType</code><a class="headerlink" href="#zfit.util.ztyping.XType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[float, tensorflow.python.framework.ops.Tensor]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.XTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">XTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.XTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.XTypeReturnNoData">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">XTypeReturnNoData</code><a class="headerlink" href="#zfit.util.ztyping.XTypeReturnNoData" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.XTypeReturn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">XTypeReturn</code><a class="headerlink" href="#zfit.util.ztyping.XTypeReturn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.Data]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.NumericalTypeReturn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">NumericalTypeReturn</code><a class="headerlink" href="#zfit.util.ztyping.NumericalTypeReturn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[tensorflow.python.framework.ops.Tensor, numpy.array]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.DataInputType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">DataInputType</code><a class="headerlink" href="#zfit.util.ztyping.DataInputType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[zfit.Data, Iterable[zfit.Data]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.WeightsStrInputType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">WeightsStrInputType</code><a class="headerlink" href="#zfit.util.ztyping.WeightsStrInputType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray, str]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.WeightsInputType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">WeightsInputType</code><a class="headerlink" href="#zfit.util.ztyping.WeightsInputType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[tensorflow.python.framework.ops.Tensor, None, numpy.ndarray]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ModelsInputType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ModelsInputType</code><a class="headerlink" href="#zfit.util.ztyping.ModelsInputType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[zfit.core.interfaces.ZfitModel, Iterable[zfit.core.interfaces.ZfitModel]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.PDFInputType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">PDFInputType</code><a class="headerlink" href="#zfit.util.ztyping.PDFInputType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[zfit.core.interfaces.ZfitPDF, Iterable[zfit.core.interfaces.ZfitPDF]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.FuncInputType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">FuncInputType</code><a class="headerlink" href="#zfit.util.ztyping.FuncInputType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[zfit.core.interfaces.ZfitFunc, Iterable[zfit.core.interfaces.ZfitFunc]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.NumericalScalarType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">NumericalScalarType</code><a class="headerlink" href="#zfit.util.ztyping.NumericalScalarType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[int, float, complex, tensorflow.python.framework.ops.Tensor, zfit.core.interfaces.ZfitParameter]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.NumericalType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">NumericalType</code><a class="headerlink" href="#zfit.util.ztyping.NumericalType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[int, float, numpy.ndarray, tensorflow.python.framework.ops.Tensor, zfit.core.interfaces.ZfitParameter]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.nSamplingTypeIn">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">nSamplingTypeIn</code><a class="headerlink" href="#zfit.util.ztyping.nSamplingTypeIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[int, tensorflow.python.framework.ops.Tensor, str]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ConstraintsTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ConstraintsTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.ConstraintsTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Optional[Union[Iterable[Union[zfit.core.interfaces.ZfitConstraint, Callable]], zfit.core.interfaces.ZfitConstraint, Callable]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ParamsTypeOpt">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ParamsTypeOpt</code><a class="headerlink" href="#zfit.util.ztyping.ParamsTypeOpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Optional[Iterable[zfit.core.interfaces.ZfitParameter]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ParamsNameOpt">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ParamsNameOpt</code><a class="headerlink" href="#zfit.util.ztyping.ParamsNameOpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Optional[Union[str, List[str]]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ParamsOrNameType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ParamsOrNameType</code><a class="headerlink" href="#zfit.util.ztyping.ParamsOrNameType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[Iterable[zfit.core.interfaces.ZfitParameter], None, Iterable[str]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ParametersType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ParametersType</code><a class="headerlink" href="#zfit.util.ztyping.ParametersType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of TypeVar(‘ParametersType’)</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.ParamTypeInput">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">ParamTypeInput</code><a class="headerlink" href="#zfit.util.ztyping.ParamTypeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of TypeVar(‘ParamTypeInput’, zfit.core.interfaces.ZfitParameter, Union[int, float, complex, tensorflow.python.framework.ops.Tensor, zfit.core.interfaces.ZfitParameter])</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.BaseObjectType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">BaseObjectType</code><a class="headerlink" href="#zfit.util.ztyping.BaseObjectType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[zfit.core.interfaces.ZfitParameter, zfit.core.interfaces.ZfitFunction, zfit.core.interfaces.ZfitPDF]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.DependentsType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">DependentsType</code><a class="headerlink" href="#zfit.util.ztyping.DependentsType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.CacherOrCachersType">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">CacherOrCachersType</code><a class="headerlink" href="#zfit.util.ztyping.CacherOrCachersType" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[zfit.core.interfaces.ZfitCachable, Iterable[zfit.core.interfaces.ZfitCachable]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LimitsDictAxes">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LimitsDictAxes</code><a class="headerlink" href="#zfit.util.ztyping.LimitsDictAxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Dict[Tuple[int], zfit.core.interfaces.ZfitLimit]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LimitsDictObs">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LimitsDictObs</code><a class="headerlink" href="#zfit.util.ztyping.LimitsDictObs" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Dict[Tuple[str], zfit.core.interfaces.ZfitLimit]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LimitsDictNoCoords">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LimitsDictNoCoords</code><a class="headerlink" href="#zfit.util.ztyping.LimitsDictNoCoords" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Union[Dict[Tuple[int], zfit.core.interfaces.ZfitLimit], Dict[Tuple[str], zfit.core.interfaces.ZfitLimit]]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="zfit.util.ztyping.LimitsDictWithCoords">
+<code class="sig-prename descclassname">zfit.util.ztyping.</code><code class="sig-name descname">LimitsDictWithCoords</code><a class="headerlink" href="#zfit.util.ztyping.LimitsDictWithCoords" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of Dict[str, Union[Dict[Tuple[int], zfit.core.interfaces.ZfitLimit], Dict[Tuple[str], zfit.core.interfaces.ZfitLimit]]]</p>
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="pdf/zfit.pdf.SimpleFunctorPDF.html" title="previous page">SimpleFunctorPDF</a>
+    <a class='right-next' id="next-link" href="zfit.sample.html" title="next page">Sample</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    <script src="../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

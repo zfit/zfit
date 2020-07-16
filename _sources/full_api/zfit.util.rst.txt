@@ -1,5 +1,5 @@
-util
-====
+zfit.util package
+=================
 
 .. automodule:: zfit.util
    :members:

@@ -1,5 +1,5 @@
-checks
-======
+zfit.util.checks module
+=======================
 
 .. automodule:: zfit.util.checks
    :members:

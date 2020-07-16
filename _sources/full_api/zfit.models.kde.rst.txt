@@ -1,5 +1,5 @@
-kde
-===
+zfit.models.kde module
+======================
 
 .. automodule:: zfit.models.kde
    :members:

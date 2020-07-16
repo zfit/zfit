@@ -1,283 +1,145 @@
+
+
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.4.dev26+gc03a904 documentation</title>
-    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../../../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/language_data.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/zfit-favicon.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../../_static/bootstrap-2.3.2/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
 
-  </head><body>
+    
+    <a class="navbar-brand" href="../../../index.html">
+      <img src="../../../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../getting_started/index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
 
-        <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
-          zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev26</b></span>
 
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
-            
-                <li><a href="../../../getting_started.html">Getting started</a></li>
-                <li><a href="../../../introduction.html">Intro</a></li>
-                <li><a href="../../../project.html">Project</a></li>
-                <li><a href="../../../user_api.html">API</a></li>
-            
-            
-              <li class="dropdown globaltoc-container">
-  <a role="button"
-     id="dLabelGlobalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="../../../index.html">Overview <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-      role="menu"
-      aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-did-just-happen">What did just happen?</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">zfit introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/parameter.html">Parameter</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/model.html">Building a model</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#composite-pdf">Composite PDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#extended-pdf">Extended PDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#custom-pdf">Custom PDF</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#tensor-sampling">Tensor sampling</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/data.html">Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/loss.html">Loss</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#adding-constraints">Adding constraints</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/minimize.html">Minimization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../project.html">zfit Project</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/installation.html">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#stable-release">Stable release</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#from-sources">From sources</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/contributing.html">Contributing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#get-started">Get Started!</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/upgrade_guide.html">Upgrade guide</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/upgrade_guide.html#dependents">Dependents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#depreceations">Depreceations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental">Experimental</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.5.3 (02.07.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id6">0.5.2 (13.05.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id10">0.5.1 (24.04.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#deprecations">Deprecations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id14">Experimental</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id17">0.4.3 (11.3.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id20">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id22">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id25">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id26">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id28">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Major Features and Improvements</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id30">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id31">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id32">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id36">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id37">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id39">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id40">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id41">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id42">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id43">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id44">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id45">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id46">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id47">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id48">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id49">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id50">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id51">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id52">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id53">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id54">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id55">0.3.1 (30-04-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id56">0.3.0 (2019-03-20)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id57">0.0.1 (2018-03-22)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html">Development Lead</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#authors">Authors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#contributors">Contributors</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_api.html">zfit API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../user_api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../user_api/zfit.html#submodules">Submodules</a><ul class="simple">
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</ul>
-</li>
-              
-                <li class="dropdown">
-  <a role="button"
-     id="dLabelLocalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="#">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"
-      role="menu"
-      aria-labelledby="dLabelLocalToc"></ul>
-</li>
-              
-            
-            
-            
-            
-            
-          </ul>
-
-          
-            
-<form class="navbar-form navbar-right" action="../../../search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div class="container">
-  <div class="row">
-    <div class="body span12 content" role="main">
       
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
   <h1>Source code for zfit.minimizers.fitresult</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
@@ -298,7 +160,6 @@
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
 <span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="kn">import</span> <span class="n">set_values</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WeightsNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">ExperimentalFeatureWarning</span>
@@ -367,7 +228,7 @@
     <span class="k">return</span> <span class="n">matrix_to_dict</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">covariance</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="FitResult"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult">[docs]</a><span class="k">class</span> <span class="nc">FitResult</span><span class="p">(</span><span class="n">ZfitResult</span><span class="p">):</span>
+<div class="viewcode-block" id="FitResult"><a class="viewcode-back" href="../../../user_api/minimize/zfit.minimize.FitResult.html#zfit.minimize.FitResult">[docs]</a><span class="k">class</span> <span class="nc">FitResult</span><span class="p">(</span><span class="n">ZfitResult</span><span class="p">):</span>
     <span class="n">_default_hesse</span> <span class="o">=</span> <span class="s2">&quot;hesse_np&quot;</span>
     <span class="n">_hesse_methods</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;minuit_hesse&quot;</span><span class="p">:</span> <span class="n">_covariance_minuit</span><span class="p">,</span> <span class="s2">&quot;hesse_np&quot;</span><span class="p">:</span> <span class="n">_covariance_np</span><span class="p">}</span>
     <span class="n">_default_error</span> <span class="o">=</span> <span class="s2">&quot;zfit_error&quot;</span>
@@ -377,21 +238,21 @@
                  <span class="n">info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">minimizer</span><span class="p">:</span> <span class="s2">&quot;ZfitMinimizer&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.</span>
 
-<span class="sd">        Any errors calculated are saved under `self.params` dictionary with {parameter: {error_name1: {&#39;low&#39;: value</span>
-<span class="sd">        &#39;high&#39;: value or similar}}</span>
+<span class="sd">        Any errors calculated are saved under `self.params` dictionary with::</span>
+
+<span class="sd">            {parameter: {error_name1: {&#39;low&#39;: value, &#39;high&#39;: value or similar}}</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            params (OrderedDict[:py:class:`~zfit.Parameter`, float]): Result of the fit where each</span>
-<span class="sd">            :py:class:`~zfit.Parameter` key has the value</span>
-<span class="sd">                from the minimum found by the minimizer.</span>
-<span class="sd">            edm (Union[int, float]): The estimated distance to minimum, estimated by the minimizer (if available)</span>
-<span class="sd">            fmin (Union[numpy.float64, float]): The minimum of the function found by the minimizer</span>
-<span class="sd">            status (int): A status code (if available)</span>
-<span class="sd">            converged (bool): Whether the fit has successfully converged or not.</span>
-<span class="sd">            info (Dict): Additional information (if available) like *number of function calls* and the</span>
+<span class="sd">            params: Result of the fit where each</span>
+<span class="sd">               :py:class:`~zfit.Parameter` key has the value from the minimum found by the minimizer.</span>
+<span class="sd">            edm: The estimated distance to minimum, estimated by the minimizer (if available)</span>
+<span class="sd">            fmin: The minimum of the function found by the minimizer</span>
+<span class="sd">            status: A status code (if available)</span>
+<span class="sd">            converged: Whether the fit has successfully converged or not.</span>
+<span class="sd">            info: Additional information (if available) like *number of function calls* and the</span>
 <span class="sd">                original minimizer return message.</span>
-<span class="sd">            loss (Union[ZfitLoss]): The loss function that was minimized. Contains also the pdf, data etc.</span>
-<span class="sd">            minimizer (ZfitMinimizer): Minimizer that was used to obtain this `FitResult` and will be used to</span>
+<span class="sd">            loss: The loss function that was minimized. Contains also the pdf, data etc.</span>
+<span class="sd">            minimizer: Minimizer that was used to obtain this `FitResult` and will be used to</span>
 <span class="sd">                calculate certain errors. If the minimizer is state-based (like &quot;iminuit&quot;), then this is a copy</span>
 <span class="sd">                and the state of other `FitResults` or of the *actual* minimizer that performed the minimization</span>
 <span class="sd">                won&#39;t be altered.</span>
@@ -415,7 +276,7 @@
     <span class="k">def</span> <span class="nf">_get_uncached_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
 
-<div class="viewcode-block" id="FitResult.from_minuit"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.from_minuit">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="FitResult.from_minuit"><a class="viewcode-back" href="../../../user_api/minimize/zfit.minimize.FitResult.html#zfit.minimize.FitResult.from_minuit">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_minuit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ZfitParameter</span><span class="p">],</span> <span class="n">result</span><span class="p">:</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">MigradResult</span><span class="p">,</span>
                     <span class="n">minimizer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">iminuit</span><span class="o">.</span><span class="n">Minuit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;FitResult&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by</span>
@@ -429,7 +290,7 @@
 <span class="sd">            minimizer: Instance of the iminuit Minuit that was used to minimize the loss.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            `FitResult`: A `FitResult` as if zfit Minuit was used.</span>
+<span class="sd">            A `FitResult` as if zfit Minuit was used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="kn">from</span> <span class="nn">.minimizer_minuit</span> <span class="kn">import</span> <span class="n">Minuit</span>
@@ -466,7 +327,7 @@
         <span class="sd">&quot;&quot;&quot;The estimated distance to the minimum.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            numeric</span>
+<span class="sd">            Numeric</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edm</span>
 
@@ -484,7 +345,7 @@
         <span class="sd">&quot;&quot;&quot;Function value at the minimum.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            numeric</span>
+<span class="sd">            Numeric</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmin</span>
 
@@ -528,18 +389,18 @@
             <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">params</span>
 
-<div class="viewcode-block" id="FitResult.hesse"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.hesse">[docs]</a>    <span class="k">def</span> <span class="nf">hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.hesse"><a class="viewcode-back" href="../../../user_api/minimize/zfit.minimize.FitResult.html#zfit.minimize.FitResult.hesse">[docs]</a>    <span class="k">def</span> <span class="nf">hesse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
               <span class="n">error_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Calculate for `params` the symmetric error using the Hessian/covariance matrix.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            params (list(:py:class:`~zfit.Parameter`)): The parameters  to calculate the</span>
+<span class="sd">            params: The parameters  to calculate the</span>
 <span class="sd">                Hessian symmetric error. If None, use all parameters.</span>
-<span class="sd">            method (str): the method to calculate the covariance matrix. Can be {&#39;minuit_hesse&#39;, &#39;hesse_np&#39;} or a callable.</span>
-<span class="sd">            error_name (str): The name for the error in the dictionary.</span>
+<span class="sd">            method: the method to calculate the covariance matrix. Can be {&#39;minuit_hesse&#39;, &#39;hesse_np&#39;} or a callable.</span>
+<span class="sd">            error_name: The name for the error in the dictionary.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            OrderedDict: Result of the hessian (symmetric) error as dict with each parameter holding</span>
+<span class="sd">            Result of the hessian (symmetric) error as dict with each parameter holding</span>
 <span class="sd">                the error dict {&#39;error&#39;: sym_error}.</span>
 
 <span class="sd">                So given param_a (from zfit.Parameter(.))</span>
@@ -578,27 +439,31 @@
         <span class="n">covariance_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covariance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">covariance_dict</span><span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">)]</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">})</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FitResult.error"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.error"><a class="viewcode-back" href="../../../user_api/minimize/zfit.minimize.FitResult.html#zfit.minimize.FitResult.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
               <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;DEPRECATED! Use &#39;errors&#39; instead</span>
-<span class="sd">            Args:</span>
-<span class="sd">                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the</span>
-<span class="sd">                     errors. If `params` is `None`, use all *floating* parameters.</span>
-<span class="sd">                method (str or Callable): The method to use to calculate the errors. Valid choices are</span>
-<span class="sd">                    {&#39;minuit_minos&#39;} or a Callable.</span>
-<span class="sd">                sigma (float): Errors are calculated with respect to `sigma` std deviations. The definition</span>
-<span class="sd">                    of 1 sigma depends on the loss function and is defined there.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">                    For example, the negative log-likelihood (without the factor of 2) has a correspondents</span>
-<span class="sd">                    of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.</span>
-<span class="sd">                error_name (str): The name for the error in the dictionary.</span>
+<span class="sd">        .. deprecated:: unknown</span>
+<span class="sd">            Use :func:`errors` instead.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params: The parameters or their names to calculate the</span>
+<span class="sd">                 errors. If `params` is `None`, use all *floating* parameters.</span>
+<span class="sd">            method: The method to use to calculate the errors. Valid choices are</span>
+<span class="sd">                {&#39;minuit_minos&#39;} or a Callable.</span>
+<span class="sd">            sigma: Errors are calculated with respect to `sigma` std deviations. The definition</span>
+<span class="sd">                of 1 sigma depends on the loss function and is defined there.</span>
+
+<span class="sd">                For example, the negative log-likelihood (without the factor of 2) has a correspondents</span>
+<span class="sd">                of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.</span>
+<span class="sd">            error_name: The name for the error in the dictionary.</span>
 
 
-<span class="sd">            Returns:</span>
-<span class="sd">                `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which</span>
-<span class="sd">                    contains (next to probably more things) two keys &#39;lower&#39; and &#39;upper&#39;,</span>
-<span class="sd">                    holding the calculated errors.</span>
-<span class="sd">                    Example: result[&#39;par1&#39;][&#39;upper&#39;] -&gt; the asymmetric upper error of &#39;par1&#39;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A `OrderedDict` containing as keys the parameter names and as value a `dict` which</span>
+<span class="sd">                contains (next to probably more things) two keys &#39;lower&#39; and &#39;upper&#39;,</span>
+<span class="sd">                holding the calculated errors.</span>
+<span class="sd">                Example: result[&#39;par1&#39;][&#39;upper&#39;] -&gt; the asymmetric upper error of &#39;par1&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`error` is depreceated, use `errors` instead. This will return not only the errors but also &quot;</span>
                       <span class="s2">&quot;(a possible) new FitResult if a minimum was found. So change&quot;</span>
@@ -607,25 +472,25 @@
                       <span class="s2">&quot;errors, new_res = result.errors()&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="FitResult.errors"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.errors">[docs]</a>    <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="FitResult.errors"><a class="viewcode-back" href="../../../user_api/minimize/zfit.minimize.FitResult.html#zfit.minimize.FitResult.errors">[docs]</a>    <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">error_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">OrderedDict</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;FitResult&#39;</span><span class="p">]]:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculate and set for `params` the asymmetric error using the set error method.</span>
 
 <span class="sd">            Args:</span>
-<span class="sd">                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the</span>
+<span class="sd">                params: The parameters or their names to calculate the</span>
 <span class="sd">                     errors. If `params` is `None`, use all *floating* parameters.</span>
-<span class="sd">                method (str or Callable): The method to use to calculate the errors. Valid choices are</span>
+<span class="sd">                method: The method to use to calculate the errors. Valid choices are</span>
 <span class="sd">                    {&#39;minuit_minos&#39;} or a Callable.</span>
-<span class="sd">                sigma (float): Errors are calculated with respect to `sigma` std deviations. The definition</span>
+<span class="sd">                sigma: Errors are calculated with respect to `sigma` std deviations. The definition</span>
 <span class="sd">                    of 1 sigma depends on the loss function and is defined there.</span>
 
 <span class="sd">                    For example, the negative log-likelihood (without the factor of 2) has a correspondents</span>
 <span class="sd">                    of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.</span>
-<span class="sd">                error_name (str): The name for the error in the dictionary.</span>
+<span class="sd">                error_name: The name for the error in the dictionary.</span>
 
 
 <span class="sd">            Returns:</span>
-<span class="sd">                `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which</span>
+<span class="sd">                A `OrderedDict` containing as keys the parameter and as value a `dict` which</span>
 <span class="sd">                    contains (next to probably more things) two keys &#39;lower&#39; and &#39;upper&#39;,</span>
 <span class="sd">                    holding the calculated errors.</span>
 <span class="sd">                    Example: result[par1][&#39;upper&#39;] -&gt; the asymmetric upper error of &#39;par1&#39;</span>
@@ -674,15 +539,15 @@
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following method is not a valid, implemented method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FitResult.covariance"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.covariance">[docs]</a>    <span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="FitResult.covariance"><a class="viewcode-back" href="../../../user_api/minimize/zfit.minimize.FitResult.html#zfit.minimize.FitResult.covariance">[docs]</a>    <span class="k">def</span> <span class="nf">covariance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the covariance matrix for `params`.</span>
 
 <span class="sd">            Args:</span>
-<span class="sd">                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate</span>
+<span class="sd">                params: The parameters to calculate</span>
 <span class="sd">                    the covariance matrix. If `params` is `None`, use all *floating* parameters.</span>
-<span class="sd">                method (str or Callable): The method to use to calculate the covariance matrix. Valid choices are</span>
+<span class="sd">                method: The method to use to calculate the covariance matrix. Valid choices are</span>
 <span class="sd">                    {&#39;minuit_hesse&#39;, &#39;hesse_np&#39;} or a Callable.</span>
-<span class="sd">                as_dict (bool): Default `False`. If `True` then returns a dictionnary.</span>
+<span class="sd">                as_dict: Default `False`. If `True` then returns a dictionnary.</span>
 
 <span class="sd">            Returns:</span>
 <span class="sd">                2D `numpy.array` of shape (N, N);</span>
@@ -716,15 +581,15 @@
         <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FitResult.correlation"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.FitResult.correlation">[docs]</a>    <span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="FitResult.correlation"><a class="viewcode-back" href="../../../user_api/minimize/zfit.minimize.FitResult.html#zfit.minimize.FitResult.correlation">[docs]</a>    <span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the correlation matrix for `params`.</span>
 
 <span class="sd">            Args:</span>
-<span class="sd">                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate</span>
+<span class="sd">                params: The parameters to calculate</span>
 <span class="sd">                    the correlation matrix. If `params` is `None`, use all *floating* parameters.</span>
-<span class="sd">                method (str or Callable): The method to use to calculate the correlation matrix. Valid choices are</span>
+<span class="sd">                method: The method to use to calculate the correlation matrix. Valid choices are</span>
 <span class="sd">                    {&#39;minuit_hesse&#39;, &#39;hesse_np&#39;} or a Callable.</span>
-<span class="sd">                as_dict (bool): Default `False`. If `True` then returns a dictionnary.</span>
+<span class="sd">                as_dict: Default `False`. If `True` then returns a dictionnary.</span>
 
 <span class="sd">            Returns:</span>
 <span class="sd">                2D `numpy.array` of shape (N, N);</span>
@@ -859,22 +724,26 @@
         <span class="k">return</span> <span class="n">table</span></div>
 </pre></div>
 
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
     </div>
-      
-  </div>
-</div>
-<footer class="footer">
+
+    <script src="../../../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
   <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
-      
-        <br/>
-        
-      
-    </p>
     <p>
-        &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
     </p>
   </div>
 </footer>

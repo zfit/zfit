@@ -1,5 +1,5 @@
-legacy
-======
+zfit.util.legacy module
+=======================
 
 .. automodule:: zfit.util.legacy
    :members:

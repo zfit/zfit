@@ -1,0 +1,1017 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../_static/zfit-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Getting started" href="../getting_started/index.html" />
+    <link rel="prev" title="Upgrade guide" href="upgrade_guide.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    
+    <a class="navbar-brand" href="../index.html">
+      <img src="../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../getting_started/index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+        
+          
+              <li class="">
+                  <a href="upgrade_guide.html">Upgrade guide</a>
+              </li>
+          
+        
+          
+              <li class="active">
+                  <a href="">Changelog</a>
+              </li>
+          
+        
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#develop" class="nav-link">Develop</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#major-features-and-improvements" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#breaking-changes" class="nav-link">Breaking changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#depreceations" class="nav-link">Depreceations</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#bug-fixes-and-small-changes" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#experimental" class="nav-link">Experimental</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#requirement-changes" class="nav-link">Requirement changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#thanks" class="nav-link">Thanks</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id1" class="nav-link">0.5.3 (02.07.20)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id2" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id3" class="nav-link">Breaking changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id4" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id5" class="nav-link">Requirement changes</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id6" class="nav-link">0.5.2 (13.05.2020)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id7" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id8" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id9" class="nav-link">Requirement changes</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id10" class="nav-link">0.5.1 (24.04.2020)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id11" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id12" class="nav-link">Breaking changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#deprecations" class="nav-link">Deprecations</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id13" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id14" class="nav-link">Experimental</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id15" class="nav-link">Requirement changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id16" class="nav-link">Thanks</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id17" class="nav-link">0.4.3 (11.3.2020)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id18" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#behavioral-changes" class="nav-link">Behavioral changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id19" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id20" class="nav-link">Requirement changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id21" class="nav-link">Thanks</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id22" class="nav-link">0.4.2 (27.2.2020)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id23" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id24" class="nav-link">Behavioral changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id25" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id26" class="nav-link">Requirement changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id27" class="nav-link">Thanks</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id28" class="nav-link">0.4.1 (12.1.20)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id29" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id30" class="nav-link">0.4.0 (7.1.2020)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id31" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id32" class="nav-link">Behavioral changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id33" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id34" class="nav-link">Requirement changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id35" class="nav-link">Thanks</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id36" class="nav-link">0.3.7 (6.12.19)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id37" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id38" class="nav-link">Behavioral changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id39" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id40" class="nav-link">Requirement changes</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id41" class="nav-link">0.3.6 (12.10.19)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id42" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id43" class="nav-link">Behavioral changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id44" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id45" class="nav-link">Requirement changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id46" class="nav-link">Thanks</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id47" class="nav-link">0.3.4 (30-07-19)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id48" class="nav-link">Major Features and Improvements</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id49" class="nav-link">Behavioral changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id50" class="nav-link">Bug fixes and small changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id51" class="nav-link">Thanks</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id52" class="nav-link">0.3.3 (15-05-19)</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id53" class="nav-link">0.3.2 (01-05-19)</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#id54" class="nav-link">Breaking changes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#bugfixes" class="nav-link">Bugfixes</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#improvements" class="nav-link">Improvements</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id55" class="nav-link">0.3.1 (30-04-19)</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id56" class="nav-link">0.3.0 (2019-03-20)</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#id57" class="nav-link">0.0.1 (2018-03-22)</a>
+        </li>
+    
+    </ul>
+</nav>
+
+
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/zfit/zfit/edit/develop/docs/whats_new/changelog.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="develop">
+<h2>Develop<a class="headerlink" href="#develop" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="major-features-and-improvements">
+<h3>Major Features and Improvements<a class="headerlink" href="#major-features-and-improvements" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="breaking-changes">
+<h3>Breaking changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Minuit uses its own, internal gradient by default. To change this back, use <cite>use_minuit_grad=False</cite></p></li>
+<li><p><cite>minimize(params=…)</cite> now filters correctly non-floating parameters.</p></li>
+<li><p><cite>z.log</cite> has been moved to <cite>z.math.log</cite> (following TF)</p></li>
+</ul>
+</div>
+<div class="section" id="depreceations">
+<h3>Depreceations<a class="headerlink" href="#depreceations" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="bug-fixes-and-small-changes">
+<h3>Bug fixes and small changes<a class="headerlink" href="#bug-fixes-and-small-changes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>ncalls is not correctly using the internal heuristc or the ncalls explicitly</p></li>
+<li><p><cite>minimize(params=…)</cite> automatically extracts independent parameters.</p></li>
+<li><p>fix copy issue of KDEV1 and change name to ‘adaptive’ (instead of ‘adaptiveV1’)</p></li>
+<li><p>change exp name of <cite>lambda_</cite> to lam (in init)</p></li>
+<li><p>add <cite>set_yield</cite> to BasePDF to allow setting the yield in place</p></li>
+</ul>
+</div>
+<div class="section" id="experimental">
+<h3>Experimental<a class="headerlink" href="#experimental" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="requirement-changes">
+<h3>Requirement changes<a class="headerlink" href="#requirement-changes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>upgrade to iminuit&gt;=1.4</p></li>
+<li><p>remove cloudpickle hack fix</p></li>
+</ul>
+</div>
+<div class="section" id="thanks">
+<h3>Thanks<a class="headerlink" href="#thanks" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>0.5.3 (02.07.20)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Kernel density estimation for 1 dimension.</p>
+<div class="section" id="id2">
+<h3>Major Features and Improvements<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>add correlation method to FitResult</p></li>
+<li><p>Gaussian (Truncated) Kernel Density Estimation in one dimension <cite>zfit.pdf.GaussianKDE1DimV1</cite> implementation with fixed and
+adaptive bandwidth added as V1. This
+is a feature that needs to be improved and feedback is welcome</p></li>
+<li><p>Non-relativistic Breit-Wigner PDF, called Cauchy, implementation added.</p></li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h3>Breaking changes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>change human-readable name of <cite>Gauss</cite>, <cite>Uniform</cite> and <cite>TruncatedGauss</cite> to remove the <cite>‘_tfp’</cite> at the end of the name</p></li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>fix color wrong in printout of results, params</p></li>
+<li><p>packaging: moved to pyproject.toml and a setup.cfg mainly, development requirements can
+be installed with the <cite>dev</cite> extra as (e.g.) <cite>pip install zfit[dev]</cite></p></li>
+<li><p>Fix shape issue in TFP distributions for partial integration</p></li>
+<li><p>change zfit internal algorithm (<cite>zfit_error</cite>) to compute error/intervals from the profile likelihood,
+which is 2-3 times faster than previous algorithm.</p></li>
+<li><p>add <cite>from_minuit</cite> constructor to <cite>FitResult</cite> allowing to create it when
+using directly iminuit</p></li>
+<li><p>fix possible bias with sampling using accept-reject</p></li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h3>Requirement changes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>pin down cloudpickle version (upstream bug with pip install) and TF, TFP versions</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>0.5.2 (13.05.2020)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h3>Major Features and Improvements<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Python 3.8 and TF 2.2 support</p></li>
+<li><p>easier debugigng with <cite>set_graph_mode</cite> that can also be used temporarily
+with a context manager. False will make everything execute Numpy-like.</p></li>
+</ul>
+</div>
+<div class="section" id="id8">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>added <cite>get_params</cite> to loss</p></li>
+<li><p>fix a bug with the <cite>fixed_params</cite> when creating a sampler</p></li>
+<li><p>improve exponential PDF stability and shift when normalized</p></li>
+<li><p>improve accept reject sampling to account for low statistics</p></li>
+</ul>
+</div>
+<div class="section" id="id9">
+<h3>Requirement changes<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>TensorFlow &gt;= 2.2</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id10">
+<h2>0.5.1 (24.04.2020)<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<p>(0.5.0 was skipped)</p>
+<p>Complete refactoring of Spaces to allow arbitrary function.
+New, more consistent behavior with extended PDFs.
+SumPDF refactoring, more explicit handling of fracs and yields.
+Improved graph building allowing for more fine-grained control of tracing.
+Stabilized minimization including a push-back for NaNs.</p>
+<div class="section" id="id11">
+<h3>Major Features and Improvements<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Arbitrary limits as well as vectorization (experimental)
+are now fully supported. The new <cite>Space</cite> has an additional argument for a function that
+tests if a vector x is inside.</p>
+<p>To test if a value is inside a space, <cite>Space.inside</cite> can be used. To filter values, <cite>Space.filter</cite>.</p>
+<p>The limits returned are now by default numpy arrays with the shape (1, n_obs). This corresponds well
+to the old layout and can, using <cite>z.unstack_x(lower)</cite> be treated like <cite>Data</cite>. This has also some
+consequences for the output format of <cite>rect_area</cite>: this is now a vector.</p>
+<p>Due to the ambiguity of the name <cite>limits</cite>, <cite>area</cite> etc (since they do only reflect the rectangular case)
+method with leading <cite>rect_*</cite> have been added (<cite>rect_limits</cite>, <cite>rect_area</cite> etc.) and are encouraged to be used.</p>
+</li>
+<li><p>Extending a PDF is more straightforward and removes any “magic”. The philosophy is: a PDF can be extended
+or not. But it does not change the fundamental behavior of functions.</p></li>
+<li><p>SumPDF has been refactored and behaves now as follows:
+Giving in pdfs (extended or not or mixed) <em>and</em> fracs (either length pdfs or one less) will create a
+non-extended SumPDF using the fracs. The fact that the pdfs are maybe extended is ignored.
+This will lead to highly consistent behavior.
+If the number of fracs given equals the number of pdfs, it is up to the user (currently) to take care of
+the normalization.
+<em>Only</em> if <em>all</em> pdfs are extended <strong>and</strong> no fracs are given, the sumpdf will be using the yields as
+normalized fracs and be extended.</p></li>
+<li><p>Improved graph building and <cite>z.function</cite></p>
+<ul class="simple">
+<li><p>the <cite>z.function</cite> can now, as with <cite>tf.function</cite>, be used either as a decorator without arguments or as a decorator with arguments. They are the same as in <cite>tf.function</cite>, except of a few additional ones.</p></li>
+<li><p><cite>zfit.run.set_mode</cite> allows to set the policy for whether everything is run in eager mode (<cite>graph=False</cite>),
+everything in graph, or most of it (<cite>graph=True</cite>) or an optimized variant, doing graph building only with
+losses but not just models (e.g. <cite>pdf</cite> won’t trigger a graph build, <cite>loss.value()</cite> will) with <cite>graph=’auto’</cite>.</p></li>
+<li><p>The graph cache can be cleaned manually using <cite>zfit.run.clear_graph_cache()</cite> in order to prevent slowness
+in repeated tasks.</p></li>
+</ul>
+</li>
+<li><p>Switch for numerical gradients has been added as well in <cite>zfit.run.set_mode(autograd=True/False)</cite>.</p></li>
+<li><p>Resetting to the default can be done with <cite>zfit.run.set_mode_default()</cite></p></li>
+<li><p>Improved stability of minimizer by adding penalty (currently in <cite>Minuit</cite>) as default. To have a
+better behavior with toys (e.g. never fail on NaNs but return an invalid <cite>FitResult</cite>), use the
+<cite>DefaultToyStrategy</cite> in <cite>zfit.mnimize</cite>.</p></li>
+<li><p>Exceptions are now publicly available in <cite>zfit.exception</cite></p></li>
+<li><p>Added nice printout for <cite>FitResult</cite> and <cite>FitResult.params</cite>.</p></li>
+<li><p><cite>get_params</cite> is now more meaningful, returning by default all independent parameters of the pdf, including yields.
+Arguments (<cite>floating</cite>, <cite>is_yield</cite>) allow for more fine-grained control.</p></li>
+</ul>
+</div>
+<div class="section" id="id12">
+<h3>Breaking changes<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Multiple limits are now handled by a MultiSpace class. Each Space has only “one limit”
+and no complicated layout has to be remembered. If you want to have a space that is
+defined in disconnected regions, use the <cite>+</cite> operator or functionally <cite>zfit.dimension.add_spaces</cite></p>
+<p>To extract limits from multiple limits, <cite>MultiSpace</cite> and <cite>Space</cite> are both iterables, returning
+the containing spaces respectively itself (for the <cite>Space</cite> case).</p>
+</li>
+<li><p>SumPDF changed in the behavior. Read above in the Major Features and Improvement.</p></li>
+<li><p>Integrals of extended PDFs are not extended anymore, but <cite>ext_integrate</cite> now returns the
+integral multiplied by the yield.</p></li>
+</ul>
+</div>
+<div class="section" id="deprecations">
+<h3>Deprecations<a class="headerlink" href="#deprecations" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>ComposedParameter</cite> takes now <cite>params</cite> instead of <cite>dependents</cite> as argument, it acts now as
+the arguments to the <cite>value_fn</cite>. To stay future compatible, create e.g. <cite>def value_fn(p1, pa2)</cite>
+and using <cite>params = [‘param1, param2]</cite>, <cite>value_fn</cite> will then be called as <cite>value_fn(param1, parma2)</cite>.
+<cite>value_fn</cite> without arguments will probably break in the future.</p></li>
+<li><p><cite>FitResult.error</cite> has been renamed to <cite>errors</cite> to better reflect that multiple errors, the lower and
+upper are returned.</p></li>
+</ul>
+</div>
+<div class="section" id="id13">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>fix a (nasty, rounding) bug in sampling with multiple limits</p></li>
+<li><p>fix bug in numerical calculation</p></li>
+<li><p>fix bug in SimplePDF</p></li>
+<li><p>fix wrong caching signature may lead to graph not being rebuild</p></li>
+<li><p>add <cite>zfit.param.set_values</cite> method that allows to set the values of multiple
+parameters with one command. Can, as the <cite>set_value</cite> method be used with a context manager.</p></li>
+<li><p>wrong size of weights when applying cuts in a dataset</p></li>
+<li><p><cite>with_coords</cite> did drop axes/obs</p></li>
+<li><p>Fix function not traced when an error was raised during first trace</p></li>
+<li><p>MultipleLimits support for analytic integrals</p></li>
+<li><p><cite>zfit.param.set_values(..)</cite> now also can use a <cite>FitResult</cite> as <cite>values</cite> argument to set the values
+from.</p></li>
+</ul>
+</div>
+<div class="section" id="id14">
+<h3>Experimental<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>added a new error method, ‘zfit_error’ that is equivalent to ‘minuit_minos’, but not fully
+stable. It can be used with other minimizers as well, not only Minuit.</p></li>
+</ul>
+</div>
+<div class="section" id="id15">
+<h3>Requirement changes<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>remove the outdated typing module</p></li>
+<li><p>add tableformatter, colored, colorama for colored table printout</p></li>
+</ul>
+</div>
+<div class="section" id="id16">
+<h3>Thanks<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Johannes Lade for code review and discussions.</p></li>
+<li><p>Hans Dembinski for useful inputs to the uncertainties.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id17">
+<h2>0.4.3 (11.3.2020)<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id18">
+<h3>Major Features and Improvements<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>refactor <cite>hesse_np</cite> with covariance matrix, make it available to all minimizers</p></li>
+</ul>
+</div>
+<div class="section" id="behavioral-changes">
+<h3>Behavioral changes<a class="headerlink" href="#behavioral-changes" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id19">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>fix bug in <cite>hesse_np</cite></p></li>
+</ul>
+</div>
+<div class="section" id="id20">
+<h3>Requirement changes<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id21">
+<h3>Thanks<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="id22">
+<h2>0.4.2 (27.2.2020)<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id23">
+<h3>Major Features and Improvements<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Refactoring of the Constraints, dividing into <cite>ProbabilityConstraint</cite> that can be
+sampled from and more general constraints (e.g. for parameter boundaries) that
+can not be sampled from.</p></li>
+<li><p>Doc improvements in the constraints.</p></li>
+<li><p>Add <cite>hesse</cite> error method (‘hesse_np’) available to all minimizers (not just Minuit).</p></li>
+</ul>
+</div>
+<div class="section" id="id24">
+<h3>Behavioral changes<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Changed default step size to an adaptive scheme, a fraction (1e-4) of the range between the lower and upper limits.</p></li>
+</ul>
+</div>
+<div class="section" id="id25">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Add <cite>use_minuit_grad</cite> option to Minuit optimizer to use the internal gradient, often for more stable fits</p></li>
+<li><p>added experimental flag <cite>zfit.experimental_loss_penalty_nan</cite>, which adds a penalty to the loss in case the value is
+nan. Can help with the optimisation. Feedback welcome!</p></li>
+</ul>
+</div>
+<div class="section" id="id26">
+<h3>Requirement changes<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id27">
+<h3>Thanks<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="id28">
+<h2>0.4.1 (12.1.20)<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h2>
+<p>Release to keep up with TensorFlow 2.1</p>
+<div class="section" id="id29">
+<h3>Major Features and Improvements<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed the comparison in caching the graph (implementation detail) that leads to an error.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id30">
+<h2>0.4.0 (7.1.2020)<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h2>
+<p>This release switched to TensorFlow 2.0 eager mode. In case this breaks things for you and you need <strong>urgently</strong>
+a running version, install a version
+&lt; 0.4.1. It is highly recommended to upgrade and make the small changes required.</p>
+<p>Please read the <cite>upgrade guide &lt;docs/project/upgrade_guide.rst&gt;</cite> on a more detailed explanation how to upgrade.</p>
+<p>TensorFlow 2.0 is eager executing and uses functions to abstract the performance critical parts away.</p>
+<div class="section" id="id31">
+<h3>Major Features and Improvements<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Dependents (currently, and probably also in the future) need more manual tracking. This has mostly
+an effect on CompositeParameters and SimpleLoss, which now require to specify the dependents by giving
+the objects it depends (indirectly) on. For example, it is sufficient to give a <cite>ComplexParameter</cite> (which
+itself is not independent but has dependents) to a <cite>SimpleLoss</cite> as dependents (assuming the loss
+function depends on it).</p></li>
+<li><p><cite>ComposedParameter</cite> does no longer allow to give a Tensor but requires a function that, when evaluated,
+returns the value. It depends on the <cite>dependents</cite> that are now required.</p></li>
+<li><p>Added numerical differentiation, which allows now to wrap any function with <cite>z.py_function</cite> (<cite>zfit.z</cite>).
+This can be switched on with <cite>zfit.settings.options[‘numerical_grad’] = True</cite></p></li>
+<li><p>Added gradient and hessian calculation options to the loss. Support numerical calculation as well.</p></li>
+<li><p>Add caching system for graph to prevent recursive graph building</p></li>
+<li><p>changed backend name to <cite>z</cite> and can be used as <cite>zfit.z</cite> or imported from it. Added:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>function</cite> decorator that can be used to trace a function. Respects dependencies of inputs and automatically
+caches/invalidates the graph and recreates.</p></li>
+<li><p><cite>py_function</cite>, same as <cite>tf.py_function</cite>, but checks and may extends in the future</p></li>
+<li><p><cite>math</cite> module that contains autodiff and numerical differentiation methods, both working with tensors.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="id32">
+<h3>Behavioral changes<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>EDM goal of the minuit minimizer has been reduced by a factor of 10 to 10E-3 in agreement with
+the goal in RooFits Minuit minimizer. This can be varied by specifying the tolerance.</p></li>
+<li><p>known issue: the <cite>projection_pdf</cite> has troubles with the newest TF version and may not work properly (runs out of
+memory)</p></li>
+</ul>
+</div>
+<div class="section" id="id33">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id34">
+<h3>Requirement changes<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>added numdifftools (for numerical differentiation)</p></li>
+</ul>
+</div>
+<div class="section" id="id35">
+<h3>Thanks<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="id36">
+<h2>0.3.7 (6.12.19)<a class="headerlink" href="#id36" title="Permalink to this headline">¶</a></h2>
+<p>This is a legacy release to add some fixes, next release is TF 2 eager mode only release.</p>
+<div class="section" id="id37">
+<h3>Major Features and Improvements<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>mostly TF 2.0 compatibility in graph mode, tests against 1.x and 2.x</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id38">
+<h3>Behavioral changes<a class="headerlink" href="#id38" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="id39">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id39" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>get_depentents</cite> returns now an OrderedSet</p></li>
+<li><p>errordef is now a (hidden) attribute and can be changed</p></li>
+<li><p>fix bug in polynomials</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id40">
+<h3>Requirement changes<a class="headerlink" href="#id40" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>added ordered-set</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id41">
+<h2>0.3.6 (12.10.19)<a class="headerlink" href="#id41" title="Permalink to this headline">¶</a></h2>
+<p><strong>Special release for conda deployment and version fix (TF 2.0 is out)</strong></p>
+<p><strong>This is the last release before breaking changes occur</strong></p>
+<div class="section" id="id42">
+<h3>Major Features and Improvements<a class="headerlink" href="#id42" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>added ConstantParameter and <cite>zfit.param</cite> namespace</p></li>
+<li><p>Available on conda-forge</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id43">
+<h3>Behavioral changes<a class="headerlink" href="#id43" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>an implicitly created parameter with a Python numerical (e.g. when instantiating a model)
+will be converted to a ConstantParameter instead of a fixed Parameter and therefore
+cannot be set to floating later on.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id44">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id44" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>added native support TFP distributions for analytic sampling</p></li>
+<li><p>fix Gaussian (TFP Distribution) Constraint with mixed up order of parameters</p></li>
+<li><p><cite>from_numpy</cite> automatically converts to default float regardless the original numpy dtype,
+<cite>dtype</cite> has to be used as an explicit argument</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id45">
+<h3>Requirement changes<a class="headerlink" href="#id45" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>TensorFlow &gt;= 1.14 is required</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id46">
+<h3>Thanks<a class="headerlink" href="#id46" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Chris Burr for the conda-forge deployment</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id47">
+<h2>0.3.4 (30-07-19)<a class="headerlink" href="#id47" title="Permalink to this headline">¶</a></h2>
+<p><strong>This is the last release before breaking changes occur</strong></p>
+<div class="section" id="id48">
+<h3>Major Features and Improvements<a class="headerlink" href="#id48" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>create <cite>Constraint</cite> class which allows for more fine grained control and information on the applied constraints.</p></li>
+<li><p>Added Polynomial models</p></li>
+<li><p>Improved and fixed sampling (can still be slightly biased)</p></li>
+</ul>
+</div>
+<div class="section" id="id49">
+<h3>Behavioral changes<a class="headerlink" href="#id49" title="Permalink to this headline">¶</a></h3>
+<p>None</p>
+</div>
+<div class="section" id="id50">
+<h3>Bug fixes and small changes<a class="headerlink" href="#id50" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>fixed various small bugs</p></li>
+</ul>
+</div>
+<div class="section" id="id51">
+<h3>Thanks<a class="headerlink" href="#id51" title="Permalink to this headline">¶</a></h3>
+<p>for the contribution of the Constraints to Matthieu Marinangeli &lt;<a class="reference external" href="mailto:matthieu&#46;marinangeli&#37;&#52;&#48;cern&#46;ch">matthieu<span>&#46;</span>marinangeli<span>&#64;</span>cern<span>&#46;</span>ch</a>&gt;</p>
+</div>
+</div>
+<div class="section" id="id52">
+<h2>0.3.3 (15-05-19)<a class="headerlink" href="#id52" title="Permalink to this headline">¶</a></h2>
+<p>Fixed Partial numeric integration</p>
+<p>Bugfixes mostly, a few major fixes. Partial numeric integration works now.</p>
+<dl class="simple">
+<dt>Bugfixes</dt><dd><ul class="simple">
+<li><p>data_range cuts are now applied correctly, also in several dimensions when a subset is selected
+(which happens internally of some Functors, e.g. ProductPDF). Before, only the selected obs was respected for cuts.</p></li>
+<li><p>parital integration had a wrong take on checking limits (now uses supports).</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="id53">
+<h2>0.3.2 (01-05-19)<a class="headerlink" href="#id53" title="Permalink to this headline">¶</a></h2>
+<p>With 0.3.2, bugfixes and three changes in the API/behavior</p>
+<div class="section" id="id54">
+<h3>Breaking changes<a class="headerlink" href="#id54" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>tfp distributions wrapping is now different with dist_kwargs allowing for non-Parameter arguments (like other dists)</p></li>
+<li><p>sampling allows now for importance sampling (sampler in Model specified differently)</p></li>
+<li><p><cite>model.sample</cite> now also returns a tensor, being consistent with <cite>pdf</cite> and <cite>integrate</cite></p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bugfixes">
+<h3>Bugfixes<a class="headerlink" href="#bugfixes" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>shape handling of tfp dists was “wrong” (though not producing wrong results!), fixed. TFP distributions now get a tensor with shape (nevents, nobs) instead of a list of tensors with (nevents,)</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="improvements">
+<h3>Improvements<a class="headerlink" href="#improvements" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>refactor the sampling for more flexibility and performance (less graph constructed)</p></li>
+<li><p>allow to use more sophisticated importance sampling (e.g. phasespace)</p></li>
+<li><p>on-the-fly normalization (experimentally) implemented with correct gradient</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id55">
+<h2>0.3.1 (30-04-19)<a class="headerlink" href="#id55" title="Permalink to this headline">¶</a></h2>
+<p>Minor improvements and bugfixes including:</p>
+<ul class="simple">
+<li><p>improved importance sampling allowing to preinstantiate objects before it’s called inside the while loop</p></li>
+<li><p>fixing a problem with <cite>ztf.sqrt</cite></p></li>
+</ul>
+</div>
+<div class="section" id="id56">
+<h2>0.3.0 (2019-03-20)<a class="headerlink" href="#id56" title="Permalink to this headline">¶</a></h2>
+<p>Beta stage and first pip release</p>
+</div>
+<div class="section" id="id57">
+<h2>0.0.1 (2018-03-22)<a class="headerlink" href="#id57" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>First creation of the package.</p></li>
+</ul>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="upgrade_guide.html" title="previous page">Upgrade guide</a>
+    <a class='right-next' id="next-link" href="../getting_started/index.html" title="next page">Getting started</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    <script src="../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

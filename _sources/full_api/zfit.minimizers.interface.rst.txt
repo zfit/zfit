@@ -1,5 +1,5 @@
-interface
-=========
+zfit.minimizers.interface module
+================================
 
 .. automodule:: zfit.minimizers.interface
    :members:

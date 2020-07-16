@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConstantParameter &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/zfit-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Parameter" href="zfit.param.Parameter.html" />
+    <link rel="prev" title="Param" href="../zfit.param.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    
+    <a class="navbar-brand" href="../../index.html">
+      <img src="../../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../getting_started/index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="../index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+      
+      
+        
+          
+              <li class="">
+                  <a href="../zfit.constraint.html">Constraint</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.data.html">Data</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.dimension.html">Dimension</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.exception.html">Exception</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.func.html">Func</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.loss.html">Loss</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.minimize.html">Minimize</a>
+              </li>
+          
+        
+          
+
+              <li class="active">
+                  <a href="../zfit.param.html">Param</a>
+                  <ul>
+                  
+                      <li class="active">
+                          <a href="">ConstantParameter</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="zfit.param.Parameter.html">Parameter</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="zfit.param.ComposedParameter.html">ComposedParameter</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="zfit.param.ComplexParameter.html">ComplexParameter</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="zfit.param.convert_to_parameter.html">convert_to_parameter</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="zfit.param.set_values.html">set_values</a>
+                      </li>
+                  
+                  </ul>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.pdf.html">PDF</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.util.typing.html">zfit typing</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.sample.html">Sample</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../zfit.settings.html">Settings</a>
+              </li>
+          
+        
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/zfit/zfit/edit/develop/docs/user_api/param/zfit.param.ConstantParameter.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="constantparameter">
+<h1>ConstantParameter<a class="headerlink" href="#constantparameter" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="zfit.param.ConstantParameter">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.param.</code><code class="sig-name descname">ConstantParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/zfit/core/parameter.html#ConstantParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.param.ConstantParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../../full_api/zfit.core.parameter.html#zfit.core.parameter.OverloadableMixin" title="zfit.core.parameter.OverloadableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.OverloadableMixin</span></code></a>, <a class="reference internal" href="../../full_api/zfit.core.parameter.html#zfit.core.parameter.ZfitParameterMixin" title="zfit.core.parameter.ZfitParameterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.ZfitParameterMixin</span></code></a>, <a class="reference internal" href="../../full_api/zfit.core.parameter.html#zfit.core.parameter.BaseParameter" title="zfit.core.parameter.BaseParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.parameter.BaseParameter</span></code></a></p>
+<p>Constant parameter. Value cannot change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – </p></li>
+<li><p><strong>value</strong> – </p></li>
+<li><p><strong>dtype</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="zfit.param.ConstantParameter.add_cache_deps">
+<code class="sig-name descname">add_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cache_deps</span></em>, <em class="sig-param"><span class="n">allow_non_cachable</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.add_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add dependencies that render the cache invalid if they change.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cache_deps</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ForwardRef" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ForwardRef" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code></a>]]) – </p></li>
+<li><p><strong>allow_non_cachable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If <cite>True</cite>, allow <cite>cache_dependents</cite> to be non-cachables.
+If <cite>False</cite>, any <cite>cache_dependents</cite> that is not a <cite>ZfitCachable</cite> will raise an error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – if one of the <cite>cache_dependents</cite> is not a <cite>ZfitCachable</cite> _and_ <cite>allow_non_cachable</cite>
+    if <cite>False</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.param.ConstantParameter.dtype">
+<em class="property">property </em><code class="sig-name descname">dtype</code><a class="headerlink" href="#zfit.param.ConstantParameter.dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>The dtype of the object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DType</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.param.ConstantParameter.get_cache_deps">
+<code class="sig-name descname">get_cache_deps</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.get_cache_deps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of all independent <a class="reference internal" href="../../full_api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> that this object depends on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>only_floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If <cite>True</cite>, only return floating <a class="reference internal" href="../../full_api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OrderedSet</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.param.ConstantParameter.get_dependencies">
+<code class="sig-name descname">get_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">only_floating</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.get_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED FUNCTION</p>
+<p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use <cite>get_params</cite> instead if you want to retrieve the independent parameters or <cite>get_cache_deps</cite> in case you need the numerical cache dependents (advanced).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OrderedSet</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.param.ConstantParameter.get_params">
+<code class="sig-name descname">get_params</code><span class="sig-paren">(</span><em class="sig-param">floating=True</em>, <em class="sig-param">is_yield=None</em>, <em class="sig-param">extract_independent=True</em>, <em class="sig-param">only_floating=&lt;class 'zfit.util.checks.NotSpecified'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively collect parameters that this object depends on according to the filter criteria.</p>
+<dl class="simple">
+<dt>Which parameters should be included can be steered using the arguments as a filter.</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt><strong>None</strong>: do not filter on this. E.g. <cite>floating=None</cite> will return parameters that are floating as well as</dt><dd><p>parameters that are fixed.</p>
+</dd>
+</dl>
+</li>
+<li><p><strong>True</strong>: only return parameters that fulfil this criterion</p></li>
+<li><dl class="simple">
+<dt><strong>False</strong>: only return parameters that do not fulfil this criterion. E.g. <cite>floating=False</cite> will return</dt><dd><p>only parameters that are not floating.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>floating</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>]) – if a parameter is floating, e.g. if <code class="xref py py-meth docutils literal notranslate"><span class="pre">floating()</span></code> returns <cite>True</cite></p></li>
+<li><p><strong>is_yield</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>]) – if a parameter is a yield of the _current_ model. This won’t be applied recursively, but may include
+yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
+model depends on other yields (or also non-yields), this will be included. If, however, just submodels
+depend on a yield (as their yield) and it is not correlated to the output of our model, they won’t be
+included.</p></li>
+<li><p><strong>extract_independent</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>]) – If the parameter is an independent parameter, i.e. if it is a <cite>ZfitIndependentParameter</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Set" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Set</span></code></a>[<a class="reference internal" href="../../full_api/zfit.core.interfaces.html#zfit.core.interfaces.ZfitParameter" title="zfit.core.interfaces.ZfitParameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitParameter</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.param.ConstantParameter.register_cacher">
+<code class="sig-name descname">register_cacher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cacher</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.register_cacher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a <cite>cacher</cite> that caches values produces by this instance; a dependent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cacher</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ForwardRef" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ForwardRef" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code></a>]]) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.param.ConstantParameter.reset_cache_self">
+<code class="sig-name descname">reset_cache_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.param.ConstantParameter.reset_cache_self" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the cache of self and all dependent cachers.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="../zfit.param.html" title="previous page">Param</a>
+    <a class='right-next' id="next-link" href="zfit.param.Parameter.html" title="next page">Parameter</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    <script src="../../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

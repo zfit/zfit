@@ -1,5 +1,5 @@
-cache
-=====
+zfit.util.cache module
+======================
 
 .. automodule:: zfit.util.cache
    :members:

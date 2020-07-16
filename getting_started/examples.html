@@ -1,0 +1,854 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../_static/zfit-favicon.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API reference" href="../user_api/index.html" />
+    <link rel="prev" title="Minimization" href="intro/minimize.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    
+    <a class="navbar-brand" href="../index.html">
+      <img src="../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+        
+          
+              <li class="">
+                  <a href="installation.html">Installation</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="5_minutes_to_zfit.html">5 minutes to zfit</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="intro/index.html">Introduction</a>
+              </li>
+          
+        
+          
+              <li class="active">
+                  <a href="">Examples</a>
+              </li>
+          
+        
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#composing-pdfs" class="nav-link">Composing PDFs</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#custum-3d-functor" class="nav-link">Custum 3D Functor</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#custom-pdf-simple" class="nav-link">Custom PDF simple</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#custom-pdf-advanced" class="nav-link">Custom PDF advanced</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#custom-3d-pdf" class="nav-link">Custom 3D PDF</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#multidimensional-preprocess-fit" class="nav-link">Multidimensional preprocess fit</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#plot-signal-background" class="nav-link">Plot signal background</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#simple-fit" class="nav-link">Simple fit</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#signal-background-mass-fit" class="nav-link">Signal-background-mass fit</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#signal-background-mass-fit-extended" class="nav-link">Signal-background-mass fit extended</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#simultanous-fit" class="nav-link">Simultanous fit</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#spaces" class="nav-link">Spaces</a>
+        </li>
+    
+    </ul>
+</nav>
+
+
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/zfit/zfit/edit/develop/docs/getting_started/examples.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="composing-pdfs">
+<h2>Composing PDFs<a class="headerlink" href="#composing-pdfs" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+
+<span class="c1"># create space</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># parameters</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">lambd</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">frac</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;fraction&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+
+<span class="c1"># pdf creation</span>
+<span class="n">gauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+<span class="n">exponential</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">lambd</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+
+<span class="n">sum_pdf</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">SumPDF</span><span class="p">([</span><span class="n">gauss</span><span class="p">,</span> <span class="n">exponential</span><span class="p">],</span> <span class="n">fracs</span><span class="o">=</span><span class="n">frac</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custum-3d-functor">
+<h2>Custum 3D Functor<a class="headerlink" href="#custum-3d-functor" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="c1"># Functors are PDfs and Functions that depend on other PDFs or Functions. They can be used to define</span>
+<span class="c1"># in a custom way combinations of PDFs or wrapping a single PDF.</span>
+<span class="c1"># An example would be to create the sum of two PDFs. Of course this is already implemented in zfit</span>
+<span class="c1"># as the functor SumPDF([pdf1, pdf2], fracs=...). For advanced uses, you</span>
+<span class="c1"># can define your own functor as demonstrated below.</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="k">class</span> <span class="nc">CombinePolynomials</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">BaseFunctor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Example of a functor pdf that adds three polynomials.</span>
+<span class="sd">    </span>
+<span class="sd">    DEMONSTRATION PURPOSE ONLY, DO **NOT** USE IN REAL CASE.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle1</span><span class="p">,</span> <span class="n">angle2</span><span class="p">,</span> <span class="n">angle3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;3dPolynomial&quot;</span><span class="p">):</span>
+        <span class="n">pdfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">angle1</span><span class="p">,</span> <span class="n">angle2</span><span class="p">,</span> <span class="n">angle3</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">cosangle1_data</span><span class="p">,</span> <span class="n">cosangle2_data</span><span class="p">,</span> <span class="n">angle3_data</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">()</span>
+        <span class="n">cosangle1</span><span class="p">,</span> <span class="n">cosangle2</span><span class="p">,</span> <span class="n">angle3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span>
+
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">cosangle1</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">cosangle1_data</span><span class="p">)</span> <span class="o">+</span> <span class="n">cosangle2</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">cosangle2_data</span><span class="p">)</span> <span class="o">+</span> <span class="n">angle3</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">angle3_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdf</span>
+
+
+<span class="k">def</span> <span class="nf">create_angular</span><span class="p">():</span>
+    <span class="c1"># create parameters</span>
+    <span class="c1"># c00 = zfit.Parameter(...)</span>
+    <span class="c1"># ... and so on</span>
+
+    <span class="n">cosangle1_space</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;cos angle 1&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">cosangle2_space</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;cos angle 2&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">angle3_space</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;angle 3&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+
+    <span class="c1"># this part could also be moved inside the __init__, but then the init would need to take all</span>
+    <span class="c1"># the coefficients and the spaces as arguments</span>
+    <span class="n">cosangle1_pdf</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Chebyshev</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">cosangle1_space</span><span class="p">,</span> <span class="n">coeffs</span><span class="o">=</span><span class="p">[</span><span class="n">c00</span><span class="p">,</span> <span class="n">c01</span><span class="p">,</span> <span class="n">c02</span><span class="p">])</span>
+    <span class="n">cosangle2_pdf</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Chebyshev</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">cosangle2_space</span><span class="p">,</span> <span class="n">coeffs</span><span class="o">=</span><span class="p">[</span><span class="n">c10</span><span class="p">,</span> <span class="n">c11</span><span class="p">,</span> <span class="n">c12</span><span class="p">])</span>
+    <span class="n">angle3_pdf</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Chebyshev</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">angle3_space</span><span class="p">,</span> <span class="n">coeffs</span><span class="o">=</span><span class="p">[</span><span class="n">c20</span><span class="p">,</span> <span class="n">c21</span><span class="p">,</span> <span class="n">c22</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">CombinePolynomials</span><span class="p">(</span><span class="n">angle1</span><span class="o">=</span><span class="n">cosangle1_pdf</span><span class="p">,</span> <span class="n">angle2</span><span class="o">=</span><span class="n">cosangle2_pdf</span><span class="p">,</span> <span class="n">angle3</span><span class="o">=</span><span class="n">angle3_pdf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-pdf-simple">
+<h2>Custom PDF simple<a class="headerlink" href="#custom-pdf-simple" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
+
+
+<span class="k">class</span> <span class="nc">CustomPDF</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ZPDF</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;1-dimensional PDF implementing the exp(alpha * x) shape.&quot;&quot;&quot;</span>
+    <span class="n">_PARAMS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span>  <span class="c1"># specify which parameters to take</span>
+
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>  <span class="c1"># implement function</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">data</span><span class="p">)</span>
+
+
+<span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;obs1&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="n">custom_pdf</span> <span class="o">=</span> <span class="n">CustomPDF</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+
+<span class="n">integral</span> <span class="o">=</span> <span class="n">custom_pdf</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">custom_pdf</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">prob</span> <span class="o">=</span> <span class="n">custom_pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-pdf-advanced">
+<h2>Custom PDF advanced<a class="headerlink" href="#custom-pdf-advanced" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
+
+
+<span class="k">class</span> <span class="nc">CustomPDF2D</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">BasePDF</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;My custom, 2 dimensional pdf. The axes are: Energy, Momentum.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param1</span><span class="p">,</span> <span class="n">param2</span><span class="p">,</span> <span class="n">param3</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CustomPDF&quot;</span><span class="p">,</span> <span class="p">):</span>
+        <span class="c1"># we can now do complicated stuff here if needed</span>
+        <span class="c1"># only thing: we have to specify explicitly here what is which parameter</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;super_param&#39;</span><span class="p">:</span> <span class="n">param1</span><span class="p">,</span>  <span class="c1"># we can change/compose etc parameters</span>
+                  <span class="s1">&#39;param2&#39;</span><span class="p">:</span> <span class="n">param2</span><span class="p">,</span> <span class="s1">&#39;param3&#39;</span><span class="p">:</span> <span class="n">param3</span><span class="p">}</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">energy</span><span class="p">,</span> <span class="n">momentum</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">()</span>
+        <span class="n">param1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;super_param&#39;</span><span class="p">]</span>
+        <span class="n">param2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;param2&#39;</span><span class="p">]</span>
+        <span class="n">param3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;param3&#39;</span><span class="p">]</span>
+
+        <span class="c1"># just a fantasy function</span>
+        <span class="n">probs</span> <span class="o">=</span> <span class="n">param1</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">energy</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">param2</span> <span class="o">*</span> <span class="n">momentum</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">param3</span>
+        <span class="k">return</span> <span class="n">probs</span>
+
+
+<span class="c1"># add an analytic integral</span>
+
+<span class="c1"># define the integral function</span>
+<span class="k">def</span> <span class="nf">integral_full</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limit1d</span>
+    <span class="n">param1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;super_param&#39;</span><span class="p">]</span>
+    <span class="n">param2</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;param2&#39;</span><span class="p">]</span>
+    <span class="n">param3</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;param3&#39;</span><span class="p">]</span>
+
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
+
+    <span class="c1"># calculate the integral here, dummy integral, wrong!</span>
+    <span class="n">integral</span> <span class="o">=</span> <span class="n">param1</span> <span class="o">*</span> <span class="n">param2</span> <span class="o">*</span> <span class="n">param3</span> <span class="o">+</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">([</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">integral</span>
+
+
+<span class="c1"># define the space over which it is defined. Here, we use the axes</span>
+<span class="n">lower_full</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="o">.</span><span class="n">ANY_LOWER</span><span class="p">)</span>
+<span class="n">upper_full</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="o">.</span><span class="n">ANY_UPPER</span><span class="p">)</span>
+<span class="n">integral_full_limits</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                  <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">lower_full</span><span class="p">,</span> <span class="n">upper_full</span><span class="p">))</span>
+
+<span class="n">CustomPDF2D</span><span class="o">.</span><span class="n">register_analytic_integral</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">integral_full</span><span class="p">,</span>
+                                       <span class="n">limits</span><span class="o">=</span><span class="n">integral_full_limits</span><span class="p">)</span>
+
+
+<span class="c1"># define the partial integral function</span>
+<span class="k">def</span> <span class="nf">integral_axis1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="n">data_0</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">()</span>  <span class="c1"># data from axis 0</span>
+
+    <span class="n">param1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;super_param&#39;</span><span class="p">]</span>
+    <span class="n">param2</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;param2&#39;</span><span class="p">]</span>
+    <span class="n">param3</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;param3&#39;</span><span class="p">]</span>
+
+    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">limit1d</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>  <span class="c1"># the limits are now 1-D, for axis 1</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
+
+    <span class="c1"># calculate the integral here, dummy integral</span>
+    <span class="n">integral</span> <span class="o">=</span> <span class="n">data_0</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">param1</span> <span class="o">*</span> <span class="n">param2</span> <span class="o">*</span> <span class="n">param3</span> <span class="o">+</span> <span class="n">z</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">([</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">integral</span>
+
+
+<span class="c1"># define the space over which it is defined. Here, we use the axes</span>
+<span class="n">lower_axis1</span> <span class="o">=</span> <span class="p">((</span><span class="o">-</span><span class="mi">5</span><span class="p">,),)</span>
+<span class="n">upper_axis1</span> <span class="o">=</span> <span class="p">((</span><span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="o">.</span><span class="n">ANY_UPPER</span><span class="p">,),)</span>
+<span class="n">integral_axis1_limits</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+                                   <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">lower_axis1</span><span class="p">,</span> <span class="n">upper_axis1</span><span class="p">))</span>
+
+<span class="n">CustomPDF2D</span><span class="o">.</span><span class="n">register_analytic_integral</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">integral_axis1</span><span class="p">,</span>
+                                       <span class="n">limits</span><span class="o">=</span><span class="n">integral_axis1_limits</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span> <span class="o">*</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;obs2&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">CustomPDF2D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-3d-pdf">
+<h2>Custom 3D PDF<a class="headerlink" href="#custom-3d-pdf" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">z</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+
+<span class="c1"># IMPORTANT! The communication of which axis corresponds to which data point happens here. So the user knows now that</span>
+<span class="c1"># he should create this pdf with a space in the obs (x, y, z).</span>
+
+
+<span class="k">class</span> <span class="nc">CustomPDF</span><span class="p">(</span><span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ZPDF</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;3-dimensional PDF calculating doing something fancy. Takes x, y, z as data.&quot;&quot;&quot;</span>
+    <span class="n">_PARAMS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">]</span>  <span class="c1"># specify which parameters to take</span>
+    <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>  <span class="c1"># implement function</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">()</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;beta&#39;</span><span class="p">]</span>
+        <span class="n">x_new</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span>
+        <span class="n">y_new</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="o">*</span> <span class="n">y</span>
+        <span class="n">z_new</span> <span class="o">=</span> <span class="n">z</span> <span class="o">+</span> <span class="mf">4.2</span>
+        <span class="k">return</span> <span class="n">x_new</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y_new</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">z_new</span> <span class="o">**</span> <span class="mi">2</span>
+
+
+<span class="n">xobs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;xobs&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">yobs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;yobs&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">zobs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">xobs</span> <span class="o">*</span> <span class="n">yobs</span> <span class="o">*</span> <span class="n">zobs</span>
+
+<span class="n">alpha</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># floating</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">floating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># non-floating</span>
+<span class="n">custom_pdf</span> <span class="o">=</span> <span class="n">CustomPDF</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">)</span>
+
+<span class="n">integral</span> <span class="o">=</span> <span class="n">custom_pdf</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>  <span class="c1"># = 1 since normalized</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">custom_pdf</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># DO NOT USE THIS FOR TOYS!</span>
+<span class="n">prob</span> <span class="o">=</span> <span class="n">custom_pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>  <span class="c1"># DO NOT USE THIS FOR TOYS!</span>
+
+<span class="n">integral_np</span><span class="p">,</span> <span class="n">sample_np</span><span class="p">,</span> <span class="n">prob_np</span> <span class="o">=</span> <span class="p">[</span><span class="n">integral</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">sample</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">prob</span><span class="o">.</span><span class="n">numpy</span><span class="p">()]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multidimensional-preprocess-fit">
+<h2>Multidimensional preprocess fit<a class="headerlink" href="#multidimensional-preprocess-fit" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+
+<span class="c1"># create space</span>
+<span class="n">xobs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;xobs&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">yobs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;yobs&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">zobs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">xobs</span> <span class="o">*</span> <span class="n">yobs</span> <span class="o">*</span> <span class="n">zobs</span>
+
+<span class="c1"># parameters</span>
+<span class="n">mu1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu1&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">mu23</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu_shared&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">sigma12</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma_shared&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">sigma3</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma3&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># model building, pdf creation</span>
+<span class="n">gauss_x</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma12</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">xobs</span><span class="p">)</span>
+<span class="n">gauss_y</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu23</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma12</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">yobs</span><span class="p">)</span>
+<span class="n">gauss_z</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu23</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma3</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">zobs</span><span class="p">)</span>
+
+<span class="n">product_gauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ProductPDF</span><span class="p">([</span><span class="n">gauss_x</span><span class="p">,</span> <span class="n">gauss_y</span><span class="p">,</span> <span class="n">gauss_z</span><span class="p">])</span>
+
+<span class="c1"># OR create directly from your 3 dimensional pdf as</span>
+<span class="c1"># model = MyPDF(obs=obs, param1=..., param2,...)</span>
+
+<span class="c1"># data</span>
+<span class="n">normal_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="p">[</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="p">[</span><span class="mf">3.</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">data_raw</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">normal_np</span><span class="p">)</span>  <span class="c1"># or from anywhere else, e.g. root</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">data_raw</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="c1"># preprocessing here, rename things. Match column names with the observable names &quot;xobs&quot;, &quot;yobs&quot;, &quot;z&quot; (they have to be</span>
+<span class="c1"># contained, more columns in the df is not a problem)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+
+<span class="c1"># create NLL</span>
+<span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">product_gauss</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># create a minimizer</span>
+<span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+
+<span class="c1"># do the error calculations, here with minos</span>
+<span class="n">param_errors</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">param_errors</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="plot-signal-background">
+<h2>Plot signal background<a class="headerlink" href="#plot-signal-background" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># create space</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># parameters</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">lambd</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.06</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">frac</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;fraction&quot;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># model building, pdf creation</span>
+<span class="n">gauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+<span class="n">exponential</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">lambd</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">SumPDF</span><span class="p">([</span><span class="n">gauss</span><span class="p">,</span> <span class="n">exponential</span><span class="p">],</span> <span class="n">fracs</span><span class="o">=</span><span class="n">frac</span><span class="p">)</span>
+
+<span class="c1"># data</span>
+<span class="n">n_sample</span> <span class="o">=</span> <span class="mi">10000</span>
+
+<span class="n">exp_data</span> <span class="o">=</span> <span class="n">exponential</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_sample</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">frac</span><span class="p">))</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+<span class="n">gauss_data</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_sample</span> <span class="o">*</span> <span class="n">frac</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+
+<span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mf">1.2</span><span class="p">)</span>
+<span class="n">lambd</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="o">-</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="n">frac</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mf">0.07</span><span class="p">)</span>
+
+<span class="c1"># plot the data</span>
+<span class="n">data_np</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span>
+<span class="n">n_bins</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">linewidth</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">plot_scaling</span> <span class="o">=</span> <span class="n">n_sample</span> <span class="o">/</span> <span class="n">n_bins</span> <span class="o">*</span> <span class="n">obs</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="c1"># plot the pdf BEFORE fitting</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Before fitting&quot;</span><span class="p">)</span>
+<span class="c1"># plot the data</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data_np</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s2">&quot;stepfilled&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data_np</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+<span class="c1"># plot the pdfs</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="n">y_gauss</span> <span class="o">=</span> <span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">frac</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>  <span class="c1"># notice the frac!</span>
+<span class="n">y_exp</span> <span class="o">=</span> <span class="p">(</span><span class="n">exponential</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">frac</span><span class="p">))</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>  <span class="c1"># notice the frac!</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Sum - Model&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_gauss</span> <span class="o">*</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gauss - Signal&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_exp</span> <span class="o">*</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Exponential - Background&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Physical observable&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="c1"># create NLL</span>
+<span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># create a minimizer</span>
+<span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
+
+<span class="c1"># do the error calculations, here with minos</span>
+<span class="n">param_errors</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;After fitting&quot;</span><span class="p">)</span>
+<span class="c1"># plot the data</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data_np</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s2">&quot;stepfilled&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data_np</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">histtype</span><span class="o">=</span><span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>  <span class="c1"># rerun now after the fitting</span>
+<span class="n">y_gauss</span> <span class="o">=</span> <span class="p">(</span><span class="n">gauss</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">frac</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+<span class="n">y_exp</span> <span class="o">=</span> <span class="p">(</span><span class="n">exponential</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">frac</span><span class="p">))</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Sum - Model&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_gauss</span> <span class="o">*</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gauss - Signal&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_exp</span> <span class="o">*</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Exponential - Background&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Physical observable&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="simple-fit">
+<h2>Simple fit<a class="headerlink" href="#simple-fit" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">zfit</span>
+
+<span class="c1"># create space</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># parameters</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># model building, pdf creation</span>
+<span class="n">gauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+
+<span class="c1"># data</span>
+<span class="n">normal_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">3.</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">normal_np</span><span class="p">)</span>
+
+<span class="c1"># create NLL</span>
+<span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">gauss</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># create a minimizer</span>
+<span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
+
+<span class="c1"># do the error calculations, here with minos</span>
+<span class="n">param_errors</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="signal-background-mass-fit">
+<h2>Signal-background-mass fit<a class="headerlink" href="#signal-background-mass-fit" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+
+<span class="c1"># create space</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># parameters</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">lambd</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.06</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">frac</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;fraction&quot;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># model building, pdf creation</span>
+<span class="n">gauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+<span class="n">exponential</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">lambd</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">SumPDF</span><span class="p">([</span><span class="n">gauss</span><span class="p">,</span> <span class="n">exponential</span><span class="p">],</span> <span class="n">fracs</span><span class="o">=</span><span class="n">frac</span><span class="p">)</span>
+
+<span class="c1"># data</span>
+<span class="n">n_sample</span> <span class="o">=</span> <span class="mi">10000</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+
+<span class="c1"># set the values to a start value for the fit</span>
+<span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mf">1.2</span><span class="p">)</span>
+<span class="n">lambd</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="o">-</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="n">frac</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mf">0.07</span><span class="p">)</span>
+
+<span class="c1"># create NLL</span>
+<span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># create a minimizer</span>
+<span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+<span class="c1"># do the error calculations, here with minos</span>
+<span class="n">param_hesse</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">hesse</span><span class="p">()</span>
+<span class="n">param_errors</span><span class="p">,</span> <span class="n">new_result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="signal-background-mass-fit-extended">
+<h2>Signal-background-mass fit extended<a class="headerlink" href="#signal-background-mass-fit-extended" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">n_bins</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="c1"># create space</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># parameters</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">lambd</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.06</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">)</span>
+
+<span class="c1"># model building, pdf creation</span>
+<span class="n">gauss</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+<span class="n">exponential</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Exponential</span><span class="p">(</span><span class="n">lambd</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+
+<span class="n">n_bkg</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;n_bkg&#39;</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+<span class="n">n_sig</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;n_sig&#39;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">gauss_extended</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">create_extended</span><span class="p">(</span><span class="n">n_sig</span><span class="p">)</span>
+<span class="n">exp_extended</span> <span class="o">=</span> <span class="n">exponential</span><span class="o">.</span><span class="n">create_extended</span><span class="p">(</span><span class="n">n_bkg</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">SumPDF</span><span class="p">([</span><span class="n">gauss_extended</span><span class="p">,</span> <span class="n">exp_extended</span><span class="p">])</span>
+
+<span class="c1"># data</span>
+<span class="c1"># n_sample = 10000</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">create_sampler</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">21200</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">resample</span><span class="p">()</span>
+
+<span class="c1"># set the values to a start value for the fit</span>
+<span class="n">mu</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">sigma</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="mf">1.2</span><span class="p">)</span>
+<span class="n">lambd</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="o">-</span><span class="mf">0.05</span><span class="p">)</span>
+
+<span class="c1"># create NLL</span>
+<span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">ExtendedUnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># create a minimizer</span>
+<span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+<span class="c1"># do the error calculations, here with hesse, than with minos</span>
+<span class="n">param_hesse</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">hesse</span><span class="p">()</span>
+<span class="n">param_errors</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="p">()</span>  <span class="c1"># this returns a new FitResult if a new minimum was found</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">valid</span><span class="p">)</span>  <span class="c1"># check if the result is still valid</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="simultanous-fit">
+<h2>Simultanous fit<a class="headerlink" href="#simultanous-fit" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2019 zfit</span>
+
+<span class="c1"># create space</span>
+<span class="kn">import</span> <span class="nn">zfit</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># parameters</span>
+<span class="n">mu_shared</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;mu_shared&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># mu is a shared parameter</span>
+<span class="n">sigma1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma_one&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">sigma2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;sigma_two&quot;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># model building, pdf creation</span>
+<span class="n">gauss1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu_shared</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma1</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+<span class="n">gauss2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">mu_shared</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma2</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+
+<span class="c1"># data</span>
+<span class="n">normal_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">3.</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">data1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">normal_np</span><span class="p">)</span>
+
+<span class="c1"># data</span>
+<span class="n">normal_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">data2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">normal_np</span><span class="p">)</span>
+
+<span class="c1"># create simultaenous loss, two possibilities</span>
+<span class="n">nll_simultaneous</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="p">[</span><span class="n">gauss1</span><span class="p">,</span> <span class="n">gauss2</span><span class="p">],</span>
+                                         <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">])</span>
+<span class="c1"># OR, equivalently</span>
+<span class="n">nll1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">gauss1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data1</span><span class="p">)</span>
+<span class="n">nll2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">gauss2</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data2</span><span class="p">)</span>
+<span class="n">nll_simultaneous2</span> <span class="o">=</span> <span class="n">nll1</span> <span class="o">+</span> <span class="n">nll2</span>
+
+<span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">()</span>
+<span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll_simultaneous2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="spaces">
+<span id="spaces-example"></span><h2>Spaces<a class="headerlink" href="#spaces" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+
+<span class="c1"># Addition of limit with the same observables</span>
+<span class="n">simple_limit1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">simple_limit2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">))</span>
+
+<span class="n">added_limits</span> <span class="o">=</span> <span class="n">simple_limit1</span> <span class="o">+</span> <span class="n">simple_limit2</span>
+<span class="c1"># OR equivalently</span>
+<span class="n">added_limits</span> <span class="o">=</span> <span class="n">simple_limit1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">simple_limit2</span><span class="p">)</span>
+
+<span class="c1"># multiplication of limits with different observables</span>
+<span class="n">first_limit_lower</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">first_limit_upper</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="n">second_limit_lower</span> <span class="o">=</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">second_limit_upper</span> <span class="o">=</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+
+<span class="n">space1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="s1">&#39;obs2&#39;</span><span class="p">],</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">first_limit_lower</span><span class="p">,</span> <span class="n">first_limit_upper</span><span class="p">))</span>
+<span class="n">space2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;obs3&#39;</span><span class="p">,</span> <span class="s1">&#39;obs4&#39;</span><span class="p">],</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">second_limit_lower</span><span class="p">,</span> <span class="n">second_limit_upper</span><span class="p">))</span>
+
+<span class="n">space4</span> <span class="o">=</span> <span class="n">space1</span> <span class="o">*</span> <span class="n">space2</span>
+
+<span class="k">assert</span> <span class="n">space4</span><span class="o">.</span><span class="n">obs</span> <span class="o">==</span> <span class="p">(</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="s1">&#39;obs2&#39;</span><span class="p">,</span> <span class="s1">&#39;obs3&#39;</span><span class="p">,</span> <span class="s1">&#39;obs4&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">space4</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">==</span> <span class="mi">4</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="intro/minimize.html" title="previous page">Minimization</a>
+    <a class='right-next' id="next-link" href="../user_api/index.html" title="next page">API reference</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    <script src="../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,5 +1,5 @@
-func
-====
+zfit.func module
+================
 
 .. automodule:: zfit.func
    :members:

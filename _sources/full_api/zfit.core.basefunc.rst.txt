@@ -1,5 +1,5 @@
-basefunc
-========
+zfit.core.basefunc module
+=========================
 
 .. automodule:: zfit.core.basefunc
    :members:

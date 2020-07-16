@@ -1,5 +1,5 @@
-parameter
-=========
+zfit.core.parameter module
+==========================
 
 .. automodule:: zfit.core.parameter
    :members:

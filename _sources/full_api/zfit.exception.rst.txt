@@ -1,5 +1,5 @@
-exception
-=========
+zfit.exception module
+=====================
 
 .. automodule:: zfit.exception
    :members:

@@ -1,5 +1,5 @@
-sample
-======
+zfit.core.sample module
+=======================
 
 .. automodule:: zfit.core.sample
    :members:

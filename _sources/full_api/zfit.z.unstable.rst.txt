@@ -1,5 +1,5 @@
-unstable
-========
+zfit.z.unstable module
+======================
 
 .. automodule:: zfit.z.unstable
    :members:

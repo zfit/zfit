@@ -1,5 +1,5 @@
-graph
-=====
+zfit.util.graph module
+======================
 
 .. automodule:: zfit.util.graph
    :members:

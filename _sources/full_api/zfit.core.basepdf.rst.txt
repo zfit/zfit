@@ -1,5 +1,5 @@
-basepdf
-=======
+zfit.core.basepdf module
+========================
 
 .. automodule:: zfit.core.basepdf
    :members:

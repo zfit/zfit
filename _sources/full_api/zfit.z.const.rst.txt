@@ -1,5 +1,5 @@
-const
-=====
+zfit.z.const module
+===================
 
 .. automodule:: zfit.z.const
    :members:

@@ -1,5 +1,5 @@
-polynomials
-===========
+zfit.models.polynomials module
+==============================
 
 .. automodule:: zfit.models.polynomials
    :members:

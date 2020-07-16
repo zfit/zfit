@@ -1,5 +1,5 @@
-testing
-=======
+zfit.core.testing module
+========================
 
 .. automodule:: zfit.core.testing
    :members:

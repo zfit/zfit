@@ -1,5 +1,5 @@
-coordinates
-===========
+zfit.core.coordinates module
+============================
 
 .. automodule:: zfit.core.coordinates
    :members:

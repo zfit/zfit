@@ -1,5 +1,5 @@
-diverse
-=======
+zfit.util.diverse module
+========================
 
 .. automodule:: zfit.util.diverse
    :members:

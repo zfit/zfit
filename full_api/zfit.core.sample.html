@@ -1,327 +1,210 @@
+
+
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sample &#8212; zfit 0.5.4.dev26+gc03a904 documentation</title>
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <title>zfit.core.sample module &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/language_data.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../_static/zfit-favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-2.3.2/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
 
-  </head><body>
+    
+    <a class="navbar-brand" href="../index.html">
+      <img src="../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../getting_started/index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
 
-        <a class="brand" href="../index.html"><img src="../_static/zfit-fin_57x24.png">
-          zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev26</b></span>
 
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
-            
-                <li><a href="../getting_started.html">Getting started</a></li>
-                <li><a href="../introduction.html">Intro</a></li>
-                <li><a href="../project.html">Project</a></li>
-                <li><a href="../user_api.html">API</a></li>
-            
-            
-              <li class="dropdown globaltoc-container">
-  <a role="button"
-     id="dLabelGlobalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="../index.html">Overview <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-      role="menu"
-      aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#what-did-just-happen">What did just happen?</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../introduction.html">zfit introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../intro/space.html">Space, Observable and Range</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/space.html#definitions">Definitions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#functional-limits">Functional limits</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#combining-limits">Combining limits</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../intro/space.html#using-the-limits">Using the limits</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/parameter.html">Parameter</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/model.html">Building a model</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#composite-pdf">Composite PDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#extended-pdf">Extended PDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/model.html#custom-pdf">Custom PDF</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#tensor-sampling">Tensor sampling</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/data.html">Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/loss.html">Loss</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/loss.html#adding-constraints">Adding constraints</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../intro/minimize.html">Minimization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../project.html">zfit Project</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/installation.html">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../project/installation.html#stable-release">Stable release</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/installation.html#from-sources">From sources</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../project/contributing.html">Contributing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../project/contributing.html#get-started">Get Started!</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../project/upgrade_guide.html">Upgrade guide</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/upgrade_guide.html#dependents">Dependents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog.html">Changelog</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#develop">Develop</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#breaking-changes">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#depreceations">Depreceations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#experimental">Experimental</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#requirement-changes">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#thanks">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id1">0.5.3 (02.07.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id3">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id5">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id6">0.5.2 (13.05.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id7">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id8">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id9">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id10">0.5.1 (24.04.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id11">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id12">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#deprecations">Deprecations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id13">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id14">Experimental</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id15">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id16">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id17">0.4.3 (11.3.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id18">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id19">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id20">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id21">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id22">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id23">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id24">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id25">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id26">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id27">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id28">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id29">Major Features and Improvements</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id30">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id31">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id32">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id33">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id34">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id35">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id36">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id37">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id38">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id39">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id40">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id41">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id42">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id43">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id44">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id45">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id46">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id47">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id48">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id49">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id50">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id51">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id52">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id53">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#id54">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#bugfixes">Bugfixes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../project/changelog.html#improvements">Improvements</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id55">0.3.1 (30-04-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id56">0.3.0 (2019-03-20)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../project/changelog.html#id57">0.0.1 (2018-03-22)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../project/authors.html">Development Lead</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/authors.html#authors">Authors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/authors.html#contributors">Contributors</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../user_api.html">zfit API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_api/zfit.html#submodules">Submodules</a><ul class="simple">
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</ul>
-</li>
-              
-                <li class="dropdown">
-  <a role="button"
-     id="dLabelLocalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="#">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"
-      role="menu"
-      aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">sample</a></li>
-</ul>
-</ul>
-</li>
-              
-            
-            
-            
-            
-            
-          </ul>
-
-          
-            
-<form class="navbar-form navbar-right" action="../search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div class="container">
-  <div class="row">
-    <div class="body span12 content" role="main">
       
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/zfit/zfit/edit/develop/docs/full_api/zfit.core.sample.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
   <div class="section" id="module-zfit.core.sample">
-<span id="sample"></span><h1>sample<a class="headerlink" href="#module-zfit.core.sample" title="Permalink to this headline">¶</a></h1>
+<span id="zfit-core-sample-module"></span><h1>zfit.core.sample module<a class="headerlink" href="#module-zfit.core.sample" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="zfit.core.sample.UniformSampleAndWeights">
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">UniformSampleAndWeights</code><a class="reference internal" href="../_modules/zfit/core/sample.html#UniformSampleAndWeights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.UniformSampleAndWeights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
 <dl class="py class">
 <dt id="zfit.core.sample.EventSpace">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">EventSpace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">factory</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.float64</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'Space'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">EventSpace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span></em>, <em class="sig-param"><span class="n">limits</span></em>, <em class="sig-param"><span class="n">factory</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">tf.float64</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Space'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.core.space.Space</span></code></a></p>
 <p>EXPERIMENTAL SPACE CLASS!</p>
-<p>Define a space with the name (<cite>obs</cite>) of the axes (and it’s number) and possibly it’s limits.</p>
-<p>A space can be thought of as coordinates, possibly with the definition of a range (limits). For most use-cases,
-it is sufficient to specify a <cite>Space</cite> via observables; simple string identifiers. They can be multidimensional.</p>
-<p>Observables are like the columns of a spreadsheet/dataframe, and are therefore needed for any object that does
-numerical operations or holds data in order to match the right axes. On object creation, the observables are
-assigned using a <cite>Space</cite>. This is often used as the default space of an object and can be used as the
-default <cite>norm_range</cite>, sampling limits etc.</p>
-<p>Axes are the same concept as observables, but numbers, indexes, and are used <em>inside</em> an object. There,
-axes 0 corresponds to the 0th data column we get (which corresponds to a certain observable).</p>
-<p>Every space can have limits; they are either rectangular or an arbitrary function (together with rectangular
-limits). Spaces can be combined (multiplied) to create higher dimensional spaces.
-<cite>Spaces</cite> can be added, which combines them into one <cite>Space</cite> consisting of two disconnected limits.</p>
-<p>So integrating over the space consisting of the two added disconnected ranges,
-e.g. 0 to 1 and 2 to 3 will return the sum of the two separate integrals.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lower_band</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">upper_band</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-<span class="n">combined_obs</span> <span class="o">=</span> <span class="n">lower_band</span> <span class="o">+</span> <span class="n">upper_band</span>
-<span class="n">integral_comb</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">combined_obs</span><span class="p">)</span>
-<span class="c1"># which is equivalent to the lower</span>
-<span class="n">integral_sep</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">lower_band</span><span class="p">)</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">upper_band</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">integral_comb</span> <span class="o">==</span> <span class="n">integral_sep</span>
-</pre></div>
-</div>
-<p>In principle, the same behavior could also be achieved by specifying an arbitrary function. Using the addition
-allows for certain optimizations inside.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>obs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em><em>..</em><em>]</em>) – </p></li>
-<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-</ul>
+<dl class="py method">
+<dt id="zfit.core.sample.EventSpace.factory">
+<em class="property">property </em><code class="sig-name descname">factory</code><a class="headerlink" href="#zfit.core.sample.EventSpace.factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.core.sample.EventSpace.is_generator">
+<em class="property">property </em><code class="sig-name descname">is_generator</code><a class="headerlink" href="#zfit.core.sample.EventSpace.is_generator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.core.sample.EventSpace.limits">
+<em class="property">property </em><code class="sig-name descname">limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="docutils literal notranslate"><span class="pre">None</span></code>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>]</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.core.sample.EventSpace.create_limits">
+<code class="sig-name descname">create_limits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.create_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.create_limits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.core.sample.EventSpace.iter_areas">
+<code class="sig-name descname">iter_areas</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rel</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.iter_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.iter_areas" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zfit.core.sample.EventSpace.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="zfit.core.sample.EventSpace.combine">
+<code class="sig-name descname">combine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.combine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.combine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt id="zfit.core.sample.EventSpace.ANY">
 <code class="sig-name descname">ANY</code><em class="property"> = &lt;Any&gt;</em><a class="headerlink" href="#zfit.core.sample.EventSpace.ANY" title="Permalink to this definition">¶</a></dt>
@@ -344,53 +227,33 @@ allows for certain optimizations inside.</p>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.__eq__">
-<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#zfit.core.sample.EventSpace.__eq__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.__eq__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compares two Limits for equality without graph mode allowed.</p>
+<p>Returns:</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
-</dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.__le__">
-<code class="sig-name descname">__le__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#zfit.core.sample.EventSpace.__le__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__le__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.__le__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.</p>
 <p>This can be used to determine whether a fitting range specification can handle another limit.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>result of the comparison</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Result of the comparison</p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.core.sample.EventSpace.add">
-<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the limits of the spaces. Only works for the same obs.</p>
-<p>In case the observables are different, the order of the first space is taken.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -398,68 +261,53 @@ allows for certain optimizations inside.</p>
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.area">
 <code class="sig-name descname">area</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.area" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the total area of all the limits and axes. Useful, for example, for MC integration.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.axes">
 <em class="property">property </em><code class="sig-name descname">axes</code><a class="headerlink" href="#zfit.core.sample.EventSpace.axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The axes (“obs with int”) the space is defined in.</p>
 <p>Returns:</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="zfit.core.sample.EventSpace.combine">
-<code class="sig-name descname">combine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.combine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.combine" title="Permalink to this definition">¶</a></dt>
-<dd><p>Combine spaces with different obs (but consistent limits).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">overwrite_kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><a class="headerlink" href="#zfit.core.sample.EventSpace.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">overwrite_kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> using the current attributes and overwriting with
 <cite>overwrite_overwrite_kwargs</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The new name. If not given, the new instance will be named the same as the
+<li><p><strong>name</strong> – The new name. If not given, the new instance will be named the same as the
 current one.</p></li>
-<li><p><strong>(</strong><strong>)</strong> (<em>**overwrite_kwargs</em>) – </p></li>
+<li><p><strong>**overwrite_kwargs</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.core.sample.EventSpace.create_limits">
-<code class="sig-name descname">create_limits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.create_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.create_limits" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt id="zfit.core.sample.EventSpace.equal">
-<code class="sig-name descname">equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a></span></em>, <em class="sig-param"><span class="n">allow_graph</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.core.sample.EventSpace.equal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em>, <em class="sig-param"><span class="n">allow_graph</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.equal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compare the limits on equality. For ANY objects, this also returns true.</p>
 <p>If called inside a graph context <em>and</em> the limits are tensors, this will return a symbolic <cite>tf.Tensor</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>result of the comparison</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Result of the comparison</p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
@@ -468,40 +316,35 @@ current one.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.core.sample.EventSpace.factory">
-<em class="property">property </em><code class="sig-name descname">factory</code><a class="headerlink" href="#zfit.core.sample.EventSpace.factory" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt id="zfit.core.sample.EventSpace.filter">
-<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>zfit.Data<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">guarantee_limits</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">axis</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.core.sample.EventSpace.filter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">guarantee_limits</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter <cite>x</cite> by removing the elements along <cite>axis</cite> that are not inside the limits.</p>
 <p>This is similar to <cite>tf.boolean_mask</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> – Values to be checked whether they are inside of the limits. If not, the corresonding element (in the
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference internal" href="zfit.core.data.html#zfit.core.data.Data" title="zfit.core.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a>]) – Values to be checked whether they are inside of the limits. If not, the corresonding element (in the
 specified <cite>axis</cite>) is removed. The shape is expected to have the last dimension equal to n_obs.</p></li>
-<li><p><strong>guarantee_limits</strong> – Guarantee that the values are already inside the rectangular limits.</p></li>
-<li><p><strong>axis</strong> – The axis to remove the elements from. Defaults to 0.</p></li>
+<li><p><strong>guarantee_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Guarantee that the values are already inside the rectangular limits.</p></li>
+<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]) – The axis to remove the elements from. Defaults to 0.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
 <dt>Return an object with the same shape as <cite>x</cite> except that along <cite>axis</cite> elements have been</dt><dd><p>removed.</p>
 </dd>
 </dl>
 </p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tensor-like</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.from_axes">
-<em class="property">classmethod </em><code class="sig-name descname">from_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rect_limits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><a class="headerlink" href="#zfit.core.sample.EventSpace.from_axes" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cls</span></em>, <em class="sig-param"><span class="n">axes</span></em>, <em class="sig-param"><span class="n">limits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rect_limits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.from_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a space from <cite>axes</cite> instead of from <cite>obs</cite>. (deprecated)</p>
 <p>Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
 Instructions for updating:
@@ -510,45 +353,53 @@ Use directly the class to create a Space. E.g. zfit.Space(axes=(0, 1), …)</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rect_limits</strong> – </p></li>
-<li><p><strong>(</strong><strong>)</strong> (<em>limits</em>) – </p></li>
-<li><p><strong>(</strong><strong>)</strong> – </p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]]) – </p></li>
+<li><p><strong>limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitLimit</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.get_limits">
-<code class="sig-name descname">get_limits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Union<span class="p">[</span>Dict<span class="p">[</span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_limits" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">get_limits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_limits" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitLimit</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>], <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitLimit</span></code></a>]]], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitLimit</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>], <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitLimit</span></code></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.get_obs_axes">
-<code class="sig-name descname">get_obs_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_obs_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_obs_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_obs_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.get_reorder_indices">
-<code class="sig-name descname">get_reorder_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_reorder_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_reorder_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indices that would order the instances obs as <cite>obs</cite> respectively the instances axes as <cite>axes</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obs</strong> – Observables that the instances obs should be ordered to. Does not reorder, but just
+<li><p><strong>obs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>], <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Observables that the instances obs should be ordered to. Does not reorder, but just
 return the indices that could be used to reorder.</p></li>
-<li><p><strong>axes</strong> – Axes that the instances obs should be ordered to. Does not reorder, but just
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Axes that the instances obs should be ordered to. Does not reorder, but just
 return the indices that could be used to reorder.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>New indices that would reorder the instances obs to be obs respectively axes.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)">tuple</a>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>)</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>New indices that would reorder the instances obs to be obs respectively axes.</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.CoordinatesUnderdefinedError" title="zfit.util.exception.CoordinatesUnderdefinedError"><strong>CoordinatesUnderdefinedError</strong></a> – If neither <cite>obs</cite> nor <cite>axes</cite> is given</p>
@@ -559,35 +410,25 @@ return the indices that could be used to reorder.</p></li>
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.get_sublimits">
 <code class="sig-name descname">get_sublimits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_sublimits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits itself into multiple sublimits with smaller n_obs.</p>
-<p>If this is not possible, if the limits are not rectangular, just returns itself.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The sublimits if it was able to split.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Iterable[ZfitLimits]</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.get_subspace">
-<code class="sig-name descname">get_subspace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><a class="headerlink" href="#zfit.core.sample.EventSpace.get_subspace" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_subspace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.get_subspace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> consisting of only a subset of the <cite>obs</cite>/<cite>axes</cite> (only one allowed).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Observables of the subspace to return.</p></li>
-<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>]</em>) – Axes of the subspace to return.</p></li>
-<li><p><strong>name</strong> – Human readable names</p></li>
+<li><p><strong>obs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>], <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Observables of the subspace to return.</p></li>
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Axes of the subspace to return.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – Human readable names</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A space containing only a subspace (and sublimits etc.)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A space containing only a subspace (and sublimits etc.)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -596,12 +437,10 @@ return the indices that could be used to reorder.</p></li>
 <dt id="zfit.core.sample.EventSpace.has_limits">
 <em class="property">property </em><code class="sig-name descname">has_limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.has_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether there are limits set and they are not false.</p>
+<p>Returns:</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -610,44 +449,39 @@ return the indices that could be used to reorder.</p></li>
 <dt id="zfit.core.sample.EventSpace.has_rect_limits">
 <em class="property">property </em><code class="sig-name descname">has_rect_limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.has_rect_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>If there are limits and whether they are rectangular.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.inside">
-<code class="sig-name descname">inside</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>zfit.Data<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">guarantee_limits</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span><a class="reference internal" href="zfit.core.data.html#zfit.core.data.Data" title="zfit.core.data.Data">zfit.core.data.Data</a><span class="p">]</span><a class="headerlink" href="#zfit.core.sample.EventSpace.inside" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">inside</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">guarantee_limits</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.inside" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test if <cite>x</cite> is inside the limits.</p>
 <p>This function should be used to test if values are inside the limits. If the given x is already inside
 the rectangular limits, e.g. because it was sampled from within them</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> – Values to be checked whether they are inside of the limits. The shape is expected to have the last
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference internal" href="zfit.core.data.html#zfit.core.data.Data" title="zfit.core.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a>]) – Values to be checked whether they are inside of the limits. The shape is expected to have the last
 dimension equal to n_obs.</p></li>
-<li><p><strong>guarantee_limits</strong> – Guarantee that the values are already inside the rectangular limits.</p></li>
+<li><p><strong>guarantee_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Guarantee that the values are already inside the rectangular limits.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference internal" href="zfit.core.data.html#zfit.core.data.Data" title="zfit.core.data.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
 <dt>Return a boolean tensor-like object with the same shape as the input <cite>x</cite> except of the</dt><dd><p>last dimension removed.</p>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tensor-like</p>
-</dd>
 </dl>
 </dd></dl>
-
-<dl class="py method">
-<dt id="zfit.core.sample.EventSpace.is_generator">
-<em class="property">property </em><code class="sig-name descname">is_generator</code><a class="headerlink" href="#zfit.core.sample.EventSpace.is_generator" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="zfit.core.sample.EventSpace.iter_areas">
-<code class="sig-name descname">iter_areas</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rel</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Tuple[float, …]<a class="reference internal" href="../_modules/zfit/core/sample.html#EventSpace.iter_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.EventSpace.iter_areas" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.iter_limits">
@@ -689,13 +523,10 @@ only or if <cite>as_tuple</cite> is True the <cite>limit</cite> can be directly 
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>result of the comparison</p>
+<dd class="field-even"><p>Result of the comparison</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.exception.html#zfit.exception.IllegalInGraphModeError" title="zfit.exception.IllegalInGraphModeError"><strong>IllegalInGraphModeError</strong></a> – it the comparison happens with tensors in a graph context.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -715,25 +546,19 @@ Depreceated, use .rect_limits or .inside to check if a value is inside or userec
 </dd></dl>
 
 <dl class="py method">
-<dt id="zfit.core.sample.EventSpace.limits">
-<em class="property">property </em><code class="sig-name descname">limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the tuple(lower, upper).</p>
-</dd></dl>
-
-<dl class="py method">
 <dt id="zfit.core.sample.EventSpace.limits1d">
 <em class="property">property </em><code class="sig-name descname">limits1d</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits1d" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the tuple(low_1, …, low_n, up_1, …, up_n).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>so <cite>low_1, low_2, up_1, up_2 = space.limits1d</cite> for several, 1 obs limits.</dt><dd><p>low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>So <cite>low_1, low_2, up_1, up_2 = space.limits1d</cite> for several, 1 obs limits.</dt><dd><p>low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.</p>
 </dd>
 </dl>
 </p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)">tuple</a>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a>, ..)</p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.8)"><strong>RuntimeError</strong></a> – if the conditions (n_obs or n_limits) are not satisfied.</p>
@@ -749,11 +574,11 @@ Depreceated, use .rect_limits or .inside to check if a value is inside or userec
 <em class="property">property </em><code class="sig-name descname">limits_are_false</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits_are_false" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the limits have been set to False, so the object on purpose does not contain limits.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>True if limits is False</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if limits is False</p>
 </dd>
 </dl>
 </dd></dl>
@@ -761,31 +586,29 @@ Depreceated, use .rect_limits or .inside to check if a value is inside or userec
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.limits_are_set">
 <em class="property">property </em><code class="sig-name descname">limits_are_set</code><a class="headerlink" href="#zfit.core.sample.EventSpace.limits_are_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>If the limits have been set to a limit or are False.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Whether the limits have been set or not.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.lower">
 <em class="property">property </em><code class="sig-name descname">lower</code><a class="headerlink" href="#zfit.core.sample.EventSpace.lower" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the lower limits.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.n_events">
 <em class="property">property </em><code class="sig-name descname">n_events</code><a class="headerlink" href="#zfit.core.sample.EventSpace.n_events" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns:
-int, None: Return the number of events, the dimension of the first shape. If this is &gt; 1 or None,</p>
-<blockquote>
-<div><p>it’s vectorized.</p>
-</div></blockquote>
+<dd><p>Return the number of events, the dimension of the first shape.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Number of events, the dimension of the first shape. If this is &gt; 1 or None,</dt><dd><p>it’s vectorized.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -793,8 +616,11 @@ int, None: Return the number of events, the dimension of the first shape. If thi
 <em class="property">property </em><code class="sig-name descname">n_limits</code><a class="headerlink" href="#zfit.core.sample.EventSpace.n_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of different limits.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>int &gt;= 1</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>int &gt;= 1</p>
 </dd>
 </dl>
 </dd></dl>
@@ -804,8 +630,11 @@ int, None: Return the number of events, the dimension of the first shape. If thi
 <em class="property">property </em><code class="sig-name descname">n_obs</code><a class="headerlink" href="#zfit.core.sample.EventSpace.n_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of observables/axes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>int &gt;= 1</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>int &gt;= 1</p>
 </dd>
 </dl>
 </dd></dl>
@@ -814,6 +643,11 @@ int, None: Return the number of events, the dimension of the first shape. If thi
 <dt id="zfit.core.sample.EventSpace.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#zfit.core.sample.EventSpace.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -821,6 +655,11 @@ int, None: Return the number of events, the dimension of the first shape. If thi
 <em class="property">property </em><code class="sig-name descname">obs</code><a class="headerlink" href="#zfit.core.sample.EventSpace.obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>The observables (“axes with str”)the space is defined in.</p>
 <p>Returns:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, …]]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -830,8 +669,13 @@ int, None: Return the number of events, the dimension of the first shape. If thi
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.rect_area">
-<code class="sig-name descname">rect_area</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.core.sample.EventSpace.rect_area" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rect_area</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.rect_area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -846,11 +690,11 @@ the method <code class="xref py py-meth docutils literal notranslate"><span clas
 <cite>limits_are_false</cite> and <cite>limits_are_set</cite>.</p>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The lower and upper limits.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]]</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)">tuple</a>(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor) or <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The lower and upper limits.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.LimitsNotSpecifiedError" title="zfit.util.exception.LimitsNotSpecifiedError"><strong>LimitsNotSpecifiedError</strong></a> – If there are not limits set or they are False.</p>
@@ -864,11 +708,11 @@ the method <code class="xref py py-meth docutils literal notranslate"><span clas
 <dd><p>Return True if the rectangular limits are tensors.</p>
 <p>If a limit with tensors is evaluated inside a graph context, comparison operations will fail.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>if the rectangular limits are tensors.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If the rectangular limits are tensors.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -883,16 +727,16 @@ compared to <cite>tf.Tensor</cite> inside a graph function.</p>
 <p>In order to test if the limits are False or None, it is recommended to use the appropriate methods
 <cite>limits_are_false</cite> and <cite>limits_are_set</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
 <dt>A tuple of two <cite>np.ndarray</cite> with shape (1, n_obs) typically. The last</dt><dd><p>dimension is always <cite>n_obs</cite>, the first can be vectorized. This allows unstacking
 with <cite>z.unstack_x()</cite> as can be done with data.</p>
 </dd>
 </dl>
 </p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(lower, upper)</p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><ul class="simple">
@@ -908,11 +752,14 @@ with <cite>z.unstack_x()</cite> as can be done with data.</p>
 <em class="property">property </em><code class="sig-name descname">rect_lower</code><a class="headerlink" href="#zfit.core.sample.EventSpace.rect_lower" title="Permalink to this definition">¶</a></dt>
 <dd><p>The lower, rectangular limits, equivalent to <cite>rect_limits[0]</cite> with shape (…, n_obs)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The lower, rectangular limits as <cite>np.ndarray</cite> or <cite>tf.Tensor</cite></p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.LimitsNotSpecifiedError" title="zfit.util.exception.LimitsNotSpecifiedError"><strong>LimitsNotSpecifiedError</strong></a> – If the limits are not set or are false</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The lower, rectangular limits as <cite>np.ndarray</cite> or <cite>tf.Tensor</cite></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.LimitsNotSpecifiedError" title="zfit.util.exception.LimitsNotSpecifiedError"><strong>LimitsNotSpecifiedError</strong></a> – If the limits are not set or are false</p>
 </dd>
 </dl>
 </dd></dl>
@@ -922,18 +769,21 @@ with <cite>z.unstack_x()</cite> as can be done with data.</p>
 <em class="property">property </em><code class="sig-name descname">rect_upper</code><a class="headerlink" href="#zfit.core.sample.EventSpace.rect_upper" title="Permalink to this definition">¶</a></dt>
 <dd><p>The upper, rectangular limits, equivalent to <cite>rect_limits[1]</cite> with shape (…, n_obs)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The upper, rectangular limits as <cite>np.ndarray</cite> or <cite>tf.Tensor</cite></p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>]</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.LimitsNotSpecifiedError" title="zfit.util.exception.LimitsNotSpecifiedError"><strong>LimitsNotSpecifiedError</strong></a> – If the limits are not set or are false</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The upper, rectangular limits as <cite>np.ndarray</cite> or <cite>tf.Tensor</cite></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.LimitsNotSpecifiedError" title="zfit.util.exception.LimitsNotSpecifiedError"><strong>LimitsNotSpecifiedError</strong></a> – If the limits are not set or are false</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.reorder_x">
-<code class="sig-name descname">reorder_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">]</span></span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">x_obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x_axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_obs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_axes</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>numpy.ndarray<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#zfit.core.sample.EventSpace.reorder_x" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reorder_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">x_obs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x_axes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_obs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_axes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.reorder_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.</p>
 <p>There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.
 If x_obs or x_axes is given, then this is assumed to be the obs resp. the axes of x and x will be reordered
@@ -944,22 +794,22 @@ reordered to align with a function ordered with <cite>func_obs</cite> resp. <cit
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>tensor-like</em>) – Tensor to be reordered, last dimension should be n_obs resp. n_axes</p></li>
-<li><p><strong>x_obs</strong> – Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Tensor to be reordered, last dimension should be n_obs resp. n_axes</p></li>
+<li><p><strong>x_obs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>], <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
 latter.</p></li>
-<li><p><strong>x_axes</strong> – Axes associated with x.</p></li>
-<li><p><strong>func_obs</strong> – Observables associated with a function that x will be given to. Reorders x accordingly and assumes
+<li><p><strong>x_axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Axes associated with x.</p></li>
+<li><p><strong>func_obs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>], <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Observables associated with a function that x will be given to. Reorders x accordingly and assumes
 self.obs to be the obs of x. If both, <cite>func_obs</cite> and <cite>func_axes</cite> are given, this has precedency over the
 latter.</p></li>
-<li><p><strong>func_axes</strong> – Axe associated with a function that x will be given to. Reorders x accordingly and assumes
+<li><p><strong>func_axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Axe associated with a function that x will be given to. Reorders x accordingly and assumes
 self.axes to be the axes of x.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the reordered array-like object</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tensor-like</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The reordered array-like object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -967,12 +817,11 @@ self.axes to be the axes of x.</p></li>
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.upper">
 <em class="property">property </em><code class="sig-name descname">upper</code><a class="headerlink" href="#zfit.core.sample.EventSpace.upper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the upper limits.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.with_autofill_axes">
-<code class="sig-name descname">with_autofill_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">overwrite</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><a class="headerlink" href="#zfit.core.sample.EventSpace.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_autofill_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.with_autofill_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).</p>
 <p>This effectively fills with (0, 1, 2,…) and can be used mostly when an object enters a PDF or
 similar. <cite>overwrite</cite> allows to remove the axis first in case there are already some set.</p>
@@ -987,14 +836,14 @@ similar. <cite>overwrite</cite> allows to remove the axis first in case there ar
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If axes are already set, replace the axes with the autofilled ones.
+<dd class="field-odd"><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If axes are already set, replace the axes with the autofilled ones.
 If axes is already set and <cite>overwrite</cite> is False, raise an error.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the object with the new axes</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">ZfitSpace</a></p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The object with the new axes</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference internal" href="zfit.util.exception.html#zfit.util.exception.AxesIncompatibleError" title="zfit.util.exception.AxesIncompatibleError"><strong>AxesIncompatibleError</strong></a> – if the axes are already set and <cite>overwrite</cite> is False.</p>
@@ -1004,17 +853,15 @@ If axes is already set and <cite>overwrite</cite> is False, raise an error.</p>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.with_axes">
-<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><a class="headerlink" href="#zfit.core.sample.EventSpace.with_axes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axes</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.with_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new instance that has <cite>axes</cite>; sorted by or set or dropped.</p>
 <p>The behavior is as follows:</p>
 <blockquote>
-<div><ul>
-<li><p>axes are already set:
-* input axes are None: the axes will be dropped. If no observables are set, an error</p>
-<blockquote>
-<div><p>will be raised, as no coordinates will be assigned to this instance anymore.</p>
-</div></blockquote>
-<ul class="simple">
+<div><ul class="simple">
+<li><p>axes are already set:</p>
+<ul>
+<li><p>input axes are None: the axes will be dropped. If no observables are set, an error
+will be raised, as no coordinates will be assigned to this instance anymore.</p></li>
 <li><p>input axes are not None: the instance will be sorted by the incoming axes. If obs or other
 objects have an associated order (e.g. data, limits,…), they will be reordered as well.
 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
@@ -1023,30 +870,30 @@ If a strict superset is given (and allow_superset is True), the axes will be sor
 if the axes not contained in the instances axes were not present in the input axes.</p></li>
 </ul>
 </li>
-<li><p>axes are not set:
-* if the input axes are None, the same object is returned.
-* if the input axes are not None, they will be set as-is and now correspond to the already</p>
-<blockquote>
-<div><p>existing obs in the object.</p>
-</div></blockquote>
+<li><p>axes are not set:</p>
+<ul>
+<li><p>if the input axes are None, the same object is returned.</p></li>
+<li><p>if the input axes are not None, they will be set as-is and now correspond to the already
+existing obs in the object.</p></li>
+</ul>
 </li>
 </ul>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>axes</strong> – Axes to sort/associate this instance with</p></li>
-<li><p><strong>allow_superset</strong> – if False and a strict superset of the own axeservables is given, an error</p></li>
+<li><p><strong>axes</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Axes to sort/associate this instance with</p></li>
+<li><p><strong>allow_superset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if False and a strict superset of the own axeservables is given, an error</p></li>
 <li><p><strong>raised.</strong> (<em>is</em>) – </p></li>
-<li><p><strong>allow_subset</strong> – if False and a strict subset of the own axeservables is given, an error</p></li>
+<li><p><strong>allow_subset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if False and a strict subset of the own axeservables is given, an error</p></li>
 <li><p><strong>raised.</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a copy of the object with the new ordering/axes</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code></a></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A copy of the object with the new ordering/axes</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
@@ -1060,7 +907,7 @@ if the axes not contained in the instances axes were not present in the input ax
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.with_coords">
-<code class="sig-name descname">with_coords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitOrderableDimensional" title="zfit.core.interfaces.ZfitOrderableDimensional">zfit.core.interfaces.ZfitOrderableDimensional</a></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a><a class="headerlink" href="#zfit.core.sample.EventSpace.with_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_coords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.with_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> with reordered observables and/or axes.</p>
 <p>The behavior is that _at least one coordinate (obs or axes) has to be set in both instances
 (the space itself or in <cite>coords</cite>). If both match, observables is taken as the defining coordinate.
@@ -1072,9 +919,9 @@ in axes being dropped.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>coords</strong> – An instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></p></li>
-<li><p><strong>allow_superset</strong> – If <cite>False</cite> and a strict superset is given, an error is raised</p></li>
-<li><p><strong>allow_subset</strong> – If <cite>False</cite> and a strict subset is given, an error is raised</p></li>
+<li><p><strong>coords</strong> (<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitOrderableDimensional" title="zfit.core.interfaces.ZfitOrderableDimensional"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitOrderableDimensional</span></code></a>) – An instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Coordinates</span></code></p></li>
+<li><p><strong>allow_superset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If <cite>False</cite> and a strict superset is given, an error is raised</p></li>
+<li><p><strong>allow_subset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If <cite>False</cite> and a strict subset is given, an error is raised</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1095,39 +942,37 @@ in axes being dropped.</p>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.with_limits">
-<code class="sig-name descname">with_limits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit">zfit.core.interfaces.ZfitLimit</a><span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rect_limits</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>numpy.ndarray<span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">, </span>Tuple<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><a class="headerlink" href="#zfit.core.sample.EventSpace.with_limits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_limits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rect_limits</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.with_limits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a copy of the space with the new <cite>limits</cite> (and the new <cite>name</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> – Limits to use. Can be rectangular, a function (requires to also specify <cite>rect_limits</cite>
+<li><p><strong>limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitLimit" title="zfit.core.interfaces.ZfitLimit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitLimit</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Limits to use. Can be rectangular, a function (requires to also specify <cite>rect_limits</cite>
 or an instance of ZfitLimit.</p></li>
-<li><p><strong>rect_limits</strong> – Rectangular limits that will be assigned with the instance</p></li>
-<li><p><strong>name</strong> – Human readable name</p></li>
+<li><p><strong>rect_limits</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>], <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Rectangular limits that will be assigned with the instance</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – Human readable name</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Copy of the current object with the new limits.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code></a></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Copy of the current object with the new limits.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zfit.core.sample.EventSpace.with_obs">
-<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Iterable<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space">zfit.Space</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace">zfit.core.interfaces.ZfitSpace</a><a class="headerlink" href="#zfit.core.sample.EventSpace.with_obs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_obs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span></em>, <em class="sig-param"><span class="n">allow_superset</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_subset</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zfit.core.sample.EventSpace.with_obs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Space that has <cite>obs</cite>; sorted by or set or dropped.</p>
 <p>The behavior is as follows:</p>
 <blockquote>
-<div><ul>
-<li><p>obs are already set:
-* input obs are None: the observables will be dropped. If no axes are set, an error</p>
-<blockquote>
-<div><p>will be raised, as no coordinates will be assigned to this instance anymore.</p>
-</div></blockquote>
-<ul class="simple">
+<div><ul class="simple">
+<li><p>obs are already set:</p>
+<ul>
+<li><p>input obs are None: the observables will be dropped. If no axes are set, an error
+will be raised, as no coordinates will be assigned to this instance anymore.</p></li>
 <li><p>input obs are not None: the instance will be sorted by the incoming obs. If axes or other
 objects have an associated order (e.g. data, limits,…), they will be reordered as well.
 If a strict subset is given (and allow_subset is True), only a subset will be returned.
@@ -1136,30 +981,30 @@ If a strict superset is given (and allow_superset is True), the obs will be sort
 if the obs not contained in the instances obs were not in the input obs.</p></li>
 </ul>
 </li>
-<li><p>obs are not set:
-* if the input obs are None, the same object is returned.
-* if the input obs are not None, they will be set as-is and now correspond to the already</p>
-<blockquote>
-<div><p>existing axes in the object.</p>
-</div></blockquote>
+<li><p>obs are not set:</p>
+<ul>
+<li><p>if the input obs are None, the same object is returned.</p></li>
+<li><p>if the input obs are not None, they will be set as-is and now correspond to the already
+existing axes in the object.</p></li>
+</ul>
 </li>
 </ul>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obs</strong> – Observables to sort/associate this instance with</p></li>
-<li><p><strong>allow_superset</strong> – if False and a strict superset of the own observables is given, an error</p></li>
+<li><p><strong>obs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>], <a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Observables to sort/associate this instance with</p></li>
+<li><p><strong>allow_superset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if False and a strict superset of the own observables is given, an error</p></li>
 <li><p><strong>raised.</strong> (<em>is</em>) – </p></li>
-<li><p><strong>allow_subset</strong> – if False and a strict subset of the own observables is given, an error</p></li>
+<li><p><strong>allow_subset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if False and a strict subset of the own observables is given, an error</p></li>
 <li><p><strong>raised.</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a copy of the object with the new ordering/observables</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitSpace" title="zfit.core.interfaces.ZfitSpace"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitSpace</span></code></a></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a></p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A copy of the object with the new ordering/observables</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
@@ -1178,21 +1023,32 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
 
 </dd></dl>
 
-<dl class="py class">
-<dt id="zfit.core.sample.UniformSampleAndWeights">
-<em class="property">class </em><code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">UniformSampleAndWeights</code><a class="reference internal" href="../_modules/zfit/core/sample.html#UniformSampleAndWeights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.UniformSampleAndWeights" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py function">
+<dt id="zfit.core.sample.extract_extended_pdfs">
+<code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">extract_extended_pdfs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pdfs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#extract_extended_pdfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extract_extended_pdfs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all extended pdfs that are daughters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pdfs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a>], <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a>]) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[pdfs]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="zfit.core.sample.extended_sampling">
-<code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">extended_sampling</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pdfs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n"><a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space">zfit.core.space.Space</a></span></em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="reference internal" href="../_modules/zfit/core/sample.html#extended_sampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extended_sampling" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">extended_sampling</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pdfs</span></em>, <em class="sig-param"><span class="n">limits</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/core/sample.html#extended_sampling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extended_sampling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a sample from extended pdfs by sampling poissonian using the yield.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pdfs</strong> (<em>iterable</em><em>[</em><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><em>ZfitPDF</em></a><em>]</em>) – </p></li>
-<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
+<li><p><strong>pdfs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a>], <a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZfitPDF</span></code></a>]) – </p></li>
+<li><p><strong>limits</strong> (<a class="reference internal" href="zfit.core.space.html#zfit.core.space.Space" title="zfit.core.space.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1204,46 +1060,29 @@ if the obs not contained in the instances obs were not in the input obs.</p></li
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt id="zfit.core.sample.extract_extended_pdfs">
-<code class="sig-prename descclassname">zfit.core.sample.</code><code class="sig-name descname">extract_extended_pdfs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pdfs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Iterable<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><span class="p">]</span><span class="p">, </span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="zfit.core.interfaces.html#zfit.core.interfaces.ZfitPDF" title="zfit.core.interfaces.ZfitPDF">zfit.core.interfaces.ZfitPDF</a><span class="p">]</span><a class="reference internal" href="../_modules/zfit/core/sample.html#extract_extended_pdfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.core.sample.extract_extended_pdfs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return all extended pdfs that are daughters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pdfs</strong> (<em>Iterable</em><em>[</em><em>pdfs</em><em>]</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>List[pdfs]</p>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 
 
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
     </div>
-      
-  </div>
-</div>
-<footer class="footer">
+
+    <script src="../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
   <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
-      
-        <br/>
-        
-<div id="sourcelink">
-  <a href="../_sources/full_api/zfit.core.sample.rst.txt"
-     rel="nofollow">Source</a>
-</div>
-      
-    </p>
     <p>
-        &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
     </p>
   </div>
 </footer>

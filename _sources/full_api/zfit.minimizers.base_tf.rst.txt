@@ -1,5 +1,5 @@
-base\_tf
-========
+zfit.minimizers.base\_tf module
+===============================
 
 .. automodule:: zfit.minimizers.base_tf
    :members:

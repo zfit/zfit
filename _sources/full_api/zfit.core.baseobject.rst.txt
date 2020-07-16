@@ -1,5 +1,5 @@
-baseobject
-==========
+zfit.core.baseobject module
+===========================
 
 .. automodule:: zfit.core.baseobject
    :members:

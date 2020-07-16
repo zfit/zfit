@@ -1,5 +1,5 @@
-basefunctor
-===========
+zfit.models.basefunctor module
+==============================
 
 .. automodule:: zfit.models.basefunctor
    :members:

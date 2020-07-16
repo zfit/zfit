@@ -1,5 +1,5 @@
-tools
-=====
+zfit.z.tools module
+===================
 
 .. automodule:: zfit.z.tools
    :members:

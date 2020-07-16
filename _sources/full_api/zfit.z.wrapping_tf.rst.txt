@@ -1,5 +1,5 @@
-wrapping\_tf
-============
+zfit.z.wrapping\_tf module
+==========================
 
 .. automodule:: zfit.z.wrapping_tf
    :members:

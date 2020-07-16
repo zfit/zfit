@@ -1,5 +1,5 @@
-functions
-=========
+zfit.models.functions module
+============================
 
 .. automodule:: zfit.models.functions
    :members:

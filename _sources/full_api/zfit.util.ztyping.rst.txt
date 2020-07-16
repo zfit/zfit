@@ -1,5 +1,5 @@
-ztyping
-=======
+zfit.util.ztyping module
+========================
 
 .. automodule:: zfit.util.ztyping
    :members:

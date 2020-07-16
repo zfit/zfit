@@ -1,0 +1,373 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space, Observable and Range &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/zfit-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Parameter" href="parameter.html" />
+    <link rel="prev" title="Introduction" href="index.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    
+    <a class="navbar-brand" href="../../index.html">
+      <img src="../../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="../index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+        
+          
+              <li class="">
+                  <a href="../installation.html">Installation</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../5_minutes_to_zfit.html">5 minutes to zfit</a>
+              </li>
+          
+        
+          
+
+              <li class="active">
+                  <a href="index.html">Introduction</a>
+                  <ul>
+                  
+                      <li class="active">
+                          <a href="">Space, Observable and Range</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="parameter.html">Parameter</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="model.html">Building a model</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="data.html">Data</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="loss.html">Loss</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="minimize.html">Minimization</a>
+                      </li>
+                  
+                  </ul>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../examples.html">Examples</a>
+              </li>
+          
+        
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#definitions" class="nav-link">Definitions</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#limits" class="nav-link">Limits</a><ul class="nav section-nav flex-column">
+                
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#functional-limits" class="nav-link">Functional limits</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#combining-limits" class="nav-link">Combining limits</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h3">
+            <a href="#using-the-limits" class="nav-link">Using the limits</a>
+        </li>
+    
+            </ul>
+        </li>
+    
+    </ul>
+</nav>
+
+
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/zfit/zfit/edit/develop/docs/getting_started/intro/space.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="space-observable-and-range">
+<h1>Space, Observable and Range<a class="headerlink" href="#space-observable-and-range" title="Permalink to this headline">¶</a></h1>
+<p>Inside zfit, <a class="reference internal" href="../../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> defines the domain of objects by specifying the observables/axes and <em>maybe</em> also
+the limits. Any model and data needs to be specified in a certain domain, which is usually done using the
+<code class="docutils literal notranslate"><span class="pre">obs</span></code> argument. It is crucial that the axis used by the observable of the data and the model match, and this matching is
+handle by the <a class="reference internal" href="../../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obs</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h2>
+<p><strong>Space</strong>: an <em>n</em>-dimensional definition of a domain (either by using one or more observables or axes),
+with or without limits.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><em>compared to `RooFit`, a space is **not*</em> the equivalent of an observable but rather corresponds
+to an object combining <strong>a set</strong> of observables (which of course can be of size 1). Furthermore,
+there is a <strong>strong</strong> distinction in zfit between a <a class="reference internal" href="../../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> (or observables)
+and a <a class="reference internal" href="../../full_api/zfit.html#zfit.Parameter" title="zfit.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>, both conceptually and in terms of implementation and usage.*</p>
+</div>
+<p><strong>Observable</strong>: a string defining the axes; a named axes.</p>
+<p><em>(for advanced usage only, can be skipped on first read)</em>
+<strong>Axis</strong>: integer defining the axes <em>internally</em> of a model. There is always a mapping of observables &lt;-&gt; axes <em>once inside a model</em>.</p>
+<dl class="simple">
+<dt><strong>Limit</strong> The range on a certain axis. Typically defines an interval. In fact, there are two times of limits:</dt><dd><ul class="simple">
+<li><p><strong>rectangular</strong>: This type is the usual limit as e.g. <code class="docutils literal notranslate"><span class="pre">(-2,</span> <span class="pre">5)</span></code> for a simple, 1 dimensional interval. It is
+rectangular. This can either be given as <code class="docutils literal notranslate"><span class="pre">limits</span></code> of a <a class="reference internal" href="../../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> or as <code class="docutils literal notranslate"><span class="pre">rect_limits</span></code>.</p></li>
+<li><p><strong>functional</strong>: In order to define arbitrary limits, a function can be used that receives a tensor-like
+object <code class="docutils literal notranslate"><span class="pre">x</span></code> and returns <code class="docutils literal notranslate"><span class="pre">True</span></code> on every position that is inside the limits, <code class="docutils literal notranslate"><span class="pre">False</span></code> for every value outside.
+When a functional limit is given, rectangular limits that contain the functional limit as a subset <strong>must</strong> be
+defined as well.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Since every object has a well defined domain, it is possible to combine them in an unambiguous way.
+While not enforced, a space should usually be created with limits that define the default space of an object.
+This correspond for example to the default normalization range <code class="docutils literal notranslate"><span class="pre">norm_range</span></code> or sampling range.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lower1</span><span class="p">,</span> <span class="n">upper1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">lower2</span><span class="p">,</span> <span class="n">upper2</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">obs1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">([</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">lower1</span><span class="p">,</span> <span class="n">upper2</span><span class="p">))</span>
+<span class="n">obs2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">([</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="n">lower2</span><span class="p">,</span> <span class="n">upper2</span><span class="p">))</span>
+
+<span class="n">model1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs1</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">model2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs2</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># creating a composite pdf</span>
+<span class="n">product</span> <span class="o">=</span> <span class="n">model1</span> <span class="o">*</span> <span class="n">model2</span>
+<span class="c1"># OR, equivalently</span>
+<span class="n">product</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">ProductPDF</span><span class="p">([</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">])</span>
+
+<span class="k">assert</span> <span class="n">obs1</span> <span class="o">*</span> <span class="n">obs2</span> <span class="o">=</span> <span class="n">product</span><span class="o">.</span><span class="n">space</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">product</span></code> is now defined in the space with observables <cite>[‘x’, ‘y’, ‘z’]</cite>. Any <code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code> object
+to be combined with <code class="docutils literal notranslate"><span class="pre">product</span></code> has to be specified in the same space.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># create the space</span>
+<span class="n">combined_obs</span> <span class="o">=</span> <span class="n">obs1</span> <span class="o">*</span> <span class="n">obs2</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Data</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">combined_obs</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we have a <code class="xref py py-class docutils literal notranslate"><span class="pre">Data</span></code> object that is defined in the same domain as <cite>product</cite> and can be used to build a loss function.</p>
+</div>
+<div class="section" id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Permalink to this headline">¶</a></h2>
+<p>In many places, just defining the observables is not enough and an interval, specified by its limits, is required.
+Examples are a normalization range, the limits of an integration or sampling in a certain region.</p>
+<p>Simple, 1-dimensional limits can be specified as follows. Operations like addition (creating a space with
+two intervals) or combination (increase the dimensionality) are also possible.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simple_limit1</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">simple_limit2</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">))</span>
+
+<span class="n">added_limits</span> <span class="o">=</span> <span class="n">simple_limit1</span> <span class="o">+</span> <span class="n">simple_limit2</span>
+</pre></div>
+</div>
+<p>In this case, <cite>added_limits</cite> is now a <a class="reference internal" href="../../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.Space</span></code></a> with observable <cite>‘obs1’</cite> defined in the intervals
+(-5, 1) and (3, 7.5). This can be useful, <em>e.g.</em>, when fitting in two regions.
+An example of the product of different <a class="reference internal" href="../../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">zfit.Space</span></code></a> instances has been shown before as <code class="docutils literal notranslate"><span class="pre">combined_obs</span></code>.</p>
+<div class="section" id="functional-limits">
+<h3>Functional limits<a class="headerlink" href="#functional-limits" title="Permalink to this headline">¶</a></h3>
+<p>Limits can be defined by a function that returns whether a value is inside the boundaries or not <strong>and</strong> rectangular
+limits (note that specifying <cite>rect_limit</cite> does <em>not</em> enforce them, the function itself has to take care of that).</p>
+<p>This example specifies the bounds between (-4, 0.5) with the <cite>limit_fn</cite> (which, in this simple case, could be better
+achieved by directly specifying them as rectangular limits).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">limit_fn</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">unstack_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">inside_lower</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">inside_upper</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">less_equal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">inside</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">inside_lower</span><span class="p">,</span> <span class="n">inside_upper</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inside</span>
+
+<span class="n">space</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Space</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="s1">&#39;obs1&#39;</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limit_fn</span><span class="p">,</span> <span class="n">rect_limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="combining-limits">
+<h3>Combining limits<a class="headerlink" href="#combining-limits" title="Permalink to this headline">¶</a></h3>
+<p>To define simple, 1-dimensional limits, a tuple with two numbers or a functional limit in 1 dimension is enough. For anything more complicated,
+the operators product <cite>*</cite> or addition <cite>+</cite> respectively their functional API <a class="reference internal" href="../../user_api/dimension/zfit.dimension.combine_spaces.html#zfit.dimension.combine_spaces" title="zfit.dimension.combine_spaces"><code class="xref py py-func docutils literal notranslate"><span class="pre">zfit.dimension.combine_spaces()</span></code></a>
+and <a class="reference internal" href="../../user_api/dimension/zfit.dimension.add_spaces.html#zfit.dimension.add_spaces" title="zfit.dimension.add_spaces"><code class="xref py py-func docutils literal notranslate"><span class="pre">zfit.dimension.add_spaces()</span></code></a> can be used.</p>
+<p>A working code example of <a class="reference internal" href="../../full_api/zfit.html#zfit.Space" title="zfit.Space"><code class="xref py py-class docutils literal notranslate"><span class="pre">Space</span></code></a> handling is provided in <a class="reference internal" href="../examples.html#spaces-example"><span class="std std-ref">spaces.py</span></a>.</p>
+</div>
+<div class="section" id="using-the-limits">
+<h3>Using the limits<a class="headerlink" href="#using-the-limits" title="Permalink to this headline">¶</a></h3>
+<p>To use the limits of any object, the methods :py:meth`~zfit.Space.inside` (to test if values are inside or outside of the boundaries)
+and :py:meth`~zfit.Space.filter` can be used.</p>
+<p>The rectangular limits can also direclty be accessed by <code class="docutils literal notranslate"><span class="pre">rect_limits</span></code>, <code class="docutils literal notranslate"><span class="pre">rect_lower</span></code> or <code class="docutils literal notranslate"><span class="pre">rect_upper</span></code>. The returned shape is of
+<cite>(n_events, n_obs)</cite>, for the lower respectively upper limit (<code class="docutils literal notranslate"><span class="pre">rect_limits</span></code> is a tuple of <cite>(lower, upper)</cite>).
+This should be used with caution and only if the rectangular limits are desired.</p>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">Introduction</a>
+    <a class='right-next' id="next-link" href="parameter.html" title="next page">Parameter</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    <script src="../../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

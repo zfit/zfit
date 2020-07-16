@@ -1,5 +1,5 @@
-dimension
-=========
+zfit.core.dimension module
+==========================
 
 .. automodule:: zfit.core.dimension
    :members:

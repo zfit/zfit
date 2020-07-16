@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimization &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../_static/zfit-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Examples" href="../examples.html" />
+    <link rel="prev" title="Loss" href="loss.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    
+    <a class="navbar-brand" href="../../index.html">
+      <img src="../../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item active">
+            <a class="nav-link" href="../index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+        
+          
+              <li class="">
+                  <a href="../installation.html">Installation</a>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../5_minutes_to_zfit.html">5 minutes to zfit</a>
+              </li>
+          
+        
+          
+
+              <li class="active">
+                  <a href="index.html">Introduction</a>
+                  <ul>
+                  
+                      <li class="">
+                          <a href="space.html">Space, Observable and Range</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="parameter.html">Parameter</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="model.html">Building a model</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="data.html">Data</a>
+                      </li>
+                  
+                      <li class="">
+                          <a href="loss.html">Loss</a>
+                      </li>
+                  
+                      <li class="active">
+                          <a href="">Minimization</a>
+                      </li>
+                  
+                  </ul>
+              </li>
+          
+        
+          
+              <li class="">
+                  <a href="../examples.html">Examples</a>
+              </li>
+          
+        
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+        <li class="nav-item toc-entry toc-h2">
+            <a href="#baseline-minimizers" class="nav-link">Baseline minimizers</a>
+        </li>
+    
+    </ul>
+</nav>
+
+
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/zfit/zfit/edit/develop/docs/getting_started/intro/minimize.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="minimization">
+<h1>Minimization<a class="headerlink" href="#minimization" title="Permalink to this headline">¶</a></h1>
+<p>Minimizer objects are the last key element in the API framework of zfit.
+In particular, these are connected to the loss function and have an internal state that can be queried at any moment.</p>
+<p>The zfit library is designed such that it is trivial to introduce new sets of minimizers.
+The only requirement in its initialisation is that a loss function <strong>must</strong> be given.
+Additionally, the parameters to be minimize, the tolerance, its name, as well as any other argument needed to configure the particular algorithm <strong>may</strong> be given.</p>
+<div class="section" id="baseline-minimizers">
+<h2>Baseline minimizers<a class="headerlink" href="#baseline-minimizers" title="Permalink to this headline">¶</a></h2>
+<p>There are three minimizers currently included in the package: <code class="docutils literal notranslate"><span class="pre">Minuit</span></code>, <code class="docutils literal notranslate"><span class="pre">Scipy</span></code> and <code class="docutils literal notranslate"><span class="pre">Adam</span></code> TensorFlow optimiser.
+Let’s show how these can be initialised:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Minuit minimizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer_minuit</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Scipy minimizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer_scipy</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Scipy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Adam&#39;s Tensorflow minimizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer_adam</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A wrapper for TensorFlow optimisers is also available to allow to easily integrate new ideas in the framework.
+For instance, the Adam minimizer could have been initialised by</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Adam&#39;s TensorFlor optimiser using a wrapper</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">minimizer_wrapper</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">WrapOptimizer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">Adam</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Any of these minimizers can then be used to minimize the loss function we created in <a class="reference internal" href="data.html#data-section"><span class="std std-ref">previous section</span></a>, e.g.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">minimizer_minuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">my_loss</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The choice of which parameters of your model should be floating in the fit can also be made at this stage</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># In the case of a Gaussian (e.g.)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">minimizer_minuit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">my_loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><strong>Only</strong> the parameters given in <code class="docutils literal notranslate"><span class="pre">params</span></code> are floated in the optimisation process.
+If this argument is not provided or <code class="docutils literal notranslate"><span class="pre">params=None</span></code>, all the floating parameters in the loss function are floated in the minimization process.</p>
+<p>The result of the fit is return as a <a class="reference internal" href="../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult" title="zfit.minimizers.fitresult.FitResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitResult</span></code></a> object, which provides access the minimiser state.
+zfit separates the minimisation of the loss function with respect to the error calculation in order to give the freedom of calculating this error whenever needed.
+The <a class="reference internal" href="../../full_api/zfit.minimizers.fitresult.html#zfit.minimizers.fitresult.FitResult.error" title="zfit.minimizers.fitresult.FitResult.error"><code class="xref py py-func docutils literal notranslate"><span class="pre">error()</span></code></a> method can be used to perform the CPU-intensive error calculation.
+It returns two objects, the first are the parameter errors and the second is a new <cite>FitResult</cite> <em>in case a new
+minimum was found during the profiling</em>; this will also render the original result invalid as can
+be check with <cite>result.valid</cite>.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">param_errors</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">errors</span> <span class="ow">in</span> <span class="n">param_errors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>  <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: ^{{+</span><span class="si">{}</span><span class="s1">}}_{{-</span><span class="si">{}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;upper&#39;</span><span class="p">],</span> <span class="n">errors</span><span class="p">[</span><span class="s1">&#39;lower&#39;</span><span class="p">]))</span>
+<span class="go">mu: ^{+0.00998104141841555}_{--0.009981515893414316}</span>
+<span class="go">sigma: ^{+0.007099472590970696}_{--0.0070162654764939734}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">result</span></code> object also provides access the minimiser state:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Function minimum:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">fmin</span><span class="p">)</span>
+<span class="go">Function minimum: 14170.396450111948</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converged:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">converged</span><span class="p">)</span>
+<span class="go">Converged: True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Full minimizer information:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+<span class="go">Full minimizer information: {&#39;n_eval&#39;: 56, &#39;original&#39;: {&#39;fval&#39;: 14170.396450111948, &#39;edm&#39;: 2.8519671693442587e-10,</span>
+<span class="go">&#39;nfcn&#39;: 56, &#39;up&#39;: 0.5, &#39;is_valid&#39;: True, &#39;has_valid_parameters&#39;: True, &#39;has_accurate_covar&#39;: True, &#39;has_posdef_covar&#39;: True,</span>
+<span class="go">&#39;has_made_posdef_covar&#39;: False, &#39;hesse_failed&#39;: False, &#39;has_covariance&#39;: True, &#39;is_above_max_edm&#39;: False, &#39;has_reached_call_limit&#39;: False}}</span>
+</pre></div>
+</div>
+<p>and the fitted parameters</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Information on all the parameters in the fit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Printing information on specific parameters, e.g. mu</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mu=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">mu</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]))</span>
+<span class="go">mu=0.012464509810750313</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="loss.html" title="previous page">Loss</a>
+    <a class='right-next' id="next-link" href="../examples.html" title="next page">Examples</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    <script src="../../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

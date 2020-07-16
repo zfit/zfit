@@ -1,5 +1,5 @@
-temporary
-=========
+zfit.util.temporary module
+==========================
 
 .. automodule:: zfit.util.temporary
    :members:

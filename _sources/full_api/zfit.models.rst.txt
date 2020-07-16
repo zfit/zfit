@@ -1,5 +1,5 @@
-models
-======
+zfit.models package
+===================
 
 .. automodule:: zfit.models
    :members:

@@ -1,5 +1,5 @@
-minimizers
-==========
+zfit.minimizers package
+=======================
 
 .. automodule:: zfit.minimizers
    :members:

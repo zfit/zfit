@@ -1,5 +1,5 @@
-interfaces
-==========
+zfit.core.interfaces module
+===========================
 
 .. automodule:: zfit.core.interfaces
    :members:

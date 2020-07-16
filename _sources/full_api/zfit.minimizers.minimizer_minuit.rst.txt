@@ -1,5 +1,5 @@
-minimizer\_minuit
-=================
+zfit.minimizers.minimizer\_minuit module
+========================================
 
 .. automodule:: zfit.minimizers.minimizer_minuit
    :members:

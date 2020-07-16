@@ -1,5 +1,5 @@
-data
-====
+zfit.core.data module
+=====================
 
 .. automodule:: zfit.core.data
    :members:

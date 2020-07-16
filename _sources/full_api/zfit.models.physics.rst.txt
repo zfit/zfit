@@ -1,5 +1,5 @@
-physics
-=======
+zfit.models.physics module
+==========================
 
 .. automodule:: zfit.models.physics
    :members:

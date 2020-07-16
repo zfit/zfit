@@ -1,283 +1,145 @@
+
+
 <!DOCTYPE html>
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zfit.core.space &#8212; zfit 0.5.4.dev26+gc03a904 documentation</title>
-    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <title>zfit.core.space &#8212; zfit 0.5.4.dev83+ge0335f8 documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+    <link href="../../../_static/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/language_data.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/zfit-favicon.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../../_static/bootstrap-2.3.2/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="docsearch:language" content="en">
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
 
-  </head><body>
+    
+    <a class="navbar-brand" href="../../../index.html">
+      <img src="../../../_static/zfit-logo-light_400x168.png" class="logo" alt="logo">
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-  <div id="navbar" class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../getting_started/index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
 
-        <a class="brand" href="../../../index.html"><img src="../../../_static/zfit-fin_57x24.png">
-          zfit</a>
-        <span class="navbar-text pull-left"><b>0.5.4.dev26</b></span>
 
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li class="divider-vertical"></li>
-            
-                <li><a href="../../../getting_started.html">Getting started</a></li>
-                <li><a href="../../../introduction.html">Intro</a></li>
-                <li><a href="../../../project.html">Project</a></li>
-                <li><a href="../../../user_api.html">API</a></li>
-            
-            
-              <li class="dropdown globaltoc-container">
-  <a role="button"
-     id="dLabelGlobalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="../../../index.html">Overview <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-      role="menu"
-      aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-did-just-happen">What did just happen?</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">zfit introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/space.html">Space, Observable and Range</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#definitions">Definitions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/space.html#limits">Limits</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#functional-limits">Functional limits</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#combining-limits">Combining limits</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/space.html#using-the-limits">Using the limits</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/parameter.html">Parameter</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#independent-parameter">Independent Parameter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/parameter.html#dependent-parameter">Dependent Parameter</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/model.html">Building a model</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#predefined-pdfs-and-basic-properties">Predefined PDFs and basic properties</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#composite-pdf">Composite PDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#extended-pdf">Extended PDF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/model.html#custom-pdf">Custom PDF</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#sampling-from-a-model">Sampling from a Model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#tensor-sampling">Tensor sampling</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../intro/model.html#playing-with-toys-multiple-samplings">Playing with toys: Multiple samplings</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/data.html">Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-root-file">Import dataset from a ROOT file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/data.html#import-dataset-from-a-pandas-dataframe-or-numpy-ndarray">Import dataset from a pandas DataFrame or Numpy ndarray</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/loss.html">Loss</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#adding-constraints">Adding constraints</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/loss.html#simultaneous-fits">Simultaneous fits</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../intro/minimize.html">Minimization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../intro/minimize.html#baseline-minimizers">Baseline minimizers</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../../../project.html">zfit Project</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/installation.html">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#stable-release">Stable release</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/installation.html#from-sources">From sources</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/contributing.html">Contributing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#get-started">Get Started!</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/upgrade_guide.html">Upgrade guide</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/upgrade_guide.html#upgrade-from-zfit-0-3-x-to-0-4-0">Upgrade from zfit 0.3.x to 0.4.0</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/upgrade_guide.html#dependents">Dependents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/changelog.html">Changelog</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#develop">Develop</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#major-features-and-improvements">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#breaking-changes">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#depreceations">Depreceations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bug-fixes-and-small-changes">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#experimental">Experimental</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#requirement-changes">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#thanks">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id1">0.5.3 (02.07.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id2">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id3">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id4">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id5">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id6">0.5.2 (13.05.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id7">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id8">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id9">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id10">0.5.1 (24.04.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id11">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id12">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#deprecations">Deprecations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id13">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id14">Experimental</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id15">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id16">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id17">0.4.3 (11.3.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id18">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#behavioral-changes">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id19">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id20">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id21">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id22">0.4.2 (27.2.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id23">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id24">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id25">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id26">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id27">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id28">0.4.1 (12.1.20)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id29">Major Features and Improvements</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id30">0.4.0 (7.1.2020)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id31">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id32">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id33">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id34">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id35">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id36">0.3.7 (6.12.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id37">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id38">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id39">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id40">Requirement changes</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id41">0.3.6 (12.10.19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id42">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id43">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id44">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id45">Requirement changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id46">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id47">0.3.4 (30-07-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id48">Major Features and Improvements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id49">Behavioral changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id50">Bug fixes and small changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id51">Thanks</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id52">0.3.3 (15-05-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id53">0.3.2 (01-05-19)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#id54">Breaking changes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#bugfixes">Bugfixes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../project/changelog.html#improvements">Improvements</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id55">0.3.1 (30-04-19)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id56">0.3.0 (2019-03-20)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../project/changelog.html#id57">0.0.1 (2018-03-22)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html">Development Lead</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#authors">Authors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../project/authors.html#contributors">Contributors</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_api.html">zfit API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../user_api/zfit.html">zfit package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../user_api/zfit.html#submodules">Submodules</a><ul class="simple">
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</ul>
-</li>
-              
-                <li class="dropdown">
-  <a role="button"
-     id="dLabelLocalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="#">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"
-      role="menu"
-      aria-labelledby="dLabelLocalToc"></ul>
-</li>
-              
-            
-            
-            
-            
-            
-          </ul>
-
-          
-            
-<form class="navbar-form navbar-right" action="../../../search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div class="container">
-  <div class="row">
-    <div class="body span12 content" role="main">
       
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar">
+
+<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+  <div class="bd-toc-item active">
+  
+
+  <ul class="nav bd-sidenav">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    </ul>
+
+</nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
   <h1>Source code for zfit.core.space</h1><div class="highlight"><pre>
 <span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
 
@@ -612,7 +474,7 @@
 <span class="sd">            limit:</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            limit object, bool</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">is_range_definition</span><span class="p">(</span><span class="n">limit</span><span class="p">):</span>  <span class="c1"># as the above ANY</span>
             <span class="n">dtype</span> <span class="o">=</span> <span class="nb">object</span>
@@ -642,7 +504,7 @@
 <span class="sd">            `limits_are_false` and `limits_are_set`.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor) or bool or None: The lower and upper limits.</span>
+<span class="sd">            The lower and upper limits.</span>
 <span class="sd">        Raises:</span>
 <span class="sd">            LimitsNotSpecifiedError: If there are not limits set or they are False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -670,7 +532,7 @@
 
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (lower, upper): A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last</span>
+<span class="sd">            A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last</span>
 <span class="sd">                dimension is always `n_obs`, the first can be vectorized. This allows unstacking</span>
 <span class="sd">                with `z.unstack_x()` as can be done with data.</span>
 
@@ -717,7 +579,7 @@
 <span class="sd">            guarantee_limits: Guarantee that the values are already inside the rectangular limits.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tensor-like: Return a boolean tensor-like object with the same shape as the input `x` except of the</span>
+<span class="sd">            Return a boolean tensor-like object with the same shape as the input `x` except of the</span>
 <span class="sd">                last dimension removed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">_sanitize_x_input</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n_obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">)</span>
@@ -750,7 +612,7 @@
 <span class="sd">            axis: The axis to remove the elements from. Defaults to 0.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tensor-like: Return an object with the same shape as `x` except that along `axis` elements have been</span>
+<span class="sd">            Return an object with the same shape as `x` except that along `axis` elements have been</span>
 <span class="sd">                removed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -778,7 +640,7 @@
 <span class="sd">        If a limit with tensors is evaluated inside a graph context, comparison operations will fail.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: if the rectangular limits are tensors.</span>
+<span class="sd">            If the rectangular limits are tensors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rect_limits_np</span>
@@ -792,7 +654,7 @@
         <span class="sd">&quot;&quot;&quot;If the limits have never explicitly been set to a limit or to False.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool:</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rect_limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
@@ -801,7 +663,7 @@
         <span class="sd">&quot;&quot;&quot;If the limits have been set to False, so the object on purpose does not contain limits.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool:</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rect_limits</span> <span class="ow">is</span> <span class="kc">False</span>
 
@@ -810,7 +672,7 @@
         <span class="sd">&quot;&quot;&quot;If there are limits set and they are not false.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool:</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limits_are_false</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits_are_set</span><span class="p">))</span>
 
@@ -819,7 +681,7 @@
         <span class="sd">&quot;&quot;&quot;Dimensionality, the number of observables, of the limits. Equals to the last axis in rectangular limits.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            int: Dimensionality of the limits.</span>
+<span class="sd">            Dimensionality of the limits.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_obs</span>
 
@@ -828,7 +690,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            int, None: Return the number of events, the dimension of the first shape. If this is &gt; 1 or None,</span>
+<span class="sd">            Return the number of events, the dimension of the first shape. If this is &gt; 1 or None,</span>
 <span class="sd">                it&#39;s vectorized.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_limits</span><span class="p">:</span>
@@ -845,7 +707,7 @@
 <span class="sd">            allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool, tf.Tensor: Either a Python boolean or a `tf.Tensor`</span>
+<span class="sd">            Either a Python boolean or a `tf.Tensor`</span>
 <span class="sd">         Raises:</span>
 <span class="sd">             IllegalInGraphModeError: if `allow_graph`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -857,7 +719,7 @@
         <span class="sd">&quot;&quot;&quot;Compares two Limits for equality without graph mode allowed.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool:</span>
+
 <span class="sd">        Raises:</span>
 <span class="sd">             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -890,7 +752,7 @@
 
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: result of the comparison</span>
+<span class="sd">            Result of the comparison</span>
 <span class="sd">        Raises:</span>
 <span class="sd">             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.</span>
 
@@ -905,7 +767,7 @@
 <span class="sd">        This can be used to determine whether a fitting range specification can handle another limit.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: result of the comparison</span>
+<span class="sd">            Result of the comparison</span>
 <span class="sd">        Raises:</span>
 <span class="sd">             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -919,7 +781,7 @@
 <span class="sd">        If this is not possible, if the limits are not rectangular, just returns itself.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Iterable[ZfitLimits]: The sublimits if it was able to split.</span>
+<span class="sd">            The sublimits if it was able to split.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sublimits</span></div>
 
@@ -1031,7 +893,7 @@
 <span class="sd">            guarantee_limits: Guarantee that the values are already inside the rectangular limits.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tensor-like: Return a boolean tensor-like object with the same shape as the input `x` except of the</span>
+<span class="sd">            Return a boolean tensor-like object with the same shape as the input `x` except of the</span>
 <span class="sd">                last dimension removed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">_sanitize_x_input</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n_obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">)</span>
@@ -1059,7 +921,7 @@
 <span class="sd">            axis: The axis to remove the elements from. Defaults to 0.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tensor-like: Return an object with the same shape as `x` except that along `axis` elements have been</span>
+<span class="sd">            Return an object with the same shape as `x` except that along `axis` elements have been</span>
 <span class="sd">                removed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_rect_limits</span> <span class="ow">and</span> <span class="n">guarantee_limits</span><span class="p">:</span>
@@ -1118,7 +980,7 @@
 <span class="sd">                return the indices that could be used to reorder.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tuple(int): New indices that would reorder the instances obs to be obs respectively axes.</span>
+<span class="sd">            New indices that would reorder the instances obs to be obs respectively axes.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            CoordinatesUnderdefinedError: If neither `obs` nor `axes` is given</span>
@@ -1146,10 +1008,10 @@
         <span class="sd">&quot;&quot;&quot;Input check: Convert `NOT_SPECIFIED` to None or check if obs are all strings.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            obs (str, List[str], None, NOT_SPECIFIED):</span>
+<span class="sd">            obs:</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            type:</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">allow_none</span><span class="p">:</span>
@@ -1218,7 +1080,7 @@
 <span class="sd">        In case the observables are different, the order of the first space is taken.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            other (:py:class:`~zfit.Space`):</span>
+<span class="sd">            other:</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            :py:class:`~zfit.Space`:</span>
@@ -1231,7 +1093,7 @@
         <span class="sd">&quot;&quot;&quot;Combine spaces with different obs (but consistent limits).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            other (:py:class:`~zfit.Space`):</span>
+<span class="sd">            other:</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            :py:class:`~zfit.Space`:</span>
@@ -1257,7 +1119,7 @@
 <span class="sd">        If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: result of the comparison</span>
+<span class="sd">            Result of the comparison</span>
 <span class="sd">        Raises:</span>
 <span class="sd">             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1269,7 +1131,7 @@
         <span class="sd">&quot;&quot;&quot;Compares two Limits for equality without graph mode allowed.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool:</span>
+
 <span class="sd">        Raises:</span>
 <span class="sd">             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1290,7 +1152,7 @@
 <span class="sd">            allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: result of the comparison</span>
+<span class="sd">            Result of the comparison</span>
 <span class="sd">        Raises:</span>
 <span class="sd">             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1304,7 +1166,7 @@
 <span class="sd">        This can be used to determine whether a fitting range specification can handle another limit.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: result of the comparison</span>
+<span class="sd">            Result of the comparison</span>
 <span class="sd">        Raises:</span>
 <span class="sd">             IllegalInGraphModeError: it the comparison happens with tensors in a graph context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1331,7 +1193,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_limits</span></div>
 
 
-<div class="viewcode-block" id="Space"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space">[docs]</a><span class="k">class</span> <span class="nc">Space</span><span class="p">(</span><span class="n">BaseSpace</span><span class="p">):</span>
+<div class="viewcode-block" id="Space"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space">[docs]</a><span class="k">class</span> <span class="nc">Space</span><span class="p">(</span><span class="n">BaseSpace</span><span class="p">):</span>
     <span class="n">AUTO_FILL</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
     <span class="n">ANY</span> <span class="o">=</span> <span class="n">ANY</span>
     <span class="n">ANY_LOWER</span> <span class="o">=</span> <span class="n">ANY_LOWER</span>  <span class="c1"># TODO: needed? or move everything inside?</span>
@@ -1378,9 +1240,9 @@
 
 
 <span class="sd">        Args:</span>
-<span class="sd">            obs (str, List[str,...]):</span>
-<span class="sd">            limits ():</span>
-<span class="sd">            name (str):</span>
+<span class="sd">            obs:</span>
+<span class="sd">            limits:</span>
+<span class="sd">            name:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Space&quot;</span>
@@ -1400,10 +1262,10 @@
         <span class="sd">&quot;&quot;&quot;Check and sanitize the input limits as well as the rectangular limits.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limit ():</span>
+<span class="sd">            limit:</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            dict(obs/axes: ZfitLimit): Limits dictionary containing the observables and/or the axes as a key matching</span>
+<span class="sd">            Limits dictionary containing the observables and/or the axes as a key matching</span>
 <span class="sd">                `ZfitLimits` objects.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1533,7 +1395,7 @@
 <span class="sd">            `limits_are_false` and `limits_are_set`.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor) or bool or None: The lower and upper limits.</span>
+<span class="sd">            The lower and upper limits.</span>
 <span class="sd">        Raises:</span>
 <span class="sd">            LimitsNotSpecifiedError: If there are not limits set or they are False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1568,7 +1430,7 @@
 <span class="sd">        `limits_are_false` and `limits_are_set`.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (lower, upper): A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last</span>
+<span class="sd">            A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last</span>
 <span class="sd">                dimension is always `n_obs`, the first can be vectorized. This allows unstacking</span>
 <span class="sd">                with `z.unstack_x()` as can be done with data.</span>
 
@@ -1627,7 +1489,7 @@
         <span class="n">upper_ordered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reorder_x</span><span class="p">(</span><span class="n">upper_stacked</span><span class="p">,</span> <span class="o">**</span><span class="n">reorder_kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">lower_ordered</span><span class="p">,</span> <span class="n">upper_ordered</span>
 
-<div class="viewcode-block" id="Space.rect_area"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.rect_area">[docs]</a>    <span class="k">def</span> <span class="nf">rect_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<div class="viewcode-block" id="Space.rect_area"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.rect_area">[docs]</a>    <span class="k">def</span> <span class="nf">rect_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">calculate_rect_area</span><span class="p">(</span><span class="n">rect_limits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rect_limits_tf</span><span class="p">)</span></div>
 
@@ -1638,7 +1500,7 @@
 <span class="sd">        If a limit with tensors is evaluated inside a graph context, comparison operations will fail.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: if the rectangular limits are tensors.</span>
+<span class="sd">            If the rectangular limits are tensors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rect_limits_np</span>
@@ -1665,7 +1527,7 @@
         <span class="sd">&quot;&quot;&quot;If the limits have been set to False, so the object on purpose does not contain limits.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: True if limits is False</span>
+<span class="sd">            True if limits is False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">limit</span><span class="o">.</span><span class="n">limits_are_false</span>
                    <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits_dict</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs</span> <span class="k">else</span> <span class="s1">&#39;axes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
@@ -1675,7 +1537,7 @@
         <span class="sd">&quot;&quot;&quot;Whether there are limits set and they are not false.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool:</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits_are_set</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits_are_false</span>
 
@@ -1686,10 +1548,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">n_events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of events, the dimension of the first shape.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            int, None: Return the number of events, the dimension of the first shape. If this is &gt; 1 or None,</span>
+<span class="sd">            Number of events, the dimension of the first shape. If this is &gt; 1 or None,</span>
 <span class="sd">                it&#39;s vectorized.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_limits</span><span class="p">:</span>
@@ -1704,7 +1566,7 @@
         <span class="sd">&quot;&quot;&quot;Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tuple(float, float, float, float): so `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.</span>
+<span class="sd">            So `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.</span>
 <span class="sd">                low_x is the lower limit in x, up_x is the upper limit in x etc.</span>
 
 <span class="sd">        Raises:</span>
@@ -1721,7 +1583,7 @@
         <span class="sd">&quot;&quot;&quot;Simplified `.limits` for exactly 1 obs, n limits: return the tuple(low_1, ..., low_n, up_1, ..., up_n).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tuple(float, float, ...): so `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.</span>
+<span class="sd">            So `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.</span>
 <span class="sd">                low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.</span>
 
 <span class="sd">        Raises:</span>
@@ -1786,7 +1648,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="n">BreakingAPIChangeError</span>
 
-<div class="viewcode-block" id="Space.with_limits"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.with_limits">[docs]</a>    <span class="k">def</span> <span class="nf">with_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Space.with_limits"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.with_limits">[docs]</a>    <span class="k">def</span> <span class="nf">with_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">limits</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">rect_limits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">RectLimitsInputType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1800,13 +1662,13 @@
 <span class="sd">            name: Human readable name</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`: Copy of the current object with the new limits.</span>
+<span class="sd">            Copy of the current object with the new limits.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_space</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">rect_limits</span><span class="o">=</span><span class="n">rect_limits</span><span class="p">,</span>
                                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.reorder_x"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.reorder_x">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<div class="viewcode-block" id="Space.reorder_x"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.reorder_x">[docs]</a>    <span class="k">def</span> <span class="nf">reorder_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
                   <span class="o">*</span><span class="p">,</span>
                   <span class="n">x_obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">x_axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1825,7 +1687,7 @@
 <span class="sd">        Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes</span>
+<span class="sd">            x: Tensor to be reordered, last dimension should be n_obs resp. n_axes</span>
 <span class="sd">            x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the</span>
 <span class="sd">                latter.</span>
 <span class="sd">            x_axes: Axes associated with x.</span>
@@ -1836,11 +1698,11 @@
 <span class="sd">                self.axes to be the axes of x.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tensor-like: the reordered array-like object</span>
+<span class="sd">            The reordered array-like object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">reorder_x</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">x_obs</span><span class="o">=</span><span class="n">x_obs</span><span class="p">,</span> <span class="n">x_axes</span><span class="o">=</span><span class="n">x_axes</span><span class="p">,</span> <span class="n">func_obs</span><span class="o">=</span><span class="n">func_obs</span><span class="p">,</span> <span class="n">func_axes</span><span class="o">=</span><span class="n">func_axes</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Space.with_obs"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.with_obs">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Space.with_obs"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.with_obs">[docs]</a>    <span class="k">def</span> <span class="nf">with_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">obs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">],</span>
                  <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">allow_subset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitSpace</span><span class="p">:</span>
@@ -1849,6 +1711,7 @@
 <span class="sd">        The behavior is as follows:</span>
 
 <span class="sd">         * obs are already set:</span>
+
 <span class="sd">           * input obs are None: the observables will be dropped. If no axes are set, an error</span>
 <span class="sd">             will be raised, as no coordinates will be assigned to this instance anymore.</span>
 <span class="sd">           * input obs are not None: the instance will be sorted by the incoming obs. If axes or other</span>
@@ -1858,6 +1721,7 @@
 <span class="sd">             If a strict superset is given (and allow_superset is True), the obs will be sorted accordingly as</span>
 <span class="sd">             if the obs not contained in the instances obs were not in the input obs.</span>
 <span class="sd">         * obs are not set:</span>
+
 <span class="sd">           * if the input obs are None, the same object is returned.</span>
 <span class="sd">           * if the input obs are not None, they will be set as-is and now correspond to the already</span>
 <span class="sd">             existing axes in the object.</span>
@@ -1870,7 +1734,7 @@
 <span class="sd">            is raised.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`: a copy of the object with the new ordering/observables</span>
+<span class="sd">            A copy of the object with the new ordering/observables</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes</span>
@@ -1890,41 +1754,43 @@
             <span class="n">new_space</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">coords</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_limits_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.with_axes"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.with_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Space.with_axes"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.with_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">],</span>
                   <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                   <span class="n">allow_subset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZfitSpace</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Create a new instance that has `axes`; sorted by or set or dropped.</span>
 
-<span class="sd">            The behavior is as follows:</span>
+<span class="sd">        The behavior is as follows:</span>
 
-<span class="sd">             * axes are already set:</span>
-<span class="sd">               * input axes are None: the axes will be dropped. If no observables are set, an error</span>
-<span class="sd">                 will be raised, as no coordinates will be assigned to this instance anymore.</span>
-<span class="sd">               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other</span>
-<span class="sd">                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.</span>
-<span class="sd">                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can</span>
-<span class="sd">                 be used to retrieve a subspace of limits, data etc.</span>
-<span class="sd">                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as</span>
-<span class="sd">                 if the axes not contained in the instances axes were not present in the input axes.</span>
-<span class="sd">             * axes are not set:</span>
-<span class="sd">               * if the input axes are None, the same object is returned.</span>
-<span class="sd">               * if the input axes are not None, they will be set as-is and now correspond to the already</span>
-<span class="sd">                 existing obs in the object.</span>
+<span class="sd">         * axes are already set:</span>
 
-<span class="sd">            Args:</span>
-<span class="sd">                axes: Axes to sort/associate this instance with</span>
-<span class="sd">                allow_superset: if False and a strict superset of the own axeservables is given, an error</span>
-<span class="sd">                is raised.</span>
-<span class="sd">                allow_subset:if False and a strict subset of the own axeservables is given, an error</span>
-<span class="sd">                is raised.</span>
+<span class="sd">           * input axes are None: the axes will be dropped. If no observables are set, an error</span>
+<span class="sd">             will be raised, as no coordinates will be assigned to this instance anymore.</span>
+<span class="sd">           * input axes are not None: the instance will be sorted by the incoming axes. If obs or other</span>
+<span class="sd">             objects have an associated order (e.g. data, limits,...), they will be reordered as well.</span>
+<span class="sd">             If a strict subset is given (and allow_subset is True), only a subset will be returned. This can</span>
+<span class="sd">             be used to retrieve a subspace of limits, data etc.</span>
+<span class="sd">             If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as</span>
+<span class="sd">             if the axes not contained in the instances axes were not present in the input axes.</span>
+<span class="sd">         * axes are not set:</span>
 
-<span class="sd">            Returns:</span>
-<span class="sd">                :py:class:`~zfit.Space`: a copy of the object with the new ordering/axes</span>
-<span class="sd">            Raises:</span>
-<span class="sd">                CoordinatesUnderdefinedError: if obs is None and the instance does not have axes</span>
-<span class="sd">                AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and</span>
-<span class="sd">                    allow_allow_subset is False</span>
+<span class="sd">           * if the input axes are None, the same object is returned.</span>
+<span class="sd">           * if the input axes are not None, they will be set as-is and now correspond to the already</span>
+<span class="sd">             existing obs in the object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            axes: Axes to sort/associate this instance with</span>
+<span class="sd">            allow_superset: if False and a strict superset of the own axeservables is given, an error</span>
+<span class="sd">            is raised.</span>
+<span class="sd">            allow_subset:if False and a strict subset of the own axeservables is given, an error</span>
+<span class="sd">            is raised.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A copy of the object with the new ordering/axes</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes</span>
+<span class="sd">            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and</span>
+<span class="sd">                allow_allow_subset is False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># drop axes</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1946,7 +1812,7 @@
 
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.with_coords"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.with_coords">[docs]</a>    <span class="k">def</span> <span class="nf">with_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Space.with_coords"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.with_coords">[docs]</a>    <span class="k">def</span> <span class="nf">with_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                     <span class="n">coords</span><span class="p">:</span> <span class="n">ZfitOrderableDimensional</span><span class="p">,</span>
                     <span class="n">allow_superset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                     <span class="n">allow_subset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
@@ -1999,7 +1865,7 @@
 
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.with_autofill_axes"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.with_autofill_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_autofill_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="Space.with_autofill_axes"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.with_autofill_axes">[docs]</a>    <span class="k">def</span> <span class="nf">with_autofill_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).</span>
 
 <span class="sd">        This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or</span>
@@ -2017,11 +1883,11 @@
 
 
 <span class="sd">        Args:</span>
-<span class="sd">            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.</span>
+<span class="sd">            overwrite: If axes are already set, replace the axes with the autofilled ones.</span>
 <span class="sd">                If axes is already set and `overwrite` is False, raise an error.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            ZfitSpace: the object with the new axes</span>
+<span class="sd">            The object with the new axes</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AxesIncompatibleError: if the axes are already set and `overwrite` is False.</span>
@@ -2034,7 +1900,7 @@
             <span class="n">new_space</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="n">new_space</span></div>
 
-<div class="viewcode-block" id="Space.get_subspace"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.get_subspace">[docs]</a>    <span class="k">def</span> <span class="nf">get_subspace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Space.get_subspace"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.get_subspace">[docs]</a>    <span class="k">def</span> <span class="nf">get_subspace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                      <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2042,12 +1908,12 @@
         <span class="sd">&quot;&quot;&quot;Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            obs (str, Tuple[str]): Observables of the subspace to return.</span>
-<span class="sd">            axes (int, Tuple[int]): Axes of the subspace to return.</span>
+<span class="sd">            obs: Observables of the subspace to return.</span>
+<span class="sd">            axes: Axes of the subspace to return.</span>
 <span class="sd">            name: Human readable names</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.Space`: A space containing only a subspace (and sublimits etc.)</span>
+<span class="sd">            A space containing only a subspace (and sublimits etc.)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">axes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify `obs` *and* `axes` to get subspace.&quot;</span><span class="p">)</span>
@@ -2083,14 +1949,14 @@
         <span class="sd">&quot;&quot;&quot;Return the total area of all the limits and axes. Useful, for example, for MC integration.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rect_area</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Space.copy"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">overwrite_kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="Space.copy"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">overwrite_kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;zfit.Space&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Create a new :py:class:`~zfit.Space` using the current attributes and overwriting with</span>
 <span class="sd">        `overwrite_overwrite_kwargs`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            name (str): The new name. If not given, the new instance will be named the same as the</span>
+<span class="sd">            name: The new name. If not given, the new instance will be named the same as the</span>
 <span class="sd">                current one.</span>
-<span class="sd">            **overwrite_kwargs ():</span>
+<span class="sd">            **overwrite_kwargs:</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            :py:class:`~zfit.Space`</span>
@@ -2128,7 +1994,7 @@
         <span class="sd">&quot;&quot;&quot;Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            tuple(float, float): so :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.</span>
+<span class="sd">            So :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.</span>
@@ -2140,7 +2006,7 @@
         <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rect_limits</span>
         <span class="k">return</span> <span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Space.from_axes"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.Space.from_axes">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Space.from_axes"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.Space.html#zfit.Space.from_axes">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="nd">@deprecated</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">instructions</span><span class="o">=</span><span class="s2">&quot;Use directly the class to create a Space. E.g. zfit.Space(axes=(0, 1), ...)&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">from_axes</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">AxesTypeInput</span><span class="p">,</span>
                   <span class="n">limits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsTypeInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2150,9 +2016,9 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            rect_limits:</span>
-<span class="sd">            axes ():</span>
-<span class="sd">            limits ():</span>
-<span class="sd">            name (str):</span>
+<span class="sd">            axes:</span>
+<span class="sd">            limits:</span>
+<span class="sd">            name:</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            :py:class:`~zfit.Space`</span>
@@ -2212,11 +2078,11 @@
     <span class="k">return</span> <span class="n">limits_to_eval</span></div>
 
 
-<div class="viewcode-block" id="add_spaces"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.add_spaces">[docs]</a><span class="k">def</span> <span class="nf">add_spaces</span><span class="p">(</span><span class="o">*</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;ZfitSpace&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="add_spaces"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.add_spaces.html#zfit.add_spaces">[docs]</a><span class="k">def</span> <span class="nf">add_spaces</span><span class="p">(</span><span class="o">*</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">&quot;ZfitSpace&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Add two spaces and merge their limits if possible or return False.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        spaces (Iterable[:py:class:`~zfit.Space`]):</span>
+<span class="sd">        spaces:</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Union[None, :py:class:`~zfit.Space`, bool]:</span>
@@ -2237,17 +2103,17 @@
         <span class="k">return</span> <span class="n">space</span><span class="o">.</span><span class="n">axes</span></div>
 
 
-<div class="viewcode-block" id="combine_spaces"><a class="viewcode-back" href="../../../full_api/zfit.dimension.html#zfit.combine_spaces">[docs]</a><span class="k">def</span> <span class="nf">combine_spaces</span><span class="p">(</span><span class="o">*</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Space</span><span class="p">]):</span>
+<div class="viewcode-block" id="combine_spaces"><a class="viewcode-back" href="../../../user_api/dimension/zfit.dimension.combine_spaces.html#zfit.combine_spaces">[docs]</a><span class="k">def</span> <span class="nf">combine_spaces</span><span class="p">(</span><span class="o">*</span><span class="n">spaces</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Space</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Combine spaces with different `obs` and `limits` to one `space`.</span>
 
 <span class="sd">    Checks if the limits in each obs coincide *exactly*. If this is not the case, the combination</span>
 <span class="sd">    is not unambiguous and `False` is returned</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        spaces (List[:py:class:`~zfit.Space`]):</span>
+<span class="sd">        spaces:</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        `zfit.Space` or False: Returns False if the limits don&#39;t coincide in one or more obs. Otherwise</span>
+<span class="sd">        Returns False if the limits don&#39;t coincide in one or more obs. Otherwise</span>
 <span class="sd">            return the :py:class:`~zfit.Space` with all obs from `spaces` sorted by the order of `spaces` and with the</span>
 <span class="sd">            combined limits.</span>
 <span class="sd">    Raises:</span>
@@ -2658,7 +2524,7 @@
 <span class="sd">        If a limit with tensors is evaluated inside a graph context, comparison operations will fail.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: if the rectangular limits are tensors.</span>
+<span class="sd">            If the rectangular limits are tensors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">limits_are_tensors</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
 
@@ -2674,7 +2540,7 @@
         <span class="sd">&quot;&quot;&quot;If the limits have been set to False, so the object on purpose does not contain limits.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: True if limits is False</span>
+<span class="sd">            True if limits is False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">limits_are_false</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="p">)</span>
 
@@ -2685,7 +2551,7 @@
         <span class="sd">&quot;&quot;&quot;Whether there are limits set and they are not false.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool:</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits_are_set</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits_are_false</span>
@@ -2697,7 +2563,7 @@
         <span class="sd">&quot;&quot;&quot;If the limits have been set to a limit or are False.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: Whether the limits have been set or not.</span>
+<span class="sd">            Whether the limits have been set or not.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">limits_are_set</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="p">)</span>
 
@@ -2706,7 +2572,7 @@
         <span class="sd">&quot;&quot;&quot;Shape of the first dimension, usually reflects the number of events.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            int, None: Return the number of events, the dimension of the first shape. If this is &gt; 1 or None,</span>
+<span class="sd">            Return the number of events, the dimension of the first shape. If this is &gt; 1 or None,</span>
 <span class="sd">                it&#39;s vectorized.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># get the first numeric n_events. Is None if a Tensor and not specified yet.</span>
@@ -2728,7 +2594,7 @@
 <span class="sd">            name: Human readable name</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.MultiSpace`: Copy of the current object with the new limits.</span>
+<span class="sd">            Copy of the current object with the new limits.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">with_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">rect_limits</span><span class="o">=</span><span class="n">rect_limits</span><span class="p">)</span>
                                       <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">],</span>
@@ -2769,7 +2635,7 @@
 <span class="sd">            is raised.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`~zfit.MultiSpace`: a copy of the object with the new ordering/observables</span>
+<span class="sd">            A copy of the object with the new ordering/observables</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes</span>
@@ -2811,7 +2677,7 @@
 <span class="sd">                is raised.</span>
 
 <span class="sd">            Returns:</span>
-<span class="sd">                :py:class:`~zfit.Space`: a copy of the object with the new ordering/axes</span>
+<span class="sd">                A copy of the object with the new ordering/axes</span>
 <span class="sd">            Raises:</span>
 <span class="sd">                CoordinatesUnderdefinedError: if obs is None and the instance does not have axes</span>
 <span class="sd">                AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and</span>
@@ -2870,11 +2736,11 @@
 
 
 <span class="sd">        Args:</span>
-<span class="sd">            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.</span>
+<span class="sd">            overwrite: If axes are already set, replace the axes with the autofilled ones.</span>
 <span class="sd">                If axes is already set and `overwrite` is False, raise an error.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            object: the object with the new axes</span>
+<span class="sd">            The object with the new axes</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AxesIncompatibleError: if the axes are already set and `overwrite` is False.</span>
@@ -2896,12 +2762,12 @@
         <span class="sd">&quot;&quot;&quot;Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            obs (str, Tuple[str]): Observables of the subspace to return.</span>
-<span class="sd">            axes (int, Tuple[int]): Axes of the subspace to return.</span>
+<span class="sd">            obs: Observables of the subspace to return.</span>
+<span class="sd">            axes: Axes of the subspace to return.</span>
 <span class="sd">            name: Human readable names</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :py:class:`MultiSpace`: A space containing only a subspace (and sublimits etc.)</span>
+<span class="sd">            A space containing only a subspace (and sublimits etc.)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">get_subspace</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">)</span></div>
@@ -2957,14 +2823,14 @@
     <span class="sd">&quot;&quot;&quot;Convert *limits* to a :py:class:`~zfit.Space` object if not already None or False.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        obs (Union[Tuple[float, float], :py:class:`~zfit.Space`]):</span>
-<span class="sd">        limits ():</span>
-<span class="sd">        axes ():</span>
-<span class="sd">        overwrite_limits (bool): If `obs` or `axes` is a :py:class:`~zfit.Space` _and_ `limits` are given, return an instance</span>
+<span class="sd">        obs:</span>
+<span class="sd">        limits:</span>
+<span class="sd">        axes:</span>
+<span class="sd">        overwrite_limits: If `obs` or `axes` is a :py:class:`~zfit.Space` _and_ `limits` are given, return an instance</span>
 <span class="sd">            of :py:class:`~zfit.Space` with the new limits. If the flag is `False`, the `limits` argument will be</span>
 <span class="sd">            ignored if</span>
-<span class="sd">        one_dim_limits_only (bool):</span>
-<span class="sd">        simple_limits_only (bool):</span>
+<span class="sd">        one_dim_limits_only:</span>
+<span class="sd">        simple_limits_only:</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Union[:py:class:`~zfit.Space`, False, None]:</span>
@@ -3078,8 +2944,8 @@
 <span class="sd">    be catched by an earlier function that knows how to handle things.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        norm_range (bool): If False, no norm_range argument will be passed through resp. will be `None`</span>
-<span class="sd">        multiple_limits (bool): If False, only simple limits are to be expected and no iteration is</span>
+<span class="sd">        norm_range: If False, no norm_range argument will be passed through resp. will be `None`</span>
+<span class="sd">        multiple_limits: If False, only simple limits are to be expected and no iteration is</span>
 <span class="sd">            therefore required.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">decorator_stack</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3126,10 +2992,10 @@
 <span class="sd">    This function is useful to check if several spaces with *different* observables can be _combined_.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        spaces (List[zfit.Space]):</span>
+<span class="sd">        spaces:</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        bool:</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">new_space</span> <span class="o">=</span> <span class="n">combine_spaces</span><span class="p">(</span><span class="o">*</span><span class="n">spaces</span><span class="p">)</span>
@@ -3143,7 +3009,7 @@
     <span class="sd">&quot;&quot;&quot;Add two spaces and merge their limits if possible or return False.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        spaces (Iterable[:py:class:`~zfit.Space`]):</span>
+<span class="sd">        spaces:</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Union[None, :py:class:`~zfit.Space`, bool]:</span>
@@ -3192,22 +3058,26 @@
     <span class="k">return</span> <span class="n">new_space</span></div>
 </pre></div>
 
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
     </div>
-      
-  </div>
-</div>
-<footer class="footer">
+
+    <script src="../../../_static/js/index.js"></script>
+    <footer class="footer mt-5 mt-md-0">
   <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
-      
-        <br/>
-        
-      
-    </p>
     <p>
-        &copy; Copyright Copyright 2018, zfit.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.1.2.<br/>
     </p>
   </div>
 </footer>
