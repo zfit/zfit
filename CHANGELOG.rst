@@ -4,6 +4,44 @@ Changelog
 
 
 
+0.5.4 (16.07.2020)
+==================
+
+
+Major Features and Improvements
+-------------------------------
+- completely new doc design
+
+Breaking changes
+------------------
+- Minuit uses its own, internal gradient by default. To change this back, use `use_minuit_grad=False`
+- `minimize(params=...)` now filters correctly non-floating parameters.
+- `z.log` has been moved to `z.math.log` (following TF)
+
+Depreceations
+-------------
+
+
+Bug fixes and small changes
+---------------------------
+- ncalls is not correctly using the internal heuristc or the ncalls explicitly
+- `minimize(params=...)` automatically extracts independent parameters.
+- fix copy issue of KDEV1 and change name to 'adaptive' (instead of 'adaptiveV1')
+- change exp name of `lambda_` to lam (in init)
+- add `set_yield` to BasePDF to allow setting the yield in place
+- Fix possible bug in SumPDF with extended pdfs (automatically)
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+- upgrade to iminuit>=1.4
+- remove cloudpickle hack fix
+
+Thanks
+------
+Johannes for the docs re-design
 
 0.5.3 (02.07.20)
 ================

@@ -43,3 +43,12 @@ def test_extract_extended_pdfs():
     samples_from_pdf = sum_all.sample(n='extended', limits=limits)
     samples_from_pdf_np = samples_from_pdf.numpy()
     assert np.shape(samples_from_pdf_np)[0] == pytest.approx(expected=(45 + 100 + 200), rel=0.1)
+
+
+def test_set_yield():
+    gauss6 = zfit.pdf.Gauss(obs=obs1, mu=1.3, sigma=5.4)
+
+    yield1 = zfit.Parameter('yield123' + str(np.random.random()), 200.)
+    assert not gauss6.is_extended
+    gauss6.set_yield(yield1)
+    assert gauss6.is_extended

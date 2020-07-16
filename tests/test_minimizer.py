@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 import pytest
 import tensorflow as tf
+import numpy as np
 
 import zfit.minimizers.baseminimizer as zmin
 import zfit.minimizers.optimizers_tf
@@ -30,7 +31,7 @@ def create_loss(obs1):
     lambda_param = zfit.Parameter("lambda", -0.04, -0.5, -0.0003, step_size=0.001)
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
-    exp1 = zfit.pdf.Exponential(lambda_=lambda_param, obs=obs1)
+    exp1 = zfit.pdf.Exponential(lam=lambda_param, obs=obs1)
 
     sum_pdf1 = zfit.pdf.SumPDF([gauss1, exp1], 0.8)
     # load params for sampling
@@ -59,6 +60,37 @@ obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
               + zfit.Space(obs='obs1', limits=(1.3, 2.1))
               + zfit.Space(obs='obs1', limits=(2.1, 9.1)))
+
+def test_floating_flag():
+    obs = zfit.Space("x", limits=(-2, 3))
+    mu = zfit.Parameter("mu", 1.2, -4, 6)
+    sigma = zfit.Parameter("sigma", 1.3, 0.1, 10)
+    sigma.floating = False
+    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+    normal_np = np.random.normal(loc=2., scale=3., size=10000)
+    data = zfit.Data.from_numpy(obs=obs, array=normal_np)
+    nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
+    minimizer = zfit.minimize.Minuit()
+    result = minimizer.minimize(nll, params=[mu, sigma])
+    assert list(result.params.keys()) == [mu]
+    assert sigma not in result.params
+
+
+def test_dependent_param_extraction():
+    obs = zfit.Space("x", limits=(-2, 3))
+    mu = zfit.Parameter("mu", 1.2, -4, 6)
+    sigma = zfit.Parameter("sigma", 1.3, 0.1, 10)
+    sigma1 = zfit.ComposedParameter('sigma1', lambda sigma, mu: sigma + mu, [sigma, mu])
+    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma1, obs=obs)
+    normal_np = np.random.normal(loc=2., scale=3., size=10)
+    data = zfit.Data.from_numpy(obs=obs, array=normal_np)
+    nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
+    minimizer = zfit.minimize.Minuit()
+    params_checked = minimizer._check_input_params(nll, params=[mu, sigma1])
+    assert {mu, sigma} == set(params_checked)
+    sigma.floating = False
+    params_checked = minimizer._check_input_params(nll, params=[mu, sigma1])
+    assert {mu, } == set(params_checked)
 
 
 # @pytest.mark.run(order=4)

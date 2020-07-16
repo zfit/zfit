@@ -22,7 +22,7 @@ def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
         limits: 1-D limits
 
     Returns:
-        tf.Tensor: the rescaled tensor.
+        The rescaled tensor.
     """
     lim_low, lim_high = limits.limit1d
     x = (2 * x - lim_low - lim_high) / (lim_high - lim_low)
@@ -41,8 +41,8 @@ class RecursivePolynomial(BasePDF):
         """Base class to create 1 dimensional recursive polynomials that can be rescaled. Overwrite _poly_func.
 
         Args:
-            coeffs (list): Coefficients for each polynomial. Used to calculate the degree.
-            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
+            coeffs: Coefficients for each polynomial. Used to calculate the degree.
+            apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
 
                 .. math::
                    x_{n+1} = recurrence(x_{n}, x_{n-1}, n)
@@ -160,7 +160,7 @@ class Legendre(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
             (n+1) P_{n+1}(x) = (2n + 1) x P_{n}(x) - n P_{n-1}(x)
@@ -172,10 +172,10 @@ class Legendre(RecursivePolynomial):
 
         Args:
             obs: The default space the PDF is defined in.
-            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
-            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
-            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
-            name (str): Name of the polynomial
+            coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
+            apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
+            coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name: Name of the polynomial
         """
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, apply_scaling=apply_scaling, coeff0=coeff0)
@@ -218,7 +218,7 @@ class Chebyshev(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
             T_{n+1}(x) = 2 x T_{n}(x) - T_{n-1}(x)
@@ -231,10 +231,10 @@ class Chebyshev(RecursivePolynomial):
 
         Args:
             obs: The default space the PDF is defined in.
-            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
-            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
-            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
-            name (str): Name of the polynomial
+            coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
+            apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
+            coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name: Name of the polynomial
         """
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, coeff0=coeff0,
@@ -301,7 +301,7 @@ class Chebyshev2(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
             T_{n+1}(x) = 2 x T_{n}(x) - T_{n-1}(x)
@@ -316,10 +316,10 @@ class Chebyshev2(RecursivePolynomial):
 
         Args:
             obs: The default space the PDF is defined in.
-            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
-            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
-            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
-            name (str): Name of the polynomial
+            coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
+            apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
+            coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name: Name of the polynomial
         """
         super().__init__(obs=obs, name=name,
                          coeffs=coeffs, coeff0=coeff0, apply_scaling=apply_scaling)
@@ -410,7 +410,7 @@ class Laguerre(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
 
@@ -423,10 +423,10 @@ class Laguerre(RecursivePolynomial):
 
         Args:
             obs: The default space the PDF is defined in.
-            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
-            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
-            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
-            name (str): Name of the polynomial
+            coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
+            apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
+            coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name: Name of the polynomial
         """
         super().__init__(obs=obs, name=name, coeffs=coeffs, coeff0=coeff0,
                          apply_scaling=apply_scaling)
@@ -505,7 +505,7 @@ class Hermite(RecursivePolynomial):
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
 
-        The recursive definition of _a single order_ of the polynomial is
+        The recursive definition of **a single order** of the polynomial is
 
         .. math::
 
@@ -517,10 +517,10 @@ class Hermite(RecursivePolynomial):
 
         Args:
             obs: The default space the PDF is defined in.
-            coeffs (list[params]): A list of the coefficients for the polynomials of order 1+ in the sum.
-            apply_scaling (bool): Rescale the data so that the actual limits represent (-1, 1).
-            coeff0 (param): The scaling factor of the 0th order polynomial. If not given, it is set to 1.
-            name (str): Name of the polynomial
+            coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
+            apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
+            coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            name: Name of the polynomial
         """
         super().__init__(obs=obs, name=name, coeffs=coeffs, coeff0=coeff0,
                          apply_scaling=apply_scaling)

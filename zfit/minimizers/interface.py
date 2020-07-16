@@ -10,12 +10,12 @@ class ZfitResult:
         """Calculate for `params` the symmetric error using the Hessian matrix.
 
         Args:
-            params (list(`zfit.FitParameters`)): The parameters  to calculate the
+            params: The parameters  to calculate the
                 Hessian symmetric error. If None, use all parameters.
-            method (str): the method to calculate the hessian. Can be {'minuit'} or a callable.
+            method: the method to calculate the hessian. Can be {'minuit'} or a callable.
 
         Returns:
-            OrderedDict: Result of the hessian (symmetric) error as dict with each parameter holding
+            Result of the hessian (symmetric) error as dict with each parameter holding
                 the error dict {'error': sym_error}.
 
                 So given param_a (from zfit.Parameter(.))
@@ -29,13 +29,13 @@ class ZfitResult:
         """Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
-                params (list(`zfit.FitParameters` or str)): The parameters or their names to calculate the
+                params: The parameters or their names to calculate the
                      errors. If `params` is `None`, use all *floating* parameters.
-                method (str or Callable): The method to use to calculate the errors. Valid choices are
+                method: The method to use to calculate the errors. Valid choices are
                     {'minuit_minos'} or a Callable.
 
             Returns:
-                `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+                A `OrderedDict` containing as keys the parameter names and as value a `dict` which
                     contains (next to probably more things) two keys 'lower' and 'upper',
                     holding the calculated errors.
                     Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'

@@ -73,7 +73,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
             is raised.
 
         Returns:
-            object: a copy of the object with the new ordering/observables
+            A copy of the object with the new ordering/observables
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -113,7 +113,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
                 is raised.
 
             Returns:
-                object: a copy of the object with the new ordering/axes
+                A copy of the object with the new ordering/axes
 
             Raises:
                 CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -142,11 +142,11 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
 
         Args:
-            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.
+            overwrite: If axes are already set, replace the axes with the autofilled ones.
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
-            object: the object with the new axes
+            The object with the new axes
 
         Raises:
             AxesIncompatibleError: if the axes are already set and `overwrite` is False.
@@ -173,7 +173,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
 
         Args:
-            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes
+            x: Tensor to be reordered, last dimension should be n_obs resp. n_axes
             x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
                 latter.
             x_axes: Axes associated with x.
@@ -184,7 +184,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
                 self.axes to be the axes of x.
 
         Returns:
-            tensor-like: the reordered array-like object
+            The reordered array-like object
         """
         raise NotImplementedError
 
@@ -202,7 +202,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
                 return the indices that could be used to reorder.
 
         Returns:
-            tuple(int): New indices that would reorder the instances obs to be obs respectively axes.
+            New indices that would reorder the instances obs to be obs respectively axes.
 
         Raises:
             CoordinatesUnderdefinedError: If neither `obs` nor `axes` is given
@@ -245,7 +245,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
             `limits_are_false` and `limits_are_set`.
 
         Returns:
-            tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor) or bool or None: The lower and upper limits.
+            The lower and upper limits.
         Raises:
             LimitsNotSpecifiedError: If there are not limits set or they are False.
         """
@@ -264,7 +264,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         `limits_are_false` and `limits_are_set`.
 
         Returns:
-            (lower, upper): A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
+            A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
                 dimension is always `n_obs`, the first can be vectorized. This allows unstacking
                 with `z.unstack_x()` as can be done with data.
 
@@ -316,7 +316,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
             guarantee_limits: Guarantee that the values are already inside the rectangular limits.
 
         Returns:
-            tensor-like: Return a boolean tensor-like object with the same shape as the input `x` except of the
+            Return a boolean tensor-like object with the same shape as the input `x` except of the
                 last dimension removed.
         """
         raise NotImplementedError
@@ -337,7 +337,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
             axis: The axis to remove the elements from. Defaults to 0.
 
         Returns:
-            tensor-like: Return an object with the same shape as `x` except that along `axis` elements have been
+            Return an object with the same shape as `x` except that along `axis` elements have been
                 removed.
         """
 
@@ -354,7 +354,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
 
         Returns:
-            bool: if the rectangular limits are tensors.
+            If the rectangular limits are tensors.
         """
         raise NotImplementedError
 
@@ -364,28 +364,20 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         """If the limits have been set to a limit or are False.
 
         Returns:
-            bool: Whether the limits have been set or not.
+            Whether the limits have been set or not.
         """
         raise NotImplementedError
 
     @property
     @abstractmethod
     def limits_are_false(self) -> bool:
-        """If the limits have been set to False, so the object on purpose does not contain limits.
-
-        Returns:
-            bool:
-        """
+        """Returns if the limits have been set to False, so the object on purpose does not contain limits."""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def has_limits(self) -> bool:
-        """Whether there are limits set and they are not false.
-
-        Returns:
-            bool:
-        """
+        """Whether there are limits set and they are not false."""
         raise NotImplementedError
 
     # TODO: remove from API?
@@ -399,7 +391,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         """Dimensionality, the number of observables, of the limits. Equals to the last axis in rectangular limits.
 
         Returns:
-            int: Dimensionality of the limits.
+            Dimensionality of the limits.
         """
         raise NotImplementedError
 
@@ -408,7 +400,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         """Shape of the first dimension, usually reflects the number of events.
 
         Returns:
-            int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
+            Return the number of events, the dimension of the first shape. If this is > 1 or None,
                 it's vectorized.
         """
         raise NotImplementedError
@@ -420,7 +412,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
 
         Returns:
-            bool: result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -429,9 +421,6 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @abstractmethod
     def __eq__(self, other: object) -> bool:
         """Compares two Limits for equality without graph mode allowed.
-
-        Returns:
-            bool:
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -454,7 +443,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
             allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
 
         Returns:
-            bool: result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
 
@@ -468,7 +457,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         This can be used to determine whether a fitting range specification can handle another limit.
 
         Returns:
-            bool: result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -481,7 +470,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         If this is not possible, if the limits are not rectangular, just returns itself.
 
         Returns:
-            Iterable[ZfitLimits]: The sublimits if it was able to split.
+            The sublimits if it was able to split.
         """
         raise NotImplementedError
 
@@ -540,7 +529,7 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
             name: Human readable name
 
         Returns:
-            :py:class:`~zfit.Space`: Copy of the current object with the new limits.
+            Copy of the current object with the new limits.
         """
         raise NotImplementedError
 
@@ -549,9 +538,9 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
-            obs (str, Tuple[str]):
-            axes (int, Tuple[int]):
-            name ():
+            obs:
+            axes:
+            name:
 
         Returns:
 
@@ -695,12 +684,12 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
 
 
         Args:
-            minval (Numerical): The lower bound of the sampler. If not given, `lower_limit` is used.
-            maxval (Numerical): The upper bound of the sampler. If not given, `upper_limit` is used.
-            sampler (): A sampler with the same interface as `tf.random.uniform`
+            minval: The lower bound of the sampler. If not given, `lower_limit` is used.
+            maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
+            sampler: A sampler with the same interface as `tf.random.uniform`
 
         Returns:
-            `tf.Tensor`: The sampled value
+            The sampled value
         """
         raise NotImplementedError
 
@@ -712,18 +701,14 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         manager.
 
         Args:
-            value (float): The value the parameter will take on.
+            value: The value the parameter will take on.
         """
         raise NotImplementedError
 
     @property
     @abstractmethod
     def has_limits(self) -> bool:
-        """If the parameter has limits set or not
-
-        Returns:
-            bool
-        """
+        """If the parameter has limits set or not."""
         raise NotImplementedError
 
     @property
@@ -732,7 +717,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         """If the value is at the limit (or over it).
 
         Returns:
-            `tf.Tensor`: Boolean `tf.Tensor` that tells whether the value is at the limits.
+            Boolean `tf.Tensor` that tells whether the value is at the limits.
 
         """
         raise NotImplementedError
@@ -747,7 +732,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         If the step size is not set, the `DEFAULT_STEP_SIZE` is used.
 
         Returns:
-            :py:class:`tf.Tensor`: the step size
+            The step size
         """
         raise NotImplementedError
 
@@ -812,13 +797,13 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over
-            norm_range (tuple, :py:class:`~zfit.Space`): the limits to normalize over or False to integrate the
+            limits: the limits to integrate over
+            norm_range: the limits to normalize over or False to integrate the
                 unnormalized probability
-            name (str):
+            name:
 
         Returns:
-            Tensor: the integral value
+            The integral value
         """
         raise NotImplementedError
 
@@ -831,11 +816,11 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Register an analytic integral with the class.
 
         Args:
-            func ():
-            limits (): |limits_arg_descr|
-            priority (int):
-            supports_multiple_limits (bool):
-            supports_norm_range (bool):
+            func:
+            limits: |limits_arg_descr|
+            priority:
+            supports_multiple_limits:
+            supports_norm_range:
 
         Returns:
 
@@ -851,12 +836,12 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         to the dimensions of `norm_range` (if not False)
 
         Args:
-            x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, :py:class:`~zfit.Space`): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, :py:class:`~zfit.Space`, False): the limits to normalize over. Has to have all axes
+            x: The value at which the partially integrated function will be evaluated
+            limits: the limits to integrate over. Can contain only some axes
+            norm_range: the limits to normalize over. Has to have all axes
 
         Returns:
-            Tensor: the value of the partially integrated function evaluated at `x`.
+            The value of the partially integrated function evaluated at `x`.
         """
         raise NotImplementedError
 
@@ -866,7 +851,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Register an inverse analytical integral, the inverse (unnormalized) cdf.
 
         Args:
-            func ():
+            func:
         """
         raise NotImplementedError
 
@@ -875,9 +860,9 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Sample `n` points within `limits` from the model.
 
         Args:
-            n (int): The number of samples to be generated
-            limits (tuple, :py:class:`~zfit.Space`): In which region to sample in
-            name (str):
+            n: The number of samples to be generated
+            limits: In which region to sample in
+            name:
 
         Returns:
             Tensor(n_obs, n_samples)

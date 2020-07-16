@@ -183,12 +183,12 @@ def test_normalization_prod_gauss():
 def test_exp():
     lambda_true = 0.031
     lambda_ = zfit.Parameter('lambda1', lambda_true)
-    exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs=zfit.Space('obs1', (-11, 11)))
+    exp1 = zfit.pdf.Exponential(lam=lambda_, obs=zfit.Space('obs1', (-11, 11)))
     sample = exp1.sample(n=1000, limits=(-10, 10))
     sample_np = sample.numpy()
     assert not any(np.isnan(sample_np))
 
-    exp1 = zfit.pdf.Exponential(lambda_=lambda_, obs=zfit.Space('obs1', (5250, 5750)))
+    exp1 = zfit.pdf.Exponential(lam=lambda_, obs=zfit.Space('obs1', (5250, 5750)))
     probs2 = exp1.pdf(x=np.linspace(5300, 5700, num=1100))
     probs2_np = probs2.numpy()
     assert not any(np.isnan(probs2_np))

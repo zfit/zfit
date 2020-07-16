@@ -33,10 +33,10 @@ def get_logger(name, stdout_level=None, file_level=None, file_name=None):
         Default logging level at first instantiation is WARNING.
 
     Arguments:
-        name (str): Name of the logger.
-        stdout_level (int, optional): Logging level for the stream handler. Defaults to `logging.WARNING`.
-        file_level (int, optional): Logging level for the file handler. Defaults to `logging.WARNING`.
-        file_name (str, optional): File to log to. If not given, no file logging is performed.
+        name: Name of the logger.
+        stdout_level: Logging level for the stream handler. Defaults to `logging.WARNING`.
+        file_level: Logging level for the file handler. Defaults to `logging.WARNING`.
+        file_name: File to log to. If not given, no file logging is performed.
 
     Return:
         `logging.Logger`: The requested logger.

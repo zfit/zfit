@@ -302,7 +302,7 @@ class RunManager:
         """Return the current policy for graph building.
 
         Returns:
-            bool, str: The current policy. For more information, check :py:meth:`~zfit.run.set_mode`.
+            The current policy. For more information, check :py:meth:`~zfit.run.set_mode`.
         """
         return self.mode['graph']
 
@@ -316,7 +316,7 @@ class RunManager:
         """The current policy for using the automatic gradient or falling back to the numerical
 
         Returns:
-            bool: If autograd is being used.
+            If autograd is being used.
 
         """
         return self.mode['autograd']

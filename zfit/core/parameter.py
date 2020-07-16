@@ -32,6 +32,8 @@ from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenErr
     WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError, FunctionNotImplementedError
 from ..util.temporary import TemporarilySet
 
+# todo add type hints in this module for api
+
 
 class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
     pass
@@ -377,7 +379,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
                  floating: bool = True,
                  dtype: tf.DType = ztypes.float, **kwargs):
         """
-            name : name of the parameter,
+
+        Args:
+            name : name of the parameter
             value : starting value
             lower_limit : lower limit
             upper_limit : upper limit
@@ -439,11 +443,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
     @property
     def has_limits(self) -> bool:
-        """If the parameter has limits set or not
+        """If the parameter has limits set or not."""
 
-        Returns:
-            bool
-        """
         no_limits = self._lower_limit is None and self._upper_limit is None
         return not no_limits
 
@@ -454,8 +455,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         The precision is up to 1e-5 relative.
 
         Returns:
-            `tf.Tensor`: Boolean `tf.Tensor` that tells whether the value is at the limits.
-
+            Boolean `tf.Tensor` that tells whether the value is at the limits.
         """
         if not self.has_limits:
             return tf.constant(False)
@@ -506,7 +506,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         If the step size is not set, the `DEFAULT_STEP_SIZE` is used.
 
         Returns:
-            :py:class:`tf.Tensor`: the step size
+            The step size
         """
         step_size = self._step_size
         if step_size is None:
@@ -541,7 +541,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         manager.
 
         Args:
-            value (float): The value the parameter will take on.
+            value: The value the parameter will take on.
         """
         super_assign = super().assign
 
@@ -555,17 +555,17 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
     def randomize(self, minval: Optional[ztyping.NumericalScalarType] = None,
                   maxval: Optional[ztyping.NumericalScalarType] = None,
-                  sampler: Callable = tf.random.uniform) -> tf.Tensor:
+                  sampler: Callable = np.random.uniform) -> tf.Tensor:
         """Update the parameter with a randomised value between minval and maxval and return it.
 
 
         Args:
-            minval (Numerical): The lower bound of the sampler. If not given, `lower_limit` is used.
-            maxval (Numerical): The upper bound of the sampler. If not given, `upper_limit` is used.
-            sampler (): A sampler with the same interface as `tf.random.uniform`
+            minval: The lower bound of the sampler. If not given, `lower_limit` is used.
+            maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
+            sampler: A sampler with the same interface as `np.random.uniform`
 
         Returns:
-            `tf.Tensor`: The sampled value
+            The sampled value
         """
         if not tf.executing_eagerly():
             raise IllegalInGraphModeError("Randomizing values in a parameter within Graph mode is most probably not"
@@ -578,7 +578,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             maxval = self.upper
         else:
             maxval = tf.cast(maxval, dtype=self.dtype)
-
+        if maxval is None or minval is None:
+            raise RuntimeError("Cannot randomize a parameter without limits or limits given.")
         value = sampler(size=self.shape, low=minval, high=maxval)
 
         self.set_value(value=value)
@@ -650,6 +651,10 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
     def floating(self):
         raise LogicalUndefinedOperationError("Cannot be floating or not. Look at the dependencies.")
 
+    @floating.setter
+    def floating(self, value):
+        raise LogicalUndefinedOperationError("Cannot set floating or not. Set in the dependencies (`get_params`).")
+
     @property
     def params(self):
         return self._params
@@ -675,8 +680,16 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
 
 class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
+    """Constant parameter. Value cannot change."""
 
     def __init__(self, name, value, dtype=ztypes.float):
+        """
+
+        Args:
+            name:
+            value:
+            dtype:
+        """
         super().__init__(name=name, params={}, dtype=dtype)
         static_value = tf.get_static_value(value, partial=True)
         if static_value is None:
@@ -699,6 +712,10 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
     @property
     def floating(self):
         return False
+
+    @floating.setter
+    def floating(self, value):
+        raise LogicalUndefinedOperationError("Cannot set a ConstantParameter to floating. Use a `Parameter` instead.")
 
     @property
     def independent(self) -> bool:
@@ -735,7 +752,9 @@ class ComposedParameter(BaseComposedParameter):
             params: If it is a `dict`, this will direclty be used as the `params` attribute, otherwise the
                 parameters will be automatically named with f"param_{i}". The values act as arguments to `value_fn`.
             dtype: Output of `value_fn` dtype
-            dependents: DEPRECEATED, use `params` instead.
+            dependents:
+                .. deprecated:: unknown
+                    use `params` instead.
         """
         if dependents is not NotSpecified:
             params = dependents
@@ -764,7 +783,7 @@ class ComplexParameter(ComposedParameter):
     def __init__(self, name, value_fn, params, dtype=ztypes.complex):
         """Create a complex parameter.
 
-        .. warning::
+        .. note::
             Use the constructor class methods instead of the __init__() constructor:
 
             - :py:meth:`ComplexParameter.from_cartesian`
@@ -780,6 +799,13 @@ class ComplexParameter(ComposedParameter):
     @classmethod
     def from_cartesian(cls, name, real, imag, dtype=ztypes.complex,
                        floating=True):  # TODO: correct dtype handling, also below
+        """Create a complex parameter from cartesian coordinates.
+
+        Args:
+            name: Name of the parameter.
+            real: Real part of the complex number.
+            imag: Imaginary part of the complex number.
+        """
         real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
         param = cls(name=name,
@@ -791,6 +817,13 @@ class ComplexParameter(ComposedParameter):
 
     @classmethod
     def from_polar(cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
+        """Create a complex parameter from polar coordinates.
+
+        Args:
+            name: Name of the parameter.
+            real: Modulus (r) the complex number.
+            imag: Argument (phi) of the complex number.
+        """
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(name=name,
@@ -804,6 +837,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def conj(self):
+        """Returns a complex conjugated copy of the complex parameter."""
         if self._conj is None:
             self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=lambda: tf.math.conj(self),
                                           params=self.get_cache_deps(),
@@ -812,6 +846,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def real(self):
+        """Real part of the complex parameter."""
         real = self._real
         if real is None:
             real = z.to_real(self)
@@ -819,6 +854,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def imag(self):
+        """Imaginary part of the complex parameter."""
         imag = self._imag
         if imag is None:
             imag = tf.math.imag(tf.convert_to_tensor(value=self, dtype_hint=self.dtype))  # HACK tf bug #30029
@@ -826,6 +862,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def mod(self):
+        """Modulus (r) of the complex parameter."""
         mod = self._mod
         if mod is None:
             mod = tf.math.abs(self)
@@ -833,6 +870,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def arg(self):
+        """Argument (phi) of the complex parameter."""
         arg = self._arg
         if arg is None:
             arg = tf.math.atan(self.imag / self.real)
@@ -853,10 +891,9 @@ def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None
     """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
     Args:
-        value ():
-        name ():
-        prefer_constant: If True, create a ConstantParameter instead of a Parameter _if possible_.
-
+        value:
+        name:
+        prefer_constant: If True, create a ConstantParameter instead of a Parameter, if possible.
     """
     is_python = False
     if name is not None:
@@ -909,8 +946,8 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
     """Set the values (using a context manager or not) of multiple parameters.
 
     Args:
-        params: Parameters to set the values
-        values: list-like object that supports indexing
+        params: Parameters to set the values.
+        values: List-like object that supports indexing.
 
     Returns:
 

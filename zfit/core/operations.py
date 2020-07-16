@@ -15,8 +15,8 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -
     """Multiply two objects and return a new object (may depending on the old).
 
     Args:
-        object1 (): A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object2
-        object2 (): A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object1
+        object1: A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object2
+        object2: A ZfitParameter, ZfitFunc or ZfitPDF to multiply with object1
     Raises:
         TypeError: if one of the objects is neither a ZfitFunc, ZfitPDF or convertable to a ZfitParameter
     """
@@ -120,8 +120,8 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> zty
     """Add two objects and return a new object (may depending on the old).
 
     Args:
-        object1 (): A ZfitParameter, ZfitFunc or ZfitPDF to add with object2
-        object2 (): A ZfitParameter, ZfitFunc or ZfitPDF to add with object1
+        object1: A ZfitParameter, ZfitFunc or ZfitPDF to add with object2
+        object2: A ZfitParameter, ZfitFunc or ZfitPDF to add with object1
     """
     # converting the objects to known types
     object1, object2 = _convert_to_known(object1, object2)

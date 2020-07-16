@@ -59,7 +59,8 @@ class GaussianKDE1DimV1(WrapDistribution):
     _bandwidth_methods = {
         'scott': _bandwidth_scott_KDEV1,
         'silverman': _bandwidth_silverman_KDEV1,
-        'adaptiveV1': _adaptive_bandwidth_KDEV1
+        'adaptiveV1': _adaptive_bandwidth_KDEV1,
+        'adaptive': _adaptive_bandwidth_KDEV1,
     }
 
     def __init__(self, obs: ztyping.ObsTypeInput, data: ztyping.ParamTypeInput,
@@ -86,7 +87,7 @@ class GaussianKDE1DimV1(WrapDistribution):
 
         Args:
             data: 1-D Tensor-like. The positions of the `kernel`, the :math:`x_i`. Determines how many kernels will be created.
-            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
+            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptive'} or a numerical.
                 If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
                 A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
             obs: Observables
@@ -97,6 +98,8 @@ class GaussianKDE1DimV1(WrapDistribution):
         """
         if bandwidth is None:
             bandwidth = 'silverman'
+
+        original_data = data
 
         if isinstance(data, ZfitData):
             if data.weights is not None:
@@ -128,7 +131,8 @@ class GaussianKDE1DimV1(WrapDistribution):
             bandwidth = bw_method(constructor=type(self), obs=obs, data=data, weights=weights,
                                   name=f"INTERNAL_{name}", truncate=truncate)
 
-        bandwidth_param = -999 if bandwidth_param == 'adaptiveV1' else bandwidth  # TODO: multiparam for bandwidth?
+        bandwidth_param = -999 if bandwidth_param in (
+        'adaptiveV1', 'adaptive') else bandwidth  # TODO: multiparam for bandwidth?
 
         params = {'bandwidth': bandwidth_param}
 
@@ -163,4 +167,5 @@ class GaussianKDE1DimV1(WrapDistribution):
         self._data_weights = weights
         self._bandwidth = bandwidth
         self._data = data
+        self._original_data = original_data
         self._truncate = truncate

@@ -40,7 +40,7 @@ def _BaseModel_register_check_support(has_support: bool):
     """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
 
     Args:
-        has_support (bool): If True, flags that it **requires** the `@supports` decorator. If False,
+        has_support: If True, flags that it **requires** the `@supports` decorator. If False,
             flags that the `@supports` decorator is **not allowed**.
 
     """
@@ -51,10 +51,10 @@ def _BaseModel_register_check_support(has_support: bool):
         """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
 
         Args:
-            func (function):
+            func:
 
         Returns:
-            function:
+            Function:
         """
         name = func.__name__
         _BaseModel_USER_IMPL_METHODS_TO_CHECK[name] = has_support
@@ -89,9 +89,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """The base model to inherit from and overwrite `_unnormalized_pdf`.
 
         Args:
-            dtype (DType): the dtype of the model
-            name (str): the name of the model
-            params (Dict(str, :py:class:`~zfit.Parameter`)): A dictionary with the internal name of the parameter and
+            dtype: the dtype of the model
+            name: the name of the model
+            params: A dictionary with the internal name of the parameter and
                 the parameters itself the model depends on
         """
         super().__init__(name=name, dtype=dtype, params=params, **kwargs)
@@ -203,8 +203,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Set the integration options.
 
         Args:
-            draws_per_dim (int): The draws for MC integration to do
-            mc_sampler ():
+            draws_per_dim: The draws for MC integration to do
+            mc_sampler:
         """
         # mc_options = {} if mc_options is None else mc_options
         # numeric_options = {} if numeric_options is None else numeric_options
@@ -225,8 +225,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Convert to :py:class:`~zfit.Space`.
 
         Args:
-            norm_range (None or :py:class:`~zfit.Space` compatible):
-            none_is_error (bool): if both `norm_range` and `self.norm_range` are None, the default
+            norm_range:
+            none_is_error: if both `norm_range` and `self.norm_range` are None, the default
                 value is `False` (meaning: no range specified-> no normalization to be done). If
                 this is set to true, two `None` will raise a Value error.
 
@@ -257,9 +257,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         own `obs`.
 
         Args:
-            obs ():
-            axes ():
-            limits ():
+            obs:
+            axes:
+            limits:
 
         Returns:
 
@@ -286,12 +286,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
-            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
-            norm_range (tuple, :py:class:`~zfit.ZfitSpace`): the limits to normalize over or False to integrate the
+            limits: the limits to integrate over
+            norm_range: the limits to normalize over or False to integrate the
                 unnormalized probability
 
         Returns:
-            :py:class`tf.Tensor`: the integral value as a scalar with shape ()
+            The integral value as a scalar with shape ()
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -364,7 +364,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Register an analytic integral with the class.
 
         Args:
-            func (callable): A function that calculates the (partial) integral over the axes `limits`.
+            func: A function that calculates the (partial) integral over the axes `limits`.
                 The signature has to be the following:
 
                     * x (:py:class:`~zfit.core.interfaces.ZfitData`, None): the data for the remaining axes in a partial
@@ -375,13 +375,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     * params (Dict[param_name, :py:class:`zfit.Parameters`]): The parameters of the model.
                     * model (:py:class:`~zfit.core.interfaces.ZfitModel`):The model that is being integrated.
 
-            limits (): |limits_arg_descr|
-            priority (int): Priority of the function. If multiple functions cover the same space, the one with the
+            limits: |limits_arg_descr|
+            priority: Priority of the function. If multiple functions cover the same space, the one with the
                 highest priority will be used.
-            supports_multiple_limits (bool): If `True`, the `limits` given to the integration function can have
+            supports_multiple_limits: If `True`, the `limits` given to the integration function can have
                 multiple limits. If `False`, only simple limits will pass through and multiple limits will be
                 auto-handled.
-            supports_norm_range (bool): If `True`, `norm_range` argument to the function may not be `None`.
+            supports_norm_range: If `True`, `norm_range` argument to the function may not be `None`.
                 If `False`, `norm_range` will always be `None` and care is taken of the normalization automatically.
 
         """
@@ -393,7 +393,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Register an inverse analytical integral, the inverse (unnormalized) cdf.
 
         Args:
-            func (): A function with the signature `func(x, params)`, where `x` is a Data object
+            func: A function with the signature `func(x, params)`, where `x` is a Data object
                 and `params` is a dict.
         """
         if cls._inverse_analytic_integral:
@@ -409,11 +409,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Analytical integration over function and raise Error if not possible.
 
         Args:
-            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
-            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, `False`): the limits to normalize over
+            limits: the limits to integrate over
+            norm_range: the limits to normalize over
 
         Returns:
-            Tensor: the integral value
+            The integral value
         Raises:
             AnalyticIntegralNotImplementedError: If no analytical integral is available (for this limits).
             NormRangeNotImplementedError: if the *norm_range* argument is not supported. This
@@ -480,11 +480,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Numerical integration over the model.
 
         Args:
-            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over
-            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over
+            limits: the limits to integrate over
+            norm_range: the limits to normalize over
 
         Returns:
-            Tensor: the integral value
+            The integral value
 
         """
         norm_range = self._check_input_norm_range(norm_range)
@@ -540,12 +540,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         to the dimensions of `norm_range` (if not False)
 
         Args:
-            x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over. Has to have all axes
+            x: The value at which the partially integrated function will be evaluated
+            limits: the limits to integrate over. Can contain only some axes
+            norm_range: the limits to normalize over. Has to have all axes
 
         Returns:
-            Tensor: the value of the partially integrated function evaluated at `x`.
+            The value of the partially integrated function evaluated at `x`.
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -623,12 +623,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         to the dimensions of `norm_range` (if not False)
 
         Args:
-            x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over. Has to have all axes
+            x: The value at which the partially integrated function will be evaluated
+            limits: the limits to integrate over. Can contain only some axes
+            norm_range: the limits to normalize over. Has to have all axes
 
         Returns:
-            Tensor: the value of the partially integrated function evaluated at `x`.
+            The value of the partially integrated function evaluated at `x`.
 
         Raises:
             AnalyticIntegralNotImplementedError: if the *analytic* integral (over this limits) is not implemented
@@ -701,12 +701,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         to the dimensions of `norm_range` (if not False)
 
         Args:
-            x (numerical): The value at which the partially integrated function will be evaluated
-            limits (tuple, :py:class:`~zfit.ZfitSpace`): the limits to integrate over. Can contain only some axes
-            norm_range (tuple, :py:class:`~zfit.ZfitSpace`, False): the limits to normalize over. Has to have all axes
+            x: The value at which the partially integrated function will be evaluated
+            limits: the limits to integrate over. Can contain only some axes
+            norm_range: the limits to normalize over. Has to have all axes
 
         Returns:
-            Tensor: the value of the partially integrated function evaluated at `x`.
+            The value of the partially integrated function evaluated at `x`.
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -782,13 +782,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
 
         Args:
-            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor that will be
+            n: The number of samples to be generated. Can be a Tensor that will be
                 or a valid string. Currently implemented:
 
                     - 'extended': samples `poisson(yield)` from each pdf that is extended.
 
-            limits (): From which space to sample.
-            fixed_params (): A list of `Parameters` that will be fixed during several `resample` calls.
+            limits: From which space to sample.
+            fixed_params: A list of `Parameters` that will be fixed during several `resample` calls.
                 If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
                 its
                 value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
@@ -845,11 +845,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         If `n` is None and the model is an extended pdf, 'extended' is used by default.
 
         Args:
-            n (int, tf.Tensor, str): The number of samples to be generated. Can be a Tensor that will be
+            n: The number of samples to be generated. Can be a Tensor that will be
                 or a valid string. Currently implemented:
 
                     - 'extended': samples `poisson(yield)` from each pdf that is extended.
-            limits (tuple, :py:class:`~zfit.ZfitSpace`): In which region to sample in
+            limits: In which region to sample in
 
         Returns:
             SampleData(n_obs, n_samples)
@@ -1060,7 +1060,7 @@ class SimpleModelSubclassMixin:
         try:
             params = OrderedDict((name, kwargs.pop(name)) for name in self._PARAMS)
         except KeyError:
-            raise ValueError("The following parameters are not given (as keyword arguments): "
+            raise ValueError("The following parameters are not given (as keyword arguments): {}"
                              "".format([k for k in self._PARAMS if k not in kwargs]))
         super().__init__(params=params, *args, **kwargs)
         # super().__init__(params=params, *args, **kwargs)  # use if upper fails
