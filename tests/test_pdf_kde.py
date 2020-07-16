@@ -9,7 +9,7 @@ import zfit.models.dist_tfp
 import zfit.models.kde
 from zfit import ztypes
 
-
+@pytest.mark.skip()  # copy not yet implemented
 def test_copy_kde():
     size = 500
     data = np.random.normal(size=size, loc=2, scale=3)

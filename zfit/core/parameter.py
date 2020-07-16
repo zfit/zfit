@@ -570,8 +570,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         if not tf.executing_eagerly():
             raise IllegalInGraphModeError("Randomizing values in a parameter within Graph mode is most probably not"
                                           " what is ")
-        if not self.has_limits:
-            raise RuntimeError("Cannot randomize a parameter without limits.")
         if minval is None:
             minval = self.lower
         else:
@@ -580,7 +578,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             maxval = self.upper
         else:
             maxval = tf.cast(maxval, dtype=self.dtype)
-
+        if maxval is None or minval is None:
+            raise RuntimeError("Cannot randomize a parameter without limits or limits given.")
         value = sampler(size=self.shape, low=minval, high=maxval)
 
         self.set_value(value=value)
