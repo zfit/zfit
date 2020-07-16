@@ -28,7 +28,7 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 
-.. |zfit_logo| image:: docs/images/zfit-fin-hires.png
+.. |zfit_logo| image:: docs/images/zfit-logo_hires.png
    :target: https://github.com/zfit/zfit
    :alt: zfit logo
 
