@@ -182,7 +182,7 @@ Once we've performed the fit and obtained the corresponding uncertainties, we ca
     print("mu={}".format(params[mu]['value']))
 
 And that's it!
-For more details and information of what you can do with zfit, checkout the documentation_.
+For more details and information of what you can do with zfit, checkout the `latest documentation`_.
 
 Prerequisites
 =============
