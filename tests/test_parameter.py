@@ -142,8 +142,10 @@ def test_shape_composed_parameter():
 
 # TODO: add test
 def test_randomize():
-    pass
-
+    param1 = zfit.Parameter('param1', 1.0, 0, 2)
+    for _ in range(100):
+        param1.randomize()
+        assert 0 < param1 < 2
 
 def test_floating_behavior():
     param1 = zfit.Parameter('param1', 1.0)
