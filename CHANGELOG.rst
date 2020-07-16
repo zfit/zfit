@@ -2,12 +2,15 @@
 Changelog
 *********
 
-Develop
-=======
+
+
+0.5.4 (16.07.2020)
+==================
 
 
 Major Features and Improvements
 -------------------------------
+- completely new doc design
 
 Breaking changes
 ------------------
@@ -26,6 +29,7 @@ Bug fixes and small changes
 - fix copy issue of KDEV1 and change name to 'adaptive' (instead of 'adaptiveV1')
 - change exp name of `lambda_` to lam (in init)
 - add `set_yield` to BasePDF to allow setting the yield in place
+- Fix possible bug in SumPDF with extended pdfs (automatically)
 
 Experimental
 ------------
@@ -37,7 +41,7 @@ Requirement changes
 
 Thanks
 ------
-
+Johannes for the docs re-design
 
 0.5.3 (02.07.20)
 ================

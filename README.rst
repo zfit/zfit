@@ -28,7 +28,7 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 
-.. |zfit_logo| image:: docs/images/zfit-fin-hires.png
+.. |zfit_logo| image:: docs/images/zfit-logo_hires.png
    :target: https://github.com/zfit/zfit
    :alt: zfit logo
 
@@ -256,9 +256,11 @@ See here for `all authors and contributors`_
 Acknowledgements
 ================
 
-zfit has been developed with support from the University of Zürich and the Swiss National Science Foundation (SNSF) under contracts 168169 and 174182.
+zfit has been developed with support from the University of Zurich and the Swiss National Science Foundation (SNSF) under contracts 168169 and 174182.
 
-The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
+The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework
+developed by Anton Poluektov and `TensorProb <https://github.com/tensorprob/tensorprob>`_ by Chris Burr and Igor Babuschkin
+using the TensorFlow open source library and more libraries.
 
-.. _latest documentation: https://zfit.readthedocs.io/en/latest/
-.. _stable documentation: https://zfit.readthedocs.io/en/stable/
+.. _`latest documentation`: https://zfit.readthedocs.io/en/latest/
+.. _`stable documentation`: https://zfit.readthedocs.io/en/stable/
