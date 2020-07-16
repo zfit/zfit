@@ -443,7 +443,7 @@ class BasePDF(ZfitPDF, BaseModel):
         if self.is_extended:
             raise AlreadyExtendedPDFError("This PDF is already extended, cannot create an extended one.")
         new_pdf = self.copy(name=self.name + str(name_addition))
-        new_pdf._set_yield_inplace(value=yield_)
+        new_pdf.set_yield(value=yield_)
         return new_pdf
 
     def set_yield(self, value):
@@ -578,6 +578,9 @@ class BasePDF(ZfitPDF, BaseModel):
                 parameters['lam'] = lam
 
         if type(self) == GaussianKDE1DimV1:
+            raise RuntimeError("Cannot copy `GaussianKDE1DimV1` (yet). If you tried to make it extended, use "
+                               "`set_yield`"
+                               " instead and set it inplace.")
             parameters['data'] = self._original_data
 
         # HACK(Mayou36): copy the polynomial correct, replace 'c_0' with coeff0/coeff_0 or similar
@@ -614,7 +617,7 @@ class BasePDF(ZfitPDF, BaseModel):
         yield_ = parameters.pop('yield', None)
         new_instance = type(self)(**parameters)
         if yield_ is not None:
-            new_instance._set_yield_inplace(yield_)
+            new_instance.set_yield(yield_)
         return new_instance
 
     def as_func(self, norm_range: ztyping.LimitsType = False):

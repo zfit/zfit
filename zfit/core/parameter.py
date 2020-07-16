@@ -555,14 +555,14 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
     def randomize(self, minval: Optional[ztyping.NumericalScalarType] = None,
                   maxval: Optional[ztyping.NumericalScalarType] = None,
-                  sampler: Callable = tf.random.uniform) -> tf.Tensor:
+                  sampler: Callable = np.random.uniform) -> tf.Tensor:
         """Update the parameter with a randomised value between minval and maxval and return it.
 
 
         Args:
             minval: The lower bound of the sampler. If not given, `lower_limit` is used.
             maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
-            sampler: A sampler with the same interface as `tf.random.uniform`
+            sampler: A sampler with the same interface as `np.random.uniform`
 
         Returns:
             The sampled value
@@ -578,7 +578,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             maxval = self.upper
         else:
             maxval = tf.cast(maxval, dtype=self.dtype)
-
+        if maxval is None or minval is None:
+            raise RuntimeError("Cannot randomize a parameter without limits or limits given.")
         value = sampler(size=self.shape, low=minval, high=maxval)
 
         self.set_value(value=value)

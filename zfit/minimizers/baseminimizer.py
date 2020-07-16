@@ -103,6 +103,8 @@ class PushbackStrategy(BaseStrategy):
                 loss_evaluated = last_loss + self.nan_penalty*nan_counter
             else:
                 loss_evaluated = values.get('loss')
+            if isinstance(loss_evaluated, str):
+                raise RuntimeError("Loss starts already with NaN, cannot minimize.")
             return loss_evaluated
         else:
             super()._minimize_nan(loss=loss, params=params, minimizer=minimizer, values=values)

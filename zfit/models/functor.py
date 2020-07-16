@@ -157,7 +157,8 @@ class SumPDF(BaseFunctor):
                     input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
 
             sum_yields = convert_to_parameter(sum_yields_func, dependents=yields)
-            yield_fracs = [convert_to_parameter(lambda yield_=yield_: yield_ / sum_yields, dependents=yield_)
+            yield_fracs = [convert_to_parameter(lambda sum_yields, yield_: yield_ / sum_yields,
+                                                dependents=[sum_yields, yield_])
                            for yield_ in yields]
 
             fracs_cleaned = None
@@ -173,7 +174,7 @@ class SumPDF(BaseFunctor):
 
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
         if all_extended and not fracs_cleaned:
-            self._set_yield_inplace(sum_yields)
+            self.set_yield(sum_yields)
             # self.set_yield(sum_yields)  # TODO(SUM): why not the public method below?
 
     @property
