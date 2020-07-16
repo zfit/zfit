@@ -43,8 +43,7 @@ and well integrated into `Scikit-HEP <https://scikit-hep.org/>`_, the HEP Python
 
 - **Tutorials**: `Interactive IPython Tutorials <https://github.com/zfit/zfit-tutorials>`_
 - **Quick start**: `Example scripts <examples>`_
-- **Develop Documentation**: Full documentation_ and API_
-- **Stable Documentation**: Latest `stable documentation`_
+- **Documentation**: See `stable documentation`_ or `latest documentation`_
 - **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
   `ask on StackOverflow <https://stackoverflow.com/questions/ask?tags=zfit>`_ (with the **zfit** tag) or `contact`_ us directly.
 - **Physics/HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute/find more HEP
@@ -261,9 +260,5 @@ zfit has been developed with support from the University of Zürich and the Swis
 
 The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
 
-.. _documentation: https://zfit.readthedocs.io/en/latest/
-..  _stable documentation: https://zfit.readthedocs.io/en/0.5.3/
-.. _API: https://zfit.readthedocs.io/en/latest/API.html
-
-
-
+.. _latest documentation: https://zfit.readthedocs.io/en/latest/
+.. _stable documentation: https://zfit.readthedocs.io/en/stable/
