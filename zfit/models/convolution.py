@@ -59,18 +59,31 @@ class FFTConv1DV1(BaseFunctor):
                            message="Number of points automatically calculated to be used for the FFT"
                                    " based convolution exceeds 1e6. If you want to use this number - "
                                    "or an even higher value - use explicitly the `npoints` argument.")
-        x_func_min, x_func_max = limits_func.limit1d
-        if stretch_limits_func:
-            add_to_limit = limits_func.rect_area()[0] * 0.2
-            x_func_min -= add_to_limit
-            x_func_max += add_to_limit
-        x_func = tf.linspace(x_func_min, x_func_max, npoints)
-        x_shifted = x_func - (x_func_max + x_func_min) / 2
-        x_kernel = limits_kernel.filter(x_shifted)
-        self._x_func_min = x_func_min
-        self._x_func_max = x_func_max
+        x_kernels = []
+        x_funcs = []
+        for ob in self.obs:
+            limit_func = limits_func.with_obs(ob)
+            x_func_min, x_func_max = limit_func.limit1d
+            if stretch_limits_func:
+                add_to_limit = limit_func.rect_area()[0] * 0.2
+                x_func_min -= add_to_limit
+                x_func_max += add_to_limit
+            x_func = tf.linspace(x_func_min, x_func_max, npoints)
+            x_shifted = x_func - (x_func_max + x_func_min) / 2
+            # x_kernel = limits_kernel.filter(x_shifted)
+            x_kernel = x_shifted
+            x_kernels.append(x_kernel)
+            x_funcs.append(x_func)
+
+        from zfit import Data
+        obs_kernel = limits_kernel.with_obs(self.obs)
+        x_kernel = - tf.reshape(tf.meshgrid(*x_kernels, indexing='ij'), (-1, self.n_obs))
+        # x_kernel = Data.from_tensor(obs=obs_kernel, tensor=-x_kernel)
+        self._npoints = npoints
+        # self._x_func_min = x_func_min
+        # self._x_func_max = x_func_max
         self._x_func = x_func
-        self._x_kernel = -x_kernel
+        self._x_kernel = x_kernel
 
     # @z.function
     def _unnormalized_pdf(self, x):
@@ -85,6 +98,16 @@ class FFTConv1DV1(BaseFunctor):
             padding='SAME',
             data_format='NWC'
         )
+        npoints = self._npoints
+        new_shape = (1, *[npoints] * self.n_obs, 1)
+        # conv = tf.nn.convolution(
+        #     input=tf.reshape(y_func, new_shape),
+        #     filters=tf.reshape(y_kernel, (1, -1, 1)),
+        #     strides=1,
+        #     padding='SAME',
+        #     data_format='NWC'
+        # )
+
         # conv = tf.reshape(conv, (-1,))
         # prob = tfp.math.interp_regular_1d_grid(x=x,
         #                                        x_ref_min=self._x_func_min,

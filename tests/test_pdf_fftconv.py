@@ -36,7 +36,7 @@ def test_conv_simple():
     probs_np = probs.numpy()
     assert pytest.approx(1, rel=1e-3) == integral.numpy()
     assert len(probs_np) == n_points
-    # import matplotlib.pyplot as plt
-    # plt.plot(x, probs_np)
-    # plt.show()
+    import matplotlib.pyplot as plt
+    plt.plot(x, probs_np)
+    plt.show()
     # assert len(conv.get_dependents(only_floating=False)) == 2  # TODO: activate again with fixed params
