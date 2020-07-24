@@ -75,7 +75,6 @@ class FFTConv1DV1(BaseFunctor):
             x_kernels.append(x_kernel)
             x_funcs.append(x_func)
 
-        from zfit import Data
         obs_kernel = limits_kernel.with_obs(self.obs)
         x_kernel = - tf.reshape(tf.meshgrid(*x_kernels, indexing='ij'), (-1, self.n_obs))
         # x_kernel = Data.from_tensor(obs=obs_kernel, tensor=-x_kernel)

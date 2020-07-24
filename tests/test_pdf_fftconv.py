@@ -24,10 +24,10 @@ def test_conv_simple():
     func2 = zfit.pdf.Uniform(-1.2, -1, obs=obs)
     func = zfit.pdf.SumPDF([func1, func2], 0.5)
     # func = zfit.pdf.(-0.1, obs=obs)
-    conv = zfit.models.convolution.FFTConv1DV1(func=func,
-                                               kernel=gauss1,
-                                               # limits_kernel=(-1, 1)
-                                               )
+    conv = zfit.pdf.FFTConv1DV1(func=func,
+                                kernel=gauss1,
+                                # limits_kernel=(-1, 1)
+                                )
 
     x = tf.linspace(-5., 5., n_points)
     probs = conv.pdf(x=x)
@@ -36,7 +36,7 @@ def test_conv_simple():
     probs_np = probs.numpy()
     assert pytest.approx(1, rel=1e-3) == integral.numpy()
     assert len(probs_np) == n_points
-    import matplotlib.pyplot as plt
-    plt.plot(x, probs_np)
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # plt.plot(x, probs_np)
+    # plt.show()
     # assert len(conv.get_dependents(only_floating=False)) == 2  # TODO: activate again with fixed params
