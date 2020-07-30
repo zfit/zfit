@@ -12,7 +12,7 @@ from zfit.core.parameter import ComposedParameter, ComplexParameter
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import NameAlreadyTakenError
 
-
+zfit.run.numeric_checks
 def test_complex_param():
     real_part = 1.3
     imag_part = 0.3
@@ -116,6 +116,14 @@ def test_composed_param():
     a_changed = value_fn(param1, param2, param3).numpy()
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
+
+    print(param_a)
+
+    @z.function
+    def print_param(p):
+        print(p)
+
+    print_param(param_a)
 
     # TODO(params): reactivate to check?
     # with pytest.raises(LogicalUndefinedOperationError):

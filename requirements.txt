@@ -1,5 +1,5 @@
-tensorflow==2.2
-tensorflow_probability==0.10
+tensorflow==2.3
+tensorflow_probability==0.11
 scipy>=1.2
 uproot
 pandas

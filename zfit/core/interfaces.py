@@ -6,9 +6,8 @@ from typing import Union, List, Dict, Callable, Tuple, Optional, Set
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python import deprecated
+from ..util.deprecation import deprecated
 
-import zfit
 from ..util import ztyping
 
 

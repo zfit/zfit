@@ -13,8 +13,9 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 # TF backwards compatibility
 from ordered_set import OrderedSet
-from tensorflow.python import ops, array_ops
+from tensorflow.python import ops
 from tensorflow.python.client.session import register_session_run_conversion_functions
+from tensorflow.python.ops import array_ops
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
 
 from zfit import z
@@ -32,6 +33,7 @@ from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenErr
     WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError, FunctionNotImplementedError
 from ..util.temporary import TemporarilySet
 
+
 # todo add type hints in this module for api
 
 
@@ -40,6 +42,7 @@ class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # 
 
 
 def register_tensor_conversion(convertable, overload_operators=True, priority=1):  # higher then any tf conversion
+    return  # HACK
     fetch_function = lambda variable: ([variable.read_value()],
                                        lambda val: val[0])
     feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
@@ -200,7 +203,6 @@ class WrappedVariable(metaclass=MetaBaseParameter):
 
 register_tensor_conversion(WrappedVariable, overload_operators=True)
 
-
 # class ComposedVariable(metaclass=MetaBaseParameter):
 # class ComposedVariable:
 #
@@ -285,6 +287,8 @@ register_tensor_conversion(WrappedVariable, overload_operators=True)
 #
 # register_tensor_conversion(ComposedVariable, overload_operators=True)
 
+from tensorflow.python.types.core import Tensor as TensorType
+
 
 class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
     pass
@@ -364,7 +368,7 @@ class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
         return self.name
 
 
-class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter):
+class Parameter(ZfitParameterMixin, TFBaseVariable, TensorType, BaseParameter, ZfitIndependentParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True
@@ -618,7 +622,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         self.upper = value
 
 
-class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter):
+class BaseComposedParameter(ZfitParameterMixin,TensorType, BaseParameter):
 
     def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
         # 0.4 breaking
