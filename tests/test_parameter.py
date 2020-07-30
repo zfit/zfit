@@ -12,7 +12,7 @@ from zfit.core.parameter import ComposedParameter, ComplexParameter
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import NameAlreadyTakenError
 
-zfit.run.numeric_checks
+
 def test_complex_param():
     real_part = 1.3
     imag_part = 0.3
@@ -154,6 +154,7 @@ def test_randomize():
     for _ in range(100):
         param1.randomize()
         assert 0 < param1 < 2
+
 
 def test_floating_behavior():
     param1 = zfit.Parameter('param1', 1.0)
