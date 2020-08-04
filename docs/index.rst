@@ -14,7 +14,7 @@
     We are proud to present the new look and feel of our website. While most of the
     things are where they used to be, here's a short explanation of the sections:
 
-    * **What's new?**: Chanelog and other new features of zfit.
+    * **What's new?**: Changelog and other new features of zfit.
     * **Getting started**: Installation guide, quickstart and examples.
     * **API reference**: Dive deep into the API.
     * **Project**: Learn who wrote zfit, how to contribute and other information about the project.
