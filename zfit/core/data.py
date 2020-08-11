@@ -20,6 +20,7 @@ from .baseobject import BaseObject
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
+from .parameter import register_tensor_conversion
 from .space import Space, convert_to_space
 from ..settings import ztypes
 from ..util import ztyping
@@ -637,25 +638,27 @@ class Sampler(Data):
         return f'<Sampler: {self.name} obs={self.obs}>'
 
 
-def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
-    return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
+# def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
+#     return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
 
 
-ops.register_tensor_conversion_function(Data, _dense_var_to_tensor)
-fetch_function = lambda data: ([data.value()],
-                               lambda val: val[0])
-feed_function = lambda data, feed_val: [(data.value(), feed_val)]
-feed_function_for_partial_run = lambda data: [data.value()]
+# ops.register_tensor_conversion_function(Data, _dense_var_to_tensor)
+# fetch_function = lambda data: ([data.value()],
+#                                lambda val: val[0])
+# feed_function = lambda data, feed_val: [(data.value(), feed_val)]
+# feed_function_for_partial_run = lambda data: [data.value()]
+#
+# from tensorflow.python.client.session import register_session_run_conversion_functions
+#
+# # ops.register_dense_tensor_like_type()
+#
+# register_session_run_conversion_functions(tensor_type=Data, fetch_function=fetch_function,
+#                                           feed_function=feed_function,
+#                                           feed_function_for_partial_run=feed_function_for_partial_run)
+#
+# Data._OverloadAllOperators()
 
-from tensorflow.python.client.session import register_session_run_conversion_functions
-
-# ops.register_dense_tensor_like_type()
-
-register_session_run_conversion_functions(tensor_type=Data, fetch_function=fetch_function,
-                                          feed_function=feed_function,
-                                          feed_function_for_partial_run=feed_function_for_partial_run)
-
-Data._OverloadAllOperators()
+register_tensor_conversion(Data, name='Data', overload_operators=True)
 
 
 class LightDataset:

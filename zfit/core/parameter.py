@@ -13,9 +13,10 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 # TF backwards compatibility
 from ordered_set import OrderedSet
-from tensorflow.python import ops
+from tensorflow.python.framework import ops
 from tensorflow.python.client.session import register_session_run_conversion_functions
 from tensorflow.python.ops import array_ops
+from tensorflow.python.ops.variables import Variable
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
 
 from zfit import z
@@ -41,14 +42,14 @@ class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # 
     pass
 
 
-def register_tensor_conversion(convertable, overload_operators=True, priority=1):  # higher then any tf conversion
-    return  # HACK
+def register_tensor_conversion(convertable, name=None, overload_operators=True,
+                               priority=1):  # higher then any tf conversion
     fetch_function = lambda variable: ([variable.read_value()],
                                        lambda val: val[0])
     feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
     feed_function_for_partial_run = lambda feed: [feed.read_value()]
-    ops.register_dense_tensor_like_type(convertable)
-
+    # ops.register_dense_tensor_like_type(convertable)
+    #
     register_session_run_conversion_functions(tensor_type=convertable, fetch_function=fetch_function,
                                               feed_function=feed_function,
                                               feed_function_for_partial_run=feed_function_for_partial_run)
@@ -57,11 +58,29 @@ def register_tensor_conversion(convertable, overload_operators=True, priority=1)
         return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
 
     ops.register_tensor_conversion_function(convertable, _dense_var_to_tensor, priority=priority)
+    if name:
+        from tensorflow.python import _pywrap_utils
+        _pywrap_utils.RegisterType(name, convertable)
+
     if overload_operators:
         convertable._OverloadAllOperators()
 
 
 class OverloadableMixin(ZfitParameter):
+
+    # Conversion to tensor.
+    @staticmethod
+    def _TensorConversionFunction(v, dtype=None, name=None, as_ref=False):  # pylint: disable=invalid-name
+        """Utility function for converting a Variable to a Tensor."""
+        _ = name
+        if dtype and not dtype.is_compatible_with(v.dtype):
+            raise ValueError(
+                "Incompatible type conversion requested to type '%s' for variable "
+                "of type '%s'" % (dtype.name, v.dtype.name))
+        if as_ref:
+            return v._ref()  # pylint: disable=protected-access
+        else:
+            return v.value()
 
     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
         del name
@@ -83,7 +102,7 @@ class OverloadableMixin(ZfitParameter):
     @classmethod
     def _OverloadAllOperators(cls):  # pylint: disable=invalid-name
         """Register overloads for all operators."""
-        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
             cls._OverloadOperator(operator)
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
@@ -104,7 +123,7 @@ class OverloadableMixin(ZfitParameter):
         if operator == "__eq__" or operator == "__ne__":
             return
 
-        tensor_oper = getattr(ops.Tensor, operator)
+        tensor_oper = getattr(tf.Tensor, operator)
 
         def _run_op(a, *args, **kwargs):
             # pylint: disable=protected-access
@@ -170,7 +189,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     @staticmethod
     def _OverloadAllOperators():  # pylint: disable=invalid-name
         """Register overloads for all operators."""
-        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
             WrappedVariable._OverloadOperator(operator)
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
@@ -185,7 +204,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
           operator: string. The operator name.
         """
 
-        tensor_oper = getattr(ops.Tensor, operator)
+        tensor_oper = getattr(tf.Tensor, operator)
 
         def _run_op(a, *args):
             # pylint: disable=protected-access
@@ -201,7 +220,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
         setattr(WrappedVariable, operator, _run_op)
 
 
-register_tensor_conversion(WrappedVariable, overload_operators=True)
+register_tensor_conversion(WrappedVariable, "WrappedVariable", overload_operators=True)
 
 # class ComposedVariable(metaclass=MetaBaseParameter):
 # class ComposedVariable:
@@ -290,8 +309,19 @@ register_tensor_conversion(WrappedVariable, overload_operators=True)
 from tensorflow.python.types.core import Tensor as TensorType
 
 
-class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
-    pass
+class BaseParameter(Variable, ZfitParameter, metaclass=MetaBaseParameter):
+    def __init__(self, *args, **kwargs):
+        try:
+            super().__init__(*args, **kwargs)
+        except NotImplementedError:
+            tmp_val = kwargs.pop('name', None)  # remove if name is in there, needs to be passed through
+            if args or kwargs:
+                kwargs['name'] = tmp_val
+                raise RuntimeError(f"The following arguments reached the top of the inheritance tree, the super "
+                                   f"init is not implemented (most probably abstract tf.Variable): {args, kwargs}. "
+                                   f"If you see this error, please post it as an bug at: "
+                                   f"https://github.com/zfit/zfit/issues/new/choose")
+
     # @property
     # def dtype(self) -> tf.DType:
     #     return self.value().dtype
@@ -299,6 +329,9 @@ class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
     # @property
     # def shape(self):
     #     return self.value().shape
+
+    def __len__(self):
+        return 1
 
 
 class ZfitParameterMixin(BaseNumeric):
@@ -368,7 +401,7 @@ class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
         return self.name
 
 
-class Parameter(ZfitParameterMixin, TFBaseVariable, TensorType, BaseParameter, ZfitIndependentParameter):
+class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True
@@ -622,7 +655,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, TensorType, BaseParameter, Z
         self.upper = value
 
 
-class BaseComposedParameter(ZfitParameterMixin,TensorType, BaseParameter):
+class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter):
 
     def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
         # 0.4 breaking
@@ -696,10 +729,10 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
         """
         super().__init__(name=name, params={}, dtype=dtype)
         static_value = tf.get_static_value(value, partial=True)
+        self._value_np = static_value
         if static_value is None:
             raise RuntimeError("Cannot convert input to static value. If you encounter this, please open a bug report"
                                " on Github: https://github.com/zfit/zfit")
-        self._value_np = static_value
 
         self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
 
@@ -737,7 +770,8 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
         return f"<zfit.param.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
 
 
-register_tensor_conversion(ConstantParameter, overload_operators=True)
+register_tensor_conversion(ConstantParameter, 'ConstantParameter', overload_operators=True)
+register_tensor_conversion(BaseComposedParameter, 'BaseComposedParameter', overload_operators=True)
 
 
 class ComposedParameter(BaseComposedParameter):
@@ -880,6 +914,9 @@ class ComplexParameter(ComposedParameter):
             arg = tf.math.atan(self.imag / self.real)
         return arg
 
+
+# register_tensor_conversion(ConstantParameter, "ConstantParameter", True)
+# register_tensor_conversion(ComposedParameter, "ComposedParameter", True)
 
 _auto_number = 0
 

@@ -115,10 +115,10 @@ class BaseParametrized(ZfitParametrized):
 
 class BaseNumeric(GraphCachable, BaseDependentsMixin, BaseParametrized, ZfitNumericParametrized, BaseObject):
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, **kwargs):
         if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?
             self._dtype = kwargs.pop('dtype')
-        super().__init__(name=name, **kwargs)
+        super().__init__(**kwargs)
         self.add_cache_deps(self.params.values())
 
     @property
