@@ -6,7 +6,7 @@ Composing PDFs
 --------------
 .. literalinclude:: /../examples/composing_pdf.py
 
-Custum 3D Functor
+Custom 3D Functor
 -----------------
 .. literalinclude:: /../examples/custom_3d_functor.py
 
