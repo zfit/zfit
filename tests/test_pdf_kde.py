@@ -8,6 +8,9 @@ import zfit.models.dist_tfp
 import zfit.models.kde
 
 
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
+
 @pytest.mark.skip()  # copy not yet implemented
 def test_copy_kde():
     size = 500

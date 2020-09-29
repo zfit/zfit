@@ -27,8 +27,9 @@ from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
 from ..util.container import convert_to_container
 from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleError, \
-    ObsIncompatibleError, DataIsBatchedError
+    ObsIncompatibleError
 from ..util.temporary import TemporarilySet
+
 
 # TODO: make cut only once, then remember
 class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
@@ -154,7 +155,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     def space(self) -> "ZfitSpace":
         return self._space
 
-
     # constructors
     @classmethod
     def from_root_iter(cls, path, treepath, branches=None, entrysteps=None, name=None, **kwargs):
@@ -172,7 +172,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
         dataset.prefetch(1)
         return Data(dataset=dataset, name=name)
-
 
     @classmethod
     def from_root(cls, path: str, treepath: str, branches: List[str] = None, branches_alias: Dict = None,

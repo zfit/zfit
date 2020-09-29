@@ -51,6 +51,9 @@ class FFTConv1DV1(BaseFunctor):
                                          f" are {limits_func.n_obs} and {limits_kernel.n_obs} with the func n_obs"
                                          f" {func.n_obs}")
 
+        if self.n_obs > 3:
+            raise WorkInProgressError("More then 3 dimensional convolutions are currently not supported.")
+
         if npoints is None:
             npoints_scaling = 100
             npoints = tf.cast(limits_kernel.rect_area() / limits_func.rect_area() * npoints_scaling, tf.int32)[0]
@@ -76,7 +79,8 @@ class FFTConv1DV1(BaseFunctor):
             x_funcs.append(x_func)
 
         obs_kernel = limits_kernel.with_obs(self.obs)
-        x_kernel = - tf.reshape(tf.meshgrid(*x_kernels, indexing='ij'), (-1, self.n_obs))
+        x_kernel = - tf.transpose(tf.meshgrid(*x_kernels, indexing='ij'))
+        x_func = - tf.transpose(tf.meshgrid(*x_funcs, indexing='ij'))
         # x_kernel = Data.from_tensor(obs=obs_kernel, tensor=-x_kernel)
         self._npoints = npoints
         # self._x_func_min = x_func_min
@@ -90,31 +94,34 @@ class FFTConv1DV1(BaseFunctor):
         y_func = self.pdfs[0].pdf(self._x_func)
         y_kernel = self.pdfs[1].pdf(self._x_kernel)
 
-        conv = tf.nn.conv1d(
-            input=tf.reshape(y_func, (1, -1, 1)),
-            filters=tf.reshape(y_kernel, (-1, 1, 1)),
-            stride=1,
-            padding='SAME',
-            data_format='NWC'
-        )
-        npoints = self._npoints
-        new_shape = (1, *[npoints] * self.n_obs, 1)
-        # conv = tf.nn.convolution(
-        #     input=tf.reshape(y_func, new_shape),
-        #     filters=tf.reshape(y_kernel, (1, -1, 1)),
-        #     strides=1,
+        # conv = tf.nn.conv1d(
+        #     input=tf.reshape(y_func, (1, -1, 1)),
+        #     filters=tf.reshape(y_kernel, (-1, 1, 1)),
+        #     stride=1,
         #     padding='SAME',
         #     data_format='NWC'
         # )
+        npoints = self._npoints
+        obs_dims = [npoints] * self.n_obs
+        new_shape = (1, *obs_dims, 1)
+        conv = tf.nn.convolution(
+            input=tf.reshape(y_func, new_shape),
+            filters=tf.reshape(y_kernel, (*obs_dims, 1, 1)),
+            strides=1,
+            padding='SAME',
+            # data_format='NWC'
+        )
 
         # conv = tf.reshape(conv, (-1,))
         # prob = tfp.math.interp_regular_1d_grid(x=x,
         #                                        x_ref_min=self._x_func_min,
         #                                        x_ref_max=self._x_func_max,
         #                                        y_ref=conv)
-        prob = tfa.image.interpolate_spline(train_points=tf.reshape(self._x_func, (1, -1, 1)),
+        train_points = tf.reshape(self._x_func, (1, -1, self.n_obs))
+        query_points = tf.reshape(x, (1, -1, self.n_obs))
+        prob = tfa.image.interpolate_spline(train_points=train_points,
                                             train_values=conv,
-                                            query_points=tf.reshape(x, (1, -1, 1)),
+                                            query_points=query_points,
                                             order=4)
         prob = tf.reshape(prob, (-1,))
 
