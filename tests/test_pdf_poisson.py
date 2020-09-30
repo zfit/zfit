@@ -29,4 +29,4 @@ def test_poisson():
 
     samples = poisson.sample(1000).numpy()
 
-    assert np.std(samples) == pytest.isclose(50**0.5)
+    assert np.std(samples) == pytest.approx(50**0.5, rel=0.05)
