@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.models.dist_tfp &#8212; zfit 0.5.5.dev8+g8159301 documentation</title>
+    <title>zfit.models.dist_tfp &#8212; zfit 0.5.5.dev15+g8c8efe1 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.d431a4ee1c1efae0e38bdfebc22debff.css">
 
@@ -444,6 +444,33 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="n">distribution</span><span class="p">,</span> <span class="n">dist_params</span><span class="o">=</span><span class="n">dist_params</span><span class="p">,</span>
                          <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="Poisson"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.models.dist_tfp.Poisson">[docs]</a><span class="k">class</span> <span class="nc">Poisson</span><span class="p">(</span><span class="n">WrapDistribution</span><span class="p">):</span>
+    <span class="n">_N_OBS</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">lamb</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ParamTypeInput</span><span class="p">,</span>
+                 <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Poisson&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Poisson distribution, parametrized with an event rate parameter (lamb).</span>
+
+<span class="sd">        The probability mass function of the Poisson distribution is given by</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            f(x, \\lambda) = \\frac{\\lambda^{x}e^{-\\lambda}}{x!}</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lamb: the event rate</span>
+<span class="sd">            obs: Observables and normalization range the pdf is defined in</span>
+<span class="sd">            name: Name of the PDF</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">lamb</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_params</span><span class="p">(</span><span class="n">lamb</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(((</span><span class="s1">&#39;lamb&#39;</span><span class="p">,</span> <span class="n">lamb</span><span class="p">),))</span>
+        <span class="n">dist_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="n">lamb</span><span class="p">)</span>
+        <span class="n">distribution</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Poisson</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="n">distribution</span><span class="p">,</span> <span class="n">dist_params</span><span class="o">=</span><span class="n">dist_params</span><span class="p">,</span>
+                         <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 </pre></div>
 
               </div>
