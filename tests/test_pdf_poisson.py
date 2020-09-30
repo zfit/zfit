@@ -27,6 +27,6 @@ def test_poisson():
     probs1 = poisson.pdf(x=test_values)
     probs1 = probs1.numpy()
 
-    samples = poisson.sample(1000).numpy()
+    samples = poisson.sample(10000).numpy()
 
     assert np.std(samples) == pytest.approx(50**0.5, rel=0.05)
