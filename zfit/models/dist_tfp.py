@@ -282,3 +282,30 @@ class Cauchy(WrapDistribution):
         super().__init__(distribution=distribution, dist_params=dist_params,
                          obs=obs, params=params, name=name)
 
+
+class Poisson(WrapDistribution):
+    _N_OBS = 1
+
+    def __init__(self,
+                 lamb: ztyping.ParamTypeInput,
+                 obs: ztyping.ObsTypeInput,
+                 name: str = "Poisson"):
+        """
+        Poisson distribution, parametrized with an event rate parameter (lamb).
+
+        The probability mass function of the Poisson distribution is given by
+
+        .. math::
+            f(x, \\lambda) = \\frac{\\lambda^{x}e^{-\\lambda}}{x!}
+
+        Args:
+            lamb: the event rate
+            obs: Observables and normalization range the pdf is defined in
+            name: Name of the PDF
+        """
+        (lamb,) = self._check_input_params(lamb)
+        params = OrderedDict((('lamb', lamb),))
+        dist_params = dict(rate=lamb)
+        distribution = tfp.distributions.Poisson
+        super().__init__(distribution=distribution, dist_params=dist_params,
+                         obs=obs, params=params, name=name)
