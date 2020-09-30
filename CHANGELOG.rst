@@ -35,6 +35,7 @@ Thanks
 Major Features and Improvements
 -------------------------------
 - completely new doc design
+- new Poisson PDF
 
 Breaking changes
 ------------------
