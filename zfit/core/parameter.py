@@ -43,16 +43,17 @@ class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # 
 
 
 def register_tensor_conversion(convertable, name=None, overload_operators=True,
-                               priority=1):  # higher then any tf conversion
+                               priority=1):  # higher than any tf conversion
     fetch_function = lambda variable: ([variable.read_value()],
                                        lambda val: val[0])
     feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
     feed_function_for_partial_run = lambda feed: [feed.read_value()]
+
     # ops.register_dense_tensor_like_type(convertable)
     #
-    register_session_run_conversion_functions(tensor_type=convertable, fetch_function=fetch_function,
-                                              feed_function=feed_function,
-                                              feed_function_for_partial_run=feed_function_for_partial_run)
+    # register_session_run_conversion_functions(tensor_type=convertable, fetch_function=fetch_function,
+    #                                           feed_function=feed_function,
+    #                                           feed_function_for_partial_run=feed_function_for_partial_run)
 
     def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
         return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
@@ -60,7 +61,7 @@ def register_tensor_conversion(convertable, name=None, overload_operators=True,
     ops.register_tensor_conversion_function(convertable, _dense_var_to_tensor, priority=priority)
     if name:
         from tensorflow.python import _pywrap_utils
-        _pywrap_utils.RegisterType(name, convertable)
+        # _pywrap_utils.RegisterType(name, convertable)
 
     if overload_operators:
         convertable._OverloadAllOperators()
@@ -309,7 +310,7 @@ register_tensor_conversion(WrappedVariable, "WrappedVariable", overload_operator
 from tensorflow.python.types.core import Tensor as TensorType
 
 
-class BaseParameter(Variable, ZfitParameter, metaclass=MetaBaseParameter):
+class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParameter):
     def __init__(self, *args, **kwargs):
         try:
             super().__init__(*args, **kwargs)
@@ -916,7 +917,7 @@ class ComplexParameter(ComposedParameter):
 
 
 # register_tensor_conversion(ConstantParameter, "ConstantParameter", True)
-# register_tensor_conversion(ComposedParameter, "ComposedParameter", True)
+register_tensor_conversion(ComposedParameter, "ComposedParameter", True)
 
 _auto_number = 0
 
