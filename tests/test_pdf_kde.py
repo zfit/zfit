@@ -2,12 +2,11 @@
 
 import numpy as np
 import pytest
-import tensorflow as tf
 
 import zfit
 import zfit.models.dist_tfp
 import zfit.models.kde
-from zfit import ztypes
+
 
 @pytest.mark.skip()  # copy not yet implemented
 def test_copy_kde():
