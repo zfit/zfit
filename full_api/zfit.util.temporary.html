@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.util.temporary module &#8212; zfit 0.5.5.dev15+g8c8efe1 documentation</title>
+    <title>zfit.util.temporary module &#8212; zfit 0.5.5.dev21+g85b9228 documentation</title>
     
   <link rel="stylesheet" href="../_static/css/index.d431a4ee1c1efae0e38bdfebc22debff.css">
 
@@ -171,7 +171,7 @@
 <dl class="py class">
 <dt id="zfit.util.temporary.TemporarilySet">
 <em class="property">class </em><code class="sig-prename descclassname">zfit.util.temporary.</code><code class="sig-name descname">TemporarilySet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">setter</span></em>, <em class="sig-param"><span class="n">getter</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/zfit/util/temporary.html#TemporarilySet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#zfit.util.temporary.TemporarilySet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Temporarily set <cite>value</cite> with <cite>setter</cite> and reset to the old value after leaving the context.</p>
 <blockquote>
 <div><p>This class can be used to have a setter that can permanently set a value <em>as well as</em> just
@@ -207,10 +207,10 @@ for the time inside a context manager. The usage is as follows:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>) – The value to be (temporarily) set (and returned if a context manager is applied).</p></li>
-<li><p><strong>setter</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>) – The setter function with a signature that is compatible to the call:
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>) – The value to be (temporarily) set (and returned if a context manager is applied).</p></li>
+<li><p><strong>setter</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>) – The setter function with a signature that is compatible to the call:
 <cite>setter(value, *setter_args, **setter_kwargs)</cite></p></li>
-<li><p><strong>getter</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.8)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>) – The getter function with a signature that is compatible to the call:
+<li><p><strong>getter</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>) – The getter function with a signature that is compatible to the call:
 <cite>getter(*getter_args, **getter_kwargs)</cite></p></li>
 </ul>
 </dd>

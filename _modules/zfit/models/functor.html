@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.models.functor &#8212; zfit 0.5.5.dev15+g8c8efe1 documentation</title>
+    <title>zfit.models.functor &#8212; zfit 0.5.5.dev21+g85b9228 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.d431a4ee1c1efae0e38bdfebc22debff.css">
 
@@ -292,7 +292,7 @@
                 <span class="n">remaining_frac</span> <span class="o">=</span> <span class="n">convert_to_parameter</span><span class="p">(</span><span class="n">remaining_frac_func</span><span class="p">,</span>
                                                       <span class="n">dependents</span><span class="o">=</span><span class="n">fracs</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
-                    <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_non_negative</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
+                    <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_non_negative</span><span class="p">(</span><span class="n">remaining_frac</span><span class="p">,</span>
                                                      <span class="sa">f</span><span class="s2">&quot;The remaining fraction is negative, the sum of fracs is &gt; 0. Fracs: </span><span class="si">{</span><span class="n">fracs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># check fractions</span>
 
                 <span class="c1"># IMPORTANT! Otherwise, recursion due to namespace capture in the lambda</span>

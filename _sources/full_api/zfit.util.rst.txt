@@ -16,6 +16,7 @@ Submodules
    zfit.util.cache
    zfit.util.checks
    zfit.util.container
+   zfit.util.deprecation
    zfit.util.diverse
    zfit.util.exception
    zfit.util.execution

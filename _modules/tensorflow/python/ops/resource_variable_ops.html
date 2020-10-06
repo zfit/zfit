@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>tensorflow.python.ops.resource_variable_ops &#8212; zfit 0.5.5.dev15+g8c8efe1 documentation</title>
+    <title>tensorflow.python.ops.resource_variable_ops &#8212; zfit 0.5.5.dev21+g85b9228 documentation</title>
     
   <link rel="stylesheet" href="../../../../_static/css/index.d431a4ee1c1efae0e38bdfebc22debff.css">
 
@@ -211,9 +211,9 @@
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops.gen_resource_variable_ops</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="c1"># pylint: enable=wildcard-import</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">trackable</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.types</span> <span class="kn">import</span> <span class="n">core</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util</span> <span class="kn">import</span> <span class="n">compat</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated_args</span>
 
 
 <span class="n">acd</span><span class="o">.</span><span class="n">register_read_only_resource_op</span><span class="p">(</span><span class="s2">&quot;ReadVariableOp&quot;</span><span class="p">)</span>
@@ -443,6 +443,9 @@
     <span class="c1"># Resources follow object-identity when executing eagerly, so it is safe to</span>
     <span class="c1"># delete the resource we have a handle to.</span>
     <span class="k">try</span><span class="p">:</span>
+      <span class="c1"># A packed EagerTensor doesn&#39;t own any resource.</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handle</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">EagerTensor</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle</span><span class="o">.</span><span class="n">is_packed</span><span class="p">:</span>
+        <span class="k">return</span>
       <span class="c1"># This resource was created in eager mode. However, this destructor may be</span>
       <span class="c1"># running in graph mode (especially during unit tests). To clean up</span>
       <span class="c1"># successfully, we switch back into eager mode temporarily.</span>
@@ -493,13 +496,10 @@
     <span class="n">tape</span><span class="o">.</span><span class="n">variable_accessed</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">BaseResourceVariable</span><span class="p">(</span><span class="n">variables</span><span class="o">.</span><span class="n">VariableV1</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">BaseResourceVariable</span><span class="p">(</span><span class="n">variables</span><span class="o">.</span><span class="n">VariableV1</span><span class="p">,</span> <span class="n">core</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A python variable from an existing handle.&quot;&quot;&quot;</span>
 
-  <span class="nd">@deprecated_args</span><span class="p">(</span>
-      <span class="kc">None</span><span class="p">,</span>
-      <span class="s2">&quot;If using Keras pass *_constraint arguments to layers.&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;constraint&quot;</span><span class="p">)</span>
+  <span class="c1"># TODO(wangpeng): Deprecate `constraint` when callers no long pass it in.</span>
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
       <span class="bp">self</span><span class="p">,</span>
       <span class="n">trainable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -607,9 +607,14 @@
 
   <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph_mode</span><span class="p">:</span>
+      <span class="c1"># If we cannot read the value for any reason, still produce a __repr__.</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">value_text</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">numpy_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(),</span> <span class="n">is_repr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+      <span class="k">except</span><span class="p">:</span>  <span class="c1"># pylint: disable=bare-except</span>
+        <span class="n">value_text</span> <span class="o">=</span> <span class="s2">&quot;&lt;unavailable&gt;&quot;</span>
+
       <span class="k">return</span> <span class="s2">&quot;&lt;tf.Variable &#39;</span><span class="si">%s</span><span class="s2">&#39; shape=</span><span class="si">%s</span><span class="s2"> dtype=</span><span class="si">%s</span><span class="s2">, numpy=</span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-          <span class="n">ops</span><span class="o">.</span><span class="n">numpy_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(),</span> <span class="n">is_repr</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value_text</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="s2">&quot;&lt;tf.Variable &#39;</span><span class="si">%s</span><span class="s2">&#39; shape=</span><span class="si">%s</span><span class="s2"> dtype=</span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
           <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_shape</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -789,6 +794,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">resource_count_up_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
                                               <span class="n">T</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_map_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;For implementing `Trackable`.&quot;&quot;&quot;</span>
+    <span class="n">new_variable</span> <span class="o">=</span> <span class="n">copy_to_graph_uninitialized</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="n">obj_map</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="p">:</span> <span class="n">new_variable</span><span class="p">}</span>
+    <span class="n">resource_map</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_handle</span><span class="p">:</span> <span class="n">new_variable</span><span class="o">.</span><span class="n">handle</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">obj_map</span><span class="p">,</span> <span class="n">resource_map</span>
 
   <span class="k">def</span> <span class="nf">_read_variable_op</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">variable_accessed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -1362,6 +1374,78 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">updates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
 
+  <span class="k">def</span> <span class="nf">scatter_nd_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Updates this variable with the max of `tf.IndexedSlices` and itself.</span>
+
+<span class="sd">    `ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.</span>
+
+<span class="sd">    `indices` must be integer tensor, containing indices into `ref`.</span>
+<span class="sd">    It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 &lt; K &lt;= P`.</span>
+
+<span class="sd">    The innermost dimension of `indices` (with length `K`) corresponds to</span>
+<span class="sd">    indices into elements (if `K = P`) or slices (if `K &lt; P`) along the `K`th</span>
+<span class="sd">    dimension of `ref`.</span>
+
+<span class="sd">    `updates` is `Tensor` of rank `Q-1+P-K` with shape:</span>
+
+<span class="sd">    ```</span>
+<span class="sd">    [d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    See `tf.scatter_nd` for more details about how to make updates to</span>
+<span class="sd">    slices.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      indices: The indices to be used in the operation.</span>
+<span class="sd">      updates: The values to be used in the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The updated variable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_read</span><span class="p">(</span>
+        <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">resource_scatter_nd_max</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span>
+            <span class="n">indices</span><span class="p">,</span>
+            <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">updates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+
+  <span class="k">def</span> <span class="nf">scatter_nd_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Updates this variable with the min of `tf.IndexedSlices` and itself.</span>
+
+<span class="sd">    `ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.</span>
+
+<span class="sd">    `indices` must be integer tensor, containing indices into `ref`.</span>
+<span class="sd">    It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 &lt; K &lt;= P`.</span>
+
+<span class="sd">    The innermost dimension of `indices` (with length `K`) corresponds to</span>
+<span class="sd">    indices into elements (if `K = P`) or slices (if `K &lt; P`) along the `K`th</span>
+<span class="sd">    dimension of `ref`.</span>
+
+<span class="sd">    `updates` is `Tensor` of rank `Q-1+P-K` with shape:</span>
+
+<span class="sd">    ```</span>
+<span class="sd">    [d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    See `tf.scatter_nd` for more details about how to make updates to</span>
+<span class="sd">    slices.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      indices: The indices to be used in the operation.</span>
+<span class="sd">      updates: The values to be used in the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The updated variable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_read</span><span class="p">(</span>
+        <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">resource_scatter_nd_min</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span>
+            <span class="n">indices</span><span class="p">,</span>
+            <span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">updates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+
   <span class="k">def</span> <span class="nf">_strided_slice_assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">strides</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">begin_mask</span><span class="p">,</span>
                             <span class="n">end_mask</span><span class="p">,</span> <span class="n">ellipsis_mask</span><span class="p">,</span> <span class="n">new_axis_mask</span><span class="p">,</span>
                             <span class="n">shrink_axis_mask</span><span class="p">):</span>
@@ -1516,7 +1600,7 @@
 <span class="sd">        which is the initial value for the Variable. Can also be a</span>
 <span class="sd">        callable with no argument that returns the initial value when called.</span>
 <span class="sd">        (Note that initializer functions from init_ops.py must first be bound</span>
-<span class="sd">         to a shape before being used here.)</span>
+<span class="sd">        to a shape before being used here.)</span>
 <span class="sd">      trainable: If `True`, the default, also adds the variable to the graph</span>
 <span class="sd">        collection `GraphKeys.TRAINABLE_VARIABLES`. This collection is used as</span>
 <span class="sd">        the default list of variables to use by the `Optimizer` classes.</span>
@@ -1991,7 +2075,6 @@
 <span class="c1"># allowing instances of the class to be used as tensors.</span>
 <span class="n">ops</span><span class="o">.</span><span class="n">register_tensor_conversion_function</span><span class="p">(</span><span class="n">BaseResourceVariable</span><span class="p">,</span>
                                         <span class="n">_dense_var_to_tensor</span><span class="p">)</span>
-<span class="n">ops</span><span class="o">.</span><span class="n">register_dense_tensor_like_type</span><span class="p">(</span><span class="n">BaseResourceVariable</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_UnreadVariable</span><span class="p">(</span><span class="n">BaseResourceVariable</span><span class="p">):</span>
@@ -2110,13 +2193,18 @@
       <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_nd_update</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span>
                                                             <span class="n">name</span><span class="p">)</span>
 
+  <span class="k">def</span> <span class="nf">scatter_nd_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_nd_max</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_nd_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">ops</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span><span class="p">]):</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">scatter_nd_min</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">op</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The op for this variable.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent_op</span>
-
-
-<span class="n">ops</span><span class="o">.</span><span class="n">register_dense_tensor_like_type</span><span class="p">(</span><span class="n">_UnreadVariable</span><span class="p">)</span>
 
 
 <span class="nd">@ops</span><span class="o">.</span><span class="n">RegisterGradient</span><span class="p">(</span><span class="s2">&quot;ReadVariableOp&quot;</span><span class="p">)</span>

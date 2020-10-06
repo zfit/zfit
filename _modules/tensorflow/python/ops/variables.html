@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>tensorflow.python.ops.variables &#8212; zfit 0.5.5.dev15+g8c8efe1 documentation</title>
+    <title>tensorflow.python.ops.variables &#8212; zfit 0.5.5.dev21+g85b9228 documentation</title>
     
   <link rel="stylesheet" href="../../../../_static/css/index.d431a4ee1c1efae0e38bdfebc22debff.css">
 
@@ -209,6 +209,7 @@
 <span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util.deprecation</span> <span class="kn">import</span> <span class="n">deprecated_args</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.util.tf_export</span> <span class="kn">import</span> <span class="n">tf_export</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.types</span> <span class="kn">import</span> <span class="n">core</span>
 
 
 <span class="k">def</span> <span class="nf">default_variable_creator</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
@@ -426,6 +427,7 @@
 
 
 <span class="nd">@tf_export</span><span class="p">(</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span> <span class="n">v1</span><span class="o">=</span><span class="p">[])</span>
+<span class="c1"># TODO(mdan): This should subclass core.Tensor, and not all its subclasses?</span>
 <span class="k">class</span> <span class="nc">Variable</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">VariableMetaclass</span><span class="p">,</span> <span class="n">trackable</span><span class="o">.</span><span class="n">Trackable</span><span class="p">)):</span>
   <span class="sd">&quot;&quot;&quot;See the [variable guide](https://tensorflow.org/guide/variable).</span>
 
@@ -1713,7 +1715,7 @@
 
 
 <span class="c1"># TODO(apassos): do not repeat all comments here</span>
-<span class="k">class</span> <span class="nc">RefVariable</span><span class="p">(</span><span class="n">VariableV1</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">RefVariable</span><span class="p">(</span><span class="n">VariableV1</span><span class="p">,</span> <span class="n">core</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Ref-based implementation of variables.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -2627,6 +2629,72 @@
     <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_nd_update</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
+  <span class="k">def</span> <span class="nf">scatter_nd_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Updates this variable with the max of `tf.IndexedSlices` and itself.</span>
+
+<span class="sd">    `ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.</span>
+
+<span class="sd">    `indices` must be integer tensor, containing indices into `ref`.</span>
+<span class="sd">    It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 &lt; K &lt;= P`.</span>
+
+<span class="sd">    The innermost dimension of `indices` (with length `K`) corresponds to</span>
+<span class="sd">    indices into elements (if `K = P`) or slices (if `K &lt; P`) along the `K`th</span>
+<span class="sd">    dimension of `ref`.</span>
+
+<span class="sd">    `updates` is `Tensor` of rank `Q-1+P-K` with shape:</span>
+
+<span class="sd">    ```</span>
+<span class="sd">    [d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    See `tf.scatter_nd` for more details about how to make updates to</span>
+<span class="sd">    slices.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      indices: The indices to be used in the operation.</span>
+<span class="sd">      updates: The values to be used in the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered addition has completed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_nd_max</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">scatter_nd_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Updates this variable with the min of `tf.IndexedSlices` and itself.</span>
+
+<span class="sd">    `ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.</span>
+
+<span class="sd">    `indices` must be integer tensor, containing indices into `ref`.</span>
+<span class="sd">    It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 &lt; K &lt;= P`.</span>
+
+<span class="sd">    The innermost dimension of `indices` (with length `K`) corresponds to</span>
+<span class="sd">    indices into elements (if `K = P`) or slices (if `K &lt; P`) along the `K`th</span>
+<span class="sd">    dimension of `ref`.</span>
+
+<span class="sd">    `updates` is `Tensor` of rank `Q-1+P-K` with shape:</span>
+
+<span class="sd">    ```</span>
+<span class="sd">    [d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    See `tf.scatter_nd` for more details about how to make updates to</span>
+<span class="sd">    slices.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      indices: The indices to be used in the operation.</span>
+<span class="sd">      updates: The values to be used in the operation.</span>
+<span class="sd">      name: the name of the operation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A `Tensor` that will hold the new value of this variable after</span>
+<span class="sd">      the scattered addition has completed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">gen_state_ops</span><span class="o">.</span><span class="n">scatter_nd_min</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">updates</span><span class="p">,</span> <span class="n">use_locking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
   <span class="k">def</span> <span class="nf">_strided_slice_assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">strides</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">begin_mask</span><span class="p">,</span>
                             <span class="n">end_mask</span><span class="p">,</span> <span class="n">ellipsis_mask</span><span class="p">,</span> <span class="n">new_axis_mask</span><span class="p">,</span>
                             <span class="n">shrink_axis_mask</span><span class="p">):</span>
@@ -3194,7 +3262,6 @@
 <span class="c1"># allowing instances of the class to be used as tensors.</span>
 <span class="n">ops</span><span class="o">.</span><span class="n">register_tensor_conversion_function</span><span class="p">(</span><span class="n">RefVariable</span><span class="p">,</span>
                                         <span class="n">RefVariable</span><span class="o">.</span><span class="n">_TensorConversionFunction</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
-<span class="n">ops</span><span class="o">.</span><span class="n">register_dense_tensor_like_type</span><span class="p">(</span><span class="n">RefVariable</span><span class="p">)</span>
 
 
 <span class="nd">@tf_export</span><span class="p">(</span><span class="n">v1</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;global_variables&quot;</span><span class="p">])</span>

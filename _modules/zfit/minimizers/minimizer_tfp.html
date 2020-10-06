@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.minimizers.minimizer_tfp &#8212; zfit 0.5.5.dev15+g8c8efe1 documentation</title>
+    <title>zfit.minimizers.minimizer_tfp &#8212; zfit 0.5.5.dev21+g85b9228 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.d431a4ee1c1efae0e38bdfebc22debff.css">
 
@@ -194,6 +194,7 @@
                          <span class="n">minimizer_options</span><span class="o">=</span><span class="p">{})</span>
 
     <span class="k">def</span> <span class="nf">_minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">run</span>
         <span class="n">minimizer_fn</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">bfgs_minimize</span>
         <span class="n">params</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
         <span class="n">do_print</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">&gt;</span> <span class="mi">8</span>
@@ -230,13 +231,13 @@
                 <span class="k">if</span> <span class="n">gradients</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">gradients</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;invalid, </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
-                    <span class="n">print_gradients</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">],</span> <span class="n">loss</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
-            <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                    <span class="n">print_gradients</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">run</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">run</span><span class="p">(</span><span class="n">g</span><span class="p">))</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gradients</span><span class="p">],</span> <span class="n">loss</span><span class="o">=</span><span class="n">run</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="n">loss_evaluated</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="n">is_nan</span> <span class="o">=</span> <span class="n">is_nan</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">loss_evaluated</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">is_nan</span><span class="p">:</span>
                 <span class="n">nan_counter</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">info_values</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                 <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;old_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_loss</span>
                 <span class="n">info_values</span><span class="p">[</span><span class="s1">&#39;nan_counter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nan_counter</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">minimize_nan</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">minimizer</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
@@ -263,17 +264,17 @@
                               <span class="o">**</span><span class="n">minimizer_kwargs</span><span class="p">)</span>
 
         <span class="c1"># save result</span>
-        <span class="n">params_result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">params_result</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">params_result</span><span class="p">)</span>
 
-        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_eval&#39;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">num_objective_evaluations</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
-                <span class="s1">&#39;n_iter&#39;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">num_iterations</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
-                <span class="s1">&#39;grad&#39;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">objective_gradient</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_eval&#39;</span>  <span class="p">:</span> <span class="n">run</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">num_objective_evaluations</span><span class="p">),</span>
+                <span class="s1">&#39;n_iter&#39;</span>  <span class="p">:</span> <span class="n">run</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">num_iterations</span><span class="p">),</span>
+                <span class="s1">&#39;grad&#39;</span>    <span class="p">:</span> <span class="n">run</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">objective_gradient</span><span class="p">),</span>
                 <span class="s1">&#39;original&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">}</span>
         <span class="n">edm</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>
-        <span class="n">fmin</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">objective_value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">fmin</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">objective_value</span><span class="p">)</span>
         <span class="n">status</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>
-        <span class="n">converged</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">converged</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">converged</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">converged</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">params_result</span><span class="p">))</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">FitResult</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">edm</span><span class="o">=</span><span class="n">edm</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="n">fmin</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span>
                            <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">converged</span><span class="o">=</span><span class="n">converged</span><span class="p">,</span>

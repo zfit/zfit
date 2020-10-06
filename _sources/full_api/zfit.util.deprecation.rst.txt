@@ -1,0 +1,8 @@
+zfit.util.deprecation module
+============================
+
+.. automodule:: zfit.util.deprecation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

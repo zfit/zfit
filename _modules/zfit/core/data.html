@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.core.data &#8212; zfit 0.5.5.dev15+g8c8efe1 documentation</title>
+    <title>zfit.core.data &#8212; zfit 0.5.5.dev21+g85b9228 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.d431a4ee1c1efae0e38bdfebc22debff.css">
 
@@ -182,6 +182,7 @@
 <span class="kn">from</span> <span class="nn">.coordinates</span> <span class="kn">import</span> <span class="n">convert_to_obs_str</span>
 <span class="kn">from</span> <span class="nn">.dimension</span> <span class="kn">import</span> <span class="n">BaseDimensional</span>
 <span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ZfitData</span>
+<span class="kn">from</span> <span class="nn">.parameter</span> <span class="kn">import</span> <span class="n">register_tensor_conversion</span>
 <span class="kn">from</span> <span class="nn">.space</span> <span class="kn">import</span> <span class="n">Space</span><span class="p">,</span> <span class="n">convert_to_space</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">ztypes</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
@@ -799,25 +800,27 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;Sampler: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> obs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s1">&gt;&#39;</span></div>
 
 
-<span class="k">def</span> <span class="nf">_dense_var_to_tensor</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_ref</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">var</span><span class="o">.</span><span class="n">_dense_var_to_tensor</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">as_ref</span><span class="o">=</span><span class="n">as_ref</span><span class="p">)</span>
+<span class="c1"># def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):</span>
+<span class="c1">#     return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)</span>
 
 
-<span class="n">ops</span><span class="o">.</span><span class="n">register_tensor_conversion_function</span><span class="p">(</span><span class="n">Data</span><span class="p">,</span> <span class="n">_dense_var_to_tensor</span><span class="p">)</span>
-<span class="n">fetch_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">data</span><span class="p">:</span> <span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">()],</span>
-                               <span class="k">lambda</span> <span class="n">val</span><span class="p">:</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">feed_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">data</span><span class="p">,</span> <span class="n">feed_val</span><span class="p">:</span> <span class="p">[(</span><span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="n">feed_val</span><span class="p">)]</span>
-<span class="n">feed_function_for_partial_run</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">data</span><span class="p">:</span> <span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">()]</span>
+<span class="c1"># ops.register_tensor_conversion_function(Data, _dense_var_to_tensor)</span>
+<span class="c1"># fetch_function = lambda data: ([data.value()],</span>
+<span class="c1">#                                lambda val: val[0])</span>
+<span class="c1"># feed_function = lambda data, feed_val: [(data.value(), feed_val)]</span>
+<span class="c1"># feed_function_for_partial_run = lambda data: [data.value()]</span>
+<span class="c1">#</span>
+<span class="c1"># from tensorflow.python.client.session import register_session_run_conversion_functions</span>
+<span class="c1">#</span>
+<span class="c1"># # ops.register_dense_tensor_like_type()</span>
+<span class="c1">#</span>
+<span class="c1"># register_session_run_conversion_functions(tensor_type=Data, fetch_function=fetch_function,</span>
+<span class="c1">#                                           feed_function=feed_function,</span>
+<span class="c1">#                                           feed_function_for_partial_run=feed_function_for_partial_run)</span>
+<span class="c1">#</span>
+<span class="c1"># Data._OverloadAllOperators()</span>
 
-<span class="kn">from</span> <span class="nn">tensorflow.python.client.session</span> <span class="kn">import</span> <span class="n">register_session_run_conversion_functions</span>
-
-<span class="c1"># ops.register_dense_tensor_like_type()</span>
-
-<span class="n">register_session_run_conversion_functions</span><span class="p">(</span><span class="n">tensor_type</span><span class="o">=</span><span class="n">Data</span><span class="p">,</span> <span class="n">fetch_function</span><span class="o">=</span><span class="n">fetch_function</span><span class="p">,</span>
-                                          <span class="n">feed_function</span><span class="o">=</span><span class="n">feed_function</span><span class="p">,</span>
-                                          <span class="n">feed_function_for_partial_run</span><span class="o">=</span><span class="n">feed_function_for_partial_run</span><span class="p">)</span>
-
-<span class="n">Data</span><span class="o">.</span><span class="n">_OverloadAllOperators</span><span class="p">()</span>
+<span class="n">register_tensor_conversion</span><span class="p">(</span><span class="n">Data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">overload_operators</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="LightDataset"><a class="viewcode-back" href="../../../full_api/zfit.core.data.html#zfit.core.data.LightDataset">[docs]</a><span class="k">class</span> <span class="nc">LightDataset</span><span class="p">:</span>
