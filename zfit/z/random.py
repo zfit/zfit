@@ -9,6 +9,7 @@ from .zextension import function as function
 
 __all__ = ["counts_multinomial"]
 
+
 from ..settings import ztypes
 
 
@@ -25,8 +26,10 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
     Returns:
         Shape (k,) tensor containing the number of draws.
     """
+    from .. import z
+
     total_count = tf.convert_to_tensor(total_count)
-    probs = tf.convert_to_tensor(probs) if probs is not None else probs
+    probs = z.convert_to_tensor(probs) if probs is not None else probs
     logits = tf.convert_to_tensor(logits) if logits is not None else logits
 
     if probs is not None:

@@ -52,7 +52,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     #  False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05), False),
     (zfit.minimize.Minuit, {}, True),
-    (BFGS, {}, True),  # check for one not dependent on Minuit
+    # (BFGS, {}, True),  # TODO: reactivate BFGS!  # check for one not dependent on Minuit
     # (zfit.minimize.Scipy, {}, False),
 ]
 

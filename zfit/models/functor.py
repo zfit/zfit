@@ -130,7 +130,7 @@ class SumPDF(BaseFunctor):
                 remaining_frac = convert_to_parameter(remaining_frac_func,
                                                       dependents=fracs)
                 if run.numeric_checks:
-                    tf.debugging.assert_non_negative(remaining_frac, tf.constant(0., dtype=ztypes.float),
+                    tf.debugging.assert_non_negative(remaining_frac,
                                                      f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}")  # check fractions
 
                 # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
