@@ -81,15 +81,16 @@ class SumPDF(BaseFunctor):
                 frac_integral = pdf.integrate(...) * frac
 
         Args:
-            pdfs (pdf): The pdfs to be added.
-            fracs (iterable): coefficients for the linear combination of the pdfs. Optional if *all* pdfs are extended.
-                  - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
-                    The last coefficient will equal to 1 - sum(frac)
-                  - len(frac) == len(pdf): the fracs will be used as is and no normalization attempt is taken.
-            name (str):
+            pdfs: The pdfs to be added.
+            fracs: Coefficients for the linear combination of the pdfs. Optional if *all* pdfs are extended.
+
+                - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
+                  The last coefficient will equal to 1 - sum(frac)
+                - len(frac) == len(pdf): the fracs will be used as is and no normalization attempt is taken.
+            name: |name_arg_descr|
 
         Raises
-            ModelIncompatibleError: if
+            ModelIncompatibleError: If model is incompatible.
         """
         # Check user input
         self._fracs = None
@@ -129,7 +130,7 @@ class SumPDF(BaseFunctor):
                 remaining_frac = convert_to_parameter(remaining_frac_func,
                                                       dependents=fracs)
                 if run.numeric_checks:
-                    tf.debugging.assert_non_negative(remaining_frac, tf.constant(0., dtype=ztypes.float),
+                    tf.debugging.assert_non_negative(remaining_frac,
                                                      f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}")  # check fractions
 
                 # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
@@ -156,7 +157,8 @@ class SumPDF(BaseFunctor):
                     input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
 
             sum_yields = convert_to_parameter(sum_yields_func, dependents=yields)
-            yield_fracs = [convert_to_parameter(lambda yield_=yield_: yield_ / sum_yields, dependents=yield_)
+            yield_fracs = [convert_to_parameter(lambda sum_yields, yield_: yield_ / sum_yields,
+                                                dependents=[sum_yields, yield_])
                            for yield_ in yields]
 
             fracs_cleaned = None
@@ -172,7 +174,7 @@ class SumPDF(BaseFunctor):
 
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
         if all_extended and not fracs_cleaned:
-            self._set_yield_inplace(sum_yields)
+            self.set_yield(sum_yields)
             # self.set_yield(sum_yields)  # TODO(SUM): why not the public method below?
 
     @property

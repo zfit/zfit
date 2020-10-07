@@ -1,3 +1,5 @@
+|zfit_logo|
+
 *******************************
 zfit: scalable pythonic fitting
 *******************************
@@ -15,6 +17,9 @@ zfit: scalable pythonic fitting
 .. image:: https://travis-ci.org/zfit/zfit.svg?branch=develop
    :target: https://travis-ci.org/zfit/zfit
 
+.. image:: https://github.com/zfit/zfit/workflows/Python%20package/badge.svg
+   :target: https://github.com/zfit/zfit/actions
+
 .. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
    :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
 
@@ -23,10 +28,7 @@ zfit: scalable pythonic fitting
    :alt: CodeFactor
 
 
-|zfit_logo|
-
-
-.. |zfit_logo| image:: docs/images/zfit-fin_400x168.png
+.. |zfit_logo| image:: docs/images/zfit-logo_hires.png
    :target: https://github.com/zfit/zfit
    :alt: zfit logo
 
@@ -37,12 +39,11 @@ zfit: scalable pythonic fitting
 zfit is a highly scalable and customizable model manipulation and fitting library. It uses
 `TensorFlow <https://www.tensorflow.org/>`_ as its computational backend
 and is optimised for simple and direct manipulation of probability density functions. The project is affiliated with
-and well integrated into `scikit-hep <https://scikit-hep.org/>`_, the HEP Python ecosystem.
+and well integrated into `Scikit-HEP <https://scikit-hep.org/>`_, the HEP Python ecosystem.
 
 - **Tutorials**: `Interactive IPython Tutorials <https://github.com/zfit/zfit-tutorials>`_
 - **Quick start**: `Example scripts <examples>`_
-- **Develop Documentation**: Full documentation_ and API_
-- **Stable Documentation**: Latest `stable documentation`_
+- **Documentation**: See `stable documentation`_ or `latest documentation`_
 - **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
   `ask on StackOverflow <https://stackoverflow.com/questions/ask?tags=zfit>`_ (with the **zfit** tag) or `contact`_ us directly.
 - **Physics/HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute/find more HEP
@@ -181,7 +182,7 @@ Once we've performed the fit and obtained the corresponding uncertainties, we ca
     print("mu={}".format(params[mu]['value']))
 
 And that's it!
-For more details and information of what you can do with zfit, checkout the documentation_.
+For more details and information of what you can do with zfit, checkout the `latest documentation`_.
 
 Prerequisites
 =============
@@ -255,13 +256,11 @@ See here for `all authors and contributors`_
 Acknowledgements
 ================
 
-zfit has been developed with support from the University of Zürich and the Swiss National Science Foundation (SNSF) under contracts 168169 and 174182.
+zfit has been developed with support from the University of Zurich and the Swiss National Science Foundation (SNSF) under contracts 168169 and 174182.
 
-The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework developed by Anton Poluektov using the TensorFlow open source library.
+The idea of zfit is inspired by the `TensorFlowAnalysis <https://gitlab.cern.ch/poluekt/TensorFlowAnalysis>`_ framework
+developed by Anton Poluektov and `TensorProb <https://github.com/tensorprob/tensorprob>`_ by Chris Burr and Igor Babuschkin
+using the TensorFlow open source library and more libraries.
 
-.. _documentation: https://zfit.readthedocs.io/en/latest/
-..  _stable documentation: https://zfit.readthedocs.io/en/0.5.2/
-.. _API: https://zfit.readthedocs.io/en/latest/API.html
-
-
-
+.. _`latest documentation`: https://zfit.readthedocs.io/en/latest/
+.. _`stable documentation`: https://zfit.readthedocs.io/en/stable/

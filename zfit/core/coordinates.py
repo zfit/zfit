@@ -72,6 +72,7 @@ class Coordinates(ZfitOrderableDimensional):
         The behavior is as follows:
 
          * obs are already set:
+
            * input obs are None: the observables will be dropped. If no axes are set, an error
              will be raised, as no coordinates will be assigned to this instance anymore.
            * input obs are not None: the instance will be sorted by the incoming obs. If axes or other
@@ -81,6 +82,7 @@ class Coordinates(ZfitOrderableDimensional):
              If a strict superset is given (and allow_superset is True), the obs will be sorted accordingly as
              if the obs not contained in the instances obs were not in the input obs.
          * obs are not set:
+
            * if the input obs are None, the same object is returned.
            * if the input obs are not None, they will be set as-is and now correspond to the already
              existing axes in the object.
@@ -93,7 +95,7 @@ class Coordinates(ZfitOrderableDimensional):
             is raised.
 
         Returns:
-            object: a copy of the object with the new ordering/observables
+            A copy of the object with the new ordering/observables
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -135,31 +137,33 @@ class Coordinates(ZfitOrderableDimensional):
                   allow_subset: bool = True) -> "Coordinates":
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
-            The behavior is as follows:
+        The behavior is as follows:
 
-             * axes are already set:
-               * input axes are None: the axes will be dropped. If no observables are set, an error
-                 will be raised, as no coordinates will be assigned to this instance anymore.
-               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
-                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.
-                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
-                 be used to retrieve a subspace of limits, data etc.
-                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
-                 if the axes not contained in the instances axes were not present in the input axes.
-             * axes are not set:
-               * if the input axes are None, the same object is returned.
-               * if the input axes are not None, they will be set as-is and now correspond to the already
-                 existing obs in the object.
+         * axes are already set:
 
-            Args:
-                axes: Axes to sort/associate this instance with
-                allow_superset: if False and a strict superset of the own axeservables is given, an error
-                is raised.
-                allow_subset:if False and a strict subset of the own axeservables is given, an error
-                is raised.
+           * input axes are None: the axes will be dropped. If no observables are set, an error
+             will be raised, as no coordinates will be assigned to this instance anymore.
+           * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
+             objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+             If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
+             be used to retrieve a subspace of limits, data etc.
+             If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
+             if the axes not contained in the instances axes were not present in the input axes.
+         * axes are not set:
 
-            Returns:
-                object: a copy of the object with the new ordering/axes
+           * if the input axes are None, the same object is returned.
+           * if the input axes are not None, they will be set as-is and now correspond to the already
+             existing obs in the object.
+
+        Args:
+            axes: Axes to sort/associate this instance with
+            allow_superset: if False and a strict superset of the own axeservables is given, an error
+            is raised.
+            allow_subset:if False and a strict subset of the own axeservables is given, an error
+            is raised.
+
+        Returns:
+            A copy of the object with the new ordering/axes
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
             AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
@@ -213,11 +217,11 @@ class Coordinates(ZfitOrderableDimensional):
 
 
         Args:
-            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.
+            overwrite: If axes are already set, replace the axes with the autofilled ones.
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
-            object: the object with the new axes
+            The object with the new axes
 
         Raises:
             AxesIncompatibleError: if the axes are already set and `overwrite` is False.
@@ -252,7 +256,7 @@ class Coordinates(ZfitOrderableDimensional):
                 return the indices that could be used to reorder.
 
         Returns:
-            tuple(int): New indices that would reorder the instances obs to be obs respectively axes.
+            New indices that would reorder the instances obs to be obs respectively axes.
 
         Raises:
             CoordinatesUnderdefinedError: If neither `obs` nor `axes` is given
@@ -293,7 +297,7 @@ class Coordinates(ZfitOrderableDimensional):
         Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
 
         Args:
-            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes
+            x: Tensor to be reordered, last dimension should be n_obs resp. n_axes
             x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
                 latter.
             x_axes: Axes associated with x.
@@ -304,7 +308,7 @@ class Coordinates(ZfitOrderableDimensional):
                 self.axes to be the axes of x.
 
         Returns:
-            tensor-like: the reordered array-like object
+            The reordered array-like object
         """
 
         x_reorder = x_obs is not None or x_axes is not None

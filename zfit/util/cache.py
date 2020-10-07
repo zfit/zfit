@@ -61,7 +61,6 @@ import tensorflow as tf
 
 from . import ztyping
 from .container import convert_to_container
-from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 
 
 class ZfitGraphCachable:
@@ -75,8 +74,8 @@ class ZfitGraphCachable:
         """Add dependents that render the cache invalid if they change.
 
         Args:
-            cache_dependents (ZfitGraphCachable):
-            allow_non_cachable (bool): If `True`, allow `cache_dependents` to be non-cachables.
+            cache_dependents:
+            allow_non_cachable: If `True`, allow `cache_dependents` to be non-cachables.
                 If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.
 
         Raises:
@@ -122,7 +121,7 @@ class GraphCachable(ZfitGraphCachable):
         """Register a `cacher` that caches values produces by this instance; a dependent.
 
         Args:
-            cacher ():
+            cacher:
         """
         if not isinstance(cacher, ZfitGraphCachable):
             raise TypeError("`cacher` is not a `ZfitCachable` but {}".format(type(cacher)))
@@ -133,8 +132,8 @@ class GraphCachable(ZfitGraphCachable):
         """Add dependencies that render the cache invalid if they change.
 
         Args:
-            cache_deps (ZfitGraphCachable):
-            allow_non_cachable (bool): If `True`, allow `cache_dependents` to be non-cachables.
+            cache_deps:
+            allow_non_cachable: If `True`, allow `cache_dependents` to be non-cachables.
                 If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.
 
         Raises:
@@ -204,12 +203,12 @@ class FunctionCacheHolder(GraphCachable):
         be created as a call to the `wrapped_func` with the given arguments will result in an outdated graph.
 
         Args:
-            func (function): Python function that serves as a hash of the holder. Notice that equality is different
+            func: Python function that serves as a hash of the holder. Notice that equality is different
                 defined.
-            wrapped_func (tf.function wrapped): Wrapped `func` with `tf.function`. The holder signals via
+            wrapped_func: Wrapped `func` with `tf.function`. The holder signals via
                 `is_valid` whether this function is still valid to be used.
             cachables: objects that are cached. If they change, the cache is invalidated
-            cachables_mapping (Mapping): keyword arguments to the function. If the values change, the cache is
+            cachables_mapping: keyword arguments to the function. If the values change, the cache is
                 invalidated.
         """
         # cache = {} if cache is None else cache
@@ -244,8 +243,11 @@ class FunctionCacheHolder(GraphCachable):
             kwargs: dict-like
 
         Returns:
-            tuple
+
         """
+        # is initialized before the core
+        from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
+
         args = list(args)
         kwargs = list(kwargs.keys()) + list(kwargs.values())
         combined = []

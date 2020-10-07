@@ -27,7 +27,7 @@ def create_loss(n=15000):
     c_param.set_value(true_c)
 
     gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
-    exp1 = zfit.pdf.Exponential(lambda_=c_param, obs=obs1)
+    exp1 = zfit.pdf.Exponential(lam=c_param, obs=obs1)
 
     sum_pdf1 = zfit.pdf.SumPDF((gauss1, exp1), 0.7)
 

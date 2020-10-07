@@ -8,7 +8,6 @@ from collections import OrderedDict
 from typing import Callable, Tuple, List, Union, Iterable
 
 import scipy.stats
-import tensorflow as tf
 
 from .interfaces import ZfitPDF
 from .parameter import ZfitParameterMixin
@@ -31,7 +30,7 @@ def teardown_function():
 
     clear_graph_cache()
     import zfit
-    zfit.run.set_mode(old_graph_mode)
+    zfit.run.set_graph_mode(old_graph_mode)
 
 
 class BaseTester:

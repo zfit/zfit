@@ -331,7 +331,7 @@ class Limit(ZfitLimit):
             limit:
 
         Returns:
-            limit object, bool
+
         """
         if is_range_definition(limit):  # as the above ANY
             dtype = object
@@ -361,7 +361,7 @@ class Limit(ZfitLimit):
             `limits_are_false` and `limits_are_set`.
 
         Returns:
-            tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor) or bool or None: The lower and upper limits.
+            The lower and upper limits.
         Raises:
             LimitsNotSpecifiedError: If there are not limits set or they are False.
         """
@@ -389,7 +389,7 @@ class Limit(ZfitLimit):
 
 
         Returns:
-            (lower, upper): A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
+            A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
                 dimension is always `n_obs`, the first can be vectorized. This allows unstacking
                 with `z.unstack_x()` as can be done with data.
 
@@ -436,7 +436,7 @@ class Limit(ZfitLimit):
             guarantee_limits: Guarantee that the values are already inside the rectangular limits.
 
         Returns:
-            tensor-like: Return a boolean tensor-like object with the same shape as the input `x` except of the
+            Return a boolean tensor-like object with the same shape as the input `x` except of the
                 last dimension removed.
         """
         x = _sanitize_x_input(x, n_obs=self.n_obs)
@@ -469,7 +469,7 @@ class Limit(ZfitLimit):
             axis: The axis to remove the elements from. Defaults to 0.
 
         Returns:
-            tensor-like: Return an object with the same shape as `x` except that along `axis` elements have been
+            Return an object with the same shape as `x` except that along `axis` elements have been
                 removed.
         """
 
@@ -497,7 +497,7 @@ class Limit(ZfitLimit):
         If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
 
         Returns:
-            bool: if the rectangular limits are tensors.
+            If the rectangular limits are tensors.
         """
         try:
             _ = self.rect_limits_np
@@ -511,7 +511,7 @@ class Limit(ZfitLimit):
         """If the limits have never explicitly been set to a limit or to False.
 
         Returns:
-            bool:
+
         """
         return self._rect_limits is not None
 
@@ -520,7 +520,7 @@ class Limit(ZfitLimit):
         """If the limits have been set to False, so the object on purpose does not contain limits.
 
         Returns:
-            bool:
+
         """
         return self._rect_limits is False
 
@@ -529,7 +529,7 @@ class Limit(ZfitLimit):
         """If there are limits set and they are not false.
 
         Returns:
-            bool:
+
         """
         return not (self.limits_are_false or (not self.limits_are_set))
 
@@ -538,7 +538,7 @@ class Limit(ZfitLimit):
         """Dimensionality, the number of observables, of the limits. Equals to the last axis in rectangular limits.
 
         Returns:
-            int: Dimensionality of the limits.
+            Dimensionality of the limits.
         """
         return self._n_obs
 
@@ -547,7 +547,7 @@ class Limit(ZfitLimit):
         """
 
         Returns:
-            int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
+            Return the number of events, the dimension of the first shape. If this is > 1 or None,
                 it's vectorized.
         """
         if not self.has_limits:
@@ -564,7 +564,7 @@ class Limit(ZfitLimit):
             allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
 
         Returns:
-            bool, tf.Tensor: Either a Python boolean or a `tf.Tensor`
+            Either a Python boolean or a `tf.Tensor`
          Raises:
              IllegalInGraphModeError: if `allow_graph`
         """
@@ -576,7 +576,7 @@ class Limit(ZfitLimit):
         """Compares two Limits for equality without graph mode allowed.
 
         Returns:
-            bool:
+
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -609,7 +609,7 @@ class Limit(ZfitLimit):
 
 
         Returns:
-            bool: result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
 
@@ -624,7 +624,7 @@ class Limit(ZfitLimit):
         This can be used to determine whether a fitting range specification can handle another limit.
 
         Returns:
-            bool: result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -638,7 +638,7 @@ class Limit(ZfitLimit):
         If this is not possible, if the limits are not rectangular, just returns itself.
 
         Returns:
-            Iterable[ZfitLimits]: The sublimits if it was able to split.
+            The sublimits if it was able to split.
         """
         return self._sublimits
 
@@ -750,7 +750,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             guarantee_limits: Guarantee that the values are already inside the rectangular limits.
 
         Returns:
-            tensor-like: Return a boolean tensor-like object with the same shape as the input `x` except of the
+            Return a boolean tensor-like object with the same shape as the input `x` except of the
                 last dimension removed.
         """
         x = _sanitize_x_input(x, n_obs=self.n_obs)
@@ -778,7 +778,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             axis: The axis to remove the elements from. Defaults to 0.
 
         Returns:
-            tensor-like: Return an object with the same shape as `x` except that along `axis` elements have been
+            Return an object with the same shape as `x` except that along `axis` elements have been
                 removed.
         """
         if self.has_rect_limits and guarantee_limits:
@@ -837,7 +837,7 @@ class BaseSpace(ZfitSpace, BaseObject):
                 return the indices that could be used to reorder.
 
         Returns:
-            tuple(int): New indices that would reorder the instances obs to be obs respectively axes.
+            New indices that would reorder the instances obs to be obs respectively axes.
 
         Raises:
             CoordinatesUnderdefinedError: If neither `obs` nor `axes` is given
@@ -865,10 +865,10 @@ class BaseSpace(ZfitSpace, BaseObject):
         """Input check: Convert `NOT_SPECIFIED` to None or check if obs are all strings.
 
         Args:
-            obs (str, List[str], None, NOT_SPECIFIED):
+            obs:
 
         Returns:
-            type:
+
         """
         if obs is None:
             if allow_none:
@@ -937,7 +937,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         In case the observables are different, the order of the first space is taken.
 
         Args:
-            other (:py:class:`~zfit.Space`):
+            other:
 
         Returns:
             :py:class:`~zfit.Space`:
@@ -950,7 +950,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         """Combine spaces with different obs (but consistent limits).
 
         Args:
-            other (:py:class:`~zfit.Space`):
+            other:
 
         Returns:
             :py:class:`~zfit.Space`:
@@ -976,7 +976,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
 
         Returns:
-            bool: result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -988,7 +988,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         """Compares two Limits for equality without graph mode allowed.
 
         Returns:
-            bool:
+
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -1009,7 +1009,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
 
         Returns:
-            bool: result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -1023,7 +1023,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         This can be used to determine whether a fitting range specification can handle another limit.
 
         Returns:
-            bool: result of the comparison
+            Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -1097,9 +1097,9 @@ class Space(BaseSpace):
 
 
         Args:
-            obs (str, List[str,...]):
-            limits ():
-            name (str):
+            obs:
+            limits:
+            name:
         """
         if name is None:
             name = "Space"
@@ -1119,10 +1119,10 @@ class Space(BaseSpace):
         """Check and sanitize the input limits as well as the rectangular limits.
 
         Args:
-            limit ():
+            limit:
 
         Returns:
-            dict(obs/axes: ZfitLimit): Limits dictionary containing the observables and/or the axes as a key matching
+            Limits dictionary containing the observables and/or the axes as a key matching
                 `ZfitLimits` objects.
 
         """
@@ -1252,7 +1252,7 @@ class Space(BaseSpace):
             `limits_are_false` and `limits_are_set`.
 
         Returns:
-            tuple(np.ndarray/tf.Tensor, np.ndarray/tf.Tensor) or bool or None: The lower and upper limits.
+            The lower and upper limits.
         Raises:
             LimitsNotSpecifiedError: If there are not limits set or they are False.
         """
@@ -1287,7 +1287,7 @@ class Space(BaseSpace):
         `limits_are_false` and `limits_are_set`.
 
         Returns:
-            (lower, upper): A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
+            A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
                 dimension is always `n_obs`, the first can be vectorized. This allows unstacking
                 with `z.unstack_x()` as can be done with data.
 
@@ -1357,7 +1357,7 @@ class Space(BaseSpace):
         If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
 
         Returns:
-            bool: if the rectangular limits are tensors.
+            If the rectangular limits are tensors.
         """
         try:
             _ = self.rect_limits_np
@@ -1384,7 +1384,7 @@ class Space(BaseSpace):
         """If the limits have been set to False, so the object on purpose does not contain limits.
 
         Returns:
-            bool: True if limits is False
+            True if limits is False
         """
         return all(limit.limits_are_false
                    for limit in self._limits_dict['obs' if self.obs else 'axes'].values())
@@ -1394,7 +1394,7 @@ class Space(BaseSpace):
         """Whether there are limits set and they are not false.
 
         Returns:
-            bool:
+
         """
         return self.limits_are_set and not self.limits_are_false
 
@@ -1405,10 +1405,10 @@ class Space(BaseSpace):
 
     @property
     def n_events(self) -> Union[int, None]:
-        """
+        """Return the number of events, the dimension of the first shape.
 
         Returns:
-            int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
+            Number of events, the dimension of the first shape. If this is > 1 or None,
                 it's vectorized.
         """
         if not self.has_limits:
@@ -1423,7 +1423,7 @@ class Space(BaseSpace):
         """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
 
         Returns:
-            tuple(float, float, float, float): so `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.
+            So `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.
                 low_x is the lower limit in x, up_x is the upper limit in x etc.
 
         Raises:
@@ -1440,7 +1440,7 @@ class Space(BaseSpace):
         """Simplified `.limits` for exactly 1 obs, n limits: return the tuple(low_1, ..., low_n, up_1, ..., up_n).
 
         Returns:
-            tuple(float, float, ...): so `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.
+            So `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.
                 low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.
 
         Raises:
@@ -1519,7 +1519,7 @@ class Space(BaseSpace):
             name: Human readable name
 
         Returns:
-            :py:class:`~zfit.Space`: Copy of the current object with the new limits.
+            Copy of the current object with the new limits.
         """
         new_space = type(self)(obs=self.coords, limits=limits, rect_limits=rect_limits,
                                name=name)
@@ -1544,7 +1544,7 @@ class Space(BaseSpace):
         Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
 
         Args:
-            x (tensor-like): Tensor to be reordered, last dimension should be n_obs resp. n_axes
+            x: Tensor to be reordered, last dimension should be n_obs resp. n_axes
             x_obs: Observables associated with x. If both, x_obs and x_axes are given, this has precedency over the
                 latter.
             x_axes: Axes associated with x.
@@ -1555,7 +1555,7 @@ class Space(BaseSpace):
                 self.axes to be the axes of x.
 
         Returns:
-            tensor-like: the reordered array-like object
+            The reordered array-like object
         """
         return self.coords.reorder_x(x=x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
 
@@ -1568,6 +1568,7 @@ class Space(BaseSpace):
         The behavior is as follows:
 
          * obs are already set:
+
            * input obs are None: the observables will be dropped. If no axes are set, an error
              will be raised, as no coordinates will be assigned to this instance anymore.
            * input obs are not None: the instance will be sorted by the incoming obs. If axes or other
@@ -1577,6 +1578,7 @@ class Space(BaseSpace):
              If a strict superset is given (and allow_superset is True), the obs will be sorted accordingly as
              if the obs not contained in the instances obs were not in the input obs.
          * obs are not set:
+
            * if the input obs are None, the same object is returned.
            * if the input obs are not None, they will be set as-is and now correspond to the already
              existing axes in the object.
@@ -1589,7 +1591,7 @@ class Space(BaseSpace):
             is raised.
 
         Returns:
-            :py:class:`~zfit.Space`: a copy of the object with the new ordering/observables
+            A copy of the object with the new ordering/observables
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -1615,35 +1617,37 @@ class Space(BaseSpace):
                   allow_subset: bool = True) -> ZfitSpace:
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
-            The behavior is as follows:
+        The behavior is as follows:
 
-             * axes are already set:
-               * input axes are None: the axes will be dropped. If no observables are set, an error
-                 will be raised, as no coordinates will be assigned to this instance anymore.
-               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
-                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.
-                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
-                 be used to retrieve a subspace of limits, data etc.
-                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
-                 if the axes not contained in the instances axes were not present in the input axes.
-             * axes are not set:
-               * if the input axes are None, the same object is returned.
-               * if the input axes are not None, they will be set as-is and now correspond to the already
-                 existing obs in the object.
+         * axes are already set:
 
-            Args:
-                axes: Axes to sort/associate this instance with
-                allow_superset: if False and a strict superset of the own axeservables is given, an error
-                is raised.
-                allow_subset:if False and a strict subset of the own axeservables is given, an error
-                is raised.
+           * input axes are None: the axes will be dropped. If no observables are set, an error
+             will be raised, as no coordinates will be assigned to this instance anymore.
+           * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
+             objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+             If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
+             be used to retrieve a subspace of limits, data etc.
+             If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
+             if the axes not contained in the instances axes were not present in the input axes.
+         * axes are not set:
 
-            Returns:
-                :py:class:`~zfit.Space`: a copy of the object with the new ordering/axes
-            Raises:
-                CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
-                AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
-                    allow_allow_subset is False
+           * if the input axes are None, the same object is returned.
+           * if the input axes are not None, they will be set as-is and now correspond to the already
+             existing obs in the object.
+
+        Args:
+            axes: Axes to sort/associate this instance with
+            allow_superset: if False and a strict superset of the own axeservables is given, an error
+            is raised.
+            allow_subset:if False and a strict subset of the own axeservables is given, an error
+            is raised.
+
+        Returns:
+            A copy of the object with the new ordering/axes
+        Raises:
+            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         if axes is None:  # drop axes
             if self.axes is None:
@@ -1736,11 +1740,11 @@ class Space(BaseSpace):
 
 
         Args:
-            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.
+            overwrite: If axes are already set, replace the axes with the autofilled ones.
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
-            ZfitSpace: the object with the new axes
+            The object with the new axes
 
         Raises:
             AxesIncompatibleError: if the axes are already set and `overwrite` is False.
@@ -1761,12 +1765,12 @@ class Space(BaseSpace):
         """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
-            obs (str, Tuple[str]): Observables of the subspace to return.
-            axes (int, Tuple[int]): Axes of the subspace to return.
+            obs: Observables of the subspace to return.
+            axes: Axes of the subspace to return.
             name: Human readable names
 
         Returns:
-            :py:class:`~zfit.Space`: A space containing only a subspace (and sublimits etc.)
+            A space containing only a subspace (and sublimits etc.)
         """
         if obs is not None and axes is not None:
             raise ValueError("Cannot specify `obs` *and* `axes` to get subspace.")
@@ -1807,9 +1811,9 @@ class Space(BaseSpace):
         `overwrite_overwrite_kwargs`.
 
         Args:
-            name (str): The new name. If not given, the new instance will be named the same as the
+            name: The new name. If not given, the new instance will be named the same as the
                 current one.
-            **overwrite_kwargs ():
+            **overwrite_kwargs:
 
         Returns:
             :py:class:`~zfit.Space`
@@ -1847,7 +1851,7 @@ class Space(BaseSpace):
         """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
 
         Returns:
-            tuple(float, float): so :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.
+            So :code:`lower, upper = space.limit1d` for a simple, 1 obs limit.
 
         Raises:
             RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
@@ -1869,9 +1873,9 @@ class Space(BaseSpace):
 
         Args:
             rect_limits:
-            axes ():
-            limits ():
-            name (str):
+            axes:
+            limits:
+            name:
 
         Returns:
             :py:class:`~zfit.Space`
@@ -1935,7 +1939,7 @@ def add_spaces(*spaces: Iterable["ZfitSpace"], name=None):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
-        spaces (Iterable[:py:class:`~zfit.Space`]):
+        spaces:
 
     Returns:
         Union[None, :py:class:`~zfit.Space`, bool]:
@@ -1963,10 +1967,10 @@ def combine_spaces(*spaces: Iterable[Space]):
     is not unambiguous and `False` is returned
 
     Args:
-        spaces (List[:py:class:`~zfit.Space`]):
+        spaces:
 
     Returns:
-        `zfit.Space` or False: Returns False if the limits don't coincide in one or more obs. Otherwise
+        Returns False if the limits don't coincide in one or more obs. Otherwise
             return the :py:class:`~zfit.Space` with all obs from `spaces` sorted by the order of `spaces` and with the
             combined limits.
     Raises:
@@ -2377,7 +2381,7 @@ class MultiSpace(BaseSpace):
         If a limit with tensors is evaluated inside a graph context, comparison operations will fail.
 
         Returns:
-            bool: if the rectangular limits are tensors.
+            If the rectangular limits are tensors.
         """
         return all(space.limits_are_tensors for space in self)
 
@@ -2393,7 +2397,7 @@ class MultiSpace(BaseSpace):
         """If the limits have been set to False, so the object on purpose does not contain limits.
 
         Returns:
-            bool: True if limits is False
+            True if limits is False
         """
         return all(space.limits_are_false for space in self.spaces)
 
@@ -2404,7 +2408,7 @@ class MultiSpace(BaseSpace):
         """Whether there are limits set and they are not false.
 
         Returns:
-            bool:
+
         """
         try:
             return self.limits_are_set and not self.limits_are_false
@@ -2416,7 +2420,7 @@ class MultiSpace(BaseSpace):
         """If the limits have been set to a limit or are False.
 
         Returns:
-            bool: Whether the limits have been set or not.
+            Whether the limits have been set or not.
         """
         return all(space.limits_are_set for space in self.spaces)
 
@@ -2425,7 +2429,7 @@ class MultiSpace(BaseSpace):
         """Shape of the first dimension, usually reflects the number of events.
 
         Returns:
-            int, None: Return the number of events, the dimension of the first shape. If this is > 1 or None,
+            Return the number of events, the dimension of the first shape. If this is > 1 or None,
                 it's vectorized.
         """
         # get the first numeric n_events. Is None if a Tensor and not specified yet.
@@ -2447,7 +2451,7 @@ class MultiSpace(BaseSpace):
             name: Human readable name
 
         Returns:
-            :py:class:`~zfit.MultiSpace`: Copy of the current object with the new limits.
+            Copy of the current object with the new limits.
         """
         new_space = self.copy(spaces=[space.with_limits(limits=limits, rect_limits=rect_limits)
                                       for space in self],
@@ -2488,7 +2492,7 @@ class MultiSpace(BaseSpace):
             is raised.
 
         Returns:
-            :py:class:`~zfit.MultiSpace`: a copy of the object with the new ordering/observables
+            A copy of the object with the new ordering/observables
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
@@ -2530,7 +2534,7 @@ class MultiSpace(BaseSpace):
                 is raised.
 
             Returns:
-                :py:class:`~zfit.Space`: a copy of the object with the new ordering/axes
+                A copy of the object with the new ordering/axes
             Raises:
                 CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
                 AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
@@ -2589,11 +2593,11 @@ class MultiSpace(BaseSpace):
 
 
         Args:
-            overwrite (bool): If axes are already set, replace the axes with the autofilled ones.
+            overwrite: If axes are already set, replace the axes with the autofilled ones.
                 If axes is already set and `overwrite` is False, raise an error.
 
         Returns:
-            object: the object with the new axes
+            The object with the new axes
 
         Raises:
             AxesIncompatibleError: if the axes are already set and `overwrite` is False.
@@ -2615,12 +2619,12 @@ class MultiSpace(BaseSpace):
         """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
-            obs (str, Tuple[str]): Observables of the subspace to return.
-            axes (int, Tuple[int]): Axes of the subspace to return.
+            obs: Observables of the subspace to return.
+            axes: Axes of the subspace to return.
             name: Human readable names
 
         Returns:
-            :py:class:`MultiSpace`: A space containing only a subspace (and sublimits etc.)
+            A space containing only a subspace (and sublimits etc.)
         """
         spaces = [space.get_subspace(obs=obs, axes=axes) for space in self.spaces]
         return self.copy(spaces=spaces)
@@ -2676,14 +2680,14 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
     """Convert *limits* to a :py:class:`~zfit.Space` object if not already None or False.
 
     Args:
-        obs (Union[Tuple[float, float], :py:class:`~zfit.Space`]):
-        limits ():
-        axes ():
-        overwrite_limits (bool): If `obs` or `axes` is a :py:class:`~zfit.Space` _and_ `limits` are given, return an instance
+        obs:
+        limits:
+        axes:
+        overwrite_limits: If `obs` or `axes` is a :py:class:`~zfit.Space` _and_ `limits` are given, return an instance
             of :py:class:`~zfit.Space` with the new limits. If the flag is `False`, the `limits` argument will be
             ignored if
-        one_dim_limits_only (bool):
-        simple_limits_only (bool):
+        one_dim_limits_only:
+        simple_limits_only:
 
     Returns:
         Union[:py:class:`~zfit.Space`, False, None]:
@@ -2797,8 +2801,8 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
     be catched by an earlier function that knows how to handle things.
 
     Args:
-        norm_range (bool): If False, no norm_range argument will be passed through resp. will be `None`
-        multiple_limits (bool): If False, only simple limits are to be expected and no iteration is
+        norm_range: If False, no norm_range argument will be passed through resp. will be `None`
+        multiple_limits: If False, only simple limits are to be expected and no iteration is
             therefore required.
     """
     decorator_stack = []
@@ -2845,10 +2849,10 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
     This function is useful to check if several spaces with *different* observables can be _combined_.
 
     Args:
-        spaces (List[zfit.Space]):
+        spaces:
 
     Returns:
-        bool:
+
     """
     try:
         new_space = combine_spaces(*spaces)
@@ -2862,7 +2866,7 @@ def add_spaces_old(spaces: Iterable["zfit.Space"]):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
-        spaces (Iterable[:py:class:`~zfit.Space`]):
+        spaces:
 
     Returns:
         Union[None, :py:class:`~zfit.Space`, bool]:

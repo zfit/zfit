@@ -19,8 +19,8 @@ def get_dependents_auto(tensor: tf.Tensor, candidates: List[tf.Tensor]) -> List[
     """Return the nodes in `candidates` that `tensor` depends on.
 
     Args:
-        tensor ():
-        candidates ():
+        tensor:
+        candidates:
     """
     try:
         dependent_ops = all_parents(tensor.op)

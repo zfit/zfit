@@ -70,6 +70,29 @@ def test_complex_param():
     assert cos(arg_val) == pytest.approx(param3.real.numpy(), rel=1e-6)
 
 
+def test_repr():
+    val = 1543
+    val2 = 1543 ** 2
+    param1 = Parameter('param1', val)
+    param2 = zfit.ComposedParameter('comp1', lambda x: x ** 2, params=param1)
+    repr_value = repr(param1)
+    repr_value2 = repr(param2)
+    assert str(val) in repr_value
+    assert str(val) in repr_value2
+
+    @z.function
+    def tf_call():
+        repr_value = repr(param1)
+        repr_value2 = repr(param2)
+        assert str(val) not in repr_value
+        assert str(val2) not in repr_value2
+        assert 'graph-node' in repr_value
+        assert 'graph-node' in repr_value2
+
+    if zfit.run.get_graph_mode():  # only test if running in graph mode
+        tf_call()
+
+
 def test_composed_param():
     param1 = Parameter('param1', 1.)
     param2 = Parameter('param2', 2.)
@@ -77,7 +100,7 @@ def test_composed_param():
     param4 = Parameter('param4', 4.)  # noqa Needed to make sure it does not only take all params as deps
 
     def value_fn(p1, p2, p3):
-        return z.log(3. * p1) * tf.square(p2) - p3
+        return z.math.log(3. * p1) * tf.square(p2) - p3
 
     param_a = ComposedParameter('param_as', value_fn=value_fn, params=(param1, param2, param3))
     param_a2 = ComposedParameter('param_as2', value_fn=value_fn, params={f'p{i}': p
@@ -93,6 +116,14 @@ def test_composed_param():
     a_changed = value_fn(param1, param2, param3).numpy()
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
+
+    print(param_a)
+
+    @z.function
+    def print_param(p):
+        print(p)
+
+    print_param(param_a)
 
     # TODO(params): reactivate to check?
     # with pytest.raises(LogicalUndefinedOperationError):
@@ -112,13 +143,17 @@ def test_shape_composed_parameter():
 
     def compose():
         return tf.square(a) - b
+
     c = ComposedParameter(name='c', value_fn=compose, dependents=[a, b])
     assert c.shape.rank == 0
 
 
 # TODO: add test
 def test_randomize():
-    pass
+    param1 = zfit.Parameter('param1', 1.0, 0, 2)
+    for _ in range(100):
+        param1.randomize()
+        assert 0 < param1 < 2
 
 
 def test_floating_behavior():

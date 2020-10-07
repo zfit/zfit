@@ -20,6 +20,7 @@ from .baseobject import BaseObject
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
+from .parameter import register_tensor_conversion
 from .space import Space, convert_to_space
 from ..settings import ztypes
 from ..util import ztyping
@@ -39,11 +40,11 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a data holder from a `dataset` used to feed into `models`.
 
         Args:
-            dataset (): A dataset storing the actual values
-            obs (): Observables where the data is defined in
-            name (): Name of the `Data`
-            iterator_feed_dict ():
-            dtype ():
+            dataset: A dataset storing the actual values
+            obs: Observables where the data is defined in
+            name: Name of the `Data`
+            iterator_feed_dict:
+            dtype: |dtype_arg_descr|
         """
         if name is None:
             name = "Data"
@@ -131,7 +132,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Set (temporarily) the weights of the dataset.
 
         Args:
-            weights (`tf.Tensor`, np.ndarray, None):
+            weights:
 
 
         """
@@ -151,8 +152,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
 
     @property
     def space(self) -> "ZfitSpace":
-        space = self._space
-        return space
+        return self._space
 
 
     # constructors
@@ -183,16 +183,16 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
 
         Args:
-            path (str):
-            treepath (str):
-            branches (List[str]]):
-            branches_alias (dict): A mapping from the `branches` (as keys) to the actual `observables` (as values).
+            path:
+            treepath:
+            branches:
+            branches_alias: A mapping from the `branches` (as keys) to the actual `observables` (as values).
                 This allows to have different `observable` names, independent of the branch name in the file.
-            weights (tf.Tensor, None, np.ndarray, str]): Weights of the data. Has to be 1-D and match the shape
+            weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents). Can be a column of the ROOT file by using a string corresponding to a
                 column.
-            name (str):
-            root_dir_options ():
+            name:
+            root_dir_options:
 
         Returns:
             `zfit.Data`:
@@ -241,11 +241,11 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
 
         Args:
-            df (`pandas.DataFrame`):
-            weights (tf.Tensor, None, np.ndarray, str]): Weights of the data. Has to be 1-D and match the shape
+            df:
+            weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents).
-            obs (`zfit.Space`):
-            name (str):
+            obs:
+            name:
         """
         if obs is None:
             obs = list(df.columns)
@@ -258,12 +258,12 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create `Data` from a `np.array`.
 
         Args:
-            obs ():
-            array (numpy.ndarray):
-            name (str):
+            obs:
+            array:
+            name:
 
         Returns:
-            zfit.Data:
+
         """
 
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, 'numpy')):
@@ -279,12 +279,12 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
 
         Args:
-            obs (Union[str, List[str]):
-            tensor (`tf.Tensor`):
-            name (str):
+            obs:
+            tensor:
+            name:
 
         Returns:
-            zfit.core.Data:
+
         """
         # dataset = LightDataset.from_tensor(tensor=tensor)
         if dtype is None:
@@ -303,7 +303,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Create a `pd.DataFrame` from `obs` as columns and return it.
 
         Args:
-            obs (): The observables to use as columns. If `None`, all observables are used.
+            obs: The observables to use as columns. If `None`, all observables are used.
 
         Returns:
 
@@ -320,8 +320,8 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """Return the unstacked data: a list of tensors or a single Tensor.
 
         Args:
-            obs (): which observables to return
-            always_list (bool): If True, always return a list (also if length 1)
+            obs: which observables to return
+            always_list: If True, always return a list (also if length 1)
 
         Returns:
             List(tf.Tensor)
@@ -371,7 +371,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             value = tf.expand_dims(value, -1)
 
         # cast data to right type
-        if not value.dtype == self.dtype:
+        if value.dtype != self.dtype:
             value = tf.cast(value, dtype=self.dtype)
         return value
 
@@ -389,7 +389,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             # values = list(values[self.obs.index(o)] for o in obs if o in self.obs)
         if perm_indices:
             value = z.unstack_x(value, always_list=True)
-            value = list(value[i] for i in perm_indices)
+            value = [value[i] for i in perm_indices]
             value = z.stack_x(value)
 
         return value
@@ -435,7 +435,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         del name
         if dtype is not None:
             if dtype != self.dtype:
-                # return ValueError("From Mayou36", self.dtype)
                 return NotImplemented
         if as_ref:
             # return "NEVER READ THIS"
@@ -493,9 +492,9 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         own `obs`.
 
         Args:
-            obs ():
-            axes ():
-            limits ():
+            obs:
+            axes:
+            limits:
 
         Returns:
 
@@ -509,8 +508,10 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         return space
 
     def _get_nevents(self):
-        nevents = tf.shape(input=self.value())[0]
-        return nevents
+        return tf.shape(input=self.value())[0]
+
+    def __str__(self) -> str:
+        return f'<zfit.Data: {self.name} obs={self.obs}>'
 
 
 class SampleData(Data):
@@ -601,9 +602,9 @@ class Sampler(Data):
         a mapping with `param_values` from `Parameter` to the temporary `value`.
 
         Args:
-            param_values (Dict): a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
+            param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
                 `Parameter` will use the `value`.
-            n (int, tf.Tensor): the number of samples to produce. If the `Sampler` was created with
+            n: the number of samples to produce. If the `Sampler` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
         if n is None:
@@ -633,26 +634,31 @@ class Sampler(Data):
             self.sample_holder.assign(new_sample, read_value=False)
             self._initial_resampled = True
 
+    def __str__(self) -> str:
+        return f'<Sampler: {self.name} obs={self.obs}>'
 
-def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
-    return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
+
+# def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
+#     return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
 
 
-ops.register_tensor_conversion_function(Data, _dense_var_to_tensor)
-fetch_function = lambda data: ([data.value()],
-                               lambda val: val[0])
-feed_function = lambda data, feed_val: [(data.value(), feed_val)]
-feed_function_for_partial_run = lambda data: [data.value()]
+# ops.register_tensor_conversion_function(Data, _dense_var_to_tensor)
+# fetch_function = lambda data: ([data.value()],
+#                                lambda val: val[0])
+# feed_function = lambda data, feed_val: [(data.value(), feed_val)]
+# feed_function_for_partial_run = lambda data: [data.value()]
+#
+# from tensorflow.python.client.session import register_session_run_conversion_functions
+#
+# # ops.register_dense_tensor_like_type()
+#
+# register_session_run_conversion_functions(tensor_type=Data, fetch_function=fetch_function,
+#                                           feed_function=feed_function,
+#                                           feed_function_for_partial_run=feed_function_for_partial_run)
+#
+# Data._OverloadAllOperators()
 
-from tensorflow.python.client.session import register_session_run_conversion_functions
-
-# ops.register_dense_tensor_like_type()
-
-register_session_run_conversion_functions(tensor_type=Data, fetch_function=fetch_function,
-                                          feed_function=feed_function,
-                                          feed_function_for_partial_run=feed_function_for_partial_run)
-
-Data._OverloadAllOperators()
+register_tensor_conversion(Data, name='Data', overload_operators=True)
 
 
 class LightDataset:

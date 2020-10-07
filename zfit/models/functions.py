@@ -20,10 +20,10 @@ class SimpleFunc(BaseFunc):
         """Create a simple function out of of `func` with the observables `obs` depending on `parameters`.
 
         Args:
-            func (function):
-            obs (Union[str, Tuple[str]]):
-            name (str):
-            **params (): The parameters as keyword arguments. E.g. `mu=Parameter(...)`
+            func:
+            obs:
+            name:
+            **params: The parameters as keyword arguments. E.g. `mu=Parameter(...)`
         """
         super().__init__(name=name, obs=obs, params=params)
         self._value_func = self._check_input_x_function(func)

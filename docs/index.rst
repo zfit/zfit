@@ -1,17 +1,38 @@
-================================
-zfit: scalable pythonic fitting
-================================
+:notoc:
 
-|zfit_logo|
-
-
-.. |zfit_logo| image:: images/zfit-fin_400x168.png
-   :target: https://github.com/zfit/zfit
+.. |zfit_logo| image:: images/zfit-logo_400x168.png
+   :target: GitHub_
    :alt: zfit logo
 
 .. |scikit-hep_logo| image:: images/scikit-hep-logo_168x168.png
    :target: https://scikit-hep.org/affiliated
    :alt: scikit-hep logo
+
+.. hint::
+    Yay, the new website design is here!
+
+    We are proud to present the new look and feel of our website. While most of the
+    things are where they used to be, here's a short explanation of the sections:
+
+    * **What's new?**: Changelog and other new features of zfit.
+    * **Getting started**: Installation guide, quickstart and examples.
+    * **API reference**: Dive deep into the API.
+    * **Project**: Learn who wrote zfit, how to contribute and other information about the project.
+    * **Ask a question**: Does exactly what it says on the tin.
+
+    If you have suggestions, contact us on our `Gitter channel`_ or open an issue on `GitHub`_.
+
+    Thanks to pandas for open sourcing `pydata-sphinx-theme <https://pydata-sphinx-theme.readthedocs.io/en/latest/>`_.
+
+
+|
+
+|zfit_logo|
+
+=========================
+Scalable pythonic fitting
+=========================
+
 
 The zfit package is a model fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions. The main focus is on the scalability, parallelisation and a user friendly experience framework (no cython, no C++ needed to extend). The basic idea is to offer a pythonic oriented alternative to
 the very successful RooFit library from the `ROOT <https://root.cern.ch/>`_ data analysis package. While RooFit has provided a stable platform for most of the needs of the High Energy Physics (HEP) community in the last few years, it has become increasingly difficult to integrate all the developments in the scientific Python ecosystem into RooFit due to its monolithic nature. Conversely, the core of zfit aims at becoming a solid ground for model fitting while providing enough flexibility to incorporate state-of-art tools and to allow scalability going to larger datasets.
@@ -31,16 +52,10 @@ The zfit package is Free software, using an Open Source license. Both the softwa
 Source code can be found in `our github page <https://github.com/zfit/zfit/>`_.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 0
 
-    getting_started
-    introduction
-    project
-
-.. toctree::
-    :maxdepth: 1
-
-    user_api
-
-
-
+    whats_new/index
+    getting_started/index
+    user_api/index
+    project/index
+    ask_a_question

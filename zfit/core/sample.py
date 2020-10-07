@@ -128,11 +128,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     """Accept reject sample from a probability distribution.
 
     Args:
-        prob (function): A function taking x a Tensor as an argument and returning the probability
+        prob: A function taking x a Tensor as an argument and returning the probability
             (or anything that is proportional to the probability).
-        n (int): Number of samples to produce
-        limits (:py:class:`~zfit.Space`): The limits to sample from
-        sample_and_weights_factory (Callable): An (immutable!) factory function that returns the following function:
+        n: Number of samples to produce
+        limits: The limits to sample from
+        sample_and_weights_factory: An (immutable!) factory function that returns the following function:
             A function that returns the sample to insert into `prob` and the weights
             (probability density) of each sample together with the random thresholds. The API looks as follows:
 
@@ -156,18 +156,23 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
                     that the peaks coincide).
                 - n_produced: the number of events produced. Can deviate from the requested number.
 
-        dtype ():
-        prob_max (Union[None, int]): The maximum of the model function for the given limits. If None
+        dtype:
+        prob_max: The maximum of the model function for the given limits. If None
             is given, it will be automatically, safely estimated (by a 10% increase in computation time
             (constant weak scaling)).
-        efficiency_estimation (float): estimation of the initial sampling efficiency.
+        efficiency_estimation: estimation of the initial sampling efficiency.
 
     Returns:
-        tf.Tensor:
+
     """
     prob_max_init = prob_max
     multiple_limits = len(limits) > 1
-    overestimate_factor_scaling = 1.25
+    if prob_max is None:
+        n_min_to_produce = 10000
+        overestimate_factor_scaling = 1.25
+    else:  # if an exact estimation is given
+        n_min_to_produce = 0
+        overestimate_factor_scaling = 1.
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.cast(n, dtype=tf.int32)
@@ -199,12 +204,12 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
     @z.function(wraps='tensor')
     def not_enough_produced(n, sample, n_produced, n_total_drawn, eff, is_sampled, weights_scaling,
-                            weights_maximum, prob_maximum):
+                            weights_maximum, prob_maximum, n_min_to_produce):
         return tf.greater(n, n_produced)
 
     @z.function(wraps='tensor')
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.,
-                    weights_maximum=0., prob_maximum=0.):
+                    weights_maximum=0., prob_maximum=0., n_min_to_produce=10000):
         eff = tf.reduce_max(input_tensor=[eff, ztf.to_real(1e-6)])
 
         n_to_produce = n - n_produced
@@ -221,6 +226,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
             n_to_produce = tf.cast(ztf.to_real(n_to_produce) / eff * 1.1, dtype=tf.int32) + 3  # just to make sure
+            n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
+            n_min_to_produce -= tf.maximum(n_to_produce, 0)  # reduce to minimum of 0
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.constant(800000, dtype=tf.int32)
             tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
@@ -357,7 +364,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             input_tensor=[ztf.to_real(n_total_drawn), ztf.to_real(1.)])
         return (
             n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled, weights_scaling, weights_maximum,
-            prob_maximum)
+            prob_maximum, n_min_to_produce
+        )
 
     efficiency_estimation = ztf.to_real(efficiency_estimation)
     weights_scaling = ztf.constant(0.)
@@ -365,7 +373,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     prob_maximum = ztf.constant(0.)
     loop_vars = (
         n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled, weights_scaling,
-        weights_maximum, prob_maximum)
+        weights_maximum, prob_maximum, n_min_to_produce)
 
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt
                                  loop_vars=loop_vars,
@@ -389,7 +397,7 @@ def extract_extended_pdfs(pdfs: Union[Iterable[ZfitPDF], ZfitPDF]) -> List[ZfitP
     """Return all extended pdfs that are daughters.
 
     Args:
-        pdfs (Iterable[pdfs]):
+        pdfs:
 
     Returns:
         List[pdfs]:
@@ -419,8 +427,8 @@ def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) ->
     """Create a sample from extended pdfs by sampling poissonian using the yield.
 
     Args:
-        pdfs (iterable[ZfitPDF]):
-        limits (:py:class:`~zfit.Space`):
+        pdfs:
+        limits:
 
     Returns:
         Union[tf.Tensor]:

@@ -13,12 +13,14 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 # TF backwards compatibility
 from ordered_set import OrderedSet
-from tensorflow.python import ops, array_ops
-from tensorflow.python.client.session import register_session_run_conversion_functions
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import array_ops
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
+from tensorflow.python.ops.variables import Variable
+from tensorflow.python.types.core import Tensor as TensorType
 
-from zfit import z
-from zfit.util.container import convert_to_container
+from .. import z
+from ..util.container import convert_to_container
 from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
@@ -33,30 +35,43 @@ from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenErr
 from ..util.temporary import TemporarilySet
 
 
+# todo add type hints in this module for api
+
+
 class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
     pass
 
 
-def register_tensor_conversion(convertable, overload_operators=True, priority=1):  # higher then any tf conversion
-    fetch_function = lambda variable: ([variable.read_value()],
-                                       lambda val: val[0])
-    feed_function = lambda feed, feed_val: [(feed.read_value(), feed_val)]
-    feed_function_for_partial_run = lambda feed: [feed.read_value()]
-    ops.register_dense_tensor_like_type(convertable)
-
-    register_session_run_conversion_functions(tensor_type=convertable, fetch_function=fetch_function,
-                                              feed_function=feed_function,
-                                              feed_function_for_partial_run=feed_function_for_partial_run)
+def register_tensor_conversion(convertable, name=None, overload_operators=True,
+                               priority=10):  # higher than any tf conversion
 
     def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
         return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
 
     ops.register_tensor_conversion_function(convertable, _dense_var_to_tensor, priority=priority)
+    if name:
+        pass
+        # _pywrap_utils.RegisterType(name, convertable)
+
     if overload_operators:
         convertable._OverloadAllOperators()
 
 
 class OverloadableMixin(ZfitParameter):
+
+    # Conversion to tensor.
+    @staticmethod
+    def _TensorConversionFunction(v, dtype=None, name=None, as_ref=False):  # pylint: disable=invalid-name
+        """Utility function for converting a Variable to a Tensor."""
+        _ = name
+        if dtype and not dtype.is_compatible_with(v.dtype):
+            raise ValueError(
+                "Incompatible type conversion requested to type '%s' for variable "
+                "of type '%s'" % (dtype.name, v.dtype.name))
+        if as_ref:
+            return v._ref()  # pylint: disable=protected-access
+        else:
+            return v.value()
 
     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
         del name
@@ -78,7 +93,7 @@ class OverloadableMixin(ZfitParameter):
     @classmethod
     def _OverloadAllOperators(cls):  # pylint: disable=invalid-name
         """Register overloads for all operators."""
-        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
             cls._OverloadOperator(operator)
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
@@ -99,7 +114,7 @@ class OverloadableMixin(ZfitParameter):
         if operator == "__eq__" or operator == "__ne__":
             return
 
-        tensor_oper = getattr(ops.Tensor, operator)
+        tensor_oper = getattr(tf.Tensor, operator)
 
         def _run_op(a, *args, **kwargs):
             # pylint: disable=protected-access
@@ -165,7 +180,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     @staticmethod
     def _OverloadAllOperators():  # pylint: disable=invalid-name
         """Register overloads for all operators."""
-        for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
+        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
             WrappedVariable._OverloadOperator(operator)
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
@@ -180,7 +195,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
           operator: string. The operator name.
         """
 
-        tensor_oper = getattr(ops.Tensor, operator)
+        tensor_oper = getattr(tf.Tensor, operator)
 
         def _run_op(a, *args):
             # pylint: disable=protected-access
@@ -196,103 +211,25 @@ class WrappedVariable(metaclass=MetaBaseParameter):
         setattr(WrappedVariable, operator, _run_op)
 
 
-register_tensor_conversion(WrappedVariable, overload_operators=True)
+register_tensor_conversion(WrappedVariable, "WrappedVariable", overload_operators=True)
 
 
-# class ComposedVariable(metaclass=MetaBaseParameter):
-# class ComposedVariable:
-#
-#     def __init__(self, name: str, value_fn: Callable, **kwargs):
-#         super().__init__(name=name, **kwargs)
-#
-#         if not callable(value_fn):
-#             raise TypeError("`value_fn` is not callable.")
-#         self._value_fn = value_fn
-#
-#     @property
-#     def name(self):
-#         raise RuntimeError
-#
-#     @property
-#     def shape(self):
-#         raise RuntimeError
-#
-#     @property
-#     def dtype(self):
-#         raise NotImplementedError
-#
-#     def value(self):
-#         return tf.convert_to_tensor(self._value_fn(), dtype=self.dtype)
-#
-#     def read_value(self):
-#         return tf.identity(self.value())
-#
-#     def numpy(self):
-#         return self.value().numpy()
-#
-#     # TODO: move to userwarning class?
-#     def assign(self, value, use_locking=False, name=None, read_value=True):
-#         raise LogicalUndefinedOperationError("Cannot assign to a fixed/composed parameter")
-#
-#     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
-#         del name
-#         if dtype is not None and dtype != self.dtype:
-#             return NotImplemented
-#         if as_ref:
-#             # return "NEVER READ THIS"
-#             raise LogicalUndefinedOperationError("There is no ref for the fixed/composed parameter")
-#         else:
-#             return self.value()
-#
-#     def _AsTensor(self):
-#         return self.value()
-#
-#     @staticmethod
-#     def _OverloadAllOperators():  # pylint: disable=invalid-name
-#         """Register overloads for all operators."""
-#         for operator in ops.Tensor.OVERLOADABLE_OPERATORS:
-#             ComposedVariable._OverloadOperator(operator)
-#         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
-#         # instead)
-#         # pylint: disable=protected-access
-#         setattr(ComposedVariable, "__getitem__", array_ops._SliceHelperVar)
-#
-#     @staticmethod
-#     def _OverloadOperator(operator):  # pylint: disable=invalid-name
-#         """Defer an operator overload to `ops.Tensor`.
-#         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
-#         Args:
-#           operator: string. The operator name.
-#         """
-#
-#         tensor_oper = getattr(ops.Tensor, operator)
-#
-#         def _run_op(a, *args):
-#             # pylint: disable=protected-access
-#             value = a._AsTensor()
-#             return tensor_oper(value, *args)
-#
-#         # Propagate __doc__ to wrapper
-#         try:
-#             _run_op.__doc__ = tensor_oper.__doc__
-#         except AttributeError:
-#             pass
-#
-#         setattr(ComposedVariable, operator, _run_op)
-#
-#
-# register_tensor_conversion(ComposedVariable, overload_operators=True)
 
+class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParameter):
+    def __init__(self, *args, **kwargs):
+        try:
+            super().__init__(*args, **kwargs)
+        except NotImplementedError:
+            tmp_val = kwargs.pop('name', None)  # remove if name is in there, needs to be passed through
+            if args or kwargs:
+                kwargs['name'] = tmp_val
+                raise RuntimeError(f"The following arguments reached the top of the inheritance tree, the super "
+                                   f"init is not implemented (most probably abstract tf.Variable): {args, kwargs}. "
+                                   f"If you see this error, please post it as an bug at: "
+                                   f"https://github.com/zfit/zfit/issues/new/choose")
 
-class BaseParameter(ZfitParameter, metaclass=MetaBaseParameter):
-    pass
-    # @property
-    # def dtype(self) -> tf.DType:
-    #     return self.value().dtype
-    #
-    # @property
-    # def shape(self):
-    #     return self.value().shape
+    def __len__(self):
+        return 1
 
 
 class ZfitParameterMixin(BaseNumeric):
@@ -377,7 +314,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
                  floating: bool = True,
                  dtype: tf.DType = ztypes.float, **kwargs):
         """
-            name : name of the parameter,
+
+        Args:
+            name : name of the parameter
             value : starting value
             lower_limit : lower limit
             upper_limit : upper limit
@@ -439,11 +378,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
     @property
     def has_limits(self) -> bool:
-        """If the parameter has limits set or not
+        """If the parameter has limits set or not."""
 
-        Returns:
-            bool
-        """
         no_limits = self._lower_limit is None and self._upper_limit is None
         return not no_limits
 
@@ -454,8 +390,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         The precision is up to 1e-5 relative.
 
         Returns:
-            `tf.Tensor`: Boolean `tf.Tensor` that tells whether the value is at the limits.
-
+            Boolean `tf.Tensor` that tells whether the value is at the limits.
         """
         if not self.has_limits:
             return tf.constant(False)
@@ -506,7 +441,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         If the step size is not set, the `DEFAULT_STEP_SIZE` is used.
 
         Returns:
-            :py:class:`tf.Tensor`: the step size
+            The step size
         """
         step_size = self._step_size
         if step_size is None:
@@ -541,7 +476,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         manager.
 
         Args:
-            value (float): The value the parameter will take on.
+            value: The value the parameter will take on.
         """
         super_assign = super().assign
 
@@ -555,17 +490,17 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
     def randomize(self, minval: Optional[ztyping.NumericalScalarType] = None,
                   maxval: Optional[ztyping.NumericalScalarType] = None,
-                  sampler: Callable = tf.random.uniform) -> tf.Tensor:
+                  sampler: Callable = np.random.uniform) -> tf.Tensor:
         """Update the parameter with a randomised value between minval and maxval and return it.
 
 
         Args:
-            minval (Numerical): The lower bound of the sampler. If not given, `lower_limit` is used.
-            maxval (Numerical): The upper bound of the sampler. If not given, `upper_limit` is used.
-            sampler (): A sampler with the same interface as `tf.random.uniform`
+            minval: The lower bound of the sampler. If not given, `lower_limit` is used.
+            maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
+            sampler: A sampler with the same interface as `np.random.uniform`
 
         Returns:
-            `tf.Tensor`: The sampled value
+            The sampled value
         """
         if not tf.executing_eagerly():
             raise IllegalInGraphModeError("Randomizing values in a parameter within Graph mode is most probably not"
@@ -578,7 +513,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             maxval = self.upper
         else:
             maxval = tf.cast(maxval, dtype=self.dtype)
-
+        if maxval is None or minval is None:
+            raise RuntimeError("Cannot randomize a parameter without limits or limits given.")
         value = sampler(size=self.shape, low=minval, high=maxval)
 
         self.set_value(value=value)
@@ -593,11 +529,11 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         super().__del__()
 
     def __repr__(self):
-        if hasattr(self, "numpy"):  # more explicit: we check for exactly this attribute, nothing inside numpy
-            value = self.numpy()
+        if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
+            value = f'{self.numpy():.4g}'
         else:
             value = "graph-node"
-        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value:.4g}>"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value}>"
 
     # LEGACY, deprecate?
     @property
@@ -644,12 +580,15 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         self._value_fn = value_fn
 
     def _get_dependencies(self):
-        dependents = _extract_dependencies(list(self.params.values()))
-        return dependents
+        return _extract_dependencies(list(self.params.values()))
 
     @property
     def floating(self):
         raise LogicalUndefinedOperationError("Cannot be floating or not. Look at the dependencies.")
+
+    @floating.setter
+    def floating(self, value):
+        raise LogicalUndefinedOperationError("Cannot set floating or not. Set in the dependencies (`get_params`).")
 
     @property
     def params(self):
@@ -676,14 +615,22 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
 
 class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
+    """Constant parameter. Value cannot change."""
 
     def __init__(self, name, value, dtype=ztypes.float):
+        """
+
+        Args:
+            name:
+            value:
+            dtype:
+        """
         super().__init__(name=name, params={}, dtype=dtype)
         static_value = tf.get_static_value(value, partial=True)
+        self._value_np = static_value
         if static_value is None:
             raise RuntimeError("Cannot convert input to static value. If you encounter this, please open a bug report"
                                " on Github: https://github.com/zfit/zfit")
-        self._value_np = static_value
 
         self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
 
@@ -701,6 +648,10 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
     def floating(self):
         return False
 
+    @floating.setter
+    def floating(self, value):
+        raise LogicalUndefinedOperationError("Cannot set a ConstantParameter to floating. Use a `Parameter` instead.")
+
     @property
     def independent(self) -> bool:
         return False
@@ -717,7 +668,8 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
         return f"<zfit.param.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
 
 
-register_tensor_conversion(ConstantParameter, overload_operators=True)
+register_tensor_conversion(ConstantParameter, 'ConstantParameter', overload_operators=True)
+register_tensor_conversion(BaseComposedParameter, 'BaseComposedParameter', overload_operators=True)
 
 
 class ComposedParameter(BaseComposedParameter):
@@ -736,7 +688,9 @@ class ComposedParameter(BaseComposedParameter):
             params: If it is a `dict`, this will direclty be used as the `params` attribute, otherwise the
                 parameters will be automatically named with f"param_{i}". The values act as arguments to `value_fn`.
             dtype: Output of `value_fn` dtype
-            dependents: DEPRECEATED, use `params` instead.
+            dependents:
+                .. deprecated:: unknown
+                    use `params` instead.
         """
         if dependents is not NotSpecified:
             params = dependents
@@ -754,15 +708,18 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
 
     def __repr__(self):
-        value = self.value()
-        return f"<zfit.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
+        if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
+            value = f'{self.numpy():.4g}'
+        else:
+            value = "graph-node"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' params={self.params} value={value}>"
 
 
 class ComplexParameter(ComposedParameter):
     def __init__(self, name, value_fn, params, dtype=ztypes.complex):
         """Create a complex parameter.
 
-        .. warning::
+        .. note::
             Use the constructor class methods instead of the __init__() constructor:
 
             - :py:meth:`ComplexParameter.from_cartesian`
@@ -778,6 +735,13 @@ class ComplexParameter(ComposedParameter):
     @classmethod
     def from_cartesian(cls, name, real, imag, dtype=ztypes.complex,
                        floating=True):  # TODO: correct dtype handling, also below
+        """Create a complex parameter from cartesian coordinates.
+
+        Args:
+            name: Name of the parameter.
+            real: Real part of the complex number.
+            imag: Imaginary part of the complex number.
+        """
         real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
         param = cls(name=name,
@@ -789,11 +753,18 @@ class ComplexParameter(ComposedParameter):
 
     @classmethod
     def from_polar(cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
+        """Create a complex parameter from polar coordinates.
+
+        Args:
+            name: Name of the parameter.
+            real: Modulus (r) the complex number.
+            imag: Argument (phi) of the complex number.
+        """
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(name=name,
                     value_fn=lambda: tf.cast(
-                        tf.complex(mod*tf.math.cos(arg), mod*tf.math.sin(arg)),
+                        tf.complex(mod * tf.math.cos(arg), mod * tf.math.sin(arg)),
                         dtype=dtype),
                     params=[mod, arg])
         param._mod = mod
@@ -802,6 +773,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def conj(self):
+        """Returns a complex conjugated copy of the complex parameter."""
         if self._conj is None:
             self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=lambda: tf.math.conj(self),
                                           params=self.get_cache_deps(),
@@ -810,6 +782,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def real(self):
+        """Real part of the complex parameter."""
         real = self._real
         if real is None:
             real = z.to_real(self)
@@ -817,6 +790,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def imag(self):
+        """Imaginary part of the complex parameter."""
         imag = self._imag
         if imag is None:
             imag = tf.math.imag(tf.convert_to_tensor(value=self, dtype_hint=self.dtype))  # HACK tf bug #30029
@@ -824,6 +798,7 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def mod(self):
+        """Modulus (r) of the complex parameter."""
         mod = self._mod
         if mod is None:
             mod = tf.math.abs(self)
@@ -831,11 +806,15 @@ class ComplexParameter(ComposedParameter):
 
     @property
     def arg(self):
+        """Argument (phi) of the complex parameter."""
         arg = self._arg
         if arg is None:
             arg = tf.math.atan(self.imag / self.real)
         return arg
 
+
+# register_tensor_conversion(ConstantParameter, "ConstantParameter", True)
+register_tensor_conversion(ComposedParameter, "ComposedParameter", True)
 
 _auto_number = 0
 
@@ -851,10 +830,9 @@ def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None
     """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
     Args:
-        value ():
-        name ():
-        prefer_constant: If True, create a ConstantParameter instead of a Parameter _if possible_.
-
+        value:
+        name:
+        prefer_constant: If True, create a ConstantParameter instead of a Parameter, if possible.
     """
     is_python = False
     if name is not None:
@@ -907,8 +885,8 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
     """Set the values (using a context manager or not) of multiple parameters.
 
     Args:
-        params: Parameters to set the values
-        values: list-like object that supports indexing
+        params: Parameters to set the values.
+        values: List-like object that supports indexing.
 
     Returns:
 

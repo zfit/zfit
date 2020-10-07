@@ -1,7 +1,6 @@
 #  Copyright (c) 2020 zfit
 
-from collections import OrderedDict
-from typing import List
+from typing import List, Optional
 
 import iminuit
 import numpy as np
@@ -19,28 +18,28 @@ class Minuit(BaseMinimizer, GraphCachable):
 
     def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tolerance: float = None,
                  verbosity: int = 5, name: str = None,
-                 ncall: int = 10000, use_minuit_grad: bool = None, **minimizer_options):
+                 ncall: Optional[int] = None, use_minuit_grad: bool = None, **minimizer_options):
         """
 
         Args:
-            strategy (): A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
+            strategy: A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
             the minimizer in certain situations.
-            minimize_strategy (int): A number used by minuit to define the strategy, either 0, 1 or 2.
-            tolerance (float): Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower then `tolerance`
-            verbosity (int): Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
-            name (str): Name of the minimizer
-            ncall (int): Maximum number of minimization steps.
-            use_minuit_grad (bool): If True, iminuit uses it's internal numerical gradient calculation instead of the
+            minimize_strategy: A number used by minuit to define the strategy, either 0, 1 or 2.
+            tolerance: Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower then `tolerance`
+            verbosity: Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
+            name: Name of the minimizer
+            ncall: Maximum number of minimization steps.
+            use_minuit_grad: If True, iminuit uses it's internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit.
         """
-        minimizer_options['ncall'] = ncall
-        if not minimize_strategy in range(3):
+        minimizer_options['ncall'] = 0 if ncall is None else ncall
+        if minimize_strategy not in range(3):
             raise ValueError(f"minimize_strategy has to be 0, 1 or 2, not {minimize_strategy}.")
         minimizer_options['strategy'] = minimize_strategy
 
         super().__init__(name=name, strategy=strategy, tolerance=tolerance, verbosity=verbosity,
                          minimizer_options=minimizer_options)
-        use_minuit_grad = False if use_minuit_grad is None else use_minuit_grad
+        use_minuit_grad = True if use_minuit_grad is None else use_minuit_grad
         self._minuit_minimizer = None
         self._use_tfgrad = not use_minuit_grad
 
@@ -64,7 +63,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         minimizer_setter = {}
         minimizer_setter['strategy'] = minimizer_options.pop('strategy')
         if self.verbosity > 6:
-            minuit_verbosity = self.verbosity
+            minuit_verbosity = 3
         elif self.verbosity > 2:
             minuit_verbosity = 1
         else:
@@ -178,24 +177,8 @@ class Minuit(BaseMinimizer, GraphCachable):
             minimizer_setter)
         self._minuit_minimizer = minimizer
         result = minimizer.migrad(**minimize_options)
-        params_result = [p_dict for p_dict in result[1]]
-        result_vals = [res["value"] for res in params_result]
-        self._update_params(params, values=result_vals)
-
-        info = {'n_eval': result[0]['nfcn'],
-                'n_iter': result[0]['ncalls'],
-                # 'grad': result['jac'],
-                # 'message': result['message'],
-                'original': result[0]}
-        edm = result[0]['edm']
-        fmin = result[0]['fval']
-        status = -999
-        converged = result[0]['is_valid']
-        params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
-        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
-                           status=status, converged=converged,
-                           minimizer=self.copy())
-        return result
+        fitresult = FitResult.from_minuit(loss=loss, params=params, result=result, minimizer=self.copy())
+        return fitresult
 
     def copy(self):
         tmp_minimizer = self._minuit_minimizer

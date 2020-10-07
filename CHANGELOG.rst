@@ -3,18 +3,94 @@ Changelog
 *********
 
 Develop
-=======
-
+========
 
 Major Features and Improvements
 -------------------------------
-- add correlation method to FitResult
+
+- new Poisson PDF
 
 Breaking changes
 ------------------
 
-Deprecations
+Depreceations
 -------------
+
+Bug fixes and small changes
+---------------------------
+
+- print parameter inside function context works now correctly
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+- TensorFlow==2.3 (before 2.2)
+- tensorflow_probability==0.11
+
+Thanks
+------
+
+
+
+0.5.4 (16.07.2020)
+==================
+
+
+Major Features and Improvements
+-------------------------------
+- completely new doc design
+
+Breaking changes
+------------------
+- Minuit uses its own, internal gradient by default. To change this back, use `use_minuit_grad=False`
+- `minimize(params=...)` now filters correctly non-floating parameters.
+- `z.log` has been moved to `z.math.log` (following TF)
+
+Depreceations
+-------------
+
+
+Bug fixes and small changes
+---------------------------
+- ncalls is not correctly using the internal heuristc or the ncalls explicitly
+- `minimize(params=...)` automatically extracts independent parameters.
+- fix copy issue of KDEV1 and change name to 'adaptive' (instead of 'adaptiveV1')
+- change exp name of `lambda_` to lam (in init)
+- add `set_yield` to BasePDF to allow setting the yield in place
+- Fix possible bug in SumPDF with extended pdfs (automatically)
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+- upgrade to iminuit>=1.4
+- remove cloudpickle hack fix
+
+Thanks
+------
+Johannes for the docs re-design
+
+0.5.3 (02.07.20)
+================
+
+Kernel density estimation for 1 dimension.
+
+Major Features and Improvements
+-------------------------------
+- add correlation method to FitResult
+- Gaussian (Truncated) Kernel Density Estimation in one dimension `zfit.pdf.GaussianKDE1DimV1` implementation with fixed and
+  adaptive bandwidth added as V1. This
+  is a feature that needs to be improved and feedback is welcome
+- Non-relativistic Breit-Wigner PDF, called Cauchy, implementation added.
+
+Breaking changes
+------------------
+- change human-readable name of `Gauss`, `Uniform` and `TruncatedGauss` to remove the `'_tfp'` at the end of the name
+
 
 
 Bug fixes and small changes
@@ -25,16 +101,14 @@ Bug fixes and small changes
 - Fix shape issue in TFP distributions for partial integration
 - change zfit internal algorithm (`zfit_error`) to compute error/intervals from the profile likelihood,
   which is 2-3 times faster than previous algorithm.
-- fix broadcasting and partial integral failure with composite PDFs.
-
-Experimental
-------------
+- add `from_minuit` constructor to `FitResult` allowing to create it when
+  using directly iminuit
+- fix possible bias with sampling using accept-reject
 
 Requirement changes
 -------------------
+- pin down cloudpickle version (upstream bug with pip install) and TF, TFP versions
 
-Thanks
-------
 
 0.5.2 (13.05.2020)
 ==================

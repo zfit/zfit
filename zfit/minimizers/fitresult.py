@@ -3,12 +3,12 @@ import contextlib
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Dict, Union, Callable, Optional, Tuple
+from typing import Dict, Union, Callable, Optional, Tuple, Iterable
 
 import colored
+import iminuit
 import numpy as np
-from colorama import Style
-from colorama import init
+from colorama import Style, init
 from ordered_set import OrderedSet
 from tabulate import tabulate
 
@@ -89,21 +89,21 @@ class FitResult(ZfitResult):
                  info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
         """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
 
-        Any errors calculated are saved under `self.params` dictionary with {parameter: {error_name1: {'low': value
-        'high': value or similar}}
+        Any errors calculated are saved under `self.params` dictionary with::
+
+            {parameter: {error_name1: {'low': value, 'high': value or similar}}
 
         Args:
-            params (OrderedDict[:py:class:`~zfit.Parameter`, float]): Result of the fit where each
-            :py:class:`~zfit.Parameter` key has the value
-                from the minimum found by the minimizer.
-            edm (Union[int, float]): The estimated distance to minimum, estimated by the minimizer (if available)
-            fmin (Union[numpy.float64, float]): The minimum of the function found by the minimizer
-            status (int): A status code (if available)
-            converged (bool): Whether the fit has successfully converged or not.
-            info (Dict): Additional information (if available) like *number of function calls* and the
+            params: Result of the fit where each
+               :py:class:`~zfit.Parameter` key has the value from the minimum found by the minimizer.
+            edm: The estimated distance to minimum, estimated by the minimizer (if available)
+            fmin: The minimum of the function found by the minimizer
+            status: A status code (if available)
+            converged: Whether the fit has successfully converged or not.
+            info: Additional information (if available) like *number of function calls* and the
                 original minimizer return message.
-            loss (Union[ZfitLoss]): The loss function that was minimized. Contains also the pdf, data etc.
-            minimizer (ZfitMinimizer): Minimizer that was used to obtain this `FitResult` and will be used to
+            loss: The loss function that was minimized. Contains also the pdf, data etc.
+            minimizer: Minimizer that was used to obtain this `FitResult` and will be used to
                 calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
                 and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
                 won't be altered.
@@ -123,12 +123,52 @@ class FitResult(ZfitResult):
         self._covariance_dict = {}
 
     def _input_convert_params(self, params):
-        params = ParamHolder((p, {"value": v}) for p, v in params.items())
-        return params
+        return ParamHolder((p, {"value": v}) for p, v in params.items())
 
     def _get_uncached_params(self, params, method_name):
-        params_uncached = [p for p in params if self.params[p].get(method_name) is None]
-        return params_uncached
+        return [p for p in params if self.params[p].get(method_name) is None]
+
+    @classmethod
+    def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: iminuit.util.MigradResult,
+                    minimizer: Union[ZfitMinimizer, iminuit.Minuit]) -> 'FitResult':
+        """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
+        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
+        zfit objects.
+
+        Args:
+            loss: zfit Loss that was minimized.
+            params: Iterable of the zfit parameters that were floating during the minimization.
+            result: Return value of the iminuit migrad command.
+            minimizer: Instance of the iminuit Minuit that was used to minimize the loss.
+
+        Returns:
+            A `FitResult` as if zfit Minuit was used.
+        """
+
+        from .minimizer_minuit import Minuit
+        if not isinstance(minimizer, Minuit):
+            if isinstance(minimizer, iminuit.Minuit):
+                minimizer_new = Minuit()
+                minimizer_new._minuit_minimizer = minimizer
+                minimizer = minimizer_new
+            else:
+                raise ValueError(f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit.")
+        params_result = [p_dict for p_dict in result[1]]
+        result_vals = [res["value"] for res in params_result]
+        set_values(params, values=result_vals)
+        info = {'n_eval': result[0]['nfcn'],
+                'n_iter': result[0]['ncalls'],
+                # 'grad': result['jac'],
+                # 'message': result['message'],
+                'original': result[0]}
+        edm = result[0]['edm']
+        fmin = result[0]['fval']
+        status = -999
+        converged = result[0]['is_valid']
+        params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
+        return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
+                   status=status, converged=converged,
+                   minimizer=minimizer)
 
     @property
     def params(self):
@@ -139,10 +179,9 @@ class FitResult(ZfitResult):
         """The estimated distance to the minimum.
 
         Returns:
-            numeric
+            Numeric
         """
-        edm = self._edm
-        return edm
+        return self._edm
 
     @property
     def minimizer(self):
@@ -158,15 +197,13 @@ class FitResult(ZfitResult):
         """Function value at the minimum.
 
         Returns:
-            numeric
+            Numeric
         """
-        fmin = self._fmin
-        return fmin
+        return self._fmin
 
     @property
     def status(self):
-        status = self._status
-        return status
+        return self._status
 
     @property
     def info(self):
@@ -209,13 +246,13 @@ class FitResult(ZfitResult):
         """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
         Args:
-            params (list(:py:class:`~zfit.Parameter`)): The parameters  to calculate the
+            params: The parameters  to calculate the
                 Hessian symmetric error. If None, use all parameters.
-            method (str): the method to calculate the covariance matrix. Can be {'minuit_hesse', 'hesse_np'} or a callable.
-            error_name (str): The name for the error in the dictionary.
+            method: the method to calculate the covariance matrix. Can be {'minuit_hesse', 'hesse_np'} or a callable.
+            error_name: The name for the error in the dictionary.
 
         Returns:
-            OrderedDict: Result of the hessian (symmetric) error as dict with each parameter holding
+            Result of the hessian (symmetric) error as dict with each parameter holding
                 the error dict {'error': sym_error}.
 
                 So given param_a (from zfit.Parameter(.))
@@ -254,25 +291,29 @@ class FitResult(ZfitResult):
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.0) -> OrderedDict:
-        r"""DEPRECATED! Use 'errors' instead
-            Args:
-                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the
-                     errors. If `params` is `None`, use all *floating* parameters.
-                method (str or Callable): The method to use to calculate the errors. Valid choices are
-                    {'minuit_minos'} or a Callable.
-                sigma (float): Errors are calculated with respect to `sigma` std deviations. The definition
-                    of 1 sigma depends on the loss function and is defined there.
+        r"""
 
-                    For example, the negative log-likelihood (without the factor of 2) has a correspondents
-                    of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
-                error_name (str): The name for the error in the dictionary.
+        .. deprecated:: unknown
+            Use :func:`errors` instead.
+
+        Args:
+            params: The parameters or their names to calculate the
+                 errors. If `params` is `None`, use all *floating* parameters.
+            method: The method to use to calculate the errors. Valid choices are
+                {'minuit_minos'} or a Callable.
+            sigma: Errors are calculated with respect to `sigma` std deviations. The definition
+                of 1 sigma depends on the loss function and is defined there.
+
+                For example, the negative log-likelihood (without the factor of 2) has a correspondents
+                of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
+            error_name: The name for the error in the dictionary.
 
 
-            Returns:
-                `OrderedDict`: A `OrderedDict` containing as keys the parameter names and as value a `dict` which
-                    contains (next to probably more things) two keys 'lower' and 'upper',
-                    holding the calculated errors.
-                    Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
+        Returns:
+            A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+                contains (next to probably more things) two keys 'lower' and 'upper',
+                holding the calculated errors.
+                Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
         warnings.warn("`error` is depreceated, use `errors` instead. This will return not only the errors but also "
                       "(a possible) new FitResult if a minimum was found. So change"
@@ -286,20 +327,20 @@ class FitResult(ZfitResult):
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
-                params (list(:py:class:`~zfit.Parameter` or str)): The parameters or their names to calculate the
+                params: The parameters or their names to calculate the
                      errors. If `params` is `None`, use all *floating* parameters.
-                method (str or Callable): The method to use to calculate the errors. Valid choices are
+                method: The method to use to calculate the errors. Valid choices are
                     {'minuit_minos'} or a Callable.
-                sigma (float): Errors are calculated with respect to `sigma` std deviations. The definition
+                sigma: Errors are calculated with respect to `sigma` std deviations. The definition
                     of 1 sigma depends on the loss function and is defined there.
 
                     For example, the negative log-likelihood (without the factor of 2) has a correspondents
                     of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
-                error_name (str): The name for the error in the dictionary.
+                error_name: The name for the error in the dictionary.
 
 
             Returns:
-                `OrderedDict`: A `OrderedDict` containing as keys the parameter and as value a `dict` which
+                A `OrderedDict` containing as keys the parameter and as value a `dict` which
                     contains (next to probably more things) two keys 'lower' and 'upper',
                     holding the calculated errors.
                     Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
@@ -352,11 +393,11 @@ class FitResult(ZfitResult):
         """Calculate the covariance matrix for `params`.
 
             Args:
-                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
+                params: The parameters to calculate
                     the covariance matrix. If `params` is `None`, use all *floating* parameters.
-                method (str or Callable): The method to use to calculate the covariance matrix. Valid choices are
+                method: The method to use to calculate the covariance matrix. Valid choices are
                     {'minuit_hesse', 'hesse_np'} or a Callable.
-                as_dict (bool): Default `False`. If `True` then returns a dictionnary.
+                as_dict: Default `False`. If `True` then returns a dictionnary.
 
             Returns:
                 2D `numpy.array` of shape (N, N);
@@ -401,11 +442,11 @@ class FitResult(ZfitResult):
         """Calculate the correlation matrix for `params`.
 
             Args:
-                params (list(:py:class:`~zfit.Parameter`)): The parameters to calculate
+                params: The parameters to calculate
                     the correlation matrix. If `params` is `None`, use all *floating* parameters.
-                method (str or Callable): The method to use to calculate the correlation matrix. Valid choices are
+                method: The method to use to calculate the correlation matrix. Valid choices are
                     {'minuit_hesse', 'hesse_np'} or a Callable.
-                as_dict (bool): Default `False`. If `True` then returns a dictionnary.
+                as_dict: Default `False`. If `True` then returns a dictionnary.
 
             Returns:
                 2D `numpy.array` of shape (N, N);

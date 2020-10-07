@@ -1,6 +1,6 @@
 """The setup script."""
-#  Copyright (c) 2020 zfit
 
+#  Copyright (c) 2020 zfit
 import os
 
 from setuptools import setup, find_packages
@@ -13,58 +13,19 @@ with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as requireme
 with open(os.path.join(here, 'requirements_dev.txt'), encoding='utf-8') as requirements_dev_file:
     requirements_dev = requirements_dev_file.read().splitlines()
 
-# with open(os.path.join(here, 'README.rst'), encoding='utf-8') as readme_file:
-#     readme = readme_file.read()
-
-# with open(os.path.join(here, 'CHANGELOG.rst'), encoding='utf-8') as changelog_file:
-#     changelog = changelog_file.read()
-
 # split the developer requirements into setup and test requirements
-if not requirements_dev.count("") == 1 or requirements_dev.index("") == 0:
+if requirements_dev.count("") != 1 or requirements_dev.index("") == 0:
     raise SyntaxError("requirements_dev.txt has the wrong format: setup and test "
                       "requirements have to be separated by one blank line.")
 requirements_dev_split = requirements_dev.index("")
 
-# setup_requirements = ["pip>9",
-#                       "setuptools_scm",
-#                       "setuptools_scm_git_archive"]
 test_requirements = requirements_dev[requirements_dev_split + 1:]  # +1: skip empty line
 
 setup(
-    # author="Jonas Eschle",
-    # classifiers=[
-    #     'Development Status :: 4 - Beta',
-    #     'Intended Audience :: Science/Research',
-    #     'License :: OSI Approved :: BSD License',
-    #     'Natural Language :: English',
-    #     'Operating System :: MacOS',
-    #     'Operating System :: Unix',
-    #     'Programming Language :: Python :: 3',
-    #     'Programming Language :: Python :: 3.6',
-    #     'Programming Language :: Python :: 3.7',
-    #     'Programming Language :: Python :: 3.8',
-    #     'Topic :: Scientific/Engineering :: Physics',
-    # ],
-    #
-    # maintainer="zfit",
-    # maintainer_email='zfit@physik.uzh.ch',
-    # description="scalable pythonic model fitting for high energy physics",
     install_requires=requirements,
-    # license="BSD 3-Clause",
-    # long_description=readme + '\n\n' + changelog,
-    # include_package_data=True,
-    # keywords='TensorFlow, model, fitting, scalable, HEP',
-    # name='zfit',
-    # python_requires=">=3.6",
-    # packages=find_packages(include=['zfit', 'zfit.z',
-    #                                 'zfit.util', 'zfit.core', "zfit.minimizers", 'zfit.models']),
-    # setup_requires=setup_requirements,
-    # test_suite='tests',
     tests_require=test_requirements,
     extras_require={
         'dev': requirements_dev
-    }
-    # url='https://github.com/zfit/zfit',
-    # use_scm_version=True,
-    # zip_safe=False,
+    },
+    use_scm_version=True,
 )
