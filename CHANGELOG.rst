@@ -8,6 +8,8 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- new Poisson PDF
+
 Breaking changes
 ------------------
 
@@ -40,7 +42,6 @@ Thanks
 Major Features and Improvements
 -------------------------------
 - completely new doc design
-- new Poisson PDF
 
 Breaking changes
 ------------------
