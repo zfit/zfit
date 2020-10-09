@@ -17,5 +17,5 @@ class RectBinning(ZfitRectBinning):
         return self._binnings
 
     def get_edges(self) -> np.array:
-        # TODO: create from axis
+        # TODO: create from axes
         pass
