@@ -6,9 +6,9 @@ from typing import Union, List, Dict, Callable, Tuple, Optional, Set
 
 import numpy as np
 import tensorflow as tf
-from ..util.deprecation import deprecated
 
 from ..util import ztyping
+from ..util.deprecation import deprecated
 
 
 class ZfitObject(abc.ABC):
@@ -37,6 +37,11 @@ class ZfitDimensional(ZfitObject):
     def n_obs(self) -> int:
         """Return the number of observables, the dimensionality. Corresponds to the last dimension."""
         raise NotImplementedError
+    # TODO: activate?
+    # @property
+    # @abstractmethod
+    # def space(self):
+    #     raise NotImplementedError
 
 
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
@@ -927,3 +932,18 @@ class ZfitConstraint(abc.ABC):
     @abstractmethod
     def value(self):
         raise NotImplementedError
+
+
+class ZfitBinnedData(ZfitDimensional):
+
+    @abstractmethod
+    def get_counts(self, bins):
+        raise NotImplementedError
+
+    @abstractmethod
+    def weights_error_squared(self):  # TODO: name?
+        raise NotImplementedError
+
+    # @abstractmethod
+    # def binning(self):
+    #     return self.space.binning
