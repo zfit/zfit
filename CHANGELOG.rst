@@ -29,6 +29,7 @@ Requirement changes
 
 - TensorFlow==2.3 (before 2.2)
 - tensorflow_probability==0.11
+- boost-histogram
 
 Thanks
 ------

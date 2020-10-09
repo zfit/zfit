@@ -6,6 +6,7 @@ from typing import Union, List, Dict, Callable, Tuple, Optional, Set
 
 import numpy as np
 import tensorflow as tf
+import boost_histogram as bh
 
 from ..util import ztyping
 from ..util.deprecation import deprecated
@@ -947,3 +948,25 @@ class ZfitBinnedData(ZfitDimensional):
     # @abstractmethod
     # def binning(self):
     #     return self.space.binning
+
+
+class ZfitBinnedPDF(ZfitPDF):
+    pass
+
+
+class ZfitBinning(abc.ABC):
+
+    @abstractmethod
+    def get_binning(self) -> List[bh.axis.Axis]:
+        """Return the binning of the axes
+
+        Returns:
+            binnings:
+        """
+        raise NotImplementedError
+
+
+class ZfitRectBinning(ZfitBinning):
+    @abstractmethod
+    def get_edges(self):
+        raise NotImplementedError

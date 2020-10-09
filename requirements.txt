@@ -3,6 +3,7 @@ tensorflow_probability==0.11
 scipy>=1.2
 uproot
 pandas
+boost-histogram
 numpy>=1.16
 iminuit>=1.4
 colorlog
