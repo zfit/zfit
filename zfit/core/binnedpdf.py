@@ -8,9 +8,11 @@ import tensorflow as tf
 from .baseobject import BaseNumeric
 from .dimension import BaseDimensional
 from .interfaces import ZfitBinnedPDF, ZfitSpace, ZfitParameter
+from .. import convert_to_parameter
 from ..util import ztyping
 from ..util.cache import GraphCachable
-from ..util.exception import SpecificFunctionNotImplementedError, WorkInProgressError
+from ..util.exception import SpecificFunctionNotImplementedError, WorkInProgressError, NotExtendedPDFError, \
+    AlreadyExtendedPDFError
 
 
 class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
@@ -26,6 +28,13 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
     @property
     def space(self):
         return self._space
+
+    def set_yield(self, value):
+        if self.is_extended:
+            raise AlreadyExtendedPDFError(f"Cannot extend {self}, is already extended.")
+        value = convert_to_parameter(value)
+        self.add_cache_deps(value)
+        self._yield = value
 
     def _get_dependencies(self) -> ztyping.DependentsType:
         return super(BaseBinnedPDF, self)._get_dependencies()
@@ -52,6 +61,23 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
 
     def _call_unnormalized_pdf(self, x):
         return self._unnormalized_pdf(x)
+
+    def _ext_pdf(self, x, norm_range):
+        raise SpecificFunctionNotImplementedError
+
+    def ext_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+        if not self.is_extended:
+            raise NotExtendedPDFError
+        return self._call_ext_pdf(x, norm_range=norm_range)
+
+    def _call_ext_pdf(self, x, norm_range):
+        with suppress(SpecificFunctionNotImplementedError):
+            return self._ext_pdf(x, norm_range)
+        return self._fallback_ext_pdf(x, norm_range=norm_range)
+
+    def _fallback_ext_pdf(self, x, norm_range):
+        values = self._call_pdf(x, norm_range=norm_range)
+        return values * self.get_yield()
 
     def normalization(self, limits: ztyping.LimitsType) -> ztyping.NumericalTypeReturn:
         return self.integrate(limits)
@@ -96,10 +122,10 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
 
     @property
     def is_extended(self) -> bool:
-        self._yield is not None
+        return self._yield is not None
 
     def set_norm_range(self, norm_range):
-        self._norm_range
+        return self._norm_range
 
     def create_extended(self, yield_: ztyping.ParamTypeInput) -> "ZfitPDF":
         raise WorkInProgressError

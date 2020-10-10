@@ -25,9 +25,13 @@ def test_binned_template_pdf():
     pdf = BinnedTemplatePDF(data=data)
     pdf2 = BinnedTemplatePDF(data=data2)
     pdf3 = BinnedTemplatePDF(data=data3)
-    assert len(pdf._call_unnormalized_pdf(None)) > 0
+    pdf.set_yield(np.sum(counts))
+    pdf2.set_yield(np.sum(counts2))
+    pdf3.set_yield(np.sum(counts3))
+    assert len(pdf.ext_pdf(None)) > 0
     pdf_sum = BinnedSumPDF(pdfs=[pdf, pdf2, pdf3], obs=obs)
-    probs = pdf_sum._call_unnormalized_pdf(None)
+
+    probs = pdf_sum.ext_pdf(None)
     np.testing.assert_allclose(counts + counts2 + counts3, probs)
 
     # import matplotlib.pyplot as plt

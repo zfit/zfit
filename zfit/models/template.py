@@ -11,5 +11,5 @@ class BinnedTemplatePDF(BaseBinnedPDF):
 
         self._data = data
 
-    def _unnormalized_pdf(self, x):
+    def _ext_pdf(self, x, norm_range):
         return self._data.get_counts()
