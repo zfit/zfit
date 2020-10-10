@@ -2,8 +2,8 @@
 from contextlib import suppress
 from typing import Union, Callable
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from .baseobject import BaseNumeric
 from .dimension import BaseDimensional
@@ -15,12 +15,17 @@ from ..util.exception import SpecificFunctionNotImplementedError, WorkInProgress
 
 class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
 
-    def __init__(self, **kwargs):
+    def __init__(self, obs, **kwargs):
         super().__init__(**kwargs)
 
+        self._space = obs
         self._yield = None
         self._norm_range = None
         self._normalization_value = None
+
+    @property
+    def space(self):
+        return self._space
 
     def _get_dependencies(self) -> ztyping.DependentsType:
         return super(BaseBinnedPDF, self)._get_dependencies()
@@ -37,8 +42,10 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
         return self._fallback_pdf(x, norm_range=norm_range)
 
     def _fallback_pdf(self, x, norm_range):
-        unnormalized_pdf = self._call_unnormalized_pdf(x)
-        return unnormalized_pdf / self.normalization(norm_range)
+        values = self._call_unnormalized_pdf(x)
+        if norm_range is not False:
+            values = values / self.normalization(norm_range)
+        return values
 
     def _unnormalized_pdf(self, x):
         raise SpecificFunctionNotImplementedError
@@ -77,8 +84,8 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
             integral = tf.reduce_sum(bincount_cut, axis=limits.axes)
             return integral
 
-        bincounts = self.pdf(limits)
-        edges = limits.binning.edges
+        bincounts = self.pdf(limits, norm_range=False)
+        edges = limits.binning.get_edges()
         return binned_rect_integration(bincount=bincounts, edges=edges, limits=limits)
 
     def update_integration_options(self, *args, **kwargs):

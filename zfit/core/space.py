@@ -9,7 +9,7 @@ import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from contextlib import suppress
-from typing import Callable, List, Optional, Tuple, Union, Iterable, Mapping
+from typing import Callable, Optional, Tuple, Union, Iterable, Mapping
 
 import numpy as np
 import tensorflow as tf
@@ -19,7 +19,7 @@ import zfit
 from .baseobject import BaseObject
 from .coordinates import Coordinates, _convert_obs_to_str, convert_to_axes, convert_to_obs_str
 from .dimension import common_obs, common_axes, limits_overlap
-from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
+from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace, ZfitBinning
 from .. import z
 from ..settings import ztypes
 from ..util import ztyping
@@ -1058,6 +1058,7 @@ class Space(BaseSpace):
 
     def __init__(self, obs: Optional[ztyping.ObsTypeInput] = None,
                  limits: Optional[ztyping.LimitsTypeInput] = None,
+                 binning: ZfitBinning = None,
                  axes=None, rect_limits=None,
                  name: Optional[str] = "Space"):
         """Define a space with the name (`obs`) of the axes (and it's number) and possibly it's limits.
@@ -1106,7 +1107,14 @@ class Space(BaseSpace):
         super().__init__(obs=obs, axes=axes, name=name)
         limits_dict = self._check_convert_input_limits(limit=limits, rect_limits=rect_limits, obs=self.obs,
                                                        axes=self.axes, n_obs=self.n_obs)
+        self._binning = binning
         self._limits_dict = limits_dict
+
+    # TODO(Mayou36): put it everywhere, multilimits
+    @property
+    def binning(self):
+        # TODO: reorder binning
+        return self._binning
 
     @property
     def has_rect_limits(self) -> bool:
@@ -1818,10 +1826,10 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
-        kwargs = {'name': self.name,
+        kwargs = {'name'  : self.name,
                   'limits': self._limits_dict,
-                  'axes': self.axes,
-                  'obs': self.obs}
+                  'axes'  : self.axes,
+                  'obs'   : self.obs}
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
             raise KeyError("Not usable keys in `overwrite_kwargs`: {}".format(set(overwrite_kwargs) - set(kwargs)))

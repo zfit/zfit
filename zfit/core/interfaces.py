@@ -957,7 +957,7 @@ class ZfitBinnedPDF(ZfitPDF):
 class ZfitBinning(abc.ABC):
 
     @abstractmethod
-    def get_binning(self) -> List[bh.axis.Axis]:
+    def get_binnings(self) -> List[bh.axis.Axis]:
         """Return the binning of the axes
 
         Returns:

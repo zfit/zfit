@@ -282,3 +282,39 @@ def test_simple_loss():
     assert true_a == pytest.approx(result.params[a_param]['value'], rel=0.03)
     assert true_b == pytest.approx(result.params[b_param]['value'], rel=0.06)
     assert true_c == pytest.approx(result.params[c_param]['value'], rel=0.5)
+
+
+@pytest.mark.skip  # TODO: reactivate and make real, just mockup
+@pytest.mark.flaky(3)
+# @pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
+@pytest.mark.parametrize('weights', [None])
+def test_binned_nll(weights):
+    obs = zfit.Space("obs1", limits=(-15, 25))
+    gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
+    gaussian2, mu2, sigma2 = create_gauss2(obs=obs)
+    test_values_np = np.random.normal(loc=mu_true, scale=4, size=(10000, 1))
+
+    test_values = tf.constant(test_values_np)
+    test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
+    test_values_binned = test_values.create_hist(converter=zfit.hist.histogramdd, bin_kwargs={"bins": 100})
+    nll_object = zfit.loss.BinnedNLL(model=gaussian1, data=test_values_binned)
+    minimizer = Minuit()
+    status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
+    params = status.params
+    rel_error = 0.035 if weights is None else 0.15  # more fluctuating with weights
+
+    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=rel_error)
+    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=rel_error)
+
+    constraints = zfit.constraint.nll_gaussian(params=[mu2, sigma2],
+                                               mu=[mu_constr[0], sigma_constr[0]],
+                                               sigma=[mu_constr[1], sigma_constr[1]])
+    nll_object = zfit.loss.BinnedNLL(model=gaussian2, data=test_values_binned, fit_range=(-np.infty, np.infty),
+                                     constraints=constraints)
+
+    minimizer = Minuit()
+    status = minimizer.minimize(loss=nll_object, params=[mu2, sigma2])
+    params = status.params
+    if weights is None:
+        assert params[mu2]['value'] > np.mean(test_values_np)
+        assert params[sigma2]['value'] < np.std(test_values_np)
