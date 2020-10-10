@@ -11,8 +11,7 @@ from ordered_set import OrderedSet
 from zfit import z
 from .baseobject import BaseNumeric
 from .dependents import _extract_dependencies
-from .interfaces import ZfitConstraint
-from .interfaces import ZfitParameter
+from .interfaces import ZfitConstraint, ZfitParameter
 from .parameter import convert_to_parameter
 from ..settings import ztypes
 from ..util import ztyping
@@ -241,3 +240,36 @@ class GaussianConstraint(TFProbabilityConstraint):
         Return the covariance matrix of the observed values of the parameters constrained.
         """
         return self._covariance()
+
+
+class PoissonConstrain(TFProbabilityConstraint):
+
+    def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType):
+        r"""Poisson constraints on a list of parameters to some observed values.
+
+        This constraints parameters that can be counts (i.e. from a histogram) or, more generally, are
+        Poisson distributed. This is often used in the case of histogram templates which are obtained
+        from simulation and have a poisson uncertainty due to limited statistics.
+
+        .. math::
+            \text{constraint} = \text{Poisson}(\text{observation}; \text{params})
+
+
+        Args:
+            params: The parameters to constraint; corresponds to the mu in the Poisson
+                distribution.
+            observation: observed values of the parameter; corresponds to lambda
+                in the Poisson distribution.
+        Raises:
+            ShapeIncompatibleError: If params and observation have incompatible shapes.
+        """
+
+        observation = convert_to_container(observation, tuple)
+        params = convert_to_container(params, tuple)
+
+        distribution = tfd.Poisson
+        dist_params = dict(rate=observation)
+        dist_kwargs = dict(validate_args=True)
+
+        super().__init__(name="GaussianConstraint", observation=observation, params=params,
+                         distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
