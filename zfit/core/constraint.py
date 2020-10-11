@@ -5,14 +5,14 @@ from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
 
 import tensorflow as tf
+import numpy as np
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
 from zfit import z
 from .baseobject import BaseNumeric
 from .dependents import _extract_dependencies
-from .interfaces import ZfitConstraint
-from .interfaces import ZfitParameter
+from .interfaces import ZfitConstraint, ZfitParameter
 from .parameter import convert_to_parameter
 from ..settings import ztypes
 from ..util import ztyping
@@ -86,9 +86,11 @@ class ProbabilityConstraint(BaseConstraint):
             observation: Observed values of the parameter
                 to constraint obtained from auxiliary measurements.
         """
-
+        # TODO: proper handling of input params, arrays. ArrayParam?
+        params = convert_to_container(params)
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
         super().__init__(name=name, dtype=dtype, params=params_dict, **kwargs)
+        params = tuple(self.params.values())
 
         observation = convert_to_container(observation, tuple)
         if len(observation) != len(params):
@@ -170,7 +172,7 @@ class TFProbabilityConstraint(ProbabilityConstraint):
 
     def _value(self):
         value = -self.distribution.log_prob(self._params_array)
-        return value
+        return tf.reduce_sum(value)
 
     def _sample(self, n):
         # TODO cache: add proper caching
@@ -225,9 +227,10 @@ class GaussianConstraint(TFProbabilityConstraint):
                                              f"covariance (from uncertainty): {covariance.shape[0:2]}")
             return covariance
 
-        distribution = tfd.MultivariateNormalFullCovariance
+        distribution = tfd.MultivariateNormalTriL
         dist_params = lambda observation: dict(loc=observation,
-                                               covariance_matrix=create_covariance(observation, uncertainty))
+                                               scale_tril=tf.linalg.cholesky(
+                                                   create_covariance(observation, uncertainty)))
         dist_kwargs = dict(validate_args=True)
 
         super().__init__(name="GaussianConstraint", observation=observation, params=params,
@@ -241,3 +244,37 @@ class GaussianConstraint(TFProbabilityConstraint):
         Return the covariance matrix of the observed values of the parameters constrained.
         """
         return self._covariance()
+
+
+class PoissonConstraint(TFProbabilityConstraint):
+
+    def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType):
+        r"""Poisson constraints on a list of parameters to some observed values.
+
+        Constraints parameters that can be counts (i.e. from a histogram) or, more generally, are
+        Poisson distributed. This is often used in the case of histogram templates which are obtained
+        from simulation and have a poisson uncertainty due to limited statistics.
+
+        .. math::
+            \text{constraint} = \text{Poisson}(\text{observation}; \text{params})
+
+
+        Args:
+            params: The parameters to constraint; corresponds to the mu in the Poisson
+                distribution.
+            observation: observed values of the parameter; corresponds to lambda
+                in the Poisson distribution.
+        Raises:
+            ShapeIncompatibleError: If params and observation have incompatible shapes.
+        """
+
+        observation = convert_to_container(observation, tuple)
+        # observation = tuple(convert_to_parameter(obs) for obs in observation)
+        params = convert_to_container(params, tuple)
+
+        distribution = tfd.Poisson
+        dist_params = dict(rate=observation)
+        dist_kwargs = dict(validate_args=False)
+
+        super().__init__(name="PoissonConstraint", observation=observation, params=params,
+                         distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)

@@ -30,6 +30,11 @@ def true_gauss_constr_value(x, mu, sigma):
     return -np.sum([logpdf(x_, loc=mu, scale=sigma) for x_, mu, sigma in zip(x, mu, sigma)])
 
 
+def true_poisson_constr_value(x, lam):
+    logpdf = lambda x, loc: scipy.stats.poisson.logpmf(x, mu=loc)
+    return -np.sum([logpdf(x_, loc=lam_) for x_, lam_ in zip(x, lam)])
+
+
 def true_multinormal_constr_value(x, mean, cov):
     return -scipy.stats.multivariate_normal.logpdf(x, mean=mean, cov=cov)
 
@@ -37,6 +42,15 @@ def true_multinormal_constr_value(x, mean, cov):
 def test_base_constraint():  # TODO(Mayou36): upgrade to tf2, use ABC again
     with pytest.raises(TypeError):
         BaseConstraint()
+
+
+def test_poisson_constrain():
+    x, lam = np.random.randint(1, 100, size=(2, 50))
+    constr = zfit.constraint.PoissonConstraint(params=z.convert_to_tensor(x),
+                                               observation=z.convert_to_tensor(lam))
+    poiss_constr_val = constr.value()
+    true_val = true_poisson_constr_value(x, lam)
+    np.testing.assert_allclose(poiss_constr_val, true_val)
 
 
 def test_gaussian_constraint_shape_errors():
@@ -57,7 +71,6 @@ def test_gaussian_constraint_shape_errors():
         GaussianConstraint(params=param1, observation=[obs1, obs3], uncertainty=[2, 3]).value()
 
 
-
 def test_gaussian_constraint_matrix():
     param1 = zfit.Parameter("Param1", 5)
     param2 = zfit.Parameter("Param2", 6)
@@ -72,7 +85,7 @@ def test_gaussian_constraint_matrix():
     constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
     constr_np = zfit.run(constr.value())
     assert constr_np == pytest.approx(trueval)
-    #assert constr_np == pytest.approx(3.989638)
+    # assert constr_np == pytest.approx(3.989638)
 
     assert constr.get_cache_deps() == set(params)
 
@@ -103,9 +116,9 @@ def test_gaussian_constraint():
 
     constr.observation[0].set_value(5)
     observed[0] = 5
-    print("x: ", param_vals, [p.numpy() for p in params])
-    print("mu: ", observed, [p.numpy() for p in constr.observation])
-    print("sigma: ", sigma, np.sqrt([p for p in np.diag(constr.covariance)]))
+    # print("x: ", param_vals, [p.numpy() for p in params])
+    # print("mu: ", observed, [p.numpy() for p in constr.observation])
+    # print("sigma: ", sigma, np.sqrt([p for p in np.diag(constr.covariance)]))
     true_val3 = true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
     constr3_np = constr.value().numpy()
     assert constr3_np == pytest.approx(true_val3)
@@ -134,7 +147,7 @@ def test_gaussian_constraint_orderbug2():  # as raised in #162, failed before fi
     param3 = zfit.Parameter("param4", 1.0)
     param4 = zfit.Parameter("param5", 1.0)
 
-    constraint = {"params": [param1, param2, param3, param4, param5],
+    constraint = {"params"     : [param1, param2, param3, param4, param5],
                   "observation": [1500, 1.0, 1.0, 1.0, 0.5],
                   "uncertainty": [0.05 * 1500, 0.001, 0.01, 0.1, 0.05 * 0.5]}
 
