@@ -85,9 +85,10 @@ class ProbabilityConstraint(BaseConstraint):
             observation: Observed values of the parameter
                 to constraint obtained from auxiliary measurements.
         """
-
+        params = convert_to_container(params)
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
         super().__init__(name=name, dtype=dtype, params=params_dict, **kwargs)
+        params = tuple(self.params.values())
 
         observation = convert_to_container(observation, tuple)
         if len(observation) != len(params):
@@ -242,12 +243,12 @@ class GaussianConstraint(TFProbabilityConstraint):
         return self._covariance()
 
 
-class PoissonConstrain(TFProbabilityConstraint):
+class PoissonConstraint(TFProbabilityConstraint):
 
     def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType):
         r"""Poisson constraints on a list of parameters to some observed values.
 
-        This constraints parameters that can be counts (i.e. from a histogram) or, more generally, are
+        Constraints parameters that can be counts (i.e. from a histogram) or, more generally, are
         Poisson distributed. This is often used in the case of histogram templates which are obtained
         from simulation and have a poisson uncertainty due to limited statistics.
 
@@ -269,7 +270,7 @@ class PoissonConstrain(TFProbabilityConstraint):
 
         distribution = tfd.Poisson
         dist_params = dict(rate=observation)
-        dist_kwargs = dict(validate_args=True)
+        dist_kwargs = dict(validate_args=False)
 
-        super().__init__(name="GaussianConstraint", observation=observation, params=params,
+        super().__init__(name="PoissonConstraint", observation=observation, params=params,
                          distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
