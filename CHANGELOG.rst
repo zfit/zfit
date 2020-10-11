@@ -9,6 +9,7 @@ Major Features and Improvements
 -------------------------------
 
 - new Poisson PDF
+- Poisson constraint
 
 Breaking changes
 ------------------

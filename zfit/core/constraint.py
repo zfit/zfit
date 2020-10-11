@@ -5,6 +5,7 @@ from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional
 
 import tensorflow as tf
+import numpy as np
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
@@ -85,6 +86,7 @@ class ProbabilityConstraint(BaseConstraint):
             observation: Observed values of the parameter
                 to constraint obtained from auxiliary measurements.
         """
+        # TODO: proper handling of input params, arrays. ArrayParam?
         params = convert_to_container(params)
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
         super().__init__(name=name, dtype=dtype, params=params_dict, **kwargs)
@@ -170,7 +172,7 @@ class TFProbabilityConstraint(ProbabilityConstraint):
 
     def _value(self):
         value = -self.distribution.log_prob(self._params_array)
-        return value
+        return tf.reduce_sum(value)
 
     def _sample(self, n):
         # TODO cache: add proper caching
@@ -225,9 +227,10 @@ class GaussianConstraint(TFProbabilityConstraint):
                                              f"covariance (from uncertainty): {covariance.shape[0:2]}")
             return covariance
 
-        distribution = tfd.MultivariateNormalFullCovariance
+        distribution = tfd.MultivariateNormalTriL
         dist_params = lambda observation: dict(loc=observation,
-                                               covariance_matrix=create_covariance(observation, uncertainty))
+                                               scale_tril=tf.linalg.cholesky(
+                                                   create_covariance(observation, uncertainty)))
         dist_kwargs = dict(validate_args=True)
 
         super().__init__(name="GaussianConstraint", observation=observation, params=params,
@@ -266,6 +269,7 @@ class PoissonConstraint(TFProbabilityConstraint):
         """
 
         observation = convert_to_container(observation, tuple)
+        # observation = tuple(convert_to_parameter(obs) for obs in observation)
         params = convert_to_container(params, tuple)
 
         distribution = tfd.Poisson

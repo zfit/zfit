@@ -46,8 +46,8 @@ def test_base_constraint():  # TODO(Mayou36): upgrade to tf2, use ABC again
 
 def test_poisson_constrain():
     x, lam = np.random.randint(1, 100, size=(2, 50))
-    constr = zfit.constraint.PoissonConstraint(params=x.astype(np.float64),
-                                               observation=lam.astype(np.float64))
+    constr = zfit.constraint.PoissonConstraint(params=z.convert_to_tensor(x),
+                                               observation=z.convert_to_tensor(lam))
     poiss_constr_val = constr.value()
     true_val = true_poisson_constr_value(x, lam)
     np.testing.assert_allclose(poiss_constr_val, true_val)
