@@ -11,7 +11,7 @@ from ..util import exception, ztyping
 from ..util.exception import WorkInProgressError, ShapeIncompatibleError
 
 
-class FFTConv1DV1(BaseFunctor):
+class FFTConvV1(BaseFunctor):
     def __init__(self, func: BasePDF, kernel: BasePDF,
                  limits_func: ztyping.ObsTypeInput = None, limits_kernel: ztyping.ObsTypeInput = None,
                  obs: ztyping.ObsTypeInput = None, interpolation: Optional[str] = None,
