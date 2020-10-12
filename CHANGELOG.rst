@@ -24,6 +24,8 @@ Bug fixes and small changes
 Experimental
 ------------
 
+- Computation of the covariance matrix and hessian errors with weighted data
+
 Requirement changes
 -------------------
 
