@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.5.dev25+g8d4e476 documentation</title>
+    <title>zfit.minimizers.fitresult &#8212; zfit 0.5.5.dev38+g9aa22c5 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -170,13 +170,12 @@
 <span class="kn">from</span> <span class="nn">ordered_set</span> <span class="kn">import</span> <span class="n">OrderedSet</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
 
-<span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">compute_errors</span>
+<span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">compute_errors</span><span class="p">,</span> <span class="n">covariance_with_weights</span><span class="p">,</span> <span class="n">dict_to_matrix</span><span class="p">,</span> <span class="n">matrix_to_dict</span>
 <span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">ZfitMinimizer</span><span class="p">,</span> <span class="n">ZfitResult</span>
 <span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitLoss</span><span class="p">,</span> <span class="n">ZfitParameter</span>
 <span class="kn">from</span> <span class="nn">..core.parameter</span> <span class="kn">import</span> <span class="n">set_values</span>
 <span class="kn">from</span> <span class="nn">..settings</span> <span class="kn">import</span> <span class="n">run</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
-<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WeightsNotImplementedError</span>
 <span class="kn">from</span> <span class="nn">..util.warnings</span> <span class="kn">import</span> <span class="n">ExperimentalFeatureWarning</span>
 <span class="kn">from</span> <span class="nn">..util.ztyping</span> <span class="kn">import</span> <span class="n">ParamsTypeOpt</span>
 
@@ -200,9 +199,9 @@
 
 
 <span class="k">def</span> <span class="nf">_covariance_minuit</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-    <span class="c1"># check if no weights in data</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">WeightsNotImplementedError</span><span class="p">(</span><span class="s2">&quot;Weights are not supported with minuit hesse.&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The computation of the covariance matrix with weights is still experimental.&quot;</span><span class="p">,</span>
+                      <span class="n">ExperimentalFeatureWarning</span><span class="p">)</span>
 
     <span class="n">fitresult</span> <span class="o">=</span> <span class="n">result</span>
     <span class="n">minimizer</span> <span class="o">=</span> <span class="n">fitresult</span><span class="o">.</span><span class="n">minimizer</span>
@@ -225,9 +224,9 @@
 
 
 <span class="k">def</span> <span class="nf">_covariance_np</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-    <span class="c1"># check if no weights in data</span>
-    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="n">WeightsNotImplementedError</span><span class="p">(</span><span class="s2">&quot;Weights are not supported with hesse numpy.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The computation of the covariance matrix with weights is still experimental.&quot;</span><span class="p">,</span>
+                      <span class="n">ExperimentalFeatureWarning</span><span class="p">)</span>
 
     <span class="c1"># TODO: maybe activate again? currently fails due to numerical problems</span>
     <span class="c1"># numgrad_was_none = settings.options.numerical_grad is None</span>
@@ -284,6 +283,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="n">loss</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_minimizer</span> <span class="o">=</span> <span class="n">minimizer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_valid</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_covariance_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">_input_convert_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ParamHolder</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
@@ -409,7 +409,7 @@
         <span class="sd">&quot;&quot;&quot;Calculate for `params` the symmetric error using the Hessian/covariance matrix.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            params: The parameters  to calculate the</span>
+<span class="sd">            params: The parameters to calculate the</span>
 <span class="sd">                Hessian symmetric error. If None, use all parameters.</span>
 <span class="sd">            method: the method to calculate the covariance matrix. Can be {&#39;minuit_hesse&#39;, &#39;hesse_np&#39;} or a callable.</span>
 <span class="sd">            error_name: The name for the error in the dictionary.</span>
@@ -435,16 +435,14 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need to specify `error_name` or use a string as `method`&quot;</span><span class="p">)</span>
             <span class="n">error_name</span> <span class="o">=</span> <span class="n">method</span>
 
-        <span class="n">all_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="n">uncached_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uncached_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">all_params</span><span class="p">,</span> <span class="n">method_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">)</span>
-
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_reset_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">params</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">uncached_params</span><span class="p">:</span>  <span class="c1"># TODO: this logic doesn&#39;t make sense?</span>
+            <span class="n">uncached_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_uncached_params</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">method_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">uncached_params</span><span class="p">:</span>
                 <span class="n">error_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hesse</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">uncached_params</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_cache_errors</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">)</span>
 
-        <span class="n">all_errors</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">error_name</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">all_errors</span></div>
+        <span class="n">errors</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">error_name</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">errors</span></div>
 
     <span class="k">def</span> <span class="nf">_cache_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_name</span><span class="p">,</span> <span class="n">errors</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">errors</span> <span class="ow">in</span> <span class="n">errors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -480,7 +478,7 @@
 <span class="sd">                holding the calculated errors.</span>
 <span class="sd">                Example: result[&#39;par1&#39;][&#39;upper&#39;] -&gt; the asymmetric upper error of &#39;par1&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`error` is depreceated, use `errors` instead. This will return not only the errors but also &quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`error` is deprecated, use `errors` instead. This will return not only the errors but also &quot;</span>
                       <span class="s2">&quot;(a possible) new FitResult if a minimum was found. So change&quot;</span>
                       <span class="s2">&quot;errors = result.error()&quot;</span>
                       <span class="s2">&quot;to&quot;</span>
@@ -577,9 +575,12 @@
                 <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;minuit_hesse&quot;</span>
             <span class="c1"># LEGACY END</span>
 
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_reset_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">params</span><span class="p">:</span>
-            <span class="n">covariance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covariance</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
-        <span class="n">covariance</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">covariance</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">params</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covariance_dict</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_reset_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">params</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_covariance_dict</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covariance</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_check_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">covariance</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_covariance_dict</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">params</span><span class="p">)}</span>
 
         <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">covariance</span>
@@ -594,7 +595,11 @@
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;The following method is not a valid, implemented method: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">covariance_with_weights</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FitResult.correlation"><a class="viewcode-back" href="../../../user_api/minimize/zfit.minimize.FitResult.html#zfit.minimize.FitResult.correlation">[docs]</a>    <span class="k">def</span> <span class="nf">correlation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">ParamsTypeOpt</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the correlation matrix for `params`.</span>
@@ -639,36 +644,6 @@
             <span class="n">p</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">())</span>
             <span class="k">return</span>
         <span class="n">p</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
-
-
-<div class="viewcode-block" id="dict_to_matrix"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.dict_to_matrix">[docs]</a><span class="k">def</span> <span class="nf">dict_to_matrix</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">matrix_dict</span><span class="p">):</span>
-    <span class="n">nparams</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nparams</span><span class="p">,</span> <span class="n">nparams</span><span class="p">))</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparams</span><span class="p">):</span>
-        <span class="n">pi</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nparams</span><span class="p">):</span>
-            <span class="n">pj</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-            <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix_dict</span><span class="p">[(</span><span class="n">pi</span><span class="p">,</span> <span class="n">pj</span><span class="p">)]</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
-                <span class="n">matrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix_dict</span><span class="p">[(</span><span class="n">pi</span><span class="p">,</span> <span class="n">pj</span><span class="p">)]</span>
-
-    <span class="k">return</span> <span class="n">matrix</span></div>
-
-
-<div class="viewcode-block" id="matrix_to_dict"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.matrix_to_dict">[docs]</a><span class="k">def</span> <span class="nf">matrix_to_dict</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
-    <span class="n">nparams</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-    <span class="n">matrix_dict</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nparams</span><span class="p">):</span>
-        <span class="n">pi</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nparams</span><span class="p">):</span>
-            <span class="n">pj</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-            <span class="n">matrix_dict</span><span class="p">[(</span><span class="n">pi</span><span class="p">,</span> <span class="n">pj</span><span class="p">)]</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
-                <span class="n">matrix_dict</span><span class="p">[(</span><span class="n">pj</span><span class="p">,</span> <span class="n">pi</span><span class="p">)]</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">matrix_dict</span></div>
 
 
 <div class="viewcode-block" id="covariance_to_correlation"><a class="viewcode-back" href="../../../full_api/zfit.minimizers.fitresult.html#zfit.minimize.covariance_to_correlation">[docs]</a><span class="k">def</span> <span class="nf">covariance_to_correlation</span><span class="p">(</span><span class="n">covariance</span><span class="p">):</span>
