@@ -12,13 +12,12 @@ from colorama import Style, init
 from ordered_set import OrderedSet
 from tabulate import tabulate
 
-from .errors import compute_errors
+from .errors import compute_errors, covariance_with_weights, dict_to_matrix, matrix_to_dict
 from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import set_values
 from ..settings import run
 from ..util.container import convert_to_container
-from ..util.exception import WeightsNotImplementedError
 from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
 
@@ -42,9 +41,9 @@ def _minos_minuit(result, params, sigma=1.0):
 
 
 def _covariance_minuit(result, params):
-    # check if no weights in data
     if any(data.weights is not None for data in result.loss.data):
-        raise WeightsNotImplementedError("Weights are not supported with minuit hesse.")
+        warnings.warn("The computation of the covariance matrix with weights is still experimental.",
+                      ExperimentalFeatureWarning)
 
     fitresult = result
     minimizer = fitresult.minimizer
@@ -67,9 +66,9 @@ def _covariance_minuit(result, params):
 
 
 def _covariance_np(result, params):
-    # check if no weights in data
-    if any([data.weights is not None for data in result.loss.data]):
-        raise WeightsNotImplementedError("Weights are not supported with hesse numpy.")
+    if any(data.weights is not None for data in result.loss.data):
+        warnings.warn("The computation of the covariance matrix with weights is still experimental.",
+                      ExperimentalFeatureWarning)
 
     # TODO: maybe activate again? currently fails due to numerical problems
     # numgrad_was_none = settings.options.numerical_grad is None
@@ -126,6 +125,7 @@ class FitResult(ZfitResult):
         self._loss = loss
         self._minimizer = minimizer
         self._valid = True
+        self._covariance_dict = {}
 
     def _input_convert_params(self, params):
         return ParamHolder((p, {"value": v}) for p, v in params.items())
@@ -251,7 +251,7 @@ class FitResult(ZfitResult):
         """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
         Args:
-            params: The parameters  to calculate the
+            params: The parameters to calculate the
                 Hessian symmetric error. If None, use all parameters.
             method: the method to calculate the covariance matrix. Can be {'minuit_hesse', 'hesse_np'} or a callable.
             error_name: The name for the error in the dictionary.
@@ -277,16 +277,14 @@ class FitResult(ZfitResult):
                 raise ValueError("Need to specify `error_name` or use a string as `method`")
             error_name = method
 
-        all_params = list(self.params.keys())
-        uncached_params = self._get_uncached_params(params=all_params, method_name=error_name)
-
         with self._input_check_reset_params(params) as params:
-            if uncached_params:  # TODO: this logic doesn't make sense?
+            uncached_params = self._get_uncached_params(params=params, method_name=error_name)
+            if uncached_params:
                 error_dict = self._hesse(params=uncached_params, method=method)
                 self._cache_errors(error_name=error_name, errors=error_dict)
 
-        all_errors = OrderedDict((p, self.params[p][error_name]) for p in params)
-        return all_errors
+        errors = OrderedDict((p, self.params[p][error_name]) for p in params)
+        return errors
 
     def _cache_errors(self, error_name, errors):
         for param, errors in errors.items():
@@ -322,7 +320,7 @@ class FitResult(ZfitResult):
                 holding the calculated errors.
                 Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
-        warnings.warn("`error` is depreceated, use `errors` instead. This will return not only the errors but also "
+        warnings.warn("`error` is deprecated, use `errors` instead. This will return not only the errors but also "
                       "(a possible) new FitResult if a minimum was found. So change"
                       "errors = result.error()"
                       "to"
@@ -419,9 +417,12 @@ class FitResult(ZfitResult):
                 method = "minuit_hesse"
             # LEGACY END
 
-        with self._input_check_reset_params(params) as params:
-            covariance = self._covariance(method=method)
-        covariance = {k: covariance[k] for k in itertools.product(params, params)}
+        if method not in self._covariance_dict:
+            with self._input_check_reset_params(params) as params:
+                self._covariance_dict[method] = self._covariance(method=method)
+
+        params = self._input_check_params(params)
+        covariance = {k: self._covariance_dict[method][k] for k in itertools.product(params, params)}
 
         if as_dict:
             return covariance
@@ -436,7 +437,11 @@ class FitResult(ZfitResult):
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
 
         params = list(self.params.keys())
-        return method(result=self, params=params)
+
+        if any([data.weights is not None for data in self.loss.data]):
+            return covariance_with_weights(method=method, result=self, params=params)
+        else:
+            return method(result=self, params=params)
 
     def correlation(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
         """Calculate the correlation matrix for `params`.
@@ -481,36 +486,6 @@ class FitResult(ZfitResult):
             p.text(self.__repr__())
             return
         p.text(self.__str__())
-
-
-def dict_to_matrix(params, matrix_dict):
-    nparams = len(params)
-    matrix = np.empty((nparams, nparams))
-
-    for i in range(nparams):
-        pi = params[i]
-        for j in range(i, nparams):
-            pj = params[j]
-            matrix[i, j] = matrix_dict[(pi, pj)]
-            if i != j:
-                matrix[j, i] = matrix_dict[(pi, pj)]
-
-    return matrix
-
-
-def matrix_to_dict(params, matrix):
-    nparams = len(params)
-    matrix_dict = {}
-
-    for i in range(nparams):
-        pi = params[i]
-        for j in range(i, nparams):
-            pj = params[j]
-            matrix_dict[(pi, pj)] = matrix[i, j]
-            if i != j:
-                matrix_dict[(pj, pi)] = matrix[i, j]
-
-    return matrix_dict
 
 
 def covariance_to_correlation(covariance):
