@@ -13,6 +13,7 @@ install:
 script:
     - pip install -U -r requirements_dev.txt 2>&1 | tail -n 11
     - pip install -U numpy  # needed for linspace with vectors
+    - pip list  # to check which packages are installed, usefule for bug-reports
     - echo "TensorFlow version:" && pip install coverage 2>&1 | tail -n 11
     - python -c 'import tensorflow as tf; print(tf.__version__)'
     #    Ignore test_minimizer due to memory leak bug in tf.py_function that leads to num_grad leaking.
