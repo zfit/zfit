@@ -562,12 +562,12 @@ class Sampler(Data):
     def n_samples(self):
         return self._n_holder
 
-    def _value_internal(self, obs: ztyping.ObsTypeInput = None):
+    def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
         if not self._initial_resampled:
             raise RuntimeError(
                 "No data generated yet. Use `resample()` to generate samples or directly use `model.sample()`"
                 "for single-time sampling.")
-        return super()._value_internal(obs)
+        return super()._value_internal(obs=obs, filter=filter)
 
     @classmethod
     def get_cache_counting(cls):
