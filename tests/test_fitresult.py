@@ -119,10 +119,10 @@ def test_params_at_limit(minimizer_class_and_kwargs):
 
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-@pytest.mark.parametrize("weights", [False, True])
-def test_covariance(minimizer_class_and_kwargs, weights):
+@pytest.mark.parametrize("use_weights", [False, True])
+def test_covariance(minimizer_class_and_kwargs, use_weights):
     n = 15000
-    if weights:
+    if use_weights:
         weights = np.random.normal(1, 0.001, n)
     else:
         weights = None
@@ -154,9 +154,13 @@ def test_covariance(minimizer_class_and_kwargs, weights):
     assert pytest.approx(hesse[c]['error'], rel=0.01) == np.sqrt(cov_mat_3[2, 2])
     assert pytest.approx(hesse[c]['error'], rel=0.01) == np.sqrt(cov_mat_2[0, 0])
 
-    cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np")
+    if use_weights:
+        rtol, atol = 0.1, 0.01
+    else:
+        rtol, atol = 0.05, 0.001
 
-    np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)
+    cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np")
+    np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=rtol, atol=atol)
 
 
 @pytest.mark.flaky(reruns=3)
