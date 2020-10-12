@@ -3,16 +3,23 @@
 
 import numpy as np
 import pytest
+import scipy.stats
 import tensorflow as tf
-import scipy
 
 import zfit.models.convolution
+from zfit import z
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
-
 param1_true = 0.3
 param2_true = 1.2
+
+
+class FFTConvV1NoSampling(zfit.pdf.FFTConvV1):
+
+    @zfit.supports()
+    def _sample(self, n, limits):
+        raise zfit.exception.SpecificFunctionNotImplementedError
 
 
 @pytest.mark.parametrize('interpolation', (
@@ -26,11 +33,11 @@ def test_conv_simple(interpolation):
     obs = zfit.Space("obs1", limits=(-5, 5))
     param1 = zfit.Parameter('param1', -3)
     param2 = zfit.Parameter('param2', 0.3)
-    gauss1 = zfit.pdf.Gauss(0., param2, obs=obs)
+    gauss = zfit.pdf.Gauss(0., param2, obs=obs)
     func1 = zfit.pdf.Uniform(param1, param2, obs=obs)
     func2 = zfit.pdf.Uniform(-1.2, -1, obs=obs)
     func = zfit.pdf.SumPDF([func1, func2], 0.5)
-    conv = zfit.pdf.FFTConvV1(func=func, kernel=gauss1, n=100, interpolation=interpolation)
+    conv = zfit.pdf.FFTConvV1(func=func, kernel=gauss, n=100, interpolation=interpolation)
     if interpolation == 'spline:5':
         assert conv._spline_order == 5
     elif interpolation == 'spline:3':
@@ -40,7 +47,7 @@ def test_conv_simple(interpolation):
     probs = conv.pdf(x=x)
 
     # true convolution
-    true_conv = true_conv_np(func, gauss1, n_points, obs, x)
+    true_conv = true_conv_np(func, gauss, n_points, obs, x)
 
     integral = conv.integrate(limits=obs)
     probs_np = probs.numpy()
@@ -56,6 +63,32 @@ def test_conv_simple(interpolation):
     # plt.plot(x, true_conv, label='numpy')
     # plt.legend()
     # plt.title(interpolation)
+    # plt.show()
+
+
+def test_onedim_sampling():
+    obs = zfit.Space("obs1", limits=(-5, 5))
+    param1 = zfit.Parameter('param1', -3)
+    param2 = zfit.Parameter('param2', 0.3)
+    gauss = zfit.pdf.Gauss(0., param2, obs=obs)
+    func1 = zfit.pdf.Uniform(param1, param2, obs=obs)
+    func2 = zfit.pdf.Uniform(-1.2, -1, obs=obs)
+    func = zfit.pdf.SumPDF([func1, func2], 0.5)
+    conv = zfit.pdf.FFTConvV1(func=func, kernel=gauss)
+
+    conv_nosample = FFTConvV1NoSampling(func=func, kernel=gauss, n=300)
+    npoints_sample = 10000
+    sample = conv.sample(npoints_sample)
+    sample_nosample = conv_nosample.sample(npoints_sample)
+    x = z.unstack_x(sample)
+    xns = z.unstack_x(sample_nosample)
+    assert scipy.stats.ks_2samp(x, xns).pvalue > 0.001
+
+    # import matplotlib.pyplot as plt
+    # plt.figure()
+    # plt.hist(x, bins=50, label='custom')
+    # plt.hist(xns, bins=50, label='fallback')
+    # plt.legend()
     # plt.show()
 
 
@@ -107,3 +140,19 @@ def test_conv_2D_simple():
     # probs_plot = np.reshape(probs_np, (n_points, n_points))
     # plt.imshow(probs_plot)
     # plt.show()
+
+    # test the sampling
+    conv_nosample = FFTConvV1NoSampling(func=func, kernel=gauss)
+
+    npoints_sample = 10000
+    sample = conv.sample(npoints_sample)
+    sample_nosample = conv_nosample.sample(npoints_sample)
+    x, y = z.unstack_x(sample)
+    xns, yns = z.unstack_x(sample_nosample)
+
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.hist(x, bins=50, label='custom', alpha=0.5)
+    plt.hist(xns, bins=50, label='fallback', alpha=0.5)
+    plt.legend()
+    plt.show()

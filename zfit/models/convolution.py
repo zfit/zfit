@@ -6,7 +6,9 @@ import tensorflow_addons as tfa
 import tensorflow_probability as tfp
 
 from .functor import BaseFunctor
+from ..core.data import add_samples
 from ..core.interfaces import ZfitPDF
+from ..core.space import supports
 from ..util import exception, ztyping
 from ..util.exception import WorkInProgressError, ShapeIncompatibleError
 
@@ -111,7 +113,7 @@ class FFTConvV1(BaseFunctor):
             npoints_scaling = 100
             n = tf.cast(limits_kernel.rect_area() / limits_func.rect_area() * npoints_scaling, tf.int32)[0]
             n = max(n, npoints_scaling)
-            tf.assert_less(n - 1.,  # so that for three dimension it's 999'999, not 10^6
+            tf.assert_less(n - 1,  # so that for three dimension it's 999'999, not 10^6
                            tf.cast(1e6, tf.int32),
                            message="Number of points automatically calculated to be used for the FFT"
                                    " based convolution exceeds 1e6. If you want to use this number - "
@@ -138,8 +140,8 @@ class FFTConvV1(BaseFunctor):
 
         x_kernel = - tf.transpose(tf.meshgrid(*tf.unstack(x_kernels, axis=-1),
                                               indexing='ij'))
-        x_func = - tf.transpose(tf.meshgrid(*tf.unstack(x_funcs, axis=-1),
-                                            indexing='ij'))
+        x_func = tf.transpose(tf.meshgrid(*tf.unstack(x_funcs, axis=-1),
+                                          indexing='ij'))
 
         y_func = self.pdfs[0].pdf(x_func)
         y_kernel = self.pdfs[1].pdf(x_kernel)
@@ -164,10 +166,11 @@ class FFTConvV1(BaseFunctor):
                                                 order=self._spline_order)
             prob = prob[0, ..., 0]
         elif self.interpolation == 'linear':
-            prob = tfp.math.batch_interp_regular_nd_grid(x=query_points[0],  # they are inverted due to the convolution
+            prob = tfp.math.batch_interp_regular_nd_grid(x=query_points[0],
                                                          x_ref_min=self._xfunc_lower,
                                                          x_ref_max=self._xfunc_upper,
-                                                         y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),
+                                                         y_ref=conv[0, ..., 0],
+                                                         # y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),
                                                          axis=-self.n_obs)
             prob = prob[0]
 
@@ -176,3 +179,10 @@ class FFTConvV1(BaseFunctor):
     @property
     def interpolation(self):
         return self._interpolation
+
+    @supports()
+    def _sample(self, n, limits):
+        sample_func = self.pdfs[0].sample(n=n, limits=limits)
+        sample_kernel = self.pdfs[1].sample(n=n, limits=limits)
+        sample = add_samples(sample_func, sample_kernel, obs=limits)
+        return sample
