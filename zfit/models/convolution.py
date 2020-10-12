@@ -1,9 +1,11 @@
 #  Copyright (c) 2020 zfit
+from typing import Optional
+
 import tensorflow as tf
 import tensorflow_addons as tfa
+import tensorflow_probability as tfp
 
 from .functor import BaseFunctor
-from .. import z
 from ..core.basepdf import BasePDF
 from ..util import exception, ztyping
 from ..util.exception import WorkInProgressError, ShapeIncompatibleError
@@ -12,7 +14,7 @@ from ..util.exception import WorkInProgressError, ShapeIncompatibleError
 class FFTConv1DV1(BaseFunctor):
     def __init__(self, func: BasePDF, kernel: BasePDF,
                  limits_func: ztyping.ObsTypeInput = None, limits_kernel: ztyping.ObsTypeInput = None,
-                 obs: ztyping.ObsTypeInput = None,
+                 obs: ztyping.ObsTypeInput = None, interpolation: Optional[str] = None,
                  npoints: int = None, name: str = "FFTConv1DV1"):
         """Numerical Convolution pdf of *func* convoluted with *kernel*.
 
@@ -26,6 +28,8 @@ class FFTConv1DV1(BaseFunctor):
             npoints (int): Number of points to evaluate the kernel and pdf at
             name (str): Human readable name of the pdf
         """
+        valid_interpolations = ('spline', 'linear')
+
         obs = func.space if obs is None else obs
         super().__init__(obs=obs, pdfs=[func, kernel], params={}, name=name)
         stretch_limits_func = False
@@ -52,7 +56,15 @@ class FFTConv1DV1(BaseFunctor):
                                          f" {func.n_obs}")
 
         if self.n_obs > 3:
-            raise WorkInProgressError("More then 3 dimensional convolutions are currently not supported.")
+            raise WorkInProgressError("More than 3 dimensional convolutions are currently not supported.")
+
+        if interpolation is None:
+            interpolation = 'spline' if self.n_obs == 1 else 'linear'
+
+        if interpolation not in valid_interpolations:
+            raise ValueError(f"`interpolation` {interpolation} not known. Has to be one "
+                             f"of the following: {valid_interpolations}")
+        self._interpolation = interpolation
 
         if npoints is None:
             npoints_scaling = 100
@@ -64,35 +76,46 @@ class FFTConv1DV1(BaseFunctor):
                                    "or an even higher value - use explicitly the `npoints` argument.")
         x_kernels = []
         x_funcs = []
-        for ob in self.obs:
-            limit_func = limits_func.with_obs(ob)
-            x_func_min, x_func_max = limit_func.limit1d
-            if stretch_limits_func:
-                add_to_limit = limit_func.rect_area()[0] * 0.2
-                x_func_min -= add_to_limit
-                x_func_max += add_to_limit
-            x_func = tf.linspace(x_func_min, x_func_max, npoints)
-            x_shifted = x_func - (x_func_max + x_func_min) / 2
-            # x_kernel = limits_kernel.filter(x_shifted)
-            x_kernel = x_shifted
-            x_kernels.append(x_kernel)
-            x_funcs.append(x_func)
 
-        obs_kernel = limits_kernel.with_obs(self.obs)
-        x_kernel = - tf.transpose(tf.meshgrid(*x_kernels, indexing='ij'))
-        x_func = - tf.transpose(tf.meshgrid(*x_funcs, indexing='ij'))
-        # x_kernel = Data.from_tensor(obs=obs_kernel, tensor=-x_kernel)
+        limit_func = limits_func.with_obs(obs)
+        lower, upper = limit_func.rect_limits
+        if stretch_limits_func:
+            areas = upper - lower
+            areas *= 0.2  # add to limits this fraction
+            lower -= areas
+            upper += areas
+        x_funcs = tf.linspace(lower, upper, npoints)
+        x_kernels = x_funcs - (lower + upper) / 2
+
+        # for ob in self.obs:
+        #     limit_func = limits_func.with_obs(ob)
+        #     x_func_min, x_func_max = limit_func.limit1d
+        #     if stretch_limits_func:
+        #         add_to_limit = limit_func.rect_area()[0] * 0.2
+        #         x_func_min -= add_to_limit
+        #         x_func_max += add_to_limit
+        #     x_func = tf.linspace(x_func_min, x_func_max, npoints)
+        #     x_shifted = x_func - (x_func_max + x_func_min) / 2
+        #     # x_kernel = limits_kernel.filter(x_shifted)
+        #     x_kernel = x_shifted
+        #     x_kernels.append(x_kernel)
+        #     x_funcs.append(x_func)
+
+        x_kernel = - tf.transpose(tf.meshgrid(*tf.unstack(x_kernels, axis=-1),
+                                              indexing='ij'))
+        x_func = - tf.transpose(tf.meshgrid(*tf.unstack(x_funcs, axis=-1),
+                                            indexing='ij'))
+        self._xfunc_lower = lower
+        self._xfunc_upper = upper
         self._npoints = npoints
-        # self._x_func_min = x_func_min
-        # self._x_func_max = x_func_max
-        self._x_func = x_func
-        self._x_kernel = x_kernel
+        self._xfunc = x_func
+        self._xkernel = x_kernel
 
     # @z.function
     def _unnormalized_pdf(self, x):
-        x = z.unstack_x(x)
-        y_func = self.pdfs[0].pdf(self._x_func)
-        y_kernel = self.pdfs[1].pdf(self._x_kernel)
+        # x = z.unstack_x(x)
+        y_func = self.pdfs[0].pdf(self._xfunc)
+        y_kernel = self.pdfs[1].pdf(self._xkernel)
 
         # conv = tf.nn.conv1d(
         #     input=tf.reshape(y_func, (1, -1, 1)),
@@ -117,12 +140,25 @@ class FFTConv1DV1(BaseFunctor):
         #                                        x_ref_min=self._x_func_min,
         #                                        x_ref_max=self._x_func_max,
         #                                        y_ref=conv)
-        train_points = tf.reshape(self._x_func, (1, -1, self.n_obs))
-        query_points = tf.reshape(x, (1, -1, self.n_obs))
-        prob = tfa.image.interpolate_spline(train_points=train_points,
-                                            train_values=conv,
-                                            query_points=query_points,
-                                            order=4)
-        prob = tf.reshape(prob, (-1,))
+        train_points = tf.reshape(self._xfunc, (1, -1, self.n_obs))
+        query_points = tf.expand_dims(x.value(), axis=0)
+        if self.interpolation == 'spline':
+            conv_points = tf.reshape(conv, (1, -1, 1))
+            prob = tfa.image.interpolate_spline(train_points=train_points,
+                                                train_values=conv_points,
+                                                query_points=query_points,
+                                                order=3)
+            prob = prob[0, ..., 0]
+        elif self.interpolation == 'linear':
+            prob = tfp.math.batch_interp_regular_nd_grid(x=query_points[0],  # they are inverted due to the convolution
+                                                         x_ref_min=self._xfunc_lower,
+                                                         x_ref_max=self._xfunc_upper,
+                                                         y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),
+                                                         axis=-self.n_obs)
+            prob = prob[0]
 
         return prob
+
+    @property
+    def interpolation(self):
+        return self._interpolation
