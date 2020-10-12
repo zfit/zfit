@@ -128,7 +128,7 @@ def test_unbinned_nll(weights, sigma):
     minimizer = Minuit(tolerance=1e-5)
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
-    rel_error = 0.05 if weights is None else 0.03  # more fluctuating with weights
+    rel_error = 0.12 if weights is None else 0.1  # more fluctuating with weights
 
     assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=rel_error)
     assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=rel_error)
