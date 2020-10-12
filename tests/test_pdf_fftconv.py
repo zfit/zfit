@@ -10,9 +10,7 @@ import zfit.models.convolution
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
-# Important, do the imports below
 
-# specify globals here. Do NOT add any TensorFlow but just pure python
 param1_true = 0.3
 param2_true = 1.2
 
@@ -20,9 +18,10 @@ param2_true = 1.2
 @pytest.mark.parametrize('interpolation', (
     'linear',
     'spline',
+    'spline:5',
+    'spline:3'
 ))
 def test_conv_simple(interpolation):
-    # test special properties  here
     n_points = 2432
     obs = zfit.Space("obs1", limits=(-5, 5))
     param1 = zfit.Parameter('param1', -3)
@@ -31,11 +30,11 @@ def test_conv_simple(interpolation):
     func1 = zfit.pdf.Uniform(param1, param2, obs=obs)
     func2 = zfit.pdf.Uniform(-1.2, -1, obs=obs)
     func = zfit.pdf.SumPDF([func1, func2], 0.5)
-    conv = zfit.pdf.FFTConvV1(func=func,
-                              kernel=gauss1,
-                              interpolation=interpolation,
-                              npoints=100,
-                              )
+    conv = zfit.pdf.FFTConvV1(func=func, kernel=gauss1, n=100, interpolation=interpolation)
+    if interpolation == 'spline:5':
+        assert conv._spline_order == 5
+    elif interpolation == 'spline:3':
+        assert conv._spline_order == 3
 
     x = tf.linspace(-5., 5., n_points)
     probs = conv.pdf(x=x)
@@ -69,7 +68,6 @@ def true_conv_np(func, gauss1, n_points, obs, x):
 
 
 def test_conv_2D_simple():
-    # test special properties  here
     zfit.run.set_graph_mode(False)
     n_points = 200
     obs1 = zfit.Space("obs1", limits=(-5, 5))
@@ -84,18 +82,12 @@ def test_conv_2D_simple():
     func = zfit.pdf.SumPDF([func1, func2], 0.5)
     func = func * gauss21
     gauss = gauss1 * gauss22
-    # func = zfit.pdf.(-0.1, obs=obs)
-    conv = zfit.pdf.FFTConvV1(func=func,
-                              kernel=gauss,
-                              # limits_kernel=(-1, 1)
-                              )
+    conv = zfit.pdf.FFTConvV1(func=func, kernel=gauss)
 
-    # x = tf.linspace((-5., -6), (5., 6), n_points)
     start = (-5., -6.)
     stop = (5., 6.)
     x_tensor = tf.random.uniform((n_points, 2), start, stop)
     linspace = tf.linspace(start, stop, num=n_points)
-    # x_tensor = tf.transpose(tf.meshgrid(*linspace))
     x_tensor = tf.reshape(x_tensor, (-1, 2))
     obs2d = obs1 * obs2
     x = zfit.Data.from_tensor(obs=obs2d, tensor=x_tensor)
@@ -115,4 +107,3 @@ def test_conv_2D_simple():
     # probs_plot = np.reshape(probs_np, (n_points, n_points))
     # plt.imshow(probs_plot)
     # plt.show()
-    # assert len(conv.get_dependents(only_floating=False)) == 2  # TODO: activate again with fixed params
