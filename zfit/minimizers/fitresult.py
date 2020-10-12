@@ -18,7 +18,6 @@ from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import set_values
 from ..settings import run
 from ..util.container import convert_to_container
-from ..util.exception import WeightsNotImplementedError
 from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
 
@@ -42,6 +41,9 @@ def _minos_minuit(result, params, sigma=1.0):
 
 
 def _covariance_minuit(result, params):
+    if any(data.weights is not None for data in result.loss.data):
+        warnings.warn("The computation of the covariance matrix with weights is still experimental.",
+                      ExperimentalFeatureWarning)
 
     fitresult = result
     minimizer = fitresult.minimizer
@@ -64,6 +66,9 @@ def _covariance_minuit(result, params):
 
 
 def _covariance_np(result, params):
+    if any(data.weights is not None for data in result.loss.data):
+        warnings.warn("The computation of the covariance matrix with weights is still experimental.",
+                      ExperimentalFeatureWarning)
 
     # TODO: maybe activate again? currently fails due to numerical problems
     # numgrad_was_none = settings.options.numerical_grad is None
@@ -246,7 +251,7 @@ class FitResult(ZfitResult):
         """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
         Args:
-            params: The parameters  to calculate the
+            params: The parameters to calculate the
                 Hessian symmetric error. If None, use all parameters.
             method: the method to calculate the covariance matrix. Can be {'minuit_hesse', 'hesse_np'} or a callable.
             error_name: The name for the error in the dictionary.
@@ -315,7 +320,7 @@ class FitResult(ZfitResult):
                 holding the calculated errors.
                 Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
-        warnings.warn("`error` is depreceated, use `errors` instead. This will return not only the errors but also "
+        warnings.warn("`error` is deprecated, use `errors` instead. This will return not only the errors but also "
                       "(a possible) new FitResult if a minimum was found. So change"
                       "errors = result.error()"
                       "to"
