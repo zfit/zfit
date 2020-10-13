@@ -150,9 +150,9 @@ def test_conv_2D_simple():
     x, y = z.unstack_x(sample)
     xns, yns = z.unstack_x(sample_nosample)
 
-    import matplotlib.pyplot as plt
-    plt.figure()
-    plt.hist(x, bins=50, label='custom', alpha=0.5)
-    plt.hist(xns, bins=50, label='fallback', alpha=0.5)
-    plt.legend()
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # plt.figure()
+    # plt.hist(x, bins=50, label='custom', alpha=0.5)
+    # plt.hist(xns, bins=50, label='fallback', alpha=0.5)
+    # plt.legend()
+    # plt.show()
