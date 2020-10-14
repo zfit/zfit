@@ -17,8 +17,8 @@ def plot_conv_comparison():
     func2 = zfit.pdf.Uniform(-1.2, -1, obs=obs)
     func = zfit.pdf.SumPDF([func1, func2], 0.5)
     n_points_conv = 50
-    conv_lin = zfit.pdf.FFTConvV1(func=func, kernel=gauss1, n=n_points_conv, interpolation='linear')
-    conv_spline = zfit.pdf.FFTConvV1(func=func, kernel=gauss1, n=n_points_conv, interpolation='spline')
+    conv_lin = zfit.pdf.FFTConvPDFV1(func=func, kernel=gauss1, n=n_points_conv, interpolation='linear')
+    conv_spline = zfit.pdf.FFTConvPDFV1(func=func, kernel=gauss1, n=n_points_conv, interpolation='spline')
 
     x = tf.linspace(-5., 3., n_point_plotting)
     probs_lin = conv_lin.pdf(x=x)

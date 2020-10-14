@@ -8,7 +8,7 @@ from .models.kde import GaussianKDE1DimV1
 from .models.physics import CrystalBall, DoubleCB
 from .models.polynomials import Chebyshev, Legendre, Chebyshev2, Hermite, Laguerre, RecursivePolynomial
 from .models.special import ZPDF, SimplePDF, SimpleFunctorPDF
-from .models.convolution import FFTConvV1
+from .models.convolution import FFTConvPDFV1
 
 __all__ = ['BasePDF', 'BaseFunctor',
            'Exponential',
@@ -17,6 +17,6 @@ __all__ = ['BasePDF', 'BaseFunctor',
            "Chebyshev", "Legendre", "Chebyshev2", "Hermite", "Laguerre", "RecursivePolynomial",
            'ProductPDF', 'SumPDF',
            'GaussianKDE1DimV1',
-           'FFTConvV1',
+           'FFTConvPDFV1',
            'ZPDF', 'SimplePDF', 'SimpleFunctorPDF'
            ]

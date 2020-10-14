@@ -13,7 +13,7 @@ from ..util import exception, ztyping
 from ..util.exception import WorkInProgressError, ShapeIncompatibleError
 
 
-class FFTConvV1(BaseFunctor):
+class FFTConvPDFV1(BaseFunctor):
 
     def __init__(self,
                  func: ZfitPDF,
@@ -70,7 +70,7 @@ class FFTConvV1(BaseFunctor):
 
         buffer = False  # extra zone to avoid boundary effects
         if limits_func is None:
-            buffer = 0.2
+            buffer = 1  # TODO: make smaller, use actual limits
             limits_func = func.space
         elif isinstance(limits_func, (float, int)):
             buffer = limits_func
@@ -121,25 +121,34 @@ class FFTConvV1(BaseFunctor):
 
         limit_func = limits_func.with_obs(obs)
         lower, upper = limit_func.rect_limits
-        if buffer:
-            areas = upper - lower
-            areas *= buffer  # add to limits this fraction
-            lower -= areas
-            upper += areas
+
+        limits_kernel = limits_kernel.with_obs(obs)
+        self._limits_kernel = limits_kernel
+        lower_kernel, upper_kernel = limits_kernel.rect_limits
+        # self._xkernel_lower = lower_kernel
+        # self._xkernel_upper = upper_kernel
+
+        # if buffer:
+        #     areas = upper - lower
+        #     areas *= buffer  # add to limits this fraction
+        #     lower -= areas
+        #     upper += areas
 
         self._npoints = n
-        self._xfunc_lower = lower
-        self._xfunc_upper = upper
+        self._xfunc_lower = lower + lower_kernel
+        self._xfunc_upper = upper + upper_kernel
         self._npoints = n
 
     # @z.function
     def _unnormalized_pdf(self, x):
         lower, upper = self._xfunc_lower, self._xfunc_upper
         x_funcs = tf.linspace(lower, upper, self._npoints)
+        # x_kernels = self._limits_kernel.filter(x_funcs)
         x_kernels = x_funcs - (lower + upper) / 2
 
-        x_kernel = - tf.transpose(tf.meshgrid(*tf.unstack(x_kernels, axis=-1),
-                                              indexing='ij'))
+        x_kernel = tf.transpose(tf.meshgrid(*tf.unstack(x_kernels, axis=-1),
+                                            indexing='ij'))
+
         x_func = tf.transpose(tf.meshgrid(*tf.unstack(x_funcs, axis=-1),
                                           indexing='ij'))
 
@@ -148,13 +157,26 @@ class FFTConvV1(BaseFunctor):
 
         npoints = self._npoints
         obs_dims = [npoints] * self.n_obs
+        # HACK TODO: playing around
+        y_kernel = tf.reshape(y_kernel, obs_dims)
+        y_kernel = tf.reverse(y_kernel, axis=range(self.n_obs))
+        y_func = tf.reshape(y_func, obs_dims)
+        # if self.n_obs > 1:
+        #     y_kernel = tf.linalg.adjoint(y_kernel)
+
         new_shape = (1, *obs_dims, 1)
-        conv = tf.nn.convolution(
-            input=tf.reshape(y_func, new_shape),
-            filters=tf.reshape(y_kernel, (*obs_dims, 1, 1)),
-            strides=1,
-            padding='SAME',
-        )
+        if self.n_obs == 1 or True:  # HACK
+
+            conv = tf.nn.convolution(
+                input=tf.reshape(y_func, new_shape),
+                filters=tf.reshape(y_kernel, (*obs_dims, 1, 1)),
+                strides=1,
+                padding='SAME',
+            )
+
+        elif self.n_obs == 2:
+            conv_fft = tf.signal.rfft2d(y_kernel) * tf.signal.rfft2d(y_func)
+            conv = tf.signal.irfft2d(conv_fft)
 
         train_points = tf.reshape(x_func, (1, -1, self.n_obs))
         query_points = tf.expand_dims(x.value(), axis=0)
@@ -183,6 +205,7 @@ class FFTConvV1(BaseFunctor):
     @supports()
     def _sample(self, n, limits):
         sample_func = self.pdfs[0].sample(n=n, limits=limits)
-        sample_kernel = self.pdfs[1].sample(n=n, limits=limits)
+        # TODO: maybe use calculated kernel limits?
+        sample_kernel = self.pdfs[1].sample(n=n)  # no limits! it's the kernel, around 0
         sample = add_samples(sample_func, sample_kernel, obs=limits)
         return sample
