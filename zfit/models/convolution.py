@@ -6,10 +6,11 @@ import tensorflow_addons as tfa
 import tensorflow_probability as tfp
 
 from .functor import BaseFunctor
+from .. import exception
 from ..core.data import add_samples
 from ..core.interfaces import ZfitPDF
 from ..core.space import supports
-from ..util import exception, ztyping
+from ..util import ztyping
 from ..util.exception import WorkInProgressError, ShapeIncompatibleError
 
 
@@ -68,31 +69,6 @@ class FFTConvPDFV1(BaseFunctor):
         obs = func.space if obs is None else obs
         super().__init__(obs=obs, pdfs=[func, kernel], params={}, name=name)
 
-        buffer = False  # extra zone to avoid boundary effects
-        if limits_func is None:
-            buffer = 1  # TODO: make smaller, use actual limits
-            limits_func = func.space
-        elif isinstance(limits_func, (float, int)):
-            buffer = limits_func
-            limits_func = func.space
-
-        if limits_kernel is None:
-            limits_kernel = kernel.space
-        limits_func = self._check_input_limits(limits=limits_func)
-        limits_kernel = self._check_input_limits(limits=limits_kernel)
-        if limits_func.n_limits == 0:
-            raise exception.LimitsNotSpecifiedError("obs have to have limits to define where to integrate over.")
-        if limits_func.n_limits > 1:
-            raise WorkInProgressError("Multiple Limits not implemented")
-
-        if func.n_obs != kernel.n_obs:
-            raise ShapeIncompatibleError("Func and Kernel need to have (currently) the same number of obs,"
-                                         f" currently are func: {func.n_obs} and kernel: {kernel.n_obs}")
-        if not func.n_obs == limits_func.n_obs == limits_kernel.n_obs:
-            raise ShapeIncompatibleError("Func and Kernel limits need to have (currently) the same number of obs,"
-                                         f" are {limits_func.n_obs} and {limits_kernel.n_obs} with the func n_obs"
-                                         f" {func.n_obs}")
-
         if self.n_obs > 3:
             raise WorkInProgressError("More than 3 dimensional convolutions are currently not supported.")
 
@@ -110,7 +86,8 @@ class FFTConvPDFV1(BaseFunctor):
         self._spline_order = spline_order
 
         if n is None:
-            npoints_scaling = 100
+            npoints_scaling = 101
+            # npoints_scaling = 5  # HACK
             n = tf.cast(limits_kernel.rect_area() / limits_func.rect_area() * npoints_scaling, tf.int32)[0]
             n = max(n, npoints_scaling)
             tf.assert_less(n - 1,  # so that for three dimension it's 999'999, not 10^6
@@ -118,34 +95,81 @@ class FFTConvPDFV1(BaseFunctor):
                            message="Number of points automatically calculated to be used for the FFT"
                                    " based convolution exceeds 1e6. If you want to use this number - "
                                    "or an even higher value - use explicitly the `n` argument.")
+        if not n % 2:
+            n += 1  # make it odd to have a unique shifting when using "same" in the convolution
 
-        limit_func = limits_func.with_obs(obs)
-        lower, upper = limit_func.rect_limits
+        # get function limits
+        if limits_func is None:
+            limits_func = func.space
+        limits_func = self._check_input_limits(limits=limits_func)
+        if limits_func.n_limits == 0:
+            raise exception.LimitsNotSpecifiedError("obs have to have limits to define where to integrate over.")
+        if limits_func.n_limits > 1:
+            raise WorkInProgressError("Multiple Limits not implemented")
 
+        # get kernel limits
+        if limits_kernel is None:
+            limits_kernel = kernel.space
+        limits_kernel = self._check_input_limits(limits=limits_kernel)
+
+        if limits_kernel.n_limits == 0:
+            raise exception.LimitsNotSpecifiedError("obs have to have limits to define where to integrate over.")
+        if limits_kernel.n_limits > 1:
+            raise WorkInProgressError("Multiple Limits not implemented")
+
+        if func.n_obs != kernel.n_obs:
+            raise ShapeIncompatibleError("Func and Kernel need to have (currently) the same number of obs,"
+                                         f" currently are func: {func.n_obs} and kernel: {kernel.n_obs}")
+        if not func.n_obs == limits_func.n_obs == limits_kernel.n_obs:
+            raise ShapeIncompatibleError("Func and Kernel limits need to have (currently) the same number of obs,"
+                                         f" are {limits_func.n_obs} and {limits_kernel.n_obs} with the func n_obs"
+                                         f" {func.n_obs}")
+
+        limits_func = limits_func.with_obs(obs)
         limits_kernel = limits_kernel.with_obs(obs)
-        self._limits_kernel = limits_kernel
+        lower_func, upper_func = limits_func.rect_limits
         lower_kernel, upper_kernel = limits_kernel.rect_limits
-        # self._xkernel_lower = lower_kernel
-        # self._xkernel_upper = upper_kernel
+        lower_sample = lower_func + upper_kernel
+        upper_sample = upper_func + upper_kernel
+        buffer = (upper_sample - lower_sample) / n * 2  # 2 * 2 buffer on each side
+        # due to rounding up on the kernel side we can loose on a single side 2 bins: one because we take the
+        # larger bin in the kernel (e.g. instead of kernel size to the right is 2 bins it's 3 (because the
+        # edge would be 1.99 -> 2.98 instead) which increases our function histogram in size -> decreases our
+        # buffer zone by one. Furthermore, by that the kernel grew by 1 -> we need 1 more in the buffer => 2 more
+        lower_sample -= buffer
+        upper_sample += buffer
 
-        # if buffer:
-        #     areas = upper - lower
-        #     areas *= buffer  # add to limits this fraction
-        #     lower -= areas
-        #     upper += areas
+        binwidth = (upper_sample - lower_sample) / n
+        nbins_kernel = tf.cast(limits_kernel.rect_area() / limits_func.rect_area() * n + 1.,
+                               dtype=tf.int32)  # casting is floor
 
-        self._npoints = n
-        self._xfunc_lower = lower + lower_kernel
-        self._xfunc_upper = upper + upper_kernel
+        kernel_length = nbins_kernel * binwidth
+        overflow = (kernel_length - (upper_kernel - lower_kernel)) / 2.
+        lower_kernel -= overflow
+        upper_kernel += overflow
+
+        self._limits_kernel = lower_kernel, upper_kernel
+        self._nbins_kernel = nbins_kernel
+
+        self._xfunc_lower = lower_sample
+        self._xfunc_upper = upper_sample
         self._npoints = n
 
     # @z.function
     def _unnormalized_pdf(self, x):
+        # TODO: done up to here
         lower, upper = self._xfunc_lower, self._xfunc_upper
         x_funcs = tf.linspace(lower, upper, self._npoints)
         # x_kernels = self._limits_kernel.filter(x_funcs)
         x_kernels = x_funcs - (lower + upper) / 2
 
+        # if self.n_obs == 2:
+        #     xk1, xk2 = tf.unstack(x_kernels, axis=-1)
+        #     xf1, xf2 = tf.unstack(x_funcs, axis=-1)
+        #     x_kernel = xk1 * xk2[None, :]
+        #     x_func = xf1 * xf2[None, :]
+        #
+        # else:
         x_kernel = tf.transpose(tf.meshgrid(*tf.unstack(x_kernels, axis=-1),
                                             indexing='ij'))
 
@@ -159,11 +183,19 @@ class FFTConvPDFV1(BaseFunctor):
         obs_dims = [npoints] * self.n_obs
         # HACK TODO: playing around
         y_kernel = tf.reshape(y_kernel, obs_dims)
-        y_kernel = tf.reverse(y_kernel, axis=range(self.n_obs))
+
         y_func = tf.reshape(y_func, obs_dims)
         # if self.n_obs > 1:
         #     y_kernel = tf.linalg.adjoint(y_kernel)
 
+        # if self.n_obs == 1:
+        # y_kernel = tf.reverse(y_kernel, axis=range(self.n_obs))
+        if self.n_obs == 1:
+            y_kernel = y_kernel[::-1]
+        elif self.n_obs == 2:
+            y_kernel = y_kernel[::-1, ::-1]
+        # if self.n_obs == 2:
+        #     y_kernel = tf.linalg.adjoint(y_kernel)
         new_shape = (1, *obs_dims, 1)
         if self.n_obs == 1 or True:  # HACK
 
@@ -174,9 +206,9 @@ class FFTConvPDFV1(BaseFunctor):
                 padding='SAME',
             )
 
-        elif self.n_obs == 2:
-            conv_fft = tf.signal.rfft2d(y_kernel) * tf.signal.rfft2d(y_func)
-            conv = tf.signal.irfft2d(conv_fft)
+        # elif self.n_obs == 2:
+        #     conv_fft = tf.signal.rfft2d(y_kernel) * tf.signal.rfft2d(y_func)
+        #     conv = tf.signal.irfft2d(conv_fft)
 
         train_points = tf.reshape(x_func, (1, -1, self.n_obs))
         query_points = tf.expand_dims(x.value(), axis=0)
