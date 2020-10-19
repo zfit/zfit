@@ -248,7 +248,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             limits=new_limits,
             dtype=dtype)
 
-        rnd_sample = Data.from_tensor(obs=limits, tensor=rnd_sample)
+        rnd_sample = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
         n_drawn = tf.cast(n_drawn, dtype=tf.int32)
         if run.numeric_checks: tf.debugging.assert_non_negative(n_drawn)
         n_total_drawn += n_drawn

@@ -206,6 +206,8 @@ class FFTConvPDFV1(BaseFunctor):
         y_kernel = tf.reverse(y_kernel, axis=range(self.n_obs))
         y_func_rect = tf.reshape(y_func, func_dims)
         y_kernel_rect = tf.reshape(y_kernel, kernel_dims)
+
+        # needed for multi dims?
         # if self.n_obs == 2:
         #     y_kernel_rect = tf.linalg.adjoint(y_kernel_rect)
         y_func_rect_conv = tf.reshape(y_func_rect, (1, *func_dims, 1))
@@ -218,14 +220,14 @@ class FFTConvPDFV1(BaseFunctor):
             padding='SAME',
         )
 
-        if self.n_obs == 2:
-            conv = tf.linalg.adjoint(conv[0, ..., 0])[None, ..., None]
+        # needed for multidims?
+        # if self.n_obs == 2:
+        #     conv = tf.linalg.adjoint(conv[0, ..., 0])[None, ..., None]
         # conv = scipy.signal.convolve(
         #     y_func_rect,
         #     y_kernel_rect,
         #     mode='same'
         # )[None, ..., None]
-        # train_points = tf.reshape(x_func, (1, -1, self.n_obs))
         train_points = tf.expand_dims(x_func, axis=0)
         query_points = tf.expand_dims(x.value(), axis=0)
         if self.conv_interpolation == 'spline':
