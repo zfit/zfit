@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import uproot
-from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 
 # from ..settings import types as ztypes
@@ -661,12 +660,14 @@ class LightDataset:
         return self.tensor
 
 
-def add_samples(sample1, sample2, obs):
+def add_samples(sample1: ZfitData, sample2: ZfitData, obs: ZfitSpace, shuffle: bool = False):
     samples = [sample1, sample2]
     if obs is None:
         raise WorkInProgressError
-    # tensor = tf.math.accumulate_n([sample.value(obs.obs) for sample in samples])
-    tensor = sample1.value(obs=obs) + sample2.value(obs=obs)
+    sample2 = sample2.value(obs=obs)
+    if shuffle:
+        sample2 = tf.random.shuffle(sample2)
+    tensor = sample1.value(obs=obs) + sample2
     if any([s.weights is not None for s in samples]):
         raise WorkInProgressError("Cannot combine weights currently")
     weights = None

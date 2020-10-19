@@ -222,7 +222,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
-            n_to_produce = tf.cast(z.to_real(n_to_produce) / eff * 1.1, dtype=tf.int32) + 3  # just to make sure
+            n_to_produce = tf.cast(z.to_real(n_to_produce) / eff * 1.01, dtype=tf.int32) + 3  # just to make sure
             n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
             n_min_to_produce -= tf.maximum(n_to_produce, 0)  # reduce to minimum of 0
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)

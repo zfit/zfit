@@ -834,7 +834,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return sample
 
     @_BaseModel_register_check_support(True)
-    def _sample(self, n, limits):
+    def _sample(self, n, limits: ZfitSpace):
         raise SpecificFunctionNotImplementedError
 
     def sample(self, n: ztyping.nSamplingTypeIn = None,
