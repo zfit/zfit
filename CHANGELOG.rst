@@ -8,6 +8,39 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+
+
+
+Thanks
+------
+
+0.5.5 (20.10.2020)
+==================
+
+Upgrade to TensorFlow 2.3 and support for weighted hessian error estimation.
+
+Added a one dimensional Convolution PDF
+
+Major Features and Improvements
+-------------------------------
+
 - upgrad to TensorFlow 2.3
 - new Poisson PDF
 
