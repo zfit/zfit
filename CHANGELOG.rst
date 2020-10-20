@@ -8,8 +8,8 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- upgrad to TensorFlow 2.3
 - new Poisson PDF
-- Convolution PDF (FFT in 1Dim) added (experimental, feedback welcome!)
 
 Breaking changes
 ------------------
@@ -26,6 +26,7 @@ Experimental
 ------------
 
 - Computation of the covariance matrix and hessian errors with weighted data
+- Convolution PDF (FFT in 1Dim) added (experimental, feedback welcome!)
 
 Requirement changes
 -------------------
