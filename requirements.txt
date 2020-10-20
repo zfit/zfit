@@ -13,3 +13,4 @@ colorama
 ordered-set
 numdifftools
 cloudpickle==1.3  # from TFP, why not working with pip?!
+tensorflow-addons

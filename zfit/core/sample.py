@@ -5,24 +5,21 @@ from typing import Callable, Union, Iterable, List, Optional, Tuple
 import tensorflow as tf
 from tensorflow_probability import distributions as tfd
 
-import zfit
-from zfit import z
-
-ztf = z
-from zfit.core.interfaces import ZfitPDF
-from zfit.util import ztyping
-from zfit.util.exception import WorkInProgressError
-from .. import settings
-from ..util.container import convert_to_container
+from .data import Data
+from .interfaces import ZfitPDF
 from .space import Space
+from .. import z, settings
 from ..settings import ztypes, run
+from ..util import ztyping
+from ..util.container import convert_to_container
+from ..util.exception import WorkInProgressError
 
 
 class UniformSampleAndWeights:
     def __call__(self, n_to_produce: Union[int, tf.Tensor], limits: Space, dtype):
         rnd_samples = []
         thresholds_unscaled_list = []
-        weights = tf.broadcast_to(ztf.constant(1., shape=(1,)), shape=(n_to_produce,))
+        weights = tf.broadcast_to(z.constant(1., shape=(1,)), shape=(n_to_produce,))
         n_produced = tf.constant(0)
         for i, space in enumerate(limits):
             lower, upper = space.rect_limits  # TODO: remove new space
@@ -35,7 +32,7 @@ class UniformSampleAndWeights:
                     tot_area = limits.rect_area()
                     frac = (space.rect_area() / tot_area)[0]
                 n_partial_to_produce = tf.cast(
-                    ztf.to_real(n_to_produce) * ztf.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
+                    z.to_real(n_to_produce) * z.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
 
             sample_drawn = tf.random.uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
                                              # + 1 dim for the function value
@@ -210,7 +207,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     @z.function(wraps='tensor')
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.,
                     weights_maximum=0., prob_maximum=0., n_min_to_produce=10000):
-        eff = tf.reduce_max(input_tensor=[eff, ztf.to_real(1e-6)])
+        eff = tf.reduce_max(input_tensor=[eff, z.to_real(1e-6)])
 
         n_to_produce = n - n_produced
 
@@ -225,7 +222,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
-            n_to_produce = tf.cast(ztf.to_real(n_to_produce) / eff * 1.1, dtype=tf.int32) + 3  # just to make sure
+            n_to_produce = tf.cast(z.to_real(n_to_produce) / eff * 1.01, dtype=tf.int32) + 3  # just to make sure
             n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
             n_min_to_produce -= tf.maximum(n_to_produce, 0)  # reduce to minimum of 0
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
@@ -234,7 +231,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # TODO: remove below? was there due to overflow in tf?
             # safe_to_produce = tf.maximum(max_produce_cap, n_to_produce)  # protect against overflow, n_to_prod -> neg.
             n_to_produce = tf.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
-            new_limits = limits
+            new_limits = limits  # because limits in the vector space case can change
         else:
             # TODO(Mayou36): add cap for n_to_produce here as well
             if multiple_limits:
@@ -251,6 +248,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             limits=new_limits,
             dtype=dtype)
 
+        rnd_sample = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
         n_drawn = tf.cast(n_drawn, dtype=tf.int32)
         if run.numeric_checks: tf.debugging.assert_non_negative(n_drawn)
         n_total_drawn += n_drawn
@@ -360,17 +358,17 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         sample_new = sample.scatter(indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get
-        eff = tf.reduce_max(input_tensor=[ztf.to_real(n_produced_new), ztf.to_real(1.)]) / tf.reduce_max(
-            input_tensor=[ztf.to_real(n_total_drawn), ztf.to_real(1.)])
+        eff = tf.reduce_max(input_tensor=[z.to_real(n_produced_new), z.to_real(1.)]) / tf.reduce_max(
+            input_tensor=[z.to_real(n_total_drawn), z.to_real(1.)])
         return (
             n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled, weights_scaling, weights_maximum,
             prob_maximum, n_min_to_produce
         )
 
-    efficiency_estimation = ztf.to_real(efficiency_estimation)
-    weights_scaling = ztf.constant(0.)
-    weights_maximum = ztf.constant(0.)
-    prob_maximum = ztf.constant(0.)
+    efficiency_estimation = z.to_real(efficiency_estimation)
+    weights_scaling = z.constant(0.)
+    weights_maximum = z.constant(0.)
+    prob_maximum = z.constant(0.)
     loop_vars = (
         n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled, weights_scaling,
         weights_maximum, prob_maximum, n_min_to_produce)

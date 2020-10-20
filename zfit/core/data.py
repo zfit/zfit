@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import uproot
-from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 
 # from ..settings import types as ztypes
@@ -27,8 +26,9 @@ from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
 from ..util.container import convert_to_container
 from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleError, \
-    ObsIncompatibleError, DataIsBatchedError
+    ObsIncompatibleError, WorkInProgressError
 from ..util.temporary import TemporarilySet
+
 
 # TODO: make cut only once, then remember
 class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
@@ -154,7 +154,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     def space(self) -> "ZfitSpace":
         return self._space
 
-
     # constructors
     @classmethod
     def from_root_iter(cls, path, treepath, branches=None, entrysteps=None, name=None, **kwargs):
@@ -172,7 +171,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
         dataset.prefetch(1)
         return Data(dataset=dataset, name=name)
-
 
     @classmethod
     def from_root(cls, path: str, treepath: str, branches: List[str] = None, branches_alias: Dict = None,
@@ -517,7 +515,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
 class SampleData(Data):
     _cache_counting = 0
 
-    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], sample_holder: tf.Tensor,
+    def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"],
                  obs: ztyping.ObsTypeInput = None, weights=None, name: str = None,
                  dtype: tf.DType = ztypes.float):
         super().__init__(dataset, obs, name=name, weights=weights, iterator_feed_dict=None, dtype=dtype)
@@ -532,7 +530,7 @@ class SampleData(Data):
     def from_sample(cls, sample: tf.Tensor, obs: ztyping.ObsTypeInput, name: str = None,
                     weights=None):
         dataset = LightDataset.from_tensor(sample)
-        return SampleData(dataset=dataset, sample_holder=sample, obs=obs, name=name, weights=weights)
+        return SampleData(dataset=dataset, obs=obs, name=name, weights=weights)
 
 
 class Sampler(Data):
@@ -638,26 +636,6 @@ class Sampler(Data):
         return f'<Sampler: {self.name} obs={self.obs}>'
 
 
-# def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
-#     return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
-
-
-# ops.register_tensor_conversion_function(Data, _dense_var_to_tensor)
-# fetch_function = lambda data: ([data.value()],
-#                                lambda val: val[0])
-# feed_function = lambda data, feed_val: [(data.value(), feed_val)]
-# feed_function_for_partial_run = lambda data: [data.value()]
-#
-# from tensorflow.python.client.session import register_session_run_conversion_functions
-#
-# # ops.register_dense_tensor_like_type()
-#
-# register_session_run_conversion_functions(tensor_type=Data, fetch_function=fetch_function,
-#                                           feed_function=feed_function,
-#                                           feed_function_for_partial_run=feed_function_for_partial_run)
-#
-# Data._OverloadAllOperators()
-
 register_tensor_conversion(Data, name='Data', overload_operators=True)
 
 
@@ -680,3 +658,18 @@ class LightDataset:
 
     def value(self):
         return self.tensor
+
+
+def add_samples(sample1: ZfitData, sample2: ZfitData, obs: ZfitSpace, shuffle: bool = False):
+    samples = [sample1, sample2]
+    if obs is None:
+        raise WorkInProgressError
+    sample2 = sample2.value(obs=obs)
+    if shuffle:
+        sample2 = tf.random.shuffle(sample2)
+    tensor = sample1.value(obs=obs) + sample2
+    if any([s.weights is not None for s in samples]):
+        raise WorkInProgressError("Cannot combine weights currently")
+    weights = None
+
+    return SampleData.from_sample(sample=tensor, obs=obs, weights=weights)
