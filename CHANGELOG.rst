@@ -9,6 +9,7 @@ Major Features and Improvements
 -------------------------------
 
 - new Poisson PDF
+- Convolution PDF (FFT in 1Dim) added (experimental, feedback welcome!)
 
 Breaking changes
 ------------------
@@ -29,6 +30,8 @@ Requirement changes
 
 - TensorFlow==2.3 (before 2.2)
 - tensorflow_probability==0.11
+- tensorflow-addons  # spline interpolation in convolution
+
 
 Thanks
 ------
