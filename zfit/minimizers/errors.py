@@ -3,7 +3,10 @@
 import numpy as np
 import tensorflow as tf
 from scipy import optimize
+import itertools
+import numdifftools
 
+from .. import z, settings
 from ..param import set_values
 from ..util.container import convert_to_container
 
@@ -110,3 +113,95 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covarianc
             new_result = new_result_
 
     return to_return, new_result
+
+
+def numerical_pdf_jacobian(func, params):
+    jacobian_func = numdifftools.Jacobian(func)
+    jacobian = jacobian_func([param.value() for param in params]).T
+    return jacobian
+
+
+@z.function
+def autodiff_pdf_jacobian(func, params):
+
+    # with tf.GradientTape(persistent=False,
+    #                      watch_accessed_variables=False) as tape:
+    #     tape.watch(params)
+    #     values = func()
+    # jacobian = z.convert_to_tensor(tape.jacobian(values, params, experimental_use_pfor=False))
+    # return jacobian
+
+    columns = []
+
+    for p in params:
+        vector = np.zeros(len(params))
+        vector[params.index(p)] = 1.
+        with tf.autodiff.ForwardAccumulator(params, list(vector)) as acc:
+            values = func()
+        columns.append(acc.jvp(values))
+
+    jacobian = z.convert_to_tensor(columns)
+
+    return jacobian
+
+
+def covariance_with_weights(method, result, params):
+
+    model = result.loss.model
+    data = result.loss.data
+
+    Hinv_dict = method(result=result, params=params)  # inverse of the hessian matrix
+    Hinv = dict_to_matrix(params, Hinv_dict)
+
+    def func():
+        values = []
+        for m, d in zip(model, data):
+            v = m.log_pdf(d)
+            if d.weights is not None:
+                v *= d.weights
+            values.append(v)
+        return tf.concat(values, axis=0)
+
+    if settings.options['numerical_grad']:
+        def wrapped_func(values):
+            with set_values(params, values):
+                return func()
+
+        jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params)
+    else:
+        jacobian = autodiff_pdf_jacobian(func=func, params=params).numpy()
+
+    C = np.matmul(jacobian, jacobian.T)
+    covariance = np.matmul(Hinv, np.matmul(C, Hinv))
+
+    return matrix_to_dict(params, covariance)
+
+
+def dict_to_matrix(params, matrix_dict):
+    nparams = len(params)
+    matrix = np.empty((nparams, nparams))
+
+    for i in range(nparams):
+        pi = params[i]
+        for j in range(i, nparams):
+            pj = params[j]
+            matrix[i, j] = matrix_dict[(pi, pj)]
+            if i != j:
+                matrix[j, i] = matrix_dict[(pi, pj)]
+
+    return matrix
+
+
+def matrix_to_dict(params, matrix):
+    nparams = len(params)
+    matrix_dict = {}
+
+    for i in range(nparams):
+        pi = params[i]
+        for j in range(i, nparams):
+            pj = params[j]
+            matrix_dict[(pi, pj)] = matrix[i, j]
+            if i != j:
+                matrix_dict[(pj, pi)] = matrix[i, j]
+
+    return matrix_dict

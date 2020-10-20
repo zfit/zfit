@@ -130,7 +130,7 @@ class SumPDF(BaseFunctor):
                 remaining_frac = convert_to_parameter(remaining_frac_func,
                                                       dependents=fracs)
                 if run.numeric_checks:
-                    tf.debugging.assert_non_negative(remaining_frac, tf.constant(0., dtype=ztypes.float),
+                    tf.debugging.assert_non_negative(remaining_frac,
                                                      f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}")  # check fractions
 
                 # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
@@ -294,8 +294,8 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
         # return tf.math.reduce_prod(probs, axis=0)
 
     def _pdf(self, x, norm_range):
-        equal_norm_ranges = len(set([pdf.norm_range for pdf in self.pdfs] + [norm_range])) == 1
-        if all(not dep for dep in self._model_same_obs) and equal_norm_ranges:
+        equal_norm_ranges = len(set([pdf.norm_range for pdf in self.pdfs] + [norm_range])) == 1  # all equal
+        if not any(self._model_same_obs) and equal_norm_ranges:
 
             probs = [pdf.pdf(x=x) for pdf in self.pdfs]
             return z.convert_to_tensor(functools.reduce(operator.mul, probs))

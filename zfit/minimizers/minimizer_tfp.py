@@ -32,6 +32,7 @@ class BFGS(BaseMinimizer):
                          minimizer_options={})
 
     def _minimize(self, loss, params):
+        from .. import run
         minimizer_fn = tfp.optimizer.bfgs_minimize
         params = tuple(params)
         do_print = self.verbosity > 8
@@ -68,13 +69,13 @@ class BFGS(BaseMinimizer):
                 if gradients is None:
                     gradients = [f"invalid, {err}"] * len(params)
                 if do_print:
-                    print_gradients(params, values.numpy(), [float(g.numpy()) for g in gradients], loss=value.numpy())
-            loss_evaluated = value.numpy()
+                    print_gradients(params, run(values), [float(run(g)) for g in gradients], loss=run(value))
+            loss_evaluated = run(value)
             is_nan = is_nan or np.isnan(loss_evaluated)
             if is_nan:
                 nan_counter += 1
                 info_values = {}
-                info_values['loss'] = value.numpy()
+                info_values['loss'] = run(value)
                 info_values['old_loss'] = current_loss
                 info_values['nan_counter'] = nan_counter
                 value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=self,
@@ -101,17 +102,17 @@ class BFGS(BaseMinimizer):
                               **minimizer_kwargs)
 
         # save result
-        params_result = result.position.numpy()
+        params_result = run(result.position)
         self._update_params(params, values=params_result)
 
-        info = {'n_eval': result.num_objective_evaluations.numpy(),
-                'n_iter': result.num_iterations.numpy(),
-                'grad': result.objective_gradient.numpy(),
+        info = {'n_eval'  : run(result.num_objective_evaluations),
+                'n_iter'  : run(result.num_iterations),
+                'grad'    : run(result.objective_gradient),
                 'original': result}
         edm = -999
-        fmin = result.objective_value.numpy()
+        fmin = run(result.objective_value)
         status = -999
-        converged = result.converged.numpy()
+        converged = run(result.converged)
         params = OrderedDict((p, val) for p, val in zip(params, params_result))
         result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
                            status=status, converged=converged,

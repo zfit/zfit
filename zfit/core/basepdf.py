@@ -56,11 +56,10 @@ from contextlib import suppress
 from typing import Union, Type, Dict, Optional, Set
 
 import tensorflow as tf
-from tensorflow.python import deprecated
-
+from ..util.deprecation import deprecated
 from zfit import z
-from zfit.core.sample import extended_sampling
-from zfit.util.cache import invalidate_graph
+from .sample import extended_sampling
+from ..util.cache import invalidate_graph
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
 from .interfaces import ZfitPDF, ZfitParameter

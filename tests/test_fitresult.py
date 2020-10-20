@@ -14,7 +14,7 @@ true_b = 4.
 true_c = -0.3
 
 
-def create_loss(n=15000):
+def create_loss(n=15000, weights=None):
     a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
                              step_size=z.constant(0.1))
     b_param = zfit.Parameter("variable_b15151", 3.5, 0, 20)
@@ -34,13 +34,16 @@ def create_loss(n=15000):
     sampled_data = sum_pdf1.create_sampler(n=n)
     sampled_data.resample()
 
+    if weights is not None:
+        sampled_data.set_weights(weights)
+
     loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
 
     return loss, (a_param, b_param, c_param)
 
 
-def create_fitresult(minimizer_class_and_kwargs):
-    loss, (a_param, b_param, c_param) = create_loss()
+def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
+    loss, (a_param, b_param, c_param) = create_loss(n=n, weights=weights)
 
     true_minimum = loss.value().numpy()
 
@@ -116,13 +119,25 @@ def test_params_at_limit(minimizer_class_and_kwargs):
 
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-def test_covariance(minimizer_class_and_kwargs):
-    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+@pytest.mark.parametrize("use_weights", [False, True])
+def test_covariance(minimizer_class_and_kwargs, use_weights):
+    n = 15000
+    if use_weights:
+        weights = np.random.normal(1, 0.001, n)
+    else:
+        weights = None
+
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs,
+                               n=n,
+                               weights=weights)
     result = results['result']
     hesse = result.hesse()
     a = results['a_param']
     b = results['b_param']
     c = results['c_param']
+
+    with pytest.raises(KeyError):
+        result.covariance(params=[a, b, c], method="hesse")
 
     cov_mat_3 = result.covariance(params=[a, b, c])
     cov_mat_2 = result.covariance(params=[c, b])
@@ -139,12 +154,13 @@ def test_covariance(minimizer_class_and_kwargs):
     assert pytest.approx(hesse[c]['error'], rel=0.01) == np.sqrt(cov_mat_3[2, 2])
     assert pytest.approx(hesse[c]['error'], rel=0.01) == np.sqrt(cov_mat_2[0, 0])
 
+    if use_weights:
+        rtol, atol = 0.1, 0.01
+    else:
+        rtol, atol = 0.05, 0.001
+
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np")
-
-    np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=0.05, atol=0.001)
-
-    with pytest.raises(KeyError):
-        result.covariance(params=[a, b, c], method="hesse")
+    np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=rtol, atol=atol)
 
 
 @pytest.mark.flaky(reruns=3)

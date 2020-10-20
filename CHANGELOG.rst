@@ -2,6 +2,77 @@
 Changelog
 *********
 
+Develop
+========
+
+Major Features and Improvements
+-------------------------------
+
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+
+
+
+Thanks
+------
+
+0.5.5 (20.10.2020)
+==================
+
+Upgrade to TensorFlow 2.3 and support for weighted hessian error estimation.
+
+Added a one dimensional Convolution PDF
+
+Major Features and Improvements
+-------------------------------
+
+- upgrad to TensorFlow 2.3
+- new Poisson PDF
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+- print parameter inside function context works now correctly
+
+Experimental
+------------
+
+- Computation of the covariance matrix and hessian errors with weighted data
+- Convolution PDF (FFT in 1Dim) added (experimental, feedback welcome!)
+
+Requirement changes
+-------------------
+
+- TensorFlow==2.3 (before 2.2)
+- tensorflow_probability==0.11
+- tensorflow-addons  # spline interpolation in convolution
+
+
+Thanks
+------
+
+
 
 0.5.4 (16.07.2020)
 ==================

@@ -2,12 +2,14 @@
 
 import numpy as np
 import pytest
-import tensorflow as tf
 
 import zfit
 import zfit.models.dist_tfp
 import zfit.models.kde
-from zfit import ztypes
+
+
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
 
 @pytest.mark.skip()  # copy not yet implemented
 def test_copy_kde():
@@ -48,16 +50,6 @@ def test_simple_kde():
     integral_trunc = kde_adaptive_trunc.integrate(limits=limits, norm_range=False)
     integral_adaptive = kde_adaptive.integrate(limits=limits, norm_range=False)
     integral_silverman = kde_silverman.integrate(limits=limits, norm_range=False)
-    #
-    # import matplotlib.pyplot as plt
-    # plt.plot(data, kde_adaptive.pdf(data), 'x')
-    #
-    # data_plot = np.linspace(np.min(data) - 1, np.max(data) + 1, 1000)
-    # plt.hist(data, bins=20, density=1)
-    # plt.plot(data_plot, kde_adaptive.pdf(data_plot), 'x')
-    # plt.plot(data_plot, kde_silverman.pdf(data_plot), 'x')
-    # plt.plot(data_plot, kde.pdf(data_plot), 'x')
-    # plt.show()
 
     rel_tol = 0.04
     assert zfit.run(integral_trunc) == pytest.approx(1., rel=rel_tol)

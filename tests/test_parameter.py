@@ -117,6 +117,14 @@ def test_composed_param():
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
 
+    print(param_a)
+
+    @z.function
+    def print_param(p):
+        print(p)
+
+    print_param(param_a)
+
     # TODO(params): reactivate to check?
     # with pytest.raises(LogicalUndefinedOperationError):
     #     param_a.assign(value=5.)
@@ -146,6 +154,7 @@ def test_randomize():
     for _ in range(100):
         param1.randomize()
         assert 0 < param1 < 2
+
 
 def test_floating_behavior():
     param1 = zfit.Parameter('param1', 1.0)
