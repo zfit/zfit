@@ -1,7 +1,6 @@
 #  Copyright (c) 2020 zfit
 from typing import Optional, Union
 
-import scipy.signal
 import tensorflow as tf
 import tensorflow_addons as tfa
 import tensorflow_probability as tfp
@@ -27,10 +26,42 @@ class FFTConvPDFV1(BaseFunctor):
                  interpolation: Optional[str] = None,
                  obs: ztyping.ObsTypeInput = None,
                  name: str = "FFTConvV1"):
-        """*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
+        r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
 
         CURRENTLY ONLY 1 DIMENSIONAL!
 
+        EXPERIMENTAL: Feedback is very welcome! Performance, which parameters to tune, which fail etc.
+
+        TL;DR technical details:
+          - FFT-like technique: discretization of function. Number of bins splits the kernel into `n` bins
+            and uses the same binwidth for the func while extending it by the kernel space. Internally,
+            `tf.nn.convolution` (attention, this is actually a cross-correlation) is used.
+          - Then interpolation by either linear or spline function
+          - The kernel is assumed to be "small enough" outside of it's `space` and points there won't be
+            evaluated.
+
+        The convolution of two (normalized) functions is defined as
+
+        .. math::
+            (f * g)(t) \triangleq\ \int_{-\infty}^\infty f(\tau) g(t - \tau) \, d\tau
+
+        It defines the "smearing" of `func` by a `kernel`. This is when an element in `func` is
+        randomly added to an element of `kernel`. While the sampling (the addition of elements) is rather
+        simple to do computationally, the calculation of the convolutional PDF (if there is no analytic
+        solution available) is not, as it requires:
+            - an integral from -inf to inf
+            - an integral _for every point of x that is requested_
+
+        This can be solved with a few tricks. Instead of integrating to infinity, it is usually sufficient to
+        integrate from a point where the function is "small enough".
+
+        If the functions are arbitrary and with conditional dependencies,
+        there is no way around an integral and another PDF has to be used. If the two functions are
+        uncorrelated, a simplified version can be done by a discretization of the space (followed by a
+        Fast Fourier Transfrom, after which the convolution becomes a simple multiplication) and a
+        discrete convolution can be performed.
+
+        An interpolation of the discrete convolution for the requested points `x` is performed afterwards.
 
 
         Args:
@@ -126,7 +157,7 @@ class FFTConvPDFV1(BaseFunctor):
         limits_kernel = limits_kernel.with_obs(obs)
 
         if n is None:
-            n = 101  # default kernel points
+            n = 51  # default kernel points
         if not n % 2:
             n += 1  # make it odd to have a unique shifting when using "same" in the convolution
 
@@ -141,6 +172,8 @@ class FFTConvPDFV1(BaseFunctor):
                                       "Simply switch the two should resolve the problem.")
 
         # get finest resolution. Find the dimensions with the largest kernel-space to func-space ratio
+        # We take the binwidth of the kernel as the overall binwidth and need to have the same binning in
+        # the function as well
         area_ratios = (upper_sample - lower_sample) / (
             limits_kernel.rect_upper - limits_kernel.rect_lower)
         nbins_func_exact_max = tf.reduce_max(area_ratios * n)
@@ -154,7 +187,6 @@ class FFTConvPDFV1(BaseFunctor):
                        message="Number of points automatically calculated to be used for the FFT"
                                " based convolution exceeds 1e6. If you want to use this number - "
                                "or an even higher value - use explicitly the `n` argument.")
-        del n
 
         binwidth = (upper_kernel - lower_kernel) / nbins_kernel
         to_extend = (binwidth * nbins_func - (
@@ -192,8 +224,8 @@ class FFTConvPDFV1(BaseFunctor):
 
         data_kernel = Data.from_tensor(tensor=x_kernel, obs=self.obs)
 
-        y_func = self.pdfs[0].pdf(data_func)
-        y_kernel = self.pdfs[1].pdf(data_kernel)
+        y_func = self.pdfs[0].pdf(data_func, norm_range=False)
+        y_kernel = self.pdfs[1].pdf(data_kernel, norm_range=False)
 
         func_dims = [nbins_func] * self.n_obs
         kernel_dims = [nbins_kernel] * self.n_obs
@@ -204,12 +236,16 @@ class FFTConvPDFV1(BaseFunctor):
         # flip the kernel to use the cross-correlation called `convolution function from TF
         # convolution = cross-correlation with flipped kernel
         y_kernel = tf.reverse(y_kernel, axis=range(self.n_obs))
+
+        # make rectangular grid
         y_func_rect = tf.reshape(y_func, func_dims)
         y_kernel_rect = tf.reshape(y_kernel, kernel_dims)
 
         # needed for multi dims?
         # if self.n_obs == 2:
         #     y_kernel_rect = tf.linalg.adjoint(y_kernel_rect)
+
+        # get correct shape for tf.nn.convolution
         y_func_rect_conv = tf.reshape(y_func_rect, (1, *func_dims, 1))
         y_kernel_rect_conv = tf.reshape(y_kernel_rect, (*kernel_dims, 1, 1))
 
@@ -254,6 +290,18 @@ class FFTConvPDFV1(BaseFunctor):
 
     @supports()
     def _sample(self, n, limits):
+        # this is a custom implementation of sampling. Since the kernel and func are not correlated,
+        # we can simply sample from both and add them. This is "trivial" compared to accept reject sampling
+        # However, one large pitfall is that we cannot simply request n events from each pdf and then add them.
+        # The kernel can move points out of the limits that we want, since it's "smearing" it.
+        # E.g. with x sampled between limits, x + xkernel can be outside of limits.
+        # Therefore we need to (repeatedly) sample from a) the func in the range of limits +
+        # the kernel limits; to extend limits in the upper direction with the kernel upper limits and vice versa.
+        # Therefore we (ab)use the accept reject sample: it samples until it is full. Everything has a constant
+        # probability to be accepted.
+        # This is maybe not the most efficient way to do and a more specialized (meaning taking care of less
+        # special cases such as `accept_reject_sample` does) can be more efficient. However, sampling is not
+        # supposed to be the bottleneck anyway.
         func = self.pdfs[0]
         kernel = self.pdfs[1]
 
@@ -298,5 +346,5 @@ class AddingSampleAndWeights:
                                          "Could not draw any samples. Check the limits of the func and kernel.")
         thresholds_unscaled = tf.ones(shape=(n_drawn,), dtype=sample.dtype)
         weights = thresholds_unscaled  # also "ones_like"
-        weights_max = 1.  # also "ones_like"
+        weights_max = z.constant(1.)
         return sample, thresholds_unscaled * 0.5, weights, weights_max, n_drawn

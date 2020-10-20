@@ -7,8 +7,8 @@ import scipy.signal
 import scipy.stats
 import tensorflow as tf
 
-import zfit.models.convolution
 import zfit
+import zfit.models.convolution
 from zfit import z
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -71,7 +71,8 @@ def test_conv_simple(interpolation):
 def test_conv_1d_shifted():
     obs_kernel = zfit.Space("obs1", limits=(-3, 1.5))
     obs = zfit.Space("obs1", limits=(5, 15))
-    func1 = zfit.pdf.Uniform(6, 12, obs=obs)
+    func1 = zfit.pdf.GaussianKDE1DimV1(obs=obs, data=np.random.uniform(6, 12, size=100))
+    # func1 = zfit.pdf.Uniform(6, 12, obs=obs)
     func2 = zfit.pdf.Uniform(11, 11.5, obs=obs)
     func = zfit.pdf.SumPDF([func1, func2], 0.5)
 
@@ -95,18 +96,16 @@ def test_conv_1d_shifted():
 
     assert pytest.approx(1, rel=1e-3) == integral.numpy()
     # # assert len(probs_np) == n_points
-    #
-    # #
-    # import matplotlib.pyplot as plt
-    # plt.figure()
-    # plt.plot(x, probs_np, label='zfit')
-    # plt.plot(x, true_conv, label='numpy')
-    # plt.legend()
-    # plt.show()
+
+    import matplotlib.pyplot as plt
+    plt.figure()
+    plt.plot(x, probs_np, label='zfit')
+    plt.plot(x, true_conv, label='numpy')
+    plt.legend()
+    plt.show()
 
 
 def test_onedim_sampling():
-    zfit.run.set_graph_mode(False)
     obs_kernel = zfit.Space("obs1", limits=(-3, 3))
     obs = zfit.Space("obs1", limits=(5, 15))
     func1 = zfit.pdf.Uniform(6, 12, obs=obs)
@@ -167,6 +166,27 @@ def true_conv_2d_np(func, gauss1, obsfunc, xfunc, xkernel):
     true_conv = scipy.signal.convolve(y_func, y_kernel, mode='same')
     true_conv /= np.mean(true_conv) * obsfunc.rect_area()
     return tf.reshape(true_conv, xfunc.shape[0])
+
+
+def test_max_1dim():
+    obs1 = zfit.Space("obs1", limits=(-2, 4))
+    obs2 = zfit.Space("obs2", limits=(-6, 4))
+
+    param2 = zfit.Parameter('param2', 0.4)
+    gauss1 = zfit.pdf.Gauss(1., 0.5, obs=obs1)
+    gauss22 = zfit.pdf.CrystalBall(0.0, param2, -0.2, 3, obs=obs2)
+
+    obs1func = zfit.Space("obs1", limits=(4, 10))
+    obs2func = zfit.Space("obs2", limits=(-6, 4))
+
+    gauss21 = zfit.pdf.Gauss(-0.5, param2, obs=obs2func)
+    func1 = zfit.pdf.Uniform(5, 8, obs=obs1func)
+    func2 = zfit.pdf.Uniform(6, 7, obs=obs1func)
+    func = zfit.pdf.SumPDF([func1, func2], 0.5)
+    func = func * gauss21
+    gauss = gauss1 * gauss22
+    with pytest.raises(WorkInProgressError):
+        _ = zfit.pdf.FFTConvPDFV1(func=func, kernel=gauss)
 
 
 @pytest.mark.skip  # not yet implemented WIP

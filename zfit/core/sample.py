@@ -231,7 +231,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             # TODO: remove below? was there due to overflow in tf?
             # safe_to_produce = tf.maximum(max_produce_cap, n_to_produce)  # protect against overflow, n_to_prod -> neg.
             n_to_produce = tf.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
-            new_limits = limits
+            new_limits = limits  # because limits in the vector space case can change
         else:
             # TODO(Mayou36): add cap for n_to_produce here as well
             if multiple_limits:
