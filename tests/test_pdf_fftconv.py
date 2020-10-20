@@ -8,7 +8,6 @@ import scipy.stats
 import tensorflow as tf
 
 import zfit
-import zfit.models.convolution
 from zfit import z
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
