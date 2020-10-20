@@ -1,0 +1,538 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>zfit.models.convolution &#8212; zfit 0.5.5.dev63+ga85fcfe documentation</title>
+    
+  <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../../../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../../../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    
+  <link rel="preload" as="script" href="../../../_static/js/index.3da636dd464baa7582d2.js">
+
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/zfit-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
+<div class="container-xl">
+
+    <a class="navbar-brand" href="../../../index.html">
+    
+      <img src="../../../_static/zfit-logo-light_400x168.png" class="logo" alt="logo" />
+    
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar-menu" class="col-lg-9 collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+        
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../whats_new/index.html">What’s new?</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../getting_started/index.html">Getting started</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../user_api/index.html">API reference</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../project/index.html">Project</a>
+        </li>
+        
+        <li class="nav-item ">
+            <a class="nav-link" href="../../../ask_a_question.html">Ask a question</a>
+        </li>
+        
+        
+      </ul>
+
+
+      
+
+      <ul class="navbar-nav">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/zfit/zfit" target="_blank" rel="noopener">
+              <span><i class="fab fa-github-square"></i></span>
+            </a>
+          </li>
+        
+        
+      </ul>
+    </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+          <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search zfit..." aria-label="Search zfit..." autocomplete="off" >
+</form>
+<nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+
+    <div class="bd-toc-item active">
+    
+  
+    <ul class="nav bd-sidenav">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </ul>
+  
+  </nav>
+          </div>
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+              
+
+<nav id="bd-toc-nav">
+    <ul class="nav section-nav flex-column">
+    
+    </ul>
+</nav>
+
+
+              
+          </div>
+          
+
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for zfit.models.convolution</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright (c) 2020 zfit</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow_addons</span> <span class="k">as</span> <span class="nn">tfa</span>
+<span class="kn">import</span> <span class="nn">tensorflow_probability</span> <span class="k">as</span> <span class="nn">tfp</span>
+
+<span class="kn">from</span> <span class="nn">.functor</span> <span class="kn">import</span> <span class="n">BaseFunctor</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">exception</span><span class="p">,</span> <span class="n">z</span>
+<span class="kn">from</span> <span class="nn">..core.data</span> <span class="kn">import</span> <span class="n">add_samples</span><span class="p">,</span> <span class="n">Data</span>
+<span class="kn">from</span> <span class="nn">..core.interfaces</span> <span class="kn">import</span> <span class="n">ZfitPDF</span>
+<span class="kn">from</span> <span class="nn">..core.sample</span> <span class="kn">import</span> <span class="n">accept_reject_sample</span>
+<span class="kn">from</span> <span class="nn">..core.space</span> <span class="kn">import</span> <span class="n">supports</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">ztyping</span>
+<span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">WorkInProgressError</span><span class="p">,</span> <span class="n">ShapeIncompatibleError</span>
+
+
+<div class="viewcode-block" id="FFTConvPDFV1"><a class="viewcode-back" href="../../../full_api/zfit.pdf.html#zfit.models.convolution.FFTConvPDFV1">[docs]</a><span class="k">class</span> <span class="nc">FFTConvPDFV1</span><span class="p">(</span><span class="n">BaseFunctor</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">func</span><span class="p">:</span> <span class="n">ZfitPDF</span><span class="p">,</span>
+                 <span class="n">kernel</span><span class="p">:</span> <span class="n">ZfitPDF</span><span class="p">,</span>
+                 <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">limits_func</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">limits_kernel</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">LimitsType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">interpolation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FFTConvV1&quot;</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT</span>
+
+<span class="sd">        CURRENTLY ONLY 1 DIMENSIONAL!</span>
+
+<span class="sd">        EXPERIMENTAL: Feedback is very welcome! Performance, which parameters to tune, which fail etc.</span>
+
+<span class="sd">        TL;DR technical details:</span>
+<span class="sd">          - FFT-like technique: discretization of function. Number of bins splits the kernel into `n` bins</span>
+<span class="sd">            and uses the same binwidth for the func while extending it by the kernel space. Internally,</span>
+<span class="sd">            `tf.nn.convolution` (attention, this is actually a cross-correlation) is used.</span>
+<span class="sd">          - Then interpolation by either linear or spline function</span>
+<span class="sd">          - The kernel is assumed to be &quot;small enough&quot; outside of it&#39;s `space` and points there won&#39;t be</span>
+<span class="sd">            evaluated.</span>
+
+<span class="sd">        The convolution of two (normalized) functions is defined as</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            (f * g)(t) \triangleq\ \int_{-\infty}^\infty f(\tau) g(t - \tau) \, d\tau</span>
+
+<span class="sd">        It defines the &quot;smearing&quot; of `func` by a `kernel`. This is when an element in `func` is</span>
+<span class="sd">        randomly added to an element of `kernel`. While the sampling (the addition of elements) is rather</span>
+<span class="sd">        simple to do computationally, the calculation of the convolutional PDF (if there is no analytic</span>
+<span class="sd">        solution available) is not, as it requires:</span>
+<span class="sd">            - an integral from -inf to inf</span>
+<span class="sd">            - an integral _for every point of x that is requested_</span>
+
+<span class="sd">        This can be solved with a few tricks. Instead of integrating to infinity, it is usually sufficient to</span>
+<span class="sd">        integrate from a point where the function is &quot;small enough&quot;.</span>
+
+<span class="sd">        If the functions are arbitrary and with conditional dependencies,</span>
+<span class="sd">        there is no way around an integral and another PDF has to be used. If the two functions are</span>
+<span class="sd">        uncorrelated, a simplified version can be done by a discretization of the space (followed by a</span>
+<span class="sd">        Fast Fourier Transfrom, after which the convolution becomes a simple multiplication) and a</span>
+<span class="sd">        discrete convolution can be performed.</span>
+
+<span class="sd">        An interpolation of the discrete convolution for the requested points `x` is performed afterwards.</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            func: PDF  with `pdf` method that takes x and returns the function value.</span>
+<span class="sd">                Here x is a `Data` with the obs and limits of *limits*.</span>
+<span class="sd">            kernel: PDF with `pdf` method that takes x acting as the kernel.</span>
+<span class="sd">                Here x is a `Data` with the obs and limits of *limits*.</span>
+<span class="sd">            n: Number of points _per dimension_ to evaluate the kernel and pdf at.</span>
+<span class="sd">                The higher the number of points, the more accurate the convolution at the cost</span>
+<span class="sd">                of computing time. If `None`, a heuristic is used (default to 100 in 1 dimension).</span>
+<span class="sd">            limits_func: Specify in which limits the `func` should</span>
+<span class="sd">                be evaluated for the convolution:</span>
+<span class="sd">                - If `None`, the limits from the `func` are used and extended by a</span>
+<span class="sd">                 default value (relative 0.2).</span>
+<span class="sd">                - If float: the fraction of the limit do be extended. 0 means no extension,</span>
+<span class="sd">                  1 would extend the limits to each side by the same size resulting in</span>
+<span class="sd">                  a tripled size (for 1 dimension).</span>
+<span class="sd">                  As an example, the limits (1, 5) with a `limits_func` of 0.5 would result in</span>
+<span class="sd">                  effective limits of (-1, 7), as 0.5 * (5 - 1) = 2 has been added to each side.</span>
+<span class="sd">                - If a space with limits is used, this is taken as the range.</span>
+<span class="sd">            limits_kernel: the limits of the kernel. Usually not needed to change and automatically</span>
+<span class="sd">                taken from the kernel.</span>
+<span class="sd">            interpolation: Specify the method that is used for interpolation. Available methods are:</span>
+<span class="sd">                - &#39;linear&#39;: this is the default for any convolution &gt; 1 dimensional. It is a</span>
+<span class="sd">                  fast, linear interpolation between the evaluated points and approximates the</span>
+<span class="sd">                  function reasonably well in case of high number of points and a smooth response.</span>
+<span class="sd">                - &#39;spline&#39; or `f&#39;spline{order}&#39;`: a spline interpolation with polynomials. If</span>
+<span class="sd">                  the order is not specified, a default is used. To specify the order, an integer</span>
+<span class="sd">                  should be followed the word &#39;spline&#39; as e.g. in &#39;spline3&#39; to use a spline of</span>
+<span class="sd">                  order three.</span>
+<span class="sd">                  This method is considerably more computationally intensive as it requires to solve</span>
+<span class="sd">                  a system of equations. When using 1000+ points this can affect the runtime critical.</span>
+<span class="sd">                  However, it provides better solutions that are smooth even with less points</span>
+<span class="sd">                  than for a linear interpolation.</span>
+<span class="sd">            obs: Observables of the class. If not specified, automatically taken from `func`</span>
+<span class="sd">            name: Human readable name of the PDF</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">run</span>
+        <span class="n">run</span><span class="o">.</span><span class="n">assert_executing_eagerly</span><span class="p">()</span>
+        <span class="n">valid_interpolations</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;spline&#39;</span><span class="p">,</span> <span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">space</span> <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">obs</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="p">[</span><span class="n">func</span><span class="p">,</span> <span class="n">kernel</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="p">{},</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">WorkInProgressError</span><span class="p">(</span><span class="s2">&quot;More than 1 dimensional convolutions are currently not supported.&quot;</span>
+                                      <span class="s2">&quot; If you need that, please open an issue on github.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># due to tf.nn.convolution not supporting more</span>
+            <span class="k">raise</span> <span class="n">WorkInProgressError</span><span class="p">(</span><span class="s2">&quot;More than 3 dimensional convolutions are currently not supported.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">interpolation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">interpolation</span> <span class="o">=</span> <span class="s1">&#39;spline&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;linear&#39;</span>
+
+        <span class="n">spline_order</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># default</span>
+        <span class="k">if</span> <span class="s1">&#39;:&#39;</span> <span class="ow">in</span> <span class="n">interpolation</span><span class="p">:</span>
+            <span class="n">interpolation</span><span class="p">,</span> <span class="n">spline_order</span> <span class="o">=</span> <span class="n">interpolation</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">spline_order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spline_order</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">interpolation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_interpolations</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`interpolation` </span><span class="si">{</span><span class="n">interpolation</span><span class="si">}</span><span class="s2"> not known. Has to be one &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;of the following: </span><span class="si">{</span><span class="n">valid_interpolations</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conv_interpolation</span> <span class="o">=</span> <span class="n">interpolation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conv_spline_order</span> <span class="o">=</span> <span class="n">spline_order</span>
+
+        <span class="c1"># get function limits</span>
+        <span class="k">if</span> <span class="n">limits_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">limits_func</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">space</span>
+        <span class="n">limits_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits_func</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">limits_func</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">LimitsNotSpecifiedError</span><span class="p">(</span><span class="s2">&quot;obs have to have limits to define where to integrate over.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">limits_func</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">WorkInProgressError</span><span class="p">(</span><span class="s2">&quot;Multiple Limits not implemented&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get kernel limits</span>
+        <span class="k">if</span> <span class="n">limits_kernel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">limits_kernel</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">space</span>
+        <span class="n">limits_kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_input_limits</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="n">limits_kernel</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">limits_kernel</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">LimitsNotSpecifiedError</span><span class="p">(</span><span class="s2">&quot;obs have to have limits to define where to integrate over.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">limits_kernel</span><span class="o">.</span><span class="n">n_limits</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">WorkInProgressError</span><span class="p">(</span><span class="s2">&quot;Multiple Limits not implemented&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">!=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">n_obs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Func and Kernel need to have (currently) the same number of obs,&quot;</span>
+                                         <span class="sa">f</span><span class="s2">&quot; currently are func: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">n_obs</span><span class="si">}</span><span class="s2"> and kernel: </span><span class="si">{</span><span class="n">kernel</span><span class="o">.</span><span class="n">n_obs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">func</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">==</span> <span class="n">limits_func</span><span class="o">.</span><span class="n">n_obs</span> <span class="o">==</span> <span class="n">limits_kernel</span><span class="o">.</span><span class="n">n_obs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ShapeIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Func and Kernel limits need to have (currently) the same number of obs,&quot;</span>
+                                         <span class="sa">f</span><span class="s2">&quot; are </span><span class="si">{</span><span class="n">limits_func</span><span class="o">.</span><span class="n">n_obs</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">limits_kernel</span><span class="o">.</span><span class="n">n_obs</span><span class="si">}</span><span class="s2"> with the func n_obs&quot;</span>
+                                         <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">n_obs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">limits_func</span> <span class="o">=</span> <span class="n">limits_func</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="n">limits_kernel</span> <span class="o">=</span> <span class="n">limits_kernel</span><span class="o">.</span><span class="n">with_obs</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="mi">51</span>  <span class="c1"># default kernel points</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># make it odd to have a unique shifting when using &quot;same&quot; in the convolution</span>
+
+        <span class="n">lower_func</span><span class="p">,</span> <span class="n">upper_func</span> <span class="o">=</span> <span class="n">limits_func</span><span class="o">.</span><span class="n">rect_limits</span>
+        <span class="n">lower_kernel</span><span class="p">,</span> <span class="n">upper_kernel</span> <span class="o">=</span> <span class="n">limits_kernel</span><span class="o">.</span><span class="n">rect_limits</span>
+        <span class="n">lower_sample</span> <span class="o">=</span> <span class="n">lower_func</span> <span class="o">+</span> <span class="n">lower_kernel</span>
+        <span class="n">upper_sample</span> <span class="o">=</span> <span class="n">upper_func</span> <span class="o">+</span> <span class="n">upper_kernel</span>
+
+        <span class="c1"># TODO: what if kernel area is larger?</span>
+        <span class="k">if</span> <span class="n">limits_kernel</span><span class="o">.</span><span class="n">rect_area</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">limits_func</span><span class="o">.</span><span class="n">rect_area</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">WorkInProgressError</span><span class="p">(</span><span class="s2">&quot;Currently, only kernels that are smaller than the func are supported.&quot;</span>
+                                      <span class="s2">&quot;Simply switch the two should resolve the problem.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get finest resolution. Find the dimensions with the largest kernel-space to func-space ratio</span>
+        <span class="c1"># We take the binwidth of the kernel as the overall binwidth and need to have the same binning in</span>
+        <span class="c1"># the function as well</span>
+        <span class="n">area_ratios</span> <span class="o">=</span> <span class="p">(</span><span class="n">upper_sample</span> <span class="o">-</span> <span class="n">lower_sample</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">limits_kernel</span><span class="o">.</span><span class="n">rect_upper</span> <span class="o">-</span> <span class="n">limits_kernel</span><span class="o">.</span><span class="n">rect_lower</span><span class="p">)</span>
+        <span class="n">nbins_func_exact_max</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">area_ratios</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">nbins_func</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span>
+            <span class="n">nbins_func_exact_max</span><span class="p">)</span>  <span class="c1"># plus one and floor is like ceiling (we want more bins) with the</span>
+        <span class="c1"># guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.</span>
+        <span class="n">nbins_kernel</span> <span class="o">=</span> <span class="n">n</span>
+        <span class="c1"># n = max(n, npoints_scaling)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">assert_less</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># so that for three dimension it&#39;s 999&#39;999, not 10^6</span>
+                       <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="mf">1e6</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+                       <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Number of points automatically calculated to be used for the FFT&quot;</span>
+                               <span class="s2">&quot; based convolution exceeds 1e6. If you want to use this number - &quot;</span>
+                               <span class="s2">&quot;or an even higher value - use explicitly the `n` argument.&quot;</span><span class="p">)</span>
+
+        <span class="n">binwidth</span> <span class="o">=</span> <span class="p">(</span><span class="n">upper_kernel</span> <span class="o">-</span> <span class="n">lower_kernel</span><span class="p">)</span> <span class="o">/</span> <span class="n">nbins_kernel</span>
+        <span class="n">to_extend</span> <span class="o">=</span> <span class="p">(</span><span class="n">binwidth</span> <span class="o">*</span> <span class="n">nbins_func</span> <span class="o">-</span> <span class="p">(</span>
+            <span class="n">upper_sample</span> <span class="o">-</span> <span class="n">lower_sample</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># how much we need to extend the func_limits</span>
+        <span class="c1"># on each side in order to match the binwidth of the kernel</span>
+        <span class="n">lower_sample</span> <span class="o">-=</span> <span class="n">to_extend</span>
+        <span class="n">upper_sample</span> <span class="o">+=</span> <span class="n">to_extend</span>
+
+        <span class="n">lower_valid</span> <span class="o">=</span> <span class="n">lower_sample</span> <span class="o">+</span> <span class="n">lower_kernel</span>
+        <span class="n">upper_valid</span> <span class="o">=</span> <span class="n">upper_sample</span> <span class="o">+</span> <span class="n">upper_kernel</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conv_limits</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;kernel&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">lower_kernel</span><span class="p">,</span> <span class="n">upper_kernel</span><span class="p">),</span>
+                             <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">lower_valid</span><span class="p">,</span> <span class="n">upper_valid</span><span class="p">),</span>
+                             <span class="s1">&#39;func&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">lower_sample</span><span class="p">,</span> <span class="n">upper_sample</span><span class="p">),</span>
+                             <span class="s1">&#39;nbins_kernel&#39;</span><span class="p">:</span> <span class="n">nbins_kernel</span><span class="p">,</span>
+                             <span class="s1">&#39;nbins_func&#39;</span><span class="p">:</span> <span class="n">nbins_func</span><span class="p">}</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">wraps</span><span class="o">=</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_unnormalized_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+
+        <span class="n">lower_func</span><span class="p">,</span> <span class="n">upper_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conv_limits</span><span class="p">[</span><span class="s1">&#39;func&#39;</span><span class="p">]</span>
+        <span class="n">nbins_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conv_limits</span><span class="p">[</span><span class="s1">&#39;nbins_func&#39;</span><span class="p">]</span>
+        <span class="n">x_funcs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lower_func</span><span class="p">,</span> <span class="n">upper_func</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">nbins_func</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+
+        <span class="n">lower_kernel</span><span class="p">,</span> <span class="n">upper_kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conv_limits</span><span class="p">[</span><span class="s1">&#39;kernel&#39;</span><span class="p">]</span>
+        <span class="n">nbins_kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conv_limits</span><span class="p">[</span><span class="s2">&quot;nbins_kernel&quot;</span><span class="p">]</span>
+        <span class="n">x_kernels</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lower_kernel</span><span class="p">,</span> <span class="n">upper_kernel</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">nbins_kernel</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+
+        <span class="n">x_func</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">x_funcs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+                                          <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">))</span>
+        <span class="n">data_func</span> <span class="o">=</span> <span class="n">Data</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">x_func</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
+
+        <span class="n">x_kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">x_kernels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+                                            <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">))</span>
+
+        <span class="n">data_kernel</span> <span class="o">=</span> <span class="n">Data</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tensor</span><span class="o">=</span><span class="n">x_kernel</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="p">)</span>
+
+        <span class="n">y_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data_func</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">y_kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">data_kernel</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">func_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">nbins_func</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span>
+        <span class="n">kernel_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">nbins_kernel</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span>
+
+        <span class="n">y_func</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y_func</span><span class="p">,</span> <span class="n">func_dims</span><span class="p">)</span>
+        <span class="n">y_kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y_kernel</span><span class="p">,</span> <span class="n">kernel_dims</span><span class="p">)</span>
+
+        <span class="c1"># flip the kernel to use the cross-correlation called `convolution function from TF</span>
+        <span class="c1"># convolution = cross-correlation with flipped kernel</span>
+        <span class="n">y_kernel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">y_kernel</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
+
+        <span class="c1"># make rectangular grid</span>
+        <span class="n">y_func_rect</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y_func</span><span class="p">,</span> <span class="n">func_dims</span><span class="p">)</span>
+        <span class="n">y_kernel_rect</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y_kernel</span><span class="p">,</span> <span class="n">kernel_dims</span><span class="p">)</span>
+
+        <span class="c1"># needed for multi dims?</span>
+        <span class="c1"># if self.n_obs == 2:</span>
+        <span class="c1">#     y_kernel_rect = tf.linalg.adjoint(y_kernel_rect)</span>
+
+        <span class="c1"># get correct shape for tf.nn.convolution</span>
+        <span class="n">y_func_rect_conv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y_func_rect</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">func_dims</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">y_kernel_rect_conv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y_kernel_rect</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">kernel_dims</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">conv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">convolution</span><span class="p">(</span>
+            <span class="nb">input</span><span class="o">=</span><span class="n">y_func_rect_conv</span><span class="p">,</span>
+            <span class="n">filters</span><span class="o">=</span><span class="n">y_kernel_rect_conv</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;SAME&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># needed for multidims?</span>
+        <span class="c1"># if self.n_obs == 2:</span>
+        <span class="c1">#     conv = tf.linalg.adjoint(conv[0, ..., 0])[None, ..., None]</span>
+        <span class="c1"># conv = scipy.signal.convolve(</span>
+        <span class="c1">#     y_func_rect,</span>
+        <span class="c1">#     y_kernel_rect,</span>
+        <span class="c1">#     mode=&#39;same&#39;</span>
+        <span class="c1"># )[None, ..., None]</span>
+        <span class="n">train_points</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">query_points</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_interpolation</span> <span class="o">==</span> <span class="s1">&#39;spline&#39;</span><span class="p">:</span>
+            <span class="n">conv_points</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">conv</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">prob</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">interpolate_spline</span><span class="p">(</span><span class="n">train_points</span><span class="o">=</span><span class="n">train_points</span><span class="p">,</span>
+                                                <span class="n">train_values</span><span class="o">=</span><span class="n">conv_points</span><span class="p">,</span>
+                                                <span class="n">query_points</span><span class="o">=</span><span class="n">query_points</span><span class="p">,</span>
+                                                <span class="n">order</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_conv_spline_order</span><span class="p">)</span>
+            <span class="n">prob</span> <span class="o">=</span> <span class="n">prob</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_interpolation</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+            <span class="n">prob</span> <span class="o">=</span> <span class="n">tfp</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">batch_interp_regular_nd_grid</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">query_points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                         <span class="n">x_ref_min</span><span class="o">=</span><span class="n">lower_func</span><span class="p">,</span>
+                                                         <span class="n">x_ref_max</span><span class="o">=</span><span class="n">upper_func</span><span class="p">,</span>
+                                                         <span class="n">y_ref</span><span class="o">=</span><span class="n">conv</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                                                         <span class="c1"># y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),</span>
+                                                         <span class="n">axis</span><span class="o">=-</span><span class="bp">self</span><span class="o">.</span><span class="n">n_obs</span><span class="p">)</span>
+            <span class="n">prob</span> <span class="o">=</span> <span class="n">prob</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">prob</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">conv_interpolation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conv_interpolation</span>
+
+    <span class="nd">@supports</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
+        <span class="c1"># this is a custom implementation of sampling. Since the kernel and func are not correlated,</span>
+        <span class="c1"># we can simply sample from both and add them. This is &quot;trivial&quot; compared to accept reject sampling</span>
+        <span class="c1"># However, one large pitfall is that we cannot simply request n events from each pdf and then add them.</span>
+        <span class="c1"># The kernel can move points out of the limits that we want, since it&#39;s &quot;smearing&quot; it.</span>
+        <span class="c1"># E.g. with x sampled between limits, x + xkernel can be outside of limits.</span>
+        <span class="c1"># Therefore we need to (repeatedly) sample from a) the func in the range of limits +</span>
+        <span class="c1"># the kernel limits; to extend limits in the upper direction with the kernel upper limits and vice versa.</span>
+        <span class="c1"># Therefore we (ab)use the accept reject sample: it samples until it is full. Everything has a constant</span>
+        <span class="c1"># probability to be accepted.</span>
+        <span class="c1"># This is maybe not the most efficient way to do and a more specialized (meaning taking care of less</span>
+        <span class="c1"># special cases such as `accept_reject_sample` does) can be more efficient. However, sampling is not</span>
+        <span class="c1"># supposed to be the bottleneck anyway.</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">sample_and_weights</span> <span class="o">=</span> <span class="n">AddingSampleAndWeights</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span>
+                                                    <span class="n">kernel</span><span class="o">=</span><span class="n">kernel</span><span class="p">)</span>
+
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">accept_reject_sample</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+                                      <span class="c1"># all the points are inside</span>
+                                      <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+                                      <span class="n">limits</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span>
+                                      <span class="n">sample_and_weights_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">sample_and_weights</span><span class="p">,</span>
+                                      <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                                      <span class="n">prob_max</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                                      <span class="n">efficiency_estimation</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sample</span></div>
+
+
+<div class="viewcode-block" id="AddingSampleAndWeights"><a class="viewcode-back" href="../../../full_api/zfit.models.convolution.html#zfit.models.convolution.AddingSampleAndWeights">[docs]</a><span class="k">class</span> <span class="nc">AddingSampleAndWeights</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">kernel</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_to_produce</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">limits</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+        <span class="n">kernel_lower</span><span class="p">,</span> <span class="n">kernel_upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">rect_limits</span>
+        <span class="n">sample_lower</span><span class="p">,</span> <span class="n">sample_upper</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">rect_limits</span>
+
+        <span class="n">sample_ext_lower</span> <span class="o">=</span> <span class="n">sample_lower</span> <span class="o">+</span> <span class="n">kernel_lower</span>
+        <span class="n">sample_ext_upper</span> <span class="o">=</span> <span class="n">sample_upper</span> <span class="o">+</span> <span class="n">kernel_upper</span>
+        <span class="n">sample_ext_space</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">with_limits</span><span class="p">((</span><span class="n">sample_ext_lower</span><span class="p">,</span> <span class="n">sample_ext_upper</span><span class="p">))</span>
+
+        <span class="n">sample_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_to_produce</span><span class="p">,</span> <span class="n">limits</span><span class="o">=</span><span class="n">sample_ext_space</span><span class="p">)</span>
+        <span class="n">sample_kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_to_produce</span><span class="p">)</span>  <span class="c1"># no limits! it&#39;s the kernel, around 0</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">add_samples</span><span class="p">(</span><span class="n">sample_func</span><span class="p">,</span> <span class="n">sample_kernel</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">limits</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">limits</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+        <span class="n">n_drawn</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sample</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="kn">from</span> <span class="nn">zfit</span> <span class="kn">import</span> <span class="n">run</span>
+        <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">numeric_checks</span><span class="p">:</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">assert_positive</span><span class="p">(</span><span class="n">n_drawn</span><span class="p">,</span>
+                                         <span class="s2">&quot;Could not draw any samples. Check the limits of the func and kernel.&quot;</span><span class="p">)</span>
+        <span class="n">thresholds_unscaled</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_drawn</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">sample</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">thresholds_unscaled</span>  <span class="c1"># also &quot;ones_like&quot;</span>
+        <span class="n">weights_max</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sample</span><span class="p">,</span> <span class="n">thresholds_unscaled</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">weights_max</span><span class="p">,</span> <span class="n">n_drawn</span></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+
+    
+  <script src="../../../_static/js/index.3da636dd464baa7582d2.js"></script>
+
+
+    <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    <p>
+          &copy; Copyright Copyright 2018, zfit.<br/>
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

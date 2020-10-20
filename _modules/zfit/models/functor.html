@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.models.functor &#8212; zfit 0.5.5.dev38+g9aa22c5 documentation</title>
+    <title>zfit.models.functor &#8212; zfit 0.5.5.dev63+ga85fcfe documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -452,8 +452,8 @@
         <span class="c1"># return tf.math.reduce_prod(probs, axis=0)</span>
 
     <span class="k">def</span> <span class="nf">_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">norm_range</span><span class="p">):</span>
-        <span class="n">equal_norm_ranges</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">pdf</span><span class="o">.</span><span class="n">norm_range</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">norm_range</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="n">dep</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_same_obs</span><span class="p">)</span> <span class="ow">and</span> <span class="n">equal_norm_ranges</span><span class="p">:</span>
+        <span class="n">equal_norm_ranges</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">pdf</span><span class="o">.</span><span class="n">norm_range</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">norm_range</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># all equal</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_same_obs</span><span class="p">)</span> <span class="ow">and</span> <span class="n">equal_norm_ranges</span><span class="p">:</span>
 
             <span class="n">probs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">pdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdfs</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="n">probs</span><span class="p">))</span>

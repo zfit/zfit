@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.core.data &#8212; zfit 0.5.5.dev38+g9aa22c5 documentation</title>
+    <title>zfit.core.data &#8212; zfit 0.5.5.dev63+ga85fcfe documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -167,7 +167,6 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">uproot</span>
-<span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">ops</span>
 <span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">array_ops</span>
 
 <span class="c1"># from ..settings import types as ztypes</span>
@@ -185,8 +184,9 @@
 <span class="kn">from</span> <span class="nn">..util.cache</span> <span class="kn">import</span> <span class="n">GraphCachable</span><span class="p">,</span> <span class="n">invalidate_graph</span>
 <span class="kn">from</span> <span class="nn">..util.container</span> <span class="kn">import</span> <span class="n">convert_to_container</span>
 <span class="kn">from</span> <span class="nn">..util.exception</span> <span class="kn">import</span> <span class="n">LogicalUndefinedOperationError</span><span class="p">,</span> <span class="n">ShapeIncompatibleError</span><span class="p">,</span> \
-    <span class="n">ObsIncompatibleError</span><span class="p">,</span> <span class="n">DataIsBatchedError</span>
+    <span class="n">ObsIncompatibleError</span><span class="p">,</span> <span class="n">WorkInProgressError</span>
 <span class="kn">from</span> <span class="nn">..util.temporary</span> <span class="kn">import</span> <span class="n">TemporarilySet</span>
+
 
 <span class="c1"># TODO: make cut only once, then remember</span>
 <div class="viewcode-block" id="Data"><a class="viewcode-back" href="../../../user_api/zfit.data.html#zfit.core.data.Data">[docs]</a><span class="k">class</span> <span class="nc">Data</span><span class="p">(</span><span class="n">GraphCachable</span><span class="p">,</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">BaseDimensional</span><span class="p">,</span> <span class="n">BaseObject</span><span class="p">):</span>
@@ -312,7 +312,6 @@
     <span class="k">def</span> <span class="nf">space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZfitSpace&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space</span>
 
-
     <span class="c1"># constructors</span>
 <div class="viewcode-block" id="Data.from_root_iter"><a class="viewcode-back" href="../../../full_api/zfit.data.html#zfit.core.data.Data.from_root_iter">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_root_iter</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">treepath</span><span class="p">,</span> <span class="n">branches</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">entrysteps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -330,7 +329,6 @@
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_generator</span><span class="p">(</span><span class="n">uproot_generator</span><span class="p">,</span> <span class="n">output_types</span><span class="o">=</span><span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="n">dataset</span><span class="o">.</span><span class="n">prefetch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="Data.from_root"><a class="viewcode-back" href="../../../user_api/zfit.data.html#zfit.core.data.Data.from_root">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_root</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">treepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">branches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">branches_alias</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -675,7 +673,7 @@
 <div class="viewcode-block" id="SampleData"><a class="viewcode-back" href="../../../full_api/zfit.core.data.html#zfit.core.data.SampleData">[docs]</a><span class="k">class</span> <span class="nc">SampleData</span><span class="p">(</span><span class="n">Data</span><span class="p">):</span>
     <span class="n">_cache_counting</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="s2">&quot;LightDataset&quot;</span><span class="p">],</span> <span class="n">sample_holder</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="s2">&quot;LightDataset&quot;</span><span class="p">],</span>
                  <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">dtype</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">DType</span> <span class="o">=</span> <span class="n">ztypes</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">iterator_feed_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
@@ -690,7 +688,7 @@
     <span class="k">def</span> <span class="nf">from_sample</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ztyping</span><span class="o">.</span><span class="n">ObsTypeInput</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">LightDataset</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">SampleData</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">sample_holder</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">SampleData</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Sampler"><a class="viewcode-back" href="../../../full_api/zfit.core.data.html#zfit.core.data.Sampler">[docs]</a><span class="k">class</span> <span class="nc">Sampler</span><span class="p">(</span><span class="n">Data</span><span class="p">):</span>
@@ -796,26 +794,6 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;Sampler: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> obs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obs</span><span class="si">}</span><span class="s1">&gt;&#39;</span></div>
 
 
-<span class="c1"># def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):</span>
-<span class="c1">#     return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)</span>
-
-
-<span class="c1"># ops.register_tensor_conversion_function(Data, _dense_var_to_tensor)</span>
-<span class="c1"># fetch_function = lambda data: ([data.value()],</span>
-<span class="c1">#                                lambda val: val[0])</span>
-<span class="c1"># feed_function = lambda data, feed_val: [(data.value(), feed_val)]</span>
-<span class="c1"># feed_function_for_partial_run = lambda data: [data.value()]</span>
-<span class="c1">#</span>
-<span class="c1"># from tensorflow.python.client.session import register_session_run_conversion_functions</span>
-<span class="c1">#</span>
-<span class="c1"># # ops.register_dense_tensor_like_type()</span>
-<span class="c1">#</span>
-<span class="c1"># register_session_run_conversion_functions(tensor_type=Data, fetch_function=fetch_function,</span>
-<span class="c1">#                                           feed_function=feed_function,</span>
-<span class="c1">#                                           feed_function_for_partial_run=feed_function_for_partial_run)</span>
-<span class="c1">#</span>
-<span class="c1"># Data._OverloadAllOperators()</span>
-
 <span class="n">register_tensor_conversion</span><span class="p">(</span><span class="n">Data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">overload_operators</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
@@ -838,6 +816,21 @@
 
 <div class="viewcode-block" id="LightDataset.value"><a class="viewcode-back" href="../../../full_api/zfit.core.data.html#zfit.core.data.LightDataset.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tensor</span></div></div>
+
+
+<div class="viewcode-block" id="add_samples"><a class="viewcode-back" href="../../../full_api/zfit.core.data.html#zfit.core.data.add_samples">[docs]</a><span class="k">def</span> <span class="nf">add_samples</span><span class="p">(</span><span class="n">sample1</span><span class="p">:</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">sample2</span><span class="p">:</span> <span class="n">ZfitData</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">ZfitSpace</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">sample1</span><span class="p">,</span> <span class="n">sample2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">WorkInProgressError</span>
+    <span class="n">sample2</span> <span class="o">=</span> <span class="n">sample2</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+        <span class="n">sample2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">sample2</span><span class="p">)</span>
+    <span class="n">tensor</span> <span class="o">=</span> <span class="n">sample1</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span> <span class="o">+</span> <span class="n">sample2</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="n">WorkInProgressError</span><span class="p">(</span><span class="s2">&quot;Cannot combine weights currently&quot;</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">SampleData</span><span class="o">.</span><span class="n">from_sample</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="n">tensor</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span></div>
 </pre></div>
 
               </div>

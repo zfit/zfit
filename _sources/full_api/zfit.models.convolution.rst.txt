@@ -1,0 +1,8 @@
+zfit.models.convolution module
+==============================
+
+.. automodule:: zfit.models.convolution
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
