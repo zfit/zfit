@@ -54,7 +54,7 @@ def test_conv_simple(interpolation):
 
     integral = conv.integrate(limits=obs)
     probs_np = probs.numpy()
-    np.testing.assert_allclose(probs, true_conv, rtol=0.1, atol=0.01)
+    np.testing.assert_allclose(probs, true_conv, rtol=0.01, atol=0.01)
 
     assert pytest.approx(1, rel=1e-3) == integral.numpy()
     assert len(probs_np) == n_points
@@ -95,14 +95,13 @@ def test_conv_1d_shifted():
     np.testing.assert_allclose(probs_np, true_conv, rtol=0.01, atol=0.01)
 
     assert pytest.approx(1, rel=1e-3) == integral.numpy()
-    # # assert len(probs_np) == n_points
 
-    import matplotlib.pyplot as plt
-    plt.figure()
-    plt.plot(x, probs_np, label='zfit')
-    plt.plot(x, true_conv, label='numpy')
-    plt.legend()
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # plt.figure()
+    # plt.plot(x, probs_np, label='zfit')
+    # plt.plot(x, true_conv, label='numpy')
+    # plt.legend()
+    # plt.show()
 
 
 def test_onedim_sampling():
