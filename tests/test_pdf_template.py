@@ -14,6 +14,7 @@ def test_binned_template_pdf():
     counts = np.random.uniform(high=1, size=(10, 20))  # generate counts
     counts2 = np.random.normal(loc=5, size=(10, 20))
     counts3 = np.linspace(0, 10, num=10)[:, None] * np.linspace(0, 5, num=20)[None, :]
+
     binnings = [bh.axis.Regular(10, 0, 10), bh.axis.Regular(20, -10, 30)]
     binning = RectBinning(binnings=binnings)
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
@@ -36,6 +37,6 @@ def test_binned_template_pdf():
 
     # import matplotlib.pyplot as plt
     # plt.imshow(probs)
-    # plt.imshow(counts2)
+    # plt.figure()
+    # plt.imshow(counts + counts2 + counts3)
     # plt.show()
-    # assert len(pdf.pdf(None, obs)) > 0

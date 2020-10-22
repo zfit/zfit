@@ -20,7 +20,7 @@ from .baseobject import BaseObject
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
 from .interfaces import ZfitData
-from .parameter import register_tensor_conversion
+from .tensorlike import register_tensor_conversion
 from .space import Space, convert_to_space
 from ..settings import ztypes
 from ..util import ztyping
