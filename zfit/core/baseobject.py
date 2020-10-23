@@ -9,7 +9,8 @@ import tensorflow as tf
 from ordered_set import OrderedSet
 
 from .dependents import BaseDependentsMixin
-from .interfaces import ZfitObject, ZfitNumericParametrized, ZfitParameter, ZfitParametrized, ZfitIndependentParameter
+from .interfaces import ZfitObject, ZfitNumericParametrized, ZfitParameter, ZfitParametrized, ZfitIndependentParameter, \
+    ZfitNumeric
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
@@ -67,7 +68,6 @@ class BaseParametrized(ZfitParametrized):
 
         # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
         self._params = params
-        self._repr.params = self.params
 
     def get_params(self,
                    floating: Optional[bool] = True,
@@ -113,18 +113,27 @@ class BaseParametrized(ZfitParametrized):
         return self._params
 
 
-class BaseNumeric(GraphCachable, BaseDependentsMixin, BaseParametrized, ZfitNumericParametrized, BaseObject):
-
+class BaseNumeric(BaseDependentsMixin, GraphCachable, BaseObject, ZfitNumeric):
     def __init__(self, **kwargs):
         if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?
             self._dtype = kwargs.pop('dtype')
         super().__init__(**kwargs)
-        self.add_cache_deps(self.params.values())
 
     @property
     def dtype(self) -> tf.DType:
         """The dtype of the object"""
         return self._dtype
+
+    @property
+    def shape(self):
+        return self._shape
+
+
+class BaseNumericParameterized(BaseParametrized, BaseNumeric, ZfitNumericParametrized):
+
+    def __init__(self, params, **kwargs):
+        super().__init__(params=params, **kwargs)
+        self.add_cache_deps(self.params.values())
 
     @staticmethod
     def _filter_floating_params(params):

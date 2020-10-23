@@ -10,7 +10,7 @@ import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
 from zfit import z
-from .baseobject import BaseNumeric
+from .baseobject import BaseNumericParameterized
 from .dependents import _extract_dependencies
 from .interfaces import ZfitConstraint, ZfitParameter
 from .parameter import convert_to_parameter
@@ -22,7 +22,7 @@ from ..util.exception import ShapeIncompatibleError
 tfd = tfp.distributions
 
 
-class BaseConstraint(ZfitConstraint, BaseNumeric):
+class BaseConstraint(ZfitConstraint, BaseNumericParameterized):
 
     def __init__(self, params: Union[Dict[str, ZfitParameter]] = None,
                  name: str = "BaseConstraint", dtype=ztypes.float,

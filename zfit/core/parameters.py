@@ -41,11 +41,10 @@ class ParameterArray(BaseParameterArray):
                                         "Use a different, unique one.".format(existing_names))
         self._names = names = names
         size = int(tf.size(values))
-        raise WorkInProgressError("TODO CONTINUE FROM HERE")
         if lower is not None and not values.shape == lower.shape:
             raise ShapeIncompatibleError
 
-        if not values.shape == upper.shape:
+        if upper is not None and not values.shape == upper.shape:
             raise ShapeIncompatibleError
         super().__init__(name=f"Daddy_{names[0]}")
 

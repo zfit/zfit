@@ -7,7 +7,7 @@ from typing import Optional, Union, List, Callable, Iterable, Tuple, Set
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-from .baseobject import BaseNumeric
+from .baseobject import BaseNumericParameterized
 from .constraint import BaseConstraint
 from .dependents import _extract_dependencies
 from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
@@ -74,7 +74,7 @@ def _constraint_check_convert(constraints):
     return checked_constraints
 
 
-class BaseLoss(ZfitLoss, BaseNumeric):
+class BaseLoss(ZfitLoss, BaseNumericParameterized):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
                  fit_range: ztyping.LimitsTypeInput = None,

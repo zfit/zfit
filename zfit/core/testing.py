@@ -10,7 +10,7 @@ from typing import Callable, Tuple, List, Union, Iterable
 import scipy.stats
 
 from .interfaces import ZfitPDF
-from .parameter import ZfitParameterMixin
+from .parameter import BaseParameter
 from ..util.cache import clear_graph_cache
 from ..util.container import convert_to_container
 
@@ -26,7 +26,7 @@ def setup_function():
 
 
 def teardown_function():
-    ZfitParameterMixin._existing_params.clear()
+    BaseParameter._existing_params.clear()
 
     clear_graph_cache()
     import zfit

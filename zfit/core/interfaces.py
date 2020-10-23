@@ -636,7 +636,7 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
         raise NotImplementedError
 
 
-class ZfitNumericParametrized(ZfitParametrized):
+class ZfitNumeric(abc.ABC):
 
     @property
     @abstractmethod
@@ -644,18 +644,21 @@ class ZfitNumericParametrized(ZfitParametrized):
         """The `DType` of `Tensor`s handled by this `model`."""
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def shape(self):
+        raise NotImplementedError
+
+
+class ZfitNumericParametrized(ZfitParametrized, ZfitNumeric):
+    pass
+
 
 class ZfitParameter(ZfitNumericParametrized):
 
     @property
     @abstractmethod
     def name(self) -> str:
-        raise NotImplementedError
-
-    # TODO: maybe add to numerics?
-    @property
-    @abstractmethod
-    def shape(self):
         raise NotImplementedError
 
     @property
@@ -739,6 +742,14 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         Returns:
             The step size
         """
+        raise NotImplementedError
+
+    @property
+    def lower(self):
+        raise NotImplementedError
+
+    @property
+    def upper(self):
         raise NotImplementedError
 
 

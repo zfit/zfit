@@ -5,7 +5,7 @@ from typing import Union, Callable
 import numpy as np
 import tensorflow as tf
 
-from .baseobject import BaseNumeric
+from .baseobject import BaseNumericParameterized
 from .dimension import BaseDimensional
 from .interfaces import ZfitBinnedPDF, ZfitSpace, ZfitParameter
 from .. import convert_to_parameter, convert_to_space
@@ -15,7 +15,7 @@ from ..util.exception import SpecificFunctionNotImplementedError, WorkInProgress
     AlreadyExtendedPDFError, SpaceIncompatibleError
 
 
-class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
+class BaseBinnedPDF(BaseNumericParameterized, ZfitBinnedPDF):
 
     def __init__(self, obs, **kwargs):
         super().__init__(**kwargs)

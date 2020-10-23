@@ -15,7 +15,7 @@ import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
 from . import integration as zintegrate, sample as zsample
-from .baseobject import BaseNumeric
+from .baseobject import BaseNumericParameterized
 from .data import Data, Sampler, SampleData
 from .dependents import _extract_dependencies
 from .dimension import BaseDimensional
@@ -64,7 +64,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
+class BaseModel(BaseNumericParameterized, ZfitModel):
     """Base class for any generic model.
 
     # TODO instructions on how to use
