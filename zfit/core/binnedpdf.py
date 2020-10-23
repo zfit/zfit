@@ -8,11 +8,11 @@ import tensorflow as tf
 from .baseobject import BaseNumeric
 from .dimension import BaseDimensional
 from .interfaces import ZfitBinnedPDF, ZfitSpace, ZfitParameter
-from .. import convert_to_parameter
+from .. import convert_to_parameter, convert_to_space
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.exception import SpecificFunctionNotImplementedError, WorkInProgressError, NotExtendedPDFError, \
-    AlreadyExtendedPDFError
+    AlreadyExtendedPDFError, SpaceIncompatibleError
 
 
 class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
@@ -163,3 +163,34 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
 
     def _copy(self, deep, name, overwrite_params):
         raise WorkInProgressError
+
+    # factor out with unbinned pdf
+    @property
+    def norm_range(self):
+        return self._norm_range
+
+    # TODO: factor out with unbinned pdf
+    def convert_sort_space(self, obs: Union[ztyping.ObsTypeInput, ztyping.LimitsTypeInput] = None,
+                           axes: ztyping.AxesTypeInput = None,
+                           limits: ztyping.LimitsTypeInput = None) -> Union[ZfitSpace, None]:
+        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
+        own `obs`.
+
+        Args:
+            obs:
+            axes:
+            limits:
+
+        Returns:
+
+        """
+        if obs is None:  # for simple limits to convert them
+            obs = self.obs
+        elif not set(obs).intersection(self.obs):
+            raise SpaceIncompatibleError("The given space {obs} is not compatible with the obs of the pdfs{self.obs};"
+                                         " they are disjoint.")
+        space = convert_to_space(obs=obs, axes=axes, limits=limits)
+
+        if self.space is not None:  # e.g. not the first call
+            space = space.with_coords(self.space, allow_superset=True, allow_subset=True)
+        return space

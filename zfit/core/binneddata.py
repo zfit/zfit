@@ -3,6 +3,7 @@ from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitBinnedData
 from .. import z
+from ..util.exception import WorkInProgressError
 from ..util.ztyping import NumericalTypeReturn
 
 
@@ -28,10 +29,16 @@ class BinnedData(BaseDimensional, ZfitBinnedData, BaseObject):  # TODO: add dtyp
     def _input_check_counts(self, counts):  # TODO
         return counts
 
-    def get_counts(self, bins=None) -> NumericalTypeReturn:
+    def get_counts(self, bins=None, obs=None) -> NumericalTypeReturn:
         if bins is not None:
             raise WorkInProgressError
+        if obs is not None and not obs == self.obs:
+            raise WorkInProgressError("Currently, reordering of axes not supported")
         return self._counts
 
     def weights_error_squared(self) -> NumericalTypeReturn:
         return self._w2error
+
+    @property
+    def data_range(self):
+        return self.space

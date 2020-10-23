@@ -938,7 +938,7 @@ class ZfitConstraint(abc.ABC):
 class ZfitBinnedData(ZfitDimensional):
 
     @abstractmethod
-    def get_counts(self, bins):
+    def get_counts(self, bins, obs):
         raise NotImplementedError
 
     @abstractmethod
