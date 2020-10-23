@@ -1,9 +1,15 @@
 #  Copyright (c) 2020 zfit
 import warnings
 
+from ._loss.binnedloss import ExtendedBinnedNLL
 from .core.loss import ExtendedUnbinnedNLL, UnbinnedNLL, BaseLoss, SimpleLoss
 
-__all__ = ['ExtendedUnbinnedNLL', "UnbinnedNLL", "BaseLoss", "SimpleLoss", 'experimental_enable_loss_penalty']
+__all__ = ["ExtendedUnbinnedNLL",
+           "UnbinnedNLL",
+           "BaseLoss",
+           "SimpleLoss",
+           "experimental_enable_loss_penalty",
+           "ExtendedBinnedNLL"]
 
 from .util.warnings import warn_experimental_feature
 
