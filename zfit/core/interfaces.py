@@ -4,9 +4,9 @@ import abc
 from abc import ABCMeta, abstractmethod
 from typing import Union, List, Dict, Callable, Tuple, Optional, Set
 
+import boost_histogram as bh
 import numpy as np
 import tensorflow as tf
-import boost_histogram as bh
 
 from ..util import ztyping
 from ..util.deprecation import deprecated
@@ -27,22 +27,22 @@ class ZfitDimensional(ZfitObject):
         """Return the observables, string identifier for the coordinate system."""
         raise NotImplementedError
 
-    @property
-    @abstractmethod
-    def axes(self) -> ztyping.AxesTypeReturn:
-        """Return the axes, integer based identifier(indices) for the coordinate system."""
-        raise NotImplementedError
+    # @property
+    # @abstractmethod
+    # def axes(self) -> ztyping.AxesTypeReturn:
+    #     """Return the axes, integer based identifier(indices) for the coordinate system."""
+    #     raise NotImplementedError
 
     @property
     @abstractmethod
     def n_obs(self) -> int:
         """Return the number of observables, the dimensionality. Corresponds to the last dimension."""
         raise NotImplementedError
-    # TODO: activate?
-    # @property
-    # @abstractmethod
-    # def space(self):
-    #     raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def space(self):
+        raise NotImplementedError
 
 
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):

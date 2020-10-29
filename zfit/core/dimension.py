@@ -25,12 +25,16 @@ class BaseDimensional(ZfitDimensional):
             cls._N_OBS = None
 
     @property
+    def space(self):
+        return self._space
+
+    @property
     def obs(self) -> ztyping.ObsTypeReturn:
         return self.space.obs
 
-    @property
-    def axes(self) -> ztyping.AxesTypeReturn:
-        return self.space.axes
+    # @property
+    # def axes(self) -> ztyping.AxesTypeReturn:
+    #     return self.space.axes
 
     @property
     def n_obs(self) -> int:
