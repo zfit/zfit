@@ -305,7 +305,7 @@ class Poisson(WrapDistribution):
         """
         (lamb,) = self._check_input_params(lamb)
         params = OrderedDict((('lamb', lamb),))
-        dist_params = dict(rate=lamb)
+        dist_params = lambda: dict(rate=lamb.value())
         distribution = tfp.distributions.Poisson
         super().__init__(distribution=distribution, dist_params=dist_params,
                          obs=obs, params=params, name=name)
