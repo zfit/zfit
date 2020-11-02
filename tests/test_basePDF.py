@@ -112,7 +112,7 @@ def create_gaussian_dists():
 
 # starting tests
 # ===============================
-@pytest.mark.skip  # TODO: should we have gradients in PDFs?
+@pytest.mark.skip  # TODO: should we have gradients in PDFs? Nope, remove
 def test_gradient():
     gauss3 = create_gauss3()
     random_vals = np.random.normal(4., 2., size=5)

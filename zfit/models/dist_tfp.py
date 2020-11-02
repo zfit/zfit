@@ -192,7 +192,7 @@ class Gauss(WrapDistribution):
         """
         mu, sigma = self._check_input_params(mu, sigma)
         params = OrderedDict((('mu', mu), ('sigma', sigma)))
-        dist_params = dict(loc=mu, scale=sigma)
+        dist_params = lambda: dict(loc=mu.value(), scale=sigma.value())
         distribution = tfp.distributions.Normal
         super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name)
 
@@ -223,7 +223,7 @@ class Uniform(WrapDistribution):
         """
         low, high = self._check_input_params(low, high)
         params = OrderedDict((("low", low), ("high", high)))
-        dist_params = dict(low=low, high=high)
+        dist_params = lambda: dict(low=low.value(), high=high.value())
         distribution = tfp.distributions.Uniform
         super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name)
 
@@ -246,7 +246,7 @@ class TruncatedGauss(WrapDistribution):
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
         params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
         distribution = tfp.distributions.TruncatedNormal
-        dist_params = dict(loc=mu, scale=sigma, low=low, high=high)
+        dist_params = lambda: dict(loc=mu.value(), scale=sigma.value(), low=low.value(), high=high.value())
         super().__init__(distribution=distribution, dist_params=dist_params,
                          obs=obs, params=params, name=name)
 
@@ -278,7 +278,7 @@ class Cauchy(WrapDistribution):
         m, gamma = self._check_input_params(m, gamma)
         params = OrderedDict((('m', m), ('gamma', gamma)))
         distribution = tfp.distributions.Cauchy
-        dist_params = dict(loc=m, scale=gamma)
+        dist_params = lambda: dict(loc=m.value(), scale=gamma.value())
         super().__init__(distribution=distribution, dist_params=dist_params,
                          obs=obs, params=params, name=name)
 

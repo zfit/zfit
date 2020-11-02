@@ -5,9 +5,9 @@ import tensorflow as tf
 
 import zfit
 from zfit import z, Space
-# noinspection PyUnresolvedReferences
 from zfit.core.space import Limit
-from zfit.core.testing import setup_function, teardown_function
+# noinspection PyUnresolvedReferences
+from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import AnalyticSamplingNotImplementedError
 
 setup_func_general = setup_function
