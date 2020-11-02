@@ -8,10 +8,10 @@ python:
 install:
     - pip install -U pip
     - pip install -U tox-travis
-    - pip install -U .
+    - pip install --use-feature=2020-resolver -U .
 
 script:
-    - pip install -U -r requirements_dev.txt 2>&1 | tail -n 11
+    - pip install -U --use-feature=2020-resolver -r requirements_dev.txt 2>&1 | tail -n 11
     - pip install -U numpy  # needed for linspace with vectors
     - echo "TensorFlow version:" && pip install coverage 2>&1 | tail -n 11
     - python -c 'import tensorflow as tf; print(tf.__version__)'
