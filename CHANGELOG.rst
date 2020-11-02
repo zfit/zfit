@@ -17,6 +17,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- Fix issue when using a `ComposedParameter` as the `rate` argument of a `Poisson` PDF
 
 
 Experimental
