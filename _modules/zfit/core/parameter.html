@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.core.parameter &#8212; zfit 0.5.6.dev7+g01837c6 documentation</title>
+    <title>zfit.core.parameter &#8212; zfit 0.5.6.dev8+g9516858 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -725,10 +725,10 @@
         <span class="k">if</span> <span class="n">n_func_params</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No `params` specified, the `value_fn` is supposed to return a constant. &quot;</span>
-                              <span class="s2">&quot;Use preferably `ConstantParameter` instead&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+                              <span class="s2">&quot;Use preferably `ConstantParameter` instead&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>  <span class="c1"># this is the legacy case where the function didn&#39;t take arguments</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The `value_fn` for composed parameters should take the same number&quot;</span>
-                              <span class="s2">&quot; of arguments as `params` are given.&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+                              <span class="s2">&quot; of arguments as `params` are given.&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
                 <span class="n">legacy_value_fn</span> <span class="o">=</span> <span class="n">value_fn</span>
 
                 <span class="k">def</span> <span class="nf">value_fn</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
@@ -852,7 +852,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">dependents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">NotSpecified</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="n">dependents</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`dependents` is deprecated, use `params` instead.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`dependents` is deprecated, use `params` instead.&quot;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">params</span> <span class="ow">is</span> <span class="n">NotSpecified</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>

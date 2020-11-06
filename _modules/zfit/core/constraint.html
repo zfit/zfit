@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>zfit.core.constraint &#8212; zfit 0.5.6.dev7+g01837c6 documentation</title>
+    <title>zfit.core.constraint &#8212; zfit 0.5.6.dev8+g9516858 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -383,9 +383,10 @@
                                              <span class="sa">f</span><span class="s2">&quot;covariance (from uncertainty): </span><span class="si">{</span><span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">covariance</span>
 
-        <span class="n">distribution</span> <span class="o">=</span> <span class="n">tfd</span><span class="o">.</span><span class="n">MultivariateNormalFullCovariance</span>
+        <span class="n">distribution</span> <span class="o">=</span> <span class="n">tfd</span><span class="o">.</span><span class="n">MultivariateNormalTriL</span>
         <span class="n">dist_params</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">observation</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">observation</span><span class="p">,</span>
-                                               <span class="n">covariance_matrix</span><span class="o">=</span><span class="n">create_covariance</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">uncertainty</span><span class="p">))</span>
+                                               <span class="n">scale_tril</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span>
+                                                   <span class="n">create_covariance</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">uncertainty</span><span class="p">)))</span>
         <span class="n">dist_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">validate_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;GaussianConstraint&quot;</span><span class="p">,</span> <span class="n">observation</span><span class="o">=</span><span class="n">observation</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
