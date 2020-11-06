@@ -171,7 +171,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                                                    **minimizer_init)
 
         strategy = minimizer_setter.pop('strategy')
-        minimizer.set_strategy(strategy)
+        minimizer.strategy = strategy
         minimizer.tol = self.tolerance / 1e-3  # iminuit 1e-3 and tolerance 0.1
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
             minimizer_setter)

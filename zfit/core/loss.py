@@ -98,7 +98,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if fit_range is not None:
             warnings.warn("The fit_range argument is depreceated and will maybe removed in future releases. "
                           "It is preferred to define the range in the space"
-                          " when creating the data and the model.")
+                          " when creating the data and the model.", stacklevel=2)
 
         self.computed_gradients = {}
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)

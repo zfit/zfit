@@ -15,10 +15,16 @@ true_c = -0.3
 
 
 def create_loss(n=15000, weights=None):
-    a_param = zfit.Parameter("variable_a15151", 1.5, -1., 20.,
+    avalue = 1.5
+    a_param = zfit.Parameter("variable_a15151", avalue, -1., 20.,
                              step_size=z.constant(0.1))
-    b_param = zfit.Parameter("variable_b15151", 3.5, 0, 20)
-    c_param = zfit.Parameter("variable_c15151", -0.04, -1, 0.)
+    a_param.init_val = avalue
+    bvalue = 3.5
+    b_param = zfit.Parameter("variable_b15151", bvalue, 0, 20)
+    b_param.init_val = bvalue
+    cvalue = -0.04
+    c_param = zfit.Parameter("variable_c15151", cvalue, -1, 0.)
+    c_param.init_val = cvalue
     obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 
     # load params for sampling
@@ -48,7 +54,7 @@ def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
     true_minimum = loss.value().numpy()
 
     for param in [a_param, b_param, c_param]:
-        param.assign(param.initialized_value())  # reset the value
+        param.assign(param.init_val)  # reset the value
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)

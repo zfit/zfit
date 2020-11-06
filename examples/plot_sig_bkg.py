@@ -86,4 +86,4 @@ plt.plot(x, y_exp * plot_scaling, '--', label="Exponential - Background", linewi
 plt.xlabel("Physical observable")
 plt.legend()
 
-plt.show()
+# plt.show()

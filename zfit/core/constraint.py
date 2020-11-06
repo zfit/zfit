@@ -225,9 +225,10 @@ class GaussianConstraint(TFProbabilityConstraint):
                                              f"covariance (from uncertainty): {covariance.shape[0:2]}")
             return covariance
 
-        distribution = tfd.MultivariateNormalFullCovariance
+        distribution = tfd.MultivariateNormalTriL
         dist_params = lambda observation: dict(loc=observation,
-                                               covariance_matrix=create_covariance(observation, uncertainty))
+                                               scale_tril=tf.linalg.cholesky(
+                                                   create_covariance(observation, uncertainty)))
         dist_kwargs = dict(validate_args=True)
 
         super().__init__(name="GaussianConstraint", observation=observation, params=params,
