@@ -53,9 +53,7 @@ def _maybe_disable_warnings():
 
 
 _maybe_disable_warnings()
-import tensorflow.compat.v1 as _tfv1
 
-_tfv1.enable_v2_behavior()
 import tensorflow as tf
 
 if int(tf.__version__[0]) < 2:
