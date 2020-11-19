@@ -149,9 +149,9 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
             assert tuple(a_errors.keys()) == (mu_param,)
             errors, _ = result.errors()
             a_error = a_errors[mu_param]
-            assert a_error['lower'] == pytest.approx(-a_error['upper'], abs=0.1)
-            assert abs(a_error['lower']) == pytest.approx(0.015, abs=0.015)
-            assert abs(errors[sigma_param]['lower']) == pytest.approx(0.010, abs=0.01)
+            assert a_error.lower == pytest.approx(-a_error.upper, abs=0.1)
+            assert abs(a_error.lower) == pytest.approx(0.015, abs=0.015)
+            assert abs(errors[sigma_param].lower) == pytest.approx(0.010, abs=0.01)
             assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007, abs=0.15)
             assert abs(errors[lambda_param]['upper']) == pytest.approx(0.007, abs=0.15)
 

@@ -217,7 +217,7 @@ def test_errors(minimizer_class_and_kwargs, sigma):
         z_error_param = z_errors[param]
         minos_errors_param = minos_errors[param]
     for dir in ["lower", "upper"]:
-        assert pytest.approx(z_error_param[dir], rel=0.03) == minos_errors_param[dir]
+        assert pytest.approx(z_error_param[dir], rel=0.03) == getattr(minos_errors_param, dir)
 
     with pytest.raises(KeyError):
         result.errors(method="error")
@@ -261,5 +261,5 @@ def test_new_minimum(minimizer_class_and_kwargs):
         assert new_result.valid is True
         errors, _ = new_result.errors()
         for param in params:
-            assert errors[param]["lower"] < 0
-            assert errors[param]["upper"] > 0
+            assert errors[param].lower < 0
+            assert errors[param].upper > 0

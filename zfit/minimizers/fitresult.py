@@ -159,18 +159,19 @@ class FitResult(ZfitResult):
             else:
                 raise ValueError(f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit.")
         params_result = [p_dict for p_dict in result[1]]
-        result_vals = [res["value"] for res in params_result]
+        result_vals = [res.value for res in params_result]
         set_values(params, values=result_vals)
-        info = {'n_eval': result[0]['nfcn'],
-                'n_iter': result[0]['ncalls'],
+        fmin_object = result[0]
+        info = {'n_eval': fmin_object.nfcn,
+                'n_iter': "REMOVED FROM MINUIT",  # TODO 6.x: remove completely
                 # 'grad': result['jac'],
                 # 'message': result['message'],
-                'original': result[0]}
-        edm = result[0]['edm']
-        fmin = result[0]['fval']
+                'original': fmin_object}
+        edm = fmin_object.edm
+        fmin = fmin_object.fval
         status = -999
-        converged = result[0]['is_valid']
-        params = OrderedDict((p, res['value']) for p, res in zip(params, params_result))
+        converged = fmin_object.is_valid
+        params = OrderedDict((p, res.value) for p, res in zip(params, params_result))
         return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
                    status=status, converged=converged,
                    minimizer=minimizer)
@@ -499,21 +500,25 @@ def format_value(value, highprec=True):
         m_error_class = iminuit.util.MError
     except ImportError:
         m_error_class = dict
-    if isinstance(value, (dict, m_error_class)):
-        if 'error' in value:
-            value = value['error']
-            value = f"{value:> 6.2g}"
-            value = f'+/-{" " * (8 - len(value))}' + value
-        if 'lower' in value and 'upper' in value:
+
+    if isinstance(value, dict) and 'error' in value:
+        value = value['error']
+        value = f"{value:> 6.2g}"
+        value = f'+/-{" " * (8 - len(value))}' + value
+    if isinstance(value, m_error_class) or (isinstance(value, dict) and 'lower' in value and 'upper' in value):
+        if isinstance(value, m_error_class):
+            lower = value.lower
+            upper = value.upper
+        else:
             lower = value['lower']
             upper = value['upper']
-            lower_sign = f"{np.sign(lower): >+}"[0]
-            upper_sign = f"{np.sign(upper): >+}"[0]
-            lower, upper = f"{np.abs(lower): >6.2g}", f"{upper: >6.2g}"
-            lower = lower_sign + " " * (7 - len(lower)) + lower
-            upper = upper_sign + " " * (7 - len(upper)) + upper
-            # lower += " t" * (11 - len(lower))
-            value = lower + " " * 3 + upper
+        lower_sign = f"{np.sign(lower): >+}"[0]
+        upper_sign = f"{np.sign(upper): >+}"[0]
+        lower, upper = f"{np.abs(lower): >6.2g}", f"{upper: >6.2g}"
+        lower = lower_sign + " " * (7 - len(lower)) + lower
+        upper = upper_sign + " " * (7 - len(upper)) + upper
+        # lower += " t" * (11 - len(lower))
+        value = lower + " " * 3 + upper
 
     if isinstance(value, float):
         if highprec:
