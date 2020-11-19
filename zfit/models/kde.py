@@ -93,21 +93,22 @@ class GaussianKDE1DimV1(WrapDistribution):
         cross validation - or determined from the data automatically, either through a simple method like
         scott or silverman rule of thumbs or through an iterative, adaptive method.
 
-        #### Examples:
+        Examples
+        --------
 
-        ```python
+        .. code-block:: python
 
-        # generate some example kernels
-        size = 150
-        data = np.random.normal(size=size, loc=2, scale=3)
+            # generate some example kernels
+            size = 150
+            data = np.random.normal(size=size, loc=2, scale=3)
 
-        limits = (-15, 5)
-        obs = zfit.Space("obs1", limits=limits)
-        kde_silverman = zfit.pdf.GaussianKDE1DimV1(data=data, obs=obs)
+            limits = (-15, 5)
+            obs = zfit.Space("obs1", limits=limits)
+            kde_silverman = zfit.pdf.GaussianKDE1DimV1(data=data, obs=obs)
 
-        # for a better smoothing of the kernels, use an adaptive approach
-        kde = zfit.pdf.GaussianKDE1DimV1(data=data, obs=obs, bandwidth='adaptive')
-        ```
+            # for a better smoothing of the kernels, use an adaptive approach
+            kde = zfit.pdf.GaussianKDE1DimV1(data=data, obs=obs, bandwidth='adaptive')
+
 
         Args:
             data: 1-D Tensor-like. The positions of the `kernel`, the :math:`x_i`. Determines how many kernels will be created.
