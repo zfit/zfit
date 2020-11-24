@@ -6,7 +6,7 @@ import zfit
 
 
 def test_conditional_pdf_simple():
-    zfit.run.set_graph_mode(True)
+    # zfit.run.set_graph_mode(False)
     xobs = zfit.Space('x', (-2, 5))
     muobs = zfit.Space('y', (-1, 15))
     sigmaobs = zfit.Space('z', (-1.5, 13))
@@ -19,12 +19,12 @@ def test_conditional_pdf_simple():
     uniform_sample = np.random.uniform(size=(nsample, 1))
     normal_sample1 = np.random.normal(loc=2, scale=0.5, size=(nsample, 1))
     normal_sample2 = np.random.normal(loc=5, scale=2, size=(nsample, 1))
-    sigma = zfit.Parameter('sigma', 5, 1, 10)
+    sigma = zfit.Parameter('sigma', 5, 0.1, 10)
 
     gauss = zfit.pdf.Gauss(obs=xobs, mu=mu, sigma=sigma)
     # gauss = zfit.pdf.Gauss(xmuobs=muobs, mu=mu, sigma=sigma)
 
-    data2d = zfit.Data.from_numpy(array=np.stack([uniform_sample, normal_sample1], axis=-1),
+    data2d = zfit.Data.from_numpy(array=np.stack([normal_sample1, uniform_sample], axis=-1),
                                   obs=xmuobs)
     data1d = zfit.Data.from_numpy(array=normal_sample1, obs=xobs)
     data3d = zfit.Data.from_numpy(array=np.stack([uniform_sample, normal_sample1, normal_sample2], axis=-1),
@@ -47,3 +47,11 @@ def test_conditional_pdf_simple():
 
     nll = zfit.loss.UnbinnedNLL(model=cond_gauss2d, data=data2d)
     nll.value()
+
+    minimizer = zfit.minimize.Minuit()
+    result = minimizer.minimize(nll)
+    assert result.valid
+
+    integrals2 = cond_gauss2d.integrate(limits=xobs, x=data2d)
+    assert integrals2.shape[0] == data2d.nevents
+    assert integrals2.shape.rank == 1

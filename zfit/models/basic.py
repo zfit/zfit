@@ -122,7 +122,7 @@ class Exponential(BasePDF):
     # All hooks are needed to set the right shift when "entering" the pdf. The norm range is taken where both are
     # available. No special need needs to be taken for sampling (it samples from the correct region, the limits, and
     # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
-    def _single_hook_integrate(self, limits, norm_range):
+    def _single_hook_integrate(self, limits, norm_range, x):
         with self._set_numerics_data_shift(norm_range):
             return super()._single_hook_integrate(limits, norm_range)
 

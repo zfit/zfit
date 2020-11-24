@@ -174,8 +174,17 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
-    def _convert_sort_x(self, x: ztyping.XTypeInput, partial: bool = False) -> Data:
-        if isinstance(x, ZfitData):
+    def _convert_sort_x(self,
+                        x: ztyping.XTypeInput,
+                        partial: bool = False,
+                        allow_none: bool = False) -> Data:
+        if x is None:
+            if not allow_none:
+                raise ValueError(f"x {x} given to {self} must be non-empty (not None).")
+            else:
+                yield None
+
+        elif isinstance(x, ZfitData):
             if x.obs is not None:
                 with x.sort_by_obs(obs=self.obs, allow_superset=True):
                     yield x
@@ -288,7 +297,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         raise SpecificFunctionNotImplemented
 
     @z.function(wraps='model')
-    def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+    def integrate(self,
+                  limits: ztyping.LimitsType,
+                  norm_range: ztyping.LimitsType = None,
+                  *,
+                  x: Optional[ztyping.DataInputType] = None) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
@@ -301,7 +314,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)
-        integral = self._single_hook_integrate(limits=limits, norm_range=norm_range)
+        with self._convert_sort_x(x, allow_none=True) as x:
+            integral = self._single_hook_integrate(limits=limits, norm_range=norm_range, x=x)
         # TODO: allow integral values as arrays?
         # if isinstance(integral, tf.Tensor):
         #     if not integral.shape.as_list() == []:
@@ -313,7 +327,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         #                                      "instead of tensor)".format(integral.shape.as_list()))
         return integral
 
-    def _single_hook_integrate(self, limits, norm_range):
+    def _single_hook_integrate(self, limits, norm_range, x):
+        del x  # TODO HACK: how and what to pass through?
         return self._hook_integrate(limits=limits, norm_range=norm_range)
 
     def _hook_integrate(self, limits, norm_range):

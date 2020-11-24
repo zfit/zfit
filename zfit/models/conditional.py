@@ -55,3 +55,26 @@ class ConditionalPDFV1(BaseFunctor):
         params = super()._get_params(floating, is_yield, extract_independent)
         params -= set(self._cond)
         return params
+
+    def _single_hook_integrate(self, limits, norm_range, x):
+        # return self._hook_partial_integrate(x=x, limits=limits, norm_range=norm_range)
+
+        param_x_indices = {p: x.obs.index(x.obs[0]) for p, p_space in self._cond.items()}
+        x_values = x.value()
+        pdf = self.pdfs[0]
+
+        if self._use_vectorized_map:
+            tf_map = tf.vectorized_map
+        else:
+            output_signature = tf.TensorSpec(shape=(1, *x_values.shape[1:-1]), dtype=self.dtype)
+            tf_map = functools.partial(tf.map_fn, fn_output_signature=output_signature)
+
+        def eval_int(values):
+            for param, index in param_x_indices.items():
+                param.assign(values[..., index])
+
+            return pdf.integrate(limits=limits, norm_range=norm_range, x=x)
+
+        integrals = tf_map(eval_int, x_values)
+        integrals = integrals[:, 0]  # removing stack dimension, implicitly in map_fn
+        return integrals
