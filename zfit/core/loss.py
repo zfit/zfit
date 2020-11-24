@@ -430,12 +430,43 @@ class SimpleLoss(BaseLoss):
                  errordef: Optional[float] = None):
         """Loss from a (function returning a) Tensor.
 
+        This allows for a very generic loss function as the functions only restriction is that is
+        should depend on `zfit.Parameter`.
+
         Args:
-            func: Callable that constructs the loss and returns a tensor.
-            deps: The dependents (independent `zfit.Parameter`) of the loss. If not given, the dependents are
-                figured out automatically.
+            func: Callable that constructs the loss and returns a tensor without taking an argument.
+            deps: The dependents (independent `zfit.Parameter`) of the loss. Essentially the (free) parameters that
+              the `func` depends on.
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
+
+        Usage:
+
+        ```python
+        import zfit
+        from zfit import z
+
+        param1 = zfit.Parameter('param1', 5, 1, 10)
+        # we can build a model here if we want, but in principle, it's not necessary
+
+        x = z.random.uniform(shape=(100,))
+        y = x * z.random.normal(mean=4, stddev=0.1, shape=x.shape)
+
+        def squared_loss():
+            y_pred = x * param1  # this is very simple, but we can of course use any
+                                 # zfit PDF or Func inside
+            squared = (y_pred - y) ** 2
+            mse = tf.reduce_mean(squared)
+            return mse
+
+        loss = zfit.loss.SimpleLoss(squared_loss, param1)
+        ```
+        which can then be used in conjunction with any zfit minimizer such as Minuit
+
+        ```python
+        minimizer = zfit.minize.Minuit()
+        result = minimizer.minimize(loss)
+        ```
         """
         if dependents is not NOT_SPECIFIED:
             warnings.warn("`dependents` is deprecated and will be removed in the future, use `deps`"
