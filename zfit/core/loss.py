@@ -442,31 +442,33 @@ class SimpleLoss(BaseLoss):
 
         Usage:
 
-        ```python
-        import zfit
-        from zfit import z
+        .. code:: python
 
-        param1 = zfit.Parameter('param1', 5, 1, 10)
-        # we can build a model here if we want, but in principle, it's not necessary
+            import zfit
+            from zfit import z
 
-        x = z.random.uniform(shape=(100,))
-        y = x * z.random.normal(mean=4, stddev=0.1, shape=x.shape)
+            param1 = zfit.Parameter('param1', 5, 1, 10)
+            # we can build a model here if we want, but in principle, it's not necessary
 
-        def squared_loss():
-            y_pred = x * param1  # this is very simple, but we can of course use any
-                                 # zfit PDF or Func inside
-            squared = (y_pred - y) ** 2
-            mse = tf.reduce_mean(squared)
-            return mse
+            x = z.random.uniform(shape=(100,))
+            y = x * z.random.normal(mean=4, stddev=0.1, shape=x.shape)
 
-        loss = zfit.loss.SimpleLoss(squared_loss, param1)
-        ```
+            def squared_loss():
+                y_pred = x * param1  # this is very simple, but we can of course use any
+                                     # zfit PDF or Func inside
+                squared = (y_pred - y) ** 2
+                mse = tf.reduce_mean(squared)
+                return mse
+
+            loss = zfit.loss.SimpleLoss(squared_loss, param1)
+
         which can then be used in conjunction with any zfit minimizer such as Minuit
 
-        ```python
-        minimizer = zfit.minize.Minuit()
-        result = minimizer.minimize(loss)
-        ```
+        .. code:: python
+
+            minimizer = zfit.minize.Minuit()
+            result = minimizer.minimize(loss)
+
         """
         if dependents is not NOT_SPECIFIED:
             warnings.warn("`dependents` is deprecated and will be removed in the future, use `deps`"
