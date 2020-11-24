@@ -44,3 +44,6 @@ def test_conditional_pdf_simple():
     prob3 = cond_gauss3d.pdf(data3d)
     assert prob3.shape[0] == data3d.nevents
     assert prob3.shape.rank == 1
+
+    nll = zfit.loss.UnbinnedNLL(model=cond_gauss2d, data=data2d)
+    nll.value()

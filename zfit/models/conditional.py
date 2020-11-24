@@ -1,6 +1,6 @@
 #  Copyright (c) 2020 zfit
 import functools
-from typing import Mapping
+from typing import Mapping, Optional, Set
 
 import tensorflow as tf
 
@@ -49,3 +49,9 @@ class ConditionalPDFV1(BaseFunctor):
         probs = tf_map(eval_pdf, x_values)
         probs = probs[:, 0]  # removing stack dimension, implicitly in map_fn
         return probs
+
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        params = super()._get_params(floating, is_yield, extract_independent)
+        params -= set(self._cond)
+        return params
