@@ -1,4 +1,5 @@
 #  Copyright (c) 2020 zfit
+import functools
 from typing import Mapping
 
 import tensorflow as tf
@@ -10,7 +11,9 @@ from ..core.space import combine_spaces, convert_to_space
 
 class ConditionalPDFV1(BaseFunctor):
 
-    def __init__(self, pdf: ZfitPDF, cond: Mapping[ZfitIndependentParameter, ZfitSpace], name="ConditionalPDF"):
+    def __init__(self, pdf: ZfitPDF, cond: Mapping[ZfitIndependentParameter, ZfitSpace], name="ConditionalPDF",
+                 *, use_vectorized_map: bool = True):
+        self._use_vectorized_map = use_vectorized_map
         self._cond, cond_obs = self._check_input_cond(cond)
         obs = pdf.space * cond_obs
         super().__init__(pdfs=pdf, obs=obs, name=name)
@@ -27,15 +30,22 @@ class ConditionalPDFV1(BaseFunctor):
     def _pdf(self, x, norm_range):
         pdf = self.pdfs[0]
         param_x_indices = {p: x.obs.index(x.obs[0]) for p, p_space in self._cond.items()}
-        call_pdf = pdf.pdf
+        x_values = x.value()
+
+        if self._use_vectorized_map:
+            tf_map = tf.vectorized_map
+        else:
+            output_signature = tf.TensorSpec(shape=(1, *x_values.shape[1:-1]), dtype=self.dtype)
+            tf_map = functools.partial(tf.map_fn, fn_output_signature=output_signature)
 
         # TODO: reset parameters?
 
         def eval_pdf(cond_and_data):
-            x_pdf = cond_and_data[..., :pdf.n_obs]
+            x_pdf = cond_and_data[None, ..., :pdf.n_obs]
             for param, index in param_x_indices.items():
                 param.assign(cond_and_data[..., index])
-            return call_pdf(x_pdf)
+            return pdf.pdf(x_pdf, norm_range=norm_range)
 
-        return tf.map_fn(eval_pdf, x.value())
-        # return tf.vectorized_map(eval_pdf, x.value())
+        probs = tf_map(eval_pdf, x_values)
+        probs = probs[:, 0]  # removing stack dimension, implicitly in map_fn
+        return probs
