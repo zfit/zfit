@@ -1,16 +1,47 @@
 #  Copyright (c) 2021 zfit
 from functools import wraps
-from typing import Any, Iterable, Union
+from typing import Union, Iterable, Any, Tuple
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 
 from .zextension import function as function
 
-__all__ = ["counts_multinomial"]
-
+__all__ = ["counts_multinomial", "sample_with_replacement"]
 
 from ..settings import ztypes
+
+
+def sample_with_replacement(a: tf.Tensor, axis: int, sample_shape: Tuple[int]) -> tf.Tensor:
+    """Sample from `a` with replacement to return a Tensor with `sample_shape`.
+
+    Args:
+        a (): Tensor to sample from
+        axis (): int axis to sample along
+        sample_shape (): Shape of the new samples along the axis
+
+    Returns:
+        tf.Tensor of shape a.shape[:axis] + samples_shape + a.shape[axis + 1:]
+
+
+    Examples:
+
+    .. code:: pycon
+
+        >>> a = tf.random.uniform(shape=(10, 20, 30), dtype=tf.float32)
+        >>> random_choice(a, axis=0)
+        <tf.Tensor 'GatherV2:0' shape=(1, 20, 30) dtype=float32>
+        >>> random_choice(a, axis=1, samples_shape=(2, 3))
+        <tf.Tensor 'GatherV2_2:0' shape=(10, 2, 3, 30) dtype=float32
+        >>> random_choice(a, axis=0, samples_shape=(100,))
+        <tf.Tensor 'GatherV2_3:0' shape=(100, 20, 30) dtype=float32>
+
+    """
+
+    dim = tf.shape(a)[axis]
+    choice_indices = tf.random.uniform(sample_shape, minval=0, maxval=dim, dtype=tf.int32)
+    samples = tf.gather(a, choice_indices, axis=axis)
+    return samples
 
 
 def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union[float, tf.Tensor]] = None,

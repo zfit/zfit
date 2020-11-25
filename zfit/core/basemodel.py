@@ -848,7 +848,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     @z.function(wraps='model')
     def _create_sampler_tensor(self, limits, n):
 
-        sample = self._single_hook_sample(n=n, limits=limits)
+        sample = self._single_hook_sample(n=n, limits=limits, x=None)
         return sample
 
     @_BaseModel_register_check_support(True)
@@ -856,7 +856,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         raise SpecificFunctionNotImplemented
 
     def sample(self, n: ztyping.nSamplingTypeIn = None,
-               limits: ztyping.LimitsType = None) -> SampleData:  # TODO: change poissonian top-level with multinomial
+               limits: ztyping.LimitsType = None,
+               x: Optional[
+                   ztyping.DataInputType] = None) -> SampleData:  # TODO: change poissonian top-level with multinomial
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
@@ -890,15 +892,22 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits = self._check_input_limits(limits=limits, none_is_error=True)
 
         @z.function(wraps='model_sampling')
-        def run_tf(n, limits):
-            sample = self._single_hook_sample(n=n, limits=limits)
+        def run_tf(n, limits, x):
+            sample = self._single_hook_sample(n=n, limits=limits, x=x)
             return sample
 
-        sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits), obs=limits)
+        with self._convert_sort_x(x, allow_none=True) as x:
+            if x is not None:
+                new_obs = limits * x.data_range
+            else:
+                new_obs = limits
+            sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits, x=x),
+                                                 obs=new_obs)  # TODO: which limits?
 
         return sample_data
 
-    def _single_hook_sample(self, n, limits):
+    def _single_hook_sample(self, n, limits, x=None):
+        del x
         return self._hook_sample(n=n, limits=limits)
 
     def _hook_sample(self, limits, n):

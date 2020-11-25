@@ -293,6 +293,8 @@ class RunManager:
 
     def _set_graph_mode(self, graph):
         from .graph import jit as jit_obj
+        # only run eagerly if no graph
+        tf.config.run_functions_eagerly(graph is False)
         if graph is True:
             jit_obj._set_all(True)
         elif graph is False:

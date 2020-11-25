@@ -1,11 +1,12 @@
 #  Copyright (c) 2021 zfit
-
+import pytest
 import tensorflow as tf
 
 import zfit
 from zfit import z
 
 
+@pytest.mark.skipif(zfit.run.get_graph_mode() is False)
 def test_modes():
     counts = 0
 

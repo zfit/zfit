@@ -171,9 +171,9 @@ class Exponential(BasePDF):
         with self._set_numerics_data_shift(limits=norm_range):
             return super()._single_hook_log_pdf(x, norm_range)
 
-    def _single_hook_sample(self, n, limits):
+    def _single_hook_sample(self, n, limits, x=None):
         with self._set_numerics_data_shift(limits=limits):
-            return super()._single_hook_sample(n, limits)
+            return super()._single_hook_sample(n, limits, x)
 
 
 def _exp_integral_from_any_to_any(limits, params, model):

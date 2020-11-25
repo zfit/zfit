@@ -29,6 +29,7 @@ def test_conditional_pdf_simple():
     data1d = zfit.Data.from_numpy(array=normal_sample1, obs=xobs)
     data3d = zfit.Data.from_numpy(array=np.stack([uniform_sample, normal_sample1, normal_sample2], axis=-1),
                                   obs=obs)
+    data1dmu = zfit.Data.from_numpy(array=uniform_sample, obs=muobs)
 
     cond_gauss2d = zfit.pdf.ConditionalPDFV1(pdf=gauss, cond={mu: muobs})
     prob2 = cond_gauss2d.pdf(data2d)
@@ -55,3 +56,6 @@ def test_conditional_pdf_simple():
     integrals2 = cond_gauss2d.integrate(limits=xobs, x=data2d)
     assert integrals2.shape[0] == data2d.nevents
     assert integrals2.shape.rank == 1
+
+    sample2 = cond_gauss2d.sample(n=data2d.nevents, limits=xobs, x=data1dmu)
+    assert sample2.value().shape == (data2d.nevents, cond_gauss2d.n_obs)
