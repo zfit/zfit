@@ -9,7 +9,7 @@ from typing import List, Optional, Union
 
 import tensorflow as tf
 
-from .container import DotDict
+from dotmap import DotMap
 from .deprecation import deprecated
 from .exception import IllegalInGraphModeError
 from .temporary import TemporarilySet
@@ -25,7 +25,7 @@ class RunManager:
         The `run` method is equivalent to `sess.run`
         """
         self.MAX_CHUNK_SIZE = sys.maxsize
-        self.chunking = DotDict()
+        self.chunking = DotMap()
         self._cpu = []
         self._n_cpu = None
         self._inter_cpus = None

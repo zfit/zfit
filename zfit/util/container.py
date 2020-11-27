@@ -5,14 +5,6 @@ from typing import Any, Callable, Iterable, Union
 import tensorflow as tf
 
 
-class DotDict(dict):
-    """dot.notation access to dictionary attributes."""
-
-    __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
-
-
 def convert_to_container(value: Any, container: Callable = list, non_containers=None,
                          convert_none=False) -> Union[None, Iterable]:
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.

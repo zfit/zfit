@@ -15,6 +15,7 @@ from contextlib import suppress
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import tensorflow as tf
+from dotmap import DotMap
 from tensorflow_probability.python import mcmc as mc
 
 from .. import z
@@ -78,7 +79,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     # TODO instructions on how to use
     """
-    _DEFAULTS_integration = zcontainer.DotDict()
+    _DEFAULTS_integration = DotMap()
     _DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
                                                                                          **kwargs)
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
@@ -105,7 +106,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         super().__init__(name=name, dtype=dtype, params=params, **kwargs)
         self._check_set_space(obs)
 
-        self._integration = zcontainer.DotDict()
+        self._integration = DotMap()
         self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
         self.integration = Integration(mc_sampler=self._DEFAULTS_integration.mc_sampler,
                                        draws_per_dim=self._DEFAULTS_integration.draws_per_dim)

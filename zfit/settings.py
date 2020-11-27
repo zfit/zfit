@@ -2,8 +2,8 @@
 
 import numpy as np
 import tensorflow as tf
+from dotmap import DotMap
 
-from .util.container import DotDict
 from .util.execution import RunManager
 
 run = RunManager()
@@ -27,27 +27,27 @@ def get_verbosity():
     return _verbosity
 
 
-ztypes = DotDict({'float': tf.float64,
-                  'complex': tf.complex128,
-                  'int': tf.int64,
-                  tf.float16: tf.float64,
-                  tf.float32: tf.float64,
-                  tf.float64: tf.float64,
-                  tf.complex64: tf.complex128,
-                  tf.complex128: tf.complex128,
-                  tf.int8: tf.int64,
-                  tf.int16: tf.int64,
-                  tf.int32: tf.int64,
-                  tf.int64: tf.int64,
-                  'auto_upcast': True,
-                  })
+ztypes = DotMap({'float': tf.float64,
+                 'complex': tf.complex128,
+                 'int': tf.int64,
+                 tf.float16: tf.float64,
+                 tf.float32: tf.float64,
+                 tf.float64: tf.float64,
+                 tf.complex64: tf.complex128,
+                 tf.complex128: tf.complex128,
+                 tf.int8: tf.int64,
+                 tf.int16: tf.int64,
+                 tf.int32: tf.int64,
+                 tf.int64: tf.int64,
+                 'auto_upcast': True,
+                 })
 
-options = DotDict({'epsilon': 1e-8,
-                   'numerical_grad': None,
-                   'advanced_warning': True,
-                   'changed_warning': True})
+options = DotMap({'epsilon': 1e-8,
+                  'numerical_grad': None,
+                  'advanced_warning': True,
+                  'changed_warning': True})
 
-advanced_warnings = DotDict({
+advanced_warnings = DotMap({
     'sum_extended_frac': True,
     'exp_shift': True,
     'py_func_autograd': True,
@@ -56,7 +56,7 @@ advanced_warnings = DotDict({
     'all': True,
 })
 
-changed_warnings = DotDict({
+changed_warnings = DotMap({
     'new_sum': True,
     'all': True,
 })
