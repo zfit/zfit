@@ -15,3 +15,4 @@ tensorflow-addons
 tensorflow_probability~=0.12
 texttable
 uproot>=4,<5
+dotmap
