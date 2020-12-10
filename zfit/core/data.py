@@ -1,5 +1,4 @@
 #  Copyright (c) 2020 zfit
-
 import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
@@ -13,14 +12,13 @@ from tensorflow.python.ops import array_ops
 
 # from ..settings import types as ztypes
 import zfit
-from zfit import z
-from zfit.core.interfaces import ZfitSpace
 from .baseobject import BaseObject
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
-from .interfaces import ZfitData
+from .interfaces import ZfitSpace, ZfitData
 from .parameter import register_tensor_conversion
 from .space import Space, convert_to_space
+from .. import z
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
@@ -158,19 +156,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     @classmethod
     def from_root_iter(cls, path, treepath, branches=None, entrysteps=None, name=None, **kwargs):
         # branches = convert_to_container(branches)
-        warnings.warn(
-            "Using the iterator is hardcore and will most probably fail! Don't use it (yet) if you don't fully "
-            "understand what happens.")
-
-        def uproot_generator():
-            for data in uproot.iterate(path=path, treepath=treepath,
-                                       branches=branches, entrysteps=entrysteps, **kwargs):
-                data = np.array([data[branch] for branch in branches])
-                yield data
-
-        dataset = tf.data.Dataset.from_generator(uproot_generator, output_types=ztypes.float)
-        dataset.prefetch(1)
-        return Data(dataset=dataset, name=name)
+        raise RuntimeWarning("Currently, this is not supported.")
 
     @classmethod
     def from_root(cls, path: str, treepath: str, branches: List[str] = None, branches_alias: Dict = None,
@@ -179,6 +165,8 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
                   dtype: tf.DType = None,
                   root_dir_options=None) -> "Data":
         """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
+
+        The arguments are passed to uproot directly.
 
         Args:
             path:
@@ -195,6 +183,12 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         Returns:
             `zfit.Data`:
         """
+        # TODO 0.6: use obs here instead of branches
+        # if branches:
+        #     warnings.warn(FutureWarning("`branches` is deprecated, please use `obs` instead"), stacklevel=2)
+        #     obs = branches
+        # obs = convert_to_space(obs)
+        # branches = obs.obs
         if branches_alias is None and branches is None:
             raise ValueError("Either branches or branches_alias has to be specified.")
 
@@ -210,23 +204,23 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             root_dir_options = {}
 
         def uproot_loader():
-            root_tree = uproot.open(path, **root_dir_options)[treepath]
-            if weights_are_branch:
-                branches_with_weights = branches + [weights]
-            else:
-                branches_with_weights = branches
-            data = root_tree.arrays(branches_with_weights, namedecode="utf-8")
-            data_np = np.array([data[branch] for branch in branches])
+            with uproot.open(path, **root_dir_options)[treepath] as root_tree:
+                if weights_are_branch:
+                    branches_with_weights = branches + [weights]
+                else:
+                    branches_with_weights = branches
+                branches_with_weights = tuple(branches_with_weights)
+                data = root_tree.arrays(expressions=branches_with_weights, library='pd')
+            data_np = data[branches].values
             if weights_are_branch:
                 weights_np = data[weights]
             else:
                 weights_np = None
-            return data_np.transpose(), weights_np
+            return data_np, weights_np
 
         data, weights_np = uproot_loader()
         if not weights_are_branch:
             weights_np = weights
-        shape = data.shape
         dataset = LightDataset.from_tensor(data)
 
         # dataset = dataset.repeat()
