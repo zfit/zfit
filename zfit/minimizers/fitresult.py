@@ -24,7 +24,7 @@ from ..util.ztyping import ParamsTypeOpt
 init(autoreset=True)
 
 
-def _minos_minuit(result, params, sigma=1.0):
+def _minos_minuit(result, params, sigma=None):
     fitresult = result
     minimizer = fitresult.minimizer
     from zfit.minimizers.minimizer_minuit import Minuit
@@ -32,9 +32,11 @@ def _minos_minuit(result, params, sigma=1.0):
     if not isinstance(minimizer, Minuit):
         raise TypeError("Cannot perform error calculation 'minos_minuit' with a different minimizer than"
                         "`Minuit`.")
-
-    result = [minimizer._minuit_minimizer.minos(var=p.name, sigma=sigma)
-              for p in params][-1]  # returns every var
+    if sigma is not None:
+        raise RuntimeError("Not possible, currenlty only 1 sigma. CL is new.")
+    result = [minimizer._minuit_minimizer.minos(p.name, cl=sigma)
+              for p in params][-1].merrors  # returns every var
+    # result = minimizer._minuit_minimizer.minos(*(p.name for p in params), cl=sigma).merrors
     result = OrderedDict((p, result[p.name]) for p in params)
     new_result = None
     return result, new_result
@@ -134,7 +136,7 @@ class FitResult(ZfitResult):
         return [p for p in params if self.params[p].get(method_name) is None]
 
     @classmethod
-    def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: iminuit.util.MigradResult,
+    def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: iminuit.util.FMin,
                     minimizer: Union[ZfitMinimizer, iminuit.Minuit]) -> 'FitResult':
         """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
         :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
@@ -158,10 +160,10 @@ class FitResult(ZfitResult):
                 minimizer = minimizer_new
             else:
                 raise ValueError(f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit.")
-        params_result = [p_dict for p_dict in result[1]]
+        params_result = [p_dict for p_dict in result.params]
         result_vals = [res.value for res in params_result]
         set_values(params, values=result_vals)
-        fmin_object = result[0]
+        fmin_object = result.fmin
         info = {'n_eval': fmin_object.nfcn,
                 'n_iter': "REMOVED FROM MINUIT",  # TODO 6.x: remove completely
                 # 'grad': result['jac'],
@@ -329,7 +331,7 @@ class FitResult(ZfitResult):
         return self.errors(params=params, method=method, error_name=error_name, sigma=sigma)[0]
 
     def errors(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
-               sigma: float = 1.0) -> Tuple[OrderedDict, Union[None, 'FitResult']]:
+               sigma: Optional[float] = None) -> Tuple[OrderedDict, Union[None, 'FitResult']]:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
@@ -370,6 +372,7 @@ class FitResult(ZfitResult):
             warnings.warn("'zfit_error' is still experimental and may fails.", ExperimentalFeatureWarning)
 
         with self._input_check_reset_params(params) as params:
+            # TODO: cache with sigma!
             uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
             new_result = None

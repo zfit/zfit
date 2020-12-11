@@ -48,7 +48,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         # create options
         minimizer_options = self.minimizer_options.copy()
         minimize_options = {}
-        minimize_options['precision'] = minimizer_options.pop('precision', None)
+        precision = minimizer_options.pop('precision', None)
         minimize_options['ncall'] = minimizer_options.pop('ncall')
 
         minimizer_init = {}
@@ -162,14 +162,12 @@ class Minuit(BaseMinimizer, GraphCachable):
 
         grad_func = grad_func if self._use_tfgrad else None
 
-        minimizer = iminuit.Minuit.from_array_func(fcn=func, start=start_values,
-                                                   error=errors, limit=limits, name=params_name,
-                                                   grad=grad_func,
-                                                   # use_array_call=True,
-                                                   print_level=minuit_verbosity,
-                                                   # forced_parameters=[f"param_{i}" for i in range(len(start_values))],
-                                                   **minimizer_init)
-
+        minimizer = iminuit.Minuit(func, start_values,
+                                   grad=grad_func,
+                                   name=params_name,
+                                   )
+        minimizer.precision = precision
+        minimizer.print_level = minuit_verbosity
         strategy = minimizer_setter.pop('strategy')
         minimizer.strategy = strategy
         minimizer.tol = self.tolerance / 1e-3  # iminuit 1e-3 and tolerance 0.1
