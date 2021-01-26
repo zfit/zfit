@@ -14,10 +14,10 @@ zfit: scalable pythonic fitting
    :alt: conda-forge
    :target: https://anaconda.org/conda-forge/zfit
 
-.. image:: https://travis-ci.org/zfit/zfit.svg?branch=develop
-   :target: https://travis-ci.org/zfit/zfit
-
 .. image:: https://github.com/zfit/zfit/workflows/CI/badge.svg
+   :target: https://github.com/zfit/zfit/actions
+
+.. image:: https://github.com/zfit/zfit/workflows/build/badge.svg
    :target: https://github.com/zfit/zfit/actions
 
 .. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
