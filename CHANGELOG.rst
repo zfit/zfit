@@ -25,6 +25,7 @@ Experimental
 
 Requirement changes
 -------------------
+- require iminuit < 2 to avoid breaking changes
 
 
 
