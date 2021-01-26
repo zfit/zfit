@@ -17,7 +17,7 @@ zfit: scalable pythonic fitting
 .. image:: https://travis-ci.org/zfit/zfit.svg?branch=develop
    :target: https://travis-ci.org/zfit/zfit
 
-.. image:: https://github.com/zfit/zfit/workflows/Python%20package/badge.svg
+.. image:: https://github.com/zfit/zfit/workflows/CI/badge.svg
    :target: https://github.com/zfit/zfit/actions
 
 .. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
