@@ -12,8 +12,8 @@ jobs:
         python-version: [ 3.6, 3.7, 3.8 ]
     name: Tests for Python ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@1
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@2
+      - uses: actions/setup-python@v2
         name: Set up Python ${{ matrix.python-version }}
 
         with:
@@ -51,7 +51,7 @@ jobs:
   dist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
 
       - name: Install wheel and sdist requirements
