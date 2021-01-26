@@ -34,6 +34,7 @@ jobs:
           pip install --use-feature=2020-resolver .[dev]
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test
           coverage report
+
           ZFIT_DO_JIT=0
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m py.test
           ZFIT_DO_JIT=1
