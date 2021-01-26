@@ -567,10 +567,10 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         if n_func_params == 0:
             if len(params) == 0:
                 warnings.warn("No `params` specified, the `value_fn` is supposed to return a constant. "
-                              "Use preferably `ConstantParameter` instead", RuntimeWarning)
+                              "Use preferably `ConstantParameter` instead", RuntimeWarning, stacklevel=2)
             else:  # this is the legacy case where the function didn't take arguments
                 warnings.warn("The `value_fn` for composed parameters should take the same number"
-                              " of arguments as `params` are given.", DeprecationWarning)
+                              " of arguments as `params` are given.", DeprecationWarning, stacklevel=2)
                 legacy_value_fn = value_fn
 
                 def value_fn(*_):
@@ -694,7 +694,7 @@ class ComposedParameter(BaseComposedParameter):
         """
         if dependents is not NotSpecified:
             params = dependents
-            warnings.warn("`dependents` is deprecated, use `params` instead.")
+            warnings.warn("`dependents` is deprecated, use `params` instead.", stacklevel=2)
         elif params is NotSpecified:
             raise ValueError
         if isinstance(params, dict):

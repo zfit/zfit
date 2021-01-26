@@ -53,15 +53,12 @@ def _maybe_disable_warnings():
 
 
 _maybe_disable_warnings()
-import tensorflow.compat.v1 as _tfv1
 
-_tfv1.enable_v2_behavior()
 import tensorflow as tf
 
 if int(tf.__version__[0]) < 2:
-    warnings.warn(f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
-                  f" with TF >= 2 and will likely break with an older version. Please consider upgrading as this"
-                  f" will raise an error in the future.")
+    raise RuntimeError(f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
+                       f" only with TF >= 2")
 
 from . import z
 from . import z as ztf  # legacy

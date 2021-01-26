@@ -36,7 +36,7 @@ def test_from_root(weights_factory):
     f = uproot.open(path_root)
     tree = f['events']
 
-    true_data = tree.pandas.df()
+    true_data = tree.arrays(library='pd')
 
     data = zfit.Data.from_root(path=path_root, treepath='events', branches=branches, weights=weights)
     x = data.value()

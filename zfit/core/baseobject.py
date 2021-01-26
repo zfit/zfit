@@ -95,7 +95,7 @@ class BaseParametrized(ZfitParametrized):
         if only_floating is not NotSpecified:
             floating = only_floating
             warnings.warn("`only_floating` is deprecated and will be removed in the future, use `floating` instead.",
-                          DeprecationWarning)
+                          DeprecationWarning, stacklevel=2)
         return self._get_params(floating=floating, is_yield=is_yield, extract_independent=extract_independent)
 
     def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,

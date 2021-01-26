@@ -11,10 +11,8 @@ from zfit.core.loss import UnbinnedNLL
 from zfit.core.space import Space
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.minimizers.minimizer_minuit import Minuit
-from zfit.models.dist_tfp import Gauss
+from zfit.minimize import Minuit
+from zfit.pdf import Gauss
 from zfit.util.exception import IntentionAmbiguousError
 
 mu_true = 1.2

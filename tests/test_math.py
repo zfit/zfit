@@ -4,8 +4,8 @@ import pytest
 import scipy.stats
 
 import zfit
-# noinspection PyUnresolvedReferences
 from zfit import z
+# noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.z.math import numerical_gradient, autodiff_gradient, numerical_hessian, autodiff_hessian
 

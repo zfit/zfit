@@ -32,8 +32,8 @@ class CustomPDF2D(zfit.pdf.BasePDF):
 # add an analytic integral
 
 # define the integral function
-def integral_full(x, limits, norm_range, params, model):
-    lower, upper = limits.limit1d
+def integral_full(limits, norm_range, params, model):
+    lower, upper = limits.rect_limits
     param1 = params['super_param']
     param2 = params['param2']
     param3 = params['param3']
@@ -70,19 +70,30 @@ def integral_axis1(x, limits, norm_range, params, model):
 
     # calculate the integral here, dummy integral
     integral = data_0 ** 2 * param1 * param2 * param3 + z.reduce_sum([lower, upper])
+    # notice that the returned shape will be in the same as data_0, e.g. the number of events given in x
     return integral
 
 
 # define the space over which it is defined. Here, we use the axes
-lower_axis1 = ((-5,),)
+lower_axis1 = ((zfit.Space.ANY_LOWER,),)
 upper_axis1 = ((zfit.Space.ANY_UPPER,),)
-integral_axis1_limits = zfit.Space(axes=(1,),
+integral_axis1_limits = zfit.Space(axes=(1,),  # axes one corresponds to the second obs, here obs2
                                    limits=(lower_axis1, upper_axis1))
 
 CustomPDF2D.register_analytic_integral(func=integral_axis1,
                                        limits=integral_axis1_limits)
 
 if __name__ == '__main__':
+    import numpy as np
+
     obs = zfit.Space('obs1', (-10, 10)) * zfit.Space('obs2', (-3, 5))
     pdf = CustomPDF2D(1, 2, 3, obs=obs)
     sample = pdf.sample(n=1000)
+    pdf.pdf([[2., 2.5], [5.4, 3.2]])
+    x_part = zfit.Data.from_numpy(array=np.array([2.1, 2.2, 3.2]), obs='obs1')
+
+    # integrate over obs2 with limits 1, 2 for the `x_part`. This will use the analytic integral above
+    pdf.partial_integrate(x=x_part, limits=zfit.Space('obs2', (1, 2)))
+    # we can explicitly call the analytic integral. Without registering it (e.g. comment the line with the `register`
+    # and run again), it will raise an error
+    pdf.partial_analytic_integrate(x=x_part, limits=zfit.Space('obs2', (1, 2)))
