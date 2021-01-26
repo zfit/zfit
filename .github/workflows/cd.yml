@@ -3,10 +3,12 @@ name: Continuous Delivery
 on:
   workflow_dispatch:
   push:
-      branches:
-        - master
-        - develop
-        - "release/*"
+    tags:
+      - '*'
+    branches:
+      - master
+      - develop
+      - "release/*"
   pull_request:
 
 jobs:
