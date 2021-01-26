@@ -2,6 +2,7 @@
 Changelog
 *********
 
+
 Develop
 ========
 
@@ -17,7 +18,6 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
-- Fix issue when using a `ComposedParameter` as the `rate` argument of a `Poisson` PDF
 
 
 Experimental
@@ -25,13 +25,24 @@ Experimental
 
 Requirement changes
 -------------------
-- require iminuit < 2 to avoid breaking changes
-
-
-
 
 Thanks
 ------
+
+
+0.5.6 (26.1.2020)
+=================
+
+Update to fix iminuit version
+
+Bug fixes and small changes
+---------------------------
+- Fix issue when using a `ComposedParameter` as the `rate` argument of a `Poisson` PDF
+
+Requirement changes
+-------------------
+- require iminuit < 2 to avoid breaking changes
+
 
 0.5.5 (20.10.2020)
 ==================
