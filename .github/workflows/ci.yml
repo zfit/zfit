@@ -48,24 +48,3 @@ jobs:
           bash utils/ci/test_tutorials.sh
           ZFIT_DO_JIT=1
 
-  dist:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-
-      - name: Build SDist and wheel
-        run: pipx run --spec build pyproject-build
-
-      - uses: actions/upload-artifact@v2
-        with:
-          path: dist
-
-      - name: Check metadata
-        run: pipx run twine check dist/*
-
-      - uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_ZFIT_TOKEN }}
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
