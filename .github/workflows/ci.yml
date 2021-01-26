@@ -12,7 +12,7 @@ jobs:
         python-version: [ 3.6, 3.7, 3.8 ]
     name: Tests for Python ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@2
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         name: Set up Python ${{ matrix.python-version }}
 
@@ -54,15 +54,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
 
-      - name: Install wheel and sdist requirements
-        run: python -m pip install "build"
-
-      - name: Build sdist and wheel
-        run: python3 -m build
+      - name: Build SDist and wheel
+        run: pipx run --spec build pyproject-build
 
       - uses: actions/upload-artifact@v2
         with:
           path: dist
+
+      - name: Check metadata
+        run: pipx run twine check dist/*
 
       - uses: pypa/gh-action-pypi-publish@master
         with:
