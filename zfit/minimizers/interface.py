@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 from abc import abstractmethod
@@ -25,7 +25,7 @@ class ZfitResult:
         raise NotImplementedError
 
     @abstractmethod
-    def errors(self, params, method, sigma):
+    def errors(self, params, method, cl):
         """Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:

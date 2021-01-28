@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 
@@ -192,9 +192,9 @@ def test_correlation(minimizer_class_and_kwargs):
 
 @pytest.mark.skip  # currently stuck in an endless loop?
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-# @pytest.mark.parametrize("sigma", [1, 2])  # TODO: currently only None supported, 1 sigma
-@pytest.mark.parametrize("sigma", [1])
-def test_errors(minimizer_class_and_kwargs, sigma):
+@pytest.mark.parametrize("cl", [None, 0.95])  # TODO: currently only None supported, 1 sigma
+# @pytest.mark.parametrize("sigma", [1])
+def test_errors(minimizer_class_and_kwargs, cl):
     n_max_trials = 5  # how often to try to find a new minimum
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results['result']
@@ -203,9 +203,8 @@ def test_errors(minimizer_class_and_kwargs, sigma):
     c = results['c_param']
 
     for n_trial in range(n_max_trials):
-        z_errors, new_result = result.errors(method="zfit_error", sigma=sigma)
-        TMP_HACK_SIGMA = None  # TODO: currently only 1 sigma
-        minos_errors, _ = result.errors(method="minuit_minos", sigma=TMP_HACK_SIGMA)  # TODO: currently only None sigma
+        z_errors, new_result = result.errors(method="zfit_error", cl=cl)
+        minos_errors, _ = result.errors(method="minuit_minos", cl=cl)
         if new_result is None:
             break
         else:

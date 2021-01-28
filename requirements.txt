@@ -4,7 +4,7 @@ scipy>=1.2
 uproot>=4,<5
 pandas
 numpy>=1.16
-iminuit>=1.4,<2
+iminuit>=2.3
 colorlog
 texttable
 tabulate

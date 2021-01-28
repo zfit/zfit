@@ -1,6 +1,7 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import numpy as np
+import scipy.stats
 import tensorflow as tf
 from scipy import optimize
 import itertools
@@ -9,6 +10,7 @@ import numdifftools
 from .. import z, settings
 from ..param import set_values
 from ..util.container import convert_to_container
+from ..util.deprecation import deprecated_args
 
 
 class NewMinimum(Exception):
@@ -20,7 +22,8 @@ class FailEvalLossNaN(Exception):
     pass
 
 
-def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covariance_method=None):
+@deprecated_args(None, "Use cl for confidence level instead.", 'sigma')
+def compute_errors(result, params, cl=None, sigma=1, rtol=0.001, method="hybr", covariance_method=None):
     """
     Computes asymmetric errors of parameters by profiling the loss function in the fit result.
 
@@ -28,6 +31,7 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covarianc
         result: fit result
         params: The parameters to calculate the
             errors error. If None, use all parameters.
+        cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
         sigma: Errors are calculated with respect to `sigma` std deviations.
         rtol: relative tolerance between the computed and the exact roots
         method: type of solver, `method` argument of `scipy.optimize.root_
@@ -40,13 +44,16 @@ def compute_errors(result, params, sigma=1, rtol=0.001, method="hybr", covarianc
             Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
         `FitResult` or `None`: a fit result is returned when a new minimum is found during the loss scan
     """
-
+    if cl is None:
+        factor = 1.0
+    else:
+        factor = scipy.stats.chi2(1).ppf(cl)
     params = convert_to_container(params)
     new_result = None
 
     all_params = list(result.params.keys())
     loss = result.loss
-    errordef = loss.errordef
+    errordef = loss.errordef * factor
     fmin = result.fmin
     rtol *= errordef
     minimizer = result.minimizer

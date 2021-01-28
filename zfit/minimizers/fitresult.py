@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import contextlib
 import itertools
 import warnings
@@ -8,6 +8,7 @@ from typing import Dict, Union, Callable, Optional, Tuple, Iterable
 import colored
 import iminuit
 import numpy as np
+import scipy.stats
 from colorama import Style, init
 from ordered_set import OrderedSet
 from tabulate import tabulate
@@ -20,23 +21,24 @@ from ..settings import run
 from ..util.container import convert_to_container
 from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
+from ..util.deprecation import deprecated_args
 
 init(autoreset=True)
 
 
-def _minos_minuit(result, params, sigma=None):
+def _minos_minuit(result, params, cl=None, *, minuit_minimizer=None):
+    from zfit.minimize import Minuit
+
     fitresult = result
     minimizer = fitresult.minimizer
-    from zfit.minimizers.minimizer_minuit import Minuit
-
     if not isinstance(minimizer, Minuit):
-        raise TypeError("Cannot perform error calculation 'minos_minuit' with a different minimizer than"
-                        "`Minuit`.")
-    if sigma is not None:
-        raise RuntimeError("Not possible, currenlty only 1 sigma. CL is new.")
-    result = [minimizer._minuit_minimizer.minos(p.name, cl=sigma)
+        if minuit_minimizer is None:
+            raise TypeError("To use `minos_error` method with a minimizer other than `Minuit`, a Minuit minimizer"
+                               " needs to be passed to the method (it doesn't has to be minimized though).")
+        minimizer = minuit_minimizer
+
+    result = [minimizer._minuit_minimizer.minos(p.name, cl=cl)
               for p in params][-1].merrors  # returns every var
-    # result = minimizer._minuit_minimizer.minos(*(p.name for p in params), cl=sigma).merrors
     result = OrderedDict((p, result[p.name]) for p in params)
     new_result = None
     return result, new_result
@@ -235,7 +237,7 @@ class FitResult(ZfitResult):
         old_values = run(params)
         try:
             yield params
-        except Exception as error:
+        except Exception:
             warnings.warn("Exception occurred, parameter values are not reset and in an arbitrary, last"
                           " used state. If this happens during normal operation, make sure you reset the values.",
                           RuntimeWarning)
@@ -330,8 +332,9 @@ class FitResult(ZfitResult):
                       "errors, new_res = result.errors()", DeprecationWarning)
         return self.errors(params=params, method=method, error_name=error_name, sigma=sigma)[0]
 
+    @deprecated_args(None, "Use cl for confidence level instead.", 'sigma')
     def errors(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
-               sigma: Optional[float] = None) -> Tuple[OrderedDict, Union[None, 'FitResult']]:
+               cl: Optional[float] = None, sigma=None) -> Tuple[OrderedDict, Union[None, 'FitResult']]:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
             Args:
@@ -339,11 +342,11 @@ class FitResult(ZfitResult):
                      errors. If `params` is `None`, use all *floating* parameters.
                 method: The method to use to calculate the errors. Valid choices are
                     {'minuit_minos'} or a Callable.
-                sigma: Errors are calculated with respect to `sigma` std deviations. The definition
-                    of 1 sigma depends on the loss function and is defined there.
-
+                cl: Uncertainties are calculated with respect to the confidence level cl. The default is 68.3%.
                     For example, the negative log-likelihood (without the factor of 2) has a correspondents
                     of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
+                sigma: Errors are calculated with respect to `sigma` std deviations. The definition
+                    of 1 sigma depends on the loss function and is defined there.
                 error_name: The name for the error in the dictionary.
 
 
@@ -353,6 +356,15 @@ class FitResult(ZfitResult):
                     holding the calculated errors.
                     Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
         """
+        if sigma is not None:
+            if cl is not None:
+                raise ValueError("Cannot define sigma and cl, use cl only.")
+            else:
+                cl = scipy.stats.chi2(1).ppf(cl)
+
+        if cl is None:
+            cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)
+
         if method is None:
             # TODO: legacy, remove 0.6
             from zfit.minimize import Minuit
@@ -372,13 +384,13 @@ class FitResult(ZfitResult):
             warnings.warn("'zfit_error' is still experimental and may fails.", ExperimentalFeatureWarning)
 
         with self._input_check_reset_params(params) as params:
-            # TODO: cache with sigma!
+            # TODO: cache with cl!
             uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
             new_result = None
 
             if uncached_params:
-                error_dict, new_result = self._error(params=uncached_params, method=method, sigma=sigma)
+                error_dict, new_result = self._error(params=uncached_params, method=method, cl=cl)
                 if new_result is None:
                     self._cache_errors(error_name=error_name, errors=error_dict)
                 else:
@@ -390,13 +402,13 @@ class FitResult(ZfitResult):
 
         return all_errors, new_result
 
-    def _error(self, params, method, sigma):
+    def _error(self, params, method, cl):
         if not callable(method):
             try:
                 method = self._error_methods[method]
             except KeyError:
                 raise KeyError("The following method is not a valid, implemented method: {}".format(method))
-        return method(result=self, params=params, sigma=sigma)
+        return method(result=self, params=params, cl=cl)
 
     def covariance(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
         """Calculate the covariance matrix for `params`.
