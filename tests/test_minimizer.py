@@ -52,7 +52,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05), False),
-    (zfit.minimize.Minuit, {"tolerance": 0.00001, 'verbosity': 7}, True),
+    (zfit.minimize.Minuit, {"tolerance": 0.0001}, True),
     # (BFGS, {}, True),  # TODO: reactivate BFGS!  # check for one not dependent on Minuit
     # (zfit.minimize.Scipy, {}, False),
 ]

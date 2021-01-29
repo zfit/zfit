@@ -29,6 +29,9 @@ Experimental
 
 Requirement changes
 -------------------
+- iminuit>=2.3
+- tensorflow ~= 2.4
+- tensorflow-probability~=12
 
 Thanks
 ------
