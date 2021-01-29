@@ -85,7 +85,8 @@ class ConditionalPDFV1(BaseFunctor):
         return integrals
 
     def _single_hook_sample(self, n, limits, x):
-        from .. import z
+        tf.assert_equal(n, x.nevents, message="Different number of n requested than x given for "
+                                              "conditional sampling. Needs to agree")
 
         param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
         x_values = x.value()
@@ -96,7 +97,7 @@ class ConditionalPDFV1(BaseFunctor):
         if self._use_vectorized_map:
             tf_map = tf.vectorized_map
         else:
-            output_signature = tf.TensorSpec(shape=(1, self.n_obs), dtype=self.dtype)
+            output_signature = tf.TensorSpec(shape=(1, pdf.n_obs), dtype=self.dtype)
             tf_map = functools.partial(tf.map_fn, fn_output_signature=output_signature)
 
         def eval_sample(values):
@@ -112,4 +113,3 @@ class ConditionalPDFV1(BaseFunctor):
     def copy(self, **override_parameters) -> 'BasePDF':
         raise WorkInProgressError("Currently copying not possible. "
                                   "Use `set_yield` to set a yield inplace.")
-        return super().copy(**override_parameters)

@@ -40,7 +40,7 @@ def test_conditional_pdf_simple():
     for i, (xval, muval) in enumerate(data2d.value()):
         with mu.set_value(muval):
             prob_check2[i] = gauss.pdf(xval)
-    np.testing.assert_allclose(prob_check2, prob2, rtol=3e-3)
+    np.testing.assert_allclose(prob_check2, prob2, rtol=1e-5)
 
     cond_gauss1d = zfit.pdf.ConditionalPDFV1(pdf=gauss, cond={mu: xobs})
     prob1 = cond_gauss1d.pdf(data1d)
@@ -51,7 +51,7 @@ def test_conditional_pdf_simple():
     for i, xval in enumerate(data1d.value()[:, 0]):
         with mu.set_value(xval):
             prob_check1[i] = gauss.pdf(xval)
-    np.testing.assert_allclose(prob_check1, prob1, rtol=1e-3)
+    np.testing.assert_allclose(prob_check1, prob1, rtol=1e-5)
 
 
     cond_gauss3d = zfit.pdf.ConditionalPDFV1(pdf=gauss, cond={mu: muobs, sigma: sigmaobs})
@@ -76,5 +76,5 @@ def test_conditional_pdf_simple():
     assert integrals2.shape[0] == data2d.nevents
     assert integrals2.shape.rank == 1
 
-    sample2 = cond_gauss2d.sample(n=data2d.nevents, limits=xobs, x=data1dmu)
-    assert sample2.value().shape == (data2d.nevents, cond_gauss2d.n_obs)
+    sample2 = cond_gauss2d.sample(n=data1dmu.nevents, limits=xobs, x=data1dmu)
+    assert sample2.value().shape == (data1dmu.nevents, cond_gauss2d.n_obs)

@@ -750,11 +750,6 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def errordef(self) -> Union[float, int]:
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
     def model(self) -> List["ZfitModel"]:
         raise NotImplementedError
 
