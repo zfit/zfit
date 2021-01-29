@@ -1,11 +1,13 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import functools
 from typing import Mapping, Optional, Set
 
 import tensorflow as tf
 
 from .functor import BaseFunctor
+from ..settings import run
 from ..core.interfaces import ZfitPDF, ZfitSpace, ZfitIndependentParameter
+from ..core.parameter import set_values
 from ..core.space import combine_spaces, convert_to_space
 from ..util.exception import WorkInProgressError
 
@@ -13,7 +15,7 @@ from ..util.exception import WorkInProgressError
 class ConditionalPDFV1(BaseFunctor):
 
     def __init__(self, pdf: ZfitPDF, cond: Mapping[ZfitIndependentParameter, ZfitSpace], name="ConditionalPDF",
-                 *, use_vectorized_map: bool = True, sample_with_replacement: bool = True):
+                 *, use_vectorized_map: bool = False, sample_with_replacement: bool = True):
         self._sample_with_replacement = sample_with_replacement
         self._use_vectorized_map = use_vectorized_map
         self._cond, cond_obs = self._check_input_cond(cond)
@@ -31,7 +33,7 @@ class ConditionalPDFV1(BaseFunctor):
 
     def _pdf(self, x, norm_range):
         pdf = self.pdfs[0]
-        param_x_indices = {p: x.obs.index(x.obs[0]) for p, p_space in self._cond.items()}
+        param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
         x_values = x.value()
 
         if self._use_vectorized_map:
@@ -48,7 +50,9 @@ class ConditionalPDFV1(BaseFunctor):
                 param.assign(cond_and_data[..., index])
             return pdf.pdf(x_pdf, norm_range=norm_range)
 
-        probs = tf_map(eval_pdf, x_values)
+        params = tuple(param_x_indices.keys())
+        with set_values(params, params):
+            probs = tf_map(eval_pdf, x_values)
         probs = probs[:, 0]  # removing stack dimension, implicitly in map_fn
         return probs
 
@@ -60,7 +64,7 @@ class ConditionalPDFV1(BaseFunctor):
 
     def _single_hook_integrate(self, limits, norm_range, x):
 
-        param_x_indices = {p: x.obs.index(x.obs[0]) for p, p_space in self._cond.items()}
+        param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
         x_values = x.value()
         pdf = self.pdfs[0]
 
@@ -83,7 +87,7 @@ class ConditionalPDFV1(BaseFunctor):
     def _single_hook_sample(self, n, limits, x):
         from .. import z
 
-        param_x_indices = {p: x.obs.index(x.obs[0]) for p, p_space in self._cond.items()}
+        param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
         x_values = x.value()
         # if self._sample_with_replacement:
         #     x_values = z.random.sample_with_replacement(x_values, axis=0, sample_shape=(n,))
