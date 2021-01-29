@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from typing import List, Optional
 
@@ -75,15 +75,15 @@ class Minuit(BaseMinimizer, GraphCachable):
         limits = tuple(tuple((param.lower, param.upper)) for param in params)
         errors = tuple(param.step_size for param in params)
         start_values = [p.numpy() for p in params]
-        limits = [(low.numpy(), up.numpy()) for low, up in limits]
-        errors = [err.numpy() for err in errors]
+        limits = np.array([(low.numpy(), up.numpy()) for low, up in limits])
+        errors = np.array([err.numpy() for err in errors])
 
         multiparam = isinstance(start_values[0], np.ndarray) and len(start_values[0]) > 1 and len(params) == 1
         if multiparam:
             # TODO(Mayou36): multiparameter
             params_name = None  # autogenerate for the moment
             start_values = start_values[0]
-            errors = errors[0]
+            # errors = errors[0]
             limits = limits[0]
             gradients = gradients[0]
         else:
@@ -167,6 +167,11 @@ class Minuit(BaseMinimizer, GraphCachable):
                                    name=params_name,
                                    )
         minimizer.precision = precision
+        minimizer.errors = errors
+        minimizer.limits = limits
+        if loss.errordef is None:
+            raise ValueError("Errordef must not be None to be run with iminuit.")
+        minimizer.errordef = loss.errordef
         minimizer.print_level = minuit_verbosity
         strategy = minimizer_setter.pop('strategy')
         minimizer.strategy = strategy

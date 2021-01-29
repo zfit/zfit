@@ -26,7 +26,8 @@ true_lambda = -0.03
 
 def create_loss(obs1):
     mu_param = zfit.Parameter("mu", 4.3, -5., 9.,
-                              step_size=0.03)
+                              step_size=0.03
+                              )
     sigma_param = zfit.Parameter("sigma", 1.7, 0.01, 10, step_size=0.03)
     lambda_param = zfit.Parameter("lambda", -0.04, -0.5, -0.0003, step_size=0.001)
 
@@ -144,12 +145,13 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
             assert abs(errors[lambda_param]['error']) == pytest.approx(0.01, abs=0.01)
 
         if isinstance(minimizer, zfit.minimize.Minuit):
+            profile_method = "minuit_minos"
             # Test Error
-            a_errors, _ = result.errors(params=mu_param, method=method)
+            a_errors, _ = result.errors(params=mu_param, method=profile_method)
             assert tuple(a_errors.keys()) == (mu_param,)
-            errors, _ = result.errors(method=method)
+            errors, _ = result.errors(method=profile_method)
             a_error = a_errors[mu_param]
-            assert a_errors["lower"] == pytest.approx(-a_errors['upper'], abs=0.1)
+            assert a_error["lower"] == pytest.approx(-a_error['upper'], abs=0.1)
             assert abs(a_error["lower"]) == pytest.approx(0.015, abs=0.015)
             assert abs(errors[sigma_param]["lower"]) == pytest.approx(0.010, abs=0.01)
             assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007, abs=0.15)
@@ -159,9 +161,9 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
             assert errors[mu_param]['upper'] == pytest.approx(a_error['upper'], rel=0.01)
 
             # Test Error method name
-            a_errors, _ = result.errors(params=mu_param, method=method, error_name='error1')
+            a_errors, _ = result.errors(params=mu_param, method=profile_method, error_name='error1')
             assert tuple(a_errors.keys()) == (mu_param,)
-            errors, _ = result.errors(error_name='error42', method=method)
+            errors, _ = result.errors(error_name='error42', method=profile_method)
             a_error = a_errors[mu_param]
 
             assert a_error['lower'] == pytest.approx(result.params[mu_param]['error42']['lower'], rel=0.001)

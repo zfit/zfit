@@ -262,5 +262,5 @@ def test_new_minimum(minimizer_class_and_kwargs):
         assert new_result.valid is True
         errors, _ = new_result.errors()
         for param in params:
-            assert errors[param].lower < 0
-            assert errors[param].upper > 0
+            assert errors[param]['lower'] < 0
+            assert errors[param]['upper'] > 0

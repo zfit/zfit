@@ -19,9 +19,9 @@ from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import set_values
 from ..settings import run
 from ..util.container import convert_to_container
+from ..util.deprecation import deprecated_args
 from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
-from ..util.deprecation import deprecated_args
 
 init(autoreset=True)
 
@@ -34,12 +34,16 @@ def _minos_minuit(result, params, cl=None, *, minuit_minimizer=None):
     if not isinstance(minimizer, Minuit):
         if minuit_minimizer is None:
             raise TypeError("To use `minos_error` method with a minimizer other than `Minuit`, a Minuit minimizer"
-                               " needs to be passed to the method (it doesn't has to be minimized though).")
+                            " needs to be passed to the method (it doesn't has to be minimized though).")
         minimizer = minuit_minimizer
 
-    result = [minimizer._minuit_minimizer.minos(p.name, cl=cl)
-              for p in params][-1].merrors  # returns every var
-    result = OrderedDict((p, result[p.name]) for p in params)
+    merror_result = minimizer._minuit_minimizer.minos(*(p.name for p in params), cl=cl).merrors  # returns every var
+    attrs = ['lower', 'upper', 'is_valid', 'upper_valid', 'lower_valid', 'at_lower_limit', 'at_upper_limit', 'nfcn']
+    result = {}
+    for p, merror in zip(params, merror_result.values()):
+        result[p] = {attr: getattr(merror, attr) for attr in attrs}
+        result[p]['original'] = result
+    # result = OrderedDict((p, result[p.name]) for p in params)
     new_result = None
     return result, new_result
 
@@ -292,8 +296,8 @@ class FitResult(ZfitResult):
         return errors
 
     def _cache_errors(self, error_name, errors):
-        for param, errors in errors.items():
-            self.params[param][error_name] = errors
+        for param, error in errors.items():
+            self.params[param][error_name] = error
 
     def _hesse(self, params, method):
         covariance_dict = self.covariance(params, method, as_dict=True)
@@ -383,7 +387,9 @@ class FitResult(ZfitResult):
         if method == 'zfit_error':
             warnings.warn("'zfit_error' is still experimental and may fails.", ExperimentalFeatureWarning)
 
-        with self._input_check_reset_params(params) as params:
+        params = self._input_check_params(params)
+
+        with self._input_check_reset_params(self.params.keys()):
             # TODO: cache with cl!
             uncached_params = self._get_uncached_params(params=params, method_name=error_name)
 
