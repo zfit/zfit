@@ -128,7 +128,7 @@ def numerical_pdf_jacobian(func, params):
     return jacobian
 
 
-@z.function
+@z.function(wraps='autodiff')
 def autodiff_pdf_jacobian(func, params):
 
     # with tf.GradientTape(persistent=False,

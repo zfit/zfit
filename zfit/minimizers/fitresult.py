@@ -460,7 +460,7 @@ class FitResult(ZfitResult):
 
         params = list(self.params.keys())
 
-        if any([data.weights is not None for data in self.loss.data]):
+        if any(data.weights is not None for data in self.loss.data):
             return covariance_with_weights(method=method, result=self, params=params)
         else:
             return method(result=self, params=params)
