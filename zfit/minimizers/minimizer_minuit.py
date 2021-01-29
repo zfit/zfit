@@ -167,8 +167,11 @@ class Minuit(BaseMinimizer, GraphCachable):
                                    name=params_name,
                                    )
         minimizer.precision = precision
-        minimizer.errors = errors
-        minimizer.limits = limits
+        for param in params:
+            if param.has_step_size:
+                minimizer.errors[param.name] = param.step_size
+            if param.has_limits:
+                minimizer.limits[param.name] = (param.lower, param.upper)
         if loss.errordef is None:
             raise ValueError("Errordef must not be None to be run with iminuit.")
         minimizer.errordef = loss.errordef

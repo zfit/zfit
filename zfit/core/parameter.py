@@ -1,5 +1,5 @@
 """Define Parameter which holds the value."""
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import abc
 import functools
 import warnings
@@ -430,6 +430,10 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
     @property
     def independent(self):
         return self._independent
+
+    @property
+    def has_step_size(self):
+        return self._step_size is not None
 
     @property
     def step_size(self) -> tf.Tensor:  # TODO: improve default step_size?
