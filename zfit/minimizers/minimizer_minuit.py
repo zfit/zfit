@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from typing import List, Optional
 
@@ -48,7 +48,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         # create options
         minimizer_options = self.minimizer_options.copy()
         minimize_options = {}
-        minimize_options['precision'] = minimizer_options.pop('precision', None)
+        precision = minimizer_options.pop('precision', None)
         minimize_options['ncall'] = minimizer_options.pop('ncall')
 
         minimizer_init = {}
@@ -75,15 +75,15 @@ class Minuit(BaseMinimizer, GraphCachable):
         limits = tuple(tuple((param.lower, param.upper)) for param in params)
         errors = tuple(param.step_size for param in params)
         start_values = [p.numpy() for p in params]
-        limits = [(low.numpy(), up.numpy()) for low, up in limits]
-        errors = [err.numpy() for err in errors]
+        limits = np.array([(low.numpy(), up.numpy()) for low, up in limits])
+        errors = np.array([err.numpy() for err in errors])
 
         multiparam = isinstance(start_values[0], np.ndarray) and len(start_values[0]) > 1 and len(params) == 1
         if multiparam:
             # TODO(Mayou36): multiparameter
             params_name = None  # autogenerate for the moment
             start_values = start_values[0]
-            errors = errors[0]
+            # errors = errors[0]
             limits = limits[0]
             gradients = gradients[0]
         else:
@@ -162,14 +162,20 @@ class Minuit(BaseMinimizer, GraphCachable):
 
         grad_func = grad_func if self._use_tfgrad else None
 
-        minimizer = iminuit.Minuit.from_array_func(fcn=func, start=start_values,
-                                                   error=errors, limit=limits, name=params_name,
-                                                   grad=grad_func,
-                                                   # use_array_call=True,
-                                                   print_level=minuit_verbosity,
-                                                   # forced_parameters=[f"param_{i}" for i in range(len(start_values))],
-                                                   **minimizer_init)
-
+        minimizer = iminuit.Minuit(func, start_values,
+                                   grad=grad_func,
+                                   name=params_name,
+                                   )
+        minimizer.precision = precision
+        for param in params:
+            if param.has_step_size:
+                minimizer.errors[param.name] = param.step_size
+            if param.has_limits:
+                minimizer.limits[param.name] = (param.lower, param.upper)
+        if loss.errordef is None:
+            raise ValueError("Errordef must not be None to be run with iminuit.")
+        minimizer.errordef = loss.errordef
+        minimizer.print_level = minuit_verbosity
         strategy = minimizer_setter.pop('strategy')
         minimizer.strategy = strategy
         minimizer.tol = self.tolerance / 1e-3  # iminuit 1e-3 and tolerance 0.1

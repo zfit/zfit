@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from collections import OrderedDict
 
 import pytest
@@ -26,7 +26,8 @@ true_lambda = -0.03
 
 def create_loss(obs1):
     mu_param = zfit.Parameter("mu", 4.3, -5., 9.,
-                              step_size=0.03)
+                              step_size=0.03
+                              )
     sigma_param = zfit.Parameter("sigma", 1.7, 0.01, 10, step_size=0.03)
     lambda_param = zfit.Parameter("lambda", -0.04, -0.5, -0.0003, step_size=0.001)
 
@@ -51,7 +52,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05), False),
-    (zfit.minimize.Minuit, {}, True),
+    (zfit.minimize.Minuit, {"tolerance": 0.00001, 'verbosity': 7}, True),
     # (BFGS, {}, True),  # TODO: reactivate BFGS!  # check for one not dependent on Minuit
     # (zfit.minimize.Scipy, {}, False),
 ]
@@ -109,8 +110,8 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
     obs = spaces
     loss, true_minimum, (mu_param, sigma_param, lambda_param) = create_loss(obs1=obs)
 
-    parameter_tolerance = 0.06
-    max_distance_to_min = 10.
+    parameter_tolerance = 0.1
+    max_distance_to_min = 5
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
@@ -144,14 +145,15 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
             assert abs(errors[lambda_param]['error']) == pytest.approx(0.01, abs=0.01)
 
         if isinstance(minimizer, zfit.minimize.Minuit):
+            profile_method = "minuit_minos"
             # Test Error
-            a_errors, _ = result.errors(params=mu_param)
+            a_errors, _ = result.errors(params=mu_param, method=profile_method)
             assert tuple(a_errors.keys()) == (mu_param,)
-            errors, _ = result.errors()
+            errors, _ = result.errors(method=profile_method)
             a_error = a_errors[mu_param]
-            assert a_error['lower'] == pytest.approx(-a_error['upper'], abs=0.1)
-            assert abs(a_error['lower']) == pytest.approx(0.015, abs=0.015)
-            assert abs(errors[sigma_param]['lower']) == pytest.approx(0.010, abs=0.01)
+            assert a_error["lower"] == pytest.approx(-a_error['upper'], abs=0.1)
+            assert abs(a_error["lower"]) == pytest.approx(0.015, abs=0.015)
+            assert abs(errors[sigma_param]["lower"]) == pytest.approx(0.010, abs=0.01)
             assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007, abs=0.15)
             assert abs(errors[lambda_param]['upper']) == pytest.approx(0.007, abs=0.15)
 
@@ -159,9 +161,9 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
             assert errors[mu_param]['upper'] == pytest.approx(a_error['upper'], rel=0.01)
 
             # Test Error method name
-            a_errors, _ = result.errors(params=mu_param, error_name='error1')
+            a_errors, _ = result.errors(params=mu_param, method=profile_method, error_name='error1')
             assert tuple(a_errors.keys()) == (mu_param,)
-            errors, _ = result.errors(error_name='error42')
+            errors, _ = result.errors(error_name='error42', method=profile_method)
             a_error = a_errors[mu_param]
 
             assert a_error['lower'] == pytest.approx(result.params[mu_param]['error42']['lower'], rel=0.001)
@@ -171,7 +173,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
                 assert errors[param]['upper'] == pytest.approx(errors2['error42']['upper'], rel=0.001)
 
             # test custom error
-            def custom_error_func(result, params, sigma):
+            def custom_error_func(result, params, cl):
                 return OrderedDict((param, {'myval': 42}) for param in params), None
 
             custom_errors, _ = result.errors(method=custom_error_func, error_name='custom_method1')

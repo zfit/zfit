@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -260,7 +260,7 @@ def test_simple_loss():
 
     loss_deps = zfit.loss.SimpleLoss(func=loss_func, deps=param_list)
     # loss = zfit.loss.SimpleLoss(func=loss_func)
-    loss = zfit.loss.SimpleLoss(func=loss_func, deps=param_list)
+    loss = zfit.loss.SimpleLoss(func=loss_func, deps=param_list, errordef=1.)
 
     assert loss_deps.get_cache_deps() == set(param_list)
     assert set(loss_deps.get_params()) == set(param_list)

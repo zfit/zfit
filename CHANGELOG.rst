@@ -8,6 +8,10 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- upgrade to iminuit v2 changes the way it works and also the Minuit minimizer in zfit,
+  including a new step size heuristic.
+  Possible problems can be caused by iminuit itself, please report somewhere
+  in case your fits don't converge anymore.
 
 
 Breaking changes

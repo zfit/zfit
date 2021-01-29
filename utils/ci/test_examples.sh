@@ -1,4 +1,8 @@
-pip install matplotlib
+#
+# Copyright (c) 2021 zfit
+#
+
+pip install matplotlib mplhep
 set -e
 for file in examples/*; do
     python $file

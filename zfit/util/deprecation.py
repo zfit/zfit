@@ -1,3 +1,3 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
-from .legacy import deprecated  # noqa
+from .legacy import deprecated, deprecated_args  # noqa
