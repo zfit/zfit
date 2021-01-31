@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
+      fail-fast: False
       matrix:
         python-version: [ 3.6, 3.7, 3.8 ]
     name: Tests for Python ${{ matrix.python-version }}
