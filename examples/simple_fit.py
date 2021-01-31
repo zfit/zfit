@@ -31,26 +31,6 @@ def func(**kwargs):
         val = 999999999
     return - val
 
-
-from bayes_opt import BayesianOptimization
-
-# Bounded region of parameter space
-pbounds = {p.name: (p.lower, p.upper) for p in params}
-
-optimizer = BayesianOptimization(
-    f=func,
-    pbounds=pbounds,
-    random_state=1,
-)
-
-optimizer.maximize(
-    init_points=20,
-    n_iter=300,
-)
-
-print(optimizer.max)
-# print(optimizer.res)
-
 # # create a minimizer
 minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
