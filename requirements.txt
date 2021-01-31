@@ -13,3 +13,4 @@ colorama
 ordered-set
 numdifftools
 tensorflow-addons
+nlopt
