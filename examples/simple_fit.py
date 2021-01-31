@@ -21,21 +21,9 @@ data = zfit.Data.from_numpy(obs=obs, array=normal_np)
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
-params = [mu, sigma]
-
-
-def func(**kwargs):
-    zfit.param.set_values(params, kwargs.values())
-    val = nll.value()
-    if not np.isfinite(val):
-        val = 999999999
-    return - val
-
 # # create a minimizer
 minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
-print(result)
-print(result.fmin)
 
 # do the error calculations, here with minos
-# param_errors, _ = result.errors()
+param_errors, _ = result.errors()
