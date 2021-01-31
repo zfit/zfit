@@ -25,11 +25,11 @@ true_lambda = -0.03
 
 
 def create_loss(obs1):
-    mu_param = zfit.Parameter("mu", 4.3, -5., 9.,
+    mu_param = zfit.Parameter("mu", true_mu - 2., -5., 9.,
                               step_size=0.03
                               )
-    sigma_param = zfit.Parameter("sigma", 1.7, 0.01, 10, step_size=0.03)
-    lambda_param = zfit.Parameter("lambda", -0.04, -0.5, -0.0003, step_size=0.001)
+    sigma_param = zfit.Parameter("sigma", true_sigma * 0.1, 0.01, 10, step_size=0.03)
+    lambda_param = zfit.Parameter("lambda", -0.1, -0.5, -0.0003, step_size=0.001)
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lam=lambda_param, obs=obs1)
@@ -52,9 +52,9 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05, tolerance=0.00001), False),
-    # (zfit.minimize.Minuit, {"tolerance": 0.0001}, True),
+    (zfit.minimize.Minuit, {"tolerance": 0.0001}, True),
     # (BFGS, {}, True),  # TODO: reactivate BFGS!  # check for one not dependent on Minuit
-    (zfit.minimize.Scipy, {'tolerance': 0.0001}, False),
+    (zfit.minimize.Scipy, {'tolerance': 0.00001}, False),
 ]
 
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
@@ -101,14 +101,14 @@ def test_dependent_param_extraction():
 @pytest.mark.parametrize("spaces", [obs1, obs1_split])
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.flaky(reruns=3)
-def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
+def test_minimizers(minimizeKr_class_and_kwargs, num_grad, chunksize, spaces):
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
     zfit.settings.options['numerical_grad'] = num_grad
 
     # minimize_func(minimizer_class_and_kwargs, obs=spaces)
     obs = spaces
-    loss, true_minimum, params = create_loss(obs1=obs)
+    loss, true_min, params = create_loss(obs1=obs)
     (mu_param, sigma_param, lambda_param) = params
 
     parameter_tolerance = 0.1
@@ -132,13 +132,13 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
     result_lowtol2 = minimizer.minimize(loss=result_lowtol)
     zfit.param.set_values(params, init_vals)
     result = minimizer.minimize(loss=loss)
-    assert result_lowtol2.fmin == pytest.approx(result.fmin, abs=1.)
+    assert result_lowtol2.fmin == pytest.approx(result.fmin, abs=2.)
     assert result_lowtol2.info['n_eval'] < 0.99 * result.info['n_eval']
 
-    cur_val = loss.value().numpy()
+    found_min = loss.value().numpy()
     aval, bval, cval = [zfit.run(v) for v in (mu_param, sigma_param, lambda_param)]
 
-    assert true_minimum <= cur_val + max_distance_to_min
+    assert true_min + max_distance_to_min >= found_min
     assert true_mu == pytest.approx(aval, abs=parameter_tolerance)
     assert true_sigma == pytest.approx(bval, abs=parameter_tolerance)
     assert true_lambda == pytest.approx(cval, abs=parameter_tolerance)

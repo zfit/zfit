@@ -29,7 +29,7 @@ class Scipy(BaseMinimizer):
             name: Name of the minimizer
             minimizer_options:
         """
-        num_grad = False if num_grad is None else num_grad
+        num_grad = True if num_grad is None else num_grad
         minimizer_options = {} if minimizer_options is None else minimizer_options
         if tolerance is None:
             tolerance = 1e-4
@@ -74,7 +74,7 @@ class Scipy(BaseMinimizer):
                 info_values['loss'] = loss_evaluated
                 info_values['old_loss'] = current_loss
                 info_values['nan_counter'] = nan_counter
-                loss_evaluated = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
+                loss_evaluated = self.strategy.minimize_nan(loss=loss, params=params, minimizer=self,
                                                             values=info_values)
             else:
                 nan_counter = 0
@@ -113,7 +113,7 @@ class Scipy(BaseMinimizer):
                 info_values['old_loss'] = current_loss
                 info_values['nan_counter'] = nan_counter
                 # but loss value not needed here
-                _ = self.strategy.minimize_nan(loss=loss, params=params, minimizer=self,
+                loss_value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=self,
                                                values=info_values)
             else:
                 nan_counter = 0
