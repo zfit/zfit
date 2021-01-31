@@ -133,7 +133,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
     zfit.param.set_values(params, init_vals)
     result = minimizer.minimize(loss=loss)
     assert result_lowtol2.fmin == pytest.approx(result.fmin, abs=1.)
-    assert result_lowtol2.info['n_eval'] < 0.9 * result.info['n_eval']
+    assert result_lowtol2.info['n_eval'] < 0.99 * result.info['n_eval']
 
     cur_val = loss.value().numpy()
     aval, bval, cval = [zfit.run(v) for v in (mu_param, sigma_param, lambda_param)]
