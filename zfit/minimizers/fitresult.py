@@ -12,6 +12,7 @@ import scipy.stats
 from colorama import Style, init
 from ordered_set import OrderedSet
 from tabulate import tabulate
+import scipy.optimize
 
 from .errors import compute_errors, covariance_with_weights, dict_to_matrix, matrix_to_dict
 from .interface import ZfitMinimizer, ZfitResult
@@ -183,6 +184,28 @@ class FitResult(ZfitResult):
         return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
                    status=status, converged=converged,
                    minimizer=minimizer)
+
+    @classmethod
+    def from_scipy(self,  loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
+                   minimizer: ZfitMinimizer):
+        result_values = result['x']
+        converged = result['success']
+        status = result['status']
+        info = {'n_eval': result['nfev'],
+                'n_iter': result['nit'],
+                'grad': result['jac'],
+                'hess_inv': result['hess_inv'],
+                'message': result['message'],
+                'original': result}
+        edm = -999  # TODO: get from scipy result or how?
+        fmin = result['fun']
+        params = OrderedDict((p, v) for p, v in zip(params, result_values))
+
+        fitresult = FitResult(params=params, edm=edm, fmin=fmin, info=info,
+                              converged=converged, status=status,
+                              loss=loss, minimizer=minimizer.copy())
+        return fitresult
+
 
     @property
     def params(self):

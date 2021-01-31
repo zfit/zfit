@@ -3,7 +3,7 @@ Definition of minimizers, wrappers etc.
 
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import abc
 import collections
 import copy
@@ -16,8 +16,9 @@ import numpy as np
 import texttable as tt
 
 from .fitresult import FitResult
-from .interface import ZfitMinimizer
+from .interface import ZfitMinimizer, ZfitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
+from ..core.parameter import set_values
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -260,7 +261,14 @@ class BaseMinimizer(ZfitMinimizer):
         Returns:
             The fit result.
         """
+        result = None
+        if isinstance(loss, ZfitResult):
+            result = loss  # make the names correct
+            loss = result.loss
         params = self._check_input_params(loss=loss, params=params, only_floating=True)
+        if result is not None:
+            set_values(params, result)
+
         try:
             return self._hook_minimize(loss=loss, params=params)
         except (FailMinimizeNaN, RuntimeError) as error:  # iminuit raises RuntimeError if user raises Error
@@ -288,15 +296,8 @@ class BaseMinimizer(ZfitMinimizer):
         last_val = -10
         n_steps = 0
 
-        def step_fn(loss, params):
-            try:
-                self._step_tf(loss=loss.value, params=params)
-            except MinimizeStepNotImplementedError:
-                self.step(loss, params)
-            return loss.value()
-
         while sum(sorted(changes)[-3:]) > self.tolerance and n_steps < self._max_steps:  # TODO: improve condition
-            cur_val = step_fn(loss=loss, params=params)
+            cur_val = run(self.step(loss=loss, params=params))
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             last_val = cur_val
@@ -306,14 +307,14 @@ class BaseMinimizer(ZfitMinimizer):
 
         # compose fit result
         message = "successful finished"
-        are_unique = len(set([float(change.numpy()) for change in changes])) > 1  # values didn't change...
+        are_unique = len(set([run(change) for change in changes])) > 1  # values didn't change...
         if not are_unique:
             message = "Loss unchanged for last {} steps".format(n_old_vals)
 
         success = are_unique
         status = 0 if success else 10
 
-        info = {'success': success, 'message': message}  # TODO: create status
+        info = {'success': success, 'message': message, 'n_eval': n_steps}  # TODO: create status
         param_values = [float(p.numpy()) for p in params]
         params = OrderedDict((p, val) for p, val in zip(params, param_values))
 
@@ -326,9 +327,6 @@ class BaseMinimizer(ZfitMinimizer):
 
     def _minimize(self, loss, params):
         raise MinimizeNotImplementedError
-
-    def _step_tf(self, loss, params):
-        raise MinimizeStepNotImplementedError
 
     def _step(self, loss, params):
         raise MinimizeStepNotImplementedError

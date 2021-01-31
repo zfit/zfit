@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from contextlib import ExitStack
 
 import tensorflow as tf
@@ -16,7 +16,7 @@ class WrapOptimizer(BaseMinimizer):
         super().__init__(tolerance=tolerance, verbosity=verbosity, name=name, minimizer_options=None, **kwargs)
         self._optimizer_tf = optimizer
 
-    def _step_tf(self, loss, params):
-        minimization_step = self._optimizer_tf.minimize(loss=loss, var_list=params)
+    def _step(self, loss, params):
+        self._optimizer_tf.minimize(loss=loss.value, var_list=params)
 
-        return minimization_step
+        return loss.value()
