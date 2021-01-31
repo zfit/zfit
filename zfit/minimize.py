@@ -1,8 +1,9 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 
 from .minimizers.baseminimizer import DefaultStrategy, DefaultToyStrategy, ZfitStrategy
 from .minimizers.minimizer_minuit import Minuit
+from .minimizers.minimizer_nlopt import NLopt
 from .minimizers.minimizer_tfp import BFGS
 from .minimizers.minimizers_scipy import Scipy
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
@@ -36,6 +37,6 @@ class ScipyMinimizer(Scipy):
 
 __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
            "WrapOptimizer",
-           "Adam", "Minuit", "Scipy", "BFGS",
+           "Adam", "Minuit", "Scipy", "BFGS", "NLopt",
            "DefaultStrategy", "DefaultToyStrategy",
            "FitResult"]

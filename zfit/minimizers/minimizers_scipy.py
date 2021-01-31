@@ -1,4 +1,5 @@
 #  Copyright (c) 2021 zfit
+import warnings
 from typing import Optional, Dict
 
 import numpy as np
@@ -11,33 +12,36 @@ from ..settings import run
 
 class Scipy(BaseMinimizer):
 
-    def __init__(self, minimizer: str = 'L-BFGS-B', tolerance: Optional[float] = None,
+    def __init__(self, algorithm: str = 'L-BFGS-B', tolerance: Optional[float] = None,
                  strategy: Optional[ZfitStrategy] = None, verbosity: Optional[int] = 5,
-                 name: Optional[str] = None, num_grad: Optional[bool] = None,
-                 minimizer_options: Optional[Dict[str, object]] = None):
+                 name: Optional[str] = None, scipy_grad: Optional[bool] = None,
+                 minimizer_options: Optional[Dict[str, object]] = None, minimizer=None):
         """SciPy optimizer algorithms.
 
         This is a wrapper for all the SciPy optimizers. More information can be found in their docs.
 
         Args:
-            minimizer: Name of the minimization algorithm to use.
+            algorithm: Name of the minimization algorithm to use.
             tolerance: Stopping criterion of the algorithm to determine when the minimum
                 has been found. The default is 1e-4, which is *different* from others.
             verbosity:             name: Name of the minimizer
-            num_grad: If True, SciPy uses it's internal numerical gradient calculation instead of the
+            scipy_grad: If True, SciPy uses it's internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit.
             name: Name of the minimizer
             minimizer_options:
         """
-        num_grad = True if num_grad is None else num_grad
+        if minimizer is not None:
+            warnings.warn(DeprecationWarning, "`minimizer` keyword is gone, use `algorithm`")
+            algorithm = minimizer
+        scipy_grad = True if scipy_grad is None else scipy_grad
         minimizer_options = {} if minimizer_options is None else minimizer_options
         if tolerance is None:
             tolerance = 1e-4
         if name is None:
-            name = minimizer
-        self.num_grad = num_grad
+            name = algorithm
+        self.scipy_grad = scipy_grad
         minimizer_options = minimizer_options.copy()
-        minimizer_options.update(method=minimizer)
+        minimizer_options.update(method=algorithm)
         super().__init__(tolerance=tolerance, name=name, verbosity=verbosity,
                          strategy=strategy,
                          minimizer_options=minimizer_options)
@@ -123,7 +127,7 @@ class Scipy(BaseMinimizer):
         initial_values = np.array(run(params))
         limits = [(run(p.lower), run(p.upper)) for p in params]
         minimize_kwargs = {
-            'jac': not self.num_grad,
+            'jac': not self.scipy_grad,
             # 'callback': step_callback,
             'method': minimizer_options.pop('method'),
             # 'constraints': constraints,
@@ -133,7 +137,7 @@ class Scipy(BaseMinimizer):
         }
         minimize_kwargs.update(self.minimizer_options)
         import scipy.optimize  # pylint: disable=g-import-not-at-top
-        result = scipy.optimize.minimize(fun=func if self.num_grad else grad_value_func,
+        result = scipy.optimize.minimize(fun=func if self.scipy_grad else grad_value_func,
                                          x0=initial_values, **minimize_kwargs)
 
         set_values(params, result['x'])

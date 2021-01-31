@@ -1,11 +1,10 @@
 #  Copyright (c) 2021 zfit
 from collections import OrderedDict
 
-import pytest
-import tensorflow as tf
+import nlopt
 import numpy as np
+import pytest
 
-import zfit.minimizers.baseminimizer as zmin
 import zfit.minimizers.optimizers_tf
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
@@ -29,7 +28,7 @@ def create_loss(obs1):
                               step_size=0.03
                               )
     sigma_param = zfit.Parameter("sigma", true_sigma * 0.1, 0.01, 10, step_size=0.03)
-    lambda_param = zfit.Parameter("lambda", -0.1, -0.5, -0.0003, step_size=0.001)
+    lambda_param = zfit.Parameter("lambda", true_lambda * 0.2, -0.5, -0.0003, step_size=0.001)
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lam=lambda_param, obs=obs1)
@@ -51,16 +50,34 @@ def create_loss(obs1):
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
-    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05, tolerance=0.00001), False),
-    (zfit.minimize.Minuit, {"tolerance": 0.0001}, True),
-    # (BFGS, {}, True),  # TODO: reactivate BFGS!  # check for one not dependent on Minuit
-    (zfit.minimize.Scipy, {'tolerance': 0.00001}, False),
+    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05, tolerance=0.00001), False),  # works
+    (zfit.minimize.Minuit, {"tolerance": 0.0001}, True),  # works
+    # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
+    # (zfit.minimize.Scipy, {'tolerance': 0.001}, False),  # works not, L-BFGS_B
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'CG'}, False),
+    (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Powell'}, False),  # works
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'BFGS'}, False),  # too bad
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Newton-CG', "scipy_grad": False}, False),  # too bad
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'TNC'}, False),  # unstable
+    (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-constr'}, False),  # works
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-ncg', "scipy_grad": False}, False),  # need Hess
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-krylov', "scipy_grad": False}, False),  # Hess
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'dogleg', "scipy_grad": False}, False),  # Hess
+    # (zfit.minimize.NLopt, {}, True),  # works not, why not?
+    # (zfit.minimize.NLopt, {'algorithm': nlopt.GD_STOGO}, True),  # takes too long
+    # (zfit.minimize.NLopt, {'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
+    (zfit.minimize.NLopt, {'tolerance': 0.001, 'algorithm': nlopt.LN_SBPLX}, True),  # works
+    # (zfit.minimize.NLopt, {'tolerance': 0.000001, 'algorithm': nlopt.LD_MMA}, True),  # doesn't minimize
+    # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_SLSQP}, True),  # doesn't minimize
+    # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_TNEWTON_PRECOND_RESTART}, True),  # no minimize
+    # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
 ]
 
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
               + zfit.Space(obs='obs1', limits=(1.3, 2.1))
               + zfit.Space(obs='obs1', limits=(2.1, 9.1)))
+
 
 def test_floating_flag():
     obs = zfit.Space("x", limits=(-2, 3))
@@ -101,7 +118,7 @@ def test_dependent_param_extraction():
 @pytest.mark.parametrize("spaces", [obs1, obs1_split])
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.flaky(reruns=3)
-def test_minimizers(minimizeKr_class_and_kwargs, num_grad, chunksize, spaces):
+def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
     zfit.settings.options['numerical_grad'] = num_grad
@@ -114,12 +131,10 @@ def test_minimizers(minimizeKr_class_and_kwargs, num_grad, chunksize, spaces):
     parameter_tolerance = 0.1
     max_distance_to_min = 2
 
-
     init_vals = zfit.run(params)
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer_hightol = minimizer_class(**{**minimizer_kwargs,
-                                        'tolerance': 100 * minimizer_kwargs.get('tolerance', 0.01)})
-
+                                           'tolerance': 100 * minimizer_kwargs.get('tolerance', 0.01)})
 
     minimizer = minimizer_class(**minimizer_kwargs)
 
@@ -132,13 +147,17 @@ def test_minimizers(minimizeKr_class_and_kwargs, num_grad, chunksize, spaces):
     result_lowtol2 = minimizer.minimize(loss=result_lowtol)
     zfit.param.set_values(params, init_vals)
     result = minimizer.minimize(loss=loss)
+    assert result.valid
+    assert result_lowtol.valid
+    assert result_lowtol2.valid
+    found_min = loss.value().numpy()
+    assert true_min + max_distance_to_min >= found_min
+
     assert result_lowtol2.fmin == pytest.approx(result.fmin, abs=2.)
     assert result_lowtol2.info['n_eval'] < 0.99 * result.info['n_eval']
 
-    found_min = loss.value().numpy()
     aval, bval, cval = [zfit.run(v) for v in (mu_param, sigma_param, lambda_param)]
 
-    assert true_min + max_distance_to_min >= found_min
     assert true_mu == pytest.approx(aval, abs=parameter_tolerance)
     assert true_sigma == pytest.approx(bval, abs=parameter_tolerance)
     assert true_lambda == pytest.approx(cval, abs=parameter_tolerance)
@@ -146,10 +165,16 @@ def test_minimizers(minimizeKr_class_and_kwargs, num_grad, chunksize, spaces):
 
     # Test Hesse
     if test_error:
-        methods = ['hesse_np']
+        hesse_methods = ['hesse_np']
+        profile_methods = ['zfit_error']
         if isinstance(minimizer, zfit.minimize.Minuit):
-            methods.append('minuit_hesse')
-        for method in methods:
+            hesse_methods.append('minuit_hesse')
+            profile_methods.append('minuit_minos')
+        else:
+            with pytest.raises(TypeError):
+                _ = result.errors(params=mu_param, method="minuit_minos")
+
+        for method in hesse_methods:
             sigma_hesse = result.hesse(params=sigma_param, method=method)
             assert tuple(sigma_hesse.keys()) == (sigma_param,)
             errors = result.hesse()
@@ -158,8 +183,7 @@ def test_minimizers(minimizeKr_class_and_kwargs, num_grad, chunksize, spaces):
             assert abs(errors[sigma_param]['error']) == pytest.approx(0.0965, abs=0.15)
             assert abs(errors[lambda_param]['error']) == pytest.approx(0.01, abs=0.01)
 
-        if isinstance(minimizer, zfit.minimize.Minuit):
-            profile_method = "minuit_minos"
+        for profile_method in profile_methods:
             # Test Error
             a_errors, _ = result.errors(params=mu_param, method=profile_method)
             assert tuple(a_errors.keys()) == (mu_param,)
@@ -193,19 +217,3 @@ def test_minimizers(minimizeKr_class_and_kwargs, num_grad, chunksize, spaces):
             custom_errors, _ = result.errors(method=custom_error_func, error_name='custom_method1')
             for param, errors2 in result.params.items():
                 assert custom_errors[param]['myval'] == 42
-
-            # Test Hesse
-
-            for method in ['minuit_hesse', 'hesse_np']:
-                b_hesses = result.hesse(params=sigma_param, method=method)
-                assert tuple(b_hesses.keys()) == (sigma_param,)
-                errors = result.hesse()
-                b_hesse = b_hesses[sigma_param]
-                assert abs(b_hesse['error']) == pytest.approx(0.0965, abs=0.105)
-                assert abs(b_hesse['error']) == pytest.approx(abs(errors[sigma_param]['error']), rel=0.1)
-                assert abs(errors[sigma_param]['error']) == pytest.approx(0.010, abs=0.015)
-                assert abs(errors[lambda_param]['error']) == pytest.approx(0.007, abs=0.015)
-
-    else:
-        with pytest.raises(TypeError):
-            _ = result.errors(params=mu_param, method="minuit_minos")

@@ -193,8 +193,8 @@ class FitResult(ZfitResult):
         status = result['status']
         info = {'n_eval': result['nfev'],
                 'n_iter': result['nit'],
-                'grad': result['jac'],
-                'hess_inv': result['hess_inv'],
+                'grad': result.get('jac'),
+                'hess_inv': result.get('hess_inv'),
                 'message': result['message'],
                 'original': result}
         edm = -999  # TODO: get from scipy result or how?

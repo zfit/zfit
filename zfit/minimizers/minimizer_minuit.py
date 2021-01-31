@@ -1,5 +1,5 @@
 #  Copyright (c) 2021 zfit
-
+import warnings
 from typing import List, Optional
 
 import iminuit
@@ -19,7 +19,7 @@ class Minuit(BaseMinimizer, GraphCachable):
 
     def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tolerance: float = None,
                  verbosity: int = 5, name: str = None,
-                 ncall: Optional[int] = None, num_grad: Optional[bool] = None, use_minuit_grad: bool = None,
+                 ncall: Optional[int] = None, minuit_grad: Optional[bool] = None, use_minuit_grad: bool = None,
                  minimizer_options=None):
         """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in
         `iminuit<https://iminuit.readthedocs.io/en/stable/>`_.
@@ -35,12 +35,12 @@ class Minuit(BaseMinimizer, GraphCachable):
             verbosity: Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
             name: Name of the minimizer
             ncall: Maximum number of minimization steps.
-            num_grad: If True, iminuit uses it's internal numerical gradient calculation instead of the
+            minuit_grad: If True, iminuit uses it's internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit.
             use_minuit_grad: If True, iminuit uses it's internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit.
         """
-        num_grad = use_minuit_grad if use_minuit_grad is not None else num_grad
+        minuit_grad = use_minuit_grad if use_minuit_grad is not None else minuit_grad
         minimizer_options = {} if minimizer_options is None else minimizer_options
         minimizer_options['ncall'] = 0 if ncall is None else ncall
         if minimize_strategy not in range(3):
@@ -49,9 +49,18 @@ class Minuit(BaseMinimizer, GraphCachable):
 
         super().__init__(name=name, strategy=strategy, tolerance=tolerance, verbosity=verbosity,
                          minimizer_options=minimizer_options)
-        num_grad = True if num_grad is None else num_grad
+        minuit_grad = True if minuit_grad is None else minuit_grad
         self._minuit_minimizer = None
-        self._use_tfgrad = not num_grad
+        self._use_tfgrad_internal = not minuit_grad
+        self.minuit_grad = minuit_grad
+
+    # TODO 0.7: legacy, remove `_use_tfgrad`
+    @property
+    def _use_tfgrad(self):
+        warnings.warn("Do not use `minimizer._use_tfgrad`, this will be removed. Use `minuit_grad` instead in the"
+                      " initialization.")
+        return self._use_tfgrad_internal
+
 
     def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
 
@@ -168,7 +177,8 @@ class Minuit(BaseMinimizer, GraphCachable):
                 current_loss = loss_value
             return gradients_values
 
-        grad_func = grad_func if self._use_tfgrad else None
+        # TODO 0.7: legacy, remove `_use_tfgrad`
+        grad_func = grad_func if self._use_tfgrad or not self.minuit_grad else None
 
         minimizer = iminuit.Minuit(func, start_values,
                                    grad=grad_func,
