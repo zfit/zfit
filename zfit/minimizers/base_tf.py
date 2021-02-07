@@ -3,10 +3,10 @@ from contextlib import ExitStack
 
 import tensorflow as tf
 
-from .baseminimizer import BaseMinimizer
+from .baseminimizer import BaseStepMinimizer
 
 
-class WrapOptimizer(BaseMinimizer):
+class WrapOptimizer(BaseStepMinimizer):
     # Todo: Write documentation for api.
     def __init__(self, optimizer, tolerance=None, verbosity=None, name=None, **kwargs):
         if tolerance is None:

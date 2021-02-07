@@ -3,9 +3,12 @@
 
 from .minimizers.baseminimizer import DefaultStrategy, DefaultToyStrategy, ZfitStrategy
 from .minimizers.minimizer_minuit import Minuit
-from .minimizers.minimizer_nlopt import NLopt
+from .minimizers.minimizer_nlopt import (NLopt, NLoptLBFGSV1, NLoptTruncNewtonV1, NLoptSLSQPV1, NLoptMMAV1, NLoptCCSAQV1,
+    NLoptSubplexV1,
+    # NLoptMLSLV1,
+                                         )
 from .minimizers.minimizer_tfp import BFGS
-from .minimizers.minimizers_scipy import Scipy, ScipyLBFGSBV1, ScipyTrustNCGV1
+from .minimizers.minimizers_scipy import Scipy, ScipyLBFGSBV1, ScipyTrustNCGV1, ScipyTrustKrylovV1
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
 from .minimizers.fitresult import FitResult
 from .util.legacy import deprecated
@@ -37,7 +40,10 @@ class ScipyMinimizer(Scipy):
 
 __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
            "WrapOptimizer",
-           "Adam", "Minuit", "Scipy", "ScipyLBFGSBV1", "ScipyTrustNCGV1",
+           "Adam", "Minuit", "Scipy", "ScipyLBFGSBV1", "ScipyTrustNCGV1", "ScipyTrustKrylovV1",
+           "NLoptLBFGSV1", "NLoptTruncNewtonV1", "NLoptSLSQPV1","NLoptMMAV1", "NLoptCCSAQV1",
+           # "NLoptMLSLV1",
+           "NLoptSubplexV1"
            "BFGS", "NLopt",
            "DefaultStrategy", "DefaultToyStrategy",
            "FitResult"]

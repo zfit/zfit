@@ -25,6 +25,9 @@ class LossEval:
         super().__init__()
         self.loss = loss
         self.minimizer = minimizer
+        if hesse_fn is None:
+            hesse_fn = loss.hessian
+
         self.hesse_fn = hesse_fn
         if grad_fn is not None:
             def value_gradients_fn(params):
@@ -118,8 +121,8 @@ class LossEval:
             }
 
             loss_value, _ = self.strategy.minimize_nan(loss=self.loss, params=self.params,
-                                                                      minimizer=self.minimizer,
-                                                                      values=info_values)
+                                                       minimizer=self.minimizer,
+                                                       values=info_values)
         else:
             self.nan_counter = 0
             self.current_loss_value = loss_value
@@ -159,9 +162,48 @@ class LossEval:
             }
 
             _, gradients_values = self.strategy.minimize_nan(loss=self.loss, params=self.params,
-                                                                      minimizer=self.minimizer,
-                                                                      values=info_values)
+                                                             minimizer=self.minimizer,
+                                                             values=info_values)
         else:
             self.nan_counter = 0
             self.current_grad_value = gradients_values
         return gradients_values
+
+    def hessian(self, values):
+
+        set_values(self.params, values=values)
+        is_nan = False
+
+        try:
+            hessian = self.hesse_fn(params=self.params)
+            hessian_values = np.array(run(hessian))
+        except Exception as error:
+            hessian_values = ["invalid"] * len(self.params)
+            if isinstance(error, tf.errors.InvalidArgumentError):
+                is_nan = True
+            else:
+                raise
+
+        finally:
+            if self.do_print:
+                try:
+                    print_params(self.params, values, loss=-999)
+                except:
+                    print("Cannot print loss value or gradient values.")
+
+        is_nan = is_nan or np.any(np.isnan(hessian_values))
+        if is_nan:
+            self.nan_counter += 1
+            info_values = {
+                'loss': -999,
+                'old_loss': self.current_loss_value,
+                'old_grad': self.current_grad_value,
+                'nan_counter': self.nan_counter,
+            }
+
+            _, _ = self.strategy.minimize_nan(loss=self.loss, params=self.params,
+                                              minimizer=self.minimizer,
+                                              values=info_values)
+        else:
+            self.nan_counter = 0
+        return hessian_values

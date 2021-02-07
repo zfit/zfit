@@ -41,6 +41,13 @@ class EDM(ConvergenceCriterion):
         super().__init__(tolerance, loss, params, name)
 
     def calculateV1(self, value, xvalues, grad, hesse=None, inv_hesse=None, **kwargs) -> float:
+        del value
+        if callable(grad):
+            grad = grad()
+        if callable(hesse):
+            hesse = hesse()
+        if callable(inv_hesse):
+            inv_hesse = inv_hesse()
         if inv_hesse is None:
             if hesse is None:
                 raise RuntimeError("Need hesse or inv_hesse for convergence criterion:")

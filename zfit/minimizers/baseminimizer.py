@@ -17,6 +17,7 @@ import texttable as tt
 
 from .fitresult import FitResult
 from .interface import ZfitMinimizer, ZfitResult
+from .termination import EDM
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import set_values
 from ..settings import run
@@ -153,7 +154,7 @@ class BaseMinimizer(ZfitMinimizer):
         self.minimizer_options = minimizer_options
         self.maxiter = 5000 if maxiter is None else maxiter
         self._max_steps = 5000
-        # self.criterion = None
+        self._convergence_criterion_cls = EDM
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
 
@@ -240,20 +241,6 @@ class BaseMinimizer(ZfitMinimizer):
 
         return params
 
-    def step(self, loss, params: ztyping.ParamsOrNameType = None):
-        """Perform a single step in the minimization (if implemented).
-
-        Args:
-            params:
-
-        Returns:
-
-        Raises:
-            MinimizeStepNotImplementedError: if the `step` method is not implemented in the minimizer.
-        """
-        params = self._check_input_params(loss, params)
-
-        return self._step(loss, params=params)
 
     def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None) -> FitResult:
         """Fully minimize the `loss` with respect to `params`.
@@ -296,20 +283,44 @@ class BaseMinimizer(ZfitMinimizer):
             except MinimizeStepNotImplementedError:
                 raise error
 
-    def _minimize_with_step(self, loss, params):  # TODO improve
+    def copy(self):
+        return copy.copy(self)
+
+    def _minimize(self, loss, params):
+        raise MinimizeNotImplementedError
+
+
+
+    def __str__(self) -> str:
+        string = f'<{self.name} strategy={self.strategy} tolerance={self.tolerance}>'
+        return string
+
+
+class BaseStepMinimizer(BaseMinimizer):
+
+    def _minimize(self, loss, params):
         n_old_vals = 10
         changes = collections.deque(np.ones(n_old_vals))
         last_val = -10
         n_steps = 0
-
-        while sum(sorted(changes)[-3:]) > self.tolerance and n_steps < self._max_steps:  # TODO: improve condition
+        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        edm = self.tolerance * 1000
+        sum_changes = np.sum(changes)
+        inv_hesse = None
+        while (sum_changes > self.tolerance or edm > self.tolerance) and n_steps < self._max_steps:
             cur_val = run(self.step(loss=loss, params=params))
+            if sum_changes < self.tolerance and n_steps % 5:
+                xvalues = np.array(run(params))
+                hesse = run(loss.hessian(params))
+                inv_hesse = np.linalg.inv(hesse)
+                edm = criterion.calculateV1(value=cur_val, xvalues=xvalues, grad=run(loss.gradients(params)),
+                                            inv_hesse=inv_hesse)
             changes.popleft()
             changes.append(abs(cur_val - last_val))
+            sum_changes = np.sum(changes)
             last_val = cur_val
             n_steps += 1
         fmin = cur_val
-        edm = -999  # TODO: get edm
 
         # compose fit result
         message = "successful finished"
@@ -319,27 +330,34 @@ class BaseMinimizer(ZfitMinimizer):
 
         success = are_unique
         status = 0 if success else 10
+        xvalues = np.array(run(params))
+        info = {'success': success, 'message': message, 'n_eval': n_steps, 'inv_hesse': inv_hesse}
 
-        info = {'success': success, 'message': message, 'n_eval': n_steps}  # TODO: create status
-        param_values = [float(p.numpy()) for p in params]
-        params = OrderedDict((p, val) for p, val in zip(params, param_values))
+        params = OrderedDict((p, val) for p, val in zip(params, xvalues))
 
         return FitResult(params=params, edm=edm, fmin=fmin, info=info,
                          converged=success, status=status,
                          loss=loss, minimizer=self.copy())
 
-    def copy(self):
-        return copy.copy(self)
 
-    def _minimize(self, loss, params):
-        raise MinimizeNotImplementedError
+    def step(self, loss, params: ztyping.ParamsOrNameType = None):
+        """Perform a single step in the minimization (if implemented).
+
+        Args:
+            params:
+
+        Returns:
+
+        Raises:
+            MinimizeStepNotImplementedError: if the `step` method is not implemented in the minimizer.
+        """
+        params = self._check_input_params(loss, params)
+
+        return self._step(loss, params=params)
+
 
     def _step(self, loss, params):
         raise MinimizeStepNotImplementedError
-
-    def __str__(self) -> str:
-        string = f'<{self.name} strategy={self.strategy} tolerance={self.tolerance}>'
-        return string
 
 
 def print_params(params, values, loss=None):

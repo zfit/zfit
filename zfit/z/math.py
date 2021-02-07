@@ -1,6 +1,5 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
-import itertools
 from typing import Iterable, Callable, Optional
 
 import numdifftools
@@ -8,7 +7,6 @@ import tensorflow as tf
 
 from . import function
 from .tools import _auto_upcast
-from ..settings import ztypes
 from ..util.container import convert_to_container
 
 
@@ -33,29 +31,6 @@ def poly_complex(*args, real_x=False):
     return tf.add_n([coef * z.to_complex(pow_func(x, p)) for p, coef in enumerate(args)])
 
 
-def interpolate(t, c):
-    """Multilinear interpolation on a rectangular grid of arbitrary number of dimensions.
-
-    Args:
-        t: Grid (of rank N)
-        c: Tensor of coordinates for which the interpolation is performed
-
-    Returns:
-        1D tensor of interpolated value
-    """
-    rank = len(t.get_shape())
-    ind = tf.cast(tf.floor(c), tf.int32)
-    t2 = tf.pad(tensor=t, paddings=rank * [[1, 1]], mode='SYMMETRIC')
-    wts = []
-    for vertex in itertools.product([0, 1], repeat=rank):
-        ind2 = ind + tf.constant(vertex, dtype=tf.int32)
-        weight = tf.reduce_prod(input_tensor=1. - tf.abs(c - tf.cast(ind2, dtype=ztypes.float)), axis=1)
-        wt = tf.gather_nd(t2, ind2 + 1)
-        wts += [weight * wt]
-    interp = tf.reduce_sum(input_tensor=tf.stack(wts), axis=0)
-    return interp
-
-
 def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.Tensor:
     """Calculate numerically the gradients of func() with respect to `params`.
 
@@ -76,7 +51,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
 
     param_vals = tf.stack(params)
     original_vals = [param.read_value() for param in params]
-    grad_func = numdifftools.Gradient(wrapped_func)
+    grad_func = numdifftools.Gradient(wrapped_func, order=4)
     gradients = tf.py_function(grad_func, inp=[param_vals],
                                Tout=tf.float64)
     if gradients.shape == ():
@@ -124,12 +99,14 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
 
     if hessian == 'diag':
         hesse_func = numdifftools.Hessdiag(wrapped_func,
+                                           order=4,
                                            # TODO: maybe add step to remove numerical problems?
                                            # step=1e-4
                                            )
     else:
         hesse_func = numdifftools.Hessian(wrapped_func,
-                                          # base_step=1e-4
+                                          order=4,
+                                          base_step=1e-4,
                                           )
     computed_hessian = tf.py_function(hesse_func, inp=[param_vals],
                                       Tout=tf.float64)

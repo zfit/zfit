@@ -53,6 +53,17 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05, tolerance=0.00001), False),  # works
     (zfit.minimize.Minuit, {"tolerance": 0.0001}, True),  # works
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
+    (zfit.minimize.ScipyLBFGSBV1, {}, True),
+    (zfit.minimize.ScipyTrustNCGV1, {}, True),
+    (zfit.minimize.ScipyTrustKrylovV1, {}, True),
+
+    (zfit.minimize.NLoptLBFGSV1, {}, True),
+    (zfit.minimize.NLoptTruncNewtonV1, {}, True),
+    (zfit.minimize.NLoptSLSQPV1, {}, True),
+    (zfit.minimize.NLoptMMAV1, {}, True),
+    (zfit.minimize.NLoptCCSAQV1, {}, True),
+    (zfit.minimize.NLoptSubplexV1, {}, True),
+
     (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
     # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'CG'}, False),
     (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Powell'}, False),  # works
@@ -73,8 +84,16 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
 ]
 
-# minimizers = [(zfit.minimize.ScipyLBFGSBV1, {}, True)]
-minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.NLoptTruncNewtonV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.NLoptSLSQPV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.NLoptMMAV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.NLoptCCSAQV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.NLoptMLSLV1, {'verbosity': 7}, True)]  # DOESN'T WORK!
+# minimizers = [(zfit.minimize.NLoptSubplexV1, {'verbosity': 7}, True)]
 
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))

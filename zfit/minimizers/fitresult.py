@@ -186,7 +186,7 @@ class FitResult(ZfitResult):
                    minimizer=minimizer)
 
     @classmethod
-    def from_scipy(self,  loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
+    def from_scipy(cls,  loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
                    minimizer: ZfitMinimizer, edm=False, valid=None):
         result_values = result['x']
         converged = result['success']
@@ -200,7 +200,7 @@ class FitResult(ZfitResult):
         fmin = result['fun']
         params = OrderedDict((p, v) for p, v in zip(params, result_values))
 
-        fitresult = FitResult(params=params, edm=edm, fmin=fmin, info=info,
+        fitresult = cls(params=params, edm=edm, fmin=fmin, info=info,
                               converged=converged, status=status,
                               loss=loss, minimizer=minimizer.copy())
         if isinstance(valid, str):
@@ -208,6 +208,39 @@ class FitResult(ZfitResult):
             fitresult.info['invalid_message'] = valid
         return fitresult
 
+    @classmethod
+    def from_nlopt(cls, loss, minimizer, opt, edm, n_eval, params, xvalues, inv_hess=None, valid=None):
+        param_dict = {p: v for p, v in zip(params, xvalues)}
+        fmin = opt.last_optimum_value()
+        status = opt.last_optimize_result()
+        converged = 1 <= status <= 4
+        messages = {
+            1: "NLOPT_SUCCESS",
+            2: "NLOPT_STOPVAL_REACHED",
+            3: "NLOPT_FTOL_REACHED",
+            4: "NLOPT_XTOL_REACHED",
+            5: "NLOPT_MAXEVAL_REACHED",
+            6: "NLOPT_MAXTIME_REACHED",
+            -1: "NLOPT_FAILURE",
+            -2: "NLOPT_INVALID_ARGS",
+            -3: "NLOPT_OUT_OF_MEMORY",
+            -4: "NLOPT_ROUNDOFF_LIMITED",
+            -5: "NLOPT_FORCED_STOP",
+        }
+        message = messages[status]
+        info = {'n_eval': n_eval,
+                'message': message,
+                'original': status,
+                'status': status}
+        if inv_hess is not None:
+            info['inv_hess'] = inv_hess
+
+        result = cls(params=param_dict, edm=edm, fmin=fmin, status=status, converged=converged, info=info,
+                           loss=loss, minimizer=minimizer)
+        if valid:
+            result._valid = False
+            result.info['invalid_message'] = valid
+        return result
 
     @property
     def params(self):
@@ -605,3 +638,5 @@ class ParamHolder(dict):  # no UserDict, we only want to change the __str__
         order_keys = ['name'] + list(order_keys) + ['at limit']
         table = tabulate(rows, order_keys, numalign="right", stralign='right', colalign=('left',))
         return table
+
+
