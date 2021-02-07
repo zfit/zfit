@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 from abc import ABCMeta, abstractmethod
@@ -774,6 +774,9 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
     @abstractmethod
     def errordef(self) -> float:
         raise NotImplementedError
+
+    def hessian(self, params):
+        pass
 
     @abstractmethod
     def value_gradients(self, params):

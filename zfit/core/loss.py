@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 import warnings
@@ -268,6 +268,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         else:
             value, gradients = autodiff_value_gradients(self.value, params=params)
         return value, gradients
+
+    def hessian(self, params: ztyping.ParamTypeInput, hessian=None):
+        return self.value_gradients_hessian(params=params, hessian=hessian)[2]
 
     def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None) -> Tuple[
         tf.Tensor, tf.Tensor, tf.Tensor]:

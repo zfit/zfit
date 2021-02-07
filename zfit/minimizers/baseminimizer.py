@@ -48,7 +48,7 @@ class BaseStrategy(ZfitStrategy):
         return self._minimize_nan(loss=loss, params=params, minimizer=minimizer, values=values)
 
     def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
-                      values: Mapping = None) -> float:
+                      values: Mapping = None) -> (float, np.array):
         print("The minimization failed due to too many NaNs being produced in the loss."
               "This is most probably caused by negative"
               " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
@@ -99,14 +99,17 @@ class PushbackStrategy(BaseStrategy):
         nan_counter = values['nan_counter']
         if nan_counter < self.nan_tolerance:
             last_loss = values.get('old_loss')
+            last_grad = values.get('old_grad')
+            if last_grad is not None:
+                last_grad = -last_grad
             if last_loss is not None:
 
-                loss_evaluated = last_loss + self.nan_penalty*nan_counter
+                loss_evaluated = last_loss + self.nan_penalty * nan_counter
             else:
                 loss_evaluated = values.get('loss')
             if isinstance(loss_evaluated, str):
                 raise RuntimeError("Loss starts already with NaN, cannot minimize.")
-            return loss_evaluated
+            return loss_evaluated, last_grad
         else:
             super()._minimize_nan(loss=loss, params=params, minimizer=minimizer, values=values)
 
@@ -144,12 +147,13 @@ class BaseMinimizer(ZfitMinimizer):
         if tolerance is None:
             tolerance = self._DEFAULT_TOLERANCE
         self.tolerance = tolerance
-        self.verbosity = verbosity
+        self.verbosity = 5 if verbosity is None else verbosity
         if minimizer_options is None:
             minimizer_options = {}
         self.minimizer_options = minimizer_options
         self.maxiter = 5000 if maxiter is None else maxiter
         self._max_steps = 5000
+        # self.criterion = None
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
 
@@ -262,6 +266,7 @@ class BaseMinimizer(ZfitMinimizer):
         Returns:
             The fit result.
         """
+
         result = None
         if isinstance(loss, ZfitResult):
             result = loss  # make the names correct

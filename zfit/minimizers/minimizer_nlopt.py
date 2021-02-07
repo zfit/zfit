@@ -136,18 +136,15 @@ class NLopt(BaseMinimizer):
                 nan_counter += 1
                 info_values = {}
                 info_values['loss'] = loss_value
-                info_values['grad'] = loss_value
+                info_values['grad'] = gradients_values
                 info_values['old_loss'] = current_loss
                 info_values['old_grad'] = current_grad
                 info_values['nan_counter'] = nan_counter
-                # but loss value not needed here
-                loss_value= self.strategy.minimize_nan(loss=loss, params=params, minimizer=self,
+                loss_value, gradients_values = self.strategy.minimize_nan(loss=loss, params=params, minimizer=self,
                                                         values=info_values)
-                gradients_values = np.zeros_like(gradients_values)
             else:
                 nan_counter = 0
                 current_loss = loss_value
-                gradients_values = np.zeros_like(gradients_values)
             return loss_value, gradients_values
 
         def obj_func(x, grad):

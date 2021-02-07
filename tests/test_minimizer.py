@@ -53,25 +53,28 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05, tolerance=0.00001), False),  # works
     (zfit.minimize.Minuit, {"tolerance": 0.0001}, True),  # works
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
-    # (zfit.minimize.Scipy, {'tolerance': 0.001}, False),  # works not, L-BFGS_B
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'CG'}, False),
+    (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
+    # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'CG'}, False),
     (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Powell'}, False),  # works
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'BFGS'}, False),  # too bad
+    # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Newton-CG', "scipy_grad": False}, False),  # too bad
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'TNC'}, False),  # unstable
     (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-constr'}, False),  # works
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-ncg', "scipy_grad": False}, False),  # need Hess
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-krylov', "scipy_grad": False}, False),  # Hess
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'dogleg', "scipy_grad": False}, False),  # Hess
-    # (zfit.minimize.NLopt, {}, True),  # works not, why not?
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-ncg', "scipy_grad": True}, False),  # need Hess
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-krylov', "scipy_grad": True}, False),  # Hess
+    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'dogleg', "scipy_grad": True}, False),  # Hess
+    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_LBFGS}, True),  # works not, why not?
     # (zfit.minimize.NLopt, {'algorithm': nlopt.GD_STOGO}, True),  # takes too long
-    # (zfit.minimize.NLopt, {'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
-    (zfit.minimize.NLopt, {'tolerance': 0.001, 'algorithm': nlopt.LN_SBPLX}, True),  # works
-    # (zfit.minimize.NLopt, {'tolerance': 0.000001, 'algorithm': nlopt.LD_MMA}, True),  # doesn't minimize
-    # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_SLSQP}, True),  # doesn't minimize
-    # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_TNEWTON_PRECOND_RESTART}, True),  # no minimize
+    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
+    (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LN_SBPLX}, True),  # works
+    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_MMA}, True),  # doesn't minimize
+    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_SLSQP}, True),  # doesn't minimize
+    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_TNEWTON_PRECOND_RESTART}, True),  # no minimize
     # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
 ]
+
+# minimizers = [(zfit.minimize.ScipyLBFGSBV1, {}, True)]
+minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'verbosity': 7}, True)]
 
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
