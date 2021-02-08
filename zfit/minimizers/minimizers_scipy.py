@@ -280,7 +280,7 @@ class ScipyTrustNCGV1(BaseMinimizer):
 
             xvalues = result['x']
             grad = result['jac']
-            inv_hesse = result['hess_inv'].todense()
+            inv_hesse = np.linalg.inv(result['hess'])
             fmin = result.fun
             edm = criterion.calculateV1(value=fmin, xvalues=xvalues, grad=grad,
                                         inv_hesse=inv_hesse)
