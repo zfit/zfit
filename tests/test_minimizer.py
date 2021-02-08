@@ -50,11 +50,11 @@ def create_loss(obs1):
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
-    (zfit.minimizers.optimizers_tf.Adam, dict(learning_rate=0.05, tolerance=0.00001), False),  # works
+    (zfit.minimize.Adam, dict(learning_rate=0.05, tolerance=0.00001), False),  # works
     (zfit.minimize.Minuit, {"tolerance": 0.0001}, True),  # works
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
-    (zfit.minimize.ScipyLBFGSBV1, {}, True),
-    (zfit.minimize.ScipyTrustNCGV1, {}, True),
+    (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5}, {'error': True, 'numgrad': False}),
+    (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {}, True),
 
     (zfit.minimize.NLoptLBFGSV1, {}, True),
@@ -64,20 +64,20 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimize.NLoptCCSAQV1, {}, True),
     (zfit.minimize.NLoptSubplexV1, {}, True),
 
-    (zfit.minimize.Scipy, {'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
+    (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
     # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'CG'}, False),
-    (zfit.minimize.Scipy, {'algorithm': 'Powell'}, False),  # works
+    (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'Powell'}, False),  # works
     # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Newton-CG', "scipy_grad": False}, False),  # too bad
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'TNC'}, False),  # unstable
-    (zfit.minimize.Scipy, {'algorithm': 'trust-constr'}, False),  # works
+    (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'trust-constr'}, False),  # works
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-ncg', "scipy_grad": True}, False),  # need Hess
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-krylov', "scipy_grad": True}, False),  # Hess
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'dogleg', "scipy_grad": True}, False),  # Hess
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_LBFGS}, True),  # works not, why not?
     # (zfit.minimize.NLopt, {'algorithm': nlopt.GD_STOGO}, True),  # takes too long
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
-    (zfit.minimize.NLopt, {'algorithm': nlopt.LN_SBPLX}, True),  # works
+    (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LN_SBPLX}, True),  # works
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_MMA}, True),  # doesn't minimize
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_SLSQP}, True),  # doesn't minimize
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_TNEWTON_PRECOND_RESTART}, True),  # no minimize
@@ -151,10 +151,16 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces):
     (mu_param, sigma_param, lambda_param) = params
 
     parameter_tolerance = 0.1
-    max_distance_to_min = 2
+    max_distance_to_min = 2.5
 
     init_vals = zfit.run(params)
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
+    numgrad = True
+    if isinstance(test_error, dict):
+        numgrad = test_error.get('numgrad', numgrad)
+        test_error = test_error['error']
+    if not numgrad:
+        return
     minimizer_hightol = minimizer_class(**{**minimizer_kwargs,
                                            'tolerance': 100 * minimizer_kwargs.get('tolerance', 0.01)})
 

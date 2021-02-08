@@ -209,10 +209,11 @@ class FitResult(ZfitResult):
         return fitresult
 
     @classmethod
-    def from_nlopt(cls, loss, minimizer, opt, edm, n_eval, params, xvalues, inv_hess=None, valid=None):
+    def from_nlopt(cls, loss, minimizer, opt, edm, params, xvalues, n_eval=None, inv_hess=None, valid=None):
         param_dict = {p: v for p, v in zip(params, xvalues)}
         fmin = opt.last_optimum_value()
         status = opt.last_optimize_result()
+        n_eval = opt.get_numevals() if n_eval is None else n_eval
         converged = 1 <= status <= 4
         messages = {
             1: "NLOPT_SUCCESS",

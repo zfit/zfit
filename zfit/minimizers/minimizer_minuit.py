@@ -6,7 +6,7 @@ import iminuit
 import numpy as np
 import tensorflow as tf
 
-from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_gradients
+from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_gradients, minimize_supports
 from .fitresult import FitResult
 from ..settings import run
 from ..core.interfaces import ZfitLoss
@@ -61,7 +61,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                       " initialization.")
         return self._use_tfgrad_internal
 
-
+    @minimize_supports()
     def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
 
         # create options

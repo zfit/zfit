@@ -7,10 +7,12 @@ Definition of minimizers, wrappers etc.
 import abc
 import collections
 import copy
+import functools
+import inspect
 import warnings
 from abc import abstractmethod
 from collections import OrderedDict
-from typing import List, Union, Iterable, Mapping
+from typing import List, Union, Iterable, Mapping, Callable
 
 import numpy as np
 import texttable as tt
@@ -23,7 +25,8 @@ from ..core.parameter import set_values
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError
+from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError, MinimizerSubclassingError, \
+    FromResultNotImplemented
 
 
 class FailMinimizeNaN(Exception):
@@ -125,6 +128,115 @@ class DefaultToyStrategy(DefaultStrategy, ToyStrategyFail):
     This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a
     failure instead of rising an error.
     """
+    pass
+
+def no_multiple_limits(func):
+    """Decorator: Catch the 'limits' kwargs. If it contains multiple limits, raise MultipleLimitsNotImplementedError."""
+    parameters = inspect.signature(func).parameters
+    keys = list(parameters.keys())
+    if 'limits' in keys:
+        limits_index = keys.index('limits')
+    else:
+        return func  # no limits as parameters -> no problem
+
+    @functools.wraps(func)
+    def new_func(*args, **kwargs):
+        limits_is_arg = len(args) > limits_index
+        if limits_is_arg:
+            limits = args[limits_index]
+        else:
+            limits = kwargs['limits']
+
+        if limits.n_limits > 1:
+            raise MultipleLimitsNotImplementedError
+        else:
+            return func(*args, **kwargs)
+
+    return new_func
+
+
+def minimize_supports(*, from_result: Union[bool] = False) -> Callable:
+    """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
+
+    If any of the flags is set to False, it will check the arguments and, in case they match a flag
+    (say if a *norm_range* is passed while the *norm_range* flag is set to `False`), it will
+    raise a corresponding exception (in this example a `NormRangeNotImplementedError`) that will
+    be catched by an earlier function that knows how to handle things.
+
+    Args:
+        norm_range: If False, no norm_range argument will be passed through resp. will be `None`
+        multiple_limits: If False, only simple limits are to be expected and no iteration is
+            therefore required.
+    """
+    if from_result is True:
+        return lambda func: func
+
+    def wrapper(func):
+        parameters = inspect.signature(func).parameters
+        keys = list(parameters.keys())
+        if 'loss' in keys:
+            loss_index = keys.index('loss')
+        else:
+            return func  # no loss as parameters -> no problem
+
+        @functools.wraps(func)
+        def new_func(*args, **kwargs):
+            loss_is_arg = len(args) > loss_index
+            self_minimizer = args[0]
+            can_handle = True
+            if loss_is_arg:
+                loss = args[loss_index]
+            else:
+                loss = kwargs['loss']
+
+            if isinstance(loss, FitResult):
+                if from_result == 'same':
+                    if not type(self_minimizer) == type(loss.minimizer):
+                        can_handle = False
+                elif not from_result:
+                    can_handle = False
+                else:
+                    raise ValueError("from_result has to be True, False or 'same'")
+            if not can_handle:
+                raise FromResultNotImplemented
+
+            new_func.__wrapped__ = minimize_supports
+            return new_func
+
+    return wrapper  # TODO: continue here
+
+
+
+
+_Minimizer_CHECK_HAS_SUPPORT = {}
+
+
+def _Minimizer_register_check_support(has_support: bool):
+    """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
+
+    Args:
+        has_support: If True, flags that it **requires** the `@supports` decorator. If False,
+            flags that the `@supports` decorator is **not allowed**.
+
+    """
+    if not isinstance(has_support, bool):
+        raise TypeError("Has to be boolean.")
+
+    def register(func):
+        """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
+
+        Args:
+            func:
+
+        Returns:
+            Function:
+        """
+        name = func.__name__
+        _Minimizer_CHECK_HAS_SUPPORT[name] = has_support
+        func.__wrapped__ = _Minimizer_register_check_support
+        return func
+
+    return register
 
 
 class BaseMinimizer(ZfitMinimizer):
@@ -155,6 +267,46 @@ class BaseMinimizer(ZfitMinimizer):
         self.maxiter = 5000 if maxiter is None else maxiter
         self._max_steps = 5000
         self._convergence_criterion_cls = EDM
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # check if subclass has decorator if required
+        cls._subclass_check_support(methods_to_check=_Minimizer_CHECK_HAS_SUPPORT,
+                                    wrapper_not_overwritten=_Minimizer_register_check_support)
+
+    @classmethod
+    def _subclass_check_support(cls, methods_to_check, wrapper_not_overwritten):
+        for method_name, has_support in methods_to_check.items():
+            if not hasattr(cls, method_name):
+                continue  # skip if only subclass requires it
+            method = getattr(cls, method_name)
+            if hasattr(method, "__wrapped__"):
+                if method.__wrapped__ == wrapper_not_overwritten:
+                    continue  # not overwritten, fine
+
+            # here means: overwritten
+            if hasattr(method, "__wrapped__"):
+                if method.__wrapped__ == minimize_supports:
+                    if has_support:
+                        continue  # needs support, has been wrapped
+                    else:
+                        raise MinimizerSubclassingError("Method {} has been wrapped with minimize_supports "
+                                                        "but is not allowed to. Has to handle all "
+                                                        "arguments.".format(method_name))
+                elif has_support:
+                    raise MinimizerSubclassingError(f"Method {method_name} has been overwritten and *has to* be "
+                                                    "wrapped by `@minimize_supports` decorator (don't forget () )"
+                                                    "to call the decorator as it takes arguments")
+                elif not has_support:
+                    continue  # no support, has not been wrapped with
+            else:
+                if not has_support:
+                    continue  # not wrapped, no support, need no
+
+            # if we reach this points, somethings was implemented wrongly
+            raise MinimizerSubclassingError(f"Method {method_name} has not been correctly wrapped with "
+                                            f"@minimize_supports ")
 
     def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
 
@@ -241,7 +393,6 @@ class BaseMinimizer(ZfitMinimizer):
 
         return params
 
-
     def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None) -> FitResult:
         """Fully minimize the `loss` with respect to `params`.
 
@@ -256,14 +407,18 @@ class BaseMinimizer(ZfitMinimizer):
 
         result = None
         if isinstance(loss, ZfitResult):
-            result = loss  # make the names correct
-            loss = result.loss
+            loss_or_result = loss  # make the names correct
+            result = loss_or_result
+            loss = loss_or_result.loss
         params = self._check_input_params(loss=loss, params=params, only_floating=True)
         if result is not None:
             set_values(params, result)
 
         try:
-            return self._hook_minimize(loss=loss, params=params)
+            try:
+                return self._hook_minimize(loss=loss_or_result, params=params)
+            except FromResultNotImplemented:
+                return self._hook_minimize(loss=loss, params=params)
         except (FailMinimizeNaN, RuntimeError) as error:  # iminuit raises RuntimeError if user raises Error
             fail_result = self.strategy.fit_result
             if fail_result is not None:
@@ -285,11 +440,9 @@ class BaseMinimizer(ZfitMinimizer):
 
     def copy(self):
         return copy.copy(self)
-
+    @_Minimizer_register_check_support(True)
     def _minimize(self, loss, params):
         raise MinimizeNotImplementedError
-
-
 
     def __str__(self) -> str:
         string = f'<{self.name} strategy={self.strategy} tolerance={self.tolerance}>'
@@ -298,6 +451,7 @@ class BaseMinimizer(ZfitMinimizer):
 
 class BaseStepMinimizer(BaseMinimizer):
 
+    @minimize_supports()
     def _minimize(self, loss, params):
         n_old_vals = 10
         changes = collections.deque(np.ones(n_old_vals))
@@ -339,7 +493,6 @@ class BaseStepMinimizer(BaseMinimizer):
                          converged=success, status=status,
                          loss=loss, minimizer=self.copy())
 
-
     def step(self, loss, params: ztyping.ParamsOrNameType = None):
         """Perform a single step in the minimization (if implemented).
 
@@ -354,7 +507,6 @@ class BaseStepMinimizer(BaseMinimizer):
         params = self._check_input_params(loss, params)
 
         return self._step(loss, params=params)
-
 
     def _step(self, loss, params):
         raise MinimizeStepNotImplementedError

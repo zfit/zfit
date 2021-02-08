@@ -5,7 +5,7 @@ from typing import Optional, Dict, Union, Callable
 import nlopt
 import numpy as np
 
-from .baseminimizer import BaseMinimizer, ZfitStrategy
+from .baseminimizer import BaseMinimizer, ZfitStrategy, minimize_supports
 from .evaluation import LossEval
 from .fitresult import FitResult
 from .termination import EDM
@@ -65,6 +65,7 @@ class NLopt(BaseMinimizer):
         super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_options=minimizer_options,
                          strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports(from_result=True)
     def _minimize(self, loss, params):
 
         minimizer = nlopt.opt(self.algorithm, len(params))
@@ -105,8 +106,7 @@ class NLopt(BaseMinimizer):
         xvalues = minimizer.optimize(init_val)
         set_values(params, xvalues)
         edm = -999
-
-        return FitResult.from_nlopt(loss, minimizer, edm=edm, n_eval=n_eval, params=params, xvalues=xvalues)
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, params=params, xvalues=xvalues)
 
 
 class NLoptLBFGSV1(BaseMinimizer):
@@ -129,6 +129,7 @@ class NLoptLBFGSV1(BaseMinimizer):
 
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports(from_result=True)
     def _minimize(self, loss, params):
         inv_hesse = None
         if isinstance(loss, FitResult):
@@ -243,6 +244,7 @@ class NLoptTruncNewtonV1(BaseMinimizer):
 
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports(from_result=True)
     def _minimize(self, loss, params):
         inv_hesse = None
         if isinstance(loss, FitResult):
@@ -354,6 +356,7 @@ class NLoptSLSQPV1(BaseMinimizer):
 
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports(from_result=True)
     def _minimize(self, loss, params):
         inv_hesse = None
         if isinstance(loss, FitResult):
@@ -461,6 +464,7 @@ class NLoptMMAV1(BaseMinimizer):
 
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports(from_result=True)
     def _minimize(self, loss, params):
         inv_hesse = None
         if isinstance(loss, FitResult):
@@ -568,6 +572,7 @@ class NLoptCCSAQV1(BaseMinimizer):
 
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports(from_result=True)
     def _minimize(self, loss, params):
         inv_hesse = None
         if isinstance(loss, FitResult):
@@ -674,6 +679,7 @@ class NLoptSubplexV1(BaseMinimizer):
 
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports(from_result=True)
     def _minimize(self, loss, params):
         inv_hesse = None
         if isinstance(loss, FitResult):
@@ -781,6 +787,7 @@ class NLoptMLSLV1(BaseMinimizer):
 
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports(from_result=True)
     def _minimize(self, loss, params):
         inv_hesse = None
         if isinstance(loss, FitResult):

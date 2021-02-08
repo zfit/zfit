@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 # TODO: improve errors of models. Generate more general error, inherit and use more specific?
 import warnings
@@ -37,6 +37,10 @@ class SubclassingError(Exception):
 
 
 class BasePDFSubclassingError(SubclassingError):
+    pass
+
+
+class MinimizerSubclassingError(SubclassingError):
     pass
 
 
@@ -225,6 +229,10 @@ class NormRangeNotImplementedError(Exception):
 
 class MultipleLimitsNotImplementedError(Exception):
     """Indicates that a function does not support several limits in a :py:class:`~zfit.Space`."""
+    pass
+
+class FromResultNotImplemented(Exception):
+    """Indicates that a minimize method does not support a FitResult instead of a loss"""
     pass
 
 

@@ -7,7 +7,7 @@ from typing import Optional, Dict, Callable, Union
 import numpy as np
 import scipy.optimize  # pylint: disable=g-import-not-at-top
 
-from .baseminimizer import BaseMinimizer, ZfitStrategy
+from .baseminimizer import BaseMinimizer, ZfitStrategy, minimize_supports
 from .evaluation import LossEval
 from .fitresult import FitResult
 from .termination import EDM
@@ -55,6 +55,7 @@ class Scipy(BaseMinimizer):
                          strategy=strategy,
                          minimizer_options=minimizer_options)
 
+    @minimize_supports()
     def _minimize(self, loss, params):
         # criterion = self.criterion(tolerance=self.tolerance, loss=loss)
         minimizer_options = self.minimizer_options.copy()
@@ -118,6 +119,7 @@ class ScipyLBFGSBV1(BaseMinimizer):
         self.maxls = 30 if maxls is None else maxls
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports()
     def _minimize(self, loss, params):
         previous_result = None
         if isinstance(loss, FitResult):
@@ -226,6 +228,7 @@ class ScipyTrustNCGV1(BaseMinimizer):
         self.max_trust_radius = max_trust_radius
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports()
     def _minimize(self, loss, params):
         previous_result = None
         if isinstance(loss, FitResult):
@@ -330,6 +333,7 @@ class ScipyTrustKrylovV1(BaseMinimizer):
 
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
+    @minimize_supports()
     def _minimize(self, loss, params):
         previous_result = None
         if isinstance(loss, FitResult):

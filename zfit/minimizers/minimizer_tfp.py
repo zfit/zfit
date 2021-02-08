@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from collections import OrderedDict
 from typing import Mapping
 
@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .baseminimizer import BaseMinimizer, print_gradients, ZfitStrategy, print_params
+from .baseminimizer import BaseMinimizer, print_gradients, ZfitStrategy, print_params, minimize_supports
 from .fitresult import FitResult
 from .. import z
 
@@ -31,6 +31,7 @@ class BFGS(BaseMinimizer):
         super().__init__(strategy=strategy, tolerance=tolerance, verbosity=verbosity, name=name,
                          minimizer_options={})
 
+    @minimize_supports()
     def _minimize(self, loss, params):
         from .. import run
         minimizer_fn = tfp.optimizer.bfgs_minimize
