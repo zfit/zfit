@@ -64,20 +64,20 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimize.NLoptCCSAQV1, {}, True),
     (zfit.minimize.NLoptSubplexV1, {}, True),
 
-    (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
+    (zfit.minimize.Scipy, {'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
     # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'CG'}, False),
-    (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Powell'}, False),  # works
+    (zfit.minimize.Scipy, {'algorithm': 'Powell'}, False),  # works
     # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Newton-CG', "scipy_grad": False}, False),  # too bad
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'TNC'}, False),  # unstable
-    (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-constr'}, False),  # works
+    (zfit.minimize.Scipy, {'algorithm': 'trust-constr'}, False),  # works
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-ncg', "scipy_grad": True}, False),  # need Hess
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-krylov', "scipy_grad": True}, False),  # Hess
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'dogleg', "scipy_grad": True}, False),  # Hess
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_LBFGS}, True),  # works not, why not?
     # (zfit.minimize.NLopt, {'algorithm': nlopt.GD_STOGO}, True),  # takes too long
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
-    (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LN_SBPLX}, True),  # works
+    (zfit.minimize.NLopt, {'algorithm': nlopt.LN_SBPLX}, True),  # works
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_MMA}, True),  # doesn't minimize
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_SLSQP}, True),  # doesn't minimize
     # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_TNEWTON_PRECOND_RESTART}, True),  # no minimize

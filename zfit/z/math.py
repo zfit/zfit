@@ -51,7 +51,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
 
     param_vals = tf.stack(params)
     original_vals = [param.read_value() for param in params]
-    grad_func = numdifftools.Gradient(wrapped_func, order=4)
+    grad_func = numdifftools.Gradient(wrapped_func, order=4, base_step=1e-4)
     gradients = tf.py_function(grad_func, inp=[param_vals],
                                Tout=tf.float64)
     if gradients.shape == ():
@@ -101,7 +101,7 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
         hesse_func = numdifftools.Hessdiag(wrapped_func,
                                            order=4,
                                            # TODO: maybe add step to remove numerical problems?
-                                           # step=1e-4
+                                           base_step=1e-4
                                            )
     else:
         hesse_func = numdifftools.Hessian(wrapped_func,

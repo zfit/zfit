@@ -130,6 +130,7 @@ class NLoptLBFGSV1(BaseMinimizer):
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
     def _minimize(self, loss, params):
+        inv_hesse = None
         if isinstance(loss, FitResult):
             previous_result = loss
             loss = previous_result.loss

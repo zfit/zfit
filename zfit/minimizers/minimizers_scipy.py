@@ -240,9 +240,10 @@ class ScipyTrustNCGV1(BaseMinimizer):
         limits = [(run(p.lower), run(p.upper)) for p in params]
         init_values = np.array(run(params))
 
+        hesse = evaluator.hessian if self.hesse == 'zfit' else self.hesse
         minimize_kwargs = {
             'jac': evaluator.gradient if self.grad == 'zfit' else self.grad,
-            'hess': evaluator.hessian if self.hesse == 'zfit' else self.hesse,
+            'hess': hesse,
             'method': 'trust-ncg',
             'bounds': limits,
         }
@@ -263,8 +264,7 @@ class ScipyTrustNCGV1(BaseMinimizer):
 
             if inspect.isclass(self.hesse) and issubclass(self.hesse, scipy.optimize.HessianUpdateStrategy):
                 hesse = self.hesse(init_scale=init_scale)
-            else:
-                hesse = self.hesse
+
             minimize_kwargs['hess'] = hesse
 
             options = {'init_trust_radius': init_trust_radius, 'gtol': gtol}
