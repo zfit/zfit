@@ -130,30 +130,6 @@ class DefaultToyStrategy(DefaultStrategy, ToyStrategyFail):
     """
     pass
 
-def no_multiple_limits(func):
-    """Decorator: Catch the 'limits' kwargs. If it contains multiple limits, raise MultipleLimitsNotImplementedError."""
-    parameters = inspect.signature(func).parameters
-    keys = list(parameters.keys())
-    if 'limits' in keys:
-        limits_index = keys.index('limits')
-    else:
-        return func  # no limits as parameters -> no problem
-
-    @functools.wraps(func)
-    def new_func(*args, **kwargs):
-        limits_is_arg = len(args) > limits_index
-        if limits_is_arg:
-            limits = args[limits_index]
-        else:
-            limits = kwargs['limits']
-
-        if limits.n_limits > 1:
-            raise MultipleLimitsNotImplementedError
-        else:
-            return func(*args, **kwargs)
-
-    return new_func
-
 
 def minimize_supports(*, from_result: Union[bool] = False) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
@@ -164,48 +140,51 @@ def minimize_supports(*, from_result: Union[bool] = False) -> Callable:
     be catched by an earlier function that knows how to handle things.
 
     Args:
-        norm_range: If False, no norm_range argument will be passed through resp. will be `None`
+        from_result: Specify whether the minimize method can handle a FitResult instead of a loss as a loss. There are
+            three options:
+            - False: This is the default and means that _no FitResult will ever come true_. The minimizer handles the
+              initial parameter values himselves.
+            - 'same': If 'same' is set, a `FitResult` will only come through if it was created with the *exact* same
+              type as
         multiple_limits: If False, only simple limits are to be expected and no iteration is
             therefore required.
     """
-    if from_result is True:
-        return lambda func: func
 
     def wrapper(func):
+
         parameters = inspect.signature(func).parameters
         keys = list(parameters.keys())
-        if 'loss' in keys:
-            loss_index = keys.index('loss')
+        if from_result is True or 'loss' not in keys:  # no loss as parameters -> no problem
+            new_func = func
         else:
-            return func  # no loss as parameters -> no problem
+            loss_index = keys.index('loss')
 
-        @functools.wraps(func)
-        def new_func(*args, **kwargs):
-            loss_is_arg = len(args) > loss_index
-            self_minimizer = args[0]
-            can_handle = True
-            if loss_is_arg:
-                loss = args[loss_index]
-            else:
-                loss = kwargs['loss']
-
-            if isinstance(loss, FitResult):
-                if from_result == 'same':
-                    if not type(self_minimizer) == type(loss.minimizer):
-                        can_handle = False
-                elif not from_result:
-                    can_handle = False
+            @functools.wraps(func)
+            def new_func(*args, **kwargs):
+                self_minimizer = args[0]
+                can_handle = True
+                loss_is_arg = len(args) > loss_index
+                if loss_is_arg:
+                    loss = args[loss_index]
                 else:
-                    raise ValueError("from_result has to be True, False or 'same'")
-            if not can_handle:
-                raise FromResultNotImplemented
+                    loss = kwargs['loss']
 
-            new_func.__wrapped__ = minimize_supports
-            return new_func
+                if isinstance(loss, FitResult):
+                    if from_result == 'same':
+                        if not type(self_minimizer) == type(loss.minimizer):
+                            can_handle = False
+                    elif not from_result:
+                        can_handle = False
+                    else:
+                        raise ValueError("from_result has to be True, False or 'same'")
+                if not can_handle:
+                    raise FromResultNotImplemented
+                return func(*args, **kwargs)
 
-    return wrapper  # TODO: continue here
+        new_func.__wrapped__ = minimize_supports
+        return new_func
 
-
+    return wrapper
 
 
 _Minimizer_CHECK_HAS_SUPPORT = {}
@@ -409,7 +388,9 @@ class BaseMinimizer(ZfitMinimizer):
         if isinstance(loss, ZfitResult):
             loss_or_result = loss  # make the names correct
             result = loss_or_result
-            loss = loss_or_result.loss
+            loss = result.loss
+        else:
+            loss_or_result = loss
         params = self._check_input_params(loss=loss, params=params, only_floating=True)
         if result is not None:
             set_values(params, result)
@@ -440,6 +421,7 @@ class BaseMinimizer(ZfitMinimizer):
 
     def copy(self):
         return copy.copy(self)
+
     @_Minimizer_register_check_support(True)
     def _minimize(self, loss, params):
         raise MinimizeNotImplementedError

@@ -54,8 +54,9 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimize.Minuit, {"tolerance": 0.0001}, True),  # works
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
     (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5}, {'error': True, 'numgrad': False}),
-    (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5}, True),
+    # (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {}, True),
+    (zfit.minimize.ScipyTrustConstrV1, {}, True),
 
     (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.NLoptTruncNewtonV1, {}, True),
@@ -64,13 +65,13 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimize.NLoptCCSAQV1, {}, True),
     (zfit.minimize.NLoptSubplexV1, {}, True),
 
-    (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
+    # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
     # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'CG'}, False),
     (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'Powell'}, False),  # works
     # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Newton-CG', "scipy_grad": False}, False),  # too bad
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'TNC'}, False),  # unstable
-    (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'trust-constr'}, False),  # works
+    # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'trust-constr'}, False),  # works
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-ncg', "scipy_grad": True}, False),  # need Hess
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-krylov', "scipy_grad": True}, False),  # Hess
     # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'dogleg', "scipy_grad": True}, False),  # Hess
@@ -85,7 +86,8 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 ]
 
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptTruncNewtonV1, {'verbosity': 7}, True)]

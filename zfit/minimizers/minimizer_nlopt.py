@@ -65,7 +65,7 @@ class NLopt(BaseMinimizer):
         super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_options=minimizer_options,
                          strategy=strategy, maxiter=maxiter)
 
-    @minimize_supports(from_result=True)
+    @minimize_supports(from_result=False)
     def _minimize(self, loss, params):
 
         minimizer = nlopt.opt(self.algorithm, len(params))

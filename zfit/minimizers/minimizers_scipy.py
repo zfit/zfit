@@ -10,7 +10,6 @@ import scipy.optimize  # pylint: disable=g-import-not-at-top
 from .baseminimizer import BaseMinimizer, ZfitStrategy, minimize_supports
 from .evaluation import LossEval
 from .fitresult import FitResult
-from .termination import EDM
 from ..core.parameter import set_values
 from ..settings import run
 
@@ -158,6 +157,8 @@ class ScipyLBFGSBV1(BaseMinimizer):
         for i in range(n_iter):
 
             if inspect.isclass(self.hesse) and issubclass(self.hesse, scipy.optimize.HessianUpdateStrategy):
+                if not isinstance(init_scale, str):
+                    init_scale = np.mean(init_scale)
                 hesse = self.hesse(init_scale=init_scale)
             else:
                 hesse = self.hesse
@@ -224,8 +225,8 @@ class ScipyTrustNCGV1(BaseMinimizer):
                                  " not an instance. For further modification of other initial parameters, make a"
                                  " subclass of the update strategy.")
             self.hesse = hesse
-        self.eta = eta
-        self.max_trust_radius = max_trust_radius
+        self.eta = 1 / 5 if eta is None else eta
+        self.max_trust_radius = 5 if max_trust_radius is None else max_trust_radius
         super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
 
     @minimize_supports()
@@ -256,21 +257,27 @@ class ScipyTrustNCGV1(BaseMinimizer):
 
         else:
             init_scale = 'auto'
+
         init_trust_radius = None
+
         criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         gtol = init_tol
+        xtol = init_tol
         results = []
         n_iter = 20
         valid = None
         for i in range(n_iter):
 
             if inspect.isclass(self.hesse) and issubclass(self.hesse, scipy.optimize.HessianUpdateStrategy):
+                # HACK, circumvent not able to give array
+                if not isinstance(init_scale, str):
+                    init_scale = np.mean(init_scale)
                 hesse = self.hesse(init_scale=init_scale)
 
             minimize_kwargs['hess'] = hesse
 
-            options = {'init_trust_radius': init_trust_radius, 'gtol': gtol}
+            options = {'init_trust_radius': init_trust_radius, 'gtol': 0, 'xtol': gtol}
             if self.max_trust_radius is not None:
                 options['max_trust_radius'] = self.max_trust_radius
             if self.eta is not None:
@@ -288,7 +295,7 @@ class ScipyTrustNCGV1(BaseMinimizer):
             edm = criterion.calculateV1(value=fmin, xvalues=xvalues, grad=grad,
                                         inv_hesse=inv_hesse)
             if self.verbosity > 5:
-                print(f"Finished iteration {i}, fmin={fmin}, edm={edm},  gtol={gtol}")
+                print(f"Finished iteration {i}, fmin={fmin}, edm={edm},  gtol={gtol}, xtol={xtol}")
 
             if edm < self.tolerance:
                 break
@@ -296,6 +303,7 @@ class ScipyTrustNCGV1(BaseMinimizer):
             init_values = xvalues
             tol_factor = min([max([self.tolerance / edm, 1e-2]), 0.2])
             gtol *= tol_factor
+            xtol *= tol_factor
         else:
             valid = "Invalid, EDM not reached"
         result = combine_optimize_result(results)
@@ -370,6 +378,9 @@ class ScipyTrustKrylovV1(BaseMinimizer):
 
             # update if it is an instance of HessianUpdateStrategy
             if inspect.isclass(self.hesse) and issubclass(self.hesse, scipy.optimize.HessianUpdateStrategy):
+                # HACK, circumvent not able to give array
+                if not isinstance(init_scale, str):
+                    init_scale = np.mean(init_scale)
                 hesse = self.hesse(init_scale=init_scale)
                 minimize_kwargs['hess'] = hesse
 
@@ -397,6 +408,121 @@ class ScipyTrustKrylovV1(BaseMinimizer):
             init_values = xvalues
             tol_factor = min([max([self.tolerance / edm, 1e-2]), 0.2])
             gtol *= tol_factor
+        else:
+            valid = "Invalid, EDM not reached"
+        result = combine_optimize_result(results)
+        return FitResult.from_scipy(
+            loss=loss,
+            params=params,
+            result=result,
+            minimizer=self,
+            valid=valid,
+            edm=edm,
+        )
+
+
+class ScipyTrustConstrV1(BaseMinimizer):
+
+    def __init__(self,
+                 tolerance: float = None,
+                 initial_tr_radius: Optional[int] = None,
+                 verbosity: Optional[int] = None,
+                 grad: Optional[Union[Callable, str]] = None,
+                 hesse: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = None,
+                 strategy: ZfitStrategy = None,
+                 maxiter: Optional[int] = None,
+                 name="Scipy trust-constr V1"):
+        self.grad = grad
+        if hesse is None:
+            self.hesse = scipy.optimize.SR1
+        else:
+            if isinstance(hesse, scipy.optimize.HessianUpdateStrategy) and not inspect.isclass(hesse):
+                raise ValueError("If `hesse` is a HessianUpdateStrategy, it has to be a class that takes `init_scale`,"
+                                 " not an instance. For further modification of other initial parameters, make a"
+                                 " subclass of the update strategy.")
+            self.hesse = hesse
+        self.initial_tr_radius = initial_tr_radius
+
+        super().__init__(name, tolerance, verbosity, minimizer_options={}, strategy=strategy, maxiter=maxiter)
+
+    @minimize_supports()
+    def _minimize(self, loss, params):
+        previous_result = None
+        if isinstance(loss, FitResult):
+            previous_result = loss
+            loss = previous_result.loss
+        evaluator = LossEval(loss=loss,
+                             params=params,
+                             strategy=self.strategy,
+                             do_print=self.verbosity > 8,
+                             minimizer=self)
+
+        limits = [(run(p.lower), run(p.upper)) for p in params]
+        init_values = np.array(run(params))
+
+        minimize_kwargs = {
+            'jac': evaluator.gradient if self.grad == 'zfit' else self.grad,
+            'hess': evaluator.hessian if self.hesse == 'zfit' else self.hesse,
+            'method': 'trust-constr',
+            'bounds': limits,
+        }
+        if previous_result:
+            optimize_result = previous_result['info']['original']
+            maybe_hess = optimize_result.get('hess')
+            if maybe_hess:
+                init_scale = np.diag(maybe_hess)
+
+        else:
+            init_scale = 'auto'
+        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
+        gtol = init_tol * 3
+        xtol = init_tol
+        results = []
+        n_iter = 20
+        valid = None
+        for i in range(n_iter):
+
+            # update if it is an instance of HessianUpdateStrategy
+            if inspect.isclass(self.hesse) and issubclass(self.hesse, scipy.optimize.HessianUpdateStrategy):
+                # HACK, circumvent not able to give array
+                if not isinstance(init_scale, str):
+                    init_scale = np.mean(init_scale)
+                hesse = self.hesse(init_scale=init_scale)
+                minimize_kwargs['hess'] = hesse
+
+            options = {
+                # 'finite_diff_rel_step': self.tolerance * 1e-3,
+                'gtol': gtol, 'xtol': xtol}
+            if self.initial_tr_radius is not None:
+                options['initial_tr_radius'] = self.initial_tr_radius
+
+            minimize_kwargs['options'] = options
+            result = scipy.optimize.minimize(fun=evaluator.value,
+                                             x0=init_values, **minimize_kwargs)
+            results.append(result)
+
+            xvalues = result['x']
+            grad = result['grad']
+            if isinstance(hesse, scipy.optimize.HessianUpdateStrategy):
+                hesse_exact = hesse.get_matrix()
+            else:
+                hesse_exact = evaluator.hessian(params)
+            inv_hesse = np.linalg.inv(hesse_exact)
+            fmin = result.fun
+            edm = criterion.calculateV1(value=fmin, xvalues=xvalues, grad=grad,
+                                        inv_hesse=inv_hesse)
+            if self.verbosity > 5:
+                print(f"Finished iteration {i}, fmin={fmin}, edm={edm},  gtol={gtol}")
+
+            if edm < self.tolerance:
+                break
+
+            init_scale = np.diag(inv_hesse)
+            init_values = xvalues
+            tol_factor = min([max([self.tolerance / edm, 1e-2]), 0.35])
+            gtol *= tol_factor
+            xtol *= tol_factor
         else:
             valid = "Invalid, EDM not reached"
         result = combine_optimize_result(results)
