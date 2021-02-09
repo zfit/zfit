@@ -67,7 +67,7 @@ class ZfitMinimizer:
     """Define the minimizer interface."""
 
     @abc.abstractmethod
-    def minimize(self, loss, params=None):
+    def minimize(self, loss, params=None, init=None):
         raise NotImplementedError
 
     def step(self, loss, params=None):

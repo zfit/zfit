@@ -66,6 +66,26 @@ This corresponds to the most basic example where the negative likelihood is defi
 .. code-block:: pycon
 
     >>> # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
+    >>> result = minimizer.minimize(nll,params=[mu])
+
+It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
+Most minimisers will implement their CPU-intensive error calculating with the
+    >>> # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
+    >>> result = minimizer.minimize(nll,params=[mu])
+
+It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
+Most minimisers will implement their CPU-intensive error calculating with the
+    >>> # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
+    >>> result = minimizer.minimize(nll,params=[mu])
+
+It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
+Most minimisers will implement their CPU-intensive error calculating with the
+    >>> # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
+    >>> result = minimizer.minimize(nll,params=[mu])
+
+It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
+Most minimisers will implement their CPU-intensive error calculating with the
+    >>> # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
     >>> result = minimizer.minimize(nll, params=[mu])
 
 It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.

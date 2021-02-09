@@ -87,7 +87,8 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tolerance': 1e
+# -5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptTruncNewtonV1, {'verbosity': 7}, True)]

@@ -16,6 +16,7 @@ from typing import List, Union, Iterable, Mapping, Callable
 
 import numpy as np
 import texttable as tt
+from ordered_set import OrderedSet
 
 from .fitresult import FitResult
 from .interface import ZfitMinimizer, ZfitResult
@@ -26,7 +27,7 @@ from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError, MinimizerSubclassingError, \
-    FromResultNotImplemented
+    FromResultNotImplemented, ParameterNotIndependentError
 
 
 class FailMinimizeNaN(Exception):
@@ -287,21 +288,36 @@ class BaseMinimizer(ZfitMinimizer):
             raise MinimizerSubclassingError(f"Method {method_name} has not been correctly wrapped with "
                                             f"@minimize_supports ")
 
-    def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
-
-        params = convert_to_container(params)
+    def _check_input_params(self, loss: ZfitLoss, params, init=None, only_floating=True):
+        to_set_param_values = {}
         if params is None:
             params = loss.get_params(only_floating=only_floating)
-            params = list(params)
         else:
-            params_indep = []
-            for param in params:
-                if param.independent:
-                    params_indep.append(param)
-                else:
-                    params_indep.extend(param.get_params(only_floating=only_floating))
-            params = params_indep
+            if isinstance(params, collections.Mapping):
+                param_values = params
+                to_set_param_values = {p: val for p, val in param_values.items() if val is not None}
+                try:
+                    set_values(list(to_set_param_values), list(to_set_param_values.values()))
+                except ParameterNotIndependentError as error:
+                    not_indep_and_set = {p for p, val in param_values.items() if val is not None and not p.independent}
+                    raise ParameterNotIndependentError(f"Cannot set parameter {not_indep_and_set} to a value as they"
+                                                       f" are not independent. The following `param` argument was"
+                                                       f" given: {params}."
+                                                       f""
+                                                       f"Original error"
+                                                       f"--------------"
+                                                       f"{error}") from error
+            else:
+                params = convert_to_container(params, container=OrderedSet)
 
+            # now extract all the independent parameters
+            params = list(OrderedSet.union(*(p.get_params(only_floating=only_floating) for p in params)))
+
+        # set the parameter values from the init
+        if init is not None:
+            # don't set the user set
+            params_to_set = OrderedSet(params).intersection(OrderedSet(init.params)) - OrderedSet(to_set_param_values)
+            set_values(params_to_set, init)
         if only_floating:
             params = self._filter_floating_params(params)
         if not params:
@@ -372,58 +388,52 @@ class BaseMinimizer(ZfitMinimizer):
 
         return params
 
-    def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None) -> FitResult:
+    def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None, init: FitResult = None) -> FitResult:
         """Fully minimize the `loss` with respect to `params`.
 
         Args:
             loss: Loss to be minimized.
             params: The parameters with respect to which to
                 minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
+            init: A result of a previous minimization that provides auxiliary information such as the starting point for
+                the parameters
 
         Returns:
             The fit result.
         """
-
-        result = None
         if isinstance(loss, ZfitResult):
-            loss_or_result = loss  # make the names correct
-            result = loss_or_result
-            loss = result.loss
-        else:
-            loss_or_result = loss
-        params = self._check_input_params(loss=loss, params=params, only_floating=True)
-        if result is not None:
-            set_values(params, result)
+            init = loss  # make the names correct
+            loss = init.loss
+
+        params = self._check_input_params(loss=loss, params=params, init=init, only_floating=True)
+
+        return self._call_minimize(loss=loss, params=params, init=init)
+
+    def _call_minimize(self, loss, params, init):
 
         try:
             try:
-                return self._hook_minimize(loss=loss_or_result, params=params)
-            except FromResultNotImplemented:
-                return self._hook_minimize(loss=loss, params=params)
-        except (FailMinimizeNaN, RuntimeError) as error:  # iminuit raises RuntimeError if user raises Error
+                return self._minimize(loss=loss, params=params, init=init)
+            except TypeError as error:
+                if "got an unexpected keyword argument 'init'" in error.args[0]:
+                    warnings.warn(
+                        '_minimize has to take an `init` argument. This will be mandatory in the future, please'
+                        ' change the signature accordingly.', category=FutureWarning, stacklevel=2)
+                    return self._minimize(loss=loss, params=params)
+                else:
+                    raise
+        except (FailMinimizeNaN, RuntimeError):  # iminuit raises RuntimeError if user raises Error
             fail_result = self.strategy.fit_result
             if fail_result is not None:
                 return fail_result
             else:
                 raise
 
-    def _hook_minimize(self, loss, params):
-        return self._call_minimize(loss=loss, params=params)
-
-    def _call_minimize(self, loss, params):
-        try:
-            return self._minimize(loss=loss, params=params)
-        except MinimizeNotImplementedError as error:
-            try:
-                return self._minimize_with_step(loss=loss, params=params)
-            except MinimizeStepNotImplementedError:
-                raise error
-
     def copy(self):
         return copy.copy(self)
 
     @_Minimizer_register_check_support(True)
-    def _minimize(self, loss, params):
+    def _minimize(self, loss, params, init):
         raise MinimizeNotImplementedError
 
     def __str__(self) -> str:
@@ -434,7 +444,7 @@ class BaseMinimizer(ZfitMinimizer):
 class BaseStepMinimizer(BaseMinimizer):
 
     @minimize_supports()
-    def _minimize(self, loss, params):
+    def _minimize(self, loss, params, init):
         n_old_vals = 10
         changes = collections.deque(np.ones(n_old_vals))
         last_val = -10
@@ -475,7 +485,7 @@ class BaseStepMinimizer(BaseMinimizer):
                          converged=success, status=status,
                          loss=loss, minimizer=self.copy())
 
-    def step(self, loss, params: ztyping.ParamsOrNameType = None):
+    def step(self, loss, params: ztyping.ParamsOrNameType = None, init: FitResult = None):
         """Perform a single step in the minimization (if implemented).
 
         Args:
@@ -486,11 +496,11 @@ class BaseStepMinimizer(BaseMinimizer):
         Raises:
             MinimizeStepNotImplementedError: if the `step` method is not implemented in the minimizer.
         """
-        params = self._check_input_params(loss, params)
+        params = self._check_input_params(loss, params, init=init)
 
-        return self._step(loss, params=params)
+        return self._step(loss, params=params, init=init)
 
-    def _step(self, loss, params):
+    def _step(self, loss, params, init):
         raise MinimizeStepNotImplementedError
 
 

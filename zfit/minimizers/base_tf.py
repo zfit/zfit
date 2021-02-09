@@ -15,7 +15,6 @@ class WrapOptimizer(BaseStepMinimizer):
         super().__init__(tolerance=tolerance, verbosity=verbosity, name=name, minimizer_options=None, **kwargs)
         self._optimizer_tf = optimizer
 
-    def _step(self, loss, params):
+    def _step(self, loss, params, init):
         self._optimizer_tf.minimize(loss=loss.value, var_list=params)
-
         return loss.value()
