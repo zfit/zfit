@@ -9,7 +9,7 @@ import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from contextlib import suppress
-from typing import Callable, List, Optional, Tuple, Union, Iterable, Mapping
+from typing import Callable, Optional, Tuple, Union, Iterable, Mapping
 
 import numpy as np
 import tensorflow as tf
@@ -2656,6 +2656,22 @@ class MultiSpace(BaseSpace):
 
     def __iter__(self) -> ZfitSpace:
         yield from self.spaces
+
+    def __repr__(self):
+        class_name = str(self.__class__).split('.')[-1].split('\'')[0]
+        if not self.limits_are_set:
+            limits = None
+        elif self.limits_are_false:
+            limits = False
+        elif self.has_rect_limits:
+            if self.n_obs < 3 and not self.n_events > 1 and self.n_limits <= 3:
+
+                limits = [lim.rect_limits for lim in self]
+            else:
+                limits = 'rectangular'
+        else:
+            limits = 'functional'
+        return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={limits}>"
 
     def __eq__(self, other):
         # in principle, two disjoint regions could have coinciding lower and upper limits equaling to an actually larger
