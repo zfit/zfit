@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 # TODO(Mayou36): update docs above
 
@@ -2658,14 +2658,20 @@ class MultiSpace(BaseSpace):
         yield from self.spaces
 
     def __eq__(self, other):
+        # in principle, two disjoint regions could have coinciding lower and upper limits equaling to an actually larger
+        # space. However, we ignore this case and say that l1 to u1 and l2 to u2 is never the same as l1 to u2,
+        # even if u1 == l2 (and they mathematically coincide).
         if not isinstance(other, MultiSpace):
-            raise MultipleLimitsNotImplementedError
+            warnings.warn("Multispace limits compare never equal to Space.", stacklevel=2)
         all_equal = equal_space(self, other, allow_graph=False)
         return all_equal
 
     def __le__(self, other):
+        # in principle, two disjoint regions could have coinciding lower and upper limits equaling to an actually larger
+        # space. However, we ignore this case and say that l1 to u1 and l2 to u2 is never the same as l1 to u2,
+        # even if u1 == l2 (and they mathematically coincide).
         if not isinstance(other, MultiSpace):
-            raise MultipleLimitsNotImplementedError
+            warnings.warn("Multispace limits compare never equal to Space.", stacklevel=2)
         all_less_equal = less_equal_space(self, other, allow_graph=False)
         return all_less_equal
 
