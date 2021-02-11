@@ -1,6 +1,6 @@
 """Used to make pytest functions available globally"""
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 #
 #
 # def pytest_generate_tests(metafunc):
@@ -15,3 +15,6 @@
 #         # @pytest.mark.parametrize('tmp_ct', range(count))
 #         # def test_foo(): pass
 #         metafunc.parametrize('tmp_ct', range(2))
+
+def pytest_addoption(parser):
+    parser.addoption("--long-tests", action="store", default=False)

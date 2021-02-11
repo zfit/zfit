@@ -147,7 +147,7 @@ class ScipyLBFGSBV1(BaseMinimizer):
         if init_scale is None:
             init_scale = 'auto'
         maxiter = self.maxiter
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion
         init_tol = loss.errordef * self.tolerance
         ftol = init_tol
         gtol = init_tol
@@ -260,7 +260,7 @@ class ScipyTrustNCGV1(BaseMinimizer):
 
         init_trust_radius = None
 
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         gtol = init_tol
         xtol = init_tol
@@ -368,7 +368,7 @@ class ScipyTrustKrylovV1(BaseMinimizer):
 
         else:
             init_scale = 'auto'
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         gtol = init_tol
         results = []
@@ -474,7 +474,7 @@ class ScipyTrustConstrV1(BaseMinimizer):
 
         else:
             init_scale = 'auto'
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         gtol = init_tol * 3
         xtol = init_tol

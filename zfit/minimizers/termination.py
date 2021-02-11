@@ -5,17 +5,26 @@ from typing import Optional, Tuple
 import numpy as np
 
 from .fitresult import FitResult
+from ..core.interfaces import ZfitLoss
+from ..util import ztyping
+from ..util.checks import Singleton
 
 
 class ConvergenceCriterion(abc.ABC):
 
-    def __init__(self, tolerance: float, name: str):
+    def __init__(self, tolerance: float, loss: ZfitLoss,
+                 params: ztyping.ParamTypeInput, name: str):
         super().__init__()
+        if not isinstance(loss, ZfitLoss):
+            raise TypeError("loss has to be ZfitLoss")
+        self.loss = loss
         self.tolerance = tolerance
+        self.params = params
         self.name = name
+        self.last_value = CRITERION_NOT_AVAILABLE
 
-    def converged(self, result: FitResult) -> Tuple[bool, float]:
-        """Calculate the criterion and check if it is below the tolerance, return both.
+    def converged(self, result: FitResult) -> bool:
+        """Calculate the criterion and check if it is below the tolerance.
 
         Args:
             result: Return the result which contains all the information
@@ -24,11 +33,24 @@ class ConvergenceCriterion(abc.ABC):
 
         """
         value = self.calculate(result)
-        return value < self.tolerance, value
+        return value < self.tolerance
+
+    def calculate(self, result: FitResult):
+        """Evaluate the convergence criterion and store it in `last_value`
+
+        Args:
+            result ():
+        """
+        value = self._calculate(result=result)
+        self.last_value = value
+        return value
 
     @abc.abstractmethod
-    def calculate(self, result: FitResult):
+    def _calculate(self, result: FitResult) -> float:
         raise NotImplementedError
+
+    def __repr__(self) -> str:
+        return f"<ConvergenceCriterion {self.name}>"
 
 
 def calculate_edm(grad, inv_hesse):
@@ -37,28 +59,32 @@ def calculate_edm(grad, inv_hesse):
 
 class EDM(ConvergenceCriterion):
 
-    def __init__(self, tolerance: float, name: Optional[str] = None):
-        if name is None:
-            name = "edm"
-        super().__init__(tolerance=tolerance, name=name)
+    def __init__(self,
+                 tolerance: float,
+                 loss: ZfitLoss,
+                 params: ztyping.ParamTypeInput,
+                 name: Optional[str] = "edm"):
 
-    def calculate(self, result) -> float:
+        super().__init__(tolerance=tolerance, loss=loss, params=params,
+                         name=name)
 
-        if callable(grad):
-            grad = grad()
-        if callable(hesse):
-            hesse = hesse()
-        if callable(inv_hesse):
-            inv_hesse = inv_hesse()
+    def _calculate(self, result) -> float:
+        loss = result.loss
+        params = list(result.params)
+        grad = result.info.get('grad')
+        if grad is None:
+            grad = loss.gradients(params)
+        inv_hesse = result.info.get('inv_hesse')
         if inv_hesse is None:
+            hesse = result.info.get('hesse')
             if hesse is None:
-                raise RuntimeError("Need hesse or inv_hesse for convergence criterion:")
-            else:
-                inv_hesse = np.linalg.inv(hesse)
-        edm = calculate_edm(grad, inv_hesse)
-        return edm
+                hesse = loss.hessian(params)
+            inv_hesse = np.linalg.inv(hesse)
 
-    def calculateV1(self, value, xvalues, grad, hesse=None, inv_hesse=None, **kwargs) -> float:
+        return calculate_edm(grad, inv_hesse)
+
+    def calculateV1(self, value, xvalues, grad, hesse=None, inv_hesse=None,
+                    **kwargs) -> float:
         del value
         if callable(grad):
             grad = grad()
@@ -68,8 +94,36 @@ class EDM(ConvergenceCriterion):
             inv_hesse = inv_hesse()
         if inv_hesse is None:
             if hesse is None:
-                raise RuntimeError("Need hesse or inv_hesse for convergence criterion:")
+                raise RuntimeError(
+                    "Need hesse or inv_hesse for convergence criterion:")
             else:
                 inv_hesse = np.linalg.inv(hesse)
         edm = calculate_edm(grad, inv_hesse)
         return edm
+
+
+class CriterionNotAvailable(Singleton):
+
+    def __bool__(self):
+        return False
+
+    def __eq__(self, other):
+        return False
+
+    def __lt__(self, other):
+        return False
+
+    def __add__(self, other):
+        return self
+
+    def __mul__(self, other):
+        return self
+
+    def __pow__(self, power, modulo=None):
+        return self
+
+    def __repr__(self):
+        return "<EDM_not_available>"
+
+
+CRITERION_NOT_AVAILABLE = CriterionNotAvailable()

@@ -227,7 +227,7 @@ class BaseMinimizer(ZfitMinimizer):
     """
     _DEFAULT_TOLERANCE = 1e-3
 
-    def __init__(self, name, tolerance, verbosity, minimizer_options, strategy=None, maxiter=None, **kwargs):
+    def __init__(self, name, tolerance, verbosity, minimizer_options, criterion=None, strategy=None, maxiter=None, **kwargs):
         super().__init__(**kwargs)
         if name is None:
             name = repr(self.__class__)[:-2].split(".")[-1]
@@ -246,7 +246,7 @@ class BaseMinimizer(ZfitMinimizer):
         self.minimizer_options = minimizer_options
         self.maxiter = 5000 if maxiter is None else maxiter
         self._max_steps = 5000
-        self._convergence_criterion_cls = EDM
+        self.criterion = EDM if criterion is None else criterion
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -449,7 +449,7 @@ class BaseStepMinimizer(BaseMinimizer):
         changes = collections.deque(np.ones(n_old_vals))
         last_val = -10
         n_steps = 0
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         edm = self.tolerance * 1000
         sum_changes = np.sum(changes)
         inv_hesse = None

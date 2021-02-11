@@ -1,15 +1,18 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2021 zfit
 
-class NotSpecified:
-    _singleton_instance = None
+class Singleton:
+    __instance = None
 
     def __new__(cls, *args, **kwargs):
-        instance = cls._singleton_instance
+        instance = cls.__instance
         if instance is None:
             instance = super().__new__(cls)
-            cls._singleton_instance = instance
+            cls.__instance = instance
 
         return instance
+
+
+class NotSpecified(Singleton):
 
     def __bool__(self):
         return False

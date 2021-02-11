@@ -177,7 +177,7 @@ class NLoptLBFGSV1(BaseMinimizer):
         for name, value in self.minimizer_options:
             minimizer.set_param(name, value)
 
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         init_tol *= 10
         ftol = init_tol
@@ -291,7 +291,7 @@ class NLoptTruncNewtonV1(BaseMinimizer):
         for name, value in self.minimizer_options:
             minimizer.set_param(name, value)
 
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         init_tol *= 10
         ftol = init_tol
@@ -399,7 +399,7 @@ class NLoptSLSQPV1(BaseMinimizer):
         minimizer.set_upper_bounds(upper)
         minimizer.set_maxeval(self.maxiter)
 
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         init_tol *= 10
         ftol = init_tol
@@ -507,7 +507,7 @@ class NLoptMMAV1(BaseMinimizer):
         minimizer.set_upper_bounds(upper)
         minimizer.set_maxeval(self.maxiter)
 
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         init_tol *= 10
         ftol = init_tol
@@ -615,7 +615,7 @@ class NLoptCCSAQV1(BaseMinimizer):
         minimizer.set_upper_bounds(upper)
         minimizer.set_maxeval(self.maxiter)
 
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         init_tol *= 10
         ftol = init_tol
@@ -721,7 +721,7 @@ class NLoptSubplexV1(BaseMinimizer):
         minimizer.set_upper_bounds(upper)
         minimizer.set_maxeval(self.maxiter)
 
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         init_tol *= 10
         ftol = init_tol
@@ -832,7 +832,7 @@ class NLoptMLSLV1(BaseMinimizer):
         minimizer.set_upper_bounds(upper)
         minimizer.set_maxeval(self.maxiter)
 
-        criterion = self._convergence_criterion_cls(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         init_tol *= 10
         ftol = init_tol
