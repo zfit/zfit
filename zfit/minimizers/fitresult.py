@@ -11,11 +11,13 @@ import numpy as np
 import scipy.stats
 from colorama import Style, init
 from ordered_set import OrderedSet
+from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 import scipy.optimize
 
 from .errors import compute_errors, covariance_with_weights, dict_to_matrix, matrix_to_dict
 from .interface import ZfitMinimizer, ZfitResult
+from .termination import ConvergenceCriterion
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import set_values
 from ..settings import run
@@ -100,7 +102,8 @@ class FitResult(ZfitResult):
     _error_methods = {"minuit_minos": _minos_minuit, "zfit_error": compute_errors}
 
     def __init__(self, params: Dict[ZfitParameter, float], edm: float, fmin: float, status: int, converged: bool,
-                 info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer"):
+                 info: dict, loss: ZfitLoss, minimizer: "ZfitMinimizer",
+                 criterion: Optional[ConvergenceCriterion] = None):
         """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
 
         Any errors calculated are saved under `self.params` dictionary with::
@@ -186,15 +189,18 @@ class FitResult(ZfitResult):
                    minimizer=minimizer)
 
     @classmethod
-    def from_scipy(cls,  loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
-                   minimizer: ZfitMinimizer, edm=False, valid=None):
+    def from_scipy(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
+                   minimizer: ZfitMinimizer, edm=False, valid=None, criterion=None):
         result_values = result['x']
         converged = result['success']
         status = result['status']
+        inv_hesse = result.get('hess_inv')
+        if isinstance(inv_hesse, LbfgsInvHessProduct):
+            inv_hesse = inv_hesse.todense()
         info = {'n_eval': result['nfev'],
                 'n_iter': result['nit'],
                 'grad': result.get('jac'),
-                'inv_hesse': result.get('hess_inv'),
+                'inv_hesse': inv_hesse,
                 'message': result['message'],
                 'original': result}
         fmin = result['fun']
@@ -202,7 +208,7 @@ class FitResult(ZfitResult):
 
         fitresult = cls(params=params, edm=edm, fmin=fmin, info=info,
                               converged=converged, status=status,
-                              loss=loss, minimizer=minimizer.copy())
+                              loss=loss, minimizer=minimizer, criterion=criterion)
         if isinstance(valid, str):
             fitresult._valid = False
             fitresult.info['invalid_message'] = valid

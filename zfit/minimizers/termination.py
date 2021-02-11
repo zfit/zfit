@@ -4,7 +4,6 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-from .fitresult import FitResult
 from ..core.interfaces import ZfitLoss
 from ..util import ztyping
 from ..util.checks import Singleton
@@ -23,7 +22,7 @@ class ConvergenceCriterion(abc.ABC):
         self.name = name
         self.last_value = CRITERION_NOT_AVAILABLE
 
-    def converged(self, result: FitResult) -> bool:
+    def converged(self, result: "zfit.core.fitresult.FitResult") -> bool:
         """Calculate the criterion and check if it is below the tolerance.
 
         Args:
@@ -35,7 +34,7 @@ class ConvergenceCriterion(abc.ABC):
         value = self.calculate(result)
         return value < self.tolerance
 
-    def calculate(self, result: FitResult):
+    def calculate(self, result: "zfit.core.fitresult.FitResult"):
         """Evaluate the convergence criterion and store it in `last_value`
 
         Args:
@@ -46,7 +45,7 @@ class ConvergenceCriterion(abc.ABC):
         return value
 
     @abc.abstractmethod
-    def _calculate(self, result: FitResult) -> float:
+    def _calculate(self, result: "zfit.core.fitresult.FitResult") -> float:
         raise NotImplementedError
 
     def __repr__(self) -> str:
@@ -71,7 +70,7 @@ class EDM(ConvergenceCriterion):
     def _calculate(self, result) -> float:
         loss = result.loss
         params = list(result.params)
-        grad = result.info.get('grad')
+        grad = result.info.get('jac')
         if grad is None:
             grad = loss.gradients(params)
         inv_hesse = result.info.get('inv_hesse')

@@ -143,7 +143,6 @@ def test_dependent_param_extraction():
     assert {mu, } == set(params_checked)
 
 
-already_tested_minimizer = set()
 
 # @pytest.mark.run(order=4)
 chunksizes = [100000, 3000]
