@@ -17,4 +17,4 @@
 #         metafunc.parametrize('tmp_ct', range(2))
 
 def pytest_addoption(parser):
-    parser.addoption("--long-tests", action="store", default=False)
+    parser.addoption("--longtests", action="store", default=False)

@@ -8,7 +8,7 @@ import numpy as np
 from .baseminimizer import BaseMinimizer, ZfitStrategy, minimize_supports
 from .evaluation import LossEval
 from .fitresult import FitResult
-from .termination import EDM
+from .termination import EDM, CRITERION_NOT_AVAILABLE
 from ..core.parameter import set_values
 from ..settings import run
 
@@ -205,12 +205,15 @@ class NLoptLBFGSV1(BaseMinimizer):
             n_iter += minimizer.get_numevals()
             hesse = evaluator.hessian(params)
             inv_hesse = np.linalg.inv(hesse)
-            edm = criterion.calculateV1(value=fmin, xvalues=xvalues, grad=evaluator.gradient(params),
-                                        inv_hesse=inv_hesse)
+            result = FitResult.from_nlopt(loss, minimizer=self, opt=minimizer,
+                                 edm=CRITERION_NOT_AVAILABLE, n_eval=n_iter,
+                                          params=params,
+                                 xvalues=xvalues, inv_hess=inv_hesse,
+                                 valid=valid)
             if self.verbosity > 5:
                 print(f"Finished iteration {i}, fmin={fmin}, edm={edm},  ftol={ftol}, xtol={xtol}")
 
-            if edm < self.tolerance:
+            if criterion.converged(result):
                 break
 
             step_sizes = np.diag(inv_hesse)
@@ -220,8 +223,13 @@ class NLoptLBFGSV1(BaseMinimizer):
             xtol *= tol_factor ** 0.5
         else:
             valid = "Invalid, EDM not reached"
+
+        if type(criterion) == EDM:
+            edm = criterion.last_value
+        else:
+            edm = CRITERION_NOT_AVAILABLE
         return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
-                                    xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
+                                    xvalues=xvalues, inv_hess=inv_hesse, valid=valid, criterion=criterion)
 
 
 class NLoptTruncNewtonV1(BaseMinimizer):

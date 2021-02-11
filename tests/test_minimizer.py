@@ -55,15 +55,15 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimize.Adam, dict(learning_rate=0.05, tolerance=0.00001), False),
     # works
     (zfit.minimize.Minuit, {"tolerance": 0.0001},
-     {'error': True, 'long': True}),  # works
+     {'error': True, 'longtests': True}),  # works
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
     (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5},
      {'error': True, 'numgrad': False}),
     # (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {}, True),
-    (zfit.minimize.ScipyTrustConstrV1, {}, {'error': True, 'long': True}),
+    (zfit.minimize.ScipyTrustConstrV1, {}, {'error': True, 'longtests': True}),
 
-    (zfit.minimize.NLoptLBFGSV1, {}, {'error': True, 'long': True}),
+    (zfit.minimize.NLoptLBFGSV1, {}, {'error': True, 'longtests': True}),
     (zfit.minimize.NLoptTruncNewtonV1, {}, True),
     (zfit.minimize.NLoptSLSQPV1, {}, True),
     (zfit.minimize.NLoptMMAV1, {}, True),
@@ -173,15 +173,17 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     max_distance_to_min = 2.5
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
-    numgrad = True
-    do_long = False
-    long_clarg = pytestconfig.getoption("long-tests")
-    if isinstance(test_error, dict):
-        numgrad = test_error.get('numgrad', numgrad)
-        do_long = test_error.get('long-test', numgrad)
-        test_error = test_error['error']
+
+    long_clarg = pytestconfig.getoption("longtests")
+    if not isinstance(test_error, dict):
+        test_error = {'error':test_error}
+
+    numgrad = test_error.get('numgrad', True)
+    do_long = test_error.get('longtests', False)
+    test_error = test_error['error']
     if not numgrad:
         return
+
     skip_tests = (not long_clarg
                   and not do_long
                   and not (chunksize == chunksizes[0]
@@ -189,6 +191,8 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
                            and spaces is spaces_all[0]))
     if skip_tests:
         return
+    if not long_clarg and not do_long:
+        test_error = False
     minimizer_hightol = minimizer_class(**{**minimizer_kwargs,
                                            'tolerance': 100 * minimizer_kwargs.get(
                                                'tolerance', 0.01)})
