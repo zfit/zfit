@@ -8,6 +8,7 @@ import pytest
 import zfit.minimizers.optimizers_tf
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.minimizers.minimizers_scipy import ScipyTrustNCGV1, ScipyDoglegV1
 
 
 def teardown_function():
@@ -59,7 +60,8 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
     (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5},
      {'error': True, 'numgrad': False}),
-    # (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5}, True),
+    (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5}, True),
+    (zfit.minimize.ScipyDoglegV1, {'tolerance': 1e-5}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, {'error': True, 'longtests': True}),
 
@@ -93,7 +95,8 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 ]
 
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(ScipyTrustNCGV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(ScipyDoglegV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, True)]
@@ -159,6 +162,8 @@ spaces_all = [obs1, obs1_split]
 @pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
                     pytestconfig):
+    long_clarg = pytestconfig.getoption("longtests")
+    # long_clarg = True
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
     zfit.settings.options['numerical_grad'] = num_grad
@@ -173,7 +178,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
 
-    long_clarg = pytestconfig.getoption("longtests")
+
     if not isinstance(test_error, dict):
         test_error = {'error':test_error}
 

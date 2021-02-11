@@ -10,7 +10,8 @@ from .minimizers.minimizer_nlopt import (NLopt, NLoptLBFGSV1, NLoptTruncNewtonV1
     # NLoptMLSLV1,
                                          )
 from .minimizers.minimizer_tfp import BFGS
-from .minimizers.minimizers_scipy import Scipy, ScipyLBFGSBV1, ScipyTrustKrylovV1, ScipyTrustConstrV1
+from .minimizers.minimizers_scipy import Scipy, ScipyLBFGSBV1, ScipyTrustKrylovV1, ScipyTrustConstrV1, ScipyDoglegV1, \
+    ScipyTrustNCGV1
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
 from .util.legacy import deprecated
 
@@ -41,7 +42,8 @@ class ScipyMinimizer(Scipy):
 
 __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
            "WrapOptimizer",
-           "Adam", "Minuit", "Scipy", "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1',
+           "Adam", "Minuit",
+           "Scipy", "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1', "ScipyDoglegV1", "ScipyTrustNCGV1",
            "NLoptLBFGSV1", "NLoptTruncNewtonV1", "NLoptSLSQPV1", "NLoptMMAV1", "NLoptCCSAQV1",
            # "NLoptMLSLV1",
            "NLoptSubplexV1",
