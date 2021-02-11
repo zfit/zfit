@@ -277,7 +277,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = self._input_check_params(params)
         numerical = settings.options['numerical_grad']
         vals = self._value_gradients_hessian(params=params, hessian=hessian, numerical=numerical)
-
+        vals = vals[0], z.convert_to_tensor(vals[1]), vals[2]
         return vals
 
     @z.function(wraps='loss')

@@ -93,7 +93,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
         # tolerances and criterion
         criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
 
-        init_tol = loss.errordef * self.tolerance
+        init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         scipy_tol = self._scipy_tolerances
         scipy_tol = {tol: init_tol if init is None else init for tol, init in scipy_tol.items()}
 
@@ -481,7 +481,33 @@ class ScipyTrustNCGV1(BaseMinimizer):
         return FitResult.from_scipy(loss=loss, params=params, result=result, minimizer=self, edm=edm, valid=valid)
 
 
-class ScipyTrustKrylovV1(BaseMinimizer):
+class ScipyTrustKrylovV1(ScipyBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 inexact: Optional[bool] = None,
+                 gradient: Optional[Union[Callable, str]] = 'zfit',
+                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 strategy: ZfitStrategy = None,
+                 verbosity: Optional[int] = None,
+                 name="Scipy trust-krylov V1"):
+        options = {}
+        if inexact is not None:
+            options['inexact'] = inexact
+
+        minimizer_options = {}
+        if options:
+            minimizer_options['options'] = options
+
+        scipy_tolerances = {'gtol': None}
+
+        super().__init__(method="trust-constr", tolerance=tolerance, verbosity=verbosity,
+                         strategy=strategy, gradient=gradient, hessian=hessian,
+                         criterion=criterion, scipy_tolerances=scipy_tolerances,
+                         minimizer_options=minimizer_options,
+                         name=name)
+
+class ScipyTrustKrylovV1o(BaseMinimizer):
 
     def __init__(self,
                  tolerance: float = None,

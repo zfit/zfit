@@ -53,6 +53,7 @@ class ConvergenceCriterion(abc.ABC):
 
 
 def calculate_edm(grad, inv_hesse):
+    grad = np.array(grad)
     return grad @ inv_hesse @ grad / 2
 
 
