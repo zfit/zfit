@@ -3,7 +3,7 @@ import numpy as np
 from tf_quant_finance.math import root_search
 from zfit import ztypes
 
-from zfit.util import binning as binning_helper
+from zfit.util import binning as binning_util
 
 
 def _fixed_point(t, N, squared_integers, grid_data_dct2):
@@ -127,7 +127,7 @@ def _find_root(function, N, squared_integers, grid_data_dct2):
 def _calculate_t_star(data, num_grid_points, binning_method, weights):
 
     # Setting `percentile` higher decreases the chance of overflow
-    grid = binning_helper.generate_1d_grid(data, num_grid_points, 6.0, 0.5)
+    grid = binning_util.generate_1d_grid(data, num_grid_points, 6.0, 0.5)
 
     # Create an equidistant grid
     R = tf.cast(tf.reduce_max(data) - tf.reduce_min(data), ztypes.float)
@@ -138,7 +138,7 @@ def _calculate_t_star(data, num_grid_points, binning_method, weights):
 
     # Use linear binning to bin the data on an equidistant grid, this is a
     # prerequisite for using the FFT (evenly spaced samples)
-    grid_data = binning_helper.bin_1d(binning_method, data, grid, weights)
+    grid_data = binning_util.bin_1d(binning_method, data, grid, weights)
 
     # Compute the type 2 Discrete Cosine Transform (DCT) of the data
     grid_data_dct = tf.signal.dct(grid_data, type=2)
