@@ -11,6 +11,7 @@ import zfit.models.kde
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
 
+
 @pytest.mark.skip()  # copy not yet implemented
 def test_copy_kde():
     size = 500
@@ -45,17 +46,22 @@ def test_simple_kde():
     kde_adaptive_trunc = zfit.models.kde.GaussianKDE1DimV1(data=data_truncated, bandwidth='adaptiveV1',
                                                            obs=obs,
                                                            truncate=True)
+    kde_isj = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='isj',
+                                                obs=obs,
+                                                truncate=False)
 
     integral = kde.integrate(limits=limits, norm_range=False)
     integral_trunc = kde_adaptive_trunc.integrate(limits=limits, norm_range=False)
     integral_adaptive = kde_adaptive.integrate(limits=limits, norm_range=False)
     integral_silverman = kde_silverman.integrate(limits=limits, norm_range=False)
+    integral_isj = kde_isj.integrate(limits=limits, norm_range=False)
 
     rel_tol = 0.04
     assert zfit.run(integral_trunc) == pytest.approx(1., rel=rel_tol)
     assert zfit.run(integral) == pytest.approx(expected_integral, rel=rel_tol)
     assert zfit.run(integral_adaptive) == pytest.approx(expected_integral, rel=rel_tol)
     assert zfit.run(integral_silverman) == pytest.approx(expected_integral, rel=rel_tol)
+    assert zfit.run(integral_isj) == pytest.approx(expected_integral, rel=rel_tol)
 
     sample = kde_adaptive.sample(1000)
     sample2 = kde_adaptive_trunc.sample(1000)
