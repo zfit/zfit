@@ -1,5 +1,6 @@
 tensorflow~=2.4
 tensorflow_probability~=0.12
+tf_quant_finance>=v0.0.1-dev24
 scipy>=1.2
 uproot>=4,<5
 pandas
