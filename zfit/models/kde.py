@@ -11,6 +11,9 @@ from .. import z, ztypes
 from ..core.interfaces import ZfitData, ZfitSpace
 from ..util import ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
+from ..util import improved_sheather_jones as isj_util
+from ..util import binning as binning_util
+from ..util import convolution as convolution_util
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):
@@ -23,6 +26,10 @@ def bandwidth_silverman(data):
 
 def bandwidth_scott(data):
     return bandwidth_rule_of_thumb(data=data, factor=1.059)
+
+
+def bandwidth_isj(data):
+    return isj_util.calculate_bandwidth(data, num_grid_points=1024, binning_method='linear', weights=None)
 
 
 def bandwidth_adaptiveV1(data, func):
@@ -48,6 +55,10 @@ def _bandwidth_silverman_KDEV1(data, *_, **__):
     return bandwidth_silverman(data)
 
 
+def _bandwidth_isj_KDEV1(data, *_, **__):
+    return bandwidth_isj(data)
+
+
 @z.function(wraps='tensor')
 def min_std_or_iqr(x):
     return tf.minimum(tf.math.reduce_std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25)))
@@ -61,6 +72,7 @@ class GaussianKDE1DimV1(WrapDistribution):
         'silverman': _bandwidth_silverman_KDEV1,
         'adaptiveV1': _adaptive_bandwidth_KDEV1,
         'adaptive': _adaptive_bandwidth_KDEV1,
+        'isj': _bandwidth_isj_KDEV1
     }
 
     def __init__(self, obs: ztyping.ObsTypeInput, data: ztyping.ParamTypeInput,
@@ -135,7 +147,8 @@ class GaussianKDE1DimV1(WrapDistribution):
                     weights = data.weights
 
             if data.n_obs > 1:
-                raise ShapeIncompatibleError(f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
+                raise ShapeIncompatibleError(
+                    f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
             data = z.unstack_x(data)
 
         # create fraction for the sum
@@ -158,7 +171,7 @@ class GaussianKDE1DimV1(WrapDistribution):
                                   name=f"INTERNAL_{name}", truncate=truncate)
 
         bandwidth_param = -999 if bandwidth_param in (
-        'adaptiveV1', 'adaptive') else bandwidth  # TODO: multiparam for bandwidth?
+            'adaptiveV1', 'adaptive') else bandwidth  # TODO: multiparam for bandwidth?
 
         params = {'bandwidth': bandwidth_param}
 
@@ -179,8 +192,8 @@ class GaussianKDE1DimV1(WrapDistribution):
             def kernel_factory():
                 return tfp.distributions.Normal(loc=self._data, scale=self._bandwidth)
 
-        dist_kwargs = lambda: dict(mixture_distribution=categorical,
-                                   components_distribution=kernel_factory())
+        def dist_kwargs(): return dict(mixture_distribution=categorical,
+                                       components_distribution=kernel_factory())
         distribution = tfd.MixtureSameFamily
 
         super().__init__(obs=obs,
@@ -195,3 +208,233 @@ class GaussianKDE1DimV1(WrapDistribution):
         self._data = data
         self._original_data = original_data
         self._truncate = truncate
+
+
+class KDE1DimV1(WrapDistribution):
+    _N_OBS = 1
+
+    def __init__(self,
+                 obs: ztyping.ObsTypeInput,
+                 data: ztyping.ParamTypeInput,
+                 bandwidth: ztyping.ParamTypeInput = None,
+                 kernel=tfd.Normal,
+                 support=None,
+                 use_grid=False,
+                 num_grid_points=1024,
+                 binning_method='linear',
+                 weights: Union[None, np.ndarray, tf.Tensor] = None,
+                 name: str = "KDE1DimV1"):
+        r"""
+        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        .. math::
+            f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
+
+        Args:
+            data: 1-D Tensor-like.
+            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
+                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
+                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
+            obs: Observables
+            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
+            name: Name of the PDF
+        """
+
+        if isinstance(data, ZfitData):
+            if data.weights is not None:
+                if weights is not None:
+                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
+                else:
+                    weights = data.weights
+
+            if data.n_obs > 1:
+                raise ShapeIncompatibleError(
+                    f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
+            data = z.unstack_x(data)
+
+        shape_data = tf.shape(data)
+        size = tf.cast(shape_data[0], ztypes.float)
+
+        def components_distribution_generator(
+            loc, scale): return tfd.Independent(kernel(loc=loc, scale=scale))
+
+        self._num_grid_points = tf.minimum(tf.cast(size, ztypes.int),
+                                           tf.constant(num_grid_points, ztypes.int))
+        self._binning_method = binning_method
+        self._data = tf.convert_to_tensor(data, ztypes.float)
+        self._bandwidth = tf.convert_to_tensor(bandwidth, ztypes.float)
+        self._kernel = kernel
+        self._weights = weights
+        self._grid = None
+        self._grid_data = None
+
+        if use_grid:
+            self._grid = binning_util.generate_1d_grid(self._data, num_grid_points=self._num_grid_points)
+            self._grid_data = binning_util.bin_1d(self._binning_method, self._data, self._grid, self._weights)
+
+            mixture_distribution = tfd.Categorical(probs=self._grid_data)
+            components_distribution = components_distribution_generator(loc=self._grid, scale=self._bandwidth)
+
+        else:
+
+            if weights is not None:
+                probs = weights / tf.reduce_sum(weights)
+            else:
+                probs = tf.broadcast_to(1 / size, shape=(tf.cast(size, ztypes.int),))
+
+            mixture_distribution = tfd.Categorical(probs=probs)
+            components_distribution = components_distribution_generator(loc=self._data, scale=self._bandwidth)
+
+        def dist_kwargs(): return dict(mixture_distribution=mixture_distribution,
+                                       components_distribution=components_distribution)
+        distribution = tfd.MixtureSameFamily
+
+        params = {'bandwidth': self._bandwidth}
+
+        super().__init__(obs=obs,
+                         params=params,
+                         dist_params={},
+                         dist_kwargs=dist_kwargs,
+                         distribution=distribution,
+                         name=name)
+
+
+class KDE1DimFFTV1(BasePDF):
+    _N_OBS = 1
+
+    def __init__(self,
+                 obs: ztyping.ObsTypeInput,
+                 data: ztyping.ParamTypeInput,
+                 bandwidth: ztyping.ParamTypeInput = None,
+                 kernel=tfd.Normal,
+                 support=None,
+                 num_grid_points=1024,
+                 binning_method='linear',
+                 fft_method='conv1d',
+                 weights: Union[None, np.ndarray, tf.Tensor] = None,
+                 name: str = "KDE1DimFFTV1"):
+        r"""
+        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        .. math::
+            f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
+
+        It is computed by using a convolution of the data with the kernels evaluated at fixed grid points and then 
+        interpolating between this points to get an estimate for x.
+
+        Args:
+            data: 1-D Tensor-like.
+            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
+                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
+                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
+            obs: Observables
+            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
+            name: Name of the PDF
+        """
+
+        if isinstance(data, ZfitData):
+            if data.weights is not None:
+                if weights is not None:
+                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
+                else:
+                    weights = data.weights
+
+            if data.n_obs > 1:
+                raise ShapeIncompatibleError(
+                    f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
+            data = z.unstack_x(data)
+
+        shape_data = tf.shape(data)
+        size = tf.cast(shape_data[0], ztypes.float)
+
+        self._num_grid_points = tf.minimum(tf.cast(size, ztypes.int),
+                                           tf.constant(num_grid_points, ztypes.int))
+        self._binning_method = binning_method
+        self._fft_method = fft_method
+        self._data = tf.convert_to_tensor(data, ztypes.float)
+        self._bandwidth = tf.convert_to_tensor(bandwidth, ztypes.float)
+        self._kernel = kernel
+        self._weights = weights
+        self._support = support
+        self._grid = None
+        self._grid_data = None
+
+        self._grid = binning_util.generate_1d_grid(self._data, num_grid_points=self._num_grid_points)
+        self._grid_data = binning_util.bin_1d(self._binning_method, self._data, self._grid, self._weights)
+        self._grid_estimations = convolution_util.convolve_1d_data_with_kernel(
+            self._kernel, self._bandwidth, self._grid_data, self._grid, self._support, self._fft_method)
+
+        params = {'bandwidth': self._bandwidth}
+        super().__init__(obs=obs, name=name, params=params)
+
+    def _unnormalized_pdf(self, x, norm_range=False):
+
+        x = z.unstack_x(x)
+        x_min = tf.reduce_min(self._grid)
+        x_max = tf.reduce_max(self._grid)
+
+        return tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
+
+
+class KDE1DimISJV1(BasePDF):
+    _N_OBS = 1
+
+    def __init__(self,
+                 obs: ztyping.ObsTypeInput,
+                 data: ztyping.ParamTypeInput,
+                 num_grid_points=1024,
+                 binning_method='linear',
+                 weights: Union[None, np.ndarray, tf.Tensor] = None,
+                 name: str = "KDE1DimISJV1"):
+        r"""
+        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        .. math::
+            f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
+
+        It is computed by using a trick described in a paper by Botev et al. that uses the fact, that the Kernel Density Estimation
+        with a Gaussian Kernel is a solution to the Heat Euqation.
+
+        Args:
+            data: 1-D Tensor-like.
+            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
+                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
+                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
+            obs: Observables
+            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
+            name: Name of the PDF
+        """
+
+        if isinstance(data, ZfitData):
+            if data.weights is not None:
+                if weights is not None:
+                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
+                else:
+                    weights = data.weights
+
+            if data.n_obs > 1:
+                raise ShapeIncompatibleError(
+                    f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
+            data = z.unstack_x(data)
+
+        shape_data = tf.shape(data)
+        size = tf.cast(shape_data[0], ztypes.float)
+
+        self._num_grid_points = tf.minimum(tf.cast(size, ztypes.int),
+                                           tf.constant(num_grid_points, ztypes.int))
+        self._binning_method = binning_method
+        self._data = tf.convert_to_tensor(data, ztypes.float)
+        self._weights = weights
+        self._grid = None
+        self._grid_data = None
+
+        self._bandwidth, self._grid_estimations, self._grid = isj_util.calculate_bandwidth_and_density(
+            self._data, self._num_grid_points, self._binning_method, self._weights)
+
+        params = {}
+        super().__init__(obs=obs, name=name, params=params)
+
+    def _unnormalized_pdf(self, x, norm_range=False):
+
+        x = z.unstack_x(x)
+        x_min = tf.reduce_min(self._grid)
+        x_max = tf.reduce_max(self._grid)
+
+        return tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
