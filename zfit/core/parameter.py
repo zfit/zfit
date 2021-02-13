@@ -830,7 +830,11 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None) -> "ZfitParameter":
+def convert_to_parameter(value,
+                         name: Optional[str] = None,
+                         prefer_constant: bool = True,
+                         dependents= None
+                         ) -> ZfitParameter:
     """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
     Args:

@@ -12,7 +12,7 @@ import inspect
 import warnings
 from abc import abstractmethod
 from collections import OrderedDict
-from typing import List, Union, Iterable, Mapping, Callable
+from typing import List, Union, Iterable, Mapping, Callable, Tuple
 
 import numpy as np
 import texttable as tt
@@ -22,7 +22,7 @@ from .fitresult import FitResult
 from .interface import ZfitMinimizer, ZfitResult
 from .termination import EDM
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..core.parameter import set_values
+from ..core.parameter import set_values, convert_to_parameter
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -227,7 +227,8 @@ class BaseMinimizer(ZfitMinimizer):
     """
     _DEFAULT_TOLERANCE = 1e-3
 
-    def __init__(self, name, tolerance, verbosity, minimizer_options, criterion=None, strategy=None, maxiter=None, **kwargs):
+    def __init__(self, name, tolerance, verbosity, minimizer_options, criterion=None, strategy=None, maxiter=None,
+                 **kwargs):
         super().__init__(**kwargs)
         self._n_iter_per_param = 1000
         if name is None:
@@ -288,7 +289,30 @@ class BaseMinimizer(ZfitMinimizer):
             raise MinimizerSubclassingError(f"Method {method_name} has not been correctly wrapped with "
                                             f"@minimize_supports ")
 
-    def _check_input_params(self, loss: ZfitLoss, params, init=None, only_floating=True):
+    def _check_convert_input(self, loss: ZfitLoss, params, init=None, only_floating=True
+                             ) -> Tuple[ZfitLoss, Iterable[ZfitParameter], Union[None, FitResult]]:
+        if not isinstance(loss, ZfitLoss):
+            if not callable(loss):
+                raise TypeError("Given Loss has to  be a ZfitLoss or a callable.")
+            elif params is None:
+                raise ValueError("If the loss is a callable, the params cannot be None.")
+
+            if not isinstance(params, Mapping):
+                values = convert_to_container(params)
+                names = [None] * len(params)
+            else:
+                values = list(params.values())
+                names = list(params.keys())
+            params = [convert_to_parameter(value=val, name=name, prefer_constant=False)
+                      for val, name in zip(values, names)]
+
+            from zfit.core.loss import SimpleLoss
+            if hasattr(loss, 'errordef'):
+                errordef = loss.errordef
+            else:
+                errordef = 0.5
+            loss = SimpleLoss(func=loss, deps=params, errordef=errordef)
+
         to_set_param_values = {}
         if params is None:
             params = loss.get_params(only_floating=only_floating)
@@ -322,7 +346,8 @@ class BaseMinimizer(ZfitMinimizer):
             params = self._filter_floating_params(params)
         if not params:
             raise RuntimeError("No parameter for minimization given/found. Cannot minimize.")
-        return params
+        params = list(params)
+        return loss, params, init
 
     @staticmethod
     def _filter_floating_params(params):
@@ -405,7 +430,7 @@ class BaseMinimizer(ZfitMinimizer):
             init = loss  # make the names correct
             loss = init.loss
 
-        params = self._check_input_params(loss=loss, params=params, init=init, only_floating=True)
+        loss, params, init = self._check_convert_input(loss=loss, params=params, init=init, only_floating=True)
 
         return self._call_minimize(loss=loss, params=params, init=init)
 
@@ -504,7 +529,7 @@ class BaseStepMinimizer(BaseMinimizer):
         Raises:
             MinimizeStepNotImplementedError: if the `step` method is not implemented in the minimizer.
         """
-        params = self._check_input_params(loss, params, init=init)
+        loss, params, init = self._check_convert_input(loss, params, init=init)
 
         return self._step(loss, params=params, init=init)
 

@@ -117,7 +117,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             is_nan = False
 
             try:
-                loss_evaluated = loss.value().numpy()
+                loss_evaluated = run(loss.value())
             except tf.errors.InvalidArgumentError:
                 is_nan = True
                 loss_evaluated = "invalid, error occured"
@@ -127,7 +127,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             finally:
                 if do_print:
                     print_params(params, values, loss_evaluated)
-            is_nan = is_nan or np.isnan(loss_evaluated)
+            is_nan = is_nan or np.isnan(loss_evaluated).any()
             if is_nan:
                 nan_counter += 1
                 info_values = {}
@@ -149,8 +149,8 @@ class Minuit(BaseMinimizer, GraphCachable):
 
             try:
                 loss_value, gradients = loss.value_gradients(params=params)
-                loss_value = loss_value.numpy()
-                gradients_values = [float(g.numpy()) for g in gradients]
+                loss_value = run(loss_value)
+                gradients_values = run(gradients)
             except tf.errors.InvalidArgumentError:
                 is_nan = True
                 loss_value = "invalid, error occured"

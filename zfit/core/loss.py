@@ -1,6 +1,7 @@
 #  Copyright (c) 2021 zfit
 
 import abc
+import inspect
 import warnings
 from typing import Optional, Union, List, Callable, Iterable, Tuple, Set
 
@@ -10,7 +11,7 @@ from ordered_set import OrderedSet
 from .baseobject import BaseNumeric
 from .constraint import BaseConstraint
 from .dependents import _extract_dependencies
-from .interfaces import ZfitLoss, ZfitSpace, ZfitModel, ZfitData
+from .interfaces import ZfitLoss, ZfitSpace
 from .. import z, settings
 from ..util import ztyping
 from ..util.checks import NOT_SPECIFIED
@@ -473,6 +474,7 @@ class SimpleLoss(BaseLoss):
             result = minimizer.minimize(loss)
 
         """
+
         if dependents is not NOT_SPECIFIED:
             warnings.warn("`dependents` is deprecated and will be removed in the future, use `deps`"
                           " instead as a keyword.")
@@ -480,27 +482,29 @@ class SimpleLoss(BaseLoss):
             raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
                                          "More information can be found in the upgrade guide on the website.")
 
-        @z.function(wraps='loss')
-        def wrapped_func():
-            return func()
+        # @z.function(wraps='loss')
+        # def wrapped_func():
+        #     return func()
+        sig = inspect.signature(func)
+        self._call_with_args = len(sig.parameters) > 0
 
-        self._simple_func = wrapped_func
+        self._simple_func = func
         self._simple_errordef = errordef
         self._errordef = errordef
         self.computed_gradients = {}
         deps = convert_to_container(deps, container=OrderedSet)
-        self._simple_func_deps = _extract_dependencies(deps)
+        self._simple_func_params = _extract_dependencies(deps)
 
         super().__init__(model=[], data=[], fit_range=[])
 
     def _get_dependencies(self):
-        dependents = self._simple_func_deps
+        dependents = self._simple_func_params
         return dependents
 
     def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
                     extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
         params = super()._get_params(floating, is_yield, extract_independent)
-        params = params.union(self._simple_func_deps)
+        params = params.union(self._simple_func_params)
         return params
 
     @property
@@ -512,8 +516,16 @@ class SimpleLoss(BaseLoss):
         else:
             return errordef
 
+    # @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints=None):
-        return self._simple_func()
+
+        if self._call_with_args:
+            params = self._simple_func_params
+
+            value = self._simple_func(params)
+        else:
+            value = self._simple_func()
+        return value
 
     def __add__(self, other):
         raise IntentionAmbiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."

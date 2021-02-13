@@ -4,6 +4,7 @@ from collections import OrderedDict
 import nlopt
 import numpy as np
 import pytest
+import scipy.optimize
 
 import zfit.minimizers.optimizers_tf
 # noinspection PyUnresolvedReferences
@@ -134,6 +135,12 @@ def test_floating_flag():
     assert list(result.params.keys()) == [mu]
     assert sigma not in result.params
 
+def test_minimize_pure_func():
+    minimizer = zfit.minimize.Minuit()
+    func = scipy.optimize.rosen
+    params = np.random.normal(size=5)
+    minimizer.minimize(func, params)
+
 
 def test_dependent_param_extraction():
     obs = zfit.Space("x", limits=(-2, 3))
@@ -146,10 +153,10 @@ def test_dependent_param_extraction():
     data = zfit.Data.from_numpy(obs=obs, array=normal_np)
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
     minimizer = zfit.minimize.Minuit()
-    params_checked = minimizer._check_input_params(nll, params=[mu, sigma1])
+    params_checked = minimizer._check_convert_input(nll, params=[mu, sigma1])
     assert {mu, sigma} == set(params_checked)
     sigma.floating = False
-    params_checked = minimizer._check_input_params(nll, params=[mu, sigma1])
+    params_checked = minimizer._check_convert_input(nll, params=[mu, sigma1])
     assert {mu, } == set(params_checked)
 
 
