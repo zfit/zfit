@@ -16,15 +16,18 @@ from .termination import ConvergenceCriterion, CRITERION_NOT_AVAILABLE, EDM
 from ..core.parameter import set_values
 from ..settings import run
 
-NOT_SUPPORTED = object()
+class NOT_SUPPORTED:
+    def __new__(cls, *args, **kwargs):
+        raise RuntimeError("Should never be instantated.")
 
 
 class ScipyBaseMinimizer(BaseMinimizer):
     def __init__(self,
                  method: str,
                  scipy_tolerances: Mapping[str, Optional[float]],
-                 gradient: Optional[Union[Callable, str]],
-                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]],
+                 gradient: Optional[Union[Callable, str, NOT_SUPPORTED]],
+                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy, NOT_SUPPORTED]],
+                 maxiter: Optional[Union[int, str]],
                  minimizer_options: Mapping[str, object],
                  tolerance: float = None,
                  verbosity: Optional[int] = None,
@@ -35,6 +38,8 @@ class ScipyBaseMinimizer(BaseMinimizer):
         minimizer_options['method'] = method
         if 'options' not in minimizer_options:
             minimizer_options['options'] = {}
+
+
         if gradient is not NOT_SUPPORTED:
             if gradient is False:
                 raise ValueError("grad cannot be False for SciPy minimizer.")
@@ -48,7 +53,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
         self._scipy_tolerances = scipy_tolerances
         self._scipy_niter = 20
         super().__init__(name=name, tolerance=tolerance, verbosity=verbosity, minimizer_options=minimizer_options,
-                         strategy=strategy, criterion=criterion)
+                         strategy=strategy, criterion=criterion, maxiter=maxiter)
 
     @minimize_supports()
     def _minimize(self, loss, params, init):
@@ -89,6 +94,12 @@ class ScipyBaseMinimizer(BaseMinimizer):
                     if hessian_init is not None:
                         inv_hessian = np.linalg.inv(hessian_init)
                         init_scale = inv_hessian
+
+        maxiter = self.get_maxiter(len(params))
+        if maxiter is not None:
+            minimizer_options['options']['maxiter'] = maxiter
+
+        minimizer_options['options']['disp'] = self.verbosity > 6
 
         # tolerances and criterion
         criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
@@ -134,13 +145,12 @@ class ScipyBaseMinimizer(BaseMinimizer):
             criterion_val = criterion.last_value
 
             if self.verbosity > 5:
-                tolerances_str = ', '.join(f'{tol}={val}' for tol, val in scipy_tol.items())
-                print(f"Finished iteration {i}, fmin={fmin}, {criterion.name}={criterion.last_value}"
+                tolerances_str = ', '.join(f'{tol}={val:.3g}' for tol, val in scipy_tol.items())
+                print(f"Finished iteration {i}, fmin={fmin:.7g}, {criterion.name}={criterion.last_value:.3g}"
                       f" {tolerances_str}")
 
             if converged:
                 break
-            np.size
             if use_hessian:
                 if inv_hessian is not None:
                     init_scale = inv_hessian
@@ -251,6 +261,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizer):
                  maxls: Optional[int] = None,
                  verbosity: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  name="Scipy L-BFGS-B V1"):
@@ -264,13 +275,12 @@ class ScipyLBFGSBV1(ScipyBaseMinimizer):
         if options:
             minimizer_options['options'] = options
 
-        scipy_tolerances = {'gtol': None, 'gtol': None}
+        scipy_tolerances = {'ftol': None, 'gtol': None}
 
-        super().__init__(method="L-BFGS-B", tolerance=tolerance, verbosity=verbosity,
-                         strategy=strategy, gradient=gradient, hessian=NOT_SUPPORTED,
-                         criterion=criterion, scipy_tolerances=scipy_tolerances,
-                         minimizer_options=minimizer_options,
-                         name=name)
+        super().__init__(method="L-BFGS-B", scipy_tolerances=scipy_tolerances, gradient=gradient, hessian=NOT_SUPPORTED,
+                         minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
+                         maxiter=maxiter,
+                         strategy=strategy, criterion=criterion, name=name)
 
 
 class ScipyTrustKrylovV1(ScipyBaseMinimizer):
@@ -279,6 +289,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizer):
                  inexact: Optional[bool] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
@@ -293,11 +304,10 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizer):
 
         scipy_tolerances = {'gtol': None}
 
-        super().__init__(method="trust-constr", tolerance=tolerance, verbosity=verbosity,
-                         strategy=strategy, gradient=gradient, hessian=hessian,
-                         criterion=criterion, scipy_tolerances=scipy_tolerances,
-                         minimizer_options=minimizer_options,
-                         name=name)
+        super().__init__(method="trust-constr", scipy_tolerances=scipy_tolerances, gradient=gradient, hessian=hessian,
+                         minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
+                         maxiter=maxiter,
+                         strategy=strategy, criterion=criterion, name=name)
 
 
 class ScipyTrustNCGV1(ScipyBaseMinimizer):
@@ -307,6 +317,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizer):
                  max_trust_radius: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
@@ -323,18 +334,19 @@ class ScipyTrustNCGV1(ScipyBaseMinimizer):
 
         scipy_tolerances = {'gtol': None}
 
-        super().__init__(method="trust-constr", tolerance=tolerance, verbosity=verbosity,
-                         strategy=strategy, gradient=gradient, hessian=hessian,
-                         criterion=criterion, scipy_tolerances=scipy_tolerances,
-                         minimizer_options=minimizer_options,
-                         name=name)
+        super().__init__(method="trust-constr", scipy_tolerances=scipy_tolerances, gradient=gradient, hessian=hessian,
+                         minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
+                         maxiter=maxiter,
+                         strategy=strategy, criterion=criterion, name=name)
 
 
 class ScipyTrustConstrV1(ScipyBaseMinimizer):
-    def __init__(self, tolerance: float = None,
+    def __init__(self,
+                 tolerance: float = None,
                  initial_tr_radius: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
@@ -349,16 +361,18 @@ class ScipyTrustConstrV1(ScipyBaseMinimizer):
 
         scipy_tolerances = {'gtol': None, 'xtol': None}
 
-        super().__init__(method="trust-constr", tolerance=tolerance, verbosity=verbosity,
-                         strategy=strategy, gradient=gradient, hessian=hessian,
-                         criterion=criterion, scipy_tolerances=scipy_tolerances,
-                         minimizer_options=minimizer_options,
-                         name=name)
+        super().__init__(method="trust-constr", scipy_tolerances=scipy_tolerances, gradient=gradient, hessian=hessian,
+                         minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
+                         maxiter=maxiter,
+                         strategy=strategy, criterion=criterion, name=name)
+
 
 class ScipyNewtonCGV1(ScipyBaseMinimizer):
-    def __init__(self, tolerance: float = None,
+    def __init__(self,
+                 tolerance: float = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
@@ -372,9 +386,46 @@ class ScipyNewtonCGV1(ScipyBaseMinimizer):
         scipy_tolerances = {'xtol': None}
 
         method = "Newton-CG"
+        super().__init__(method=method, scipy_tolerances=scipy_tolerances, gradient=gradient, hessian=hessian,
+                         minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
+                         maxiter=maxiter,
+                         strategy=strategy, criterion=criterion, name=name)
+
+
+class ScipyTruncNCV1(ScipyBaseMinimizer):
+    def __init__(self, tolerance: float = None,
+                 maxiter_cg: Optional[int] = None,  # maxCGit
+                 maxstep_ls: Optional[int] = None,  # stepmx
+                 eta: Optional[float] = None,
+                 rescale: Optional[float] = None,
+                 gradient: Optional[Union[Callable, str]] = 'zfit',
+                 maxiter: Optional[Union[int, str]] = 'auto',
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 strategy: ZfitStrategy = None,
+                 verbosity: Optional[int] = None,
+                 name="Scipy Truncated Newton Conjugate V1"):
+        options = {}
+        if maxiter_cg is not None:
+            options['maxiter_cg'] = maxiter_cg
+        if eta is not None:
+            options['eta'] = eta
+        if maxstep_ls is not None:
+            options['maxstep_ls'] = maxstep_ls
+        if rescale is not None:
+            options['rescale'] = rescale
+
+        options['maxfun'] = None  # in order to use maxiter
+        minimizer_options = {}
+        if options:
+            minimizer_options['options'] = options
+
+        scipy_tolerances = {'xtol': None, 'ftol': None, 'gtol': None}
+
+        method = "TNC"
         super().__init__(method=method, tolerance=tolerance, verbosity=verbosity,
-                         strategy=strategy, gradient=gradient, hessian=hessian,
+                         strategy=strategy, gradient=gradient, hessian=NOT_SUPPORTED,
                          criterion=criterion, scipy_tolerances=scipy_tolerances,
+                         maxiter=maxiter,
                          minimizer_options=minimizer_options,
                          name=name)
 
@@ -386,6 +437,7 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
                  max_trust_radius: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
@@ -404,15 +456,16 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
 
         scipy_tolerances = {'gtol': None}
 
-        super().__init__(method="trust-constr", tolerance=tolerance, verbosity=verbosity,
-                         strategy=strategy, gradient=gradient, hessian=hessian,
-                         criterion=criterion, scipy_tolerances=scipy_tolerances,
-                         minimizer_options=minimizer_options,
-                         name=name)
+        super().__init__(method="trust-constr", scipy_tolerances=scipy_tolerances, gradient=gradient, hessian=hessian,
+                         minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
+                         maxiter=maxiter,
+                         strategy=strategy, criterion=criterion, name=name)
+
 
 class ScipyPowellV1(ScipyBaseMinimizer):
     def __init__(self,
                  tolerance: float = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
@@ -425,16 +478,17 @@ class ScipyPowellV1(ScipyBaseMinimizer):
         scipy_tolerances = {'xtol': None, 'ftol': None}
 
         method = "Powell"
-        super().__init__(method=method, tolerance=tolerance, verbosity=verbosity,
-                         strategy=strategy, gradient=NOT_SUPPORTED, hessian=NOT_SUPPORTED,
-                         criterion=criterion, scipy_tolerances=scipy_tolerances,
-                         minimizer_options=minimizer_options,
-                         name=name)
+        super().__init__(method=method, scipy_tolerances=scipy_tolerances, gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED, minimizer_options=minimizer_options, tolerance=tolerance,
+                         maxiter=maxiter,
+                         verbosity=verbosity, strategy=strategy, criterion=criterion, name=name)
+
 
 class ScipySLSQPV1(ScipyBaseMinimizer):
     def __init__(self,
                  tolerance: float = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
@@ -447,16 +501,17 @@ class ScipySLSQPV1(ScipyBaseMinimizer):
         scipy_tolerances = {'ftol': None}
 
         method = "SLSQP"
-        super().__init__(method=method, tolerance=tolerance, verbosity=verbosity,
-                         strategy=strategy, gradient=gradient, hessian=NOT_SUPPORTED,
-                         criterion=criterion, scipy_tolerances=scipy_tolerances,
-                         minimizer_options=minimizer_options,
-                         name=name)
+        super().__init__(method=method, scipy_tolerances=scipy_tolerances, gradient=gradient, hessian=NOT_SUPPORTED,
+                         minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
+                         maxiter=maxiter,
+                         strategy=strategy, criterion=criterion, name=name)
+
 
 class ScipyNelderMeadV1(ScipyBaseMinimizer):
     def __init__(self,
                  tolerance: float = None,
                  adaptive: Optional[bool] = True,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
@@ -472,11 +527,10 @@ class ScipyNelderMeadV1(ScipyBaseMinimizer):
         scipy_tolerances = {'fatol': None, 'xatol': None}
 
         method = "Nelder-Mead"
-        super().__init__(method=method, tolerance=tolerance, verbosity=verbosity,
-                         strategy=strategy, gradient=NOT_SUPPORTED, hessian=NOT_SUPPORTED,
-                         criterion=criterion, scipy_tolerances=scipy_tolerances,
-                         minimizer_options=minimizer_options,
-                         name=name)
+        super().__init__(method=method, scipy_tolerances=scipy_tolerances, gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED, minimizer_options=minimizer_options, tolerance=tolerance,
+                         maxiter=maxiter,
+                         verbosity=verbosity, strategy=strategy, criterion=criterion, name=name)
 
 
 def combine_optimize_results(results):

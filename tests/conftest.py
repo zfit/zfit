@@ -16,5 +16,11 @@
 #         # def test_foo(): pass
 #         metafunc.parametrize('tmp_ct', range(2))
 
+import pytest_randomly
+
+import zfit
+
+pytest_randomly.random_seeder = [zfit.settings.set_seed]
+
 def pytest_addoption(parser):
     parser.addoption("--longtests", action="store", default=False)

@@ -229,6 +229,7 @@ class BaseMinimizer(ZfitMinimizer):
 
     def __init__(self, name, tolerance, verbosity, minimizer_options, criterion=None, strategy=None, maxiter=None, **kwargs):
         super().__init__(**kwargs)
+        self._n_iter_per_param = 1000
         if name is None:
             name = repr(self.__class__)[:-2].split(".")[-1]
         if strategy is None:
@@ -244,8 +245,7 @@ class BaseMinimizer(ZfitMinimizer):
         if minimizer_options is None:
             minimizer_options = {}
         self.minimizer_options = minimizer_options
-        self.maxiter = 5000 if maxiter is None else maxiter
-        self._max_steps = 5000
+        self.maxiter = maxiter
         self.criterion = EDM if criterion is None else criterion
 
     @classmethod
@@ -440,6 +440,14 @@ class BaseMinimizer(ZfitMinimizer):
         string = f'<{self.name} strategy={self.strategy} tolerance={self.tolerance}>'
         return string
 
+    def get_maxiter(self, n):
+        maxiter = self.maxiter
+        if callable(maxiter):
+            maxiter = maxiter(n)
+        elif maxiter == 'auto':
+            maxiter = self._n_iter_per_param * n
+        return maxiter
+
 
 class BaseStepMinimizer(BaseMinimizer):
 
@@ -453,7 +461,7 @@ class BaseStepMinimizer(BaseMinimizer):
         edm = self.tolerance * 1000
         sum_changes = np.sum(changes)
         inv_hesse = None
-        while (sum_changes > self.tolerance or edm > self.tolerance) and n_steps < self._max_steps:
+        while (sum_changes > self.tolerance or edm > self.tolerance) and n_steps < self.maxiter:
             cur_val = run(self.step(loss=loss, params=params))
             if sum_changes < self.tolerance and n_steps % 5:
                 xvalues = np.array(run(params))

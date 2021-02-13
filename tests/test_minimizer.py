@@ -8,7 +8,6 @@ import pytest
 import zfit.minimizers.optimizers_tf
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.minimizers.minimizers_scipy import ScipyTrustNCGV1, ScipyDoglegV1
 
 
 def teardown_function():
@@ -58,14 +57,15 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimize.Minuit, {"tolerance": 0.0001},
      {'error': True, 'longtests': True}),  # works
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
-    (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5},
-     {'error': True, 'numgrad': False}),
+    (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5}, {'error': True, 'numgrad': False}),
     (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5}, True),
     (zfit.minimize.ScipyDoglegV1, {'tolerance': 1e-5}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, {'error': True, 'longtests': True}),
     (zfit.minimize.ScipyPowellV1, {}, {'error': True}),
     (zfit.minimize.ScipySLSQPV1, {}, {'error': True}),
+    (zfit.minimize.ScipyNewtonCGV1, {}, {'error': True}),
+    (zfit.minimize.ScipyTruncNCV1, {}, {'error': True}),
 
     (zfit.minimize.NLoptLBFGSV1, {}, {'error': True, 'longtests': True}),
     (zfit.minimize.NLoptTruncNewtonV1, {}, True),
@@ -101,7 +101,8 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 # minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
-# minimizers = [(ScipyTrustNCGV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
+minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(ScipyDoglegV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
@@ -152,7 +153,6 @@ def test_dependent_param_extraction():
     assert {mu, } == set(params_checked)
 
 
-
 # @pytest.mark.run(order=4)
 chunksizes = [100000, 3000]
 num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
@@ -184,9 +184,8 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
 
-
     if not isinstance(test_error, dict):
-        test_error = {'error':test_error}
+        test_error = {'error': test_error}
 
     numgrad = test_error.get('numgrad', True)
     do_long = test_error.get('longtests', False)
