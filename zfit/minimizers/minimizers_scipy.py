@@ -2,6 +2,7 @@
 import copy
 import inspect
 import math
+import os
 import warnings
 from typing import Optional, Dict, Callable, Union, Mapping
 
@@ -10,9 +11,9 @@ import scipy.optimize  # pylint: disable=g-import-not-at-top
 from scipy.optimize import SR1, LbfgsInvHessProduct, BFGS
 
 from .baseminimizer import BaseMinimizer, minimize_supports, NOT_SUPPORTED
-from .strategy import ZfitStrategy
 from .evaluation import LossEval
 from .fitresult import FitResult
+from .strategy import ZfitStrategy
 from .termination import ConvergenceCriterion, CRITERION_NOT_AVAILABLE, EDM
 from ..core.parameter import set_values
 from ..settings import run
@@ -35,7 +36,6 @@ class ScipyBaseMinimizer(BaseMinimizer):
         minimizer_options['method'] = method
         if 'options' not in minimizer_options:
             minimizer_options['options'] = {}
-
 
         if gradient is not NOT_SUPPORTED:
             if gradient is False:
@@ -144,12 +144,17 @@ class ScipyBaseMinimizer(BaseMinimizer):
             result_prelim = FitResult.from_scipy(loss=loss, params=params, result=optimize_results, minimizer=self,
                                                  edm=CRITERION_NOT_AVAILABLE, valid=valid)
             converged = criterion.converged(result_prelim)
-            criterion_val = criterion.last_value
+            criterion_value = criterion.last_value
+            if isinstance(criterion, EDM):
+                edm = criterion.last_value
+            else:
+                edm = CRITERION_NOT_AVAILABLE
 
             if self.verbosity > 5:
                 tolerances_str = ', '.join(f'{tol}={val:.3g}' for tol, val in internal_tol.items())
-                print(f"Finished iteration {i}, fmin={fmin:.7g}, {criterion.name}={criterion.last_value:.3g}"
-                      f" {tolerances_str}")
+                print(f"{f'CONVERGED{os.linesep}' if converged else ''}"
+                      f"Finished iteration {i}, niter={evaluator.niter}, fmin={fmin:.7g},"
+                      f" {criterion.name}={criterion.last_value:.3g} {tolerances_str}")
 
             if converged:
                 break
@@ -158,12 +163,12 @@ class ScipyBaseMinimizer(BaseMinimizer):
             init_values = xvalues
 
             # update the tolerances
-            tol_factor = min([max([self.tolerance / criterion_val * 0.3, 1e-2]), 0.2])
+            tol_factor = min([max([self.tolerance / criterion_value * 0.3, 1e-2]), 0.2])
             for tol in internal_tol:
                 internal_tol[tol] *= tol_factor
 
         else:
-            valid = "Invalid, EDM not reached"
+            valid = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tolerance} not reached."
         return FitResult.from_scipy(
             loss=loss,
             params=params,
@@ -171,7 +176,8 @@ class ScipyBaseMinimizer(BaseMinimizer):
             minimizer=self,
             valid=valid,
             criterion=criterion,
-            edm=criterion_val if type(criterion) == EDM else CRITERION_NOT_AVAILABLE,
+            edm=edm,
+            niter=evaluator.niter,
         )
 
 
@@ -278,7 +284,8 @@ class ScipyLBFGSBV1(ScipyBaseMinimizer):
 
         scipy_tolerances = {'ftol': None, 'gtol': None}
 
-        super().__init__(method="L-BFGS-B", internal_tolerances=scipy_tolerances, gradient=gradient, hessian=NOT_SUPPORTED,
+        super().__init__(method="L-BFGS-B", internal_tolerances=scipy_tolerances, gradient=gradient,
+                         hessian=NOT_SUPPORTED,
                          minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
                          maxiter=maxiter,
                          strategy=strategy, criterion=criterion, name=name)
@@ -305,7 +312,8 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizer):
 
         scipy_tolerances = {'gtol': None}
 
-        super().__init__(method="trust-constr", internal_tolerances=scipy_tolerances, gradient=gradient, hessian=hessian,
+        super().__init__(method="trust-constr", internal_tolerances=scipy_tolerances, gradient=gradient,
+                         hessian=hessian,
                          minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
                          maxiter=maxiter,
                          strategy=strategy, criterion=criterion, name=name)
@@ -335,7 +343,8 @@ class ScipyTrustNCGV1(ScipyBaseMinimizer):
 
         scipy_tolerances = {'gtol': None}
 
-        super().__init__(method="trust-constr", internal_tolerances=scipy_tolerances, gradient=gradient, hessian=hessian,
+        super().__init__(method="trust-constr", internal_tolerances=scipy_tolerances, gradient=gradient,
+                         hessian=hessian,
                          minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
                          maxiter=maxiter,
                          strategy=strategy, criterion=criterion, name=name)
@@ -362,7 +371,8 @@ class ScipyTrustConstrV1(ScipyBaseMinimizer):
 
         scipy_tolerances = {'gtol': None, 'xtol': None}
 
-        super().__init__(method="trust-constr", internal_tolerances=scipy_tolerances, gradient=gradient, hessian=hessian,
+        super().__init__(method="trust-constr", internal_tolerances=scipy_tolerances, gradient=gradient,
+                         hessian=hessian,
                          minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
                          maxiter=maxiter,
                          strategy=strategy, criterion=criterion, name=name)
@@ -457,7 +467,8 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
 
         scipy_tolerances = {'gtol': None}
 
-        super().__init__(method="trust-constr", internal_tolerances=scipy_tolerances, gradient=gradient, hessian=hessian,
+        super().__init__(method="trust-constr", internal_tolerances=scipy_tolerances, gradient=gradient,
+                         hessian=hessian,
                          minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
                          maxiter=maxiter,
                          strategy=strategy, criterion=criterion, name=name)

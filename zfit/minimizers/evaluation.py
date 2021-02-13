@@ -27,11 +27,14 @@ class LossEval:
                  grad_fn: Callable = None,
                  hesse_fn: Callable = None):
         super().__init__()
-        self.loss = loss
         self.maxiter = maxiter
-        self.nfunc_eval = 0
-        self.ngrad_eval = 0
-        self.nhess_eval = 0
+        self._ignoring_maxiter = False
+        with self.ignore_maxiter():  # otherwise when trying to set, it gets all of them, which fails as not there
+            self.nfunc_eval = 0
+            self.ngrad_eval = 0
+            self.nhess_eval = 0
+
+        self.loss = loss
         self.minimizer = minimizer
         if hesse_fn is None:
             hesse_fn = loss.hessian
@@ -46,7 +49,6 @@ class LossEval:
         self.gradients_fn = grad_fn
         self.value_gradients_fn = value_gradients_fn
         self.maxiter_reached = False
-        self._ignoring_maxiter = False
         self.loss = loss
         self.current_loss_value = None
         self.current_grad_value = None
@@ -56,47 +58,47 @@ class LossEval:
         self.strategy = strategy
         self.do_print = do_print
 
-        @property
-        def niter(self):
-            return max([self.nfunc_eval, self.ngrad_eval, self.nhess_eval])
+    @property
+    def niter(self):
+        return max([self.nfunc_eval, self.ngrad_eval, self.nhess_eval])
 
-        def _check_maxiter(self):
-            if self.niter > self.maxiter and not self._ignoring_maxiter:
-                raise MaximumIterationReached
+    def _check_maxiter(self):
+        if not self._ignoring_maxiter and self.niter > self.maxiter:
+            raise MaximumIterationReached
 
-        @contextlib.contextmanager
-        def ignore_maxiter(self):
-            old = self._ignoring_maxiter
-            self._ignoring_maxiter = True
-            yield
-            self._ignoring_maxiter = old
+    @contextlib.contextmanager
+    def ignore_maxiter(self):
+        old = self._ignoring_maxiter
+        self._ignoring_maxiter = True
+        yield
+        self._ignoring_maxiter = old
 
-        @property
-        def nfunc_eval(self):
-            return self._nfunc_eval
+    @property
+    def nfunc_eval(self):
+        return self._nfunc_eval
 
-        @nfunc_eval.setter
-        def nfunc_eval(self, value):
-            self._nfunc_eval = value
-            self._check_maxiter()
+    @nfunc_eval.setter
+    def nfunc_eval(self, value):
+        self._nfunc_eval = value
+        self._check_maxiter()
 
-        @property
-        def ngrad_eval(self):
-            return self._ngrad_eval
+    @property
+    def ngrad_eval(self):
+        return self._ngrad_eval
 
-        @ngrad_eval.setter
-        def ngrad_eval(self, value):
-            self._ngrad_eval = value
-            self._check_maxiter()
+    @ngrad_eval.setter
+    def ngrad_eval(self, value):
+        self._ngrad_eval = value
+        self._check_maxiter()
 
-        @property
-        def nhess_eval(self):
-            return self._nhess_eval
+    @property
+    def nhess_eval(self):
+        return self._nhess_eval
 
-        @nhess_eval.setter
-        def nhess_eval(self, value):
-            self._nhess_eval = value
-            self._check_maxiter()
+    @nhess_eval.setter
+    def nhess_eval(self, value):
+        self._nhess_eval = value
+        self._check_maxiter()
 
     def value_gradients(self, values):
         self.nfunc_eval += 1

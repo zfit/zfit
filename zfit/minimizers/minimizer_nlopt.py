@@ -1,6 +1,7 @@
 #  Copyright (c) 2021 zfit
 import copy
 import math
+import os
 from typing import Optional, Dict, Union, Callable, Mapping
 
 import nlopt
@@ -116,11 +117,11 @@ class NLoptBaseMinimizer(BaseMinimizer):
 
     def __init__(self,
                  algorithm: int,
-                 internal_tolerances: Mapping[str, Optional[float]],
                  gradient: Optional[Union[Callable, str, NOT_SUPPORTED]],
                  hessian: Optional[Union[Callable, str, NOT_SUPPORTED]],
                  maxiter: Optional[Union[int, str]],
                  minimizer_options: Mapping[str, object],
+                 internal_tolerances: Mapping[str, Optional[float]] = None,
                  tolerance: float = None,
                  verbosity: Optional[int] = None,
                  strategy: Optional[ZfitStrategy] = None,
@@ -138,7 +139,10 @@ class NLoptBaseMinimizer(BaseMinimizer):
         if hessian is not NOT_SUPPORTED:
             minimizer_options['hessian'] = hessian
 
-        internal_tolerances = copy.copy(internal_tolerances)
+        if internal_tolerances is None:
+            internal_tolerances = {}
+        else:
+            internal_tolerances = copy.copy(internal_tolerances)
         for tol in self._ALL_NLOPT_TOL:
             if tol not in internal_tolerances:
                 internal_tolerances[tol] = None
@@ -187,20 +191,17 @@ class NLoptBaseMinimizer(BaseMinimizer):
         minimizer.set_maxeval(self.get_maxiter(len(params)))
 
         inv_hesse = None
+        hessian_init = None
+        init_scale = None
         if previous_result:
             if previous_result:
 
                 inv_hessian = previous_result.info.get('inv_hesse')
                 if inv_hessian is None:
-                    hessian_init = previous_result.get('hesse')
+                    hessian_init = previous_result.info.get('hesse')
                     if hessian_init is not None:
                         inv_hessian = np.linalg.inv(hessian_init)
                         init_scale = np.diag(inv_hessian)
-
-        if init_scale is None:
-            step_sizes = np.array([p.step_size if p.has_step_size else 0 for p in params])  # TODO: is 0 okay?
-        else:
-            step_sizes = init_scale
 
         minimizer_options = self.minimizer_options.copy()
 
@@ -208,7 +209,7 @@ class NLoptBaseMinimizer(BaseMinimizer):
         if maxcor is not None:
             minimizer.set_vector_storage(maxcor)
 
-        for name, value in self.minimizer_options:
+        for name, value in minimizer_options.items():
             minimizer.set_param(name, value)
 
         criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
@@ -220,7 +221,6 @@ class NLoptBaseMinimizer(BaseMinimizer):
             internal_tol['xtol'] **= 0.5
 
         valid = None
-        n_iter = 0
         edm = None
         criterion_value = None
         for i in range(self._internal_maxiter):
@@ -248,6 +248,10 @@ class NLoptBaseMinimizer(BaseMinimizer):
                         # minimizer.set_xtol_rel([xtol] * len(params))  # TODO: one value or vector?
                         minimizer.set_xtol_rel(xtol)  # TODO: one value or vector?
 
+            if init_scale is None:
+                step_sizes = np.array([p.step_size if p.has_step_size else 0 for p in params])  # TODO: is 0 okay?
+            else:
+                step_sizes = init_scale
             minimizer.set_initial_step(step_sizes)
 
             # run the minimization
@@ -255,39 +259,79 @@ class NLoptBaseMinimizer(BaseMinimizer):
             set_values(params, xvalues)
             fmin = minimizer.last_optimum_value()
 
-            result = FitResult.from_nlopt(loss,
-                                          minimizer=self, opt=minimizer,
-                                          edm=CRITERION_NOT_AVAILABLE, n_eval=evaluator.nfunc_eval,
-                                          params=params,
-                                          xvalues=xvalues,
-                                          inv_hess=inv_hesse,
-                                          valid=valid)
-            if self.verbosity > 5:
-                print(f"Finished iteration {i}, fmin={fmin}, edm={edm},  ftol={ftol}, xtol={xtol}")
-
-            if criterion.converged(result):
-                break
-
-            if type(criterion) == EDM:
+            result_prelim = FitResult.from_nlopt(loss,
+                                                 minimizer=self, opt=minimizer,
+                                                 edm=CRITERION_NOT_AVAILABLE, niter=evaluator.nfunc_eval,
+                                                 params=params,
+                                                 xvalues=xvalues,
+                                                 valid=valid)
+            converged = criterion.converged(result_prelim)
+            criterion_value = criterion.last_value
+            if isinstance(criterion, EDM):
                 edm = criterion.last_value
-                criterion_value = edm
             else:
                 edm = CRITERION_NOT_AVAILABLE
-                criterion_value = criterion.last_value
 
-            step_sizes = np.diag(inv_hesse)
+            if self.verbosity > 5:
+                tolerances_str = ', '.join(f'{tol}={val:.3g}' for tol, val in internal_tol.items())
+                print(f"{f'CONVERGED{os.linesep}' if converged else ''}"
+                      f"Finished iteration {i}, niter={evaluator.niter}, fmin={fmin:.7g},"
+                      f" {criterion.name}={criterion.last_value:.3g} {tolerances_str}")
+            if (evaluator.current_hesse_value is not None
+                and (hessian_init is None
+                     or not np.allclose(hessian_init, evaluator.current_hesse_value))):  # either non-existent or different
+                hessian_init = evaluator.current_hesse_value
+            else:
+                hessian_init = None  # the hessian we have is not valid anymore
+
+            if converged:
+                break
+
+            if hessian_init is not None:
+                inv_hesse = np.linalg.inv(hessian_init)
+                init_scale = np.diag(inv_hesse)
             init_values = xvalues
-            tol_factor = min([max([self.tolerance / criterion_value, 1e-2]), 0.35])
-            ftol *= tol_factor
-            xtol *= tol_factor ** 0.5
-        else:
-            valid = "Invalid, EDM not reached"
 
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
+            # update the tolerances
+            tol_factor = min([max([self.tolerance / criterion_value * 0.3, 1e-2]), 0.2])
+            for tol in internal_tol:
+                internal_tol[tol] *= tol_factor
+        else:
+            valid = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tolerance} not reached."
+
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm,
+                                    niter=evaluator.niter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid, criterion=criterion)
 
 
-class NLoptLBFGSV1(BaseMinimizer):
+class NLoptLBFGSV1(NLoptBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 maxcor: bool = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
+                 strategy: ZfitStrategy = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name="NLopt L-BFGS V1"):
+
+        super().__init__(name=name,
+                         algorithm=nlopt.LD_LBFGS,
+                         tolerance=tolerance,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options={'maxcor': maxcor},
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+        @property
+        def maxcor(self):
+            return self.minimizer_options.get('maxcor')
+
+
+
+class NLoptLBFGSV1old(BaseMinimizer):
 
     def __init__(self,
                  tolerance: float = None,
@@ -385,7 +429,7 @@ class NLoptLBFGSV1(BaseMinimizer):
             hesse = evaluator.hessian(params)
             inv_hesse = np.linalg.inv(hesse)
             result = FitResult.from_nlopt(loss, minimizer=self, opt=minimizer,
-                                          edm=CRITERION_NOT_AVAILABLE, n_eval=n_iter,
+                                          edm=CRITERION_NOT_AVAILABLE, niter=n_iter,
                                           params=params,
                                           xvalues=xvalues, inv_hess=inv_hesse,
                                           valid=valid)
@@ -410,7 +454,7 @@ class NLoptLBFGSV1(BaseMinimizer):
         else:
             valid = "Invalid, EDM not reached"
 
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, niter=n_iter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid, criterion=criterion)
 
 
@@ -524,7 +568,7 @@ class NLoptTruncNewtonV1(BaseMinimizer):
             xtol *= tol_factor ** 0.5
         else:
             valid = "Invalid, EDM not reached"
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, niter=n_iter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
@@ -632,7 +676,7 @@ class NLoptSLSQPV1(BaseMinimizer):
             xtol *= tol_factor ** 0.5
         else:
             valid = "Invalid, EDM not reached"
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, niter=n_iter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
@@ -740,7 +784,7 @@ class NLoptMMAV1(BaseMinimizer):
             xtol *= tol_factor ** 0.5
         else:
             valid = "Invalid, EDM not reached"
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, niter=n_iter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
@@ -848,7 +892,7 @@ class NLoptCCSAQV1(BaseMinimizer):
             xtol *= tol_factor ** 0.5
         else:
             valid = "Invalid, EDM not reached"
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, niter=n_iter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
@@ -955,7 +999,7 @@ class NLoptSubplexV1(BaseMinimizer):
             xtol *= tol_factor ** 0.5
         else:
             valid = "Invalid, EDM not reached"
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, niter=n_iter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
@@ -1066,5 +1110,5 @@ class NLoptMLSLV1(BaseMinimizer):
             xtol *= tol_factor ** 0.5
         else:
             valid = "Invalid, EDM not reached"
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, niter=n_iter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)

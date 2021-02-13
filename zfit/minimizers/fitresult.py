@@ -132,6 +132,7 @@ class FitResult(ZfitResult):
         self._params = self._input_convert_params(params)
         self._params_at_limit = any(param.at_limit for param in self.params)
         self._edm = edm
+        self._criterion = criterion
         self._fmin = fmin
         self._info = info
         self._loss = loss
@@ -190,7 +191,7 @@ class FitResult(ZfitResult):
 
     @classmethod
     def from_scipy(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
-                   minimizer: ZfitMinimizer, edm=False, valid=None, criterion=None):
+                   minimizer: ZfitMinimizer, edm=False, niter=None, valid=None, criterion=None):
         result_values = result['x']
         converged = result.get('success', valid)
         status = result['status']
@@ -199,6 +200,7 @@ class FitResult(ZfitResult):
             inv_hesse = inv_hesse.todense()
         info = {'n_eval': result['nfev'],
                 'n_iter': result['nit'],
+                'niter': niter,
                 'grad': result.get('grad', False) or result.get('jac'),
                 'inv_hesse': inv_hesse,
                 'hesse': result.get('hesse'),
@@ -216,12 +218,12 @@ class FitResult(ZfitResult):
         return fitresult
 
     @classmethod
-    def from_nlopt(cls, loss, minimizer, opt, edm, params, xvalues, n_eval=None,
+    def from_nlopt(cls, loss, minimizer, opt, edm, params, xvalues, niter=None,
                    inv_hess=None, valid=None, criterion=None):
         param_dict = {p: v for p, v in zip(params, xvalues)}
         fmin = opt.last_optimum_value()
         status = opt.last_optimize_result()
-        n_eval = opt.get_numevals() if n_eval is None else n_eval
+        niter = opt.get_numevals() if niter is None else niter
         converged = 1 <= status <= 4
         messages = {
             1: "NLOPT_SUCCESS",
@@ -237,15 +239,16 @@ class FitResult(ZfitResult):
             -5: "NLOPT_FORCED_STOP",
         }
         message = messages[status]
-        info = {'n_eval': n_eval,
+        info = {'n_eval': niter,
+                'niter': niter,
                 'message': message,
                 'original': status,
                 'status': status}
         if inv_hess is not None:
-            info['inv_hess'] = inv_hess
+            info['inv_hesse'] = inv_hess
 
         result = cls(params=param_dict, edm=edm, fmin=fmin, status=status, converged=converged, info=info,
-                           loss=loss, minimizer=minimizer)
+                           loss=loss, minimizer=minimizer, criterion=criterion)
         if valid:
             result._valid = False
             result.info['invalid_message'] = valid
@@ -254,6 +257,10 @@ class FitResult(ZfitResult):
     @property
     def params(self):
         return self._params
+
+    @property
+    def criterion(self):
+        return self._criterion
 
     @property
     def edm(self):
