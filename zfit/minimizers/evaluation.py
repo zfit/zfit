@@ -1,15 +1,18 @@
 #  Copyright (c) 2021 zfit
+import contextlib
 from typing import Callable
 
 import numpy as np
 import tensorflow as tf
+import texttable as tt
 
-from .baseminimizer import print_gradients, ZfitStrategy, print_params
+from .strategy import ZfitStrategy
 from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import set_values
 from ..settings import run
 from ..util import ztyping
+from ..util.exception import MaximumIterationReached
 
 
 class LossEval:
@@ -20,10 +23,15 @@ class LossEval:
                  strategy: ZfitStrategy,
                  do_print: bool,
                  minimizer: ZfitMinimizer,
+                 maxiter: int,
                  grad_fn: Callable = None,
                  hesse_fn: Callable = None):
         super().__init__()
         self.loss = loss
+        self.maxiter = maxiter
+        self.nfunc_eval = 0
+        self.ngrad_eval = 0
+        self.nhess_eval = 0
         self.minimizer = minimizer
         if hesse_fn is None:
             hesse_fn = loss.hessian
@@ -37,15 +45,62 @@ class LossEval:
             grad_fn = self.loss.gradients
         self.gradients_fn = grad_fn
         self.value_gradients_fn = value_gradients_fn
+        self.maxiter_reached = False
+        self._ignoring_maxiter = False
         self.loss = loss
-        self.current_grad_value = None
         self.current_loss_value = None
+        self.current_grad_value = None
+        self.current_hesse_value = None
         self.nan_counter = 0
         self.params = params
         self.strategy = strategy
         self.do_print = do_print
 
+        @property
+        def niter(self):
+            return max([self.nfunc_eval, self.ngrad_eval, self.nhess_eval])
+
+        def _check_maxiter(self):
+            if self.niter > self.maxiter and not self._ignoring_maxiter:
+                raise MaximumIterationReached
+
+        @contextlib.contextmanager
+        def ignore_maxiter(self):
+            old = self._ignoring_maxiter
+            self._ignoring_maxiter = True
+            yield
+            self._ignoring_maxiter = old
+
+        @property
+        def nfunc_eval(self):
+            return self._nfunc_eval
+
+        @nfunc_eval.setter
+        def nfunc_eval(self, value):
+            self._nfunc_eval = value
+            self._check_maxiter()
+
+        @property
+        def ngrad_eval(self):
+            return self._ngrad_eval
+
+        @ngrad_eval.setter
+        def ngrad_eval(self, value):
+            self._ngrad_eval = value
+            self._check_maxiter()
+
+        @property
+        def nhess_eval(self):
+            return self._nhess_eval
+
+        @nhess_eval.setter
+        def nhess_eval(self, value):
+            self._nhess_eval = value
+            self._check_maxiter()
+
     def value_gradients(self, values):
+        self.nfunc_eval += 1
+        self.ngrad_eval += 1
 
         set_values(self.params, values=values)
         is_nan = False
@@ -90,7 +145,7 @@ class LossEval:
         return loss_value, gradients_values
 
     def value(self, values):
-
+        self.nfunc_eval += 1
         set_values(self.params, values=values)
         is_nan = False
 
@@ -129,7 +184,7 @@ class LossEval:
         return loss_value
 
     def gradient(self, values):
-
+        self.ngrad_eval += 1
         set_values(self.params, values=values)
         is_nan = False
 
@@ -170,7 +225,7 @@ class LossEval:
         return gradients_values
 
     def hessian(self, values):
-
+        self.nhess_eval += 1
         set_values(self.params, values=values)
         is_nan = False
 
@@ -206,4 +261,26 @@ class LossEval:
                                               values=info_values)
         else:
             self.nan_counter = 0
+            self.current_hesse_value = hessian_values
         return hessian_values
+
+
+def print_params(params, values, loss=None):
+    table = tt.Texttable()
+    table.header(['Parameter', 'Value'])
+
+    for param, value in zip(params, values):
+        table.add_row([param.name, value])
+    if loss is not None:
+        table.add_row(["Loss value:", loss])
+    print(table.draw())
+
+
+def print_gradients(params, values, gradients, loss=None):
+    table = tt.Texttable()
+    table.header(['Parameter', 'Value', 'Gradient'])
+    for param, value, grad in zip(params, values, gradients):
+        table.add_row([param.name, value, grad])
+    if loss is not None:
+        table.add_row(["Loss value:", loss, "|"])
+    print(table.draw())

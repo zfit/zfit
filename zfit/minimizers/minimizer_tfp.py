@@ -6,7 +6,9 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .baseminimizer import BaseMinimizer, print_gradients, ZfitStrategy, print_params, minimize_supports
+from .baseminimizer import BaseMinimizer, minimize_supports
+from .strategy import ZfitStrategy
+from .evaluation import print_params, print_gradients
 from .fitresult import FitResult
 from .. import z
 

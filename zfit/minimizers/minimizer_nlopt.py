@@ -1,14 +1,16 @@
 #  Copyright (c) 2021 zfit
+import copy
 import math
-from typing import Optional, Dict, Union, Callable
+from typing import Optional, Dict, Union, Callable, Mapping
 
 import nlopt
 import numpy as np
 
-from .baseminimizer import BaseMinimizer, ZfitStrategy, minimize_supports
+from .baseminimizer import BaseMinimizer, minimize_supports, NOT_SUPPORTED
 from .evaluation import LossEval
 from .fitresult import FitResult
-from .termination import EDM, CRITERION_NOT_AVAILABLE
+from .strategy import ZfitStrategy
+from .termination import EDM, CRITERION_NOT_AVAILABLE, ConvergenceCriterion
 from ..core.parameter import set_values
 from ..settings import run
 
@@ -16,7 +18,7 @@ from ..settings import run
 class NLopt(BaseMinimizer):
     def __init__(self, algorithm: int = nlopt.LD_LBFGS, tolerance: Optional[float] = None,
                  strategy: Optional[ZfitStrategy] = None, verbosity: Optional[int] = 5, name: Optional[str] = None,
-                 maxiter: Optional[int] = None, minimizer_options: Optional[Dict[str, object]] = None):
+                 maxiter: Optional[Union[int, str]] = 'auto', minimizer_options: Optional[Dict[str, object]] = None):
         """NLopt contains multiple different optimization algorithms.py
 
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a free/open-source library for nonlinear optimization,
@@ -109,6 +111,182 @@ class NLopt(BaseMinimizer):
         return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, params=params, xvalues=xvalues)
 
 
+class NLoptBaseMinimizer(BaseMinimizer):
+    _ALL_NLOPT_TOL = 'fatol', 'ftol', 'xatol', 'xtol'
+
+    def __init__(self,
+                 algorithm: int,
+                 internal_tolerances: Mapping[str, Optional[float]],
+                 gradient: Optional[Union[Callable, str, NOT_SUPPORTED]],
+                 hessian: Optional[Union[Callable, str, NOT_SUPPORTED]],
+                 maxiter: Optional[Union[int, str]],
+                 minimizer_options: Mapping[str, object],
+                 tolerance: float = None,
+                 verbosity: Optional[int] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name: str = "NLopt Base Minimizer V1"):
+
+        self._algorithm = algorithm
+
+        minimizer_options = copy.copy(minimizer_options)
+
+        if gradient is not NOT_SUPPORTED:
+            if gradient is False:
+                raise ValueError("grad cannot be False for NLopt minimizer.")
+            minimizer_options['gradient'] = gradient
+        if hessian is not NOT_SUPPORTED:
+            minimizer_options['hessian'] = hessian
+
+        internal_tolerances = copy.copy(internal_tolerances)
+        for tol in self._ALL_NLOPT_TOL:
+            if tol not in internal_tolerances:
+                internal_tolerances[tol] = None
+        self._internal_tolerances = internal_tolerances
+        self._internal_maxiter = 20
+
+        super().__init__(name=name,
+                         tolerance=tolerance,
+                         verbosity=verbosity,
+                         minimizer_options=minimizer_options,
+                         strategy=strategy,
+                         criterion=criterion,
+                         maxiter=maxiter)
+
+    @minimize_supports(from_result=True)
+    def _minimize(self, loss, params, init):
+        previous_result = init
+        evaluator = self.create_evaluator(loss, params)
+
+        # create minimizer instance
+        minimizer = nlopt.opt(nlopt.LD_LBFGS, len(params))
+
+        # initial values as array
+        init_values = np.array(run(params))
+
+        # get and set the limits
+        lower = np.array([p.lower for p in params])
+        upper = np.array([p.upper for p in params])
+        minimizer.set_lower_bounds(lower)
+        minimizer.set_upper_bounds(upper)
+
+        # create and set objective function. Either returns only the value or the value
+        # and sets the gradient in-place
+        def obj_func(x, grad):
+            if grad.size > 0:
+                value, gradients = evaluator.value_gradients(x)
+                grad[:] = np.array(run(gradients))
+            else:
+                value = evaluator.value(x)
+
+            return value
+
+        minimizer.set_min_objective(obj_func)
+
+        # set maximum number of iterations, also set in evaluator
+        minimizer.set_maxeval(self.get_maxiter(len(params)))
+
+        inv_hesse = None
+        if previous_result:
+            if previous_result:
+
+                inv_hessian = previous_result.info.get('inv_hesse')
+                if inv_hessian is None:
+                    hessian_init = previous_result.get('hesse')
+                    if hessian_init is not None:
+                        inv_hessian = np.linalg.inv(hessian_init)
+                        init_scale = np.diag(inv_hessian)
+
+        if init_scale is None:
+            step_sizes = np.array([p.step_size if p.has_step_size else 0 for p in params])  # TODO: is 0 okay?
+        else:
+            step_sizes = init_scale
+
+        minimizer_options = self.minimizer_options.copy()
+
+        maxcor = minimizer_options.pop('maxcor', None)
+        if maxcor is not None:
+            minimizer.set_vector_storage(maxcor)
+
+        for name, value in self.minimizer_options:
+            minimizer.set_param(name, value)
+
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
+        init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
+        # init_tol *= 10
+        internal_tol = self._internal_tolerances
+        internal_tol = {tol: init_tol if init is None else init for tol, init in internal_tol.items()}
+        if 'xtol' in internal_tol:
+            internal_tol['xtol'] **= 0.5
+
+        valid = None
+        n_iter = 0
+        edm = None
+        criterion_value = None
+        for i in range(self._internal_maxiter):
+
+            # set all the tolerances
+            fatol = internal_tol.get('fatol')
+            if fatol is not None:
+                minimizer.set_ftol_abs(fatol)
+
+            xatol = internal_tol.get('xatol')
+            if xatol is not None:
+                # minimizer.set_xtol_abs([xatol] * len(params))
+                minimizer.set_xtol_abs(xatol)
+
+            # set relative tolerances later as it can be unstable. Just use them when approaching
+            if criterion_value is not None:
+                tol_factor_full = self.tolerance / criterion_value
+                if tol_factor_full < 1e-8:
+                    ftol = internal_tol.get('ftol')
+                    if ftol is not None:
+                        minimizer.set_ftol_rel(ftol)
+
+                    xtol = internal_tol.get('xtol')
+                    if xtol is not None:
+                        # minimizer.set_xtol_rel([xtol] * len(params))  # TODO: one value or vector?
+                        minimizer.set_xtol_rel(xtol)  # TODO: one value or vector?
+
+            minimizer.set_initial_step(step_sizes)
+
+            # run the minimization
+            xvalues = minimizer.optimize(init_values)
+            set_values(params, xvalues)
+            fmin = minimizer.last_optimum_value()
+
+            result = FitResult.from_nlopt(loss,
+                                          minimizer=self, opt=minimizer,
+                                          edm=CRITERION_NOT_AVAILABLE, n_eval=evaluator.nfunc_eval,
+                                          params=params,
+                                          xvalues=xvalues,
+                                          inv_hess=inv_hesse,
+                                          valid=valid)
+            if self.verbosity > 5:
+                print(f"Finished iteration {i}, fmin={fmin}, edm={edm},  ftol={ftol}, xtol={xtol}")
+
+            if criterion.converged(result):
+                break
+
+            if type(criterion) == EDM:
+                edm = criterion.last_value
+                criterion_value = edm
+            else:
+                edm = CRITERION_NOT_AVAILABLE
+                criterion_value = criterion.last_value
+
+            step_sizes = np.diag(inv_hesse)
+            init_values = xvalues
+            tol_factor = min([max([self.tolerance / criterion_value, 1e-2]), 0.35])
+            ftol *= tol_factor
+            xtol *= tol_factor ** 0.5
+        else:
+            valid = "Invalid, EDM not reached"
+
+        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
+                                    xvalues=xvalues, inv_hess=inv_hesse, valid=valid, criterion=criterion)
+
+
 class NLoptLBFGSV1(BaseMinimizer):
 
     def __init__(self,
@@ -118,7 +296,7 @@ class NLoptLBFGSV1(BaseMinimizer):
                  grad: Optional[Union[Callable, str]] = None,
                  hesse: Optional[Union[Callable, str]] = None,
                  strategy: ZfitStrategy = None,
-                 maxiter: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  name="NLopt L-BFGS V1"):
         self.grad = 'zfit' if grad is None else grad
         if hesse is None:
@@ -186,12 +364,13 @@ class NLoptLBFGSV1(BaseMinimizer):
         valid = None
         n_iter = 0
         edm = None
+        criterion_value = None
         for i in range(n_iter_max):
 
             minimizer.set_ftol_abs(ftol)
             # minimizer.set_xtol_abs(xtol * 10)
-            if edm is not None:
-                tol_factor_full = self.tolerance / edm
+            if criterion_value is not None:
+                tol_factor_full = self.tolerance / criterion_value
                 if tol_factor_full < 1e-8:
                     minimizer.set_ftol_rel(ftol)
                     minimizer.set_xtol_rel(xtol)
@@ -206,28 +385,31 @@ class NLoptLBFGSV1(BaseMinimizer):
             hesse = evaluator.hessian(params)
             inv_hesse = np.linalg.inv(hesse)
             result = FitResult.from_nlopt(loss, minimizer=self, opt=minimizer,
-                                 edm=CRITERION_NOT_AVAILABLE, n_eval=n_iter,
+                                          edm=CRITERION_NOT_AVAILABLE, n_eval=n_iter,
                                           params=params,
-                                 xvalues=xvalues, inv_hess=inv_hesse,
-                                 valid=valid)
+                                          xvalues=xvalues, inv_hess=inv_hesse,
+                                          valid=valid)
             if self.verbosity > 5:
                 print(f"Finished iteration {i}, fmin={fmin}, edm={edm},  ftol={ftol}, xtol={xtol}")
 
             if criterion.converged(result):
                 break
 
+            if type(criterion) == EDM:
+                edm = criterion.last_value
+                criterion_value = edm
+            else:
+                edm = CRITERION_NOT_AVAILABLE
+                criterion_value = criterion.last_value
+
             step_sizes = np.diag(inv_hesse)
             init_values = xvalues
-            tol_factor = min([max([self.tolerance / edm, 1e-2]), 0.35])
+            tol_factor = min([max([self.tolerance / criterion_value, 1e-2]), 0.35])
             ftol *= tol_factor
             xtol *= tol_factor ** 0.5
         else:
             valid = "Invalid, EDM not reached"
 
-        if type(criterion) == EDM:
-            edm = criterion.last_value
-        else:
-            edm = CRITERION_NOT_AVAILABLE
         return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid, criterion=criterion)
 
@@ -241,7 +423,7 @@ class NLoptTruncNewtonV1(BaseMinimizer):
                  grad: Optional[Union[Callable, str]] = None,
                  hesse: Optional[Union[Callable, str]] = None,
                  strategy: ZfitStrategy = None,
-                 maxiter: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  name="NLopt Precond trunc Newton V1"):
         self.grad = 'zfit' if grad is None else grad
         if hesse is None:
@@ -354,7 +536,7 @@ class NLoptSLSQPV1(BaseMinimizer):
                  grad: Optional[Union[Callable, str]] = None,
                  hesse: Optional[Union[Callable, str]] = None,
                  strategy: ZfitStrategy = None,
-                 maxiter: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  name="NLopt SLSQP V1"):
         self.grad = 'zfit' if grad is None else grad
         if hesse is None:
@@ -462,7 +644,7 @@ class NLoptMMAV1(BaseMinimizer):
                  grad: Optional[Union[Callable, str]] = None,
                  hesse: Optional[Union[Callable, str]] = None,
                  strategy: ZfitStrategy = None,
-                 maxiter: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  name="NLopt MMA V1"):
         self.grad = 'zfit' if grad is None else grad
         if hesse is None:
@@ -534,7 +716,7 @@ class NLoptMMAV1(BaseMinimizer):
                     minimizer.set_ftol_rel(ftol)
                     minimizer.set_xtol_rel(xtol)
 
-            minimizer.set_initial_step(step_sizes)
+            # minimizer.set_initial_step(step_sizes, init_values)
 
             xvalues = minimizer.optimize(init_values)
             set_values(params, xvalues)
@@ -570,7 +752,7 @@ class NLoptCCSAQV1(BaseMinimizer):
                  grad: Optional[Union[Callable, str]] = None,
                  hesse: Optional[Union[Callable, str]] = None,
                  strategy: ZfitStrategy = None,
-                 maxiter: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  name="NLopt MMA V1"):
         self.grad = 'zfit' if grad is None else grad
         if hesse is None:
@@ -669,6 +851,7 @@ class NLoptCCSAQV1(BaseMinimizer):
         return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, n_eval=n_iter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
+
 class NLoptSubplexV1(BaseMinimizer):
 
     def __init__(self,
@@ -677,7 +860,7 @@ class NLoptSubplexV1(BaseMinimizer):
                  grad: Optional[Union[Callable, str]] = None,
                  hesse: Optional[Union[Callable, str]] = None,
                  strategy: ZfitStrategy = None,
-                 maxiter: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  name="NLopt Subplex V1"):
         self.grad = 'zfit' if grad is None else grad
         if hesse is None:
@@ -785,7 +968,7 @@ class NLoptMLSLV1(BaseMinimizer):
                  grad: Optional[Union[Callable, str]] = None,
                  hesse: Optional[Union[Callable, str]] = None,
                  strategy: ZfitStrategy = None,
-                 maxiter: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
                  name="NLopt MLSL V1"):
         self.grad = 'zfit' if grad is None else grad
         if hesse is None:

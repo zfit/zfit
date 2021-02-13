@@ -192,16 +192,17 @@ class FitResult(ZfitResult):
     def from_scipy(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
                    minimizer: ZfitMinimizer, edm=False, valid=None, criterion=None):
         result_values = result['x']
-        converged = result['success']
+        converged = result.get('success', valid)
         status = result['status']
         inv_hesse = result.get('hess_inv')
         if isinstance(inv_hesse, LbfgsInvHessProduct):
             inv_hesse = inv_hesse.todense()
         info = {'n_eval': result['nfev'],
                 'n_iter': result['nit'],
-                'grad': result.get('jac'),
+                'grad': result.get('grad', False) or result.get('jac'),
                 'inv_hesse': inv_hesse,
-                'message': result['message'],
+                'hesse': result.get('hesse'),
+                'message': result.get('message', "No message"),
                 'original': result}
         fmin = result['fun']
         params = OrderedDict((p, v) for p, v in zip(params, result_values))

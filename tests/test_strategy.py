@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import math
 
 import pytest
@@ -6,7 +6,7 @@ import pytest
 import zfit
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.minimizers.baseminimizer import ToyStrategyFail
+from zfit.minimizers.strategy import ToyStrategyFail
 
 
 @pytest.mark.flaky(2)

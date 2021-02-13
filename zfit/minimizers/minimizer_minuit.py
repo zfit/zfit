@@ -6,7 +6,9 @@ import iminuit
 import numpy as np
 import tensorflow as tf
 
-from .baseminimizer import BaseMinimizer, ZfitStrategy, print_params, print_gradients, minimize_supports
+from .baseminimizer import BaseMinimizer, minimize_supports
+from .strategy import ZfitStrategy
+from .evaluation import print_params, print_gradients
 from .fitresult import FitResult
 from ..settings import run
 from ..core.interfaces import ZfitLoss

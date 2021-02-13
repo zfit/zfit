@@ -1,7 +1,8 @@
 #  Copyright (c) 2021 zfit
 
 
-from .minimizers.baseminimizer import DefaultStrategy, DefaultToyStrategy, ZfitStrategy
+from .minimizers.baseminimizer import DefaultStrategy
+from .minimizers.strategy import ZfitStrategy, DefaultToyStrategy
 from .minimizers.fitresult import FitResult
 from .minimizers.minimizer_minuit import Minuit
 from .minimizers.minimizer_nlopt import (NLopt, NLoptLBFGSV1, NLoptTruncNewtonV1, NLoptSLSQPV1, NLoptMMAV1,
@@ -49,5 +50,4 @@ __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
            # "NLoptMLSLV1",
            "NLoptSubplexV1",
            "BFGS", "NLopt",
-           "DefaultStrategy", "DefaultToyStrategy",
-           "FitResult"]
+           "DefaultStrategy", "FitResult"]

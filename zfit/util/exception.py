@@ -264,3 +264,7 @@ class BehaviorUnderDiscussion(Exception):
                        "")
         msg = default_msg + str(msg)
         super().__init__(msg, *args)
+
+
+class MaximumIterationReached(Exception):
+    pass
