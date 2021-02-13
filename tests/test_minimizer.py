@@ -103,7 +103,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 # minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
-minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(ScipyDoglegV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
@@ -135,11 +135,18 @@ def test_floating_flag():
     assert list(result.params.keys()) == [mu]
     assert sigma not in result.params
 
-def test_minimize_pure_func():
-    minimizer = zfit.minimize.Minuit()
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+def test_minimize_pure_func(minimizer_class_and_kwargs):
+    zfit.run.set_autograd_mode(False)
+    zfit.run.set_graph_mode(False)
+    minimizer_class, minimizer_kwargs, _ = minimizer_class_and_kwargs
+    minimizer = minimizer_class(**minimizer_kwargs)
     func = scipy.optimize.rosen
     params = np.random.normal(size=5)
-    minimizer.minimize(func, params)
+    result = minimizer.minimize(func, params)
+    assert result.valid
+    # result.hesse()
+    # result.errors()
 
 
 def test_dependent_param_extraction():

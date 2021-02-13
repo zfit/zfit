@@ -97,7 +97,7 @@ class NLopt(BaseMinimizer):
         upper = np.array([p.upper for p in params])
         minimizer.set_lower_bounds(lower)
         minimizer.set_upper_bounds(upper)
-        minimizer.set_maxeval(self.maxiter)
+        minimizer.set_maxeval(self.get_maxiter(len(params)))
         minimizer.set_ftol_abs(self.tolerance)
 
         for name, value in self.minimizer_options:
@@ -170,7 +170,7 @@ class NLoptLBFGSV1(BaseMinimizer):
         upper = np.array([p.upper for p in params])
         minimizer.set_lower_bounds(lower)
         minimizer.set_upper_bounds(upper)
-        minimizer.set_maxeval(self.maxiter)
+        minimizer.set_maxeval(self.get_maxiter(len(params)))
         if self.maxcor is not None:
             minimizer.set_vector_storage(self.maxcor)
 
@@ -292,7 +292,7 @@ class NLoptTruncNewtonV1(BaseMinimizer):
         upper = np.array([p.upper for p in params])
         minimizer.set_lower_bounds(lower)
         minimizer.set_upper_bounds(upper)
-        minimizer.set_maxeval(self.maxiter)
+        minimizer.set_maxeval(self.get_maxiter(len(params)))
         if self.maxcor is not None:
             minimizer.set_vector_storage(self.maxcor)
 
@@ -405,7 +405,7 @@ class NLoptSLSQPV1(BaseMinimizer):
         upper = np.array([p.upper for p in params])
         minimizer.set_lower_bounds(lower)
         minimizer.set_upper_bounds(upper)
-        minimizer.set_maxeval(self.maxiter)
+        minimizer.set_maxeval(self.get_maxiter(len(params)))
 
         criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
@@ -513,7 +513,7 @@ class NLoptMMAV1(BaseMinimizer):
         upper = np.array([p.upper for p in params])
         minimizer.set_lower_bounds(lower)
         minimizer.set_upper_bounds(upper)
-        minimizer.set_maxeval(self.maxiter)
+        minimizer.set_maxeval(self.get_maxiter(len(params)))
 
         criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
@@ -621,7 +621,7 @@ class NLoptCCSAQV1(BaseMinimizer):
         upper = np.array([p.upper for p in params])
         minimizer.set_lower_bounds(lower)
         minimizer.set_upper_bounds(upper)
-        minimizer.set_maxeval(self.maxiter)
+        minimizer.set_maxeval(self.get_maxiter(len(params)))
 
         criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
@@ -727,7 +727,7 @@ class NLoptSubplexV1(BaseMinimizer):
         upper = np.array([p.upper for p in params])
         minimizer.set_lower_bounds(lower)
         minimizer.set_upper_bounds(upper)
-        minimizer.set_maxeval(self.maxiter)
+        minimizer.set_maxeval(self.get_maxiter(len(params)))
 
         criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
@@ -838,7 +838,7 @@ class NLoptMLSLV1(BaseMinimizer):
         upper = np.array([p.upper for p in params])
         minimizer.set_lower_bounds(lower)
         minimizer.set_upper_bounds(upper)
-        minimizer.set_maxeval(self.maxiter)
+        minimizer.set_maxeval(self.get_maxiter(len(params)))
 
         criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])

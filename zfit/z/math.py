@@ -47,7 +47,10 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
     def wrapped_func(param_values):
         for param, value in zip(params, param_values):
             param.assign(value)
-        return func().numpy()
+        value = func()
+        if hasattr(value, 'numpy'):
+            value = value.numpy()
+        return value
 
     param_vals = tf.stack(params)
     original_vals = [param.read_value() for param in params]
@@ -92,7 +95,10 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
     def wrapped_func(param_values):
         for param, value in zip(params, param_values):
             param.assign(value)
-        return func().numpy()
+        value = func()
+        if hasattr(value, 'numpy'):
+            value = value.numpy()
+        return value
 
     param_vals = tf.stack(params)
     original_vals = [param.read_value() for param in params]

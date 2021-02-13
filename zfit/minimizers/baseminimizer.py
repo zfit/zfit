@@ -486,7 +486,7 @@ class BaseStepMinimizer(BaseMinimizer):
         edm = self.tolerance * 1000
         sum_changes = np.sum(changes)
         inv_hesse = None
-        while (sum_changes > self.tolerance or edm > self.tolerance) and n_steps < self.maxiter:
+        while (sum_changes > self.tolerance or edm > self.tolerance) and n_steps < self.get_maxiter(len(params)):
             cur_val = run(self.step(loss=loss, params=params))
             if sum_changes < self.tolerance and n_steps % 5:
                 xvalues = np.array(run(params))
