@@ -64,6 +64,8 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimize.ScipyDoglegV1, {'tolerance': 1e-5}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, {'error': True, 'longtests': True}),
+    (zfit.minimize.ScipyPowellV1, {}, {'error': True}),
+    (zfit.minimize.ScipySLSQPV1, {}, {'error': True}),
 
     (zfit.minimize.NLoptLBFGSV1, {}, {'error': True, 'longtests': True}),
     (zfit.minimize.NLoptTruncNewtonV1, {}, True),
@@ -95,6 +97,10 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 ]
 
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
 # minimizers = [(ScipyTrustNCGV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(ScipyDoglegV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]

@@ -134,12 +134,13 @@ class ScipyBaseMinimizer(BaseMinimizer):
             criterion_val = criterion.last_value
 
             if self.verbosity > 5:
+                tolerances_str = ', '.join(f'{tol}={val}' for tol, val in scipy_tol.items())
                 print(f"Finished iteration {i}, fmin={fmin}, {criterion.name}={criterion.last_value}"
-                      f" {f', {tol}={val}'}" for tol, val in scipy_tol.items())
+                      f" {tolerances_str}")
 
             if converged:
                 break
-
+            np.size
             if use_hessian:
                 if inv_hessian is not None:
                     init_scale = inv_hessian
@@ -354,6 +355,29 @@ class ScipyTrustConstrV1(ScipyBaseMinimizer):
                          minimizer_options=minimizer_options,
                          name=name)
 
+class ScipyNewtonCGV1(ScipyBaseMinimizer):
+    def __init__(self, tolerance: float = None,
+                 gradient: Optional[Union[Callable, str]] = 'zfit',
+                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 strategy: ZfitStrategy = None,
+                 verbosity: Optional[int] = None,
+                 name="Scipy Newton-CG V1"):
+        options = {}
+
+        minimizer_options = {}
+        if options:
+            minimizer_options['options'] = options
+
+        scipy_tolerances = {'xtol': None}
+
+        method = "Newton-CG"
+        super().__init__(method=method, tolerance=tolerance, verbosity=verbosity,
+                         strategy=strategy, gradient=gradient, hessian=hessian,
+                         criterion=criterion, scipy_tolerances=scipy_tolerances,
+                         minimizer_options=minimizer_options,
+                         name=name)
+
 
 class ScipyDoglegV1(ScipyBaseMinimizer):
     def __init__(self, tolerance: float = None,
@@ -365,7 +389,7 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
-                 name="Scipy trust-constr V1"):
+                 name="Scipy Dogleg V1"):
         options = {}
         if initial_trust_radius is not None:
             options['initial_tr_radius'] = initial_trust_radius
@@ -382,6 +406,74 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
 
         super().__init__(method="trust-constr", tolerance=tolerance, verbosity=verbosity,
                          strategy=strategy, gradient=gradient, hessian=hessian,
+                         criterion=criterion, scipy_tolerances=scipy_tolerances,
+                         minimizer_options=minimizer_options,
+                         name=name)
+
+class ScipyPowellV1(ScipyBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 strategy: ZfitStrategy = None,
+                 verbosity: Optional[int] = None,
+                 name="Scipy Powell V1"):
+        options = {}
+        minimizer_options = {}
+        if options:
+            minimizer_options['options'] = options
+
+        scipy_tolerances = {'xtol': None, 'ftol': None}
+
+        method = "Powell"
+        super().__init__(method=method, tolerance=tolerance, verbosity=verbosity,
+                         strategy=strategy, gradient=NOT_SUPPORTED, hessian=NOT_SUPPORTED,
+                         criterion=criterion, scipy_tolerances=scipy_tolerances,
+                         minimizer_options=minimizer_options,
+                         name=name)
+
+class ScipySLSQPV1(ScipyBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 gradient: Optional[Union[Callable, str]] = 'zfit',
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 strategy: ZfitStrategy = None,
+                 verbosity: Optional[int] = None,
+                 name="Scipy SLSQP V1"):
+        options = {}
+        minimizer_options = {}
+        if options:
+            minimizer_options['options'] = options
+
+        scipy_tolerances = {'ftol': None}
+
+        method = "SLSQP"
+        super().__init__(method=method, tolerance=tolerance, verbosity=verbosity,
+                         strategy=strategy, gradient=gradient, hessian=NOT_SUPPORTED,
+                         criterion=criterion, scipy_tolerances=scipy_tolerances,
+                         minimizer_options=minimizer_options,
+                         name=name)
+
+class ScipyNelderMeadV1(ScipyBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 adaptive: Optional[bool] = True,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 strategy: ZfitStrategy = None,
+                 verbosity: Optional[int] = None,
+                 name="Scipy Nelder-Mead V1"):
+        options = {}
+        minimizer_options = {}
+
+        if adaptive is not None:
+            options['adaptive'] = adaptive
+        if options:
+            minimizer_options['options'] = options
+
+        scipy_tolerances = {'fatol': None, 'xatol': None}
+
+        method = "Nelder-Mead"
+        super().__init__(method=method, tolerance=tolerance, verbosity=verbosity,
+                         strategy=strategy, gradient=NOT_SUPPORTED, hessian=NOT_SUPPORTED,
                          criterion=criterion, scipy_tolerances=scipy_tolerances,
                          minimizer_options=minimizer_options,
                          name=name)
