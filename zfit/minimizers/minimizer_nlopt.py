@@ -204,6 +204,14 @@ class NLoptBaseMinimizer(BaseMinimizer):
                         init_scale = np.diag(inv_hessian)
 
         minimizer_options = self.minimizer_options.copy()
+        local_minimizer = None
+        local_minimizer_options = minimizer_options.pop("local_minimizer_options")
+        if local_minimizer_options is not None:
+            local_minimizer = nlopt.opt(nlopt.LD_LBFGS, len(params))
+            local_minimizer.set_lower_bounds(lower)
+            local_minimizer.set_upper_bounds(upper)
+
+
 
         maxcor = minimizer_options.pop('maxcor', None)
         if maxcor is not None:
@@ -225,28 +233,16 @@ class NLoptBaseMinimizer(BaseMinimizer):
         criterion_value = None
         for i in range(self._internal_maxiter):
 
-            # set all the tolerances
-            fatol = internal_tol.get('fatol')
-            if fatol is not None:
-                minimizer.set_ftol_abs(fatol)
+            self._set_tolerances(minimizer=minimizer,
+                                     internal_tol=internal_tol,
+                                     criterion_value=criterion_value)
 
-            xatol = internal_tol.get('xatol')
-            if xatol is not None:
-                # minimizer.set_xtol_abs([xatol] * len(params))
-                minimizer.set_xtol_abs(xatol)
+            if local_minimizer is not None:
+                self._set_tolerances(minimizer=local_minimizer,
+                                     internal_tol=internal_tol,
+                                     criterion_value=criterion_value)
 
-            # set relative tolerances later as it can be unstable. Just use them when approaching
-            if criterion_value is not None:
-                tol_factor_full = self.tolerance / criterion_value
-                if tol_factor_full < 1e-8:
-                    ftol = internal_tol.get('ftol')
-                    if ftol is not None:
-                        minimizer.set_ftol_rel(ftol)
-
-                    xtol = internal_tol.get('xtol')
-                    if xtol is not None:
-                        # minimizer.set_xtol_rel([xtol] * len(params))  # TODO: one value or vector?
-                        minimizer.set_xtol_rel(xtol)  # TODO: one value or vector?
+                minimizer.set_local_optimizer(local_minimizer)
 
             if init_scale is None:
                 step_sizes = np.array([p.step_size if p.has_step_size else 0 for p in params])  # TODO: is 0 okay?
@@ -279,7 +275,8 @@ class NLoptBaseMinimizer(BaseMinimizer):
                       f" {criterion.name}={criterion.last_value:.3g} {tolerances_str}")
             if (evaluator.current_hesse_value is not None
                 and (hessian_init is None
-                     or not np.allclose(hessian_init, evaluator.current_hesse_value))):  # either non-existent or different
+                     or not np.allclose(hessian_init,
+                                        evaluator.current_hesse_value))):  # either non-existent or different
                 hessian_init = evaluator.current_hesse_value
             else:
                 hessian_init = None  # the hessian we have is not valid anymore
@@ -303,6 +300,28 @@ class NLoptBaseMinimizer(BaseMinimizer):
                                     niter=evaluator.niter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid, criterion=criterion)
 
+    def _set_tolerances(self, minimizer, internal_tol, criterion_value):
+        # set all the tolerances
+        fatol = internal_tol.get('fatol')
+        if fatol is not None:
+            minimizer.set_ftol_abs(fatol)
+        xatol = internal_tol.get('xatol')
+        if xatol is not None:
+            # minimizer.set_xtol_abs([xatol] * len(params))
+            minimizer.set_xtol_abs(xatol)
+        # set relative tolerances later as it can be unstable. Just use them when approaching
+        if criterion_value is not None:
+            tol_factor_full = self.tolerance / criterion_value
+            if tol_factor_full < 1e-8:
+                ftol = internal_tol.get('ftol')
+                if ftol is not None:
+                    minimizer.set_ftol_rel(ftol)
+
+                xtol = internal_tol.get('xtol')
+                if xtol is not None:
+                    # minimizer.set_xtol_rel([xtol] * len(params))  # TODO: one value or vector?
+                    minimizer.set_xtol_rel(xtol)  # TODO: one value or vector?
+
 
 class NLoptLBFGSV1(NLoptBaseMinimizer):
     def __init__(self,
@@ -313,7 +332,6 @@ class NLoptLBFGSV1(NLoptBaseMinimizer):
                  strategy: ZfitStrategy = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  name="NLopt L-BFGS V1"):
-
         super().__init__(name=name,
                          algorithm=nlopt.LD_LBFGS,
                          tolerance=tolerance,
@@ -328,7 +346,6 @@ class NLoptLBFGSV1(NLoptBaseMinimizer):
         @property
         def maxcor(self):
             return self.minimizer_options.get('maxcor')
-
 
 
 class NLoptLBFGSV1old(BaseMinimizer):
@@ -458,7 +475,32 @@ class NLoptLBFGSV1old(BaseMinimizer):
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid, criterion=criterion)
 
 
-class NLoptTruncNewtonV1(BaseMinimizer):
+class NLoptTruncNewtonV1(NLoptBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 maxcor: bool = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
+                 strategy: ZfitStrategy = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name="NLopt Truncated Newton"):
+        super().__init__(name=name,
+                         algorithm=nlopt.LD_TNEWTON_PRECOND_RESTART,
+                         tolerance=tolerance,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options={'maxcor': maxcor},
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+        @property
+        def maxcor(self):
+            return self.minimizer_options.get('maxcor')
+
+
+class NLoptTruncNewtonV1old(BaseMinimizer):
 
     def __init__(self,
                  tolerance: float = None,
@@ -572,7 +614,27 @@ class NLoptTruncNewtonV1(BaseMinimizer):
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
-class NLoptSLSQPV1(BaseMinimizer):
+class NLoptSLSQPV1(NLoptBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
+                 strategy: ZfitStrategy = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name="NLopt SLSQP"):
+        super().__init__(name=name,
+                         algorithm=nlopt.LD_SLSQP,
+                         tolerance=tolerance,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options={},
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
+class NLoptSLSQPV1old(BaseMinimizer):
 
     def __init__(self,
                  tolerance: float = None,
@@ -680,7 +742,27 @@ class NLoptSLSQPV1(BaseMinimizer):
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
-class NLoptMMAV1(BaseMinimizer):
+class NLoptMMAV1(NLoptBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
+                 strategy: ZfitStrategy = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name="NLopt MMA"):
+        super().__init__(name=name,
+                         algorithm=nlopt.LD_MMA,
+                         tolerance=tolerance,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options={},
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
+class NLoptMMAV1old(BaseMinimizer):
 
     def __init__(self,
                  tolerance: float = None,
@@ -788,7 +870,27 @@ class NLoptMMAV1(BaseMinimizer):
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
-class NLoptCCSAQV1(BaseMinimizer):
+class NLoptCCSAQV1(NLoptBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
+                 strategy: ZfitStrategy = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name="NLopt CCSAQ"):
+        super().__init__(name=name,
+                         algorithm=nlopt.LD_CCSAQ,
+                         tolerance=tolerance,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options={},
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
+class NLoptCCSAQV1old(BaseMinimizer):
 
     def __init__(self,
                  tolerance: float = None,
@@ -896,7 +998,27 @@ class NLoptCCSAQV1(BaseMinimizer):
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
-class NLoptSubplexV1(BaseMinimizer):
+class NLoptSubplexV1(NLoptBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
+                 strategy: ZfitStrategy = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name="NLopt Subplex"):
+        super().__init__(name=name,
+                         algorithm=nlopt.LN_SBPLX,
+                         tolerance=tolerance,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options={},
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
+class NLoptSubplexV1old(BaseMinimizer):
 
     def __init__(self,
                  tolerance: float = None,
@@ -1003,8 +1125,36 @@ class NLoptSubplexV1(BaseMinimizer):
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid)
 
 
+class NLoptMLSLV1(NLoptBaseMinimizer):
+    def __init__(self,
+                 tolerance: float = None,
+                 local_minimizer: Optional[Union[int, Mapping[str, object]]] = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
+                 strategy: ZfitStrategy = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name="NLopt MLSL"):
+        local_minimizer = nlopt.LD_LBFGS if local_minimizer is None else local_minimizer
+        if not isinstance(local_minimizer, Mapping):
+            local_minimizer = {'algorithm': local_minimizer}
+        if 'algorithm' not in local_minimizer:
+            raise ValueError("algorithm needs to be specified in local_minimizer")
+
+        minimizer_options = {'local_minimizer_options': local_minimizer}
+        super().__init__(name=name,
+                         algorithm=nlopt.GD_MLSL_LDS,
+                         tolerance=tolerance,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options=minimizer_options,
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
 # NOT WORKING!
-class NLoptMLSLV1(BaseMinimizer):
+class NLoptMLSLV1old(BaseMinimizer):
 
     def __init__(self,
                  tolerance: float = None,
