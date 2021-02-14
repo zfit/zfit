@@ -198,7 +198,7 @@ class BaseMinimizer(ZfitMinimizer):
             elif params is None:
                 raise ValueError("If the loss is a callable, the params cannot be None.")
 
-            if not isinstance(params, Mapping):
+            if not isinstance(params, collections.Mapping):
                 values = convert_to_container(params)
                 names = [None] * len(params)
             else:

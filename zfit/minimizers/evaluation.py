@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
 import contextlib
-from typing import Callable
+from typing import Callable, Optional
 
 import numpy as np
 import tensorflow as tf
@@ -24,9 +24,12 @@ class LossEval:
                  do_print: bool,
                  minimizer: ZfitMinimizer,
                  maxiter: int,
-                 grad_fn: Callable = None,
-                 hesse_fn: Callable = None):
+                 grad_fn: Optional[Callable] = None,
+                 hesse_fn: Optional[Callable] = None,
+                 niter_tol: Optional[float] = None):
         super().__init__()
+        niter_tol = 0.15 if niter_tol is None else niter_tol
+        self.niter_tol = niter_tol
         self.maxiter = maxiter
         self._ignoring_maxiter = False
         with self.ignore_maxiter():  # otherwise when trying to set, it gets all of them, which fails as not there
@@ -50,9 +53,9 @@ class LossEval:
         self.value_gradients_fn = value_gradients_fn
         self.maxiter_reached = False
         self.loss = loss
-        self.current_loss_value = None
-        self.current_grad_value = None
-        self.current_hesse_value = None
+        self.last_value = None
+        self.last_gradient = None
+        self.last_hessian = None
         self.nan_counter = 0
         self.params = params
         self.strategy = strategy
@@ -63,7 +66,7 @@ class LossEval:
         return max([self.nfunc_eval, self.ngrad_eval, self.nhess_eval])
 
     def _check_maxiter(self):
-        if not self._ignoring_maxiter and self.niter > self.maxiter:
+        if not self._ignoring_maxiter and self.niter * (1 + self.niter_tol) > self.maxiter:
             raise MaximumIterationReached
 
     @contextlib.contextmanager
@@ -132,8 +135,8 @@ class LossEval:
             info_values = {
                 'loss': loss_value,
                 'grad': gradients_values,
-                'old_loss': self.current_loss_value,
-                'old_grad': self.current_grad_value,
+                'old_loss': self.last_value,
+                'old_grad': self.last_gradient,
                 'nan_counter': self.nan_counter,
             }
 
@@ -142,8 +145,8 @@ class LossEval:
                                                                       values=info_values)
         else:
             self.nan_counter = 0
-            self.current_loss_value = loss_value
-            self.current_grad_value = gradients_values
+            self.last_value = loss_value
+            self.last_gradient = gradients_values
         return loss_value, gradients_values
 
     def value(self, values):
@@ -173,7 +176,7 @@ class LossEval:
             self.nan_counter += 1
             info_values = {
                 'loss': loss_value,
-                'old_loss': self.current_loss_value,
+                'old_loss': self.last_value,
                 'nan_counter': self.nan_counter,
             }
 
@@ -182,7 +185,7 @@ class LossEval:
                                                        values=info_values)
         else:
             self.nan_counter = 0
-            self.current_loss_value = loss_value
+            self.last_value = loss_value
         return loss_value
 
     def gradient(self, values):
@@ -213,8 +216,8 @@ class LossEval:
             info_values = {
                 'loss': -999,
                 'grad': gradients_values,
-                'old_loss': self.current_loss_value,
-                'old_grad': self.current_grad_value,
+                'old_loss': self.last_value,
+                'old_grad': self.last_gradient,
                 'nan_counter': self.nan_counter,
             }
 
@@ -223,7 +226,7 @@ class LossEval:
                                                              values=info_values)
         else:
             self.nan_counter = 0
-            self.current_grad_value = gradients_values
+            self.last_gradient = gradients_values
         return gradients_values
 
     def hessian(self, values):
@@ -253,8 +256,8 @@ class LossEval:
             self.nan_counter += 1
             info_values = {
                 'loss': -999,
-                'old_loss': self.current_loss_value,
-                'old_grad': self.current_grad_value,
+                'old_loss': self.last_value,
+                'old_grad': self.last_gradient,
                 'nan_counter': self.nan_counter,
             }
 
@@ -263,7 +266,7 @@ class LossEval:
                                               values=info_values)
         else:
             self.nan_counter = 0
-            self.current_hesse_value = hessian_values
+            self.last_hessian = hessian_values
         return hessian_values
 
 

@@ -19,17 +19,17 @@ from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVa
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
-from .. import z
-from ..util.container import convert_to_container
 from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
+from .. import z
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import invalidate_graph
 from ..util.checks import NotSpecified
+from ..util.container import convert_to_container
 from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
     WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError, FunctionNotImplementedError
 from ..util.temporary import TemporarilySet
@@ -214,7 +214,6 @@ class WrappedVariable(metaclass=MetaBaseParameter):
 register_tensor_conversion(WrappedVariable, "WrappedVariable", overload_operators=True)
 
 
-
 class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParameter):
     def __init__(self, *args, **kwargs):
         try:
@@ -396,8 +395,9 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             return tf.constant(False)
 
         # Adding a slight tolerance to make sure we're not tricked by numerics
-        at_lower = z.unstable.less_equal(self.value(), self.lower + (tf.math.abs(self.lower * 1e-5)))
-        at_upper = z.unstable.greater_equal(self.value(), self.upper - (tf.math.abs(self.upper * 1e-5)))
+        tolerance = (self.upper - self.lower) * 1e-2
+        at_lower = z.unstable.less_equal(self.value(), self.lower + tolerance)
+        at_upper = z.unstable.greater_equal(self.value(), self.upper - tolerance)
         return z.unstable.logical_or(at_lower, at_upper)
 
     def value(self):
@@ -833,7 +833,7 @@ def get_auto_number():
 def convert_to_parameter(value,
                          name: Optional[str] = None,
                          prefer_constant: bool = True,
-                         dependents= None
+                         dependents=None
                          ) -> ZfitParameter:
     """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 

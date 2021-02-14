@@ -253,7 +253,7 @@ def test_new_minimum(minimizer_class_and_kwargs):
 
         method = lambda **kwgs: compute_errors(covariance_method="hesse_np", **kwgs)
 
-        errors, new_result = hacked_result.errors(params=params, method=method, error_name="interval")
+        errors, new_result = hacked_result.errors(params=params, method=method, name="interval")
 
         assert new_result is not None
 

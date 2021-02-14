@@ -5,6 +5,7 @@ import nlopt
 import numpy as np
 import pytest
 import scipy.optimize
+from ordered_set import OrderedSet
 
 import zfit.minimizers.optimizers_tf
 # noinspection PyUnresolvedReferences
@@ -58,7 +59,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimize.Minuit, {"tolerance": 0.0001},
      {'error': True, 'longtests': True}),  # works
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
-    (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5}, {'error': True, 'numgrad': False}),
+    (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5}, {'error': True, 'numgrad': False, 'approx': True}),
     (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5}, True),
     (zfit.minimize.ScipyDoglegV1, {'tolerance': 1e-5}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {}, True),
@@ -113,6 +114,7 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 # minimizers = [(zfit.minimize.NLoptCCSAQV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptMLSLV1, {'verbosity': 7}, True)]  # DOESN'T WORK!
 # minimizers = [(zfit.minimize.NLoptSubplexV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
 
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
@@ -159,7 +161,7 @@ def test_dependent_param_extraction():
     data = zfit.Data.from_numpy(obs=obs, array=normal_np)
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
     minimizer = zfit.minimize.Minuit()
-    params_checked = minimizer._check_convert_input(nll, params=[mu, sigma1])
+    params_checked = OrderedSet(minimizer._check_convert_input(nll, params=[mu, sigma1]))
     assert {mu, sigma} == set(params_checked)
     sigma.floating = False
     params_checked = minimizer._check_convert_input(nll, params=[mu, sigma1])
@@ -202,6 +204,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
 
     numgrad = test_error.get('numgrad', True)
     do_long = test_error.get('longtests', False)
+    has_approx = test_error.get('approx', False)
     test_error = test_error['error']
     if not numgrad:
         return
@@ -249,7 +252,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
 
     # Test Hesse
     if test_error:
-        hesse_methods = ['hesse_np']
+        hesse_methods = ['hesse_np', 'approx']
         profile_methods = ['zfit_error']
         if isinstance(minimizer, zfit.minimize.Minuit):
             hesse_methods.append('minuit_hesse')
@@ -263,11 +266,16 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
             assert tuple(sigma_hesse.keys()) == (sigma_param,)
             errors = result.hesse()
             sigma_hesse = sigma_hesse[sigma_param]
-            assert abs(sigma_hesse['error']) == pytest.approx(0.0965, abs=0.15)
-            assert abs(errors[sigma_param]['error']) == pytest.approx(0.0965,
-                                                                      abs=0.15)
-            assert abs(errors[lambda_param]['error']) == pytest.approx(0.01,
+            if method != "approx" or has_approx:
+                assert abs(sigma_hesse['error']) == pytest.approx(0.0965, abs=0.15)
+                assert abs(errors[sigma_param]['error']) == pytest.approx(0.0965,
+                                                                          abs=0.15)
+                assert abs(errors[lambda_param]['error']) == pytest.approx(0.01,
                                                                        abs=0.01)
+            else:
+                assert sigma_hesse['error'] is None
+                assert errors[sigma_param]['error'] is None
+                assert errors[lambda_param]['error'] is None
 
         for profile_method in profile_methods:
             # Test Error
@@ -292,9 +300,9 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
 
             # Test Error method name
             a_errors, _ = result.errors(params=mu_param, method=profile_method,
-                                        error_name='error1')
+                                        name='error1')
             assert tuple(a_errors.keys()) == (mu_param,)
-            errors, _ = result.errors(error_name='error42',
+            errors, _ = result.errors(name='error42',
                                       method=profile_method)
             a_error = a_errors[mu_param]
 
@@ -314,6 +322,6 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
                     (param, {'myval': 42}) for param in params), None
 
             custom_errors, _ = result.errors(method=custom_error_func,
-                                             error_name='custom_method1')
+                                             name='custom_method1')
             for param, errors2 in result.params.items():
                 assert custom_errors[param]['myval'] == 42
