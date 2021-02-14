@@ -21,5 +21,6 @@ pytest-runner>=2.11.1
 pytest-rerunfailures>=6
 pytest-xdist
 pytest-ordering
+pytest-randomly
 scikit-hep-testdata
 matplotlib  # for plots in examples
