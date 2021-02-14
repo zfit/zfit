@@ -11,6 +11,7 @@ import warnings
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import List, Union, Iterable, Mapping
+from tensorflow import constant
 
 import numpy as np
 import texttable as tt
@@ -284,7 +285,7 @@ class BaseMinimizer(ZfitMinimizer):
 
     def _minimize_with_step(self, loss, params):  # TODO improve
         n_old_vals = 10
-        changes = collections.deque(np.ones(n_old_vals))
+        changes = collections.deque([constant(1.0, dtype='float64') for i in range(n_old_vals)])
         last_val = -10
         n_steps = 0
 
