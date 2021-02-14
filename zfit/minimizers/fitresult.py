@@ -497,7 +497,7 @@ class FitResult(ZfitResult):
 
     def _hesse(self, params, method):
         covariance_dict = self.covariance(params, method, as_dict=True)
-        return dict((p, {"error": covariance_dict[(p, p)] ** 0.5 if (p, p) in covariance_dict else None})
+        return dict((p, {"error": covariance_dict[(p, p)] ** 0.5 if covariance_dict[(p, p)] is not None else None})
                     for p in params)
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,

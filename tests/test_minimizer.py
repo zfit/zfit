@@ -266,16 +266,16 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
             assert tuple(sigma_hesse.keys()) == (sigma_param,)
             errors = result.hesse()
             sigma_hesse = sigma_hesse[sigma_param]
-            if method != "approx" or has_approx:
-                assert abs(sigma_hesse['error']) == pytest.approx(0.0965, abs=0.15)
+            can_be_none = method == "approx" and not has_approx
+            # skip if it can be None and it is None
+            if not (can_be_none and errors[sigma_param]['error'] is None):
                 assert abs(errors[sigma_param]['error']) == pytest.approx(0.0965,
                                                                           abs=0.15)
+            if not (can_be_none and errors[lambda_param]['error'] is None):
                 assert abs(errors[lambda_param]['error']) == pytest.approx(0.01,
                                                                        abs=0.01)
-            else:
-                assert sigma_hesse['error'] is None
-                assert errors[sigma_param]['error'] is None
-                assert errors[lambda_param]['error'] is None
+            if not (can_be_none and sigma_hesse['error'] is None):
+                assert abs(sigma_hesse['error']) == pytest.approx(0.0965, abs=0.15)
 
         for profile_method in profile_methods:
             # Test Error
