@@ -1,13 +1,12 @@
 #  Copyright (c) 2021 zfit
 import copy
 import math
-import os
 from typing import Optional, Dict, Union, Callable, Mapping
 
 import nlopt
 import numpy as np
 
-from .baseminimizer import BaseMinimizer, minimize_supports, NOT_SUPPORTED
+from .baseminimizer import BaseMinimizer, minimize_supports, NOT_SUPPORTED, print_minimization_status
 from .evaluation import LossEval
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
@@ -205,13 +204,11 @@ class NLoptBaseMinimizer(BaseMinimizer):
 
         minimizer_options = self.minimizer_options.copy()
         local_minimizer = None
-        local_minimizer_options = minimizer_options.pop("local_minimizer_options")
+        local_minimizer_options = minimizer_options.pop("local_minimizer_options", None)
         if local_minimizer_options is not None:
             local_minimizer = nlopt.opt(nlopt.LD_LBFGS, len(params))
             local_minimizer.set_lower_bounds(lower)
             local_minimizer.set_upper_bounds(upper)
-
-
 
         maxcor = minimizer_options.pop('maxcor', None)
         if maxcor is not None:
@@ -233,14 +230,14 @@ class NLoptBaseMinimizer(BaseMinimizer):
         criterion_value = None
         for i in range(self._internal_maxiter):
 
-            self._set_tolerances(minimizer=minimizer,
-                                     internal_tol=internal_tol,
-                                     criterion_value=criterion_value)
+            self._set_tolerances_inplace(minimizer=minimizer,
+                                         internal_tol=internal_tol,
+                                         criterion_value=criterion_value)
 
             if local_minimizer is not None:
-                self._set_tolerances(minimizer=local_minimizer,
-                                     internal_tol=internal_tol,
-                                     criterion_value=criterion_value)
+                self._set_tolerances_inplace(minimizer=local_minimizer,
+                                             internal_tol=internal_tol,
+                                             criterion_value=criterion_value)
 
                 minimizer.set_local_optimizer(local_minimizer)
 
@@ -269,10 +266,8 @@ class NLoptBaseMinimizer(BaseMinimizer):
                 edm = CRITERION_NOT_AVAILABLE
 
             if self.verbosity > 5:
-                tolerances_str = ', '.join(f'{tol}={val:.3g}' for tol, val in internal_tol.items())
-                print(f"{f'CONVERGED{os.linesep}' if converged else ''}"
-                      f"Finished iteration {i}, niter={evaluator.niter}, fmin={fmin:.7g},"
-                      f" {criterion.name}={criterion.last_value:.3g} {tolerances_str}")
+                print_minimization_status(converged=converged, criterion=criterion, evaluator=evaluator, i=i, fmin=fmin,
+                                          internal_tol=internal_tol)
             if (evaluator.current_hesse_value is not None
                 and (hessian_init is None
                      or not np.allclose(hessian_init,
@@ -290,9 +285,8 @@ class NLoptBaseMinimizer(BaseMinimizer):
             init_values = xvalues
 
             # update the tolerances
-            tol_factor = min([max([self.tolerance / criterion_value * 0.3, 1e-2]), 0.2])
-            for tol in internal_tol:
-                internal_tol[tol] *= tol_factor
+            self._update_tol_inplace(criterion_value=criterion_value, internal_tol=internal_tol)
+
         else:
             valid = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tolerance} not reached."
 
@@ -300,7 +294,7 @@ class NLoptBaseMinimizer(BaseMinimizer):
                                     niter=evaluator.niter, params=params,
                                     xvalues=xvalues, inv_hess=inv_hesse, valid=valid, criterion=criterion)
 
-    def _set_tolerances(self, minimizer, internal_tol, criterion_value):
+    def _set_tolerances_inplace(self, minimizer, internal_tol, criterion_value):
         # set all the tolerances
         fatol = internal_tol.get('fatol')
         if fatol is not None:

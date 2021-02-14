@@ -198,10 +198,11 @@ class FitResult(ZfitResult):
         inv_hesse = result.get('hess_inv')
         if isinstance(inv_hesse, LbfgsInvHessProduct):
             inv_hesse = inv_hesse.todense()
+        grad = result.get('grad')
         info = {'n_eval': result['nfev'],
                 'n_iter': result['nit'],
                 'niter': niter,
-                'grad': result.get('grad', False) or result.get('jac'),
+                'grad': result.get('jac') if grad is None else grad,
                 'inv_hesse': inv_hesse,
                 'hesse': result.get('hesse'),
                 'message': result.get('message', "No message"),

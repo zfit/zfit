@@ -8,9 +8,11 @@ import collections
 import copy
 import functools
 import inspect
+import math
+import os
 import warnings
 from collections import OrderedDict
-from typing import List, Union, Iterable, Mapping, Callable, Tuple
+from typing import List, Union, Iterable, Mapping, Callable, Tuple, Optional
 
 import numpy as np
 from ordered_set import OrderedSet
@@ -381,6 +383,18 @@ class BaseMinimizer(ZfitMinimizer):
                              minimizer=self)
         return evaluator
 
+    def _update_tol_inplace(self, criterion_value, internal_tol):
+        tol_factor = min([max([self.tolerance / criterion_value * 0.3, 1e-2]), 0.2])
+        for tol in internal_tol:
+            if tol in ('gtol', 'xtol'):
+                internal_tol[tol] *= math.sqrt(tol_factor)
+            else:
+                internal_tol[tol] *= tol_factor
+
+    def create_criterion(self, loss, params):
+        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
+        return criterion
+
 
 class BaseStepMinimizer(BaseMinimizer):
 
@@ -448,3 +462,12 @@ class BaseStepMinimizer(BaseMinimizer):
 class NOT_SUPPORTED:
     def __new__(cls, *args, **kwargs):
         raise RuntimeError("Should never be instantated.")
+
+
+def print_minimization_status(converged, criterion, evaluator, i, fmin,
+                              internal_tol: Optional[Mapping[str, float]] = None):
+    internal_tol = {} if internal_tol is None else internal_tol
+    tolerances_str = ', '.join(f'{tol}={val:.3g}' for tol, val in internal_tol.items())
+    print(f"{f'CONVERGED{os.linesep}' if converged else ''}"
+          f"Finished iteration {i}, niter={evaluator.niter}, fmin={fmin:.7g},"
+          f" {criterion.name}={criterion.last_value:.3g} {tolerances_str}")

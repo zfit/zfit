@@ -2,15 +2,14 @@
 import copy
 import inspect
 import math
-import os
 import warnings
 from typing import Optional, Dict, Callable, Union, Mapping
 
 import numpy as np
-import scipy.optimize  # pylint: disable=g-import-not-at-top
-from scipy.optimize import SR1, LbfgsInvHessProduct, BFGS
+import scipy.optimize
+from scipy.optimize import SR1, LbfgsInvHessProduct
 
-from .baseminimizer import BaseMinimizer, minimize_supports, NOT_SUPPORTED
+from .baseminimizer import BaseMinimizer, minimize_supports, NOT_SUPPORTED, print_minimization_status
 from .evaluation import LossEval
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
@@ -55,12 +54,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
     @minimize_supports()
     def _minimize(self, loss, params, init):
         previous_result = init
-        evaluator = LossEval(loss=loss,
-                             params=params,
-                             strategy=self.strategy,
-                             do_print=self.verbosity > 8,
-                             maxiter=self.get_maxiter(len(params)),
-                             minimizer=self)
+        evaluator = self.create_evaluator(loss, params)
 
         limits = [(run(p.lower), run(p.upper)) for p in params]
         init_values = np.array(run(params))
@@ -74,6 +68,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
             gradient = evaluator.gradient if gradient == 'zfit' else gradient
             minimizer_options['jac'] = gradient
 
+        inv_hessian = None
         use_hessian = 'hess' in minimizer_options
         if use_hessian:
             hessian = minimizer_options.pop('hess')
@@ -101,7 +96,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
         minimizer_options['options']['disp'] = self.verbosity > 6
 
         # tolerances and criterion
-        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.create_criterion(loss, params)
 
         init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e3])
         internal_tol = self._internal_tolerances
@@ -127,7 +122,9 @@ class ScipyBaseMinimizer(BaseMinimizer):
             set_values(params, xvalues)
 
             if use_gradient:
-                gradient = optim_result.get('grad', False) or optim_result.get('jac')
+                gradient = optim_result.get('grad', None)
+                if gradient is None:
+                    gradient = optim_result.get('jac')
             if use_hessian:
                 inv_hessian = optim_result.get('hess_inv')
                 if inv_hessian is None:
@@ -151,10 +148,12 @@ class ScipyBaseMinimizer(BaseMinimizer):
                 edm = CRITERION_NOT_AVAILABLE
 
             if self.verbosity > 5:
-                tolerances_str = ', '.join(f'{tol}={val:.3g}' for tol, val in internal_tol.items())
-                print(f"{f'CONVERGED{os.linesep}' if converged else ''}"
-                      f"Finished iteration {i}, niter={evaluator.niter}, fmin={fmin:.7g},"
-                      f" {criterion.name}={criterion.last_value:.3g} {tolerances_str}")
+                print_minimization_status(converged=converged,
+                                          criterion=criterion,
+                                          evaluator=evaluator,
+                                          i=i,
+                                          fmin=fmin,
+                                          internal_tol=internal_tol)
 
             if converged:
                 break
@@ -163,9 +162,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
             init_values = xvalues
 
             # update the tolerances
-            tol_factor = min([max([self.tolerance / criterion_value * 0.3, 1e-2]), 0.2])
-            for tol in internal_tol:
-                internal_tol[tol] *= tol_factor
+            self._update_tol_inplace(criterion_value=criterion_value, internal_tol=internal_tol)
 
         else:
             valid = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tolerance} not reached."
@@ -251,13 +248,11 @@ class Scipy(BaseMinimizer):
         xvalues = result['x']
         set_values(params, xvalues)
         from .fitresult import FitResult
-        fitresult = FitResult.from_scipy(loss=loss, params=params, result=result, minimizer=self)
-        # criterion.convergedV1(value=fitresult.fmin,
-        #                            xvalues=xvalues,
-        #                            grad=result['jac'],
-        #                            inv_hesse=result['hess_inv'].todense())
-
-        return fitresult
+        return FitResult.from_scipy(loss=loss,
+                                    params=params,
+                                    result=result,
+                                    minimizer=self
+                                    )
 
 
 class ScipyLBFGSBV1(ScipyBaseMinimizer):
@@ -382,7 +377,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizer):
     def __init__(self,
                  tolerance: float = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
-                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = BFGS,
+                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = 'zfit',
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: ZfitStrategy = None,
