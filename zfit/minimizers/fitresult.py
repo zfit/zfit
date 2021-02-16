@@ -19,7 +19,7 @@ from tabulate import tabulate
 from .errors import compute_errors, covariance_with_weights, dict_to_matrix, matrix_to_dict
 from .interface import ZfitMinimizer, ZfitResult
 from .termination import ConvergenceCriterion
-from ..core.interfaces import ZfitLoss, ZfitParameter
+from ..core.interfaces import ZfitLoss, ZfitParameter, ZfitIndependentParameter
 from ..core.parameter import set_values
 from ..settings import run
 from ..util.container import convert_to_container
@@ -363,23 +363,23 @@ class FitResult(ZfitResult):
         return result
 
     @property
-    def approx(self):
+    def approx(self) -> Approximations:
         return self._approx
 
     @property
-    def params(self):
+    def params(self) -> Mapping[ZfitIndependentParameter, Mapping[str, Mapping[str, object]]]:
         return self._params
 
     @property
-    def criterion(self):
+    def criterion(self) -> ConvergenceCriterion:
         return self._criterion
 
     @property
-    def message(self):
+    def message(self) -> str:
         return self._message
 
     @property
-    def edm(self):
+    def edm(self) -> float:
         """The estimated distance to the minimum.
 
         Returns:
@@ -388,7 +388,7 @@ class FitResult(ZfitResult):
         return self._edm
 
     @property
-    def minimizer(self):
+    def minimizer(self) -> ZfitMinimizer:
         return self._minimizer
 
     @property
@@ -397,7 +397,7 @@ class FitResult(ZfitResult):
         return self._loss
 
     @property
-    def fmin(self):
+    def fmin(self) -> float:
         """Function value at the minimum.
 
         Returns:
@@ -410,19 +410,19 @@ class FitResult(ZfitResult):
         return self._status
 
     @property
-    def info(self):
+    def info(self) -> Mapping[str, object]:
         return self._info
 
     @property
-    def converged(self):
+    def converged(self) -> bool:
         return self._converged
 
     @property
-    def valid(self):
+    def valid(self) -> bool:
         return self._valid and not self.params_at_limit and self.converged
 
     @property
-    def params_at_limit(self):
+    def params_at_limit(self) -> bool:
         return self._params_at_limit
 
     @contextlib.contextmanager
@@ -446,8 +446,11 @@ class FitResult(ZfitResult):
         return params
 
     @deprecated_args(None, "Use `name` instead", "error_name")
-    def hesse(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, name: Optional[str] = None,
-              error_name: Optional[str] = None) -> OrderedDict:
+    def hesse(self,
+              params: ParamsTypeOpt = None,
+              method: Union[str, Callable] = None,
+              name: Optional[Union[str, bool]] = None,
+              error_name: Optional[str] = None) -> Dict[ZfitIndependentParameter, Dict]:
         """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
         Args:
@@ -455,7 +458,10 @@ class FitResult(ZfitResult):
                 Hessian symmetric error. If None, use all parameters.
             method: the method to calculate the covariance matrix. Can be
                 {'minuit_hesse', 'hesse_np', 'approx'} or a callable.
-            name: The name for the error in the dictionary.
+            name: The name for the error in the dictionary. This will be added to
+                the information collected in params under ``params[p][name]`` where
+                p is a Parameter. If the name is `False`, it won't be added and only
+                returned.
             error_name: The name for the error in the dictionary.
 
         Returns:
@@ -482,14 +488,18 @@ class FitResult(ZfitResult):
                 raise ValueError("Need to specify `name` or use a string as `method`")
             name = method
 
+
         with self._input_check_reset_params(params) as params:
             uncached_params = self._get_uncached_params(params=params, method_name=name)
             if uncached_params:
                 error_dict = self._hesse(params=uncached_params, method=method)
-                self._cache_errors(error_name=name, errors=error_dict)
+                if name:
+                    self._cache_errors(error_name=name, errors=error_dict)
+            else:
+                error_dict = {}
 
-        errors = dict((p, self.params[p][name]) for p in params)
-        return errors
+        error_dict.update({p: self.params[p][name] for p in params if p not in uncached_params})
+        return {p: error_dict[p] for p in params}
 
     def _cache_errors(self, error_name, errors):
         for param, error in errors.items():
@@ -568,7 +578,7 @@ class FitResult(ZfitResult):
             if cl is not None:
                 raise ValueError("Cannot define sigma and cl, use cl only.")
             else:
-                cl = scipy.stats.chi2(1).ppf(cl)
+                cl = scipy.stats.chi2(1).ppf(sigma)
 
         if cl is None:
             cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)

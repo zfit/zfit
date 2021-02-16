@@ -28,7 +28,7 @@ class LossEval:
                  hesse_fn: Optional[Callable] = None,
                  niter_tol: Optional[float] = None):
         super().__init__()
-        niter_tol = 0.15 if niter_tol is None else niter_tol
+        niter_tol = 0.1 if niter_tol is None else niter_tol
         self.niter_tol = niter_tol
         self.maxiter = maxiter
         self._ignoring_maxiter = False
@@ -66,7 +66,7 @@ class LossEval:
         return max([self.nfunc_eval, self.ngrad_eval, self.nhess_eval])
 
     def _check_maxiter(self):
-        if not self._ignoring_maxiter and self.niter * (1 + self.niter_tol) > self.maxiter:
+        if not self.ignoring_maxiter and self.niter * (1 + self.niter_tol) > self.maxiter:
             raise MaximumIterationReached
 
     @contextlib.contextmanager
@@ -75,6 +75,10 @@ class LossEval:
         self._ignoring_maxiter = True
         yield
         self._ignoring_maxiter = old
+
+    @property
+    def ignoring_maxiter(self):
+        return self._ignoring_maxiter or self.maxiter is None
 
     @property
     def nfunc_eval(self):

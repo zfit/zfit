@@ -4,15 +4,13 @@ from typing import List, Optional
 
 import iminuit
 import numpy as np
-import tensorflow as tf
 
 from .baseminimizer import BaseMinimizer, minimize_supports
-from .strategy import ZfitStrategy
-from .evaluation import print_params, print_gradients
 from .fitresult import FitResult
-from ..settings import run
+from .strategy import ZfitStrategy
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter
+from ..settings import run
 from ..util.cache import GraphCachable
 
 
@@ -60,11 +58,13 @@ class Minuit(BaseMinimizer, GraphCachable):
     @property
     def _use_tfgrad(self):
         warnings.warn("Do not use `minimizer._use_tfgrad`, this will be removed. Use `minuit_grad` instead in the"
-                      " initialization.")
+                      " initialization.", stacklevel=2)
         return self._use_tfgrad_internal
 
     @minimize_supports()
-    def _minimize(self, loss: ZfitLoss, params: List[Parameter]):
+    def _minimize(self, loss: ZfitLoss, params: List[Parameter], init):
+        previous_result = init
+        evaluator = self.create_evaluator(loss, params)
 
         # create options
         minimizer_options = self.minimizer_options.copy()
@@ -77,7 +77,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             raise ValueError("errordef cannot be specified for Minuit as this is already defined in the Loss.")
         loss_errordef = loss.errordef
         if not isinstance(loss_errordef, (float, int)):
-            loss_errordef = 1.0  # default of minuit
+            raise ValueError("errordef has to be a float")
         minimizer_init['errordef'] = loss_errordef
         minimizer_init['pedantic'] = minimizer_options.pop('pedantic', False)
 
@@ -92,108 +92,28 @@ class Minuit(BaseMinimizer, GraphCachable):
         if minimizer_options:
             raise ValueError("The following options are not (yet) supported: {}".format(minimizer_options))
 
+        init_values = np.array(run(params))
         # create Minuit compatible names
-        limits = tuple(tuple((param.lower, param.upper)) for param in params)
-        errors = tuple(param.step_size for param in params)
-        start_values = np.array(run(params))
-
-        multiparam = isinstance(start_values[0], np.ndarray) and len(start_values[0]) > 1 and len(params) == 1
-        if multiparam:
-            # TODO(Mayou36): multiparameter
-            params_name = None  # autogenerate for the moment
-            start_values = start_values[0]
-            # errors = errors[0]
-            limits = limits[0]
-            gradients = gradients[0]
-        else:
-            params_name = [param.name for param in params]
-
-        current_loss = None
-        nan_counter = 0
-
-        def func(values):
-            nonlocal current_loss, nan_counter
-            self._update_params(params=params, values=values)
-            do_print = self.verbosity > 8
-
-            is_nan = False
-
-            try:
-                loss_evaluated = run(loss.value())
-            except tf.errors.InvalidArgumentError:
-                is_nan = True
-                loss_evaluated = "invalid, error occured"
-            except:
-                loss_evaluated = "invalid, error occured"
-                raise
-            finally:
-                if do_print:
-                    print_params(params, values, loss_evaluated)
-            is_nan = is_nan or np.isnan(loss_evaluated).any()
-            if is_nan:
-                nan_counter += 1
-                info_values = {}
-                info_values['loss'] = loss_evaluated
-                info_values['old_loss'] = current_loss
-                info_values['nan_counter'] = nan_counter
-                loss_evaluated = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
-                                                            values=info_values)
-            else:
-                nan_counter = 0
-                current_loss = loss_evaluated
-            return loss_evaluated
-
-        def grad_func(values):
-            nonlocal current_loss, nan_counter
-            self._update_params(params=params, values=values)
-            do_print = self.verbosity > 8
-            is_nan = False
-
-            try:
-                loss_value, gradients = loss.value_gradients(params=params)
-                loss_value = run(loss_value)
-                gradients_values = run(gradients)
-            except tf.errors.InvalidArgumentError:
-                is_nan = True
-                loss_value = "invalid, error occured"
-                gradients_values = ["invalid"] * len(params)
-            except:
-                gradients_values = ["invalid"] * len(params)
-                raise
-            finally:
-                if do_print:
-                    print_gradients(params, values, gradients_values, loss=loss_value)
-
-            is_nan = is_nan or any(np.isnan(gradients_values))
-            if is_nan:
-                nan_counter += 1
-                info_values = {}
-                info_values['loss'] = loss_value
-                info_values['old_loss'] = current_loss
-                info_values['nan_counter'] = nan_counter
-                # but loss value not needed here
-                _ = self.strategy.minimize_nan(loss=loss, params=params, minimizer=minimizer,
-                                               values=info_values)
-            else:
-                nan_counter = 0
-                current_loss = loss_value
-            return gradients_values
+        params_name = [param.name for param in params]
 
         # TODO 0.7: legacy, remove `_use_tfgrad`
-        grad_func = grad_func if self._use_tfgrad or not self.minuit_grad else None
+        grad_func = evaluator.gradient if self._use_tfgrad or not self.minuit_grad else None
 
-        minimizer = iminuit.Minuit(func, start_values,
+        minimizer = iminuit.Minuit(evaluator.value, init_values,
                                    grad=grad_func,
                                    name=params_name,
                                    )
         minimizer.precision = precision
+        approx_step_sizes = previous_result.hesse(params=params, method='approx')
         for param in params:
-            if param.has_step_size:
-                minimizer.errors[param.name] = param.step_size
+            step_size = approx_step_sizes.get(param)
+            if step_size is None and param.has_step_size:
+                step_size = param.step_size
+            if step_size is not None:
+                minimizer.errors[param.name] = step_size
+
             if param.has_limits:
                 minimizer.limits[param.name] = (param.lower, param.upper)
-        if loss.errordef is None:
-            raise ValueError("Errordef must not be None to be run with iminuit.")
         minimizer.errordef = loss.errordef
         minimizer.print_level = minuit_verbosity
         strategy = minimizer_setter.pop('strategy')
@@ -203,7 +123,10 @@ class Minuit(BaseMinimizer, GraphCachable):
             minimizer_setter)
         self._minuit_minimizer = minimizer
         result = minimizer.migrad(**minimize_options)
-        fitresult = FitResult.from_minuit(loss=loss, params=params, result=result, minimizer=self.copy())
+        fitresult = FitResult.from_minuit(loss=loss,
+                                          params=params,
+                                          result=result,
+                                          minimizer=self.copy())
         return fitresult
 
     def copy(self):

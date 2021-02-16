@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 from collections import OrderedDict
@@ -50,7 +50,7 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
 
 class SimpleConstraint(BaseConstraint):
 
-    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType]):
+    def __init__(self, func: Callable, params: Optional[ztyping.ParameterType]):
         """Constraint from a (function returning a) Tensor.
 
         The parameters are named "param_{i}" with i starting from 0 and corresponding to the index of params.

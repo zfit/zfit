@@ -374,7 +374,7 @@ class BaseMinimizer(ZfitMinimizer):
             maxiter = self._n_iter_per_param * n
         return maxiter
 
-    def create_evaluator(self, loss: ZfitLoss, params: ztyping.ParametersType) -> LossEval:
+    def create_evaluator(self, loss: ZfitLoss, params: ztyping.ParameterType) -> LossEval:
         evaluator = LossEval(loss=loss,
                              params=params,
                              strategy=self.strategy,

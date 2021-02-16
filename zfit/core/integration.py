@@ -2,7 +2,7 @@
 This module contains functions for the numeric as well as the analytic (partial) integration.
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import collections
 from typing import Callable, Optional, Union, Type, Tuple, List
@@ -207,13 +207,19 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
         def grad_fn(dy, variables=None):
             if variables is None:
                 return dy, None
-            normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(ys=func(x), xs=variables)),
-                                               n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
-                                               dtype=dtype,
-                                               space=space,
-                                               x=x, shape_after=(len(variables),))
+            with tf.GradientTape() as tape:
+                value = normalization_nograd(func=func, n_axes=n_axes,
+                                             batch_size=batch_size, num_batches=num_batches,
+                                             dtype=dtype,
+                                             space=space, x=x, shape_after=shape_after)
 
-            return dy, tf.unstack(normed_grad)
+            # normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(ys=func(x), xs=variables)),
+            #                                    n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
+            #                                    dtype=dtype,
+            #                                    space=space,
+            #                                    x=x, shape_after=(len(variables),))
+
+            return dy, tape.gradient(value, variables)
 
         return value, grad_fn
 
@@ -221,8 +227,6 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
     return normalization_func(fake_x)
 
 
-def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
-    avg = normalization_nograd()
 
 
 # @z.function

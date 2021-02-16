@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from typing import Union, Tuple, Iterable, Optional, List, Dict, Callable, TypeVar
 
 import numpy as np
@@ -88,7 +88,8 @@ ConstraintsTypeInput = Optional[Union[Iterable[Union['zfit.core.interfaces.ZfitC
 ParamsTypeOpt = Optional[Iterable['zfit.core.interfaces.ZfitParameter']]  #:
 ParamsNameOpt = Optional[Union[str, List[str]]]  #:
 ParamsOrNameType = Optional[Union[ParamsTypeOpt, Iterable[str]]]  #:
-ParametersType = TypeVar('ParametersType', bound=Dict[str, "zfit.core.interfaces.ZfitParameter"])  #:
+ParameterType = TypeVar('ParameterType', bound=Dict[str, "zfit.core.interfaces.ZfitParameter"])  #:
+ParametersType = Iterable[ParameterType]
 ParamTypeInput = TypeVar('ParamTypeInput', 'zfit.core.interfaces.ZfitParameter', NumericalScalarType)  #:
 
 # Zfit Structure

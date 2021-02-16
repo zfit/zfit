@@ -2,6 +2,7 @@
 
 
 from .minimizers.baseminimizer import DefaultStrategy
+from .minimizers.ipopt import IPopt
 from .minimizers.strategy import ZfitStrategy, DefaultToyStrategy
 from .minimizers.fitresult import FitResult
 from .minimizers.minimizer_minuit import Minuit
@@ -48,6 +49,7 @@ __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
            "ScipyPowellV1", "ScipySLSQPV1", "ScipyNewtonCGV1", "ScipyTruncNCV1",
            "NLoptLBFGSV1", "NLoptTruncNewtonV1", "NLoptSLSQPV1", "NLoptMMAV1", "NLoptCCSAQV1",
            # "NLoptMLSLV1",
+           "IPopt",
            "NLoptSubplexV1",
            "BFGS", "NLopt",
            "DefaultStrategy", "FitResult"]

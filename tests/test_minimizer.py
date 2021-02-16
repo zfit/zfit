@@ -1,7 +1,6 @@
 #  Copyright (c) 2021 zfit
 from collections import OrderedDict
 
-import nlopt
 import numpy as np
 import pytest
 import scipy.optimize
@@ -51,30 +50,33 @@ def create_loss(obs1):
     return loss, minimum, (mu_param, sigma_param, lambda_param)
 
 
+verbosity = 8
+zfit.settings.set_verbosity(verbosity=verbosity)
+
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
-    (zfit.minimize.Adam, dict(learning_rate=0.05, tolerance=0.00001), False),
+    (zfit.minimize.Adam, dict(learning_rate=0.05, verbosity=verbosity, tolerance=0.00001), False),
     # works
-    (zfit.minimize.Minuit, {"tolerance": 0.0001},
-     {'error': True, 'longtests': True}),  # works
+    (zfit.minimize.Minuit, {"tolerance": 0.0001, "verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
-    (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5}, {'error': True, 'numgrad': False, 'approx': True}),
-    (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5}, True),
-    (zfit.minimize.ScipyDoglegV1, {'tolerance': 1e-5}, True),
-    (zfit.minimize.ScipyTrustKrylovV1, {}, True),
-    (zfit.minimize.ScipyTrustConstrV1, {}, {'error': True, 'longtests': True}),
-    (zfit.minimize.ScipyPowellV1, {}, {'error': True}),
-    (zfit.minimize.ScipySLSQPV1, {}, {'error': True}),
-    # (zfit.minimize.ScipyNewtonCGV1, {}, {'error': True}),  # Too sensitive? Fails in line-search?
-    (zfit.minimize.ScipyTruncNCV1, {}, {'error': True}),
+    (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5, "verbosity": verbosity},
+     {'error': True, 'numgrad': False, 'approx': True}),
+    (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5, "verbosity": verbosity}, True),
+    (zfit.minimize.ScipyDoglegV1, {'tolerance': 1e-5, "verbosity": verbosity}, True),
+    (zfit.minimize.ScipyTrustKrylovV1, {"verbosity": verbosity}, True),
+    (zfit.minimize.ScipyTrustConstrV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
+    (zfit.minimize.ScipyPowellV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.ScipySLSQPV1, {"verbosity": verbosity, }, {'error': True}),
+    # (zfit.minimize.ScipyNewtonCGV1, {"verbosity":verbosity,}, {'error': True}),  # Too sensitive? Fails in line-search?
+    (zfit.minimize.ScipyTruncNCV1, {"verbosity": verbosity, }, {'error': True}),
 
-    (zfit.minimize.NLoptLBFGSV1, {}, {'error': True, 'longtests': True}),
-    (zfit.minimize.NLoptTruncNewtonV1, {}, True),
-    (zfit.minimize.NLoptSLSQPV1, {}, True),
-    (zfit.minimize.NLoptMMAV1, {}, True),
-    (zfit.minimize.NLoptCCSAQV1, {}, True),
-    (zfit.minimize.NLoptSubplexV1, {}, True),
+    (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
+    (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, True),
 
     # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
     # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'CG'}, False),
@@ -97,6 +99,8 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
 ]
 
+minimizers = [(zfit.minimize.Minuit, {"tolerance": 0.0001, "verbosity": verbosity}, {'error': True, 'longtests': True})]
+# minimizers = [(zfit.minimize.IPopt, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
@@ -136,6 +140,7 @@ def test_floating_flag():
     assert list(result.params.keys()) == [mu]
     assert sigma not in result.params
 
+
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_minimize_pure_func(minimizer_class_and_kwargs):
     zfit.run.set_autograd_mode(False)
@@ -170,13 +175,14 @@ def test_dependent_param_extraction():
 
 # @pytest.mark.run(order=4)
 chunksizes = [100000, 3000]
-num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
+# skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
+# num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
+num_grads = [False, True]
 
 spaces_all = [obs1, obs1_split]
 
 
 @pytest.mark.parametrize("chunksize", chunksizes)
-# skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
 @pytest.mark.parametrize("num_grad", num_grads)
 @pytest.mark.parametrize("spaces", spaces_all)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
@@ -273,7 +279,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
                                                                           abs=0.15)
             if not (can_be_none and errors[lambda_param]['error'] is None):
                 assert abs(errors[lambda_param]['error']) == pytest.approx(0.01,
-                                                                       abs=0.01)
+                                                                           abs=0.01)
             if not (can_be_none and sigma_hesse['error'] is None):
                 assert abs(sigma_hesse['error']) == pytest.approx(0.0965, abs=0.15)
 

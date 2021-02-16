@@ -1,5 +1,5 @@
 """Baseclass for most objects appearing in zfit."""
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import itertools
 import warnings
 from collections import OrderedDict
@@ -109,7 +109,7 @@ class BaseParametrized(ZfitParametrized):
         return params
 
     @property
-    def params(self) -> ztyping.ParametersType:
+    def params(self) -> ztyping.ParameterType:
         return self._params
 
 

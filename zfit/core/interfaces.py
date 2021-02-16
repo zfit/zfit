@@ -626,7 +626,7 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
 
     @property
     @abstractmethod
-    def params(self) -> ztyping.ParametersType:
+    def params(self) -> ztyping.ParameterType:
         raise NotImplementedError
 
 

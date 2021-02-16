@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from . import function
 from .tools import _auto_upcast
+from .zextension import convert_to_tensor
 from ..util.container import convert_to_container
 
 
@@ -55,8 +56,11 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
     param_vals = tf.stack(params)
     original_vals = [param.read_value() for param in params]
     grad_func = numdifftools.Gradient(wrapped_func, order=4, base_step=1e-4)
-    gradients = tf.py_function(grad_func, inp=[param_vals],
-                               Tout=tf.float64)
+    if tf.executing_eagerly():
+        gradients = convert_to_tensor(grad_func(param_vals))
+    else:
+        gradients = tf.py_function(grad_func, inp=[param_vals],
+                                   Tout=tf.float64)
     if gradients.shape == ():
         gradients = tf.reshape(gradients, shape=(1,))
     gradients.set_shape(param_vals.shape)
@@ -114,8 +118,11 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
                                           order=4,
                                           base_step=1e-4,
                                           )
-    computed_hessian = tf.py_function(hesse_func, inp=[param_vals],
-                                      Tout=tf.float64)
+    if tf.executing_eagerly():
+        computed_hessian = convert_to_tensor(hesse_func(param_vals))
+    else:
+        computed_hessian = tf.py_function(hesse_func, inp=[param_vals],
+                                          Tout=tf.float64)
     n_params = param_vals.shape[0]
     if hessian == 'diag':
         computed_hessian.set_shape((n_params,))

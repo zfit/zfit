@@ -258,6 +258,8 @@ class NLoptBaseMinimizer(BaseMinimizer):
                 maxiter_reached = True
                 valid = False
                 valid_message = "Maxiter reached, terminated without convergence"
+            else:
+                maxiter_reached = evaluator.niter > evaluator.maxiter
 
             set_values(params, xvalues)
             fmin = minimizer.last_optimum_value()  # TODO: what happens if minimization terminated?
@@ -309,7 +311,7 @@ class NLoptBaseMinimizer(BaseMinimizer):
         # set all the tolerances
         fatol = internal_tol.get('fatol')
         if fatol is not None:
-            minimizer.set_ftol_abs(fatol)
+            minimizer.set_ftol_abs(fatol ** 0.5)
         xatol = internal_tol.get('xatol')
         if xatol is not None:
             # minimizer.set_xtol_abs([xatol] * len(params))

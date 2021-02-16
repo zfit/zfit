@@ -209,8 +209,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @property
     def fit_range(self):
-        fit_range = self._fit_range
-        return fit_range
+        return self._fit_range
 
     @property
     def constraints(self):
@@ -261,10 +260,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def value_gradients(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
-        return self._value_gradients(params=params)
+        numgrad = settings.options['numerical_grad']
+        return self._value_gradients(params=params, numgrad=numgrad)
 
-    def _value_gradients(self, params):
-        if settings.options['numerical_grad']:
+    @z.function(wraps='loss')
+    def _value_gradients(self, params, numgrad=False):
+        if numgrad:
             value, gradients = numerical_value_gradients(self.value, params=params)
         else:
             value, gradients = autodiff_value_gradients(self.value, params=params)

@@ -16,6 +16,7 @@ from .strategy import ZfitStrategy
 from .termination import ConvergenceCriterion, CRITERION_NOT_AVAILABLE, EDM
 from ..core.parameter import set_values
 from ..settings import run
+from ..util.exception import MaximumIterationReached
 
 
 class ScipyBaseMinimizer(BaseMinimizer):
@@ -30,7 +31,10 @@ class ScipyBaseMinimizer(BaseMinimizer):
                  verbosity: Optional[int] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
+                 minimize_func: Optional[callable] = None,
                  name="ScipyMinimizer"):
+        minimize_func = scipy.optimize.minimize if minimize_func is None else minimize_func
+        self._minimize_func = minimize_func
         minimizer_options = copy.copy(minimizer_options)
         minimizer_options['method'] = method
         if 'options' not in minimizer_options:
@@ -52,7 +56,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
                          strategy=strategy, criterion=criterion, maxiter=maxiter)
 
     @minimize_supports()
-    def _minimize(self, loss, params, init):
+    def _minimize(self, loss, params, init: FitResult):
         previous_result = init
         evaluator = self.create_evaluator(loss, params)
 
@@ -80,13 +84,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
 
             init_scale = 'auto'
             if previous_result:
-                optimize_results = previous_result.info['original']
-                inv_hessian = optimize_results.get('hess_inv')
-                if inv_hessian is None:
-                    hessian_init = optimize_results.get('hess')
-                    if hessian_init is not None:
-                        inv_hessian = np.linalg.inv(hessian_init)
-                        init_scale = inv_hessian
+                inv_hessian = previous_result.approx.inv_hessian(params)
 
         maxiter = self.get_maxiter(len(params))
         if maxiter is not None:
@@ -103,6 +101,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
         internal_tol = {tol: init_tol if init is None else init for tol, init in internal_tol.items()}
 
         valid = None
+        valid_message = None
         optimize_results = None
         for i in range(self._internal_maxiter):
 
@@ -116,25 +115,27 @@ class ScipyBaseMinimizer(BaseMinimizer):
                 minimizer_options['options'][tol] = val
 
             # perform minimization
-            optim_result = scipy.optimize.minimize(fun=evaluator.value,
-                                                   x0=init_values, **minimizer_options)
-            xvalues = optim_result['x']
-            set_values(params, xvalues)
+            try:
+                optim_result = self._minimize_func(fun=evaluator.value, x0=init_values, **minimizer_options)
+            except MaximumIterationReached as error:
+                if optim_result is None:  # it didn't even run once
+                    raise MaximumIterationReached("Maximum iteration reached on first wrapped minimizer call. This"
+                                                  "is likely to a too low number of maximum iterations (currently"
+                                                  f" {evaluator.maxiter}) or wrong internal tolerances, in which"
+                                                  f" case: please fill an issue on github.") from error
+                maxiter_reached = True
+                valid = False
+                valid_message = "Maxiter reached, terminated without convergence"
+            else:
+                maxiter_reached = evaluator.niter > evaluator.maxiter
 
-            if use_gradient:
-                gradient = optim_result.get('grad', None)
-                if gradient is None:
-                    gradient = optim_result.get('jac')
+            xvalues = optim_result['x']
+
             if use_hessian:
-                inv_hessian = optim_result.get('hess_inv')
-                if inv_hessian is None:
-                    hessian_result = optim_result.get('hess')
-                    if hessian_result is not None:
-                        inv_hessian = np.linalg.inv(hessian_result)
-                elif isinstance(inv_hessian, LbfgsInvHessProduct):
-                    inv_hessian = inv_hessian.todense()
+                inv_hessian = optim_result.approx.get('hess_inv')
 
             fmin = optim_result.fun
+            set_values(params, xvalues)
 
             optimize_results = combine_optimize_results(
                 [optim_result] if optimize_results is None else [optimize_results, optim_result])
@@ -155,7 +156,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
                                           fmin=fmin,
                                           internal_tol=internal_tol)
 
-            if converged:
+            if converged or maxiter_reached:
                 break
             if use_hessian and inv_hessian is not None:
                 init_scale = inv_hessian
@@ -174,6 +175,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
             valid=valid,
             criterion=criterion,
             edm=edm,
+            message=valid_message,
             niter=evaluator.niter,
         )
 
