@@ -28,9 +28,9 @@ def create_loss(obs1):
     mu_param = zfit.Parameter("mu", true_mu - 2., -5., 9.,
                               step_size=0.03
                               )
-    sigma_param = zfit.Parameter("sigma", true_sigma * 0.1, 0.01, 10,
+    sigma_param = zfit.Parameter("sigma", true_sigma * 0.3, 0.01, 10,
                                  step_size=0.03)
-    lambda_param = zfit.Parameter("lambda", true_lambda * 0.2, -0.5, -0.0003,
+    lambda_param = zfit.Parameter("lambda", true_lambda * 0.5, -0.5, -0.0003,
                                   step_size=0.001)
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
@@ -41,7 +41,8 @@ def create_loss(obs1):
     with mu_param.set_value(true_mu):
         with sigma_param.set_value(true_sigma):
             with lambda_param.set_value(true_lambda):
-                sampled_data = sum_pdf1.create_sampler(n=30000)
+                # sampled_data = sum_pdf1.create_sampler(n=15000)
+                sampled_data = sum_pdf1.create_sampler(n=10000000)
                 sampled_data.resample()
 
                 loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
@@ -50,7 +51,7 @@ def create_loss(obs1):
     return loss, minimum, (mu_param, sigma_param, lambda_param)
 
 
-verbosity = 8
+verbosity = 7
 zfit.settings.set_verbosity(verbosity=verbosity)
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
@@ -99,7 +100,8 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
 ]
 
-minimizers = [(zfit.minimize.Minuit, {"tolerance": 0.0001, "verbosity": verbosity}, {'error': True, 'longtests': True})]
+minimizers = [(zfit.minimize.Minuit, {"tolerance": 0.0001, "verbosity": verbosity, 'use_minuit_grad':False},
+               {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.IPopt, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
@@ -177,7 +179,9 @@ def test_dependent_param_extraction():
 chunksizes = [100000, 3000]
 # skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
 # num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
-num_grads = [False, True]
+# num_grads = [False, True]
+# num_grads = [True]
+num_grads = [False]
 
 spaces_all = [obs1, obs1_split]
 
@@ -186,7 +190,7 @@ spaces_all = [obs1, obs1_split]
 @pytest.mark.parametrize("num_grad", num_grads)
 @pytest.mark.parametrize("spaces", spaces_all)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-@pytest.mark.flaky(reruns=3)
+# @pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
                     pytestconfig):
     long_clarg = pytestconfig.getoption("longtests")
@@ -246,7 +250,8 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     assert true_min + max_distance_to_min >= found_min
 
     assert result_lowtol2.fmin == pytest.approx(result.fmin, abs=2.)
-    assert result_lowtol2.info['n_eval'] < 0.99 * result.info['n_eval']
+    if not isinstance(minimizer, zfit.minimize.IPopt):
+        assert result_lowtol2.info['n_eval'] < 0.99 * result.info['n_eval']
 
     aval, bval, cval = [zfit.run(v) for v in
                         (mu_param, sigma_param, lambda_param)]

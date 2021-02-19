@@ -3,9 +3,10 @@
 import abc
 import inspect
 import warnings
-from typing import Optional, Union, List, Callable, Iterable, Tuple, Set
+from typing import Optional, Union, List, Callable, Iterable, Tuple, Set, Mapping
 
 import tensorflow as tf
+import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
 from .baseobject import BaseNumeric
@@ -42,7 +43,14 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
     if is_container(model):
         nlls = [_unbinned_nll_tf(model=p, data=d, fit_range=r)
                 for p, d, r in zip(model, data, fit_range)]
-        nll_finished = tf.reduce_sum(input_tensor=nlls, axis=0)
+        nlls_total = [nll.total for nll in nlls]
+        nlls_correction = [nll.correction for nll in nlls]
+        nlls_total_summed = tf.reduce_sum(input_tensor=nlls_total, axis=0)
+        # nlls_summed = tf.reduce_sum(input_tensor=nlls, axis=0)
+        #
+        nlls_correction_summed = tf.reduce_sum(input_tensor=nlls_correction, axis=0)
+        nll_finished = (nlls_total_summed, nlls_correction_summed)
+        # nll_finished = nlls_summed
     else:
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
@@ -59,7 +67,8 @@ def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
         log_probs *= weights  # because it's prob ** weights
     if log_offset:
         log_probs -= log_offset
-    nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
+    # nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
+    nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
     return nll
 
 
@@ -79,7 +88,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def __init__(self, model: ztyping.ModelsInputType, data: ztyping.DataInputType,
                  fit_range: ztyping.LimitsTypeInput = None,
-                 constraints: ztyping.ConstraintsTypeInput = None):
+                 constraints: ztyping.ConstraintsTypeInput = None,
+                 options: Optional[Mapping] = None):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
         """
 
@@ -106,9 +116,31 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self._model = model
         self._data = data
         self._fit_range = fit_range
+
+        options = self._check_init_options(options)
+
+        self._options = options
+        self._substract_kahan = None
         if constraints is None:
             constraints = []
         self._constraints = _constraint_check_convert(convert_to_container(constraints, list))
+
+    def _check_init_options(self, options):
+        options = {} if options is None else options
+        numgrad = options.get('numgrad')
+        if numgrad is None:
+            if numgrad.get('hessian') is None:
+                numgrad['hessian'] = True
+            if numgrad.get('gradient') is None:
+                numgrad['gradient'] = False
+            options['numgrad'] = numgrad
+
+        if options.get('kahansum') is None:
+            options['kahansum'] = 100000  # start using kahan if we have more than 100k events
+
+        if options.get('subtr_const') is None:
+            options['subtr_const'] = 'kahan' # or elementwise
+
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -225,7 +257,14 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         raise NotImplementedError
 
     def value(self):
-        return self._value()
+        value = self._value()
+        if self._substract_kahan is None:
+            self._substract_kahan = value
+        value_subtracted = (value[0] - self._substract_kahan[0]) - (
+                value[1] - self._substract_kahan[1])
+        return value_subtracted
+        # return value
+        # value = value_substracted[0] - value_substracted[1]
 
     @property
     def errordef(self) -> Union[float, int]:
@@ -274,10 +313,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def hessian(self, params: ztyping.ParamTypeInput, hessian=None):
         return self.value_gradients_hessian(params=params, hessian=hessian)[2]
 
-    def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None) -> Tuple[
+    def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None, numgrad=False) -> Tuple[
         tf.Tensor, tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
-        numerical = settings.options['numerical_grad']
+        numerical = settings.options['numerical_grad'] or numgrad
         vals = self._value_gradients_hessian(params=params, hessian=hessian, numerical=numerical)
         vals = vals[0], z.convert_to_tensor(vals[1]), vals[2]
         return vals
@@ -285,7 +324,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     @z.function(wraps='loss')
     def _value_gradients_hessian(self, params, hessian, numerical=False):
         if numerical:
-            result = numerical_value_gradients_hessian(self.value, params=params, hessian=hessian)
+            result = numerical_value_gradients_hessian(
+                func=self.value,
+                gradient=self.gradients,
+                params=params, hessian=hessian)
         else:
             result = automatic_value_gradients_hessian(self.value, params=params, hessian=hessian)
         return result

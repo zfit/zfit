@@ -6,6 +6,7 @@ from .minimizers_scipy import ScipyBaseMinimizer
 from .strategy import ZfitStrategy
 from .termination import ConvergenceCriterion
 # import cyipopt
+import ipopt
 
 class IPopt(ScipyBaseMinimizer):
 
@@ -19,17 +20,17 @@ class IPopt(ScipyBaseMinimizer):
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name="IPopt"):
-        options = {}
+        options = {'linear_solver': "mumps"}
 
         minimizer_options = {}
         if options:
             minimizer_options['options'] = options
 
-        scipy_tolerances = {'ftol': None, 'gtol': None}
+        scipy_tolerances = {'tol': None}
 
         super().__init__(method=None, internal_tolerances=scipy_tolerances, gradient=gradient,
                          hessian=NOT_SUPPORTED,
                          minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
                          maxiter=maxiter,
-                         # minimize_func=cyipopt.scipy_interface.minimize_ipopt,
+                         minimize_func=ipopt.minimize_ipopt,
                          strategy=strategy, criterion=criterion, name=name)

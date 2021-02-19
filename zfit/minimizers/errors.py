@@ -1,11 +1,11 @@
 #  Copyright (c) 2021 zfit
+import logging
 
+import numdifftools
 import numpy as np
 import scipy.stats
 import tensorflow as tf
 from scipy import optimize
-import itertools
-import numdifftools
 
 from .. import z, settings
 from ..param import set_values
@@ -65,7 +65,8 @@ def compute_errors(result, params, cl=None, sigma=1, rtol=0.001, method="hybr", 
 
         to_return = {}
         for param in params:
-            param_error = covariance[(param, param)]**0.5
+            logging.info(f"profiling the parameter {param}")
+            param_error = covariance[(param, param)] ** 0.5
             param_value = result.params[param]["value"]
             other_params = [p for p in all_params if p != param]
 
@@ -78,8 +79,8 @@ def compute_errors(result, params, cl=None, sigma=1, rtol=0.001, method="hybr", 
                     ap_value += direction[d] * covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
                     initial_values[d].append(ap_value)
 
-            def func(values):
-
+            def func(values, args):
+                swap_sign = args[0]
                 with set_values(all_params, values):
                     try:
                         loss_value, gradients = loss.value_gradients(params=other_params)
@@ -89,18 +90,28 @@ def compute_errors(result, params, cl=None, sigma=1, rtol=0.001, method="hybr", 
                                " caused by negative values returned from the PDF.")
                         raise FailEvalLossNaN(msg)
 
-                    shifted_loss = loss_value.numpy() - fmin - errordef * sigma**2
+                    shifted_loss = loss_value.numpy() - fmin - errordef * sigma ** 2
                     gradients = np.array(gradients)
 
                 if shifted_loss < -errordef - minimizer.tolerance:
                     set_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new is minimum found.")
-
+                if swap_sign(param):
+                    shifted_loss = - shifted_loss
+                    gradients = - gradients
+                    logging.info("Swapping sign in error calculation 'zfit_error'")
                 return np.concatenate([[shifted_loss], gradients])
 
             to_return[param] = {}
+            swap_sign = {
+                "lower": lambda p: p > param_value,
+                "upper": lambda p: p < param_value,
+            }
             for d in ["lower", "upper"]:
-                roots = optimize.root(fun=func, x0=initial_values[d], tol=rtol, method=method)
+                roots = optimize.root(fun=func,
+                                      args=[swap_sign[d]],
+                                      x0=initial_values[d],
+                                      tol=rtol, method=method)
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value
 
     except NewMinimum as e:
@@ -130,7 +141,6 @@ def numerical_pdf_jacobian(func, params):
 
 @z.function(wraps='autodiff')
 def autodiff_pdf_jacobian(func, params):
-
     # with tf.GradientTape(persistent=False,
     #                      watch_accessed_variables=False) as tape:
     #     tape.watch(params)
@@ -153,7 +163,6 @@ def autodiff_pdf_jacobian(func, params):
 
 
 def covariance_with_weights(method, result, params):
-
     model = result.loss.model
     data = result.loss.data
 

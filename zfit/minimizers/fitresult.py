@@ -168,6 +168,7 @@ class FitResult(ZfitResult):
                  info: Mapping,
                  loss: ZfitLoss,
                  minimizer: "ZfitMinimizer",
+                 valid: Optional[bool] = None,
                  message: Optional[str] = None,
                  approx: Optional[Union[Mapping, Approximations]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
@@ -228,7 +229,7 @@ class FitResult(ZfitResult):
         self._info = info
         self._loss = loss
         self._minimizer = minimizer
-        self._valid = True
+        self._valid = valid or True
         self._covariance_dict = {}
 
     def _input_convert_params(self, params):
@@ -239,7 +240,7 @@ class FitResult(ZfitResult):
 
     @classmethod
     def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: iminuit.util.FMin,
-                    minimizer: Union[ZfitMinimizer, iminuit.Minuit]) -> 'FitResult':
+                    minimizer: Union[ZfitMinimizer, iminuit.Minuit], valid, message) -> 'FitResult':
         """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
         :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
         zfit objects.
@@ -271,15 +272,14 @@ class FitResult(ZfitResult):
                 # 'grad': result['jac'],
                 # 'message': result['message'],
                 'original': fmin_object}
-        approx = {}
         edm = fmin_object.edm
         fmin = fmin_object.fval
-        message = "No message"
         status = -999
+        valid = valid and fmin_object.is_valid
         converged = fmin_object.is_valid
         params = OrderedDict((p, res.value) for p, res in zip(params, params_result))
         return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
-                   status=status, converged=converged, message=message,
+                   status=status, converged=converged, message=message, valid=valid,
                    minimizer=minimizer)
 
     @classmethod

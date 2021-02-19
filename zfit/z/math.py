@@ -83,7 +83,9 @@ def numerical_value_gradients(func: Callable, params: Iterable["zfit.Parameter"]
     return func(), numerical_gradient(func, params)
 
 
-def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessian=None) -> tf.Tensor:
+def numerical_hessian(func: Optional[Callable],
+                      params: Iterable["zfit.Parameter"],
+                      hessian=None) -> tf.Tensor:
     """Calculate numerically the hessian matrix of func with respect to `params`.
 
         Args:
@@ -94,6 +96,7 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
         Returns:
             Hessian matrix
     """
+
     params = convert_to_container(params)
 
     def wrapped_func(param_values):
@@ -105,7 +108,7 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
         return value
 
     param_vals = tf.stack(params)
-    original_vals = [param.read_value() for param in params]
+    original_vals = [param.value() for param in params]
 
     if hessian == 'diag':
         hesse_func = numdifftools.Hessdiag(wrapped_func,
@@ -134,7 +137,9 @@ def numerical_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessia
     return computed_hessian
 
 
-def numerical_value_gradients_hessian(func: Callable, params: Iterable["zfit.Parameter"],
+def numerical_value_gradients_hessian(func: Optional[Callable],
+                                      params: Iterable["zfit.Parameter"],
+                                      gradient: Optional[Callable] = None,
                                       hessian: Optional[str] = None) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
     """Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
 
@@ -146,6 +151,10 @@ def numerical_value_gradients_hessian(func: Callable, params: Iterable["zfit.Par
         Returns:
             Value, gradient and hessian matrix
     """
+    if params is None:
+        raise ValueError("params cannot be None")
+    if func is None and gradient is None:
+        raise ValueError("Either func or grad has to be given")
     value, gradients = numerical_value_gradients(func, params)
     hessian = numerical_hessian(func, params, hessian=hessian)
 

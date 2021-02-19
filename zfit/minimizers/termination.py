@@ -2,6 +2,7 @@
 import abc
 from typing import Optional, Tuple
 
+import numba
 import numpy as np
 
 from ..core.interfaces import ZfitLoss
@@ -52,8 +53,9 @@ class ConvergenceCriterion(abc.ABC):
         return f"<ConvergenceCriterion {self.name}>"
 
 
+# @numba.njit(numba.float64(numba.float64[:], numba.float64[:, :]))
 def calculate_edm(grad, inv_hesse):
-    grad = np.array(grad)
+    # grad = np.array(grad)
     return grad @ inv_hesse @ grad / 2
 
 
@@ -80,7 +82,7 @@ class EDM(ConvergenceCriterion):
             if hesse is None:
                 hesse = loss.hessian(params)
             inv_hesse = np.linalg.inv(hesse)
-
+        grad = np.array(grad)
         return calculate_edm(grad, inv_hesse)
 
     def calculateV1(self, value, xvalues, grad, hesse=None, inv_hesse=None,

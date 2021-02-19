@@ -131,9 +131,6 @@ class ScipyBaseMinimizer(BaseMinimizer):
 
             xvalues = optim_result['x']
 
-            if use_hessian:
-                inv_hessian = optim_result.approx.get('hess_inv')
-
             fmin = optim_result.fun
             set_values(params, xvalues)
 
@@ -141,6 +138,9 @@ class ScipyBaseMinimizer(BaseMinimizer):
                 [optim_result] if optimize_results is None else [optimize_results, optim_result])
             result_prelim = FitResult.from_scipy(loss=loss, params=params, result=optimize_results, minimizer=self,
                                                  edm=CRITERION_NOT_AVAILABLE, valid=valid)
+
+            if use_hessian:
+                inv_hessian = optim_result.approx.get('hess_inv')
             converged = criterion.converged(result_prelim)
             criterion_value = criterion.last_value
             if isinstance(criterion, EDM):

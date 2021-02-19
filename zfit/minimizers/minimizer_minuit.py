@@ -5,13 +5,15 @@ from typing import List, Optional
 import iminuit
 import numpy as np
 
-from .baseminimizer import BaseMinimizer, minimize_supports
+from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_status
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
+from .termination import EDM
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import Parameter
+from ..core.parameter import Parameter, set_values
 from ..settings import run
 from ..util.cache import GraphCachable
+from ..util.exception import MaximumIterationReached
 
 
 class Minuit(BaseMinimizer, GraphCachable):
@@ -40,6 +42,8 @@ class Minuit(BaseMinimizer, GraphCachable):
             use_minuit_grad: If True, iminuit uses it's internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit.
         """
+
+        self._internal_maxiter = 20
         minuit_grad = use_minuit_grad if use_minuit_grad is not None else minuit_grad
         minimizer_options = {} if minimizer_options is None else minimizer_options
         minimizer_options['ncall'] = 0 if ncall is None else ncall
@@ -65,6 +69,7 @@ class Minuit(BaseMinimizer, GraphCachable):
     def _minimize(self, loss: ZfitLoss, params: List[Parameter], init):
         previous_result = init
         evaluator = self.create_evaluator(loss, params)
+        criterion = self.create_criterion(loss, params)
 
         # create options
         minimizer_options = self.minimizer_options.copy()
@@ -104,9 +109,12 @@ class Minuit(BaseMinimizer, GraphCachable):
                                    name=params_name,
                                    )
         minimizer.precision = precision
-        approx_step_sizes = previous_result.hesse(params=params, method='approx')
+        approx_step_sizes = {}
+        if previous_result:
+            approx_step_sizes = previous_result.hesse(params=params, method='approx')
+        empty_dict = {}
         for param in params:
-            step_size = approx_step_sizes.get(param)
+            step_size = approx_step_sizes.get(param, empty_dict).get('error')
             if step_size is None and param.has_step_size:
                 step_size = param.step_size
             if step_size is not None:
@@ -122,11 +130,58 @@ class Minuit(BaseMinimizer, GraphCachable):
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
             minimizer_setter)
         self._minuit_minimizer = minimizer
-        result = minimizer.migrad(**minimize_options)
+
+        result = None
+        valid = True
+        valid_message = "No message"
+        maxiter_reached = False
+        for i in range(self._internal_maxiter):
+
+            # perform minimization
+            try:
+                result = minimizer.migrad(**minimize_options)
+            except MaximumIterationReached as error:
+                if result is None:  # it didn't even run once
+                    raise MaximumIterationReached("Maximum iteration reached on first wrapped minimizer call. This"
+                                                  "is likely to a too low number of maximum iterations (currently"
+                                                  f" {evaluator.maxiter}) or wrong internal tolerances, in which"
+                                                  f" case: please fill an issue on github.") from error
+                maxiter_reached = True
+                valid = False
+                valid_message = "Maxiter reached, terminated without convergence"
+            else:
+                if evaluator.maxiter is not None:
+                    maxiter_reached = evaluator.niter > evaluator.maxiter
+
+            fitresult = FitResult.from_minuit(loss=loss, params=params, result=result, minimizer=self,
+                                              valid=valid, message=valid_message)
+            set_values(params, fitresult)
+
+            converged = criterion.converged(fitresult)
+            criterion_value = criterion.last_value
+            # if isinstance(criterion, EDM):
+            #     edm = criterion_value
+            # else:
+            #     edm = fitresult.edm
+
+            if self.verbosity > 5:
+                internal_tol = {'edm_minuit': result.fmin.edm}
+
+                print_minimization_status(converged=converged,
+                                          criterion=criterion,
+                                          evaluator=evaluator,
+                                          i=i,
+                                          fmin=fitresult.fmin,
+                                          internal_tol=internal_tol)
+
+            if converged or maxiter_reached:
+                break
+
         fitresult = FitResult.from_minuit(loss=loss,
                                           params=params,
                                           result=result,
-                                          minimizer=self.copy())
+                                          minimizer=self.copy(),
+                                          valid=valid, message=valid_message)
         return fitresult
 
     def copy(self):
