@@ -13,6 +13,8 @@ Major Features and Improvements
   Possible problems can be caused by iminuit itself, please report somewhere
   in case your fits don't converge anymore.
 
+- improved `compute_errors` in speed by caching values and the reliability
+  by making the solution unique.
 
 Breaking changes
 ------------------
@@ -22,6 +24,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+
 
 
 Experimental

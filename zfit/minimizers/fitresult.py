@@ -56,6 +56,7 @@ class Approximations:
             inv_hess = self._inv_hessian
             if inv_hess is not None:
                 hess = np.linalg.inv(inv_hess)
+                self._hessian = hess
         return hess
 
     def inv_hessian(self, invert: bool = True):
@@ -64,6 +65,7 @@ class Approximations:
             hess = self._hessian
             if hess is not None:
                 inv_hess = np.linalg.inv(hess)
+                self._inv_hessian = inv_hess
         return inv_hess
 
 
@@ -170,6 +172,7 @@ class FitResult(ZfitResult):
                  minimizer: "ZfitMinimizer",
                  valid: Optional[bool] = None,
                  message: Optional[str] = None,
+                 niter: Optional[int] = None,
                  approx: Optional[Union[Mapping, Approximations]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  evaluator: "zfit.minimizers.evaluation.LossEval" = None):
@@ -195,8 +198,8 @@ class FitResult(ZfitResult):
                 won't be altered.
         """
         super().__init__()
-        approx = {} if approx is None else approx
         info = {} if info is None else info
+        approx = {} if approx is None else approx
         if isinstance(approx, collections.Mapping):
             if 'params' not in approx:
                 approx['params'] = params
@@ -216,7 +219,10 @@ class FitResult(ZfitResult):
 
             approx = Approximations(**approx)
 
+        niter = evaluator.nfunc_eval if niter is None else niter
+
         self._evaluator = evaluator  # keep private for now
+        self._niter = niter  # keep private for now
         self._approx = approx
         self._status = status
         self._message = "" if message is None else message
@@ -237,6 +243,18 @@ class FitResult(ZfitResult):
 
     def _get_uncached_params(self, params, method_name):
         return [p for p in params if self.params[p].get(method_name) is None]
+
+    @classmethod
+    def from_ipopt(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], opt_instance, minimizer: ZfitMinimizer,
+                   converged, xvalues,
+                   message=None, edm=None, niter=None, valid=None, criterion=None, evaluator=None, fmin=None,
+                   status=None):
+
+        info = {'original_optimizer': opt_instance}
+        params = dict((p, val) for p, val in zip(params, xvalues))
+        return cls(params=params, loss=loss, fmin=fmin, edm=edm, message=message,
+                   criterion=criterion, info=info, valid=valid, converged=converged,
+                   niter=niter, status=status, minimizer=minimizer, evaluator=evaluator)
 
     @classmethod
     def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: iminuit.util.FMin,
@@ -277,7 +295,7 @@ class FitResult(ZfitResult):
         status = -999
         valid = valid and fmin_object.is_valid
         converged = fmin_object.is_valid
-        params = OrderedDict((p, res.value) for p, res in zip(params, params_result))
+        params = dict((p, res.value) for p, res in zip(params, params_result))
         return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
                    status=status, converged=converged, message=message, valid=valid,
                    minimizer=minimizer)
@@ -487,7 +505,6 @@ class FitResult(ZfitResult):
             if not isinstance(method, str):
                 raise ValueError("Need to specify `name` or use a string as `method`")
             name = method
-
 
         with self._input_check_reset_params(params) as params:
             uncached_params = self._get_uncached_params(params=params, method_name=name)

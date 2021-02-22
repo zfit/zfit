@@ -108,8 +108,9 @@ class LossEval:
         self._check_maxiter()
 
     def value_gradients(self, values):
-        self.nfunc_eval += 1
-        self.ngrad_eval += 1
+        if not self._ignoring_maxiter:
+            self.nfunc_eval += 1
+            self.ngrad_eval += 1
 
         set_values(self.params, values=values)
         is_nan = False
@@ -154,7 +155,8 @@ class LossEval:
         return loss_value, gradients_values
 
     def value(self, values):
-        self.nfunc_eval += 1
+        if not self._ignoring_maxiter:
+            self.nfunc_eval += 1
         set_values(self.params, values=values)
         is_nan = False
 
@@ -175,7 +177,7 @@ class LossEval:
                 except:
                     print("Cannot print loss value or gradient values.")
 
-        is_nan = is_nan or np.isnan(loss_value)
+        is_nan = is_nan or np.isnan(loss_value).any()
         if is_nan:
             self.nan_counter += 1
             info_values = {
@@ -193,7 +195,8 @@ class LossEval:
         return loss_value
 
     def gradient(self, values):
-        self.ngrad_eval += 1
+        if not self._ignoring_maxiter:
+            self.ngrad_eval += 1
         set_values(self.params, values=values)
         is_nan = False
 
@@ -234,7 +237,8 @@ class LossEval:
         return gradients_values
 
     def hessian(self, values):
-        self.nhess_eval += 1
+        if not self._ignoring_maxiter:
+            self.nhess_eval += 1
         set_values(self.params, values=values)
         is_nan = False
 

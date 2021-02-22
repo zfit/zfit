@@ -128,7 +128,13 @@ class BaseMinimizer(ZfitMinimizer):
     """
     _DEFAULT_TOLERANCE = 1e-3
 
-    def __init__(self, name, tolerance, verbosity, minimizer_options, criterion=None, strategy=None, maxiter=None,
+    def __init__(self, name,
+                 tolerance,
+                 verbosity,
+                 minimizer_options,
+                 criterion=None,
+                 strategy=None,
+                 maxiter=None,
                  **kwargs):
         super().__init__(**kwargs)
         self._n_iter_per_param = 1000
@@ -147,7 +153,8 @@ class BaseMinimizer(ZfitMinimizer):
         if minimizer_options is None:
             minimizer_options = {}
         self.minimizer_options = minimizer_options
-        self.maxiter = maxiter
+        self.maxiter = 'auto' if maxiter is None else maxiter
+
         self.criterion = EDM if criterion is None else criterion
 
     @classmethod

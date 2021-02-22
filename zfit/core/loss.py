@@ -43,14 +43,14 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
     if is_container(model):
         nlls = [_unbinned_nll_tf(model=p, data=d, fit_range=r)
                 for p, d, r in zip(model, data, fit_range)]
-        nlls_total = [nll.total for nll in nlls]
-        nlls_correction = [nll.correction for nll in nlls]
-        nlls_total_summed = tf.reduce_sum(input_tensor=nlls_total, axis=0)
-        # nlls_summed = tf.reduce_sum(input_tensor=nlls, axis=0)
-        #
-        nlls_correction_summed = tf.reduce_sum(input_tensor=nlls_correction, axis=0)
-        nll_finished = (nlls_total_summed, nlls_correction_summed)
-        # nll_finished = nlls_summed
+        # nlls_total = [nll.total for nll in nlls]
+        # nlls_correction = [nll.correction for nll in nlls]
+        # nlls_total_summed = tf.reduce_sum(input_tensor=nlls_total, axis=0)
+        nlls_summed = tf.reduce_sum(input_tensor=nlls, axis=0)
+
+        # nlls_correction_summed = tf.reduce_sum(input_tensor=nlls_correction, axis=0)
+        # nll_finished = (nlls_total_summed, nlls_correction_summed)
+        nll_finished = nlls_summed
     else:
         with data.set_data_range(fit_range):
             probs = model.pdf(data, norm_range=fit_range)
@@ -67,8 +67,8 @@ def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
         log_probs *= weights  # because it's prob ** weights
     if log_offset:
         log_probs -= log_offset
-    # nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
-    nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
+    nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
+    # nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
     return nll
 
 
@@ -117,7 +117,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self._data = data
         self._fit_range = fit_range
 
-        options = self._check_init_options(options)
+        options = self._check_init_options(options, data)
 
         self._options = options
         self._substract_kahan = None
@@ -125,21 +125,30 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             constraints = []
         self._constraints = _constraint_check_convert(convert_to_container(constraints, list))
 
-    def _check_init_options(self, options):
+    def _check_init_options(self, options, data):
+        nevents = sum(d.nevents for d in data)
         options = {} if options is None else options
-        numgrad = options.get('numgrad')
-        if numgrad is None:
-            if numgrad.get('hessian') is None:
-                numgrad['hessian'] = True
-            if numgrad.get('gradient') is None:
-                numgrad['gradient'] = False
-            options['numgrad'] = numgrad
+
+        if options.get('numhess') is None:
+            options['numhess'] = True
+
+        if options.get('numgrad') is None:
+            options['numgrad'] = settings.options['numerical_grad']
 
         if options.get('kahansum') is None:
-            options['kahansum'] = 100000  # start using kahan if we have more than 100k events
+            options['kahansum'] = nevents > 500_000  # start using kahan if we have more than 500k events
 
         if options.get('subtr_const') is None:
-            options['subtr_const'] = 'kahan' # or elementwise
+            if nevents < 200_000:
+                subst_const = False
+            elif nevents < 1_000_000:
+                subst_const = 'kahan'
+            else:
+                subst_const = 'elewise'
+
+            options['subtr_const'] = subst_const
+
+        return options
 
 
     def __init_subclass__(cls, **kwargs):
@@ -216,7 +225,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
         params = self._input_check_params(params)
-        return self._gradients(params=params)
+        numgrad = self._options['numgrad']
+
+        return self._gradients(params=params, numgrad=numgrad)
 
     def add_constraints(self, constraints):
         constraints = convert_to_container(constraints)
@@ -258,12 +269,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def value(self):
         value = self._value()
-        if self._substract_kahan is None:
-            self._substract_kahan = value
-        value_subtracted = (value[0] - self._substract_kahan[0]) - (
-                value[1] - self._substract_kahan[1])
-        return value_subtracted
-        # return value
+        # if self._substract_kahan is None:
+        #     self._substract_kahan = value
+        # value_subtracted = (value[0] - self._substract_kahan[0]) - (
+        #         value[1] - self._substract_kahan[1])
+        # return value_subtracted
+        return value
         # value = value_substracted[0] - value_substracted[1]
 
     @property
@@ -289,8 +300,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         loss = type(self)(model=model, data=data, fit_range=fit_range, constraints=constraints)
         return loss
 
-    def _gradients(self, params):
-        if settings.options['numerical_grad']:
+    # @z.function(wraps='loss')
+    def _gradients(self, params, numgrad):
+        if numgrad:
             gradients = numerical_gradient(self.value, params=params)
 
         else:
@@ -299,7 +311,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def value_gradients(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
-        numgrad = settings.options['numerical_grad']
+        numgrad = self._options['numgrad']
         return self._value_gradients(params=params, numgrad=numgrad)
 
     @z.function(wraps='loss')
@@ -313,11 +325,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def hessian(self, params: ztyping.ParamTypeInput, hessian=None):
         return self.value_gradients_hessian(params=params, hessian=hessian)[2]
 
-    def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None, numgrad=False) -> Tuple[
+    def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None, numgrad=None) -> Tuple[
         tf.Tensor, tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
-        numerical = settings.options['numerical_grad'] or numgrad
-        vals = self._value_gradients_hessian(params=params, hessian=hessian, numerical=numerical)
+        vals = self._value_gradients_hessian(params=params, hessian=hessian, numerical=numgrad)
+
+
         vals = vals[0], z.convert_to_tensor(vals[1]), vals[2]
         return vals
 

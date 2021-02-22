@@ -114,7 +114,12 @@ class NLopt(BaseMinimizer):
 
 
 class NLoptBaseMinimizer(BaseMinimizer):
-    _ALL_NLOPT_TOL = 'fatol', 'ftol', 'xatol', 'xtol'
+    _ALL_NLOPT_TOL = (
+        'fatol',
+        # 'ftol',
+        'xatol',
+        'xtol'
+    )
 
     def __init__(self,
                  algorithm: int,
@@ -265,7 +270,8 @@ class NLoptBaseMinimizer(BaseMinimizer):
             fmin = minimizer.last_optimum_value()  # TODO: what happens if minimization terminated?
             with evaluator.ignore_maxiter():
                 result_prelim = FitResult.from_nlopt(loss,
-                                                     minimizer=self, opt=minimizer,
+                                                     minimizer=self,
+                                                     opt=minimizer,
                                                      edm=CRITERION_NOT_AVAILABLE, niter=evaluator.nfunc_eval,
                                                      params=params,
                                                      xvalues=xvalues,

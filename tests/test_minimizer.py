@@ -41,8 +41,8 @@ def create_loss(obs1):
     with mu_param.set_value(true_mu):
         with sigma_param.set_value(true_sigma):
             with lambda_param.set_value(true_lambda):
-                # sampled_data = sum_pdf1.create_sampler(n=15000)
-                sampled_data = sum_pdf1.create_sampler(n=10000000)
+                sampled_data = sum_pdf1.create_sampler(n=15000)
+                # sampled_data = sum_pdf1.create_sampler(n=10000000)
                 sampled_data.resample()
 
                 loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
@@ -51,7 +51,7 @@ def create_loss(obs1):
     return loss, minimum, (mu_param, sigma_param, lambda_param)
 
 
-verbosity = 7
+verbosity = 5
 zfit.settings.set_verbosity(verbosity=verbosity)
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
@@ -100,9 +100,9 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
 ]
 
-minimizers = [(zfit.minimize.Minuit, {"tolerance": 0.0001, "verbosity": verbosity, 'use_minuit_grad':False},
-               {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.IPopt, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.Minuit, {"tolerance": 0.0001, "verbosity": verbosity, 'use_minuit_grad':False},
+#                {'error': True, 'longtests': True})]
+minimizers = [(zfit.minimize.IPoptV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
@@ -179,9 +179,9 @@ def test_dependent_param_extraction():
 chunksizes = [100000, 3000]
 # skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
 # num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
-# num_grads = [False, True]
+num_grads = [False, True]
 # num_grads = [True]
-num_grads = [False]
+# num_grads = [False]
 
 spaces_all = [obs1, obs1_split]
 
@@ -250,7 +250,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     assert true_min + max_distance_to_min >= found_min
 
     assert result_lowtol2.fmin == pytest.approx(result.fmin, abs=2.)
-    if not isinstance(minimizer, zfit.minimize.IPopt):
+    if not isinstance(minimizer, zfit.minimize.IPoptV1):
         assert result_lowtol2.info['n_eval'] < 0.99 * result.info['n_eval']
 
     aval, bval, cval = [zfit.run(v) for v in
@@ -298,11 +298,11 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
                                                      abs=0.1)
             assert abs(a_error["lower"]) == pytest.approx(0.015, abs=0.015)
             assert abs(errors[sigma_param]["lower"]) == pytest.approx(0.010,
-                                                                      abs=0.01)
+                                                                      abs=0.02)
             assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007,
-                                                                       abs=0.15)
+                                                                       abs=0.02)
             assert abs(errors[lambda_param]['upper']) == pytest.approx(0.007,
-                                                                       abs=0.15)
+                                                                       abs=0.02)
 
             assert errors[mu_param]['lower'] == pytest.approx(a_error['lower'],
                                                               rel=0.01)
@@ -318,14 +318,14 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
             a_error = a_errors[mu_param]
 
             assert a_error['lower'] == pytest.approx(
-                result.params[mu_param]['error42']['lower'], rel=0.001)
+                result.params[mu_param]['error42']['lower'], rel=0.03)
             assert a_error['lower'] == pytest.approx(
-                result.params[mu_param]['error1']['lower'], rel=0.001)
+                result.params[mu_param]['error1']['lower'], rel=0.03)
             for param, errors2 in result.params.items():
                 assert errors[param]['lower'] == pytest.approx(
-                    errors2['error42']['lower'], rel=0.001)
+                    errors2['error42']['lower'], rel=0.03)
                 assert errors[param]['upper'] == pytest.approx(
-                    errors2['error42']['upper'], rel=0.001)
+                    errors2['error42']['upper'], rel=0.03)
 
             # test custom error
             def custom_error_func(result, params, cl):

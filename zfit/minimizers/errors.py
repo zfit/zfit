@@ -1,5 +1,8 @@
 #  Copyright (c) 2021 zfit
 import logging
+import time
+from functools import wraps, lru_cache
+from typing import Tuple, Dict, Optional, Callable, Union, List
 
 import numdifftools
 import numpy as np
@@ -8,6 +11,7 @@ import tensorflow as tf
 from scipy import optimize
 
 from .. import z, settings
+from ..core.interfaces import ZfitIndependentParameter
 from ..param import set_values
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
@@ -23,27 +27,45 @@ class FailEvalLossNaN(Exception):
 
 
 @deprecated_args(None, "Use cl for confidence level instead.", 'sigma')
-def compute_errors(result, params, cl=None, sigma=1, rtol=0.001, method="hybr", covariance_method=None):
+def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
+                   params: List[ZfitIndependentParameter],
+                   cl: float = None,
+                   sigma: float = 1,
+                   rtol: float = 0.005,
+                   method: Optional[str] = None,
+                   covariance_method: Optional[Union[str, Callable]] = None
+                   ) -> Tuple[Dict[ZfitIndependentParameter, Dict[str, float]],
+                              Union["zfit.result.FitResult", None]]:
     """
     Computes asymmetric errors of parameters by profiling the loss function in the fit result.
 
+    This method finds the value for a given parameter where the loss function is `cl` away: for example
+    for a cl of 68.3%, this is one (multiplied by the errordef). The other parameters are also minimized and
+    not fixed. This method is comparably computationally intensive and, if possible, `hesse` should be used.
+    However, since `hesse` does not capture asymetric or non-parabolic shaped profiles well, this method is
+    preferable.
+
     Args:
-        result: fit result
+        result: fit result to be used to compute the uncertainties.
         params: The parameters to calculate the
             errors error. If None, use all parameters.
         cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
         sigma: Errors are calculated with respect to `sigma` std deviations.
         rtol: relative tolerance between the computed and the exact roots
-        method: type of solver, `method` argument of `scipy.optimize.root_
-        covariance_method: The method to use to calculate the correlation matrix. Valid choices are
-            {'minuit_hesse', 'hesse_np'} or a Callable.
+        method: type of solver, `method` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
+        covariance_method: The method to use to calculate the correlation matrix, will be forwarded directly
+            to :py:meth:`FitResult.covariance`. Valid choices are
+            by default {'minuit_hesse', 'hesse_np'} (or any other method defined in the result)
+            or a Callable.
 
     Returns:
-        A `OrderedDict` containing as keys the parameter and as value a `dict` which
+        out:
+            A `dict` containing as keys the parameter and as value a `dict` which
             contains two keys 'lower' and 'upper', holding the calculated errors.
             Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
-        `FitResult` or `None`: a fit result is returned when a new minimum is found during the loss scan
+        out: a fit result is returned when a new minimum is found during the loss scan
     """
+    method = "hybr" if method is None else method
     if cl is None:
         factor = 1.0
     else:
@@ -60,13 +82,16 @@ def compute_errors(result, params, cl=None, sigma=1, rtol=0.001, method="hybr", 
 
     covariance = result.covariance(method=covariance_method, as_dict=True)
     set_values(all_params, result)
+    param_errors = {param: covariance[(param, param)] ** 0.5 for param in params}
+    param_scale = np.array(list(param_errors.values()))
 
+    ncalls = 0
     try:
-
+        # start = time.time()
         to_return = {}
         for param in params:
             logging.info(f"profiling the parameter {param}")
-            param_error = covariance[(param, param)] ** 0.5
+            param_error = param_errors[param]
             param_value = result.params[param]["value"]
             other_params = [p for p in all_params if p != param]
 
@@ -74,13 +99,19 @@ def compute_errors(result, params, cl=None, sigma=1, rtol=0.001, method="hybr", 
             direction = {"lower": -sigma, "upper": sigma}
 
             for ap in all_params:
+                ap_value = result.params[ap]["value"]
+                error_factor = covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
                 for d in ["lower", "upper"]:
-                    ap_value = result.params[ap]["value"]
-                    ap_value += direction[d] * covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
+                    ap_value += direction[d] * error_factor
                     initial_values[d].append(ap_value)
 
+            # TODO: improvement, use jacobian?
+            @np_cache(maxsize=25)
             def func(values, args):
-                swap_sign = args[0]
+                nonlocal ncalls
+                ncalls += 1
+                swap_sign = args
+
                 with set_values(all_params, values):
                     try:
                         loss_value, gradients = loss.value_gradients(params=other_params)
@@ -109,10 +140,16 @@ def compute_errors(result, params, cl=None, sigma=1, rtol=0.001, method="hybr", 
             }
             for d in ["lower", "upper"]:
                 roots = optimize.root(fun=func,
-                                      args=[swap_sign[d]],
+                                      args=(swap_sign[d],),
                                       x0=initial_values[d],
-                                      tol=rtol, method=method)
+                                      tol=rtol,
+                                      options={
+                                          'factor': 10.,
+                                          'diag': param_scale,
+                                      },
+                                      method=method)
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value
+        # print(f"errors found, time needed {time.time() - start}")
 
     except NewMinimum as e:
         from .. import settings
@@ -129,7 +166,7 @@ def compute_errors(result, params, cl=None, sigma=1, rtol=0.001, method="hybr", 
                                                 method=method)
         if new_result_ is not None:
             new_result = new_result_
-
+    print(f"Used {ncalls} calls.")
     return to_return, new_result
 
 
@@ -221,3 +258,50 @@ def matrix_to_dict(params, matrix):
                 matrix_dict[(pj, pi)] = matrix[i, j]
 
     return matrix_dict
+
+
+def np_cache(*args, **kwargs):
+    """LRU cache implementation for functions whose FIRST parameter is a numpy array
+
+    >>> array = np.array([[1, 2, 3], [4, 5, 6]])
+    >>> @np_cache(maxsize=256)
+    ... def multiply(array, factor):
+    ...     print("Calculating...")
+    ...     return factor*array
+    >>> multiply(array, 2)
+    Calculating...
+    array([[ 2,  4,  6],
+           [ 8, 10, 12]])
+    >>> multiply(array, 2)
+    array([[ 2,  4,  6],
+           [ 8, 10, 12]])
+    >>> multiply.cache_info()
+    CacheInfo(hits=1, misses=1, maxsize=256, currsize=1)
+
+    """
+
+    def decorator(function):
+        @wraps(function)
+        def wrapper(np_array, *args, **kwargs):
+            hashable_array = array_to_tuple(np_array)
+            return cached_wrapper(hashable_array, *args, **kwargs)
+
+        @lru_cache(*args, **kwargs)
+        def cached_wrapper(hashable_array, *args, **kwargs):
+            array = np.array(hashable_array)
+            return function(array, *args, **kwargs)
+
+        def array_to_tuple(np_array):
+            """Iterates recursivelly."""
+            try:
+                return tuple(array_to_tuple(_) for _ in np_array)
+            except TypeError:
+                return np_array
+
+        # copy lru_cache attributes over too
+        wrapper.cache_info = cached_wrapper.cache_info
+        wrapper.cache_clear = cached_wrapper.cache_clear
+
+        return wrapper
+
+    return decorator
