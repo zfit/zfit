@@ -80,6 +80,15 @@ As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the 
     mu: ^{+0.00998104141841555}_{-0.009981515893414316}
     sigma: ^{+0.007099472590970696}_{-0.0070162654764939734}
 
+It is also possible to call ``Hesse`` to calculate the parameter uncertainties. When using weighted datasets, this will automatically perform the asymptotic correction to the fit covariance matrix, returning corrected parameter uncertainties to the user. The correction applied is based on Equation 18 in `this paper <https://arxiv.org/abs/1911.01303>`_.
+
+To call ``Hesse``, do:
+
+.. code-block:: pycon
+    
+    >>> param_errors = result.hesse()
+
+which will return a dictionary of the fit parameters as keys with ``error`` values for each one.
 
 Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results.
 The object ``result`` (:py:class:`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:
