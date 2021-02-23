@@ -70,7 +70,7 @@ This corresponds to the most basic example where the negative likelihood is defi
 
 It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
 
-In order to get an estimate for the errors, it is possible to call ``Hesse`` in order to calculate the parameter uncertainties. This uses the inverse Hessian to approximate the minimum of the loss and returns a symmetric estimate. When using weighted datasets, this will automatically perform the asymptotic correction to the fit covariance matrix, returning corrected parameter uncertainties to the user. The correction applied is based on Equation 18 in `this paper <https://arxiv.org/abs/1911.01303>`_.
+In order to get an estimate for the errors, it is possible to call ``Hesse`` that will calculate the parameter uncertainties. This uses the inverse Hessian to approximate the minimum of the loss and returns a symmetric estimate. When using weighted datasets, this will automatically perform the asymptotic correction to the fit covariance matrix, returning corrected parameter uncertainties to the user. The correction applied is based on Equation 18 in `this paper <https://arxiv.org/abs/1911.01303>`_.
 
 To call ``Hesse``, do:
 
