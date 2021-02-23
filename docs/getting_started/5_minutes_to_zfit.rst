@@ -69,18 +69,8 @@ This corresponds to the most basic example where the negative likelihood is defi
     >>> result = minimizer.minimize(nll, params=[mu])
 
 It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
-Most minimisers will implement their CPU-intensive error calculating with the ``error`` method.
-As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the ``MINOS`` with:
 
-.. code-block:: pycon
-
-    >>> param_errors, _ = result.errors()
-    >>> for var, errors in param_errors.items():
-    ...   print('{}: ^{{+{}}}_{{{}}}'.format(var.name, errors['upper'], errors['lower']))
-    mu: ^{+0.00998104141841555}_{-0.009981515893414316}
-    sigma: ^{+0.007099472590970696}_{-0.0070162654764939734}
-
-It is also possible to call ``Hesse`` to calculate the parameter uncertainties. When using weighted datasets, this will automatically perform the asymptotic correction to the fit covariance matrix, returning corrected parameter uncertainties to the user. The correction applied is based on Equation 18 in `this paper <https://arxiv.org/abs/1911.01303>`_.
+In order to get an estimate for the errors, it is possible to call ``Hesse`` in order to calculate the parameter uncertainties. This uses the inverse Hessian to approximate the minimum of the loss and returns a symmetric estimate. When using weighted datasets, this will automatically perform the asymptotic correction to the fit covariance matrix, returning corrected parameter uncertainties to the user. The correction applied is based on Equation 18 in `this paper <https://arxiv.org/abs/1911.01303>`_.
 
 To call ``Hesse``, do:
 
@@ -89,6 +79,20 @@ To call ``Hesse``, do:
     >>> param_errors = result.hesse()
 
 which will return a dictionary of the fit parameters as keys with ``error`` values for each one.
+
+It is also possible to use a more CPU-intensive error calculating with the ``errors`` method. This has the advantage of taking into account
+a loss minimum that is not well approximated by quadratic function and estimates the lower and upper uncertainty independently.
+As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the ``MINOS`` uncertainties with:
+
+.. code-block:: pycon
+
+    >>> param_errors, _ = result.errors(method='minuit_minos')
+    >>> for var, errors in param_errors.items():
+    ...   print('{}: ^{{+{}}}_{{{}}}'.format(var.name, errors['upper'], errors['lower']))
+    mu: ^{+0.00998104141841555}_{-0.009981515893414316}
+    sigma: ^{+0.007099472590970696}_{-0.0070162654764939734}
+
+Using `zfit_error` as the method will return the same results and it has the advantage that it can be used with any arbitrary minimizer.
 
 Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results.
 The object ``result`` (:py:class:`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:
