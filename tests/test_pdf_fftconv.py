@@ -121,7 +121,7 @@ def test_onedim_sampling():
     sample_nosample = conv_nosample.sample(npoints_sample)
     x = z.unstack_x(sample)
     xns = z.unstack_x(sample_nosample)
-    assert scipy.stats.ks_2samp(x, xns).pvalue > 1e-8  # can vary a lot, but still means close
+    assert scipy.stats.ks_2samp(x, xns).pvalue > 1e-7  # can vary a lot, but still means close
     # uni1sample = func1k.sample(npoints_sample // 2)
     # uni2sample = func2k.sample(npoints_sample // 2)
     # xcomb = tf.concat([uni1sample.value(), uni2sample.value()], axis=0)
