@@ -1,10 +1,13 @@
+tensorflow~=2.4
 tensorflow
 tensorflow_probability~=0.12
+scipy>=1.2
+uproot>=4,<5
 scipy
 uproot
 pandas
-numpy
-iminuit
+numpy>=1.16
+iminuit>=2.3
 colorlog
 texttable
 tabulate
