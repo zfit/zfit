@@ -257,22 +257,7 @@ class IPoptV1(BaseMinimizer):
 
         # ipopt_options['dual_inf_tol'] = TODO?
 
-        minimizer = ipyopt.Problem(**minimizer_kwargs
-                                   )
-
-        # set maximum number of iterations, also set in evaluator
-        # minimizer.set_maxeval(self.get_maxiter(len(params)))
-
-        # inv_hesse = None
-        # hessian_init = None
-        # init_scale = None
-        # if previous_result:
-        #     inv_hessian = previous_result.info.get('inv_hesse')
-        #     if inv_hessian is None:
-        #         hessian_init = previous_result.info.get('hesse')
-        #         if hessian_init is not None:
-        #             inv_hessian = np.linalg.inv(hessian_init)
-        #             init_scale = np.diag(inv_hessian)
+        minimizer = ipyopt.Problem(**minimizer_kwargs)
 
         minimizer.set(**{k: v for k, v in ipopt_options.items() if v is not None})
 
@@ -293,6 +278,7 @@ class IPoptV1(BaseMinimizer):
             # 'warm_start_same_structure',
             'warm_start_entire_iterate'
         )
+        minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)
 
         fmin = -999
         status = -999
@@ -328,6 +314,8 @@ class IPoptV1(BaseMinimizer):
                                                      edm=CRITERION_NOT_AVAILABLE,
                                                      evaluator=evaluator,
                                                      valid=valid,
+                                                     niter=None,
+                                                     criterion=criterion,
                                                      message=valid_message)
                 converged = criterion.converged(result_prelim) and valid
             criterion_value = criterion.last_value
@@ -366,6 +354,8 @@ class IPoptV1(BaseMinimizer):
                                     fmin=fmin,
                                     status=status,
                                     edm=edm,
+                                    criterion=criterion,
+                                    niter=None,
                                     converged=converged,
                                     evaluator=evaluator,
                                     valid=valid,

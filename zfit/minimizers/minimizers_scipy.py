@@ -140,7 +140,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
                                                  edm=CRITERION_NOT_AVAILABLE, valid=valid)
 
             if use_hessian:
-                inv_hessian = optim_result.approx.get('hess_inv')
+                inv_hessian = result_prelim.approx.get('hess_inv')
             converged = criterion.converged(result_prelim)
             criterion_value = criterion.last_value
             if isinstance(criterion, EDM):

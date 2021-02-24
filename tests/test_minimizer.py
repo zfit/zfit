@@ -41,7 +41,7 @@ def create_loss(obs1):
     with mu_param.set_value(true_mu):
         with sigma_param.set_value(true_sigma):
             with lambda_param.set_value(true_lambda):
-                sampled_data = sum_pdf1.create_sampler(n=15000)
+                sampled_data = sum_pdf1.create_sampler(n=25000)
                 # sampled_data = sum_pdf1.create_sampler(n=10000000)
                 sampled_data.resample()
 

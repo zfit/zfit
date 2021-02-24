@@ -115,8 +115,8 @@ class NLopt(BaseMinimizer):
 
 class NLoptBaseMinimizer(BaseMinimizer):
     _ALL_NLOPT_TOL = (
-        'fatol',
-        # 'ftol',
+        # 'fatol',
+        'ftol',
         'xatol',
         'xtol'
     )

@@ -218,8 +218,8 @@ class FitResult(ZfitResult):
                     approx['hessian'] = evaluator.last_hessian
 
             approx = Approximations(**approx)
-
-        niter = evaluator.nfunc_eval if niter is None else niter
+        if evaluator is not None:
+            niter = evaluator.nfunc_eval if niter is None else niter
 
         self._evaluator = evaluator  # keep private for now
         self._niter = niter  # keep private for now
@@ -247,8 +247,9 @@ class FitResult(ZfitResult):
     @classmethod
     def from_ipopt(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], opt_instance, minimizer: ZfitMinimizer,
                    converged, xvalues,
-                   message=None, edm=None, niter=None, valid=None, criterion=None, evaluator=None, fmin=None,
-                   status=None):
+                   message, edm, niter, valid, criterion, evaluator, fmin,
+                   status
+                   ):
 
         info = {'original_optimizer': opt_instance}
         params = dict((p, val) for p, val in zip(params, xvalues))

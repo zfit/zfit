@@ -106,7 +106,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                     initial_values[d].append(ap_value)
 
             # TODO: improvement, use jacobian?
-            @np_cache(maxsize=25)
+            # @np_cache(maxsize=25)
             def func(values, args):
                 nonlocal ncalls
                 ncalls += 1
@@ -121,16 +121,21 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                                " caused by negative values returned from the PDF.")
                         raise FailEvalLossNaN(msg)
 
-                    shifted_loss = loss_value.numpy() - fmin - errordef * sigma ** 2
-                    gradients = np.array(gradients)
+                    zeroed_loss = loss_value.numpy() - fmin
 
-                if shifted_loss < -errordef - minimizer.tolerance:
-                    set_values(all_params, values)  # set values to the new minimum
-                    raise NewMinimum("A new is minimum found.")
+                    gradients = np.array(gradients)
                 if swap_sign(param):
-                    shifted_loss = - shifted_loss
+                    zeroed_loss = - zeroed_loss
                     gradients = - gradients
                     logging.info("Swapping sign in error calculation 'zfit_error'")
+
+                elif zeroed_loss < - minimizer.tolerance:
+                    set_values(all_params, values)  # set values to the new minimum
+                    raise NewMinimum("A new is minimum found.")
+
+                downward_shift = errordef * sigma ** 2
+                shifted_loss = zeroed_loss - downward_shift
+
                 return np.concatenate([[shifted_loss], gradients])
 
             to_return[param] = {}
@@ -144,8 +149,8 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                                       x0=initial_values[d],
                                       tol=rtol,
                                       options={
-                                          'factor': 10.,
-                                          'diag': param_scale,
+                                          # 'factor': 1.,
+                                          'diag': 1 / param_scale,
                                       },
                                       method=method)
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value
