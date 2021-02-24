@@ -1,8 +1,7 @@
 #  Copyright (c) 2021 zfit
 import abc
-from typing import Optional, Tuple
+from typing import Optional
 
-import numba
 import numpy as np
 
 from ..core.interfaces import ZfitLoss
