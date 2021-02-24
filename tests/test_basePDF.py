@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from typing import Dict, Type
 
@@ -262,9 +262,9 @@ def test_multiple_limits():
 
     integral_simp, integral_mult = [integral_simp.numpy(), integral_mult.numpy()]
     integral_simp_num, integral_mult_num = [integral_simp_num.numpy(), integral_mult_num.numpy()]
-    assert integral_simp == pytest.approx(integral_mult, rel=1e-2)  # big tolerance as mc is used
-    assert integral_simp == pytest.approx(integral_simp_num, rel=1e-2)  # big tolerance as mc is used
-    assert integral_simp_num == pytest.approx(integral_mult_num, rel=1e-2)  # big tolerance as mc is used
+    assert integral_simp == pytest.approx(integral_mult, rel=1e-2)  # big tol as mc is used
+    assert integral_simp == pytest.approx(integral_simp_num, rel=1e-2)  # big tol as mc is used
+    assert integral_simp_num == pytest.approx(integral_mult_num, rel=1e-2)  # big tol as mc is used
 
 
 def test_copy():

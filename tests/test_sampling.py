@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -138,11 +138,11 @@ def test_multiple_limits_sampling(gauss_factory):
     sample1 = gauss.sample(n=n, limits=obs)
     sample2 = gauss.sample(n=n, limits=obs_split)
 
-    rel_tolerance = 1e-2
-    assert np.mean(sample1.value()) == pytest.approx(mu_true, rel_tolerance)
-    assert np.std(sample1.value()) == pytest.approx(sigma_true, rel_tolerance)
-    assert np.mean(sample2.value()) == pytest.approx(mu_true, rel_tolerance)
-    assert np.std(sample2.value()) == pytest.approx(sigma_true, rel_tolerance)
+    rel_tol = 1e-2
+    assert np.mean(sample1.value()) == pytest.approx(mu_true, rel_tol)
+    assert np.std(sample1.value()) == pytest.approx(sigma_true, rel_tol)
+    assert np.mean(sample2.value()) == pytest.approx(mu_true, rel_tol)
+    assert np.std(sample2.value()) == pytest.approx(sigma_true, rel_tol)
 
 
 @pytest.mark.parametrize('gauss_factory', gaussian_dists + [create_test_pdf_overriden_gauss1])

@@ -57,14 +57,14 @@ zfit.settings.set_verbosity(verbosity=verbosity)
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
-    (zfit.minimize.Adam, dict(learning_rate=0.05, verbosity=verbosity, tolerance=0.00001), False),
+    (zfit.minimize.Adam, dict(learning_rate=0.05, verbosity=verbosity, tol=0.00001), False),
     # works
-    (zfit.minimize.Minuit, {"tolerance": 0.0001, "verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
+    (zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
-    (zfit.minimize.ScipyLBFGSBV1, {'tolerance': 1e-5, "verbosity": verbosity},
+    (zfit.minimize.ScipyLBFGSBV1, {'tol': 1e-5, "verbosity": verbosity},
      {'error': True, 'numgrad': False, 'approx': True}),
-    (zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-5, "verbosity": verbosity}, True),
-    (zfit.minimize.ScipyDoglegV1, {'tolerance': 1e-5, "verbosity": verbosity}, True),
+    (zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-5, "verbosity": verbosity}, True),
+    (zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, "verbosity": verbosity}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {"verbosity": verbosity}, True),
     (zfit.minimize.ScipyTrustConstrV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
     (zfit.minimize.ScipyPowellV1, {"verbosity": verbosity, }, {'error': True}),
@@ -79,28 +79,28 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, True),
     (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, True),
 
-    # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
-    # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'CG'}, False),
-    # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'Powell'}, False),
+    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
+    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'CG'}, False),
+    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'Powell'}, False),
     # works
-    # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'Newton-CG', "scipy_grad": False}, False),  # too bad
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'TNC'}, False),  # unstable
-    # (zfit.minimize.Scipy, {'tolerance': 1e-8, 'algorithm': 'trust-constr'}, False),  # works
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-ncg', "scipy_grad": True}, False),  # need Hess
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'trust-krylov', "scipy_grad": True}, False),  # Hess
-    # (zfit.minimize.Scipy, {'tolerance': 0.00001, 'algorithm': 'dogleg', "scipy_grad": True}, False),  # Hess
-    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_LBFGS}, True),  # works not, why not?
+    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
+    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'Newton-CG', "scipy_grad": False}, False),  # too bad
+    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'TNC'}, False),  # unstable
+    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'trust-constr'}, False),  # works
+    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'trust-ncg', "scipy_grad": True}, False),  # need Hess
+    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'trust-krylov', "scipy_grad": True}, False),  # Hess
+    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'dogleg', "scipy_grad": True}, False),  # Hess
+    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LD_LBFGS}, True),  # works not, why not?
     # (zfit.minimize.NLopt, {'algorithm': nlopt.GD_STOGO}, True),  # takes too long
-    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
-    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LN_SBPLX},True),  # works
-    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_MMA}, True),  # doesn't minimize
-    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_SLSQP}, True),  # doesn't minimize
-    # (zfit.minimize.NLopt, {'tolerance': 1e-8, 'algorithm': nlopt.LD_TNEWTON_PRECOND_RESTART}, True),  # no minimize
-    # (zfit.minimize.NLopt, {'tolerance': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
+    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
+    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LN_SBPLX},True),  # works
+    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LD_MMA}, True),  # doesn't minimize
+    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LD_SLSQP}, True),  # doesn't minimize
+    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LD_TNEWTON_PRECOND_RESTART}, True),  # no minimize
+    # (zfit.minimize.NLopt, {'tol': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
 ]
 
-# minimizers = [(zfit.minimize.Minuit, {"tolerance": 0.0001, "verbosity": verbosity, 'use_minuit_grad':False},
+# minimizers = [(zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'use_minuit_grad':False},
 #                {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.IPoptV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
@@ -108,10 +108,10 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 # minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tolerance': 1e-3, 'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyDoglegV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tolerance': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-3, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tol': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tol': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptTruncNewtonV1, {'verbosity': 7}, True)]
@@ -204,7 +204,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     loss, true_min, params = create_loss(obs1=obs)
     (mu_param, sigma_param, lambda_param) = params
 
-    parameter_tolerance = 0.1
+    parameter_tol = 0.1
     max_distance_to_min = 2.5
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
@@ -229,8 +229,8 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     if not long_clarg and not do_long:
         test_error = False
     minimizer_hightol = minimizer_class(**{**minimizer_kwargs,
-                                           'tolerance': 100 * minimizer_kwargs.get(
-                                               'tolerance', 0.01)})
+                                           'tol': 100 * minimizer_kwargs.get(
+                                               'tol', 0.01)})
 
     minimizer = minimizer_class(**minimizer_kwargs)
 
@@ -256,9 +256,9 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     aval, bval, cval = [zfit.run(v) for v in
                         (mu_param, sigma_param, lambda_param)]
 
-    assert true_mu == pytest.approx(aval, abs=parameter_tolerance)
-    assert true_sigma == pytest.approx(bval, abs=parameter_tolerance)
-    assert true_lambda == pytest.approx(cval, abs=parameter_tolerance)
+    assert true_mu == pytest.approx(aval, abs=parameter_tol)
+    assert true_sigma == pytest.approx(bval, abs=parameter_tol)
+    assert true_lambda == pytest.approx(cval, abs=parameter_tol)
     assert result.converged
 
     # Test Hesse

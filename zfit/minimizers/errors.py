@@ -51,7 +51,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
             errors error. If None, use all parameters.
         cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
         sigma: Errors are calculated with respect to `sigma` std deviations.
-        rtol: relative tolerance between the computed and the exact roots
+        rtol: relative tol between the computed and the exact roots
         method: type of solver, `method` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
         covariance_method: The method to use to calculate the correlation matrix, will be forwarded directly
             to :py:meth:`FitResult.covariance`. Valid choices are
@@ -129,7 +129,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                     gradients = - gradients
                     logging.info("Swapping sign in error calculation 'zfit_error'")
 
-                elif zeroed_loss < - minimizer.tolerance:
+                elif zeroed_loss < - minimizer.tol:
                     set_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new is minimum found.")
 
@@ -150,7 +150,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                                       tol=rtol,
                                       options={
                                           # 'factor': 1.,
-                                          'diag': 1 / param_scale,
+                                          # 'diag': 1 / param_scale,
                                       },
                                       method=method)
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value

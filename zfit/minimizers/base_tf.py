@@ -8,11 +8,11 @@ from .baseminimizer import BaseStepMinimizer
 
 class WrapOptimizer(BaseStepMinimizer):
     # Todo: Write documentation for api.
-    def __init__(self, optimizer, tolerance=None, verbosity=None, name=None, **kwargs):
+    def __init__(self, optimizer, tol=None, verbosity=None, name=None, **kwargs):
 
         if not isinstance(optimizer, tf.keras.optimizers.Optimizer):
             raise TypeError("optimizer {} has to be from class Optimizer".format(str(optimizer)))
-        super().__init__(tolerance=tolerance, verbosity=verbosity, name=name, minimizer_options=None, **kwargs)
+        super().__init__(tol=tol, verbosity=verbosity, name=name, minimizer_options=None, **kwargs)
         self._optimizer_tf = optimizer
 
     def _step(self, loss, params, init):

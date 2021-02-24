@@ -75,5 +75,5 @@ class ZfitMinimizer:
 
     @property
     @abc.abstractmethod
-    def tolerance(self):
+    def tol(self):
         raise NotImplementedError

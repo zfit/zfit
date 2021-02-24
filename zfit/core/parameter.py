@@ -394,10 +394,10 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         if not self.has_limits:
             return tf.constant(False)
 
-        # Adding a slight tolerance to make sure we're not tricked by numerics
-        tolerance = (self.upper - self.lower) * 1e-2
-        at_lower = z.unstable.less_equal(self.value(), self.lower + tolerance)
-        at_upper = z.unstable.greater_equal(self.value(), self.upper - tolerance)
+        # Adding a slight tol to make sure we're not tricked by numerics
+        tol = (self.upper - self.lower) * 1e-2
+        at_lower = z.unstable.less_equal(self.value(), self.lower + tol)
+        at_upper = z.unstable.greater_equal(self.value(), self.upper - tol)
         return z.unstable.logical_or(at_lower, at_upper)
 
     def value(self):

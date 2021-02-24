@@ -19,7 +19,7 @@ from ..util.exception import MaximumIterationReached
 class Minuit(BaseMinimizer, GraphCachable):
     _DEFAULT_name = "Minuit"
 
-    def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tolerance: float = None,
+    def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tol: float = None,
                  verbosity: int = 5, name: str = None,
                  ncall: Optional[int] = None, minuit_grad: Optional[bool] = None, use_minuit_grad: bool = None,
                  minimizer_options=None):
@@ -33,7 +33,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             strategy: A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
             the minimizer in certain situations.
             minimize_strategy: A number used by minuit to define the strategy, either 0, 1 or 2.
-            tolerance: Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower than `tolerance`
+            tol: Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower than `tolerance`
             verbosity: Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
             name: Name of the minimizer
             ncall: Maximum number of minimization steps.
@@ -51,7 +51,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             raise ValueError(f"minimize_strategy has to be 0, 1 or 2, not {minimize_strategy}.")
         minimizer_options['strategy'] = minimize_strategy
 
-        super().__init__(name=name, strategy=strategy, tolerance=tolerance, verbosity=verbosity,
+        super().__init__(name=name, strategy=strategy, tol=tol, verbosity=verbosity,
                          minimizer_options=minimizer_options)
         minuit_grad = True if minuit_grad is None else minuit_grad
         self._minuit_minimizer = None
@@ -126,7 +126,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         minimizer.print_level = minuit_verbosity
         strategy = minimizer_setter.pop('strategy')
         minimizer.strategy = strategy
-        minimizer.tol = self.tolerance / 1e-3  # iminuit 1e-3 and tolerance 0.1
+        minimizer.tol = self.tol / 1e-3  # iminuit 1e-3 and tol 0.1
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
             minimizer_setter)
         self._minuit_minimizer = minimizer

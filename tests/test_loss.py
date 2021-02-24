@@ -102,7 +102,7 @@ def test_unbinned_simultaneous_nll():
     nll = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
                                 data=[test_values, test_values2],
                                 )
-    minimizer = Minuit(tolerance=1e-5)
+    minimizer = Minuit(tol=1e-5)
     status = minimizer.minimize(loss=nll, params=[mu1, sigma1, mu2, sigma2])
     params = status.params
     assert set(nll.get_params()) == {mu1, mu2, sigma1, sigma2}
@@ -123,7 +123,7 @@ def test_unbinned_nll(weights, sigma):
     test_values = tf.constant(test_values_np)
     test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
     nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values)
-    minimizer = Minuit(tolerance=1e-5)
+    minimizer = Minuit(tol=1e-5)
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
     rel_error = 0.12 if weights is None else 0.1  # more fluctuating with weights
@@ -137,7 +137,7 @@ def test_unbinned_nll(weights, sigma):
     nll_object = UnbinnedNLL(model=gaussian2, data=test_values,
                              constraints=constraints)
 
-    minimizer = Minuit(tolerance=1e-4)
+    minimizer = Minuit(tol=1e-4)
     status = minimizer.minimize(loss=nll_object, params=[mu2, sigma2])
     params = status.params
     if weights is None:

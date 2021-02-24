@@ -723,7 +723,7 @@ def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
             lower, upper = limit1.rect_limits
             lower_other, upper_other = limit2.rect_limits
 
-    # TODO add tolerances
+    # TODO add tols
     lower_limits_equal = z.unstable.reduce_all(z.unstable.allclose_anyaware(lower, lower_other))
     upper_limits_equal = z.unstable.reduce_all(z.unstable.allclose_anyaware(upper, upper_other))
     rect_limits_equal = z.unstable.logical_and(lower_limits_equal, upper_limits_equal)

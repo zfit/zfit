@@ -10,7 +10,7 @@ class Adam(WrapOptimizer):
     _DEFAULT_name = 'Adam'
 
     def __init__(self,
-                 tolerance=None,
+                 tol=None,
                  learning_rate=0.2,
                  beta1=0.9,
                  beta2=0.999,
@@ -21,4 +21,4 @@ class Adam(WrapOptimizer):
                                              beta_1=beta1, beta_2=beta2,
                                              epsilon=epsilon,
                                              name=name)
-        super().__init__(optimizer=optimizer, tolerance=tolerance, maxiter='auto', **kwargs)
+        super().__init__(optimizer=optimizer, tol=tol, maxiter='auto', **kwargs)

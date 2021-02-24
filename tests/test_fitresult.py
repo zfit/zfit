@@ -113,7 +113,7 @@ def test_params_at_limit(minimizer_class_and_kwargs):
     old_lower = param_a.lower
     param_a.lower = param_a.upper
     param_a.upper += 5
-    minimizer = zfit.minimize.Minuit(use_minuit_grad=True, tolerance=0.1)
+    minimizer = zfit.minimize.Minuit(use_minuit_grad=True, tol=0.1)
     result = minimizer.minimize(loss)
     assert param_a.at_limit
     assert result.params_at_limit

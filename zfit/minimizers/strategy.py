@@ -67,25 +67,25 @@ class ToyStrategyFail(BaseStrategy):
 
 class PushbackStrategy(BaseStrategy):
 
-    def __init__(self, nan_penalty: Union[float, int] = 100, nan_tolerance: int = 30, **kwargs):
+    def __init__(self, nan_penalty: Union[float, int] = 100, nan_tol: int = 30, **kwargs):
         """Pushback by adding `nan_penalty * counter` to the loss if NaNs are encountered.
 
-        The counter indicates how many NaNs occurred in a row. The `nan_tolerance` is the upper limit, if this is
+        The counter indicates how many NaNs occurred in a row. The `nan_tol` is the upper limit, if this is
         exceeded, the fallback will be used and an error is raised.
 
         Args:
             nan_penalty: Value to add to the previous loss in order to penalize the step taken.
-            nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.
+            nan_tol: If the number of NaNs encountered in a row exceeds this number, the fallback is used.
         """
         super().__init__(**kwargs)
         self.nan_penalty = nan_penalty
-        self.nan_tolerance = nan_tolerance
+        self.nan_tol = nan_tol
 
     def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
                       values: Mapping = None) -> float:
         assert 'nan_counter' in values, "'nan_counter' not in values, minimizer not correctly implemented"
         nan_counter = values['nan_counter']
-        if nan_counter < self.nan_tolerance:
+        if nan_counter < self.nan_tol:
             last_loss = values.get('old_loss')
             last_grad = values.get('old_grad')
             if last_grad is not None:

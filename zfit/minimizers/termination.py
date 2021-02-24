@@ -11,13 +11,13 @@ from ..util.checks import Singleton
 
 class ConvergenceCriterion(abc.ABC):
 
-    def __init__(self, tolerance: float, loss: ZfitLoss,
+    def __init__(self, tol: float, loss: ZfitLoss,
                  params: ztyping.ParamTypeInput, name: str):
         super().__init__()
         if not isinstance(loss, ZfitLoss):
             raise TypeError("loss has to be ZfitLoss")
         self.loss = loss
-        self.tolerance = tolerance
+        self.tol = tol
         self.params = params
         self.name = name
         self.last_value = CRITERION_NOT_AVAILABLE
@@ -32,7 +32,7 @@ class ConvergenceCriterion(abc.ABC):
 
         """
         value = self.calculate(result)
-        return value < self.tolerance
+        return value < self.tol
 
     def calculate(self, result: "zfit.core.fitresult.FitResult"):
         """Evaluate the convergence criterion and store it in `last_value`
@@ -61,12 +61,12 @@ def calculate_edm(grad, inv_hesse):
 class EDM(ConvergenceCriterion):
 
     def __init__(self,
-                 tolerance: float,
+                 tol: float,
                  loss: ZfitLoss,
                  params: ztyping.ParamTypeInput,
                  name: Optional[str] = "edm"):
 
-        super().__init__(tolerance=tolerance, loss=loss, params=params,
+        super().__init__(tol=tol, loss=loss, params=params,
                          name=name)
 
     def _calculate(self, result) -> float:

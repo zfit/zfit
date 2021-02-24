@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from typing import Iterable, List, Union, Dict, Set
 
@@ -88,7 +88,7 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
                 for other_lower, other_upper in zip(lowers, uppers):
                     if allow_exact_match and np.allclose(other_lower, low) and np.allclose(other_upper, up):
                         continue
-                    # TODO(Mayou36): tolerance? add global flags?
+                    # TODO(Mayou36): tol? add global flags?
                     low_overlaps = np.all(other_lower - eps < low) and np.all(low < other_upper - eps)
                     up_overlaps = np.all(other_lower + eps < up) and np.all(up < other_upper + eps)
                     overlap = low_overlaps or up_overlaps

@@ -13,7 +13,7 @@ from ..core.parameter import set_values
 # class IPopt(ScipyBaseMinimizer):
 #
 #     def __init__(self,
-#                  tolerance: float = None,
+#                  tol: float = None,
 #                  # maxcor: Optional[int] = None,
 #                  # maxls: Optional[int] = None,
 #                  verbosity: Optional[int] = None,
@@ -28,11 +28,11 @@ from ..core.parameter import set_values
 #         if options:
 #             minimizer_options['options'] = options
 #
-#         scipy_tolerances = {'tol': None}
+#         scipy_tols = {'tol': None}
 #
-#         super().__init__(method=None, internal_tolerances=scipy_tolerances, gradient=gradient,
+#         super().__init__(method=None, internal_tols=scipy_tols, gradient=gradient,
 #                          hessian=NOT_SUPPORTED,
-#                          minimizer_options=minimizer_options, tolerance=tolerance, verbosity=verbosity,
+#                          minimizer_options=minimizer_options, tol=tol, verbosity=verbosity,
 #                          maxiter=maxiter,
 #                          minimize_func=ipopt.minimize_ipopt,
 #                          strategy=strategy, criterion=criterion, name=name)
@@ -51,7 +51,7 @@ class IPoptV1(BaseMinimizer):
     )
 
     def __init__(self,
-                 tolerance: float = None,
+                 tol: float = None,
                  verbosity: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = None,
                  maxiter: Optional[Union[int, str]] = None,
@@ -64,7 +64,7 @@ class IPoptV1(BaseMinimizer):
         """
 
         Args:
-            tolerance (Union[float, None]):
+            tol (Union[float, None]):
             verbosity (int):
             gradient (Union[None, None]):
             hessian: Determine which hessian matrix to use during the minimization.
@@ -163,7 +163,7 @@ class IPoptV1(BaseMinimizer):
         minimizer_options['gradient'] = gradient
         minimizer_options['hessian'] = hessian
         if 'tol' in options:
-            raise ValueError("Cannot put 'tol' into the options. Use `tolerance` instead")
+            raise ValueError("Cannot put 'tol' into the options. Use `tol` in the init instead")
         if 'max_iter' in options:
             raise ValueError("Cannot put 'max_iter' into the options. Use `maxiter` instead.`")
         if 'limited_memory_update_type' in options:
@@ -179,15 +179,15 @@ class IPoptV1(BaseMinimizer):
 
         minimizer_options['ipopt'] = options
 
-        internal_tolerances = {}
+        internal_tol = {}
         for tol in self._ALL_IPOPT_TOL:
-            if tol not in internal_tolerances:
-                internal_tolerances[tol] = None
-        self._internal_tolerances = internal_tolerances
+            if tol not in internal_tol:
+                internal_tol[tol] = None
+        self._internal_tol = internal_tol
         self._internal_maxiter = 20
 
         super().__init__(name=name,
-                         tolerance=tolerance,
+                         tol=tol,
                          verbosity=verbosity,
                          minimizer_options=minimizer_options,
                          strategy=strategy,
@@ -227,7 +227,7 @@ class IPoptV1(BaseMinimizer):
         if print_level == 12:
             ipopt_options['print_timing_statistics'] = 'yes'
 
-        ipopt_options['tol'] = self.tolerance
+        ipopt_options['tol'] = self.tol
         ipopt_options['max_iter'] = self.get_maxiter(len(params))
         hessian = minimizer_options['hessian']
 
@@ -261,11 +261,11 @@ class IPoptV1(BaseMinimizer):
 
         minimizer.set(**{k: v for k, v in ipopt_options.items() if v is not None})
 
-        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tol=self.tol, loss=loss, params=params)
 
-        init_tol = min([math.sqrt(loss.errordef * self.tolerance), loss.errordef * self.tolerance * 1e2])
+        init_tol = min([math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e2])
         # init_tol **= 0.5
-        internal_tol = self._internal_tolerances
+        internal_tol = self._internal_tol
         internal_tol = {tol: init_tol if init is None else init for tol, init in internal_tol.items()}
 
         valid = True
@@ -341,7 +341,7 @@ class IPoptV1(BaseMinimizer):
 
         else:
             valid = False
-            valid_message = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tolerance} not reached."
+            valid_message = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tol} not reached."
 
         # cleanup of convergence
         minimizer.set(**{option: 'no' for option in warm_start_options})

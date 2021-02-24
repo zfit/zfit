@@ -1,10 +1,10 @@
-tensorflow~=2.4
+tensorflow
 tensorflow_probability~=0.12
-scipy>=1.2
-uproot>=4,<5
+scipy
+uproot
 pandas
-numpy>=1.16
-iminuit>=2.3
+numpy
+iminuit
 colorlog
 texttable
 tabulate
@@ -14,3 +14,4 @@ ordered-set
 numdifftools
 tensorflow-addons
 nlopt
+ipyopt

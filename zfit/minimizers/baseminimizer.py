@@ -126,10 +126,10 @@ class BaseMinimizer(ZfitMinimizer):
     Additional `minimizer_options` (given as **kwargs) can be accessed and changed via the
     attribute (dict) `minimizer.minimizer_options`.
     """
-    _DEFAULT_TOLERANCE = 1e-3
+    _DEFAULT_tol = 1e-3
 
     def __init__(self, name,
-                 tolerance,
+                 tol,
                  verbosity,
                  minimizer_options,
                  criterion=None,
@@ -146,9 +146,9 @@ class BaseMinimizer(ZfitMinimizer):
             raise TypeError(f"strategy {strategy} is not an instance of ZfitStrategy.")
         self.strategy = strategy
         self.name = name
-        if tolerance is None:
-            tolerance = self._DEFAULT_TOLERANCE
-        self.tolerance = tolerance
+        if tol is None:
+            tol = self._DEFAULT_tol
+        self.tol = tol
         self.verbosity = 5 if verbosity is None else verbosity
         if minimizer_options is None:
             minimizer_options = {}
@@ -281,12 +281,12 @@ class BaseMinimizer(ZfitMinimizer):
                              "instead of a `CompositeParameter` was created implicitly.".format(non_dependents))
 
     @property
-    def tolerance(self):
-        return self._tolerance
+    def tol(self):
+        return self._tol
 
-    @tolerance.setter
-    def tolerance(self, tolerance):
-        self._tolerance = tolerance
+    @tol.setter
+    def tol(self, tol):
+        self._tol = tol
 
     @staticmethod
     def _extract_start_values(params):
@@ -370,7 +370,7 @@ class BaseMinimizer(ZfitMinimizer):
         raise MinimizeNotImplementedError
 
     def __str__(self) -> str:
-        string = f'<{self.name} strategy={self.strategy} tolerance={self.tolerance}>'
+        string = f'<{self.name} strategy={self.strategy} tol={self.tol}>'
         return string
 
     def get_maxiter(self, n):
@@ -391,7 +391,7 @@ class BaseMinimizer(ZfitMinimizer):
         return evaluator
 
     def _update_tol_inplace(self, criterion_value, internal_tol):
-        tol_factor = min([max([self.tolerance / criterion_value * 0.3, 1e-2]), 0.2])
+        tol_factor = min([max([self.tol / criterion_value * 0.3, 1e-2]), 0.2])
         for tol in internal_tol:
             if tol in ('gtol', 'xtol'):
                 internal_tol[tol] *= math.sqrt(tol_factor)
@@ -399,7 +399,7 @@ class BaseMinimizer(ZfitMinimizer):
                 internal_tol[tol] *= tol_factor
 
     def create_criterion(self, loss, params):
-        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
+        criterion = self.criterion(tol=self.tol, loss=loss, params=params)
         return criterion
 
 
@@ -411,13 +411,13 @@ class BaseStepMinimizer(BaseMinimizer):
         changes = collections.deque(np.ones(n_old_vals))
         last_val = -10
         n_steps = 0
-        criterion = self.criterion(tolerance=self.tolerance, loss=loss, params=params)
-        edm = self.tolerance * 1000
+        criterion = self.criterion(tol=self.tol, loss=loss, params=params)
+        edm = self.tol * 1000
         sum_changes = np.sum(changes)
         inv_hesse = None
-        while (sum_changes > self.tolerance or edm > self.tolerance) and n_steps < self.get_maxiter(len(params)):
+        while (sum_changes > self.tol or edm > self.tol) and n_steps < self.get_maxiter(len(params)):
             cur_val = run(self.step(loss=loss, params=params))
-            if sum_changes < self.tolerance and n_steps % 5:
+            if sum_changes < self.tol and n_steps % 5:
                 xvalues = np.array(run(params))
                 hesse = run(loss.hessian(params))
                 inv_hesse = np.linalg.inv(hesse)
@@ -474,7 +474,7 @@ class NOT_SUPPORTED:
 def print_minimization_status(converged, criterion, evaluator, i, fmin,
                               internal_tol: Optional[Mapping[str, float]] = None):
     internal_tol = {} if internal_tol is None else internal_tol
-    tolerances_str = ', '.join(f'{tol}={val:.3g}' for tol, val in internal_tol.items())
+    tols_str = ', '.join(f'{tol}={val:.3g}' for tol, val in internal_tol.items())
     print(f"{f'CONVERGED{os.linesep}' if converged else ''}"
           f"Finished iteration {i}, niter={evaluator.niter}, fmin={fmin:.7g},"
-          f" {criterion.name}={criterion.last_value:.3g} {tolerances_str}")
+          f" {criterion.name}={criterion.last_value:.3g} {tols_str}")
