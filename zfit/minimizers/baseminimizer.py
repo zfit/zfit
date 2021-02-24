@@ -12,7 +12,7 @@ import math
 import os
 import warnings
 from collections import OrderedDict
-from typing import List, Union, Iterable, Mapping, Callable, Tuple, Optional
+from typing import Union, Iterable, Mapping, Callable, Tuple, Optional, Dict
 
 import numpy as np
 from ordered_set import OrderedSet
@@ -21,14 +21,14 @@ from .evaluation import LossEval
 from .fitresult import FitResult
 from .interface import ZfitMinimizer, ZfitResult
 from .strategy import FailMinimizeNaN, ZfitStrategy, PushbackStrategy
-from .termination import EDM
+from .termination import EDM, ConvergenceCriterion
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import set_values, convert_to_parameter
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError, MinimizerSubclassingError, \
-    FromResultNotImplemented, ParameterNotIndependentError
+    FromResultNotImplemented, ParameterNotIndependentError, MaximumIterationReached
 
 DefaultStrategy = PushbackStrategy
 
@@ -126,36 +126,38 @@ class BaseMinimizer(ZfitMinimizer):
     Additional `minimizer_options` (given as **kwargs) can be accessed and changed via the
     attribute (dict) `minimizer.minimizer_options`.
     """
-    _DEFAULT_tol = 1e-3
+    _DEFAULTS = {
+        'tol': 1e-3,
+        'verbosity': 5,
+        'strategy': DefaultStrategy,
+        'criterion': EDM,
+        'maxiter': 'auto',
+    }
 
-    def __init__(self, name,
-                 tol,
-                 verbosity,
-                 minimizer_options,
-                 criterion=None,
-                 strategy=None,
-                 maxiter=None,
-                 **kwargs):
+    def __init__(self,
+                 tol: Optional[float],
+                 verbosity: Optional[int],
+                 minimizer_options: Optional[Dict],
+                 criterion: Optional[ConvergenceCriterion],
+                 strategy: Optional[ZfitStrategy],
+                 maxiter: Optional[Union[str, int]],
+                 name: Optional[str],
+                 **kwargs) -> None:
         super().__init__(**kwargs)
         self._n_iter_per_param = 1000
-        if name is None:
-            name = repr(self.__class__)[:-2].split(".")[-1]
+
+        self.tol = self._DEFAULTS['tol'] if tol is None else tol
+        self.verbosity = self._DEFAULTS['verbosity'] if verbosity is None else verbosity
+        self.minimizer_options = {} if minimizer_options is None else minimizer_options
+        self.criterion = self._DEFAULTS['criterion'] if criterion is None else criterion
+
         if strategy is None:
-            strategy = DefaultStrategy()
+            strategy = self._DEFAULTS['strategy']()
         if not isinstance(strategy, ZfitStrategy):
             raise TypeError(f"strategy {strategy} is not an instance of ZfitStrategy.")
         self.strategy = strategy
-        self.name = name
-        if tol is None:
-            tol = self._DEFAULT_tol
-        self.tol = tol
-        self.verbosity = 5 if verbosity is None else verbosity
-        if minimizer_options is None:
-            minimizer_options = {}
-        self.minimizer_options = minimizer_options
-        self.maxiter = 'auto' if maxiter is None else maxiter
-
-        self.criterion = EDM if criterion is None else criterion
+        self.maxiter = self._DEFAULTS['maxiter'] if maxiter is None else maxiter
+        self.name = repr(self.__class__)[:-2].split(".")[-1] if name is None else name
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -265,21 +267,6 @@ class BaseMinimizer(ZfitMinimizer):
                           f"minimization.")
         return [param for param in params if param.floating]
 
-    @staticmethod
-    def _extract_load_method(params):
-        return [param.load for param in params]
-
-    @staticmethod
-    def _extract_param_names(params):
-        return [param.name for param in params]
-
-    def _check_gradients(self, params, gradients):
-        non_dependents = [param for param, grad in zip(params, gradients) if grad is None]
-        if non_dependents:
-            raise ValueError("Invalid gradients for the following parameters: {}"
-                             "The function does not depend on them. Probably a Tensor"
-                             "instead of a `CompositeParameter` was created implicitly.".format(non_dependents))
-
     @property
     def tol(self):
         return self._tol
@@ -288,41 +275,12 @@ class BaseMinimizer(ZfitMinimizer):
     def tol(self, tol):
         self._tol = tol
 
-    @staticmethod
-    def _extract_start_values(params):
-        """Extract the current value if defined, otherwise random.
-
-        Arguments:
-            params:
-
-        Return:
-            list(const): the current value of parameters
-        """
-        values = [p for p in params]
-        return values
-
-    @staticmethod
-    def _update_params(params: Union[Iterable[ZfitParameter]], values: Union[Iterable[float], np.ndarray]) -> List[
-        ZfitParameter]:
-        """Update `params` with `values`. Returns the assign op (if `use_op`, otherwise use a session to load the value.
-
-        Args:
-            params: The parameters to be updated
-            values: New values for the parameters.
-
-        Returns:
-            List of assign operations if `use_op`, otherwise empty. The output
-                can therefore be directly used as argument to :py:func:`~tf.control_dependencies`.
-        """
-        if len(params) == 1 and len(values) > 1:
-            values = (values,)  # iteration will be correctly
-        for param, value in zip(params, values):
-            param.set_value(value)
-
-        return params
-
-    def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None, init: FitResult = None) -> FitResult:
-        """Fully minimize the `loss` with respect to `params`.
+    def minimize(self,
+                 loss: ZfitLoss,
+                 params: Optional[ztyping.ParamsTypeOpt] = None,
+                 init: Optional[ZfitResult] = None
+                 ) -> FitResult:
+        """Fully minimize the `loss` with respect to `params`, optionally using information from `init`.
 
         Args:
             loss: Loss to be minimized.
@@ -343,25 +301,35 @@ class BaseMinimizer(ZfitMinimizer):
         return self._call_minimize(loss=loss, params=params, init=init)
 
     def _call_minimize(self, loss, params, init):
-
+        do_recovery = False
+        prelim_result = None
         try:
-            try:
-                return self._minimize(loss=loss, params=params, init=init)
-            except TypeError as error:
-                if "got an unexpected keyword argument 'init'" in error.args[0]:
-                    warnings.warn(
-                        '_minimize has to take an `init` argument. This will be mandatory in the future, please'
-                        ' change the signature accordingly.', category=FutureWarning, stacklevel=2)
-                    return self._minimize(loss=loss, params=params)
-                else:
-                    raise
-        except (FailMinimizeNaN, RuntimeError):  # iminuit raises RuntimeError if user raises Error
-            fail_result = self.strategy.fit_result
-            if fail_result is not None:
-                return fail_result
+            result =  self._minimize(loss=loss, params=params, init=init)
+        except TypeError as error:
+            if "got an unexpected keyword argument 'init'" in error.args[0]:
+                warnings.warn(
+                    '_minimize has to take an `init` argument. This will be mandatory in the future, please'
+                    ' change the signature accordingly.', category=FutureWarning, stacklevel=2)
+                result = self._call_minimize(loss=loss, params=params)
             else:
                 raise
+        # TODO: catch `init` not supported?
+        except (FailMinimizeNaN, RuntimeError):  # iminuit raises RuntimeError if user raises Error
+            do_recovery = True
+            prelim_result = self.strategy.fit_result
+            if prelim_result is not None:
 
+                result = prelim_result
+            else:
+                raise
+        except MaximumIterationReached:
+            do_recovery = True
+            # TODO (enh): implement a recovery
+
+        if do_recovery:
+            result = self._recover_result(prelim_result=prelim_result)
+
+        return result
     def copy(self):
         return copy.copy(self)
 

@@ -51,7 +51,8 @@ class Minuit(BaseMinimizer, GraphCachable):
             raise ValueError(f"minimize_strategy has to be 0, 1 or 2, not {minimize_strategy}.")
         minimizer_options['strategy'] = minimize_strategy
 
-        super().__init__(name=name, strategy=strategy, tol=tol, verbosity=verbosity,
+        super().__init__(name=name, strategy=strategy, tol=tol, verbosity=verbosity, criterion=None,
+                         maxiter=1e20,
                          minimizer_options=minimizer_options)
         minuit_grad = True if minuit_grad is None else minuit_grad
         self._minuit_minimizer = None

@@ -149,11 +149,14 @@ class NLoptBaseMinimizer(BaseMinimizer):
             internal_tols = {}
         else:
             internal_tols = copy.copy(internal_tols)
-        for tol in self._ALL_NLOPT_TOL:
-            if tol not in internal_tols:
-                internal_tols[tol] = None
+        for nlopt_tol in self._ALL_NLOPT_TOL:
+            if nlopt_tol not in internal_tols:
+                internal_tols[nlopt_tol] = None
         self._internal_tols = internal_tols
+
+        # private kept variables
         self._internal_maxiter = 20
+        self._nrandom_max = 5
 
         super().__init__(name=name,
                          tol=tol,
@@ -196,17 +199,6 @@ class NLoptBaseMinimizer(BaseMinimizer):
         # set maximum number of iterations, also set in evaluator
         minimizer.set_maxeval(self.get_maxiter(len(params)))
 
-        inv_hesse = None
-        hessian_init = None
-        init_scale = None
-        if previous_result:
-            inv_hessian = previous_result.info.get('inv_hesse')
-            if inv_hessian is None:
-                hessian_init = previous_result.info.get('hesse')
-                if hessian_init is not None:
-                    inv_hessian = np.linalg.inv(hessian_init)
-                    init_scale = np.diag(inv_hessian)
-
         minimizer_options = self.minimizer_options.copy()
         local_minimizer = None
         local_minimizer_options = minimizer_options.pop("local_minimizer_options", None)
@@ -229,32 +221,38 @@ class NLoptBaseMinimizer(BaseMinimizer):
         internal_tol = {tol: init_tol if init is None else init for tol, init in internal_tol.items()}
         if 'xtol' in internal_tol:
             internal_tol['xtol'] **= 0.5
+        if 'ftol' in internal_tol:
+            internal_tol['ftol'] **= 0.5
 
         valid = None
         edm = None
         criterion_value = None
         maxiter_reached = False
         valid_message = ""
-
+        init_scale = None
+        result_prelim = previous_result
+        nrandom = 0
         for i in range(self._internal_maxiter):
 
             self._set_tols_inplace(minimizer=minimizer,
-                                         internal_tol=internal_tol,
-                                         criterion_value=criterion_value)
+                                   internal_tol=internal_tol,
+                                   criterion_value=criterion_value)
 
             # some (global) optimizers use a local minimizer, set that here
             if local_minimizer is not None:
                 self._set_tols_inplace(minimizer=local_minimizer,
-                                             internal_tol=internal_tol,
-                                             criterion_value=criterion_value)
+                                       internal_tol=internal_tol,
+                                       criterion_value=criterion_value)
 
                 minimizer.set_local_optimizer(local_minimizer)
-
+            if result_prelim is not None:
+                approx_inv_hessian = result_prelim.approx.inv_hessian()
+                if approx_inv_hessian is not None:
+                    init_scale = np.diag(approx_inv_hessian) ** 0.5
             if init_scale is None:
-                step_sizes = np.array([p.step_size if p.has_step_size else 0 for p in params])  # TODO: is 0 okay?
-            else:
-                step_sizes = init_scale
-            minimizer.set_initial_step(step_sizes)
+                init_scale = np.array([p.step_size if p.has_step_size else 0 for p in params])  # TODO: is 0 okay?
+
+            minimizer.set_initial_step(init_scale)
 
             # run the minimization
             try:
@@ -263,6 +261,12 @@ class NLoptBaseMinimizer(BaseMinimizer):
                 maxiter_reached = True
                 valid = False
                 valid_message = "Maxiter reached, terminated without convergence"
+            except RuntimeError as error:
+                if self.verbosity > 5:
+                    print("Minimization in NLopt failed, restarting with slightly varied parameters.")
+                if nrandom < self._nrandom_max:  # in order not to start too close
+                    xvalues += np.random.uniform(low=-init_scale, high=init_scale) / 2
+                    nrandom += 1
             else:
                 maxiter_reached = evaluator.niter > evaluator.maxiter
 
@@ -274,6 +278,8 @@ class NLoptBaseMinimizer(BaseMinimizer):
                                                      opt=minimizer,
                                                      edm=CRITERION_NOT_AVAILABLE, niter=evaluator.nfunc_eval,
                                                      params=params,
+                                                     evaluator=evaluator,
+                                                     criterion=None,
                                                      xvalues=xvalues,
                                                      valid=valid, message=valid_message)
                 converged = criterion.converged(result_prelim) and valid
@@ -286,20 +292,9 @@ class NLoptBaseMinimizer(BaseMinimizer):
             if self.verbosity > 5:
                 print_minimization_status(converged=converged, criterion=criterion, evaluator=evaluator, i=i, fmin=fmin,
                                           internal_tol=internal_tol)
-            if (evaluator.last_hessian is not None
-                and (hessian_init is None
-                     or not np.allclose(hessian_init,
-                                        evaluator.last_hessian))):  # either non-existent or different
-                hessian_init = evaluator.last_hessian
-            else:
-                hessian_init = None  # the hessian we have is not valid anymore
 
             if converged or maxiter_reached:
                 break
-
-            if hessian_init is not None:
-                inv_hesse = np.linalg.inv(hessian_init)
-                init_scale = np.diag(inv_hesse)
 
             # update the tols
             self._update_tol_inplace(criterion_value=criterion_value, internal_tol=internal_tol)
@@ -309,8 +304,8 @@ class NLoptBaseMinimizer(BaseMinimizer):
             valid_message = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tol} not reached."
 
         return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm,
-                                    niter=evaluator.niter, params=params,
-                                    xvalues=xvalues, inv_hess=inv_hesse, valid=valid, criterion=criterion,
+                                    niter=evaluator.niter, params=params, evaluator=evaluator,
+                                    xvalues=xvalues, valid=valid, criterion=criterion,
                                     message=valid_message)
 
     def _set_tols_inplace(self, minimizer, internal_tol, criterion_value):

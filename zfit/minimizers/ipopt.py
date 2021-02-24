@@ -53,14 +53,14 @@ class IPoptV1(BaseMinimizer):
     def __init__(self,
                  tol: float = None,
                  verbosity: Optional[int] = None,
-                 gradient: Optional[Union[Callable, str]] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 options: Dict[str, object] = None,
-                 hessian: Optional[str] = None,
                  maxcor: Optional[int] = None,
+                 gradient: Optional[Union[Callable, str]] = None,
+                 hessian: Optional[str] = None,
+                 options: Dict[str, object] = None,
+                 maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
-                 name="IPopt", ):
+                 name: Optional[str] = "IPopt"):
         """
 
         Args:

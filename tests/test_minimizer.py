@@ -176,7 +176,8 @@ def test_dependent_param_extraction():
 
 
 # @pytest.mark.run(order=4)
-chunksizes = [100000, 3000]
+# chunksizes = [100000, 3000]
+chunksizes = [100000]
 # skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
 # num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
 num_grads = [False, True]
@@ -190,7 +191,7 @@ spaces_all = [obs1, obs1_split]
 @pytest.mark.parametrize("num_grad", num_grads)
 @pytest.mark.parametrize("spaces", spaces_all)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-# @pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
                     pytestconfig):
     long_clarg = pytestconfig.getoption("longtests")
@@ -238,11 +239,12 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     if isinstance(minimizer, BFGS) and num_grad and not zfit.run.mode['graph']:
         return
     init_vals = zfit.run(params)
+    result = minimizer.minimize(loss=loss)
+    zfit.param.set_values(params, init_vals)
     result_lowtol = minimizer_hightol.minimize(loss=loss)
     zfit.param.set_values(params, init_vals)
     result_lowtol2 = minimizer.minimize(loss=result_lowtol)
-    zfit.param.set_values(params, init_vals)
-    result = minimizer.minimize(loss=loss)
+
     assert result.valid
     assert result_lowtol.valid
     assert result_lowtol2.valid

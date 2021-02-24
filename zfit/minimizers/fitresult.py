@@ -339,8 +339,11 @@ class FitResult(ZfitResult):
         return fitresult
 
     @classmethod
-    def from_nlopt(cls, loss, minimizer, opt, edm, params, xvalues, message, niter=None,
-                   inv_hess=None, valid=None, criterion=None, evaluator=None):
+    def from_nlopt(cls, loss, minimizer, opt, edm, params, xvalues, message,
+                   valid, criterion, evaluator,
+                   niter=None,
+                   inv_hess=None, hess=None,
+                   ):
         param_dict = {p: v for p, v in zip(params, xvalues)}
         fmin = opt.last_optimum_value()
         status = opt.last_optimize_result()
@@ -370,6 +373,13 @@ class FitResult(ZfitResult):
             message = message_nlopt
 
         approx = {}
+        if inv_hess is None:
+            if hess is None:
+                if evaluator is not None:
+                    hess = evaluator.last_hessian
+            if hess is not None:
+                inv_hess = np.linalg.inv(hess)
+
         if inv_hess is not None:
             info['inv_hesse'] = inv_hess
             approx['inv_hessian'] = inv_hess

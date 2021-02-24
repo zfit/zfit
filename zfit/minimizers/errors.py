@@ -171,7 +171,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                                                 method=method)
         if new_result_ is not None:
             new_result = new_result_
-    print(f"Used {ncalls} calls.")
+    # print(f"Used {ncalls} calls.")
     return to_return, new_result
 
 

@@ -22,19 +22,20 @@ from ..util.exception import MaximumIterationReached
 class ScipyBaseMinimizer(BaseMinimizer):
     def __init__(self,
                  method: str,
+                 tol: Optional[float],
                  internal_tol: Mapping[str, Optional[float]],
                  gradient: Optional[Union[Callable, str, NOT_SUPPORTED]],
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy, NOT_SUPPORTED]],
                  maxiter: Optional[Union[int, str]],
-                 minimizer_options: Mapping[str, object],
-                 tol: float = None,
-                 verbosity: Optional[int] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
+                 minimizer_options: Optional[Mapping[str, object]],
+                 verbosity: Optional[int],
+                 strategy: Optional[ZfitStrategy],
+                 criterion: Optional[ConvergenceCriterion],
                  minimize_func: Optional[callable] = None,
                  name="ScipyMinimizer"):
-        minimize_func = scipy.optimize.minimize if minimize_func is None else minimize_func
-        self._minimize_func = minimize_func
+        self._minimize_func = scipy.optimize.minimize if minimize_func is None else minimize_func
+
+        minimizer_options = {} if minimizer_options is None else minimizer_options
         minimizer_options = copy.copy(minimizer_options)
         minimizer_options['method'] = method
         if 'options' not in minimizer_options:
@@ -140,7 +141,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
                                                  edm=CRITERION_NOT_AVAILABLE, valid=valid)
 
             if use_hessian:
-                inv_hessian = result_prelim.approx.get('hess_inv')
+                inv_hessian = result_prelim.approx.inv_hessian()
             converged = criterion.converged(result_prelim)
             criterion_value = criterion.last_value
             if isinstance(criterion, EDM):
