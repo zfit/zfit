@@ -94,7 +94,7 @@ def test_sampling():
     assert true_mu == pytest.approx(np.mean(sample), abs=tolerance)
     assert np.std(sample_true) == pytest.approx(np.std(sample), abs=tolerance)
 
-    assert scipy.stats.ks_2samp(sample_true, sample).pvalue > 0.05
+    assert scipy.stats.ks_2samp(sample_true, sample).pvalue > 0.01
 
 
 @pytest.mark.flaky(2)  # mc integration
