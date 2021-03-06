@@ -192,10 +192,10 @@ def test_correlation(minimizer_class_and_kwargs):
     assert pytest.approx(cor_mat[0, 1], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
     assert pytest.approx(cor_dict[(a, b)], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
 
-@pytest.mark.skip  # currently stuck in an endless loop?
+# @pytest.mark.skip  # currently stuck in an endless loop?
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-@pytest.mark.parametrize("cl", [None, 0.95])  # TODO: currently only None supported, 1 sigma
-# @pytest.mark.parametrize("sigma", [1])
+@pytest.mark.parametrize("cl", [None, 0.683, 0.8, 0.95, 0.9])
+@pytest.mark.timeout(60)  # if stuck finding new minima
 def test_errors(minimizer_class_and_kwargs, cl):
     n_max_trials = 5  # how often to try to find a new minimum
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
@@ -213,14 +213,13 @@ def test_errors(minimizer_class_and_kwargs, cl):
             result = new_result
     else:  # no break occured
         assert False, "Always a new minimum was found, cannot perform test."
-    print(result)
 
     # @marinang this test seems to fail when a new minimum is found
     for param in [a, b, c]:
         z_error_param = z_errors[param]
         minos_errors_param = minos_errors[param]
-    for dir in ["lower", "upper"]:
-        assert pytest.approx(z_error_param[dir], rel=0.03) == getattr(minos_errors_param, dir)
+        for dir in ["lower", "upper"]:
+            assert pytest.approx(z_error_param[dir], rel=0.03) == minos_errors_param[dir]
 
     with pytest.raises(KeyError):
         result.errors(method="error")

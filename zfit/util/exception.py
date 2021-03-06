@@ -222,21 +222,21 @@ class AnalyticSamplingNotImplementedError(AnalyticNotImplementedError):
 
 
 # PDF class internal handling errors
-class NormRangeNotImplementedError(Exception):
+class NormRangeNotImplementedError(StandardControlFlow):
     """Indicates that a function does not support the normalization range argument `norm_range`."""
     pass
 
 
-class MultipleLimitsNotImplementedError(Exception):
+class MultipleLimitsNotImplementedError(StandardControlFlow):
     """Indicates that a function does not support several limits in a :py:class:`~zfit.Space`."""
     pass
 
-class FromResultNotImplemented(Exception):
+class FromResultNotImplemented(StandardControlFlow):
     """Indicates that a minimize method does not support a FitResult instead of a loss"""
     pass
 
 
-class VectorizedLimitsNotImplementedError(Exception):
+class VectorizedLimitsNotImplementedError(StandardControlFlow):
     """Indicates that a function does not support vectorized (n_events > 1) limits in a :py:class:`~zfit.Space`."""
     pass
 
@@ -266,5 +266,5 @@ class BehaviorUnderDiscussion(Exception):
         super().__init__(msg, *args)
 
 
-class MaximumIterationReached(Exception):
+class MaximumIterationReached(StandardControlFlow):
     pass

@@ -201,6 +201,17 @@ class BaseMinimizer(ZfitMinimizer):
 
     def _check_convert_input(self, loss: ZfitLoss, params, init=None, only_floating=True
                              ) -> Tuple[ZfitLoss, Iterable[ZfitParameter], Union[None, FitResult]]:
+        """Sanitize the input values and return all of them.
+
+        Args:
+            loss:
+            params:
+            init:
+            only_floating:
+
+        Returns:
+
+        """
         if not isinstance(loss, ZfitLoss):
             if not callable(loss):
                 raise TypeError("Given Loss has to  be a ZfitLoss or a callable.")
@@ -276,7 +287,7 @@ class BaseMinimizer(ZfitMinimizer):
         self._tol = tol
 
     def minimize(self,
-                 loss: ZfitLoss,
+                 loss: Union[ZfitLoss, Callable],
                  params: Optional[ztyping.ParamsTypeOpt] = None,
                  init: Optional[ZfitResult] = None
                  ) -> FitResult:
@@ -369,6 +380,11 @@ class BaseMinimizer(ZfitMinimizer):
     def create_criterion(self, loss, params):
         criterion = self.criterion(tol=self.tol, loss=loss, params=params)
         return criterion
+
+    # TODO: implement a recovery by using a "stateful" minimization
+    def _recover_result(self, prelim_result):
+        warnings.warn("recovering result, yet no special functionality implemented yet.")
+        return prelim_result
 
 
 class BaseStepMinimizer(BaseMinimizer):

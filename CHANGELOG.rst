@@ -24,7 +24,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
-
+- `zfit_error` moved only one parameter to the correct initial position. Speedup and more reliable.
 
 
 Experimental
@@ -32,9 +32,11 @@ Experimental
 
 Requirement changes
 -------------------
+- ipyopt
 - iminuit>=2.3
 - tensorflow ~= 2.4
 - tensorflow-probability~=12
+
 
 Thanks
 ------

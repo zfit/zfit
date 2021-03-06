@@ -31,7 +31,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                    params: List[ZfitIndependentParameter],
                    cl: float = None,
                    sigma: float = 1,
-                   rtol: float = 0.005,
+                   rtol: float = 0.001,
                    method: Optional[str] = None,
                    covariance_method: Optional[Union[str, Callable]] = None
                    ) -> Tuple[Dict[ZfitIndependentParameter, Dict[str, float]],
@@ -102,8 +102,8 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                 ap_value = result.params[ap]["value"]
                 error_factor = covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
                 for d in ["lower", "upper"]:
-                    ap_value += direction[d] * error_factor
-                    initial_values[d].append(ap_value)
+                    ap_value_init = ap_value + direction[d] * error_factor
+                    initial_values[d].append(ap_value_init)
 
             # TODO: improvement, use jacobian?
             # @np_cache(maxsize=25)
@@ -124,14 +124,14 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                     zeroed_loss = loss_value.numpy() - fmin
 
                     gradients = np.array(gradients)
-                if swap_sign(param):
+                if swap_sign(param):  # mirror at x-axis to remove second zero
                     zeroed_loss = - zeroed_loss
                     gradients = - gradients
                     logging.info("Swapping sign in error calculation 'zfit_error'")
 
                 elif zeroed_loss < - minimizer.tol:
                     set_values(all_params, values)  # set values to the new minimum
-                    raise NewMinimum("A new is minimum found.")
+                    raise NewMinimum("A new minimum is found.")
 
                 downward_shift = errordef * sigma ** 2
                 shifted_loss = zeroed_loss - downward_shift

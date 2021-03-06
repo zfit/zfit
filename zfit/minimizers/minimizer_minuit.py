@@ -120,7 +120,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                 step_size = param.step_size
             if step_size is not None:
                 minimizer.errors[param.name] = step_size
-
+        for param in params:
             if param.has_limits:
                 minimizer.limits[param.name] = (param.lower, param.upper)
         minimizer.errordef = loss.errordef

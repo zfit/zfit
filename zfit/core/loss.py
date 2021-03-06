@@ -12,7 +12,7 @@ from ordered_set import OrderedSet
 from .baseobject import BaseNumeric
 from .constraint import BaseConstraint
 from .dependents import _extract_dependencies
-from .interfaces import ZfitLoss, ZfitSpace
+from .interfaces import ZfitLoss, ZfitSpace, ZfitData
 from .. import z, settings
 from ..util import ztyping
 from ..util.checks import NOT_SPECIFIED
@@ -111,7 +111,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                           "It is preferred to define the range in the space"
                           " when creating the data and the model.", stacklevel=2)
 
-        self.computed_gradients = {}
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
         self._model = model
         self._data = data
@@ -126,7 +125,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self._constraints = _constraint_check_convert(convert_to_container(constraints, list))
 
     def _check_init_options(self, options, data):
-        nevents = sum(d.nevents for d in data)
+        try:
+            nevents = sum(d.nevents for d in data)
+        except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
+            nevents = 150_000  # sensible default
         options = {} if options is None else options
 
         if options.get('numhess') is None:
@@ -172,22 +174,22 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def _input_check(self, pdf, data, fit_range):
         if is_container(pdf) ^ is_container(data):
             raise ValueError("`pdf` and `data` either both have to be a list or not.")
-        if not is_container(pdf):
-            if isinstance(fit_range, list):
-                raise TypeError("`pdf` and `data` are not a `list`, `fit_range` can't be a `list` then.")
+        if not is_container(pdf) and isinstance(fit_range, list):
+            raise TypeError("`pdf` and `data` are not a `list`, `fit_range` can't be a `list` then.")
         if isinstance(pdf, tuple):
             raise TypeError("`pdf` has to be a pdf or a list of pdfs, not a tuple.")
 
         if isinstance(data, tuple):
             raise TypeError("`data` has to be a data or a list of data, not a tuple.")
 
-        pdf, data = (convert_to_container(obj, non_containers=[tuple]) for obj in (pdf, data))
+        # pdf, data = (convert_to_container(obj, non_containers=[tuple]) for obj in (pdf, data))
+        pdf, data = self._check_convert_model_data(pdf, data, fit_range)
         # TODO: data, range consistency?
         if fit_range is None:
             fit_range = []
             for p, d in zip(pdf, data):
                 non_consistent = {'data': [], 'model': [], 'range': []}
-                if not p.norm_range == d.data_range:
+                if p.norm_range != d.data_range:
                     non_consistent['data'].append(d)
                     non_consistent['model'].append(p)
                     non_consistent['range'].append((p.norm_range, d.data_range))
@@ -215,6 +217,28 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self.add_cache_deps(cache_deps=data)
         self.add_cache_deps(cache_deps=fit_range)
         return pdf, data, fit_range
+
+    def _check_convert_model_data(self, model, data, fit_range):
+        model, data = tuple(convert_to_container(obj) for obj in (model, data))
+
+        model_checked = []
+        data_checked = []
+        for mod, dat in zip(model, data):
+            if not isinstance(dat, ZfitData):
+                if fit_range is not None:
+                    raise TypeError("Fit range should not be used if data is not ZfitData.")
+
+                if not isinstance(dat, (tf.Tensor, tf.Variable)):
+                    try:
+                        dat = z.convert_to_tensor(value=dat)
+                    except TypeError:
+                        raise TypeError(f"Wrong type of dat ({type(dat)}). Has to be a `ZfitData` or convertible to a tf.Tensor")
+                # check dimension
+                from zfit import Data
+                dat = Data.from_tensor(obs=mod.space, tensor=dat)
+            model_checked.append(mod)
+            data_checked.append(dat)
+        return model_checked, data_checked
 
     def _input_check_params(self, params):
         if params is None:
@@ -328,6 +352,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None, numgrad=None) -> Tuple[
         tf.Tensor, tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
+        numgrad = self._options['numhess'] if numgrad is None else numgrad
         vals = self._value_gradients_hessian(params=params, hessian=hessian, numerical=numgrad)
 
 
@@ -362,6 +387,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                  f' constraints={one_two_many(self.constraints, many="True")}' \
                  f'>'
         return string
+
+
 
 
 def one_two_many(values, n=3, many='multiple'):
@@ -547,7 +574,6 @@ class SimpleLoss(BaseLoss):
         self._simple_func = func
         self._simple_errordef = errordef
         self._errordef = errordef
-        self.computed_gradients = {}
         deps = convert_to_container(deps, container=OrderedSet)
         self._simple_func_params = _extract_dependencies(deps)
 
@@ -581,7 +607,7 @@ class SimpleLoss(BaseLoss):
             value = self._simple_func(params)
         else:
             value = self._simple_func()
-        return value
+        return z.convert_to_tensor(value)
 
     def __add__(self, other):
         raise IntentionAmbiguousError("Cannot add a SimpleLoss, 'addition' of losses can mean anything."

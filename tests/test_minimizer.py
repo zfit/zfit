@@ -9,6 +9,8 @@ from ordered_set import OrderedSet
 import zfit.minimizers.optimizers_tf
 # noinspection PyUnresolvedReferences
 from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.minimizers.base_tf import WrapOptimizer
+from zfit.util.exception import OperationNotAllowedError
 
 
 def teardown_function():
@@ -151,8 +153,12 @@ def test_minimize_pure_func(minimizer_class_and_kwargs):
     minimizer = minimizer_class(**minimizer_kwargs)
     func = scipy.optimize.rosen
     params = np.random.normal(size=5)
-    result = minimizer.minimize(func, params)
-    assert result.valid
+    if isinstance(minimizer, WrapOptimizer):
+        with pytest.raises(OperationNotAllowedError):
+            _ = minimizer.minimize(func, params)
+    else:
+        result = minimizer.minimize(func, params)
+        assert result.valid
     # result.hesse()
     # result.errors()
 
@@ -168,10 +174,10 @@ def test_dependent_param_extraction():
     data = zfit.Data.from_numpy(obs=obs, array=normal_np)
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
     minimizer = zfit.minimize.Minuit()
-    params_checked = OrderedSet(minimizer._check_convert_input(nll, params=[mu, sigma1]))
+    params_checked = OrderedSet(minimizer._check_convert_input(nll, params=[mu, sigma1])[1])
     assert {mu, sigma} == set(params_checked)
     sigma.floating = False
-    params_checked = minimizer._check_convert_input(nll, params=[mu, sigma1])
+    params_checked = minimizer._check_convert_input(nll, params=[mu, sigma1])[1]
     assert {mu, } == set(params_checked)
 
 

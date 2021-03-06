@@ -1,8 +1,11 @@
 #  Copyright (c) 2021 zfit
+from typing import Optional, Iterable
 
 import tensorflow as tf
 
-from .baseminimizer import BaseStepMinimizer
+from .baseminimizer import BaseStepMinimizer, minimize_supports
+from ..core.interfaces import ZfitIndependentParameter, ZfitLoss
+from ..util.exception import OperationNotAllowedError
 
 
 class WrapOptimizer(BaseStepMinimizer):
@@ -21,6 +24,16 @@ class WrapOptimizer(BaseStepMinimizer):
                          minimizer_options=None, **kwargs)
         self._optimizer_tf = optimizer
 
-    def _step(self, loss, params, init):
+    @minimize_supports(from_result=True)
+    def _minimize(self, loss, params, init):
+        if loss._options['numgrad']:
+            raise OperationNotAllowedError("Cannot use TF optimizer with a numerical gradient (non-TF function)")
+        return super()._minimize(loss, params, init)
+
+    def _step(self,
+              loss: ZfitLoss,
+              params: Iterable[ZfitIndependentParameter],
+              init: Optional["zfit.result.FitResult"]
+              ) -> tf.Tensor:
         self._optimizer_tf.minimize(loss=loss.value, var_list=params)
         return loss.value()

@@ -23,4 +23,5 @@ pytest-xdist
 pytest-ordering
 pytest-randomly
 scikit-hep-testdata
+pytest-timeout>=1
 matplotlib  # for plots in examples

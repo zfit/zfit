@@ -113,7 +113,7 @@ class NLopt(BaseMinimizer):
         return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, params=params, xvalues=xvalues)
 
 
-class NLoptBaseMinimizer(BaseMinimizer):
+class NLoptBaseMinimizerV1(BaseMinimizer):
     _ALL_NLOPT_TOL = (
         # 'fatol',
         'ftol',
@@ -133,7 +133,50 @@ class NLoptBaseMinimizer(BaseMinimizer):
                  strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  name: str = "NLopt Base Minimizer V1"):
+        """NLopt contains multiple different optimization algorithms.py
 
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as original implementations of various other
+        algorithms.
+
+        Args:
+            algorithm: Define which algorithm to be used. These are taken from `nlopt.ALGORITHM` (where `ALGORITHM` is
+                the actual algorithm). A comprehensive list and description of all implemented algorithms is
+                available `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+                The wrapper is optimized for Local gradient-based optimization and may breaks with
+                others. However, please post a feature request in case other algorithms are requested.
+
+                The naming of the algorithm starts with either L/G (Local/Global)
+                 and N/D (derivative-free/derivative-based).
+
+                Local optimizer ptions include (but not only)
+
+                Derivative free:
+                - LN_NELDERMEAD: The Nelder Mead Simplex algorithm, which seems to perform not so well, but can be used
+                  to narrow down a minimum.
+                - LN_SBPLX: SubPlex is an improved version of the Simplex algorithms and usually performs better.
+
+                With derivative:
+                - LD_MMA: Method of Moving Asymptotes, an improved CCSA
+                  ("conservative convex separable approximation") variant of the original MMA algorithm
+                - LD_SLSQP: this is a sequential quadratic programming (SQP) algorithm for (nonlinearly constrained)
+                  gradient-based optimization
+                - LD_LBFGS: version of the famous low-storage BFGS algorithm, an approximate Newton method. The same as
+                  the Minuit algorithm is built on.
+                - LD_TNEWTON_PRECOND_RESTART, LD_TNEWTON_PRECOND, LD_TNEWTON_RESTART, LD_TNEWTON: a preconditioned
+                  inexact truncated Newton algorithm. Multiple variations, with and without preconditioning and/or
+                  restart are provided.
+                - LD_VAR1, LD_VAR2: a shifted limited-memory variable-metric algorithm, either using a rank 1 or rank 2
+                  method.
+
+            tol (Union[float, None]):
+            strategy (Union[None, None]):
+            verbosity (int):
+            name (Union[None, None]):
+            maxiter (Union[None, None]):
+            minimizer_options (Union[None, None]):
+        """
         self._algorithm = algorithm
 
         minimizer_options = copy.copy(minimizer_options)
@@ -229,10 +272,21 @@ class NLoptBaseMinimizer(BaseMinimizer):
         criterion_value = None
         maxiter_reached = False
         valid_message = ""
-        init_scale = None
         result_prelim = previous_result
         nrandom = 0
         for i in range(self._internal_maxiter):
+            init_scale = []
+            approx_step_sizes = {}
+            if result_prelim:
+                approx_step_sizes = previous_result.hesse(params=params, method='approx')
+            empty_dict = {}
+            for param in params:
+                step_size = approx_step_sizes.get(param, empty_dict).get('error')
+                if step_size is None and param.has_step_size:
+                    step_size = param.step_size
+                init_scale.append(step_size)
+
+            minimizer.set_initial_step(init_scale)
 
             self._set_tols_inplace(minimizer=minimizer,
                                    internal_tol=internal_tol,
@@ -245,14 +299,7 @@ class NLoptBaseMinimizer(BaseMinimizer):
                                        criterion_value=criterion_value)
 
                 minimizer.set_local_optimizer(local_minimizer)
-            if result_prelim is not None:
-                approx_inv_hessian = result_prelim.approx.inv_hessian()
-                if approx_inv_hessian is not None:
-                    init_scale = np.diag(approx_inv_hessian) ** 0.5
-            if init_scale is None:
-                init_scale = np.array([p.step_size if p.has_step_size else 0 for p in params])  # TODO: is 0 okay?
 
-            minimizer.set_initial_step(init_scale)
 
             # run the minimization
             try:
@@ -331,7 +378,7 @@ class NLoptBaseMinimizer(BaseMinimizer):
                     minimizer.set_xtol_rel(xtol)  # TODO: one value or vector?
 
 
-class NLoptLBFGSV1(NLoptBaseMinimizer):
+class NLoptLBFGSV1(NLoptBaseMinimizerV1):
     def __init__(self,
                  tol: float = None,
                  maxcor: bool = None,
@@ -356,7 +403,7 @@ class NLoptLBFGSV1(NLoptBaseMinimizer):
             return self.minimizer_options.get('maxcor')
 
 
-class NLoptTruncNewtonV1(NLoptBaseMinimizer):
+class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
     def __init__(self,
                  tol: float = None,
                  maxcor: bool = None,
@@ -381,7 +428,7 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizer):
             return self.minimizer_options.get('maxcor')
 
 
-class NLoptSLSQPV1(NLoptBaseMinimizer):
+class NLoptSLSQPV1(NLoptBaseMinimizerV1):
     def __init__(self,
                  tol: float = None,
                  verbosity: Optional[int] = None,
@@ -401,7 +448,7 @@ class NLoptSLSQPV1(NLoptBaseMinimizer):
                          maxiter=maxiter)
 
 
-class NLoptMMAV1(NLoptBaseMinimizer):
+class NLoptMMAV1(NLoptBaseMinimizerV1):
     def __init__(self,
                  tol: float = None,
                  verbosity: Optional[int] = None,
@@ -421,7 +468,7 @@ class NLoptMMAV1(NLoptBaseMinimizer):
                          maxiter=maxiter)
 
 
-class NLoptCCSAQV1(NLoptBaseMinimizer):
+class NLoptCCSAQV1(NLoptBaseMinimizerV1):
     def __init__(self,
                  tol: float = None,
                  verbosity: Optional[int] = None,
@@ -441,7 +488,7 @@ class NLoptCCSAQV1(NLoptBaseMinimizer):
                          maxiter=maxiter)
 
 
-class NLoptSubplexV1(NLoptBaseMinimizer):
+class NLoptSubplexV1(NLoptBaseMinimizerV1):
     def __init__(self,
                  tol: float = None,
                  verbosity: Optional[int] = None,
@@ -461,7 +508,7 @@ class NLoptSubplexV1(NLoptBaseMinimizer):
                          maxiter=maxiter)
 
 
-class NLoptMLSLV1(NLoptBaseMinimizer):
+class NLoptMLSLV1(NLoptBaseMinimizerV1):
     def __init__(self,
                  tol: float = None,
                  local_minimizer: Optional[Union[int, Mapping[str, object]]] = None,

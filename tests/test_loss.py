@@ -157,10 +157,10 @@ def test_add():
     pdfs[3] = Gauss(4, 7, obs=obs1)
 
     datas = [0] * 4
-    datas[0] = z.constant(1.)
-    datas[1] = z.constant(2.)
-    datas[2] = z.constant(3.)
-    datas[3] = z.constant(4.)
+    datas[0] = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(1.))
+    datas[1] = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(2.))
+    datas[2] = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(3.))
+    datas[3] = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(4.))
 
     ranges = [0] * 4
     ranges[0] = (1, 4)
