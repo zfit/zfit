@@ -300,7 +300,6 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
                 minimizer.set_local_optimizer(local_minimizer)
 
-
             # run the minimization
             try:
                 xvalues = minimizer.optimize(xvalues)
