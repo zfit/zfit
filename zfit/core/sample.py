@@ -188,7 +188,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     if (isinstance(limits, EventSpace) and not limits.is_generator) or limits.n_events > 1:
         dynamic_array_shape = False
         if run.numeric_checks:
-            tf.debugging.assert_equal(limits.n_events, n)
+            tf.debugging.assert_equal(tf.cast(limits.n_events, dtype=tf.int64), n)
 
         initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n

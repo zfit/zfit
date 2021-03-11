@@ -402,9 +402,6 @@ class FitResult(ZfitResult):
                      criterion=criterion,
                      message=message,
                      evaluator=evaluator)
-        if valid:
-            result._valid = False
-            result.info['invalid_message'] = valid
         return result
 
     @property
