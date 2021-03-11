@@ -231,7 +231,7 @@ class MultipleLimitsNotImplementedError(StandardControlFlow):
     """Indicates that a function does not support several limits in a :py:class:`~zfit.Space`."""
     pass
 
-class FromResultNotImplemented(StandardControlFlow):
+class InitNotImplemented(StandardControlFlow):
     """Indicates that a minimize method does not support a FitResult instead of a loss"""
     pass
 

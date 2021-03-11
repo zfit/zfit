@@ -43,7 +43,7 @@ from ..util.exception import MaximumIterationReached
 # import cyipopt
 
 
-class IPoptV1(BaseMinimizer):
+class IpyoptV1(BaseMinimizer):
     _ALL_IPOPT_TOL = (
         'tiny_step_tol',  # xatol
         'tiny_step_y_tol',  # fatol
@@ -180,9 +180,9 @@ class IPoptV1(BaseMinimizer):
         minimizer_options['ipopt'] = options
 
         internal_tol = {}
-        for tol in self._ALL_IPOPT_TOL:
-            if tol not in internal_tol:
-                internal_tol[tol] = None
+        for iptol in self._ALL_IPOPT_TOL:
+            if iptol not in internal_tol:
+                internal_tol[iptol] = None
         self._internal_tol = internal_tol
         self._internal_maxiter = 20
 
@@ -194,7 +194,7 @@ class IPoptV1(BaseMinimizer):
                          criterion=criterion,
                          maxiter=maxiter)
 
-    @minimize_supports(from_result=True)
+    @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
         previous_result = init
         evaluator = self.create_evaluator(loss, params)

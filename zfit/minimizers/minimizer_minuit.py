@@ -19,7 +19,7 @@ from ..util.exception import MaximumIterationReached
 class Minuit(BaseMinimizer, GraphCachable):
     _DEFAULT_name = "Minuit"
 
-    def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tol: float = None,
+    def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = None, tol: float = None,
                  verbosity: int = 5, name: str = None,
                  ncall: Optional[int] = None, minuit_grad: Optional[bool] = None, use_minuit_grad: bool = None,
                  minimizer_options=None):
@@ -47,6 +47,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         minuit_grad = use_minuit_grad if use_minuit_grad is not None else minuit_grad
         minimizer_options = {} if minimizer_options is None else minimizer_options
         minimizer_options['ncall'] = 0 if ncall is None else ncall
+        minimize_strategy = 0 if minimize_strategy is None else minimize_strategy
         if minimize_strategy not in range(3):
             raise ValueError(f"minimize_strategy has to be 0, 1 or 2, not {minimize_strategy}.")
         minimizer_options['strategy'] = minimize_strategy
@@ -103,7 +104,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         params_name = [param.name for param in params]
 
         # TODO 0.7: legacy, remove `_use_tfgrad`
-        grad_func = evaluator.gradient if self._use_tfgrad or not self.minuit_grad else None
+        grad_func = evaluator.gradient if self._use_tfgrad_internal or not self.minuit_grad else None
 
         minimizer = iminuit.Minuit(evaluator.value, init_values,
                                    grad=grad_func,
@@ -111,6 +112,8 @@ class Minuit(BaseMinimizer, GraphCachable):
                                    )
         minimizer.precision = precision
         approx_step_sizes = {}
+
+        # get possible initial step size from previous minimizer
         if previous_result:
             approx_step_sizes = previous_result.hesse(params=params, method='approx')
         empty_dict = {}
@@ -120,69 +123,69 @@ class Minuit(BaseMinimizer, GraphCachable):
                 step_size = param.step_size
             if step_size is not None:
                 minimizer.errors[param.name] = step_size
+
+        # set limits
         for param in params:
             if param.has_limits:
                 minimizer.limits[param.name] = (param.lower, param.upper)
+        # set options
         minimizer.errordef = loss.errordef
         minimizer.print_level = minuit_verbosity
         strategy = minimizer_setter.pop('strategy')
         minimizer.strategy = strategy
-        minimizer.tol = self.tol / 1e-3  # iminuit 1e-3 and tol 0.1
+        minimizer.tol = (self.tol / 0.002  # iminuit multiplies by default with 0.002
+                         / loss.errordef)  # to account for the loss
         assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
             minimizer_setter)
         self._minuit_minimizer = minimizer
 
-        result = None
         valid = True
-        valid_message = "No message"
+        message = ""
         maxiter_reached = False
         for i in range(self._internal_maxiter):
 
             # perform minimization
             try:
-                result = minimizer.migrad(**minimize_options)
+                minimizer = minimizer.migrad(**minimize_options)
             except MaximumIterationReached as error:
-                if result is None:  # it didn't even run once
+                if minimizer is None:  # it didn't even run once
                     raise MaximumIterationReached("Maximum iteration reached on first wrapped minimizer call. This"
                                                   "is likely to a too low number of maximum iterations (currently"
                                                   f" {evaluator.maxiter}) or wrong internal tolerances, in which"
                                                   f" case: please fill an issue on github.") from error
                 maxiter_reached = True
-                valid = False
-                valid_message = "Maxiter reached, terminated without convergence"
+                message = "Maxiter reached"
             else:
                 if evaluator.maxiter is not None:
                     maxiter_reached = evaluator.niter > evaluator.maxiter
-
-            fitresult = FitResult.from_minuit(loss=loss, params=params, result=result, minimizer=self,
-                                              valid=valid, message=valid_message)
-            set_values(params, fitresult)
-
-            converged = criterion.converged(fitresult)
-            criterion_value = criterion.last_value
-            # if isinstance(criterion, EDM):
-            #     edm = criterion_value
-            # else:
-            #     edm = fitresult.edm
+            if type(criterion) == EDM:  # use iminuits edm
+                criterion.last_value = minimizer.fmin.edm
+                converged = not minimizer.fmin.is_above_max_edm
+            else:
+                fitresult = FitResult.from_minuit(loss=loss, params=params, minuit_opt=minimizer, minimizer=self,
+                                                  valid=valid, message=message)
+                converged = criterion.converged(fitresult)
 
             if self.verbosity > 5:
-                internal_tol = {'edm_minuit': result.fmin.edm}
+                internal_tol = {'edm_minuit': minimizer.fmin.edm}
 
                 print_minimization_status(converged=converged,
                                           criterion=criterion,
                                           evaluator=evaluator,
                                           i=i,
-                                          fmin=fitresult.fmin,
+                                          fmin=minimizer.fval,
                                           internal_tol=internal_tol)
 
             if converged or maxiter_reached:
+                set_values(params, minimizer.values)  # make sure it's at the right value
                 break
 
         fitresult = FitResult.from_minuit(loss=loss,
                                           params=params,
-                                          result=result,
+                                          minuit_opt=minimizer,
                                           minimizer=self.copy(),
-                                          valid=valid, message=valid_message)
+                                          valid=valid,
+                                          message=message)
         return fitresult
 
     def copy(self):

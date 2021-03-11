@@ -102,7 +102,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
         internal_tol = {tol: init_tol if init is None else init for tol, init in internal_tol.items()}
 
         valid = None
-        valid_message = None
+        message = None
         optimize_results = None
         for i in range(self._internal_maxiter):
 
@@ -126,7 +126,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
                                                   f" case: please fill an issue on github.") from error
                 maxiter_reached = True
                 valid = False
-                valid_message = "Maxiter reached, terminated without convergence"
+                message = "Maxiter reached, terminated without convergence"
             else:
                 maxiter_reached = evaluator.niter > evaluator.maxiter
 
@@ -143,6 +143,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
             if use_hessian:
                 inv_hessian = result_prelim.approx.inv_hessian()
             converged = criterion.converged(result_prelim)
+            valid = converged
             criterion_value = criterion.last_value
             if isinstance(criterion, EDM):
                 edm = criterion.last_value
@@ -167,7 +168,8 @@ class ScipyBaseMinimizer(BaseMinimizer):
             self._update_tol_inplace(criterion_value=criterion_value, internal_tol=internal_tol)
 
         else:
-            valid = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tol} not reached."
+            message = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tol} not reached."
+            valid = False
         return FitResult.from_scipy(
             loss=loss,
             params=params,
@@ -176,7 +178,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
             valid=valid,
             criterion=criterion,
             edm=edm,
-            message=valid_message,
+            message=message,
             niter=evaluator.niter,
         )
 

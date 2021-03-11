@@ -69,7 +69,7 @@ class NLopt(BaseMinimizer):
         super().__init__(name=name, tol=tol, verbosity=verbosity, minimizer_options=minimizer_options,
                          strategy=strategy, maxiter=maxiter)
 
-    @minimize_supports(from_result=False)
+    @minimize_supports(init=False)
     def _minimize(self, loss, params):
 
         minimizer = nlopt.opt(self.algorithm, len(params))
@@ -209,7 +209,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                          criterion=criterion,
                          maxiter=maxiter)
 
-    @minimize_supports(from_result=True)
+    @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
         previous_result = init
         evaluator = self.create_evaluator(loss, params)
@@ -278,7 +278,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             init_scale = []
             approx_step_sizes = {}
             if result_prelim:
-                approx_step_sizes = previous_result.hesse(params=params, method='approx')
+                approx_step_sizes = result_prelim.hesse(params=params, method='approx')
             empty_dict = {}
             for param in params:
                 step_size = approx_step_sizes.get(param, empty_dict).get('error')
@@ -307,11 +307,12 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 maxiter_reached = True
                 valid = False
                 valid_message = "Maxiter reached, terminated without convergence"
-            except RuntimeError as error:
+            except RuntimeError:
                 if self.verbosity > 5:
                     print("Minimization in NLopt failed, restarting with slightly varied parameters.")
                 if nrandom < self._nrandom_max:  # in order not to start too close
-                    xvalues += np.random.uniform(low=-init_scale, high=init_scale) / 2
+                    init_scale_no_nan = np.nan_to_num(init_scale, nan=1.)
+                    xvalues += np.random.uniform(low=-init_scale_no_nan, high=init_scale_no_nan) / 2
                     nrandom += 1
             else:
                 maxiter_reached = evaluator.niter > evaluator.maxiter
@@ -328,7 +329,8 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                                                      criterion=None,
                                                      xvalues=xvalues,
                                                      valid=valid, message=valid_message)
-                converged = criterion.converged(result_prelim) and valid
+                converged = criterion.converged(result_prelim)
+                valid = converged
             criterion_value = criterion.last_value
             if isinstance(criterion, EDM):
                 edm = criterion.last_value

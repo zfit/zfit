@@ -25,5 +25,8 @@ nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
 
-# do the error calculations, here with minos
-param_errors, _ = result.errors()
+# do the error calculations with a hessian approximation
+param_errors = result.hesse()
+
+# or here with minos
+param_errors_asymetric, _ = result.errors()

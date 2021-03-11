@@ -11,13 +11,23 @@ from ..util.checks import Singleton
 
 class ConvergenceCriterion(abc.ABC):
 
-    def __init__(self, tol: float, loss: ZfitLoss,
-                 params: ztyping.ParamTypeInput, name: str):
+    def __init__(self, tol: float,
+                 loss: ZfitLoss,
+                 params: ztyping.ParamTypeInput,
+                 name: str):
+        """A generic convergence criterion to be subclassed.
+
+        Args:
+            tol: tolerance to stop the minimization. This value is multiplied by the errordef of the loss.
+            loss:
+            params ():
+            name ():
+        """
         super().__init__()
         if not isinstance(loss, ZfitLoss):
             raise TypeError("loss has to be ZfitLoss")
         self.loss = loss
-        self.tol = tol
+        self.tol = tol * loss.errordef
         self.params = params
         self.name = name
         self.last_value = CRITERION_NOT_AVAILABLE
@@ -72,35 +82,15 @@ class EDM(ConvergenceCriterion):
     def _calculate(self, result) -> float:
         loss = result.loss
         params = list(result.params)
-        grad = result.info.get('jac')
+        grad = result.approx.gradient()
         if grad is None:
             grad = loss.gradients(params)
-        inv_hesse = result.info.get('inv_hesse')
-        if inv_hesse is None:
-            hesse = result.info.get('hesse')
-            if hesse is None:
-                hesse = loss.hessian(params)
-            inv_hesse = np.linalg.inv(hesse)
         grad = np.array(grad)
-        return calculate_edm(grad, inv_hesse)
-
-    def calculateV1(self, value, xvalues, grad, hesse=None, inv_hesse=None,
-                    **kwargs) -> float:
-        del value
-        if callable(grad):
-            grad = grad()
-        if callable(hesse):
-            hesse = hesse()
-        if callable(inv_hesse):
-            inv_hesse = inv_hesse()
-        if inv_hesse is None:
-            if hesse is None:
-                raise RuntimeError(
-                    "Need hesse or inv_hesse for convergence criterion:")
-            else:
-                inv_hesse = np.linalg.inv(hesse)
-        edm = calculate_edm(grad, inv_hesse)
-        return edm
+        inv_hessian = result.approx.inv_hessian(invert=True)
+        if inv_hessian is None:
+            hessian = loss.hessian(params)
+            inv_hessian = np.linalg.inv(hessian)
+        return calculate_edm(grad, inv_hessian)
 
 
 class CriterionNotAvailable(Singleton):

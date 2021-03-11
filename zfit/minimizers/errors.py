@@ -87,7 +87,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
 
     ncalls = 0
     try:
-        # start = time.time()
+        start = time.time()
         to_return = {}
         for param in params:
             logging.info(f"profiling the parameter {param}")
@@ -144,17 +144,21 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                 "upper": lambda p: p < param_value,
             }
             for d in ["lower", "upper"]:
+                start2 = time.time()
+
                 roots = optimize.root(fun=func,
                                       args=(swap_sign[d],),
                                       x0=initial_values[d],
                                       tol=rtol,
                                       options={
                                           # 'factor': 1.,
-                                          # 'diag': 1 / param_scale,
+                                          'diag': 1 / param_scale,  # scale factor for variables
+                                          # 'diag': param_scale,
                                       },
                                       method=method)
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value
-        # print(f"errors found, time needed {time.time() - start}")
+                print(f"error {d}, time needed {time.time() - start2}")
+        print(f"errors found, time needed {time.time() - start}")
 
     except NewMinimum as e:
         from .. import settings
@@ -171,7 +175,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                                                 method=method)
         if new_result_ is not None:
             new_result = new_result_
-    # print(f"Used {ncalls} calls.")
+    print(f"Used {ncalls} calls.")
     return to_return, new_result
 
 

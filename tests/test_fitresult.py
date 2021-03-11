@@ -247,7 +247,8 @@ def test_new_minimum(minimizer_class_and_kwargs):
 
         params_dict = {p: p.numpy() for p in params}
         hacked_result = FitResult(params=params_dict, edm=result.edm, fmin=result.fmin, info=result.info,
-                                  loss=loss, status=result.status, converged=result.converged,
+                                  loss=loss, status=result.status, converged=result.converged, valid=True,
+                                  message="hacked for unittest", niter=999,
                                   minimizer=minimizer.copy())
 
         method = lambda **kwgs: compute_errors(covariance_method="hesse_np", **kwgs)

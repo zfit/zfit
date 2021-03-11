@@ -53,7 +53,7 @@ def create_loss(obs1):
     return loss, minimum, (mu_param, sigma_param, lambda_param)
 
 
-verbosity = 5
+verbosity = 7
 zfit.settings.set_verbosity(verbosity=verbosity)
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
@@ -197,7 +197,7 @@ spaces_all = [obs1, obs1_split]
 @pytest.mark.parametrize("num_grad", num_grads)
 @pytest.mark.parametrize("spaces", spaces_all)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-@pytest.mark.flaky(reruns=3)
+# @pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
                     pytestconfig):
     long_clarg = pytestconfig.getoption("longtests")
@@ -258,7 +258,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     assert true_min + max_distance_to_min >= found_min
 
     assert result_lowtol2.fmin == pytest.approx(result.fmin, abs=2.)
-    if not isinstance(minimizer, zfit.minimize.IPoptV1):
+    if not isinstance(minimizer, zfit.minimize.IpyoptV1):
         assert result_lowtol2.info['n_eval'] < 0.99 * result.info['n_eval']
 
     aval, bval, cval = [zfit.run(v) for v in
@@ -280,6 +280,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
             with pytest.raises(TypeError):
                 _ = result.errors(params=mu_param, method="minuit_minos")
 
+        rel_error_tol = 0.05
         for method in hesse_methods:
             sigma_hesse = result.hesse(params=sigma_param, method=method)
             assert tuple(sigma_hesse.keys()) == (sigma_param,)
@@ -287,14 +288,15 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
             sigma_hesse = sigma_hesse[sigma_param]
             can_be_none = method == "approx" and not has_approx
             # skip if it can be None and it is None
-            if not (can_be_none and errors[sigma_param]['error'] is None):
-                assert abs(errors[sigma_param]['error']) == pytest.approx(0.0965,
-                                                                          abs=0.15)
-            if not (can_be_none and errors[lambda_param]['error'] is None):
+            sigma_error_true = 0.015
+            if not (can_be_none and errors[sigma_param].get('error') is None):
+                assert abs(errors[sigma_param]['error']) == pytest.approx(sigma_error_true,
+                                                                          abs=rel_error_tol)
+            if not (can_be_none and errors[lambda_param].get('error') is None):
                 assert abs(errors[lambda_param]['error']) == pytest.approx(0.01,
                                                                            abs=0.01)
-            if not (can_be_none and sigma_hesse['error'] is None):
-                assert abs(sigma_hesse['error']) == pytest.approx(0.0965, abs=0.15)
+            if not (can_be_none and sigma_hesse.get('error') is None):
+                assert abs(sigma_hesse['error']) == pytest.approx(sigma_error_true, abs=rel_error_tol)
 
         for profile_method in profile_methods:
             # Test Error
@@ -303,19 +305,19 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
             errors, _ = result.errors(method=profile_method)
             a_error = a_errors[mu_param]
             assert a_error["lower"] == pytest.approx(-a_error['upper'],
-                                                     abs=0.1)
-            assert abs(a_error["lower"]) == pytest.approx(0.015, abs=0.015)
-            assert abs(errors[sigma_param]["lower"]) == pytest.approx(0.010,
-                                                                      abs=0.02)
+                                                     rel=rel_error_tol)
+            assert abs(a_error["lower"]) == pytest.approx(0.021, rel=rel_error_tol)
+            assert abs(errors[sigma_param]["lower"]) == pytest.approx(sigma_error_true,
+                                                                      rel=rel_error_tol)
             assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007,
-                                                                       abs=0.02)
+                                                                       rel=rel_error_tol)
             assert abs(errors[lambda_param]['upper']) == pytest.approx(0.007,
-                                                                       abs=0.02)
+                                                                       rel=rel_error_tol)
 
             assert errors[mu_param]['lower'] == pytest.approx(a_error['lower'],
-                                                              rel=0.01)
+                                                              rel=rel_error_tol)
             assert errors[mu_param]['upper'] == pytest.approx(a_error['upper'],
-                                                              rel=0.01)
+                                                              rel=rel_error_tol)
 
             # Test Error method name
             a_errors, _ = result.errors(params=mu_param, method=profile_method,
@@ -326,14 +328,14 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
             a_error = a_errors[mu_param]
 
             assert a_error['lower'] == pytest.approx(
-                result.params[mu_param]['error42']['lower'], rel=0.03)
+                result.params[mu_param]['error42']['lower'], rel=rel_error_tol)
             assert a_error['lower'] == pytest.approx(
-                result.params[mu_param]['error1']['lower'], rel=0.03)
+                result.params[mu_param]['error1']['lower'], rel=rel_error_tol)
             for param, errors2 in result.params.items():
                 assert errors[param]['lower'] == pytest.approx(
-                    errors2['error42']['lower'], rel=0.03)
+                    errors2['error42']['lower'], rel=rel_error_tol)
                 assert errors[param]['upper'] == pytest.approx(
-                    errors2['error42']['upper'], rel=0.03)
+                    errors2['error42']['upper'], rel=rel_error_tol)
 
             # test custom error
             def custom_error_func(result, params, cl):

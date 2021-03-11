@@ -170,9 +170,9 @@ class FitResult(ZfitResult):
                  info: Mapping,
                  loss: ZfitLoss,
                  minimizer: "ZfitMinimizer",
-                 valid: Optional[bool] = None,
-                 message: Optional[str] = None,
-                 niter: Optional[int] = None,
+                 valid: bool,
+                 message: Optional[str],
+                 niter: Optional[int],
                  approx: Optional[Union[Mapping, Approximations]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  evaluator: "zfit.minimizers.evaluation.LossEval" = None):
@@ -186,7 +186,7 @@ class FitResult(ZfitResult):
             params: Result of the fit where each
                :py:class:`~zfit.Parameter` key has the value from the minimum found by the minimizer.
             edm: The estimated distance to minimum, estimated by the minimizer (if available)
-            fmin: The minimum of the function found by the minimizer
+            fmin: Value at the minimum of the function found by the minimizer
             status: A status code (if available)
             converged: Whether the fit has successfully converged or not.
             info: Additional information (if available) like *number of function calls* and the
@@ -235,7 +235,7 @@ class FitResult(ZfitResult):
         self._info = info
         self._loss = loss
         self._minimizer = minimizer
-        self._valid = valid or True
+        self._valid = valid
         self._covariance_dict = {}
 
     def _input_convert_params(self, params):
@@ -258,7 +258,7 @@ class FitResult(ZfitResult):
                    niter=niter, status=status, minimizer=minimizer, evaluator=evaluator)
 
     @classmethod
-    def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: iminuit.util.FMin,
+    def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], minuit_opt: iminuit.util.FMin,
                     minimizer: Union[ZfitMinimizer, iminuit.Minuit], valid, message) -> 'FitResult':
         """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
         :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
@@ -267,7 +267,7 @@ class FitResult(ZfitResult):
         Args:
             loss: zfit Loss that was minimized.
             params: Iterable of the zfit parameters that were floating during the minimization.
-            result: Return value of the iminuit migrad command.
+            minuit_opt: Return value of the iminuit migrad command.
             minimizer: Instance of the iminuit Minuit that was used to minimize the loss.
 
         Returns:
@@ -282,56 +282,62 @@ class FitResult(ZfitResult):
                 minimizer = minimizer_new
             else:
                 raise ValueError(f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit.")
-        params_result = [p_dict for p_dict in result.params]
-        result_vals = [res.value for res in params_result]
-        set_values(params, values=result_vals)
-        fmin_object = result.fmin
+        params_result = [p_dict for p_dict in minuit_opt.params]
+        fmin_object = minuit_opt.fmin
 
         info = {'n_eval': fmin_object.nfcn,
                 # 'grad': result['jac'],
                 # 'message': result['message'],
+                'original_minimizer': minuit_opt,
                 'original': fmin_object}
+        if fmin_object.has_covariance:
+            info['inv_hessian'] = np.array(minuit_opt.covariance)
         edm = fmin_object.edm
         fmin = fmin_object.fval
         status = -999
         valid = valid and fmin_object.is_valid
         converged = fmin_object.is_valid
         params = dict((p, res.value) for p, res in zip(params, params_result))
-        return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
+        return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss, niter=fmin_object.nfcn,
                    status=status, converged=converged, message=message, valid=valid,
                    minimizer=minimizer)
 
     @classmethod
     def from_scipy(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
                    minimizer: ZfitMinimizer, message=None, edm=False, niter=None, valid=None, criterion=None,
-                   evaluator=None):
+                   evaluator=None) -> 'FitResult':
+
         result_values = result['x']
+        if niter is None:
+            niter = result.get('nit')
+
         converged = result.get('success', valid)
         status = result['status']
         inv_hesse = result.get('hess_inv')
         if isinstance(inv_hesse, LbfgsInvHessProduct):
             inv_hesse = inv_hesse.todense()
         grad = result.get('grad')
+        if message is None:
+            message = result.get('message')
         info = {'n_eval': result['nfev'],
-                'n_iter': result['nit'],
+                'n_iter': niter,
                 'niter': niter,
                 'grad': result.get('jac') if grad is None else grad,
                 'inv_hesse': inv_hesse,
                 'hesse': result.get('hesse'),
-                'message': result.get('message', "No message"),
+                'message': message,
                 'evaluator': evaluator,
                 'original': result}
         approx = dict(params=params,
                       gradient=info.get('grad'),
                       hessian=info.get('hesse'),
                       inv_hessian=info.get('inv_hesse'))
-        if message is None:
-            message = info['message']
+
         fmin = result['fun']
         params = dict((p, v) for p, v in zip(params, result_values))
 
         fitresult = cls(params=params, edm=edm, fmin=fmin, info=info, approx=approx,
-                        converged=converged, status=status, message=message,
+                        converged=converged, status=status, message=message, valid=valid, niter=niter,
                         loss=loss, minimizer=minimizer, criterion=criterion, evaluator=evaluator)
         if isinstance(valid, str):
             fitresult._valid = False
@@ -374,9 +380,8 @@ class FitResult(ZfitResult):
 
         approx = {}
         if inv_hess is None:
-            if hess is None:
-                if evaluator is not None:
-                    hess = evaluator.last_hessian
+            if hess is None and evaluator is not None:
+                hess = evaluator.last_hessian
             if hess is not None:
                 inv_hess = np.linalg.inv(hess)
 
@@ -384,8 +389,19 @@ class FitResult(ZfitResult):
             info['inv_hesse'] = inv_hess
             approx['inv_hessian'] = inv_hess
 
-        result = cls(params=param_dict, edm=edm, fmin=fmin, status=status, converged=converged, info=info,
-                     loss=loss, minimizer=minimizer, criterion=criterion, message=message, evaluator=evaluator)
+        result = cls(params=param_dict,
+                     edm=edm,
+                     fmin=fmin,
+                     status=status,
+                     converged=converged,
+                     info=info,
+                     niter=niter,
+                     valid=valid,
+                     loss=loss,
+                     minimizer=minimizer,
+                     criterion=criterion,
+                     message=message,
+                     evaluator=evaluator)
         if valid:
             result._valid = False
             result.info['invalid_message'] = valid
@@ -606,7 +622,7 @@ class FitResult(ZfitResult):
             if cl is not None:
                 raise ValueError("Cannot define sigma and cl, use cl only.")
             else:
-                cl = scipy.stats.chi2(1).ppf(sigma)
+                cl = scipy.stats.chi2(1).cdf(sigma)
 
         if cl is None:
             cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)

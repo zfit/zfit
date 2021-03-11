@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from typing import Optional, Union
 
 import tensorflow as tf
@@ -35,7 +35,7 @@ class FFTConvPDFV1(BaseFunctor):
         TL;DR technical details:
           - FFT-like technique: discretization of function. Number of bins splits the kernel into `n` bins
             and uses the same binwidth for the func while extending it by the kernel space. Internally,
-            `tf.nn.convolution` (attention, this is actually a cross-correlation) is used.
+            `tf.nn.convolution` is used.
           - Then interpolation by either linear or spline function
           - The kernel is assumed to be "small enough" outside of it's `space` and points there won't be
             evaluated.
