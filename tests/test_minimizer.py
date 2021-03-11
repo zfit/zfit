@@ -307,7 +307,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
             assert a_error["lower"] == pytest.approx(-a_error['upper'],
                                                      rel=rel_error_tol)
             assert abs(a_error["lower"]) == pytest.approx(0.021, rel=rel_error_tol)
-            assert abs(errors[sigma_param]["lower"]) == pytest.approx(0.018,
+            assert abs(errors[sigma_param]["lower"]) == pytest.approx(0.020,
                                                                       rel=rel_error_tol)
             assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007,
                                                                        rel=rel_error_tol)

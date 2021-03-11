@@ -410,34 +410,33 @@ class BaseStepMinimizer(BaseMinimizer):
         last_val = -10
         niter = 0
         criterion = self.criterion(tol=self.tol, loss=loss, params=params)
-        criterion_val = self.tol * 1000
-        converged = False
-        cur_val = 'invalid'
         prelim_result = None
         maxiter = self.get_maxiter(len(params))
+        criterion_val = None
         while True:
             cur_val = run(self._step(loss=loss, params=params, init=prelim_result))
             niter += 1
-
 
             changes.popleft()
             changes.append(abs(cur_val - last_val))
             sum_changes = np.sum(changes)
             maxiter_reached = niter > maxiter
-            if sum_changes < self.tol and niter % 3 or maxiter_reached:  # test the last time surely
+            if (sum_changes < self.tol and niter % 3) or maxiter_reached:  # test the last time surely
                 xvalues = np.array(run(params))
                 hesse = run(loss.hessian(params))
                 inv_hesse = np.linalg.inv(hesse)
                 status = 10
-                criterion_val = criterion.last_value
                 params = {p: val for p, val in zip(params, xvalues)}
 
-                info = {'success': False, 'message': 'Unfinished, for criterion',
+                message = 'Unfinished, for criterion'
+                info = {'success': False, 'message': message,
                         'n_eval': niter, 'inv_hesse': inv_hesse}
                 prelim_result = FitResult(params=params, edm=criterion_val, fmin=cur_val, info=info, converged=False,
-                                          status=status, valid=False, message='not yet converged', niter=niter,
+                                          status=status, valid=False, message=message, niter=niter,
                                           loss=loss, minimizer=self)
                 converged = criterion.converged(prelim_result)
+                criterion_val = criterion.last_value
+
                 if converged or maxiter_reached:
                     break
 
@@ -446,7 +445,7 @@ class BaseStepMinimizer(BaseMinimizer):
         # compose fit result
         message = "Maxiter reached" if maxiter_reached else ""
 
-        success = criterion_val < self.tol
+        success = converged
         status = 0 if success else 10
         info = {'success': success, 'message': message, 'n_eval': niter, 'inv_hesse': inv_hesse}
 
