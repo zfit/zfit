@@ -207,9 +207,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     zfit.settings.options['numerical_grad'] = num_grad
 
     # minimize_func(minimizer_class_and_kwargs, obs=spaces)
-    obs = spaces
-    loss, true_min, params = create_loss(obs1=obs)
-    (mu_param, sigma_param, lambda_param) = params
+
 
     parameter_tol = 0.1
     max_distance_to_min = 2.5
@@ -235,6 +233,10 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
         return
     if not long_clarg and not do_long:
         test_error = False
+
+    obs = spaces
+    loss, true_min, params = create_loss(obs1=obs)
+    (mu_param, sigma_param, lambda_param) = params
     minimizer_hightol = minimizer_class(**{**minimizer_kwargs,
                                            'tol': 100 * minimizer_kwargs.get(
                                                'tol', 0.01)})
@@ -306,8 +308,8 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
             a_error = a_errors[mu_param]
             assert a_error["lower"] == pytest.approx(-a_error['upper'],
                                                      rel=rel_error_tol)
-            assert abs(a_error["lower"]) == pytest.approx(0.021, rel=rel_error_tol)
-            assert abs(errors[sigma_param]["lower"]) == pytest.approx(0.020,
+            assert a_error["lower"] == pytest.approx(-0.021, rel=rel_error_tol)
+            assert errors[sigma_param]["lower"] == pytest.approx(-sigma_error_true,
                                                                       rel=rel_error_tol)
             assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007,
                                                                        rel=rel_error_tol)

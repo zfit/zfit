@@ -222,11 +222,11 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
-            n_to_produce_float = z.to_real(n_to_produce) / eff * 1.01
-            tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
-            n_to_produce = tf.cast(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
+            one_over_eff_int = tf.cast(1 / eff * 1.01, dtype=tf.int64)
+            n_to_produce *= one_over_eff_int + 1
+            # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
+            # n_to_produce = tf.cast(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
             n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
-            n_min_to_produce -= tf.maximum(n_to_produce, 0)  # reduce to minimum of 0
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.constant(800000, dtype=tf.int64)
             tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")

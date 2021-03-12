@@ -34,11 +34,13 @@ jobs:
             -   name: Test with pytest
                 run: |
                     pip install --use-feature=2020-resolver .[dev]
-                    coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest --longtests .
+#                    coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest --longtests .
+                    coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
                     coverage report
 
                     ZFIT_DO_JIT=0
-                    coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest --longtests .
+#                    coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest --longtests .
+                    coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
                     ZFIT_DO_JIT=1
 
                     bash utils/ci/test_examples.sh

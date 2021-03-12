@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import contextlib
 import multiprocessing
@@ -141,7 +141,7 @@ class RunManager:
         from .graph import jit
         jit._set_all(not eager)
 
-    def set_graph_mode(self, graph: Union[bool, str, dict]):
+    def set_graph_mode(self, graph: Optional[Union[bool, str, dict]] = None):
         """Set the policy for graph building and the usage of automatic vs numerical gradients.
 
             zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
@@ -236,9 +236,11 @@ class RunManager:
         if not tf.executing_eagerly():
             raise IllegalInGraphModeError("Cannot change the execution mode of graph inside a `z.function`"
                                           " decorated function. Only possible in an eager context.")
+        if graph is None:
+            graph = 'auto'
         return TemporarilySet(value=graph, setter=self._set_graph_mode, getter=self.get_graph_mode)
 
-    def set_autograd_mode(self, autograd):
+    def set_autograd_mode(self, autograd: Optional[bool] = None):
         """Use automatic or numerical gradients.
 
             zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
@@ -266,6 +268,8 @@ class RunManager:
                 autograd: Whether the automatic gradient feature of TensorFlow should be used or a numerical procedure
                   instead. If any non-constant Python (numpy, scipy,...) code is used inside, this should be switched on.
         """
+        if autograd is None:
+            autograd = True
         return TemporarilySet(value=autograd, setter=self._set_autograd_mode, getter=self.get_autograd_mode)
 
     @deprecated(None, "Use `set_graph_mode` or `set_autograd_mode`.")

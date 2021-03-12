@@ -47,7 +47,10 @@ class Minuit(BaseMinimizer, GraphCachable):
         minuit_grad = use_minuit_grad if use_minuit_grad is not None else minuit_grad
         minimizer_options = {} if minimizer_options is None else minimizer_options
         minimizer_options['ncall'] = 0 if ncall is None else ncall
-        minimize_strategy = 0 if minimize_strategy is None else minimize_strategy
+        if minimize_strategy is None:
+            minimize_strategy = 0 if not minuit_grad else 1
+        else:
+            minimize_strategy = minimize_strategy
         if minimize_strategy not in range(3):
             raise ValueError(f"minimize_strategy has to be 0, 1 or 2, not {minimize_strategy}.")
         minimizer_options['strategy'] = minimize_strategy

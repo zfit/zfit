@@ -83,10 +83,10 @@ def _minos_minuit(result, params, cl=None, *, minuit_minimizer=None):
     merror_result = minimizer._minuit_minimizer.minos(*(p.name for p in params), cl=cl).merrors  # returns every var
     attrs = ['lower', 'upper', 'is_valid', 'upper_valid', 'lower_valid', 'at_lower_limit', 'at_upper_limit', 'nfcn']
     result = {}
-    for p, merror in zip(params, merror_result.values()):
-        result[p] = {attr: getattr(merror, attr) for attr in attrs}
-        result[p]['original'] = result
-    # result = OrderedDict((p, result[p.name]) for p in params)
+    for p in params:
+        error_res = merror_result[p.name]
+        result[p] = {attr: getattr(error_res, attr) for attr in attrs}
+        result[p]['original'] = error_res
     new_result = None
     return result, new_result
 

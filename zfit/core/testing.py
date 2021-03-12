@@ -2,8 +2,8 @@
 Module for testing of the zfit components. Contains a singleton instance to register new PDFs and let
 them be tested.
 """
-#  Copyright (c) 2020 zfit
-
+#  Copyright (c) 2021 zfit
+import sys
 from collections import OrderedDict
 from typing import Callable, Tuple, List, Union, Iterable
 
@@ -16,13 +16,14 @@ from ..util.container import convert_to_container
 
 __all__ = ["tester", "setup_function", "teardown_function"]
 
-old_graph_mode = None
+init_modules = sys.modules.keys()
 
 
 def setup_function():
-    global old_graph_mode
-    import zfit
-    old_graph_mode = zfit.run.get_graph_mode()
+    # second or subsequent run: remove all but initially loaded modules
+    for m in sys.modules.keys():
+        if m not in init_modules:
+            del (sys.modules[m])
 
 
 def teardown_function():
@@ -30,7 +31,12 @@ def teardown_function():
 
     clear_graph_cache()
     import zfit
-    zfit.run.set_graph_mode(old_graph_mode)
+    zfit.run.set_graph_mode()
+    for m in sys.modules.keys():
+        if m not in init_modules:
+            del (sys.modules[m])
+    import gc
+    gc.collect()
 
 
 class BaseTester:
