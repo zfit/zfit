@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import numpy as np
 import tensorflow as tf
@@ -14,7 +14,7 @@ def numpy_func(x, a):
 
 @z.function
 def wrapped_numpy_func(x_tensor, a_tensor):
-    result = z.py_function(func=numpy_func, inp=[x_tensor, a_tensor], Tout=tf.float64)
+    result = z.numpy_function(func=numpy_func, inp=[x_tensor, a_tensor], Tout=tf.float64)
     result = tf.sqrt(result)
     return result
 

@@ -19,8 +19,6 @@ def teardown_function():
     td_func()
 
 
-from zfit.minimizers.minimizer_tfp import BFGS
-
 true_mu = 4.5
 true_sigma = 2
 true_lambda = -0.03
@@ -74,12 +72,12 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimize.ScipyNewtonCGV1, {"verbosity":verbosity,}, {'error': True}),  # Too sensitive? Fails in line-search?
     (zfit.minimize.ScipyTruncNCV1, {"verbosity": verbosity, }, {'error': True}),
 
-    (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
-    (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, True),
-    (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, True),
-    (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, True),
-    (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, True),
-    (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, True),
+    # (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
+    # (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, True),
+    # (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, True),
+    # (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, True),
+    # (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, True),
+    # (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, True),
 
     # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
     # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'CG'}, False),
@@ -182,8 +180,8 @@ def test_dependent_param_extraction():
 
 
 # @pytest.mark.run(order=4)
-# chunksizes = [100000, 3000]
-chunksizes = [100000]
+chunksizes = [100000, 3000]
+# chunksizes = [100000]
 # skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
 # num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
 num_grads = [False, True]
@@ -234,6 +232,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     if not long_clarg and not do_long:
         test_error = False
 
+    # start actual test
     obs = spaces
     loss, true_min, params = create_loss(obs1=obs)
     (mu_param, sigma_param, lambda_param) = params
@@ -244,6 +243,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     minimizer = minimizer_class(**minimizer_kwargs)
 
     # Currently not working, stop the test here. Memory leak?
+    from zfit.minimizers.minimizer_tfp import BFGS
     if isinstance(minimizer, BFGS) and num_grad and not zfit.run.mode['graph']:
         return
     init_vals = zfit.run(params)

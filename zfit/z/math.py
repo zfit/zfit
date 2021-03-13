@@ -59,7 +59,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
     if tf.executing_eagerly():
         gradients = convert_to_tensor(grad_func(param_vals))
     else:
-        gradients = tf.py_function(grad_func, inp=[param_vals],
+        gradients = tf.numpy_function(grad_func, inp=[param_vals],
                                    Tout=tf.float64)
     if gradients.shape == ():
         gradients = tf.reshape(gradients, shape=(1,))
@@ -124,7 +124,7 @@ def numerical_hessian(func: Optional[Callable],
     if tf.executing_eagerly():
         computed_hessian = convert_to_tensor(hesse_func(param_vals))
     else:
-        computed_hessian = tf.py_function(hesse_func, inp=[param_vals],
+        computed_hessian = tf.numpy_function(hesse_func, inp=[param_vals],
                                           Tout=tf.float64)
     n_params = param_vals.shape[0]
     if hessian == 'diag':

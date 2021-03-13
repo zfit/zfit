@@ -254,9 +254,9 @@ class RunManager:
             For example, multiplying by a constant (constant as in *not chaning ever*) does not require the constant to
             be a `tf.constant(...)` but can be a Python scalar. For example, it is also fine to use a fixed template shape
             using Numpy (Scipy etc), as the template shape will stay constant (this requires though to use a
-            `z.py_function` to work, but this is another story about graph mode or not).
+            `z.numpy_function` to work, but this is another story about graph mode or not).
 
-            To allow to have dynamic numpy operations in a component, preferably wrapped with `z.py_function` instead of
+            To allow to have dynamic numpy operations in a component, preferably wrapped with `z.numpy_function` instead of
             forced eager, and to still retrieve a meaningful gradient, a numerical gradient has to be used.
             In general, this can be achieved by setting the `autograd` to False. Any derivative received will then be
             numerically computed. Furthermore, some minimizers (e.g. :py:class:`~zfit.minimize.Minuit`) have their own way
