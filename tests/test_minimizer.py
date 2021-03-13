@@ -51,8 +51,8 @@ def create_loss(obs1):
     return loss, minimum, (mu_param, sigma_param, lambda_param)
 
 
-verbosity = 7
-zfit.settings.set_verbosity(verbosity=verbosity)
+verbosity = 5
+# zfit.settings.set_verbosity(verbosity=verbosity)
 
 minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
@@ -72,12 +72,12 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimize.ScipyNewtonCGV1, {"verbosity":verbosity,}, {'error': True}),  # Too sensitive? Fails in line-search?
     (zfit.minimize.ScipyTruncNCV1, {"verbosity": verbosity, }, {'error': True}),
 
-    # (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
-    # (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, True),
-    # (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, True),
-    # (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, True),
-    # (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, True),
-    # (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
+    (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, True),
 
     # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
     # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'CG'}, False),
@@ -180,8 +180,8 @@ def test_dependent_param_extraction():
 
 
 # @pytest.mark.run(order=4)
-chunksizes = [100000, 3000]
-# chunksizes = [100000]
+# chunksizes = [100000, 3000]
+chunksizes = [100000]
 # skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
 # num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
 num_grads = [False, True]
