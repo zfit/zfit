@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import functools
 from typing import Any
@@ -7,7 +7,7 @@ import tensorflow as tf
 
 from .tools import _auto_upcast
 from ..settings import ztypes
-from ..util.legacy import deprecated
+from ..util.deprecation import deprecated
 
 
 def exp(x, name=None):

@@ -197,7 +197,9 @@ class IpyoptV1(BaseMinimizer):
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
         previous_result = init
-        evaluator = self.create_evaluator(loss, params)
+        if init:
+            set_values(params=params, values=init)
+        evaluator = self.create_evaluator()
 
         # initial values as array
         xvalues = np.array(run(params))
@@ -228,7 +230,7 @@ class IpyoptV1(BaseMinimizer):
             ipopt_options['print_timing_statistics'] = 'yes'
 
         ipopt_options['tol'] = self.tol
-        ipopt_options['max_iter'] = self.get_maxiter(len(params))
+        ipopt_options['max_iter'] = self.get_maxiter()
         hessian = minimizer_options['hessian']
 
         minimizer_kwargs = dict(n=nparams,
@@ -299,7 +301,7 @@ class IpyoptV1(BaseMinimizer):
                 valid = False
                 valid_message = "Maxiter reached, terminated without convergence"
             else:
-                maxiter_reached = evaluator.niter > evaluator.maxiter
+                maxiter_reached = evaluator.maxiter_reached
 
             set_values(params, xvalues)
             with evaluator.ignore_maxiter():
@@ -317,7 +319,7 @@ class IpyoptV1(BaseMinimizer):
                                                      niter=None,
                                                      criterion=criterion,
                                                      message=valid_message)
-                converged = criterion.converged(result_prelim) and valid
+                converged = criterion.converged(result_prelim)
             criterion_value = criterion.last_value
             if isinstance(criterion, EDM):
                 edm = criterion.last_value

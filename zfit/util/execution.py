@@ -11,7 +11,7 @@ import tensorflow as tf
 
 from .container import DotDict
 from .exception import IllegalInGraphModeError
-from .legacy import deprecated
+from .deprecation import deprecated
 from .temporary import TemporarilySet
 
 

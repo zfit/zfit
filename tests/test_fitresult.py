@@ -162,9 +162,9 @@ def test_covariance(minimizer_class_and_kwargs, use_weights):
     assert pytest.approx(hesse[c]['error'], rel=0.01) == np.sqrt(cov_mat_2[0, 0])
 
     if use_weights:
-        rtol, atol = 0.1, 0.01
+        rtol, atol = 0.15, 0.015
     else:
-        rtol, atol = 0.05, 0.001
+        rtol, atol = 0.05, 0.005
 
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np")
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=rtol, atol=atol)
@@ -248,7 +248,7 @@ def test_new_minimum(minimizer_class_and_kwargs):
         params_dict = {p: p.numpy() for p in params}
         hacked_result = FitResult(params=params_dict, edm=result.edm, fmin=result.fmin, info=result.info,
                                   loss=loss, status=result.status, converged=result.converged, valid=True,
-                                  message="hacked for unittest", niter=999,
+                                  message="hacked for unittest", niter=999, criterion=None,
                                   minimizer=minimizer.copy())
 
         method = lambda **kwgs: compute_errors(covariance_method="hesse_np", **kwgs)

@@ -27,7 +27,7 @@ class FailEvalLossNaN(Exception):
 
 
 @deprecated_args(None, "Use cl for confidence level instead.", 'sigma')
-def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
+def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                    params: List[ZfitIndependentParameter],
                    cl: float = None,
                    sigma: float = 1,
@@ -36,8 +36,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                    covariance_method: Optional[Union[str, Callable]] = None
                    ) -> Tuple[Dict[ZfitIndependentParameter, Dict[str, float]],
                               Union["zfit.result.FitResult", None]]:
-    """
-    Computes asymmetric errors of parameters by profiling the loss function in the fit result.
+    """Compute asymmetric errors of parameters by profiling the loss function in the fit result.
 
     This method finds the value for a given parameter where the loss function is `cl` away: for example
     for a cl of 68.3%, this is one (multiplied by the errordef). The other parameters are also minimized and
@@ -66,6 +65,7 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
         out: a fit result is returned when a new minimum is found during the loss scan
     """
     method = "hybr" if method is None else method
+    # method = "krylov" if method is None else method  # TODO: integration tests, better for large n params?
     if cl is None:
         factor = 1.0
     else:
@@ -151,8 +151,8 @@ def compute_errors(result: "zfit.minimizers.fitresult.FitResult",
                                       x0=initial_values[d],
                                       tol=rtol,
                                       options={
-                                          # 'factor': 1.,
-                                          'diag': 1 / param_scale,  # scale factor for variables
+                                          'factor': 0.1,
+                                          # 'diag': 1 / param_scale,  # scale factor for variables
                                           # 'diag': param_scale,
                                       },
                                       method=method)

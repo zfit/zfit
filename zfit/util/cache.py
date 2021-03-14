@@ -49,7 +49,7 @@ Example with a pdf that caches the normalization:
 
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import functools
 import weakref
@@ -310,3 +310,5 @@ def clear_graph_cache():
     for instance in GraphCachable.instances:
         instance.reset_cache('global')
     # Cachable.graph_caching_methods.clear()
+    tf.compat.v1.reset_default_graph()
+

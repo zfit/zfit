@@ -14,7 +14,7 @@ from zfit.util.exception import OperationNotAllowedError
 
 
 def teardown_function():
-    zfit.settings.options['numerical_grad'] = False
+    zfit.run.set_autograd_mode()
     from zfit.core.testing import teardown_function as td_func
     td_func()
 
@@ -52,17 +52,28 @@ def create_loss(obs1):
 
 
 verbosity = 5
+
 # zfit.settings.set_verbosity(verbosity=verbosity)
 
-minimizers = [  # minimizers, minimizer_kwargs, do error estimation
+minimizers = [
+    # minimizers, minimizer_kwargs, do error estimation
+    # TensorFlow minimizers
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
-    (zfit.minimize.Adam, dict(learning_rate=0.05, verbosity=verbosity, tol=0.00001), False),
-    # works
-    (zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
+    (zfit.minimize.Adam, dict(learning_rate=0.05, verbosity=verbosity, tol=0.00001), False),  # works
+
+    # Minuit minimizer
+    (zfit.minimize.Minuit, {"verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
+
+    # Ipyopt minimizer
+    (zfit.minimize.IpyoptV1, {"verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
+
+    # TensorFlow Probability minimizer
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
-    (zfit.minimize.ScipyLBFGSBV1, {'tol': 1e-5, "verbosity": verbosity},
-     {'error': True, 'numgrad': False, 'approx': True}),
+
+    # SciPy Minimizer
+    (zfit.minimize.ScipyLBFGSBV1, {'tol': 1e-5, "verbosity": verbosity}, {'error': True,
+                                                                          'numgrad': False, 'approx': True}),
     (zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-5, "verbosity": verbosity}, True),
     (zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, "verbosity": verbosity}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {"verbosity": verbosity}, True),
@@ -72,32 +83,22 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
     # (zfit.minimize.ScipyNewtonCGV1, {"verbosity":verbosity,}, {'error': True}),  # Too sensitive? Fails in line-search?
     (zfit.minimize.ScipyTruncNCV1, {"verbosity": verbosity, }, {'error': True}),
 
+    # NLopt minimizer
     (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
-    (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, True),
-    (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, True),
-    (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, True),
-    (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, True),
-    (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, True),
+    (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.NLoptMLSLV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.NLoptStoGOV1, {"verbosity": verbosity, }, {'error': True}),
 
-    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'L-BFGS-B'}, False),  # works not, L-BFGS_B
     # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'CG'}, False),
-    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'Powell'}, False),
-    # works
     # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
-    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'Newton-CG', "scipy_grad": False}, False),  # too bad
-    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'TNC'}, False),  # unstable
-    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'trust-constr'}, False),  # works
-    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'trust-ncg', "scipy_grad": True}, False),  # need Hess
-    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'trust-krylov', "scipy_grad": True}, False),  # Hess
-    # (zfit.minimize.Scipy, {'tol': 0.00001, 'algorithm': 'dogleg', "scipy_grad": True}, False),  # Hess
-    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LD_LBFGS}, True),  # works not, why not?
-    # (zfit.minimize.NLopt, {'algorithm': nlopt.GD_STOGO}, True),  # takes too long
+
     # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
-    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LN_SBPLX},True),  # works
-    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LD_MMA}, True),  # doesn't minimize
-    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LD_SLSQP}, True),  # doesn't minimize
-    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LD_TNEWTON_PRECOND_RESTART}, True),  # no minimize
     # (zfit.minimize.NLopt, {'tol': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
+
 ]
 
 # minimizers = [(zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'use_minuit_grad':False},
@@ -113,14 +114,16 @@ minimizers = [  # minimizers, minimizer_kwargs, do error estimation
 # minimizers = [(zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tol': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.NLoptTruncNewtonV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptSLSQPV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptMMAV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptCCSAQV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.NLoptMLSLV1, {'verbosity': 7}, True)]  # DOESN'T WORK!
-# minimizers = [(zfit.minimize.NLoptSubplexV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.NLoptMLSLV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
+# minimizers = [(zfit.minimize.NLoptStoGOV1, {'verbosity': 7}, {'error': True, 'longtests': True})]  # DOESN'T WORK!
+# minimizers = [(zfit.minimize.NLoptSubplexV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
+
 
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
@@ -184,7 +187,7 @@ def test_dependent_param_extraction():
 chunksizes = [100000]
 # skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
 # num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
-num_grads = [False, True]
+numgrads = [False, True]
 # num_grads = [True]
 # num_grads = [False]
 
@@ -192,20 +195,19 @@ spaces_all = [obs1, obs1_split]
 
 
 @pytest.mark.parametrize("chunksize", chunksizes)
-@pytest.mark.parametrize("num_grad", num_grads)
+@pytest.mark.parametrize("numgrad", numgrads)
 @pytest.mark.parametrize("spaces", spaces_all)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.flaky(reruns=3)
-def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
+def test_minimizers(minimizer_class_and_kwargs, numgrad, chunksize, spaces,
                     pytestconfig):
     long_clarg = pytestconfig.getoption("longtests")
     # long_clarg = True
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
-    zfit.settings.options['numerical_grad'] = num_grad
+    zfit.run.set_autograd_mode(not numgrad)
 
     # minimize_func(minimizer_class_and_kwargs, obs=spaces)
-
 
     parameter_tol = 0.1
     max_distance_to_min = 2.5
@@ -215,17 +217,17 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
     if not isinstance(test_error, dict):
         test_error = {'error': test_error}
 
-    numgrad = test_error.get('numgrad', True)
+    numgrad = test_error.get('numgrad', False)
     do_long = test_error.get('longtests', False)
     has_approx = test_error.get('approx', False)
     test_error = test_error['error']
-    if not numgrad:
-        return
+    # if numgrad:
+    #     return
 
     skip_tests = (not long_clarg
                   and not do_long
                   and not (chunksize == chunksizes[0]
-                           and num_grad == num_grads[0]
+                           and numgrad == numgrads[0]
                            and spaces is spaces_all[0]))
     if skip_tests:
         return
@@ -244,7 +246,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
 
     # Currently not working, stop the test here. Memory leak?
     from zfit.minimizers.minimizer_tfp import BFGS
-    if isinstance(minimizer, BFGS) and num_grad and not zfit.run.mode['graph']:
+    if isinstance(minimizer, (BFGS, WrapOptimizer)) and numgrad:
         return
     init_vals = zfit.run(params)
     result = minimizer.minimize(loss=loss)
@@ -310,7 +312,7 @@ def test_minimizers(minimizer_class_and_kwargs, num_grad, chunksize, spaces,
                                                      rel=rel_error_tol)
             assert a_error["lower"] == pytest.approx(-0.021, rel=rel_error_tol)
             assert errors[sigma_param]["lower"] == pytest.approx(-sigma_error_true,
-                                                                      rel=rel_error_tol)
+                                                                 rel=rel_error_tol)
             assert abs(errors[lambda_param]['lower']) == pytest.approx(0.007,
                                                                        rel=rel_error_tol)
             assert abs(errors[lambda_param]['upper']) == pytest.approx(0.007,

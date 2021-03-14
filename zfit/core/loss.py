@@ -15,7 +15,7 @@ from .dependents import _extract_dependencies
 from .interfaces import ZfitLoss, ZfitSpace, ZfitData
 from .. import z, settings
 from ..util import ztyping
-from ..util.checks import NOT_SPECIFIED
+from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
 from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
     BreakingAPIChangeError
@@ -512,8 +512,8 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, deps: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
-                 dependents: Iterable["zfit.Parameter"] = NOT_SPECIFIED,
+    def __init__(self, func: Callable, deps: Iterable["zfit.Parameter"] = NONE,
+                 dependents: Iterable["zfit.Parameter"] = NONE,
                  errordef: Optional[float] = None):
         """Loss from a (function returning a) Tensor.
 
@@ -558,10 +558,10 @@ class SimpleLoss(BaseLoss):
 
         """
 
-        if dependents is not NOT_SPECIFIED:
+        if dependents is not NONE:
             warnings.warn("`dependents` is deprecated and will be removed in the future, use `deps`"
                           " instead as a keyword.")
-        if deps is NOT_SPECIFIED:  # depreceation
+        if deps is NONE:  # depreceation
             raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
                                          "More information can be found in the upgrade guide on the website.")
 

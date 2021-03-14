@@ -54,7 +54,7 @@ class ToyStrategyFail(BaseStrategy):
         super().__init__()
         self.fit_result = FitResult(params={}, edm=-999, fmin=-999, status=-999, converged=False, info={},
                                     valid=False, message="NaN produced, ToyStrategy fails", niter=None,
-                                    loss=None, minimizer=None)
+                                    loss=None, minimizer=None, criterion=None)
 
     def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
                       values: Mapping = None) -> float:
@@ -62,6 +62,7 @@ class ToyStrategyFail(BaseStrategy):
         param_vals = OrderedDict((param, value) for param, value in zip(params, param_vals))
         self.fit_result = FitResult(params=param_vals, edm=-999, fmin=-999, status=9, converged=False, info={},
                                     loss=loss, valid=False, message="Failed on too manf NaNs", niter=None,
+                                    criterion=None,
                                     minimizer=minimizer)
         raise FailMinimizeNaN()
 

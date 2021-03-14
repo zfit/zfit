@@ -2,20 +2,21 @@
 
 
 from .minimizers.baseminimizer import DefaultStrategy
-from .minimizers.ipopt import IpyoptV1
-from .minimizers.strategy import ZfitStrategy, DefaultToyStrategy
 from .minimizers.fitresult import FitResult
+from .minimizers.ipopt import IpyoptV1
 from .minimizers.minimizer_minuit import Minuit
 from .minimizers.minimizer_nlopt import (NLopt, NLoptLBFGSV1, NLoptTruncNewtonV1, NLoptSLSQPV1, NLoptMMAV1,
                                          NLoptCCSAQV1,
                                          NLoptSubplexV1,
-    # NLoptMLSLV1,
+                                         NLoptMLSLV1,
+                                         NLoptStoGOV1,
                                          )
 from .minimizers.minimizer_tfp import BFGS
 from .minimizers.minimizers_scipy import Scipy, ScipyLBFGSBV1, ScipyTrustKrylovV1, ScipyTrustConstrV1, ScipyDoglegV1, \
     ScipyTrustNCGV1, ScipyPowellV1, ScipySLSQPV1, ScipyNewtonCGV1, ScipyTruncNCV1
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
-from .util.legacy import deprecated
+from .minimizers.strategy import ZfitStrategy
+from .util.deprecation import deprecated
 
 
 class AdamMinimizer(Adam):
@@ -48,7 +49,7 @@ __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
            "Scipy", "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1', "ScipyDoglegV1", "ScipyTrustNCGV1",
            "ScipyPowellV1", "ScipySLSQPV1", "ScipyNewtonCGV1", "ScipyTruncNCV1",
            "NLoptLBFGSV1", "NLoptTruncNewtonV1", "NLoptSLSQPV1", "NLoptMMAV1", "NLoptCCSAQV1",
-           # "NLoptMLSLV1",
+           "NLoptMLSLV1", 'NLoptStoGOV1',
            "IpyoptV1",
            "NLoptSubplexV1",
            "BFGS", "NLopt",

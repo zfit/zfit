@@ -21,7 +21,7 @@ class NotSpecified(Singleton):
         return "A not specified state"
 
 
-NOT_SPECIFIED = NotSpecified()
+NONE = NotSpecified()
 
 
 class ZfitNotImplemented:

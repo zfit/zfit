@@ -126,7 +126,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                  gradient: Optional[Union[Callable, str, NOT_SUPPORTED]],
                  hessian: Optional[Union[Callable, str, NOT_SUPPORTED]],
                  maxiter: Optional[Union[int, str]],
-                 minimizer_options: Mapping[str, object],
+                 minimizer_options: Optional[Mapping[str, object]],
                  internal_tols: Mapping[str, Optional[float]] = None,
                  tol: float = None,
                  verbosity: Optional[int] = None,
@@ -212,6 +212,8 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
         previous_result = init
+        if init:
+            set_values(params=params, values=init)
         evaluator = self.create_evaluator(loss, params)
 
         # create minimizer instance
@@ -533,5 +535,34 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
                          criterion=criterion,
                          verbosity=verbosity,
                          minimizer_options=minimizer_options,
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
+class NLoptStoGOV1(NLoptBaseMinimizerV1):
+    def __init__(self,
+                 tol: float = None,
+                 randomized: bool = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = 'auto',
+                 strategy: ZfitStrategy = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name="NLopt MLSL"):
+
+        if randomized is None:
+            randomized = False
+
+        if randomized:
+            algorithm = nlopt.GD_STOGO_RAND
+        else:
+            algorithm = nlopt.GD_STOGO
+        super().__init__(name=name,
+                         algorithm=algorithm,
+                         tol=tol,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options=None,
                          strategy=strategy,
                          maxiter=maxiter)

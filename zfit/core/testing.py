@@ -28,8 +28,6 @@ def setup_function():
 
 def teardown_function():
     import tensorflow as tf
-
-    tf.compat.v1.reset_default_graph()
     ZfitParameterMixin._existing_params.clear()
 
     clear_graph_cache()

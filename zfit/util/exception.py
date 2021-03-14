@@ -199,7 +199,7 @@ class SpecificFunctionNotImplementedError(FunctionNotImplementedError):
     """If a specific function, e.g. by the user is not implemented"""
 
 
-class MinimizeNotImplementedError(FunctionNotImplementedError):
+class MinimizeNotImplemented(FunctionNotImplementedError):
     """The `minimize` function of a minimizer is not implemented."""
 
 

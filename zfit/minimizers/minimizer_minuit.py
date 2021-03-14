@@ -73,6 +73,8 @@ class Minuit(BaseMinimizer, GraphCachable):
     @minimize_supports()
     def _minimize(self, loss: ZfitLoss, params: List[Parameter], init):
         previous_result = init
+        if init:
+            set_values(params=params, values=init)
         evaluator = self.create_evaluator(loss, params)
         criterion = self.create_criterion(loss, params)
 
@@ -185,6 +187,7 @@ class Minuit(BaseMinimizer, GraphCachable):
 
         fitresult = FitResult.from_minuit(loss=loss,
                                           params=params,
+                                          criterion=criterion,
                                           minuit_opt=minimizer,
                                           minimizer=self.copy(),
                                           valid=valid,

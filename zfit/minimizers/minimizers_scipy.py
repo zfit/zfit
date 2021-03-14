@@ -17,6 +17,7 @@ from .termination import ConvergenceCriterion, CRITERION_NOT_AVAILABLE, EDM
 from ..core.parameter import set_values
 from ..settings import run
 from ..util.exception import MaximumIterationReached
+from ..util.warnings import warn_experimental_feature
 
 
 class ScipyBaseMinimizer(BaseMinimizer):
@@ -59,7 +60,10 @@ class ScipyBaseMinimizer(BaseMinimizer):
     @minimize_supports()
     def _minimize(self, loss, params, init: FitResult):
         previous_result = init
-        evaluator = self.create_evaluator(loss, params)
+        if init:
+            set_values(params=params, values=init)
+
+        evaluator = self.create_evaluator(loss=loss, params=params)
 
         limits = [(run(p.lower), run(p.upper)) for p in params]
         init_values = np.array(run(params))
@@ -183,81 +187,81 @@ class ScipyBaseMinimizer(BaseMinimizer):
         )
 
 
-class Scipy(BaseMinimizer):
-
-    def __init__(self, algorithm: str = 'L-BFGS-B', tol: Optional[float] = None,
-                 strategy: Optional[ZfitStrategy] = None, verbosity: Optional[int] = 5,
-                 name: Optional[str] = None, scipy_grad: Optional[bool] = None,
-                 # criterion: ConvergenceCriterion = None,
-                 minimizer_options: Optional[Dict[str, object]] = None, minimizer=None):
-        """SciPy optimizer algorithms.
-
-        This is a wrapper for all the SciPy optimizers. More information can be found in their docs.
-
-        Args:
-            algorithm: Name of the minimization algorithm to use.
-            tol: Stopping criterion of the algorithm to determine when the minimum
-                has been found. The default is 1e-4, which is *different* from others.
-            verbosity:             name: Name of the minimizer
-            scipy_grad: If True, SciPy uses it's internal numerical gradient calculation instead of the
-                (analytic/numerical) gradient provided by TensorFlow/zfit.
-            name: Name of the minimizer
-            minimizer_options:
-        """
-        # if criterion is None:
-        #     criterion = EDM
-        # self.criterion = criterion
-        if minimizer is not None:
-            warnings.warn(DeprecationWarning, "`minimizer` keyword is gone, use `algorithm`")
-            algorithm = minimizer
-        scipy_grad = True if scipy_grad is None else scipy_grad
-        minimizer_options = {} if minimizer_options is None else minimizer_options
-        if tol is None:
-            tol = 1e-4
-        if name is None:
-            name = algorithm
-        self.scipy_grad = scipy_grad
-        minimizer_options = minimizer_options.copy()
-        minimizer_options.update(method=algorithm)
-        super().__init__(tol=tol, name=name, verbosity=verbosity,
-                         strategy=strategy,
-                         minimizer_options=minimizer_options)
-
-    @minimize_supports()
-    def _minimize(self, loss, params):
-        # criterion = self.criterion(tolerance=self.tolerance, loss=loss)
-        minimizer_options = self.minimizer_options.copy()
-        evaluator = LossEval(loss=loss,
-                             params=params,
-                             strategy=self.strategy,
-                             do_print=self.verbosity > 8,
-                             minimizer=self)
-
-        initial_values = np.array(run(params))
-        limits = [(run(p.lower), run(p.upper)) for p in params]
-        minimize_kwargs = {
-            'jac': not self.scipy_grad,
-            # TODO: properly do hessian or jac
-            # 'hess': scipy.optimize.BFGS() if self.scipy_grad else None,
-            # 'callback': step_callback,
-            'method': minimizer_options.pop('method'),
-            # 'constraints': constraints,
-            'bounds': limits,
-            'tol': self.tol,
-            'options': minimizer_options.pop('options', None),
-        }
-        minimize_kwargs.update(self.minimizer_options)
-        result = scipy.optimize.minimize(fun=evaluator.value if self.scipy_grad else evaluator.value_gradients,
-                                         x0=initial_values, **minimize_kwargs)
-
-        xvalues = result['x']
-        set_values(params, xvalues)
-        from .fitresult import FitResult
-        return FitResult.from_scipy(loss=loss,
-                                    params=params,
-                                    result=result,
-                                    minimizer=self
-                                    )
+# class Scipy(BaseMinimizer):
+#
+#     def __init__(self, algorithm: str = 'L-BFGS-B', tol: Optional[float] = None,
+#                  strategy: Optional[ZfitStrategy] = None, verbosity: Optional[int] = 5,
+#                  name: Optional[str] = None, scipy_grad: Optional[bool] = None,
+#                  # criterion: ConvergenceCriterion = None,
+#                  minimizer_options: Optional[Dict[str, object]] = None, minimizer=None):
+#         """SciPy optimizer algorithms.
+#
+#         This is a wrapper for all the SciPy optimizers. More information can be found in their docs.
+#
+#         Args:
+#             algorithm: Name of the minimization algorithm to use.
+#             tol: Stopping criterion of the algorithm to determine when the minimum
+#                 has been found. The default is 1e-4, which is *different* from others.
+#             verbosity:             name: Name of the minimizer
+#             scipy_grad: If True, SciPy uses it's internal numerical gradient calculation instead of the
+#                 (analytic/numerical) gradient provided by TensorFlow/zfit.
+#             name: Name of the minimizer
+#             minimizer_options:
+#         """
+#         # if criterion is None:
+#         #     criterion = EDM
+#         # self.criterion = criterion
+#         if minimizer is not None:
+#             warnings.warn(DeprecationWarning, "`minimizer` keyword is gone, use `algorithm`")
+#             algorithm = minimizer
+#         scipy_grad = True if scipy_grad is None else scipy_grad
+#         minimizer_options = {} if minimizer_options is None else minimizer_options
+#         if tol is None:
+#             tol = 1e-4
+#         if name is None:
+#             name = algorithm
+#         self.scipy_grad = scipy_grad
+#         minimizer_options = minimizer_options.copy()
+#         minimizer_options.update(method=algorithm)
+#         super().__init__(tol=tol, name=name, verbosity=verbosity,
+#                          strategy=strategy,
+#                          minimizer_options=minimizer_options)
+#
+#     @minimize_supports()
+#     def _minimize(self, loss, params):
+#         # criterion = self.criterion(tolerance=self.tolerance, loss=loss)
+#         minimizer_options = self.minimizer_options.copy()
+#         evaluator = LossEval(loss=loss,
+#                              params=params,
+#                              strategy=self.strategy,
+#                              do_print=self.verbosity > 8,
+#                              minimizer=self)
+#
+#         initial_values = np.array(run(params))
+#         limits = [(run(p.lower), run(p.upper)) for p in params]
+#         minimize_kwargs = {
+#             'jac': not self.scipy_grad,
+#             # TODO: properly do hessian or jac
+#             # 'hess': scipy.optimize.BFGS() if self.scipy_grad else None,
+#             # 'callback': step_callback,
+#             'method': minimizer_options.pop('method'),
+#             # 'constraints': constraints,
+#             'bounds': limits,
+#             'tol': self.tol,
+#             'options': minimizer_options.pop('options', None),
+#         }
+#         minimize_kwargs.update(self.minimizer_options)
+#         result = scipy.optimize.minimize(fun=evaluator.value if self.scipy_grad else evaluator.value_gradients,
+#                                          x0=initial_values, **minimize_kwargs)
+#
+#         xvalues = result['x']
+#         set_values(params, xvalues)
+#         from .fitresult import FitResult
+#         return FitResult.from_scipy(loss=loss,
+#                                     params=params,
+#                                     result=result,
+#                                     minimizer=self
+#                                     )
 
 
 class ScipyLBFGSBV1(ScipyBaseMinimizer):
@@ -379,6 +383,8 @@ class ScipyTrustConstrV1(ScipyBaseMinimizer):
 
 
 class ScipyNewtonCGV1(ScipyBaseMinimizer):
+
+    @warn_experimental_feature
     def __init__(self,
                  tol: float = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
@@ -388,6 +394,18 @@ class ScipyNewtonCGV1(ScipyBaseMinimizer):
                  strategy: ZfitStrategy = None,
                  verbosity: Optional[int] = None,
                  name="Scipy Newton-CG V1"):
+        """WARNING! This algorithm seems unstable and may does not perform well!
+
+        Args:
+            tol:
+            gradient:
+            hessian:
+            maxiter:
+            criterion:
+            strategy:
+            verbosity:
+            name:
+        """
         options = {}
 
         minimizer_options = {}

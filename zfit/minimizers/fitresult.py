@@ -165,17 +165,18 @@ class FitResult(ZfitResult):
                  params: Dict[ZfitParameter, float],
                  edm: float,
                  fmin: float,
-                 status: int,
-                 converged: bool,
-                 info: Mapping,
                  loss: ZfitLoss,
                  minimizer: "ZfitMinimizer",
                  valid: bool,
-                 message: Optional[str],
-                 niter: Optional[int],
+                 criterion: Optional[ConvergenceCriterion],
+                 status: Optional[int] = None,
+                 converged: Optional[bool] = None,
+                 message: Optional[str] = None,
+                 info: Optional[Mapping] = None,
                  approx: Optional[Union[Mapping, Approximations]] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 evaluator: "zfit.minimizers.evaluation.LossEval" = None):
+                 niter: Optional[int] = None,
+                 evaluator: "zfit.minimizer_configuration.evaluation.LossEval" = None,
+                 ):
         """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
 
         Any errors calculated are saved under `self.params` dictionary with::
@@ -198,6 +199,17 @@ class FitResult(ZfitResult):
                 won't be altered.
         """
         super().__init__()
+
+        if status is None:
+            status = 0 if valid else -999
+        if converged is None and valid:
+            converged = True
+        if message is None:
+            if valid:
+                message = ''
+            else:
+                message = "Invalid, unknown reason (not specified in init)"
+
         info = {} if info is None else info
         approx = {} if approx is None else approx
         if isinstance(approx, collections.Mapping):
@@ -259,7 +271,7 @@ class FitResult(ZfitResult):
 
     @classmethod
     def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], minuit_opt: iminuit.util.FMin,
-                    minimizer: Union[ZfitMinimizer, iminuit.Minuit], valid, message) -> 'FitResult':
+                    minimizer: Union[ZfitMinimizer, iminuit.Minuit], valid, message, criterion=None) -> 'FitResult':
         """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
         :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
         zfit objects.
@@ -273,8 +285,9 @@ class FitResult(ZfitResult):
         Returns:
             A `FitResult` as if zfit Minuit was used.
         """
-
+        from .termination import EDM
         from .minimizer_minuit import Minuit
+
         if not isinstance(minimizer, Minuit):
             if isinstance(minimizer, iminuit.Minuit):
                 minimizer_new = Minuit()
@@ -282,7 +295,9 @@ class FitResult(ZfitResult):
                 minimizer = minimizer_new
             else:
                 raise ValueError(f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit.")
+
         params_result = [p_dict for p_dict in minuit_opt.params]
+
         fmin_object = minuit_opt.fmin
 
         info = {'n_eval': fmin_object.nfcn,
@@ -293,13 +308,16 @@ class FitResult(ZfitResult):
         if fmin_object.has_covariance:
             info['inv_hessian'] = np.array(minuit_opt.covariance)
         edm = fmin_object.edm
+        if criterion is None:
+            criterion = EDM(tol=minimizer.tol, loss=loss, params=params)
+            criterion.last_value = edm
         fmin = fmin_object.fval
         status = -999
         valid = valid and fmin_object.is_valid
         converged = fmin_object.is_valid
         params = dict((p, res.value) for p, res in zip(params, params_result))
         return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss, niter=fmin_object.nfcn,
-                   status=status, converged=converged, message=message, valid=valid,
+                   status=status, converged=converged, message=message, valid=valid, criterion=criterion,
                    minimizer=minimizer)
 
     @classmethod
