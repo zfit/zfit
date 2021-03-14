@@ -17,100 +17,99 @@ from ..settings import run
 from ..util.exception import MaximumIterationReached
 
 
-class NLopt(BaseMinimizer):
-    def __init__(self, algorithm: int = nlopt.LD_LBFGS, tol: Optional[float] = None,
-                 strategy: Optional[ZfitStrategy] = None, verbosity: Optional[int] = 5, name: Optional[str] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto', minimizer_options: Optional[Dict[str, object]] = None):
-        """NLopt contains multiple different optimization algorithms.py
-
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a free/open-source library for nonlinear optimization,
-        providing a common interface for a number of
-        different free optimization routines available online as well as original implementations of various other
-        algorithms.
-
-        Args:
-            algorithm: Define which algorithm to be used. These are taken from `nlopt.ALGORITHM` (where `ALGORITHM` is
-                the actual algorithm). A comprehensive list and description of all implemented algorithms is
-                available `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
-                The wrapper is optimized for Local gradient-based optimization and may breaks with
-                others. However, please post a feature request in case other algorithms are requested.
-
-                The naming of the algorithm starts with either L/G (Local/Global)
-                 and N/D (derivative-free/derivative-based).
-
-                Local optimizer ptions include (but not only)
-
-                Derivative free:
-                - LN_NELDERMEAD: The Nelder Mead Simplex algorithm, which seems to perform not so well, but can be used
-                  to narrow down a minimum.
-                - LN_SBPLX: SubPlex is an improved version of the Simplex algorithms and usually performs better.
-
-                With derivative:
-                - LD_MMA: Method of Moving Asymptotes, an improved CCSA
-                  ("conservative convex separable approximation") variant of the original MMA algorithm
-                - LD_SLSQP: this is a sequential quadratic programming (SQP) algorithm for (nonlinearly constrained)
-                  gradient-based optimization
-                - LD_LBFGS: version of the famous low-storage BFGS algorithm, an approximate Newton method. The same as
-                  the Minuit algorithm is built on.
-                - LD_TNEWTON_PRECOND_RESTART, LD_TNEWTON_PRECOND, LD_TNEWTON_RESTART, LD_TNEWTON: a preconditioned
-                  inexact truncated Newton algorithm. Multiple variations, with and without preconditioning and/or
-                  restart are provided.
-                - LD_VAR1, LD_VAR2: a shifted limited-memory variable-metric algorithm, either using a rank 1 or rank 2
-                  method.
-
-            tol (Union[float, None]):
-            strategy (Union[None, None]):
-            verbosity (int):
-            name (Union[None, None]):
-            maxiter (Union[None, None]):
-            minimizer_options (Union[None, None]):
-        """
-        self.algorithm = algorithm
-        super().__init__(name=name, tol=tol, verbosity=verbosity, minimizer_options=minimizer_options,
-                         strategy=strategy, maxiter=maxiter)
-
-    @minimize_supports(init=False)
-    def _minimize(self, loss, params):
-
-        minimizer = nlopt.opt(self.algorithm, len(params))
-
-        n_eval = 0
-
-        init_val = np.array(run(params))
-
-        evaluator = LossEval(loss=loss,
-                             params=params,
-                             strategy=self.strategy,
-                             do_print=self.verbosity > 8,
-                             minimizer=self)
-
-        func = evaluator.value
-        grad_value_func = evaluator.value_gradients
-
-        def obj_func(x, grad):
-            if grad.size > 0:
-                value, gradients = grad_value_func(x)
-                grad[:] = np.array(run(gradients))
-            else:
-                value = func(x)
-
-            return value
-
-        minimizer.set_min_objective(obj_func)
-        lower = np.array([p.lower for p in params])
-        upper = np.array([p.upper for p in params])
-        minimizer.set_lower_bounds(lower)
-        minimizer.set_upper_bounds(upper)
-        minimizer.set_maxeval(self.get_maxiter(len(params)))
-        minimizer.set_ftol_abs(self.tol)
-
-        for name, value in self.minimizer_options:
-            minimizer.set_param(name, value)
-
-        xvalues = minimizer.optimize(init_val)
-        set_values(params, xvalues)
-        edm = -999
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, params=params, xvalues=xvalues)
+# class NLopt(BaseMinimizer):
+#     def __init__(self, algorithm: int = nlopt.LD_LBFGS, tol: Optional[float] = None,
+#                  strategy: Optional[ZfitStrategy] = None, verbosity: Optional[int] = 5, name: Optional[str] = None,
+#                  maxiter: Optional[Union[int, str]] = 'auto', minimizer_options: Optional[Dict[str, object]] = None):
+#         """NLopt contains multiple different optimization algorithms.py
+#
+#         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a free/open-source library for nonlinear optimization,
+#         providing a common interface for a number of
+#         different free optimization routines available online as well as original implementations of various other
+#         algorithms.
+#
+#         Args:
+#             algorithm: Define which algorithm to be used. These are taken from `nlopt.ALGORITHM` (where `ALGORITHM` is
+#                 the actual algorithm). A comprehensive list and description of all implemented algorithms is
+#                 available `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+#                 The wrapper is optimized for Local gradient-based optimization and may breaks with
+#                 others. However, please post a feature request in case other algorithms are requested.
+#
+#                 The naming of the algorithm starts with either L/G (Local/Global)
+#                  and N/D (derivative-free/derivative-based).
+#
+#                 Local optimizer ptions include (but not only)
+#
+#                 Derivative free:
+#                 - LN_NELDERMEAD: The Nelder Mead Simplex algorithm, which seems to perform not so well, but can be used
+#                   to narrow down a minimum.
+#                 - LN_SBPLX: SubPlex is an improved version of the Simplex algorithms and usually performs better.
+#
+#                 With derivative:
+#                 - LD_MMA: Method of Moving Asymptotes, an improved CCSA
+#                   ("conservative convex separable approximation") variant of the original MMA algorithm
+#                 - LD_SLSQP: this is a sequential quadratic programming (SQP) algorithm for (nonlinearly constrained)
+#                   gradient-based optimization
+#                 - LD_LBFGS: version of the famous low-storage BFGS algorithm, an approximate Newton method. The same as
+#                   the Minuit algorithm is built on.
+#                 - LD_TNEWTON_PRECOND_RESTART, LD_TNEWTON_PRECOND, LD_TNEWTON_RESTART, LD_TNEWTON: a preconditioned
+#                   inexact truncated Newton algorithm. Multiple variations, with and without preconditioning and/or
+#                   restart are provided.
+#                 - LD_VAR1, LD_VAR2: a shifted limited-memory variable-metric algorithm, either using a rank 1 or rank 2
+#                   method.
+#
+#             tol (Union[float, None]):
+#             strategy (Union[None, None]):
+#             verbosity (int):
+#             name (Union[None, None]):
+#             maxiter (Union[None, None]):
+#             minimizer_options (Union[None, None]):
+#         """
+#         self.algorithm = algorithm
+#         super().__init__(name=name, tol=tol, verbosity=verbosity, minimizer_options=minimizer_options,
+#                          strategy=strategy, maxiter=maxiter)
+#
+#     @minimize_supports(init=False)
+#     def _minimize(self, loss, params):
+#
+#         minimizer = nlopt.opt(self.algorithm, len(params))
+#
+#         n_eval = 0
+#
+#         init_val = np.array(run(params))
+#
+#         evaluator = LossEval(loss=loss,
+#                              params=params,
+#                              strategy=self.strategy,
+#                              do_print=self.verbosity > 8)
+#
+#         func = evaluator.value
+#         grad_value_func = evaluator.value_gradients
+#
+#         def obj_func(x, grad):
+#             if grad.size > 0:
+#                 value, gradients = grad_value_func(x)
+#                 grad[:] = np.array(run(gradients))
+#             else:
+#                 value = func(x)
+#
+#             return value
+#
+#         minimizer.set_min_objective(obj_func)
+#         lower = np.array([p.lower for p in params])
+#         upper = np.array([p.upper for p in params])
+#         minimizer.set_lower_bounds(lower)
+#         minimizer.set_upper_bounds(upper)
+#         minimizer.set_maxeval(self.get_maxiter(len(params)))
+#         minimizer.set_ftol_abs(self.tol)
+#
+#         for name, value in self.minimizer_options:
+#             minimizer.set_param(name, value)
+#
+#         xvalues = minimizer.optimize(init_val)
+#         set_values(params, xvalues)
+#         edm = -999
+#         return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, params=params, xvalues=xvalues)
 
 
 class NLoptBaseMinimizerV1(BaseMinimizer):

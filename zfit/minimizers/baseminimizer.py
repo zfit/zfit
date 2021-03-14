@@ -508,8 +508,7 @@ class BaseMinimizer(ZfitMinimizer):
                              params=params,
                              strategy=self.strategy,
                              do_print=self.verbosity > 8,
-                             maxiter=self.get_maxiter(len(params)),
-                             minimizer=self)
+                             maxiter=self.get_maxiter(len(params)))
         if self._is_stateful:
             self._state['evaluator'] = evaluator
         return evaluator

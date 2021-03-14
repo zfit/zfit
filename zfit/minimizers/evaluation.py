@@ -7,7 +7,6 @@ import tensorflow as tf
 import texttable as tt
 
 from .strategy import ZfitStrategy
-from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import set_values
 from ..settings import run
@@ -22,7 +21,6 @@ class LossEval:
                  params: ztyping.ParamTypeInput,
                  strategy: ZfitStrategy,
                  do_print: bool,
-                 minimizer: ZfitMinimizer,
                  maxiter: int,
                  grad_fn: Optional[Callable] = None,
                  hesse_fn: Optional[Callable] = None,
@@ -38,7 +36,6 @@ class LossEval:
             self.nhess_eval = 0
 
         self.loss = loss
-        self.minimizer = minimizer
         if hesse_fn is None:
             hesse_fn = loss.hessian
 
@@ -146,7 +143,6 @@ class LossEval:
             }
 
             loss_value, gradients_values = self.strategy.minimize_nan(loss=self.loss, params=self.params,
-                                                                      minimizer=self.minimizer,
                                                                       values=info_values)
         else:
             self.nan_counter = 0
@@ -187,7 +183,6 @@ class LossEval:
             }
 
             loss_value, _ = self.strategy.minimize_nan(loss=self.loss, params=self.params,
-                                                       minimizer=self.minimizer,
                                                        values=info_values)
         else:
             self.nan_counter = 0
@@ -229,7 +224,6 @@ class LossEval:
             }
 
             _, gradients_values = self.strategy.minimize_nan(loss=self.loss, params=self.params,
-                                                             minimizer=self.minimizer,
                                                              values=info_values)
         else:
             self.nan_counter = 0
@@ -270,7 +264,6 @@ class LossEval:
             }
 
             _, _ = self.strategy.minimize_nan(loss=self.loss, params=self.params,
-                                              minimizer=self.minimizer,
                                               values=info_values)
         else:
             self.nan_counter = 0
