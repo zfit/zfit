@@ -4,8 +4,6 @@ import pytest
 import scipy.stats
 
 import zfit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import SpecificFunctionNotImplementedError
 
 
@@ -64,6 +62,7 @@ def test_frac_behavior(yields):
 
         if isinstance(fracs, list) and len(fracs) == 3:
             assert sumpdf2.params['frac_2'] == frac3
+
 
 @pytest.mark.flaky(2)  # ks test
 def test_sampling():

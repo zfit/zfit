@@ -6,25 +6,17 @@ import tensorflow as tf
 import zfit
 from zfit import z, Space
 from zfit.core.space import Limit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import AnalyticSamplingNotImplementedError
 
-setup_func_general = setup_function
-teardown_func_general = teardown_function
-
-
-def setup_function():
+@pytest.fixture(autouse=True, scope="module")
+def setup_teardown():
     Limit._experimental_allow_vectors = True
-    setup_func_general()
-
-
-def teardown_function():
+    yield
     Limit._experimental_allow_vectors = False
-    teardown_func_general()
 
 
-ztf = z
+
+
 from zfit.core.sample import accept_reject_sample
 
 mu_true = 1.5
@@ -66,7 +58,7 @@ class TmpGaussian(zfit.pdf.BasePDF):
         mu = self.params['mu']
         sigma = self.params['sigma']
 
-        return ztf.exp((-(x - mu) ** 2) / (
+        return z.exp((-(x - mu) ** 2) / (
             2 * sigma ** 2))  # non-normalized gaussian
 
 
@@ -82,7 +74,7 @@ class TmpGaussianPDFNonNormed(zfit.pdf.BasePDF):
         mu = self.params['mu']
         sigma = self.params['sigma']
 
-        return ztf.exp((-(x - mu) ** 2) / (
+        return z.exp((-(x - mu) ** 2) / (
             2 * sigma ** 2))  # non-normalized gaussian
 
 
@@ -326,7 +318,7 @@ def test_importance_sampling_uniform():
 
             import tensorflow_probability.python.distributions as tfd
             n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
-            gaussian = tfd.TruncatedNormal(loc=ztf.constant(-1.), scale=ztf.constant(2.),
+            gaussian = tfd.TruncatedNormal(loc=z.constant(-1.), scale=z.constant(2.),
                                            low=low, high=high)
             sample = gaussian.sample(sample_shape=(n_to_produce, 1))
             weights = gaussian.prob(sample)[:, 0]

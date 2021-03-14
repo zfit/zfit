@@ -1,11 +1,9 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
 
 from zfit import Parameter, z
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.functions import SimpleFunc
 from zfit.models.special import SimplePDF
 from zfit.util.exception import ModelIncompatibleError, BreakingAPIChangeError

@@ -3,41 +3,15 @@ Module for testing of the zfit components. Contains a singleton instance to regi
 them be tested.
 """
 #  Copyright (c) 2021 zfit
-import sys
 from collections import OrderedDict
 from typing import Callable, Tuple, List, Union, Iterable
 
 import scipy.stats
 
 from .interfaces import ZfitPDF
-from .parameter import ZfitParameterMixin
-from ..util.cache import clear_graph_cache
 from ..util.container import convert_to_container
 
-__all__ = ["tester", "setup_function", "teardown_function"]
-
-init_modules = sys.modules.keys()
-
-
-def setup_function():
-    # second or subsequent run: remove all but initially loaded modules
-    for m in sys.modules.keys():
-        if m not in init_modules:
-            del (sys.modules[m])
-
-
-def teardown_function():
-    import tensorflow as tf
-    ZfitParameterMixin._existing_params.clear()
-
-    clear_graph_cache()
-    import zfit
-    zfit.run.set_graph_mode()
-    for m in sys.modules.keys():
-        if m not in init_modules:
-            del (sys.modules[m])
-    import gc
-    gc.collect()
+__all__ = ["tester"]
 
 
 class BaseTester:

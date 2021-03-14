@@ -1,7 +1,6 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+
 # deactivating CUDA capable gpus
 from zfit.z.tools import _auto_upcast
 

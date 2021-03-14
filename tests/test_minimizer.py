@@ -7,16 +7,8 @@ import scipy.optimize
 from ordered_set import OrderedSet
 
 import zfit.minimizers.optimizers_tf
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.minimizers.base_tf import WrapOptimizer
 from zfit.util.exception import OperationNotAllowedError
-
-
-def teardown_function():
-    zfit.run.set_autograd_mode()
-    from zfit.core.testing import teardown_function as td_func
-    td_func()
 
 
 true_mu = 4.5
@@ -51,7 +43,7 @@ def create_loss(obs1):
     return loss, minimum, (mu_param, sigma_param, lambda_param)
 
 
-verbosity = 5
+verbosity = None
 
 # zfit.settings.set_verbosity(verbosity=verbosity)
 
@@ -101,8 +93,8 @@ minimizers = [
 
 ]
 
-# minimizers = [(zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'use_minuit_grad':False},
-#                {'error': True, 'longtests': True})]
+minimizers = [(zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'minuit_grad': True},
+               {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.IPoptV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
@@ -199,7 +191,7 @@ spaces_all = [obs1, obs1_split]
 @pytest.mark.parametrize("numgrad", numgrads)
 @pytest.mark.parametrize("spaces", spaces_all)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-@pytest.mark.flaky(reruns=3)
+# @pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class_and_kwargs, numgrad, chunksize, spaces,
                     pytestconfig):
     long_clarg = pytestconfig.getoption("longtests")

@@ -32,6 +32,10 @@ from ..util.exception import MinimizeNotImplemented, MinimizeStepNotImplementedE
 
 DefaultStrategy = PushbackStrategy
 
+status_messages = {
+    'maxiter': "Maximum iteration reached."
+}
+
 
 def minimize_supports(*, init: Union[bool] = False) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
@@ -316,20 +320,62 @@ class BaseMinimizer(ZfitMinimizer):
         """Fully minimize the `loss` with respect to `params`, optionally using information from `init`.
 
         The minimizer changes the parameter values in order to minimize the loss function until the convergence
-        criterion value is less than the tolerance.
-
-
+        criterion value is less than the tolerance. This is a stateless function that can take a `FitResult` in order
+        to initialize the minimization.
 
         Args:
-            loss: Loss to be minimized. Can also be a simple callable that takes an array as argument and an attribute
-                `errordef` (which is assumed to be
+            loss: Loss to be minimized until convergence is reached.
+
+            - If this is a simple callable that takes an array as argument and an attribute `errordef`
+            - A `FitResult` can be provided as the only argument to the method, in which case the loss as well as the
+              parameters to be minimized are taken from it. This allows to easily chain minimization algorithms.
+
             params: The parameters with respect to which to
                 minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
+
+                Instead of `Parameters`, an array of initial values can be provided. This however does not allow to
+                specify limits. For more control, use a `ZfitIndepentendParameter`.
             init: A result of a previous minimization that provides auxiliary information such as the starting point for
-                the parameters
+                the parameters, the approximation of the covariance and more. Which information is used can depend on
+                the specific minimizer implementation.
+
+                In general, the assumption is that _the loss provided is similar enough_ to the one provided in `init`.
+
+                What is assumed to be close:
+                - the parameters at the minimum of *loss* will be close to the parameter values at the minimum of
+                  *init*.
+                - Covariance matrix, or in general the shape, of *init* to the *loss* at its minimum.
+
+                What is explicitly _not_ assumed to be the same:
+                - absolute value of the loss function. If *init* has a function value at minimum x of fmin,
+                  it is not assumed that `loss` will have the same/similar value at x.
+                - parameters that are uset in the minimization may differ in order or which are fixed.
+
 
         Returns:
-            The fit result.
+            The fit result containing all information about the minimization.
+
+        Examples:
+            Using the ability to restart a minimization with a previous result allows to use a more global search
+            algorithm with a high tolerance and an additional local minimization to polish the found minimum.
+
+            .. code-block:: python
+
+                result_approx = minimizer_global.minimize(loss, params)
+                result = minimizer_local.minimize(result_approx)
+
+            For a simple usage with a callable only, the parameters can be given as an array of initial values.
+
+            .. code-block:: python
+
+                def func(x):
+                    return np.log(np.sum(x ** 2))
+
+                func.errordef = 0.5
+                params = [1.1, 3.5, 8.35]  # initial values
+                result = minimizer.minimize(func, param)
+
+
         """
 
         loss, params, init = self._check_convert_input(loss=loss, params=params, init=init, only_floating=True)
@@ -514,6 +560,10 @@ class BaseMinimizer(ZfitMinimizer):
 
 
 class BaseStepMinimizer(BaseMinimizer):
+    """Step minimizer that uses the `_step` method to advance a single step and check if the criterion is reached.py
+
+    In order to subclass this correctly, override `_step`.
+    """
 
     @minimize_supports()
     def _minimize(self, loss, params, init):
@@ -540,12 +590,12 @@ class BaseStepMinimizer(BaseMinimizer):
                 hesse = run(loss.hessian(params))
                 inv_hesse = np.linalg.inv(hesse)
                 status = 10
-                params = {p: val for p, val in zip(params, xvalues)}
+                params_result = {p: val for p, val in zip(params, xvalues)}
 
                 message = 'Unfinished, for criterion'
                 info = {'success': False, 'message': message,
                         'n_eval': niter, 'inv_hesse': inv_hesse}
-                prelim_result = FitResult(params=params, edm=criterion_val, fmin=cur_val, info=info, converged=False,
+                prelim_result = FitResult(params=params_result, edm=criterion_val, fmin=cur_val, info=info, converged=False,
                                           status=status, valid=False, message=message, niter=niter, criterion=criterion,
                                           loss=loss, minimizer=self)
                 converged = criterion.converged(prelim_result)

@@ -1,13 +1,10 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import pytest
 
 import zfit
 from zfit.core.dimension import limits_overlap, obs_subsets
-from zfit.core.space import combine_spaces
-from zfit.core.space import limits_consistent
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.core.space import combine_spaces, limits_consistent
 from zfit.util.exception import (SpaceIncompatibleError,
                                  ObsIncompatibleError, MultipleLimitsNotImplementedError, LimitsNotSpecifiedError)
 

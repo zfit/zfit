@@ -3,8 +3,7 @@
 from typing import Type
 
 import pytest
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+
 
 @pytest.fixture
 def test_values():
@@ -266,7 +265,7 @@ def test_analytic_sampling(obs1):
     from zfit.core.space import ANY_UPPER
     SampleGauss.register_analytic_integral(func=lambda limits, params, model: 2 * limits.upper[0][0],
                                            limits=zfit.Space(limits=(-float("inf"), ANY_UPPER),
-                                                        axes=(0,)))  # DUMMY!
+                                                             axes=(0,)))  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.)
 
     mu, sigma = create_mu_sigma_true_params()

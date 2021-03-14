@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import math as mt
 from contextlib import suppress
 
@@ -10,10 +10,8 @@ import zfit
 import zfit.core.integration as zintegrate
 from zfit import z
 from zfit.core import basepdf as zbasepdf
-from zfit.core.space import Space
 from zfit.core.parameter import Parameter
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.core.space import Space
 from zfit.models.basic import CustomGaussOLD
 from zfit.models.dist_tfp import Gauss
 

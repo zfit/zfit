@@ -151,7 +151,7 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                                       x0=initial_values[d],
                                       tol=rtol,
                                       options={
-                                          'factor': 0.1,
+                                          'factor': 1,
                                           # 'diag': 1 / param_scale,  # scale factor for variables
                                           # 'diag': param_scale,
                                       },

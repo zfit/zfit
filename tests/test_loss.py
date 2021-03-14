@@ -9,8 +9,6 @@ import zfit.settings
 from zfit import z
 from zfit.core.loss import UnbinnedNLL
 from zfit.core.space import Space
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.minimize import Minuit
 from zfit.pdf import Gauss
 from zfit.util.exception import IntentionAmbiguousError

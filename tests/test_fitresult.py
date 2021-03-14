@@ -4,10 +4,8 @@ import pytest
 
 import zfit
 from zfit import z
-from zfit.minimizers.fitresult import FitResult
 from zfit.minimizers.errors import compute_errors
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.minimizers.fitresult import FitResult
 
 true_a = 1.
 true_b = 4.
@@ -127,7 +125,6 @@ def test_params_at_limit(minimizer_class_and_kwargs):
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.parametrize("use_weights", [False, True])
 def test_covariance(minimizer_class_and_kwargs, use_weights):
-    setup_function()
     n = 15000
     if use_weights:
         weights = np.random.normal(1, 0.001, n)
@@ -168,7 +165,6 @@ def test_covariance(minimizer_class_and_kwargs, use_weights):
 
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np")
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=rtol, atol=atol)
-    teardown_function()
 
 
 @pytest.mark.flaky(reruns=3)
@@ -189,8 +185,9 @@ def test_correlation(minimizer_class_and_kwargs):
 
     a_error = hesse[a]['error']
     b_error = hesse[b]['error']
-    assert pytest.approx(cor_mat[0, 1], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
-    assert pytest.approx(cor_dict[(a, b)], rel=0.01) == cov_mat[0, 1]/(a_error * b_error)
+    assert pytest.approx(cor_mat[0, 1], rel=0.01) == cov_mat[0, 1] / (a_error * b_error)
+    assert pytest.approx(cor_dict[(a, b)], rel=0.01) == cov_mat[0, 1] / (a_error * b_error)
+
 
 # @pytest.mark.skip  # currently stuck in an endless loop?
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)

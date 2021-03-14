@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -6,8 +6,6 @@ import tensorflow as tf
 import zfit
 from zfit import z
 from zfit.core.coordinates import Coordinates
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import ObsIncompatibleError, AxesIncompatibleError
 
 coordinate_classes = [Coordinates, zfit.Space]

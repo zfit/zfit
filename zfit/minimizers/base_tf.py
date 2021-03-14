@@ -9,7 +9,6 @@ from ..util.exception import OperationNotAllowedError
 
 
 class WrapOptimizer(BaseStepMinimizer):
-    # Todo: Write documentation for api.
     def __init__(self,
                  optimizer,
                  tol=None,
@@ -18,6 +17,20 @@ class WrapOptimizer(BaseStepMinimizer):
                  verbosity=None,
                  name=None,
                  **kwargs):
+        """Wrap TensorFlow optimizers to have the zfit interface and behavior.
+
+        .. note:: Different behavior of minimize
+
+          While the `minimize` method in TensorFlow optimizers executes a single step of the minimization,
+          the `minimize` method of a :class:`ZfitMinimizer` fully minimizes a function until convergence
+          is reached. In order to execute a single step, use the :meth:~`WrapOptimizer.step` method (however,
+          this is in general not necessary to do and rather inefficient).
+
+        Args:
+            optimizer: Instance of a :class:`tf.keras.optimizers.Optimizer`.
+            All other arguments: these are passed through and have the same functionality as described
+            in :py:class:~`BaseStepMinimizer`
+        """
         if not isinstance(optimizer, tf.keras.optimizers.Optimizer):
             raise TypeError("optimizer {} has to be from class Optimizer".format(str(optimizer)))
         super().__init__(tol=tol, criterion=criterion, strategy=strategy, verbosity=verbosity, name=name,

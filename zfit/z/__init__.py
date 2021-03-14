@@ -7,7 +7,7 @@ Some function are already wrapped, others are not. Best practice is to use `z` w
 `tf` for the rest.
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 # fill the following in to the namespace for (future) wrapping
 
@@ -39,7 +39,7 @@ Some function are already wrapped, others are not. Best practice is to use `z` w
 
 
 # noinspection PyUnresolvedReferences
-
+import tensorflow.experimental.numpy as np
 
 from .wrapping_tf import (exp, random_normal, random_uniform, convert_to_tensor, reduce_sum, reduce_prod, square,
                           sqrt, complex, check_numerics, pow)

@@ -1,5 +1,5 @@
 """Example test for a pdf or function"""
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import numpy as np
 import pytest
@@ -9,8 +9,6 @@ import tensorflow as tf
 
 import zfit
 from zfit import z
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import WorkInProgressError
 
 param1_true = 0.3

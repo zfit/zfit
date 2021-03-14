@@ -514,12 +514,21 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
 class NLoptMLSLV1(NLoptBaseMinimizerV1):
     def __init__(self,
                  tol: float = None,
+                 randomized: bool = None,
                  local_minimizer: Optional[Union[int, Mapping[str, object]]] = None,
                  verbosity: Optional[int] = None,
                  maxiter: Optional[Union[int, str]] = 'auto',
                  strategy: ZfitStrategy = None,
                  criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt MLSL"):
+                 name="NLopt MLSL",
+                 ):
+        if randomized is None:
+            randomized = False
+        if randomized:
+            algorithm = nlopt.GD_MLSL_LDS
+        else:
+            algorithm = nlopt.GD_MLSL
+
         local_minimizer = nlopt.LD_LBFGS if local_minimizer is None else local_minimizer
         if not isinstance(local_minimizer, collections.Mapping):
             local_minimizer = {'algorithm': local_minimizer}
@@ -528,7 +537,7 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
 
         minimizer_options = {'local_minimizer_options': local_minimizer}
         super().__init__(name=name,
-                         algorithm=nlopt.GD_MLSL_LDS,
+                         algorithm=algorithm,
                          tol=tol,
                          gradient=NOT_SUPPORTED,
                          hessian=NOT_SUPPORTED,
