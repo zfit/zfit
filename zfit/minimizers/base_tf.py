@@ -26,9 +26,14 @@ class WrapOptimizer(BaseStepMinimizer):
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
-        if False:
-            raise OperationNotAllowedError("Cannot use TF optimizer with a numerical gradient (non-TF function)")
-        return super()._minimize(loss, params, init)
+        try:
+            return super()._minimize(loss, params, init)
+        except ValueError as error:
+            if 'No gradients provided for any variable' in error.args[0]:
+                raise OperationNotAllowedError("Cannot use TF optimizer with"
+                                               " a numerical gradient (non-TF function)") from None
+            else:
+                raise
 
     def _step(self,
               loss: ZfitLoss,

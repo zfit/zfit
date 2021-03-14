@@ -153,6 +153,7 @@ def test_minimize_pure_func(minimizer_class_and_kwargs):
     minimizer_class, minimizer_kwargs, _ = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
     func = scipy.optimize.rosen
+    func.errordef = 0.5
     params = np.random.normal(size=5)
     if isinstance(minimizer, WrapOptimizer):
         with pytest.raises(OperationNotAllowedError):

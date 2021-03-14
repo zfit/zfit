@@ -12,7 +12,7 @@ from .minimizers.minimizer_nlopt import (NLopt, NLoptLBFGSV1, NLoptTruncNewtonV1
                                          NLoptStoGOV1,
                                          )
 from .minimizers.minimizer_tfp import BFGS
-from .minimizers.minimizers_scipy import Scipy, ScipyLBFGSBV1, ScipyTrustKrylovV1, ScipyTrustConstrV1, ScipyDoglegV1, \
+from .minimizers.minimizers_scipy import ScipyLBFGSBV1, ScipyTrustKrylovV1, ScipyTrustConstrV1, ScipyDoglegV1, \
     ScipyTrustNCGV1, ScipyPowellV1, ScipySLSQPV1, ScipyNewtonCGV1, ScipyTruncNCV1
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
 from .minimizers.strategy import ZfitStrategy
@@ -36,11 +36,10 @@ class MinuitMinimizer(Minuit):
                          **minimizer_options)
 
 
-class ScipyMinimizer(Scipy):
+class ScipyMinimizer():
 
-    @deprecated(None, "Use zfit.minimize.Scipy instead.")
     def __init__(self, minimizer='L-BFGS-B', tol=None, verbosity=5, name=None, **minimizer_options):
-        super().__init__(minimizer, tol, verbosity, name, **minimizer_options)
+        raise RuntimeError("This has been removed. Use the new Scipy* minimizer instead.")
 
 
 __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
