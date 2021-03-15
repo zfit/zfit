@@ -26,3 +26,4 @@ insufficient!
     zfit.util.typing
     zfit.sample
     zfit.settings
+    zfit.serialization

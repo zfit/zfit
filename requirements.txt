@@ -14,3 +14,4 @@ ordered-set
 numdifftools
 cloudpickle==1.3  # from TFP, why not working with pip?!
 bidict>=0.19
+dataclasses~=0.7
