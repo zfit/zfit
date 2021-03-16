@@ -149,7 +149,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 The naming of the algorithm starts with either L/G (Local/Global)
                  and N/D (derivative-free/derivative-based).
 
-                Local optimizer ptions include (but not only)
+                Local optimizer options include (but are not limited to)
 
                 Derivative free:
                 - LN_NELDERMEAD: The Nelder Mead Simplex algorithm, which seems to perform not so well, but can be used
