@@ -42,14 +42,6 @@ The choice of which parameters of your model should be floating in the fit can a
 .. code-block:: pycon
 
     >>> # In the case of a Gaussian (e.g.)
-    >>> result = minimizer_minuit.minimize(loss=my_loss,params=[mu, sigma])
-    >>> # In the case of a Gaussian (e.g.)
-    >>> result = minimizer_minuit.minimize(loss=my_loss,params=[mu, sigma])
-    >>> # In the case of a Gaussian (e.g.)
-    >>> result = minimizer_minuit.minimize(loss=my_loss,params=[mu, sigma])
-    >>> # In the case of a Gaussian (e.g.)
-    >>> result = minimizer_minuit.minimize(loss=my_loss,params=[mu, sigma])
-    >>> # In the case of a Gaussian (e.g.)
     >>> result = minimizer_minuit.minimize(loss=my_loss, params=[mu, sigma])
 
 **Only** the parameters given in ``params`` are floated in the optimisation process.
