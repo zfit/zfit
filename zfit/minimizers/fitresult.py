@@ -4,7 +4,7 @@ import contextlib
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Dict, Union, Callable, Optional, Tuple, Iterable, Mapping
+from typing import Dict, Union, Callable, Optional, Tuple, Iterable, Mapping, List
 
 import colored
 import iminuit
@@ -32,25 +32,59 @@ init(autoreset=True)
 
 class Approximations:
 
-    def __init__(self, params, gradient=None, hessian=None, inv_hessian=None) -> None:
+    def __init__(self, params: List[ZfitParameter], gradient: Optional[np.ndarray] = None,
+                 hessian: Optional[np.ndarray] = None,
+                 inv_hessian: Optional[np.ndarray] = None) -> None:
+        """Holds different approximations after the minimisation and/or calculates them.
+
+        Args:
+            params: List of parameters the approximations (gradient, hessian, ...) were calculated with.
+            gradient: Gradient
+            hessian: Hessian Matrix
+            inv_hessian: Inverse of the Hessian Matrix
+        """
         self._params = params
         self._gradient = gradient
         self._hessian = hessian
         self._inv_hessian = inv_hessian
         super().__init__()
 
-    def gradient(self, params=None):
+    @property
+    def params(self):
+        return self._params
+
+    def gradient(self,
+                 params: Optional[Union[ZfitParameter, Iterable[ZfitParameter]]] = None
+                 ) -> Union[np.ndarray, None]:
+        """Return an approximation of the gradient _if available_.
+
+        Args:
+            params: Parameters to which the gradients should be returned
+
+        Returns:
+            Array with gradients or `None`
+        """
         grad = self._gradient
         if grad is None:
             return None
 
-        if params:
+        if params is not None:
+            params = convert_to_container(params, container=tuple)
             params_mapped = {i: params.index(param) for i, param in enumerate(self.params) if param in params}
             indices = sorted(params_mapped, key=lambda x: params_mapped[x])
-            grad = np.where(indices)
+            grad = grad[indices]
         return grad
 
-    def hessian(self, invert: bool = True):
+    def hessian(self, invert: bool = True) -> Union[np.ndarray, None]:
+        """Return an approximation of the hessian _if available_.
+
+        Args:
+            invert: If a _hessian approximation_ is not available but an inverse hessian is, invert the latter to
+                obtain the hessian approximation.
+
+        Returns:
+            Array with hessian matrix or `None`
+        """
         hess = self._hessian
         if hess is None and invert:
             inv_hess = self._inv_hessian
@@ -59,7 +93,16 @@ class Approximations:
                 self._hessian = hess
         return hess
 
-    def inv_hessian(self, invert: bool = True):
+    def inv_hessian(self, invert: bool = True) -> Union[None, np.ndarray]:
+        """Return an approximation of the inverse hessian _if available_.
+
+        Args:
+            invert: If an _inverse hessian approximation_ is not available but a hessian is, invert the latter to
+                obtain the inverse hessian approximation.
+
+        Returns:
+            Array with the inverse of the hessian matrix or `None`
+        """
         inv_hess = self._inv_hessian
         if inv_hess is None and invert:
             hess = self._hessian
@@ -70,8 +113,6 @@ class Approximations:
 
 
 def _minos_minuit(result, params, cl=None):
-    from zfit.minimize import Minuit
-
     minuit_minimizer = result._create_minuit_instance()
 
     merror_result = minuit_minimizer.minos(*(p.name for p in params), cl=cl).merrors  # returns every var

@@ -107,6 +107,7 @@ def test_fmin(minimizer_class_and_kwargs):
     result = results['result']
     assert pytest.approx(results['cur_val']) == result.fmin
 
+
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_params(minimizer_class_and_kwargs):
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
@@ -276,3 +277,7 @@ def test_new_minimum(minimizer_class_and_kwargs):
         for param in params:
             assert errors[param]['lower'] < 0
             assert errors[param]['upper'] > 0
+
+
+def test_gradient():
+    assert False

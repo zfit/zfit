@@ -2,6 +2,6 @@
 
 
 from .minimizers.errors import compute_errors
-from .minimizers.fitresult import FitResult
+from .minimizers.fitresult import FitResult, Approximations
 
-__all__ = ['FitResult', 'compute_errors']
+__all__ = ['FitResult', 'compute_errors', 'Approximations']
