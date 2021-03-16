@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
 import contextlib
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 import tensorflow as tf
@@ -25,17 +25,17 @@ class LossEval:
                  grad_fn: Optional[Callable] = None,
                  hesse_fn: Optional[Callable] = None,
                  niter_tol: Optional[float] = None):
-        """
+        """Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
         Args:
-            loss:
-            params:
-            strategy:
-            do_print:
-            maxiter:
-            grad_fn:
-            hesse_fn:
-            niter_tol:
+            loss: Loss that will be used to be evaluated.
+            params: Parameters that the gradient and hessian will be derived to.
+            strategy: A strategy to deal with NaNs and more.
+            do_print: If the values should be printed nicely
+            maxiter: Maximum number of evaluations of the `value`, 'gradient` or `hessian`.
+            grad_fn: Function that returns the gradient.
+            hesse_fn: Function that returns the hessian matrix.
+            niter_tol: Tolerance for the number of iterations to go over it by a factor of $niter \cdot (niter_tol + 1$)
         """
         super().__init__()
         niter_tol = 0.1 if niter_tol is None else niter_tol
@@ -80,6 +80,9 @@ class LossEval:
 
     @contextlib.contextmanager
     def ignore_maxiter(self):
+        """Return temporary the maximum number of iterations and won't raise an error.
+
+        """
         old = self._ignoring_maxiter
         self._ignoring_maxiter = True
         yield
@@ -116,7 +119,18 @@ class LossEval:
         self._nhess_eval = value
         self._check_maxiter()
 
-    def value_gradients(self, values):
+    def value_gradients(self, values: np.ndarray) -> Tuple[np.float64, np.ndarray]:
+        """Calculate the value and gradients like :py:meth:~`ZfitLoss.value_gradients`.
+
+        Args:
+            values: parameter values to calculate the value and gradients at.
+
+        Returns:
+            Tuple[numpy.float64, numpy.ndarray]:
+
+        Raises:
+            MaximumIterationReached: If the maximum number of iterations (including tolerance) was reached.
+        """
         if not self._ignoring_maxiter:
             self.nfunc_eval += 1
             self.ngrad_eval += 1
@@ -162,7 +176,18 @@ class LossEval:
             self.last_gradient = gradients_values
         return loss_value, gradients_values
 
-    def value(self, values):
+    def value(self, values: np.ndarray) -> np.float64:
+        """Calculate the value like :py:meth:~`ZfitLoss.value`.
+
+        Args:
+            values: parameter values to calculate the value at.
+
+        Returns:
+            Calculated loss value
+
+        Raises:
+            MaximumIterationReached: If the maximum number of iterations (including tolerance) was reached.
+        """
         if not self._ignoring_maxiter:
             self.nfunc_eval += 1
         set_values(self.params, values=values)
@@ -201,7 +226,18 @@ class LossEval:
             self.last_value = loss_value
         return loss_value
 
-    def gradient(self, values):
+    def gradient(self, values: np.ndarray) -> np.ndarray:
+        """Calculate the gradients like :py:meth:~`ZfitLoss.gradients`.
+
+        Args:
+            values: parameter values to calculate the value and gradients at.
+
+        Returns:
+            Tuple[numpy.float64, numpy.ndarray]:
+
+        Raises:
+            MaximumIterationReached: If the maximum number of iterations (including tolerance) was reached.
+        """
         if not self._ignoring_maxiter:
             self.ngrad_eval += 1
         set_values(self.params, values=values)
@@ -242,7 +278,18 @@ class LossEval:
             self.last_gradient = gradients_values
         return gradients_values
 
-    def hessian(self, values):
+    def hessian(self, values) -> np.ndarray:
+        """Calculate the hessian like :py:meth:~`ZfitLoss.hessian`.
+
+        Args:
+            values: parameter values to calculate the hessian at.
+
+        Returns:
+            Hessian matrix
+
+        Raises:
+            MaximumIterationReached: If the maximum number of iterations (including tolerance) was reached.
+        """
         if not self._ignoring_maxiter:
             self.nhess_eval += 1
         set_values(self.params, values=values)
