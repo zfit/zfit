@@ -226,8 +226,8 @@ class FitResult(ZfitResult):
                  info: Optional[Mapping] = None,
                  approx: Optional[Union[Mapping, Approximations]] = None,
                  niter: Optional[int] = None,
-                 evaluator: "zfit.minimizer_configuration.evaluation.LossEval" = None,
-                 ):
+                 evaluator: "zfit.minimizer.evaluation.LossEval" = None,
+                 ) -> None:
         """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
 
         Any errors calculated are saved under `self.params` dictionary with::
@@ -235,6 +235,12 @@ class FitResult(ZfitResult):
             {parameter: {error_name1: {'low': value, 'high': value or similar}}
 
         Args:
+            valid (Union[bool, None, numpy.bool_, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]):
+            criterion (Union[zfit.minimizers.termination.EDM, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]):
+            message (str):
+            approx (Union[None, None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], None, None, None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]]]):
+            niter (Union[int, None, None]):
+            evaluator (Union[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, zfit.minimizers.evaluation.LossEval, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]):
             params: Result of the fit where each
                :py:class:`~zfit.Parameter` key has the value from the minimum found by the minimizer.
             edm: The estimated distance to minimum, estimated by the minimizer (if available)
@@ -262,27 +268,10 @@ class FitResult(ZfitResult):
                 message = "Invalid, unknown reason (not specified in init)"
 
         info = {} if info is None else info
-        approx = {} if approx is None else approx
-        if isinstance(approx, collections.Mapping):
-            if 'params' not in approx:
-                approx['params'] = params
+        approx = self._input_convert_approx(approx, evaluator, info, params)
 
-            if info:
-                if 'gradient' not in approx:
-                    approx['gradient'] = info.get('grad', info.get('gradient'))
-                if 'hessian' not in approx:
-                    approx['hessian'] = info.get('hess', info.get('hesse', info.get('hessian')))
-                if 'inv_hessian' not in approx:
-                    approx['inv_hessian'] = info.get('inv_hess', info.get('inv_hesse', info.get('inv_hessian')))
-            if evaluator is not None:
-                if 'gradient' not in approx:
-                    approx['gradient'] = evaluator.last_gradient
-                if 'hessian' not in approx:
-                    approx['hessian'] = evaluator.last_hessian
-
-            approx = Approximations(**approx)
         if evaluator is not None:
-            niter = evaluator.nfunc_eval if niter is None else niter
+            niter = evaluator.niter if niter is None else niter
 
         self._cache_minuit = None  # in case used in errors
 
@@ -304,10 +293,44 @@ class FitResult(ZfitResult):
         self._valid = valid
         self._covariance_dict = {}
 
+    def _input_convert_approx(self, approx, evaluator, info, params):
+        """Convert approx (if a Mapping) to an `Approximation` using the information provided.
+
+        Args:
+            approx:
+            evaluator:
+            info:
+            params:
+
+        Returns:
+            The created approximation.
+        """
+        approx = {} if approx is None else approx
+        if isinstance(approx, collections.Mapping):
+            if 'params' not in approx:
+                approx['params'] = params
+
+            if info:
+                if 'gradient' not in approx:
+                    approx['gradient'] = info.get('grad', info.get('gradient'))
+                if 'hessian' not in approx:
+                    approx['hessian'] = info.get('hess', info.get('hesse', info.get('hessian')))
+                if 'inv_hessian' not in approx:
+                    approx['inv_hessian'] = info.get('inv_hess', info.get('inv_hesse', info.get('inv_hessian')))
+            if evaluator is not None:
+                if 'gradient' not in approx:
+                    approx['gradient'] = evaluator.last_gradient
+                if 'hessian' not in approx:
+                    approx['hessian'] = evaluator.last_hessian
+
+            approx = Approximations(**approx)
+        return approx
+
     def _input_convert_params(self, params):
         return ParamHolder((p, {"value": v}) for p, v in params.items())
 
     def _get_uncached_params(self, params, method_name):
+        # TODO: Also cache sigma!
         return [p for p in params if self.params[p].get(method_name) is None]
 
     def _create_minuit_instance(self):
@@ -323,11 +346,21 @@ class FitResult(ZfitResult):
         return minuit
 
     @classmethod
-    def from_ipopt(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], opt_instance, minimizer: ZfitMinimizer,
-                   converged, xvalues,
-                   message, edm, niter, valid, criterion, evaluator, fmin,
-                   status
-                   ):
+    def from_ipopt(cls, loss: ZfitLoss,
+                   params: Iterable[ZfitParameter],
+                   opt_instance: 'ipyopt.Problem',
+                   minimizer: 'zfit.minimize.IpyoptV1',
+                   converged: Optional[bool],
+                   xvalues: np.ndarray,
+                   message: Optional[str],
+                   edm: Union['zfit.minimizers.termination.CriterionNotAvailable', float],
+                   niter: Optional[int],
+                   valid: bool,
+                   criterion: 'zfit.minimizers.termination.ConvergenceCriterion',
+                   evaluator: Optional['zfit.minimizers.evaluation.LossEval'],
+                   fmin: Optional[float],
+                   status: Optional[int]
+                   ) -> 'FitResult':
 
         info = {'original_optimizer': opt_instance}
         params = dict((p, val) for p, val in zip(params, xvalues))
