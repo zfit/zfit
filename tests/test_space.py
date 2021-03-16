@@ -9,7 +9,7 @@ from zfit.core.space import Space, Limit, ANY
 from zfit.util.exception import CoordinatesUnderdefinedError, LimitsIncompatibleError
 
 @pytest.fixture(autouse=True, scope="module")
-def setup_teardown():
+def setup_teardown_vectors():
     Limit._experimental_allow_vectors = True
     yield
     Limit._experimental_allow_vectors = False

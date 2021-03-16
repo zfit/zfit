@@ -8,16 +8,13 @@ from zfit import z, Space
 from zfit.core.space import Limit
 from zfit.util.exception import AnalyticSamplingNotImplementedError
 
+
 @pytest.fixture(autouse=True, scope="module")
-def setup_teardown():
+def setup_teardown_vectors():
     Limit._experimental_allow_vectors = True
     yield
     Limit._experimental_allow_vectors = False
 
-
-
-
-from zfit.core.sample import accept_reject_sample
 
 mu_true = 1.5
 sigma_true = 1.2
@@ -259,6 +256,8 @@ def test_sampling_floating(gauss_factory):
 # @pytest.mark.skipif(not zfit.EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY, reason="deadlock in tf.function, issue #35540")  # currently, importance sampling is not working, odd deadlock in TF
 @pytest.mark.flaky(3)  # statistical
 def test_importance_sampling():
+    from zfit.core.sample import accept_reject_sample
+
     mu_sampler = 5.
     sigma_sampler = 4.
     mu_pdf = 4.

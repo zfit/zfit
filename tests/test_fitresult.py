@@ -7,9 +7,11 @@ from zfit import z
 from zfit.minimizers.errors import compute_errors
 from zfit.minimizers.fitresult import FitResult
 
-true_a = 1.
-true_b = 4.
+true_a = 3.
+true_b = 1.1
 true_c = -0.3
+
+true_val = [true_a, true_b, true_c]
 
 
 def create_loss(n=15000, weights=None):
@@ -17,7 +19,7 @@ def create_loss(n=15000, weights=None):
     a_param = zfit.Parameter("variable_a15151", avalue, -1., 20.,
                              step_size=z.constant(0.1))
     a_param.init_val = avalue
-    bvalue = 3.5
+    bvalue = 1.5
     b_param = zfit.Parameter("variable_b15151", bvalue, 0, 20)
     b_param.init_val = bvalue
     cvalue = -0.04
@@ -33,7 +35,7 @@ def create_loss(n=15000, weights=None):
     gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lam=c_param, obs=obs1)
 
-    sum_pdf1 = zfit.pdf.SumPDF((gauss1, exp1), 0.7)
+    sum_pdf1 = zfit.pdf.SumPDF((gauss1, exp1), 0.2)
 
     sampled_data = sum_pdf1.create_sampler(n=n)
     sampled_data.resample()
@@ -92,7 +94,8 @@ def test_set_values():
 
 minimizers = [
     # (zfit.minimize.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
-    # (zfit.minimize.Adam, dict(learning_rate=0.5), False),
+    (zfit.minimize.NLoptLBFGSV1, {}, True),
+    (zfit.minimize.ScipyTrustKrylovV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
     # (zfit.minimize.Scipy, {}, False),
 ]
@@ -103,6 +106,16 @@ def test_fmin(minimizer_class_and_kwargs):
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results['result']
     assert pytest.approx(results['cur_val']) == result.fmin
+
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+def test_params(minimizer_class_and_kwargs):
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results['result']
+    np.testing.assert_allclose(true_val, result.values, rtol=0.2)
+    for param in result.params:
+        assert result.values[param] == result.params[param]['value']
+        assert result.values[param.name] == result.params[param]['value']
+        assert result.values[param.name] == result.params[param.name]['value']
 
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)

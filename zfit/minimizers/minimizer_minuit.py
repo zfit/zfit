@@ -72,76 +72,12 @@ class Minuit(BaseMinimizer, GraphCachable):
 
     @minimize_supports()
     def _minimize(self, loss: ZfitLoss, params: List[Parameter], init):
-        previous_result = init
         if init:
             set_values(params=params, values=init)
-        evaluator = self.create_evaluator(loss, params)
         criterion = self.create_criterion(loss, params)
 
-        # create options
-        minimizer_options = self.minimizer_options.copy()
-        minimize_options = {}
-        precision = minimizer_options.pop('precision', None)
-        minimize_options['ncall'] = minimizer_options.pop('ncall')
+        minimizer, minimize_options, evaluator = self._make_minuit(loss, params, init)
 
-        minimizer_init = {}
-        if 'errordef' in minimizer_options:
-            raise ValueError("errordef cannot be specified for Minuit as this is already defined in the Loss.")
-        loss_errordef = loss.errordef
-        if not isinstance(loss_errordef, (float, int)):
-            raise ValueError("errordef has to be a float")
-        minimizer_init['errordef'] = loss_errordef
-        minimizer_init['pedantic'] = minimizer_options.pop('pedantic', False)
-
-        minimizer_setter = {}
-        minimizer_setter['strategy'] = minimizer_options.pop('strategy')
-        if self.verbosity > 6:
-            minuit_verbosity = 3
-        elif self.verbosity > 2:
-            minuit_verbosity = 1
-        else:
-            minuit_verbosity = 0
-        if minimizer_options:
-            raise ValueError("The following options are not (yet) supported: {}".format(minimizer_options))
-
-        init_values = np.array(run(params))
-        # create Minuit compatible names
-        params_name = [param.name for param in params]
-
-        # TODO 0.7: legacy, remove `_use_tfgrad`
-        grad_func = evaluator.gradient if self._use_tfgrad_internal or not self.minuit_grad else None
-
-        minimizer = iminuit.Minuit(evaluator.value, init_values,
-                                   grad=grad_func,
-                                   name=params_name,
-                                   )
-        minimizer.precision = precision
-        approx_step_sizes = {}
-
-        # get possible initial step size from previous minimizer
-        if previous_result:
-            approx_step_sizes = previous_result.hesse(params=params, method='approx')
-        empty_dict = {}
-        for param in params:
-            step_size = approx_step_sizes.get(param, empty_dict).get('error')
-            if step_size is None and param.has_step_size:
-                step_size = param.step_size
-            if step_size is not None:
-                minimizer.errors[param.name] = step_size
-
-        # set limits
-        for param in params:
-            if param.has_limits:
-                minimizer.limits[param.name] = (param.lower, param.upper)
-        # set options
-        minimizer.errordef = loss.errordef
-        minimizer.print_level = minuit_verbosity
-        strategy = minimizer_setter.pop('strategy')
-        minimizer.strategy = strategy
-        minimizer.tol = (self.tol / 0.002  # iminuit multiplies by default with 0.002
-                         / loss.errordef)  # to account for the loss
-        assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
-            minimizer_setter)
         self._minuit_minimizer = minimizer
 
         valid = True
@@ -193,6 +129,69 @@ class Minuit(BaseMinimizer, GraphCachable):
                                           valid=valid,
                                           message=message)
         return fitresult
+
+    def _make_minuit(self, loss, params, init):
+        previous_result = init
+
+        evaluator = self.create_evaluator(loss, params)
+        # create options
+        minimizer_options = self.minimizer_options.copy()
+        minimize_options = {}
+        precision = minimizer_options.pop('precision', None)
+        minimize_options['ncall'] = minimizer_options.pop('ncall')
+        minimizer_init = {}
+        if 'errordef' in minimizer_options:
+            raise ValueError("errordef cannot be specified for Minuit as this is already defined in the Loss.")
+        loss_errordef = loss.errordef
+        if not isinstance(loss_errordef, (float, int)):
+            raise ValueError("errordef has to be a float")
+        minimizer_init['errordef'] = loss_errordef
+        minimizer_init['pedantic'] = minimizer_options.pop('pedantic', False)
+        minimizer_setter = {}
+        minimizer_setter['strategy'] = minimizer_options.pop('strategy')
+        if self.verbosity > 6:
+            minuit_verbosity = 3
+        elif self.verbosity > 2:
+            minuit_verbosity = 1
+        else:
+            minuit_verbosity = 0
+        if minimizer_options:
+            raise ValueError("The following options are not (yet) supported: {}".format(minimizer_options))
+        init_values = np.array(run(params))
+        # create Minuit compatible names
+        params_name = [param.name for param in params]
+        # TODO 0.7: legacy, remove `_use_tfgrad`
+        grad_func = evaluator.gradient if self._use_tfgrad_internal or not self.minuit_grad else None
+        minimizer = iminuit.Minuit(evaluator.value, init_values,
+                                   grad=grad_func,
+                                   name=params_name,
+                                   )
+        minimizer.precision = precision
+        approx_step_sizes = {}
+        # get possible initial step size from previous minimizer
+        if previous_result:
+            approx_step_sizes = previous_result.hesse(params=params, method='approx')
+        empty_dict = {}
+        for param in params:
+            step_size = approx_step_sizes.get(param, empty_dict).get('error')
+            if step_size is None and param.has_step_size:
+                step_size = param.step_size
+            if step_size is not None:
+                minimizer.errors[param.name] = step_size
+        # set limits
+        for param in params:
+            if param.has_limits:
+                minimizer.limits[param.name] = (param.lower, param.upper)
+        # set options
+        minimizer.errordef = loss.errordef
+        minimizer.print_level = minuit_verbosity
+        strategy = minimizer_setter.pop('strategy')
+        minimizer.strategy = strategy
+        minimizer.tol = (self.tol / 0.002  # iminuit multiplies by default with 0.002
+                         / loss.errordef)  # to account for the loss
+        assert not minimizer_setter, "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
+            minimizer_setter)
+        return minimizer, minimize_options, evaluator
 
     def copy(self):
         tmp_minimizer = self._minuit_minimizer

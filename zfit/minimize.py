@@ -5,7 +5,7 @@ from .minimizers.baseminimizer import DefaultStrategy
 from .minimizers.fitresult import FitResult
 from .minimizers.ipopt import IpyoptV1
 from .minimizers.minimizer_minuit import Minuit
-from .minimizers.minimizer_nlopt import (NLopt, NLoptLBFGSV1, NLoptTruncNewtonV1, NLoptSLSQPV1, NLoptMMAV1,
+from .minimizers.minimizer_nlopt import (NLoptLBFGSV1, NLoptTruncNewtonV1, NLoptSLSQPV1, NLoptMMAV1,
                                          NLoptCCSAQV1,
                                          NLoptSubplexV1,
                                          NLoptMLSLV1,

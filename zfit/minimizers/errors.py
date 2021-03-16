@@ -83,11 +83,11 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
     covariance = result.covariance(method=covariance_method, as_dict=True)
     set_values(all_params, result)
     param_errors = {param: covariance[(param, param)] ** 0.5 for param in params}
-    param_scale = np.array(list(param_errors.values()))
+    # param_scale = np.array(list(param_errors.values()))  # TODO: can be used for root finding initialization?
 
     ncalls = 0
     try:
-        start = time.time()
+        # start = time.time()
         to_return = {}
         for param in params:
             logging.info(f"profiling the parameter {param}")
@@ -144,7 +144,7 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                 "upper": lambda p: p < param_value,
             }
             for d in ["lower", "upper"]:
-                start2 = time.time()
+                # start2 = time.time()
 
                 roots = optimize.root(fun=func,
                                       args=(swap_sign[d],),
@@ -157,8 +157,8 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                                       },
                                       method=method)
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value
-                print(f"error {d}, time needed {time.time() - start2}")
-        print(f"errors found, time needed {time.time() - start}")
+                # print(f"error {d}, time needed {time.time() - start2}")
+        # print(f"errors found, time needed {time.time() - start}")
 
     except NewMinimum as e:
         from .. import settings

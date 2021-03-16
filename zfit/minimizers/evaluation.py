@@ -25,6 +25,18 @@ class LossEval:
                  grad_fn: Optional[Callable] = None,
                  hesse_fn: Optional[Callable] = None,
                  niter_tol: Optional[float] = None):
+        """
+
+        Args:
+            loss:
+            params:
+            strategy:
+            do_print:
+            maxiter:
+            grad_fn:
+            hesse_fn:
+            niter_tol:
+        """
         super().__init__()
         niter_tol = 0.1 if niter_tol is None else niter_tol
         self.niter_tol = niter_tol

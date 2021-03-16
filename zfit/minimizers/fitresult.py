@@ -69,26 +69,20 @@ class Approximations:
         return inv_hess
 
 
-def _minos_minuit(result, params, cl=None, *, minuit_minimizer=None):
+def _minos_minuit(result, params, cl=None):
     from zfit.minimize import Minuit
 
-    fitresult = result
-    minimizer = fitresult.minimizer
-    if not isinstance(minimizer, Minuit):
-        if minuit_minimizer is None:
-            raise TypeError("To use `minos_error` method with a minimizer other than `Minuit`, a Minuit minimizer"
-                            " needs to be passed to the method (it doesn't has to be minimized though).")
-        minimizer = minuit_minimizer
+    minuit_minimizer = result._create_minuit_instance()
 
-    merror_result = minimizer._minuit_minimizer.minos(*(p.name for p in params), cl=cl).merrors  # returns every var
+    merror_result = minuit_minimizer.minos(*(p.name for p in params), cl=cl).merrors  # returns every var
     attrs = ['lower', 'upper', 'is_valid', 'upper_valid', 'lower_valid', 'at_lower_limit', 'at_upper_limit', 'nfcn']
-    result = {}
+    errors = {}
     for p in params:
         error_res = merror_result[p.name]
-        result[p] = {attr: getattr(error_res, attr) for attr in attrs}
-        result[p]['original'] = error_res
+        errors[p] = {attr: getattr(error_res, attr) for attr in attrs}
+        errors[p]['original'] = error_res
     new_result = None
-    return result, new_result
+    return errors, new_result
 
 
 def _covariance_minuit(result, params):
@@ -96,14 +90,9 @@ def _covariance_minuit(result, params):
         warnings.warn("The computation of the covariance matrix with weights is still experimental.",
                       ExperimentalFeatureWarning)
 
-    fitresult = result
-    minimizer = fitresult.minimizer
+    minuit_minimizer = result._create_minuit_instance()
 
-    from zfit.minimizers.minimizer_minuit import Minuit
-
-    if not isinstance(minimizer, Minuit):
-        raise TypeError("Cannot compute the covariance matrix with 'covariance_minuit' with a different"
-                        " minimizer than `Minuit`.")
+    _ = minuit_minimizer.hesse()  # make sure to have an accurate covariance
 
     covariance = result.minimizer._minuit_minimizer.covariance
 
@@ -153,6 +142,27 @@ def _covariance_approx(result, params):
             key = (p1, p2)
             covariance_dict[key] = inv_hessian[index]
     return covariance_dict
+
+
+class ParamToNameGetitem:
+    __slots__ = ()
+
+    def __getitem__(self, item):
+        if isinstance(item, ZfitParameter):
+            item = item.name
+        return super().__getitem__(item)
+
+
+class NameToParamGetitem:
+    __slots__ = ()
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            for param in self.keys():
+                if param.name == item:
+                    item = param
+                    break
+        return super().__getitem__(item)
 
 
 class FitResult(ZfitResult):
@@ -233,6 +243,8 @@ class FitResult(ZfitResult):
         if evaluator is not None:
             niter = evaluator.nfunc_eval if niter is None else niter
 
+        self._cache_minuit = None  # in case used in errors
+
         self._evaluator = evaluator  # keep private for now
         self._niter = niter  # keep private for now
         self._approx = approx
@@ -240,6 +252,7 @@ class FitResult(ZfitResult):
         self._message = "" if message is None else message
         self._converged = converged
         self._params = self._input_convert_params(params)
+        self._values = ValuesHolder(params)
         self._params_at_limit = any(param.at_limit for param in self.params)
         self._edm = edm
         self._criterion = criterion
@@ -255,6 +268,18 @@ class FitResult(ZfitResult):
 
     def _get_uncached_params(self, params, method_name):
         return [p for p in params if self.params[p].get(method_name) is None]
+
+    def _create_minuit_instance(self):
+        minuit = self._cache_minuit
+        from zfit.minimizers.minimizer_minuit import Minuit
+        if minuit is None:
+            if isinstance(self.minimizer, Minuit):
+                minuit = self.minimizer._minuit_minimizer
+            else:
+                minimizer = Minuit(tol=self.minimizer.tol, verbosity=0, name="ZFIT_TMP_UNCERTAINTY")
+                minuit, _, _ = minimizer._make_minuit(loss=self.loss, params=self.params, init=self)
+            self._cache_minuit = minuit
+        return minuit
 
     @classmethod
     def from_ipopt(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], opt_instance, minimizer: ZfitMinimizer,
@@ -429,6 +454,10 @@ class FitResult(ZfitResult):
     @property
     def params(self) -> Mapping[ZfitIndependentParameter, Mapping[str, Mapping[str, object]]]:
         return self._params
+
+    @property
+    def values(self) -> Mapping[Union[str, ZfitParameter], float]:
+        return self._values
 
     @property
     def criterion(self) -> ConvergenceCriterion:
@@ -833,7 +862,27 @@ def color_on_bool(value, on_true=colored.bg(10), on_false=colored.bg(9)):
     return value
 
 
-class ParamHolder(dict):  # no UserDict, we only want to change the __str__
+class ListWithKeys(collections.UserList):
+    __slots__ = ('_initdict',)
+
+    def __init__(self, initdict) -> None:
+        super().__init__(initlist=initdict.values())
+        self._initdict = initdict
+
+    def __getitem__(self, item):
+        if isinstance(item, ZfitParameter):
+            return self._initdict[item]
+        return super().__getitem__(item)
+
+    def keys(self):
+        return self._initdict.keys()
+
+
+class ValuesHolder(NameToParamGetitem, ListWithKeys):
+    __slots__ = ()
+
+
+class ParamHolder(NameToParamGetitem, collections.UserDict):
 
     def __str__(self) -> str:
         order_keys = ['value', 'hesse']
