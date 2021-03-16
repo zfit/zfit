@@ -126,7 +126,7 @@ As already mentioned, there is no dedicated plotting feature within zfit. Howeve
     >>> # Some simple matplotlib configurations
     >>> import matplotlib.pyplot as plt
     >>> lower, upper = obs.limits
-    >>> data_np = zfit.run(data)
+    >>> data_np = data.numpy()
     >>> counts, bin_edges = np.histogram(data_np, 80, range=(lower[-1][0], upper[0][0]))
     >>> bin_centres = (bin_edges[:-1] + bin_edges[1:])/2.
     >>> err = np.sqrt(counts)
