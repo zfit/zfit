@@ -143,7 +143,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             algorithm: Define which algorithm to be used. These are taken from `nlopt.ALGORITHM` (where `ALGORITHM` is
                 the actual algorithm). A comprehensive list and description of all implemented algorithms is
                 available `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
-                The wrapper is optimized for Local gradient-based optimization and may breaks with
+                The wrapper is optimized for Local gradient-based optimization and may break with
                 others. However, please post a feature request in case other algorithms are requested.
 
                 The naming of the algorithm starts with either L/G (Local/Global)
