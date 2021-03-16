@@ -115,7 +115,7 @@ def _covariance_np(result, params):
     # if numgrad_was_none:
     #     settings.options.numerical_grad = True
 
-    _, gradient, hessian = result.loss.value_gradients_hessian(params)
+    _, gradient, hessian = result.loss.value_gradient_hessian(params)
     covariance = np.linalg.inv(hessian)
 
     # if numgrad_was_none:

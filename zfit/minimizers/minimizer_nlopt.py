@@ -231,7 +231,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         # and sets the gradient in-place
         def obj_func(x, grad):
             if grad.size > 0:
-                value, gradients = evaluator.value_gradients(x)
+                value, gradients = evaluator.value_gradient(x)
                 grad[:] = np.array(run(gradients))
             else:
                 value = evaluator.value(x)

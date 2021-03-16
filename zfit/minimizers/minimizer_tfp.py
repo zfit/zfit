@@ -8,7 +8,7 @@ import tensorflow_probability as tfp
 
 from .baseminimizer import BaseMinimizer, minimize_supports
 from .strategy import ZfitStrategy
-from .evaluation import print_params, print_gradients
+from .evaluation import print_params, print_gradient
 from .fitresult import FitResult
 from .. import z
 from ..core.parameter import set_values
@@ -48,7 +48,7 @@ class BFGS(BaseMinimizer):
         def update_params_value_grad(loss, params, values):
             for param, value in zip(params, tf.unstack(values, axis=0)):
                 param.set_value(value)
-            value, gradients = loss.value_gradients(params=params)
+            value, gradients = loss.value_gradient(params=params)
             return gradients, value
 
         def to_minimize_func(values):
@@ -56,10 +56,10 @@ class BFGS(BaseMinimizer):
             do_print = self.verbosity > 8
 
             is_nan = False
-            gradients = None
+            gradient = None
             value = None
             try:
-                gradients, value = update_params_value_grad(loss, params, values)
+                gradient, value = update_params_value_grad(loss, params, values)
 
             except tf.errors.InvalidArgumentError:
                 err = 'NaNs'
@@ -70,10 +70,10 @@ class BFGS(BaseMinimizer):
             finally:
                 if value is None:
                     value = f"invalid, {err}"
-                if gradients is None:
-                    gradients = [f"invalid, {err}"] * len(params)
+                if gradient is None:
+                    gradient = [f"invalid, {err}"] * len(params)
                 if do_print:
-                    print_gradients(params, run(values), [float(run(g)) for g in gradients], loss=run(value))
+                    print_gradient(params, run(values), [float(run(g)) for g in gradient], loss=run(value))
             loss_evaluated = run(value)
             is_nan = is_nan or np.isnan(loss_evaluated)
             if is_nan:
@@ -88,8 +88,8 @@ class BFGS(BaseMinimizer):
                 nan_counter = 0
                 current_loss = value
 
-            gradients = tf.stack(gradients)
-            return value, gradients
+            gradient = tf.stack(gradient)
+            return value, gradient
 
         initial_inv_hessian_est = tf.linalg.tensor_diag([p.step_size for p in params])
 

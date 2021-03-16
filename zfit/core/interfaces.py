@@ -739,7 +739,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
 class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @abstractmethod
-    def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
+    def gradient(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
         raise NotImplementedError
 
     @abstractmethod
@@ -779,11 +779,11 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def value_gradients(self, params):
+    def value_gradient(self, params):
         pass
 
     @abstractmethod
-    def value_gradients_hessian(self, params, hessian=None):
+    def value_gradient_hessian(self, params, hessian=None):
         pass
 
 

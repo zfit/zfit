@@ -6,7 +6,6 @@ import warnings
 from typing import Optional, Union, List, Callable, Iterable, Tuple, Set, Mapping
 
 import tensorflow as tf
-import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
 from .baseobject import BaseNumeric
@@ -17,10 +16,11 @@ from .. import z, settings
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
+from ..util.deprecation import deprecated
 from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
     BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
-from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradients, \
+from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradient, \
     automatic_value_gradients_hessian, numerical_value_gradients_hessian
 
 
@@ -152,7 +152,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
         return options
 
-
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._name = "UnnamedSubBaseLoss"
@@ -232,7 +231,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                     try:
                         dat = z.convert_to_tensor(value=dat)
                     except TypeError:
-                        raise TypeError(f"Wrong type of dat ({type(dat)}). Has to be a `ZfitData` or convertible to a tf.Tensor")
+                        raise TypeError(
+                            f"Wrong type of dat ({type(dat)}). Has to be a `ZfitData` or convertible to a tf.Tensor")
                 # check dimension
                 from zfit import Data
                 dat = Data.from_tensor(obs=mod.space, tensor=dat)
@@ -247,11 +247,13 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             params = convert_to_container(params)
         return params
 
-    def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
+    def gradient(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options['numgrad']
 
-        return self._gradients(params=params, numgrad=numgrad)
+        return self._gradient(params=params, numgrad=numgrad)
+
+    gradients = deprecated(None, "Use `gradient` instead.")(gradient)
 
     def add_constraints(self, constraints):
         constraints = convert_to_container(constraints)
@@ -315,80 +317,80 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def __add__(self, other):
         if not isinstance(other, BaseLoss):
             raise TypeError("Has to be a subclass of `BaseLoss` or overwrite `__add__`.")
-        if not type(other) == type(self):
+        if type(other) != type(self):
             raise ValueError("cannot safely add two different kind of loss.")
         model = self.model + other.model
         data = self.data + other.data
         fit_range = self.fit_range + other.fit_range
         constraints = self.constraints + other.constraints
-        loss = type(self)(model=model, data=data, fit_range=fit_range, constraints=constraints)
-        return loss
+        return type(self)(
+            model=model, data=data, fit_range=fit_range, constraints=constraints
+        )
 
     # @z.function(wraps='loss')
-    def _gradients(self, params, numgrad):
+    def _gradient(self, params, numgrad):
         if numgrad:
-            gradients = numerical_gradient(self.value, params=params)
+            return numerical_gradient(self.value, params=params)
 
         else:
-            gradients = autodiff_gradient(self.value, params=params)
-        return gradients
+            return autodiff_gradient(self.value, params=params)
 
-    def value_gradients(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor]:
+    def value_gradient(self, params: ztyping.ParamTypeInput) -> Tuple[tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options['numgrad']
-        return self._value_gradients(params=params, numgrad=numgrad)
+        return self._value_gradient(params=params, numgrad=numgrad)
+
+    value_gradients = deprecated(None, "Use `value_gradient` instead.")(value_gradient)
 
     @z.function(wraps='loss')
-    def _value_gradients(self, params, numgrad=False):
+    def _value_gradient(self, params, numgrad=False):
         if numgrad:
-            value, gradients = numerical_value_gradients(self.value, params=params)
+            value, gradient = numerical_value_gradient(self.value, params=params)
         else:
-            value, gradients = autodiff_value_gradients(self.value, params=params)
-        return value, gradients
+            value, gradient = autodiff_value_gradients(self.value, params=params)
+        return value, gradient
 
     def hessian(self, params: ztyping.ParamTypeInput, hessian=None):
-        return self.value_gradients_hessian(params=params, hessian=hessian)[2]
+        return self.value_gradient_hessian(params=params, hessian=hessian)[2]
 
-    def value_gradients_hessian(self, params: ztyping.ParamTypeInput, hessian=None, numgrad=None) -> Tuple[
+    def value_gradient_hessian(self, params: ztyping.ParamTypeInput, hessian=None, numgrad=None) -> Tuple[
         tf.Tensor, tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options['numhess'] if numgrad is None else numgrad
-        vals = self._value_gradients_hessian(params=params, hessian=hessian, numerical=numgrad)
-
+        vals = self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad)
 
         vals = vals[0], z.convert_to_tensor(vals[1]), vals[2]
         return vals
 
+    value_gradients_hessian = deprecated(None, "Use `value_gradient_hessian` instead.")(value_gradient_hessian)
+
     @z.function(wraps='loss')
-    def _value_gradients_hessian(self, params, hessian, numerical=False):
+    def _value_gradient_hessian(self, params, hessian, numerical=False):
         if numerical:
-            result = numerical_value_gradients_hessian(
+            return numerical_value_gradients_hessian(
                 func=self.value,
-                gradient=self.gradients,
+                gradient=self.gradient,
                 params=params, hessian=hessian)
         else:
-            result = automatic_value_gradients_hessian(self.value, params=params, hessian=hessian)
-        return result
+            return automatic_value_gradients_hessian(
+                self.value, params=params, hessian=hessian
+            )
 
     def __repr__(self) -> str:
         class_name = repr(self.__class__)[:-2].split(".")[-1]
-        string = f'<{class_name} ' \
-                 f'model={one_two_many([model.name for model in self.model])} ' \
-                 f'data={one_two_many([data.name for data in self.data])} ' \
-                 f'constraints={one_two_many(self.constraints, many="True")} ' \
-                 f'>'
-        return string
+        return f'<{class_name} ' \
+               f'model={one_two_many([model.name for model in self.model])} ' \
+               f'data={one_two_many([data.name for data in self.data])} ' \
+               f'constraints={one_two_many(self.constraints, many="True")} ' \
+               f'>'
 
     def __str__(self) -> str:
         class_name = repr(self.__class__)[:-2].split(".")[-1]
-        string = f'<{class_name}' \
-                 f' model={one_two_many([model for model in self.model])}' \
-                 f' data={one_two_many([data for data in self.data])}' \
-                 f' constraints={one_two_many(self.constraints, many="True")}' \
-                 f'>'
-        return string
-
-
+        return f'<{class_name}' \
+               f' model={one_two_many([model for model in self.model])}' \
+               f' data={one_two_many([data for data in self.data])}' \
+               f' constraints={one_two_many(self.constraints, many="True")}' \
+               f'>'
 
 
 def one_two_many(values, n=3, many='multiple'):
@@ -396,45 +398,6 @@ def one_two_many(values, n=3, many='multiple'):
     if len(values) > n:
         values = many
     return values
-
-
-class CachedLoss(BaseLoss):
-
-    def __init__(self, model, data, fit_range=None, constraints=None):
-        raise WorkInProgressError("Currently, caching is not implemented in the loss and does not make"
-                                  "sense, it is 'not yet upgraded to TF2'")
-        super().__init__(model=model, data=data, fit_range=fit_range, constraints=constraints)
-
-    @abc.abstractmethod
-    def _cache_add_constraints(self, constraints):
-        raise NotImplementedError
-
-    def _value(self):
-        if self._cache.get('loss') is None:
-            loss = super()._value()
-            self._cache['loss'] = loss
-        else:
-            loss = self._cache['loss']
-        return loss
-
-    def _add_constraints(self, constraints):
-        super()._add_constraints(constraints=constraints)
-        self._cache_add_constraints(constraints=constraints)
-
-    def _gradients(self, params):
-        params_cache = self._cache.get('gradients', {})
-        params_todo = []
-        for param in params:
-            if param not in params_cache:
-                params_todo.append(param)
-        if params_todo:
-            gradients = {(p, grad) for p, grad in zip(params_todo, super()._gradients(params_todo))}
-            params_cache.update(gradients)
-
-        self._cache['gradients'] = params_cache
-
-        param_gradients = [params_cache[param] for param in params]
-        return param_gradients
 
 
 # class UnbinnedNLL(CachedLoss):
@@ -454,9 +417,7 @@ class UnbinnedNLL(BaseLoss):
 
     @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):
-        nll = self._loss_func_watched(constraints, data, fit_range, model)
-
-        return nll
+        return self._loss_func_watched(constraints, data, fit_range, model)
 
     @property
     def is_extended(self):
@@ -476,14 +437,9 @@ class UnbinnedNLL(BaseLoss):
             is_yield = False  # the loss does not depend on the yields
         return super()._get_params(floating, is_yield, extract_independent)
 
-    # def _cache_add_constraints(self, constraints):
-    #     if self._cache.get('loss') is not None:
-    #         constraints = [c.value() for c in constraints]
-    #         self._cache['loss'] += z.reduce_sum(constraints)
-
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
-    """An Unbinned Negative Log Likelihood with an additional poisson term for the"""
+    """An Unbinned Negative Log Likelihood with an additional poisson term for the number of events in the dataset."""
 
     @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints):

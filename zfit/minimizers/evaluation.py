@@ -27,6 +27,9 @@ class LossEval:
                  niter_tol: Optional[float] = None):
         """Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
+        The methods `value`, `gradient` etc will raise a `MaximumIterationReached` error in case the maximum iterations
+        is reached.
+
         Args:
             loss: Loss that will be used to be evaluated.
             params: Parameters that the gradient and hessian will be derived to.
@@ -56,8 +59,8 @@ class LossEval:
             def value_gradients_fn(params):
                 return loss.value(), grad_fn(params)
         else:
-            value_gradients_fn = self.loss.value_gradients
-            grad_fn = self.loss.gradients
+            value_gradients_fn = self.loss.value_gradient
+            grad_fn = self.loss.gradient
         self.gradients_fn = grad_fn
         self.value_gradients_fn = value_gradients_fn
         self.maxiter_reached = False
@@ -119,11 +122,11 @@ class LossEval:
         self._nhess_eval = value
         self._check_maxiter()
 
-    def value_gradients(self, values: np.ndarray) -> Tuple[np.float64, np.ndarray]:
-        """Calculate the value and gradients like :py:meth:~`ZfitLoss.value_gradients`.
+    def value_gradient(self, values: np.ndarray) -> Tuple[np.float64, np.ndarray]:
+        """Calculate the value and gradient like :py:meth:~`ZfitLoss.value_gradients`.
 
         Args:
-            values: parameter values to calculate the value and gradients at.
+            values: parameter values to calculate the value and gradient at.
 
         Returns:
             Tuple[numpy.float64, numpy.ndarray]:
@@ -139,12 +142,12 @@ class LossEval:
         is_nan = False
 
         try:
-            loss_value, gradients = self.value_gradients_fn(params=self.params)
+            loss_value, gradient = self.value_gradients_fn(params=self.params)
             loss_value = run(loss_value)
-            gradients_values = np.array(run(gradients))
+            gradient_values = np.array(run(gradient))
         except Exception as error:
             loss_value = "invalid, error occured"
-            gradients_values = ["invalid"] * len(self.params)
+            gradient_values = ["invalid"] * len(self.params)
             if isinstance(error, tf.errors.InvalidArgumentError):
                 is_nan = True
             else:
@@ -153,28 +156,28 @@ class LossEval:
         finally:
             if self.do_print:
                 try:
-                    print_gradients(self.params, values, gradients=gradients_values, loss=loss_value)
+                    print_gradient(self.params, values, gradient=gradient_values, loss=loss_value)
                 except:
                     print("Cannot print loss value or gradient values.")
 
-        is_nan = is_nan or any(np.isnan(gradients_values)) or np.isnan(loss_value)
+        is_nan = is_nan or any(np.isnan(gradient_values)) or np.isnan(loss_value)
         if is_nan:
             self.nan_counter += 1
             info_values = {
                 'loss': loss_value,
-                'grad': gradients_values,
+                'grad': gradient_values,
                 'old_loss': self.last_value,
                 'old_grad': self.last_gradient,
                 'nan_counter': self.nan_counter,
             }
 
-            loss_value, gradients_values = self.strategy.minimize_nan(loss=self.loss, params=self.params,
+            loss_value, gradient_values = self.strategy.minimize_nan(loss=self.loss, params=self.params,
                                                                       values=info_values)
         else:
             self.nan_counter = 0
             self.last_value = loss_value
-            self.last_gradient = gradients_values
-        return loss_value, gradients_values
+            self.last_gradient = gradient_values
+        return loss_value, gradient_values
 
     def value(self, values: np.ndarray) -> np.float64:
         """Calculate the value like :py:meth:~`ZfitLoss.value`.
@@ -256,7 +259,7 @@ class LossEval:
         finally:
             if self.do_print:
                 try:
-                    print_gradients(self.params, values, gradients=gradients_values, loss=-999)
+                    print_gradient(self.params, values, gradient=gradients_values, loss=-999)
                 except:
                     print("Cannot print loss value or gradient values.")
 
@@ -341,10 +344,10 @@ def print_params(params, values, loss=None):
     print(table.draw())
 
 
-def print_gradients(params, values, gradients, loss=None):
+def print_gradient(params, values, gradient, loss=None):
     table = tt.Texttable()
     table.header(['Parameter', 'Value', 'Gradient'])
-    for param, value, grad in zip(params, values, gradients):
+    for param, value, grad in zip(params, values, gradient):
         table.add_row([param.name, value, grad])
     if loss is not None:
         table.add_row(["Loss value:", loss, "|"])

@@ -49,7 +49,7 @@ For more advanced methods and ways to register analytic integrals or overwrite c
 also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tutorials>`_
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import warnings
 from contextlib import suppress
@@ -365,7 +365,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _fallback_log_pdf(self, x, norm_range):
         return tf.math.log(self._hook_pdf(x=x, norm_range=norm_range))
 
-    def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
+    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise BreakingAPIChangeError("Removed with 0.5.x: is this needed?")
 
     @z.function(wraps='model')

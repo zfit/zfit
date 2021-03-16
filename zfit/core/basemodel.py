@@ -1,6 +1,6 @@
 """Baseclass for a Model. Handle integration and sampling"""
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 import builtins
@@ -218,7 +218,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             self.integration.mc_sampler = mc_sampler
 
     # TODO: remove below? or add "analytic gradients"?
-    def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
+    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise NotImplementedError("Are the gradients needed?")
 
     def _check_input_norm_range(self, norm_range, none_is_error=False) -> Optional[ZfitSpace]:

@@ -132,7 +132,7 @@ def test_gradient():
     import numpy as np
     gauss3 = create_gauss3()
     random_vals = np.random.normal(4., 2., size=5)
-    tensor_grad = gauss3.gradients(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
+    tensor_grad = gauss3.gradient(x=random_vals, params=['mu', 'sigma'], norm_range=(-np.infty, np.infty))
     random_vals_eval = tensor_grad.numpy()
     np.testing.assert_allclose(random_vals_eval, true_gaussian_grad(random_vals), rtol=1e-3)
 

@@ -114,19 +114,19 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
 
                 with set_values(all_params, values):
                     try:
-                        loss_value, gradients = loss.value_gradients(params=other_params)
+                        loss_value, gradient = loss.value_gradient(params=other_params)
                     except tf.errors.InvalidArgumentError:
                         msg = (f"The evaluation of the errors of {param.name} failed due to too many NaNs"
-                               " being produced in the loss and/or its gradients. This is most probably"
+                               " being produced in the loss and/or its gradient. This is most probably"
                                " caused by negative values returned from the PDF.")
                         raise FailEvalLossNaN(msg)
 
                     zeroed_loss = loss_value.numpy() - fmin
 
-                    gradients = np.array(gradients)
+                    gradient = np.array(gradient)
                 if swap_sign(param):  # mirror at x-axis to remove second zero
                     zeroed_loss = - zeroed_loss
-                    gradients = - gradients
+                    gradient = - gradient
                     logging.info("Swapping sign in error calculation 'zfit_error'")
 
                 elif zeroed_loss < - minimizer.tol:
@@ -136,7 +136,7 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                 downward_shift = errordef * sigma ** 2
                 shifted_loss = zeroed_loss - downward_shift
 
-                return np.concatenate([[shifted_loss], gradients])
+                return np.concatenate([[shifted_loss], gradient])
 
             to_return[param] = {}
             swap_sign = {

@@ -84,7 +84,7 @@ class EDM(ConvergenceCriterion):
         params = list(result.params)
         grad = result.approx.gradient()
         if grad is None:
-            grad = loss.gradients(params)
+            grad = loss.gradient(params)
         grad = np.array(grad)
         inv_hessian = result.approx.inv_hessian(invert=True)
         if inv_hessian is None:

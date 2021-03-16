@@ -223,20 +223,20 @@ def test_gradients(chunksize):
         return nll.value().numpy()
 
     # theoretical, numerical = tf.test.compute_gradient(loss_func, list(params))
-    gradient1 = nll.gradients(params=param1)
+    gradient1 = nll.gradient(params=param1)
     gradient_func = Gradient(loss_func)
     # gradient_func = lambda *args, **kwargs: list(gradient_func_numpy(*args, **kwargs))
     assert gradient1[0].numpy() == pytest.approx(gradient_func([param1.numpy()]))
     param1.set_value(initial1)
     param2.set_value(initial2)
     params = [param2, param1]
-    gradient2 = nll.gradients(params=params)
+    gradient2 = nll.gradient(params=params)
     both_gradients_true = list(reversed(list(gradient_func([initial1, initial2]))))  # because param2, then param1
     assert [g.numpy() for g in gradient2] == pytest.approx(both_gradients_true)
 
     param1.set_value(initial1)
     param2.set_value(initial2)
-    gradient3 = nll.gradients()
+    gradient3 = nll.gradient()
     assert frozenset([g.numpy() for g in gradient3]) == pytest.approx(frozenset(both_gradients_true))
 
 
