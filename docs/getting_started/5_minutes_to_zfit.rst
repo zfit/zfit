@@ -47,7 +47,7 @@ The next stage is to create a dataset to be fitted. There are several ways of pr
 Now we have all the ingredients in order to perform a maximum likelihood fit. Conceptually this corresponds to three basic steps:
 
 1. create a loss function, in our case a negative log-likelihood :math:`\log\mathcal{L}`;
-2. instantiate our choice of minimiser; and
+2. instantiate our choice of minimiser;
 3. and minimise the log-likelihood.
 
 .. code-block:: pycon
@@ -55,7 +55,7 @@ Now we have all the ingredients in order to perform a maximum likelihood fit. Co
     >>> # Stage 1: create an unbinned likelihood with the given PDF and dataset
     >>> nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
-    >>> # Stage 2: instantiate a minimiser (in this case a basic minuit
+    >>> # Stage 2: instantiate a minimiser (in this case a basic minuit minimizer)
     >>> minimizer = zfit.minimize.Minuit()
 
     >>> # Stage 3: minimise the given negative likelihood
