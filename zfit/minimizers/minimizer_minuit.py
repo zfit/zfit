@@ -103,7 +103,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                 criterion.last_value = minimizer.fmin.edm
                 converged = not minimizer.fmin.is_above_max_edm
             else:
-                fitresult = FitResult.from_minuit(loss=loss, params=params, minuit_opt=minimizer, minimizer=self,
+                fitresult = FitResult.from_minuit(loss=loss, params=params, minuit=minimizer, minimizer=self,
                                                   valid=valid, message=message)
                 converged = criterion.converged(fitresult)
 
@@ -124,7 +124,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         fitresult = FitResult.from_minuit(loss=loss,
                                           params=params,
                                           criterion=criterion,
-                                          minuit_opt=minimizer,
+                                          minuit=minimizer,
                                           minimizer=self.copy(),
                                           valid=valid,
                                           message=message)

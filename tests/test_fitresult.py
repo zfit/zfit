@@ -203,7 +203,6 @@ def test_correlation(minimizer_class_and_kwargs):
     assert pytest.approx(cor_dict[(a, b)], rel=0.01) == cov_mat[0, 1] / (a_error * b_error)
 
 
-# @pytest.mark.skip  # currently stuck in an endless loop?
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.parametrize("cl", [None, 0.683, 0.8, 0.95, 0.9])
 @pytest.mark.timeout(60)  # if stuck finding new minima
@@ -225,7 +224,6 @@ def test_errors(minimizer_class_and_kwargs, cl):
     else:  # no break occured
         assert False, "Always a new minimum was found, cannot perform test."
 
-    # @marinang this test seems to fail when a new minimum is found
     for param in [a, b, c]:
         z_error_param = z_errors[param]
         minos_errors_param = minos_errors[param]
@@ -236,7 +234,6 @@ def test_errors(minimizer_class_and_kwargs, cl):
         result.errors(method="error")
 
 
-# @pytest.mark.skip  # currently, fmin is not correct, loops, see: https://github.com/scikit-hep/iminuit/issues/395
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 def test_new_minimum(minimizer_class_and_kwargs):
@@ -278,6 +275,3 @@ def test_new_minimum(minimizer_class_and_kwargs):
             assert errors[param]['lower'] < 0
             assert errors[param]['upper'] > 0
 
-
-def test_gradient():
-    assert False

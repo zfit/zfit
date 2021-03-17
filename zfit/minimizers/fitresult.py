@@ -213,12 +213,12 @@ class FitResult(ZfitResult):
     _error_methods = {"minuit_minos": _minos_minuit, "zfit_error": compute_errors}
 
     def __init__(self,
-                 params: Dict[ZfitParameter, float],
-                 edm: float,
-                 fmin: float,
                  loss: ZfitLoss,
+                 params: Dict[ZfitParameter, float],
                  minimizer: "ZfitMinimizer",
                  valid: bool,
+                 edm: float,
+                 fmin: float,
                  criterion: Optional[ConvergenceCriterion],
                  status: Optional[int] = None,
                  converged: Optional[bool] = None,
@@ -235,25 +235,35 @@ class FitResult(ZfitResult):
             {parameter: {error_name1: {'low': value, 'high': value or similar}}
 
         Args:
-            valid (Union[bool, None, numpy.bool_, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]):
-            criterion (Union[zfit.minimizers.termination.EDM, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]):
-            message (str):
-            approx (Union[None, None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]], None, None, None, Dict[str, List[zfit.core.parameter.Parameter]], Dict[str, List[zfit.core.parameter.Parameter]]]):
-            niter (Union[int, None, None]):
-            evaluator (Union[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, zfit.minimizers.evaluation.LossEval, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]):
+            loss: The loss function that was minimized. Contains also the pdf, data etc.
             params: Result of the fit where each
                :py:class:`~zfit.Parameter` key has the value from the minimum found by the minimizer.
-            edm: The estimated distance to minimum, estimated by the minimizer (if available)
-            fmin: Value at the minimum of the function found by the minimizer
-            status: A status code (if available)
-            converged: Whether the fit has successfully converged or not.
-            info: Additional information (if available) like *number of function calls* and the
-                original minimizer return message.
-            loss: The loss function that was minimized. Contains also the pdf, data etc.
             minimizer: Minimizer that was used to obtain this `FitResult` and will be used to
                 calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
                 and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
                 won't be altered.
+            valid: Indicating whether the result is valid or not. This is the strongest indication and serves as
+                the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+                - parameter(s) at the limit
+                - maxiter reached without proper convergence
+                - the minimizer may even converged but it is known that this is only a local minimum
+
+                To indicate the reason for the invalidity, pass a message.
+            edm: The estimated distance to minimum, estimated by the minimizer (if available)
+            fmin: Value at the minimum of the function found by the minimizer
+            criterion: Criterion that was used during the minimization
+            status: A status code (if available)
+            converged: Whether the fit has successfully converged or not.
+            message: Human readable message to indicate the reason if the fitresult is not valid.
+                If the fit is valid, the message (should) be an empty string (or None)
+            info: Additional information (if available) like *number of gradient function calls* and the
+                original minimizer return message. This is a relatively free field and _no single field_
+                in it is guaranteed to be stable.
+            approx: Collection of approximations found during the minimization process such as gradient and hessian.
+            niter: Approximate number of iterations ~= number of function evaluations ~= number of gradient evaluations.
+                This is an approximative value and can the interpretation can differ between different minimizers.
+            evaluator: Loss evaluator that was used during the minimization and that may contains information
+                about the last evaluations of the gradient etc which can serve as approximations.
         """
         super().__init__()
 
@@ -346,31 +356,45 @@ class FitResult(ZfitResult):
         return minuit
 
     @classmethod
-    def from_ipopt(cls, loss: ZfitLoss,
+    def from_ipopt(cls,
+                   loss: ZfitLoss,
                    params: Iterable[ZfitParameter],
-                   opt_instance: 'ipyopt.Problem',
+                   problem: 'ipyopt.Problem',
                    minimizer: 'zfit.minimize.IpyoptV1',
-                   converged: Optional[bool],
-                   xvalues: np.ndarray,
+                   valid: bool,
+                   values: np.ndarray,
                    message: Optional[str],
+                   converged: Optional[bool],
                    edm: Union['zfit.minimizers.termination.CriterionNotAvailable', float],
                    niter: Optional[int],
-                   valid: bool,
+                   fmin: Optional[float],
+                   status: Optional[int],
                    criterion: 'zfit.minimizers.termination.ConvergenceCriterion',
                    evaluator: Optional['zfit.minimizers.evaluation.LossEval'],
-                   fmin: Optional[float],
-                   status: Optional[int]
                    ) -> 'FitResult':
 
-        info = {'original_optimizer': opt_instance}
-        params = dict((p, val) for p, val in zip(params, xvalues))
+        info = {'problem': problem}
+        params = dict(zip(params, values))
         return cls(params=params, loss=loss, fmin=fmin, edm=edm, message=message,
                    criterion=criterion, info=info, valid=valid, converged=converged,
                    niter=niter, status=status, minimizer=minimizer, evaluator=evaluator)
 
     @classmethod
-    def from_minuit(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], minuit_opt: iminuit.util.FMin,
-                    minimizer: Union[ZfitMinimizer, iminuit.Minuit], valid, message, criterion=None) -> 'FitResult':
+    def from_minuit(cls,
+                    loss: ZfitLoss,
+                    params: Iterable[ZfitParameter],
+                    minuit: iminuit.Minuit,
+                    minimizer: Union[ZfitMinimizer, iminuit.Minuit],
+                    valid: Optional[bool],
+                    values: Optional[np.ndarray] = None,
+                    message: Optional[str] = None,
+                    converged: Optional[bool] = None,
+                    edm: Optional[Union['zfit.minimizers.termination.CriterionNotAvailable', float]] = None,
+                    niter: Optional[int] = None,
+                    fmin: Optional[float] = None,
+                    status: Optional[int] = None,
+                    criterion: 'zfit.minimizers.termination.ConvergenceCriterion' = None,
+                    evaluator: Optional['zfit.minimizers.evaluation.LossEval'] = None) -> 'FitResult':
         """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
         :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
         zfit objects.
@@ -378,10 +402,22 @@ class FitResult(ZfitResult):
         Args:
             loss: zfit Loss that was minimized.
             params: Iterable of the zfit parameters that were floating during the minimization.
-            minuit_opt: Return value of the iminuit migrad command.
-            minimizer: Instance of the iminuit Minuit that was used to minimize the loss.
+            minuit: Return value of the iminuit migrad command, the instance of :class:`iminuit.Minuit`
+            minimizer: Instance of the zfit Minuit minimizer that was used to minimize the loss.
+            valid (bool):
+            values ():
+            message (str):
+            converged ():
+            edm ():
+            niter ():
+            fmin ():
+            status ():
+            criterion (zfit.minimizers.termination.EDM):
+            evaluator ():
+
 
         Returns:
+            zfit.minimizers.fitresult.FitResult:
             A `FitResult` as if zfit Minuit was used.
         """
         from .termination import EDM
@@ -395,29 +431,32 @@ class FitResult(ZfitResult):
             else:
                 raise ValueError(f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit.")
 
-        params_result = [p_dict for p_dict in minuit_opt.params]
+        params_result = [p_dict for p_dict in minuit.params]
 
-        fmin_object = minuit_opt.fmin
-
-        info = {'n_eval': fmin_object.nfcn,
+        fmin_object = minuit.fmin
+        converged = not fmin_object.is_above_max_edm if converged is None else converged
+        niter = fmin_object.nfcn if niter is None else niter
+        info = {'n_eval': niter,
                 # 'grad': result['jac'],
                 # 'message': result['message'],
-                'original_minimizer': minuit_opt,
+                'minuit': minuit,
                 'original': fmin_object}
         if fmin_object.has_covariance:
-            info['inv_hessian'] = np.array(minuit_opt.covariance)
-        edm = fmin_object.edm
+            info['inv_hessian'] = np.array(minuit.covariance)
+
+        edm = fmin_object.edm if edm is None else edm
         if criterion is None:
             criterion = EDM(tol=minimizer.tol, loss=loss, params=params)
             criterion.last_value = edm
-        fmin = fmin_object.fval
-        status = -999
-        valid = valid and fmin_object.is_valid
+        fmin = fmin_object.fval if fmin is None else fmin
+        valid = fmin_object.is_valid if valid is None else valid
         converged = fmin_object.is_valid
-        params = dict((p, res.value) for p, res in zip(params, params_result))
-        return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss, niter=fmin_object.nfcn,
-                   status=status, converged=converged, message=message, valid=valid, criterion=criterion,
-                   minimizer=minimizer)
+        if values is None:
+            values = (res.value for res in params_result)
+        params = dict(zip(params, values))
+        return cls(params=params, edm=edm, fmin=fmin, info=info, loss=loss, niter=niter, converged=converged,
+                   status=status, message=message, valid=valid, criterion=criterion,
+                   minimizer=minimizer, evaluator=evaluator)
 
     @classmethod
     def from_scipy(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
