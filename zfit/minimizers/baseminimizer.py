@@ -349,7 +349,7 @@ class BaseMinimizer(ZfitMinimizer):
                 What is explicitly _not_ assumed to be the same:
                 - absolute value of the loss function. If *init* has a function value at minimum x of fmin,
                   it is not assumed that `loss` will have the same/similar value at x.
-                - parameters that are uset in the minimization may differ in order or which are fixed.
+                - parameters that are used in the minimization may differ in order or which are fixed.
 
 
         Returns:
