@@ -60,7 +60,7 @@ def minimize_supports(*, init: Union[bool] = False) -> Callable:
 
         parameters = inspect.signature(func).parameters
         keys = list(parameters.keys())
-        init_str = 'loss'
+        init_str = 'init'
         if init is True or init_str not in keys:  # no init as parameters -> no problem
             new_func = func
         else:
@@ -137,29 +137,28 @@ class BaseMinimizer(ZfitMinimizer):
     def __init__(self,
                  tol: Optional[float],
                  verbosity: Optional[int],
-                 minimizer_options: Optional[Dict],
                  criterion: Optional[ConvergenceCriterion],
                  strategy: Optional[ZfitStrategy],
+                 minimizer_options: Optional[Dict],
                  maxiter: Optional[Union[str, int]],
-                 name: Optional[str],
-                 **kwargs) -> None:
+                 name: Optional[str]) -> None:
         """Base Minimizer to minimize loss functions and return a result.
 
         This class acts as a base class to implement a minimizer. The method `minimize` has to be overridden.
 
 
         Args:
-            tol:
-            verbosity ():
-            minimizer_options ():
-            criterion ():
-            strategy ():
-            maxiter ():
-            name ():
-            **kwargs ():
+            tol: Termination value for the convergence/stopping criterion of the algorithm
+                in order to determine if the minimum has been found. The default is 1e-3.
+            verbosity:
+            criterion:
+            strategy:
+            minimizer_options:
+            maxiter:
+            name:
         """
-        super().__init__(**kwargs)
-        self._n_iter_per_param = 1000
+        super().__init__()
+        self._n_iter_per_param = 3000
 
         self.tol = self._DEFAULTS['tol'] if tol is None else tol
         self.verbosity = self._DEFAULTS['verbosity'] if verbosity is None else verbosity
@@ -237,6 +236,7 @@ class BaseMinimizer(ZfitMinimizer):
             if params is None:
                 params = list(init.params)
 
+        # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
             if not callable(loss):
                 raise TypeError("Given Loss has to  be a ZfitLoss or a callable.")

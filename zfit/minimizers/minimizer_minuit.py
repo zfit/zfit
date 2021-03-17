@@ -19,9 +19,14 @@ from ..util.exception import MaximumIterationReached
 class Minuit(BaseMinimizer, GraphCachable):
     _DEFAULT_name = "Minuit"
 
-    def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = None, tol: float = None,
+    def __init__(self,
+                 strategy: ZfitStrategy = None,
+                 minimize_strategy: int = None,
+                 tol: float = None,
                  verbosity: int = 5, name: str = None,
-                 ncall: Optional[int] = None, minuit_grad: Optional[bool] = None, use_minuit_grad: bool = None,
+                 ncall: Optional[int] = None,
+                 minuit_grad: Optional[bool] = None,
+                 use_minuit_grad: Optional[bool] = None,
                  minimizer_options=None):
         """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in
         `iminuit<https://iminuit.readthedocs.io/en/stable/>`_.

@@ -2,6 +2,7 @@
 import collections
 import contextlib
 import itertools
+import math
 import warnings
 from collections import OrderedDict
 from typing import Dict, Union, Callable, Optional, Tuple, Iterable, Mapping, List
@@ -131,11 +132,11 @@ def _covariance_minuit(result, params):
         warnings.warn("The computation of the covariance matrix with weights is still experimental.",
                       ExperimentalFeatureWarning)
 
-    minuit_minimizer = result._create_minuit_instance()
+    minuit = result._create_minuit_instance()
 
-    _ = minuit_minimizer.hesse()  # make sure to have an accurate covariance
+    _ = minuit.hesse()  # make sure to have an accurate covariance
 
-    covariance = result.minimizer._minuit_minimizer.covariance
+    covariance = minuit.covariance
 
     covariance_dict = {}
     for p1 in params:
@@ -261,7 +262,7 @@ class FitResult(ZfitResult):
                 in it is guaranteed to be stable.
             approx: Collection of approximations found during the minimization process such as gradient and hessian.
             niter: Approximate number of iterations ~= number of function evaluations ~= number of gradient evaluations.
-                This is an approximative value and can the interpretation can differ between different minimizers.
+                This is an approximated value and the interpretation can differ between different minimizers.
             evaluator: Loss evaluator that was used during the minimization and that may contains information
                 about the last evaluations of the gradient etc which can serve as approximations.
         """
@@ -339,9 +340,17 @@ class FitResult(ZfitResult):
     def _input_convert_params(self, params):
         return ParamHolder((p, {"value": v}) for p, v in params.items())
 
-    def _get_uncached_params(self, params, method_name):
-        # TODO: Also cache sigma!
-        return [p for p in params if self.params[p].get(method_name) is None]
+    def _check_get_uncached_params(self, params, method_name, cl):
+        uncached = []
+        for p in params:
+            errordict = self.params[p].get(method_name)
+            # cl is < 1 and gets very close. The closer, the more it matters -> scale tolerance by it
+            if errordict is not None and not math.isclose(errordict['cl'], cl, abs_tol=3e-3 * (1 - cl)):
+                raise NameError(f"Error with name {method_name} already exists in {repr(self)} with a different"
+                                f" convidence level of {errordict['cl']} instead of the requested {cl}.")
+            else:
+                uncached.append(p)
+        return uncached
 
     def _create_minuit_instance(self):
         minuit = self._cache_minuit
@@ -674,6 +683,8 @@ class FitResult(ZfitResult):
                 `error_a = result.hesse(params=param_a)[param_a]['error']`
                 error_a is the hessian error.
         """
+        # for compatibility with `errors`
+        cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)
         if method is None:
             # LEGACY START
             method = self._default_hesse
@@ -691,9 +702,11 @@ class FitResult(ZfitResult):
             name = method
 
         with self._input_check_reset_params(params) as params:
-            uncached_params = self._get_uncached_params(params=params, method_name=name)
+            uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
             if uncached_params:
                 error_dict = self._hesse(params=uncached_params, method=method)
+                for p in error_dict:
+                    error_dict[p]['cl'] = cl
                 if name:
                     self._cache_errors(error_name=name, errors=error_dict)
             else:
@@ -767,9 +780,11 @@ class FitResult(ZfitResult):
 
             Returns:
                 A `OrderedDict` containing as keys the parameter and as value a `dict` which
-                    contains (next to probably more things) two keys 'lower' and 'upper',
-                    holding the calculated errors.
+                    contains (next to often more things) two keys 'lower' and 'upper',
+                    holding the calculated errors. Furthermore it has `cl` to indicate the convidence level
+                    the uncertainty was calculated with.
                     Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
+
         """
         # Deprecated name
         if error_name is not None:
@@ -806,18 +821,22 @@ class FitResult(ZfitResult):
 
         with self._input_check_reset_params(self.params.keys()):
             # TODO: cache with cl!
-            uncached_params = self._get_uncached_params(params=params, method_name=name)
+            uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
 
             new_result = None
 
             if uncached_params:
                 error_dict, new_result = self._error(params=uncached_params, method=method, cl=cl)
-                if new_result is None:
-                    self._cache_errors(error_name=name, errors=error_dict)
-                else:
+                for p in error_dict:
+                    error_dict[p]['cl'] = cl
+                self._cache_errors(error_name=name, errors=error_dict)
+
+                if new_result is not None:
+
                     msg = "Invalid, a new minimum was found."
                     self._cache_errors(error_name=name, errors={p: msg for p in params})
                     self._valid = False
+                    self._message = msg
                     new_result._cache_errors(error_name=name, errors=error_dict)
         all_errors = OrderedDict((p, self.params[p][name]) for p in params)
 

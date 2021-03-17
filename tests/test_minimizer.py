@@ -34,7 +34,6 @@ def create_loss(obs1):
         with sigma_param.set_value(true_sigma):
             with lambda_param.set_value(true_lambda):
                 sampled_data = sum_pdf1.create_sampler(n=25000)
-                # sampled_data = sum_pdf1.create_sampler(n=10000000)
                 sampled_data.resample()
 
                 loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
@@ -89,7 +88,6 @@ minimizers = [
     # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
 
     # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
-    # (zfit.minimize.NLopt, {'tol': 0.0001, 'algorithm': nlopt.LD_VAR2}, True),  # doesn't minimize
 
 ]
 
@@ -271,12 +269,8 @@ def test_minimizers(minimizer_class_and_kwargs, numgrad, chunksize, spaces,
     if test_error:
         hesse_methods = ['hesse_np', 'approx']
         profile_methods = ['zfit_error']
-        if isinstance(minimizer, zfit.minimize.Minuit):
-            hesse_methods.append('minuit_hesse')
-            profile_methods.append('minuit_minos')
-        else:
-            with pytest.raises(TypeError):
-                _ = result.errors(params=mu_param, method="minuit_minos")
+        hesse_methods.append('minuit_hesse')
+        profile_methods.append('minuit_minos')
 
         rel_error_tol = 0.15
         for method in hesse_methods:
