@@ -93,8 +93,9 @@ minimizers = [
 
 ]
 
-minimizers = [(zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'minuit_grad': True},
-               {'error': True, 'longtests': True})]
+# minimizers = [
+    # (zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'minuit_grad': True},
+    #            {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.IPoptV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
