@@ -1,7 +1,7 @@
-/*This css file is a bit of a hack for changing the look of pydata_sphinx_theme. As soon as */
+/*This css file is a bit of a hack for changing the look of pydata_sphinx_theme. As soon as*/
 /*there will be an official way of doing this, we can change this.*/
-
-@import 'index.css';
+/*An official way for most of these elements seems to be on it's ways.*/
+/*See https://github.com/pydata/pydata-sphinx-theme/issues/339 */
 
 #navbar-main {
     background-color: #2F4858 !important;
