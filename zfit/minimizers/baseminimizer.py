@@ -150,7 +150,7 @@ class BaseMinimizer(ZfitMinimizer):
         Args:
             tol: |@docstart| Termination value for the convergence/stopping criterion of the algorithm
                 in order to determine if the minimum has been found. The default is 1e-3. |@docend|
-            verbosity:
+            verbosity: |@docstart||@doc:minimizer.verbosity||@docend|
             criterion:
             strategy:
             minimizer_options:

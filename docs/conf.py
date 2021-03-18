@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+#  Copyright (c) 2021 zfit
+
 #
-#  Copyright (c) 2020 zfit
 #
 # zfit documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
@@ -80,6 +82,15 @@ pygments_style = 'sphinx'
 # Automatically add substitutions to all RST files.
 with open('subst_types.txt') as subst_types:
     rst_epilog = subst_types.read()
+    rst_epilog += f"""
+.. |wzw| unicode:: U+200B
+   :trim:
+
+.. |@docstart| replace:: |wsw|
+
+.. |@docend| replace:: |wsw|
+"""
+
 with open('hyperlinks.txt') as hyperlinks:
     rst_epilog += hyperlinks.read()
 

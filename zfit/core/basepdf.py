@@ -56,17 +56,18 @@ from contextlib import suppress
 from typing import Union, Type, Dict, Optional, Set
 
 import tensorflow as tf
-from ..util.deprecation import deprecated
+
 from zfit import z
-from .sample import extended_sampling
-from ..util.cache import invalidate_graph
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
 from .interfaces import ZfitPDF, ZfitParameter
 from .parameter import Parameter, convert_to_parameter
+from .sample import extended_sampling
 from .space import Space
 from ..settings import ztypes, run
 from ..util import ztyping
+from ..util.cache import invalidate_graph
+from ..util.deprecation import deprecated
 from ..util.exception import (AlreadyExtendedPDFError,
                               NotExtendedPDFError, BreakingAPIChangeError, FunctionNotImplementedError,
                               SpecificFunctionNotImplementedError)
@@ -194,7 +195,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
-            limits: The limits on where to normalize over
+            limits: |@docstart| The limits on where to normalize over |@docend|
 
         Returns:
             The normalization value

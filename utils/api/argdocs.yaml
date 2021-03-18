@@ -1,0 +1,4 @@
+minimizer.verbosity: >
+    Verbosity of the minimizer.
+    A value above 5 starts printing more output with a value of 10 printing every
+    evaluation of the loss function and gradient.
