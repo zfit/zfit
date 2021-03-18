@@ -270,7 +270,7 @@ def matrix_to_dict(params, matrix):
 
 
 def np_cache(*args, **kwargs):
-    """LRU cache implementation for functions whose FIRST parameter is a numpy array
+    """LRU cache implementation for functions whose FIRST parameter is a numpy array.
 
     >>> array = np.array([[1, 2, 3], [4, 5, 6]])
     >>> @np_cache(maxsize=256)
@@ -286,7 +286,6 @@ def np_cache(*args, **kwargs):
            [ 8, 10, 12]])
     >>> multiply.cache_info()
     CacheInfo(hits=1, misses=1, maxsize=256, currsize=1)
-
     """
 
     def decorator(function):

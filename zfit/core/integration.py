@@ -1,6 +1,4 @@
-"""
-This module contains functions for the numeric as well as the analytic (partial) integration.
-"""
+"""This module contains functions for the numeric as well as the analytic (partial) integration."""
 
 #  Copyright (c) 2021 zfit
 
@@ -374,7 +372,7 @@ class AnalyticIntegral:
         self._integrals = collections.defaultdict(dict)
 
     def get_max_axes(self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None) -> Tuple[int]:
-        """Return the maximal available axes to integrate over analytically for given limits
+        """Return the maximal available axes to integrate over analytically for given limits.
 
         Args:
             limits: The integral function will be able to integrate over this limits
@@ -463,7 +461,6 @@ class AnalyticIntegral:
     def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None,
                   norm_range: ztyping.LimitsType = None, model: ZfitModel = None, params: dict = None) -> ztyping.XType:
         """Integrate analytically over the axes if available.
-
 
         Args:
             x: If a partial integration is made, x are the value to be evaluated for the partial

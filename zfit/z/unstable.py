@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import tensorflow as tf
 
@@ -22,7 +22,6 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
         atol:
 
     Returns:
-
     """
     if not SWITCH_ON or is_tensor(x) or is_tensor(y):
         return tf.reduce_all(tf.less_equal(tf.abs(x - y), tf.abs(y) * rtol + atol))

@@ -853,16 +853,16 @@ class FitResult(ZfitResult):
     def covariance(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
         """Calculate the covariance matrix for `params`.
 
-            Args:
-                params: The parameters to calculate
-                    the covariance matrix. If `params` is `None`, use all *floating* parameters.
-                method: The method to use to calculate the covariance matrix. Valid choices are
-                    {'minuit_hesse', 'hesse_np'} or a Callable.
-                as_dict: Default `False`. If `True` then returns a dictionnary.
+        Args:
+            params: The parameters to calculate
+                the covariance matrix. If `params` is `None`, use all *floating* parameters.
+            method: The method to use to calculate the covariance matrix. Valid choices are
+                {'minuit_hesse', 'hesse_np'} or a Callable.
+            as_dict: Default `False`. If `True` then returns a dictionnary.
 
-            Returns:
-                2D `numpy.array` of shape (N, N);
-                `dict`(param1, param2) -> covariance if `as_dict == True`.
+        Returns:
+            2D `numpy.array` of shape (N, N);
+            `dict`(param1, param2) -> covariance if `as_dict == True`.
         """
         if method is None:
             # LEGACY START
@@ -902,16 +902,16 @@ class FitResult(ZfitResult):
     def correlation(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
         """Calculate the correlation matrix for `params`.
 
-            Args:
-                params: The parameters to calculate
-                    the correlation matrix. If `params` is `None`, use all *floating* parameters.
-                method: The method to use to calculate the correlation matrix. Valid choices are
-                    {'minuit_hesse', 'hesse_np'} or a Callable.
-                as_dict: Default `False`. If `True` then returns a dictionnary.
+        Args:
+            params: The parameters to calculate
+                the correlation matrix. If `params` is `None`, use all *floating* parameters.
+            method: The method to use to calculate the correlation matrix. Valid choices are
+                {'minuit_hesse', 'hesse_np'} or a Callable.
+            as_dict: Default `False`. If `True` then returns a dictionnary.
 
-            Returns:
-                2D `numpy.array` of shape (N, N);
-                `dict`(param1, param2) -> correlation if `as_dict == True`.
+        Returns:
+            2D `numpy.array` of shape (N, N);
+            `dict`(param1, param2) -> correlation if `as_dict == True`.
         """
 
         covariance = self.covariance(params=params, method=method, as_dict=False)

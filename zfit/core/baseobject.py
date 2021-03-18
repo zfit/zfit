@@ -123,7 +123,7 @@ class BaseNumeric(GraphCachable, BaseDependentsMixin, BaseParametrized, ZfitNume
 
     @property
     def dtype(self) -> tf.DType:
-        """The dtype of the object"""
+        """The dtype of the object."""
         return self._dtype
 
     @staticmethod

@@ -210,7 +210,6 @@ class Limit(ZfitLimit):
                 such as only a tuple/list of values that will be interpreted as the last dimension. They should cover an
                 area that includes `limit_fn` fully.
             n_obs: dimensionality of the Limits, the last dimension.
-
         """
         super().__init__()
         limit_fn, rect_limits, n_obs, is_rect, sublimits = self._check_convert_input_limits(limit_fn=limit_fn,
@@ -331,7 +330,6 @@ class Limit(ZfitLimit):
             limit:
 
         Returns:
-
         """
         if is_range_definition(limit):  # as the above ANY
             dtype = object
@@ -421,7 +419,10 @@ class Limit(ZfitLimit):
         return self.rect_limits[1]
 
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
-        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
+        """Calculate the total rectangular area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         return calculate_rect_area(rect_limits=self._rect_limits_tf)
 
     def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturnNoData:
@@ -511,7 +512,6 @@ class Limit(ZfitLimit):
         """If the limits have never explicitly been set to a limit or to False.
 
         Returns:
-
         """
         return self._rect_limits is not None
 
@@ -520,7 +520,6 @@ class Limit(ZfitLimit):
         """If the limits have been set to False, so the object on purpose does not contain limits.
 
         Returns:
-
         """
         return self._rect_limits is False
 
@@ -529,7 +528,6 @@ class Limit(ZfitLimit):
         """If there are limits set and they are not false.
 
         Returns:
-
         """
         return not (self.limits_are_false or (not self.limits_are_set))
 
@@ -612,7 +610,6 @@ class Limit(ZfitLimit):
             Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
-
         """
         if not isinstance(other, ZfitLimit):
             return False
@@ -804,7 +801,6 @@ class BaseSpace(ZfitSpace, BaseObject):
         """The observables ("axes with str")the space is defined in.
 
         Returns:
-
         """
         return self.coords.obs
 
@@ -813,7 +809,6 @@ class BaseSpace(ZfitSpace, BaseObject):
         """The axes ("obs with int") the space is defined in.
 
         Returns:
-
         """
         return self.coords.axes
 
@@ -868,7 +863,6 @@ class BaseSpace(ZfitSpace, BaseObject):
             obs:
 
         Returns:
-
         """
         if obs is None:
             if allow_none:
@@ -1124,7 +1118,6 @@ class Space(BaseSpace):
         Returns:
             Limits dictionary containing the observables and/or the axes as a key matching
                 `ZfitLimits` objects.
-
         """
         limits_dict = defaultdict(dict)
         input_limits = limit
@@ -1236,7 +1229,6 @@ class Space(BaseSpace):
         """Return the limits.
 
         Returns:
-
         """
         return self.rect_limits
 
@@ -1267,7 +1259,6 @@ class Space(BaseSpace):
         """Return the limits as `tf.Tensor`.
 
         Returns:
-
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(f"Limits are False or not set, cannot return the rectangular limits.")
@@ -1347,7 +1338,10 @@ class Space(BaseSpace):
         return lower_ordered, upper_ordered
 
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
-        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
+        """Calculate the total rectangular area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         return calculate_rect_area(rect_limits=self._rect_limits_tf)
 
     @property
@@ -1394,7 +1388,6 @@ class Space(BaseSpace):
         """Whether there are limits set and they are not false.
 
         Returns:
-
         """
         return self.limits_are_set and not self.limits_are_false
 
@@ -1456,7 +1449,6 @@ class Space(BaseSpace):
         """Return the lower limits.
 
         Returns:
-
         """
         return self.rect_lower
         # raise BreakingAPIChangeError("Use rect_lower")
@@ -1469,7 +1461,6 @@ class Space(BaseSpace):
         """Return the upper limits.
 
         Returns:
-
         """
         return self.rect_upper
 
@@ -1803,7 +1794,10 @@ class Space(BaseSpace):
 
     @warn_or_fail_not_rect
     def area(self) -> float:
-        """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
+        """Return the total area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         return self.rect_area()
 
     def copy(self, **overwrite_kwargs) -> "zfit.Space":
@@ -2167,7 +2161,6 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
         comparator:
 
     Returns:
-
     """
     axes_not_none = space1.axes is not None and space2.axes is not None
     obs_not_none = space1.obs is not None and space2.obs is not None
@@ -2371,7 +2364,10 @@ class MultiSpace(BaseSpace):
         self._raise_limits_not_implemented()
 
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
-        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
+        """Calculate the total rectangular area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         return z.reduce_sum([space.rect_area() for space in self], axis=0)
 
     @property
@@ -2408,7 +2404,6 @@ class MultiSpace(BaseSpace):
         """Whether there are limits set and they are not false.
 
         Returns:
-
         """
         try:
             return self.limits_are_set and not self.limits_are_false
@@ -2510,35 +2505,35 @@ class MultiSpace(BaseSpace):
                   allow_subset: bool = True) -> "MultiSpace":
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
-            The behavior is as follows:
+        The behavior is as follows:
 
-             * axes are already set:
-               * input axes are None: the axes will be dropped. If no observables are set, an error
-                 will be raised, as no coordinates will be assigned to this instance anymore.
-               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
-                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.
-                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
-                 be used to retrieve a subspace of limits, data etc.
-                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
-                 if the axes not contained in the instances axes were not present in the input axes.
-             * axes are not set:
-               * if the input axes are None, the same object is returned.
-               * if the input axes are not None, they will be set as-is and now correspond to the already
-                 existing obs in the object.
+         * axes are already set:
+           * input axes are None: the axes will be dropped. If no observables are set, an error
+             will be raised, as no coordinates will be assigned to this instance anymore.
+           * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
+             objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+             If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
+             be used to retrieve a subspace of limits, data etc.
+             If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
+             if the axes not contained in the instances axes were not present in the input axes.
+         * axes are not set:
+           * if the input axes are None, the same object is returned.
+           * if the input axes are not None, they will be set as-is and now correspond to the already
+             existing obs in the object.
 
-            Args:
-                axes: Axes to sort/associate this instance with
-                allow_superset: if False and a strict superset of the own axeservables is given, an error
-                is raised.
-                allow_subset:if False and a strict subset of the own axeservables is given, an error
-                is raised.
+        Args:
+            axes: Axes to sort/associate this instance with
+            allow_superset: if False and a strict superset of the own axeservables is given, an error
+            is raised.
+            allow_subset:if False and a strict subset of the own axeservables is given, an error
+            is raised.
 
-            Returns:
-                A copy of the object with the new ordering/axes
-            Raises:
-                CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
-                AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
-                    allow_allow_subset is False
+        Returns:
+            A copy of the object with the new ordering/axes
+        Raises:
+            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         spaces = [space.with_axes(axes, allow_superset=allow_superset, allow_subset=allow_subset)
                   for space in self.spaces]
@@ -2874,7 +2869,6 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
         spaces:
 
     Returns:
-
     """
     try:
         new_space = combine_spaces(*spaces)

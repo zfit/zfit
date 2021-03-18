@@ -132,7 +132,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                  strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  name: str = "NLopt Base Minimizer V1"):
-        """NLopt contains multiple different optimization algorithms.py
+        """NLopt contains multiple different optimization algorithms.py.
 
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a free/open-source library for nonlinear optimization,
         providing a common interface for a number of

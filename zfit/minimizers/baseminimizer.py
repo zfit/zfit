@@ -1,8 +1,5 @@
 #  Copyright (c) 2021 zfit
-"""
-Definition of minimizers, wrappers etc.
-
-"""
+"""Definition of minimizers, wrappers etc."""
 
 import collections
 import copy
@@ -103,7 +100,6 @@ def _Minimizer_register_check_support(has_support: bool):
     Args:
         has_support: If True, flags that it **requires** the `@supports` decorator. If False,
             flags that the `@supports` decorator is **not allowed**.
-
     """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
@@ -148,10 +144,12 @@ class BaseMinimizer(ZfitMinimizer):
 
 
         Args:
-            tol: |@docstart| Termination value for the convergence/stopping criterion of the algorithm
-                in order to determine if the minimum has been found. The default is 1e-3. |@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity||@docend|
-            criterion:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the convergence/stopping criterion of the algorithm
+                in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer. A value above 5 starts printing more
+                output with a value of 10 printing every evaluation of the loss function and gradient.|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
+                in order to determine if the minimum has been found. The default is 1e-3.|@docend|
             strategy:
             minimizer_options:
             maxiter:
@@ -218,8 +216,6 @@ class BaseMinimizer(ZfitMinimizer):
                              ) -> Tuple[ZfitLoss, Iterable[ZfitParameter], Union[None, FitResult]]:
         """Sanitize the input values and return all of them.
 
-
-
         Args:
             loss: If the loss is a callable, it will be converted to a SimpleLoss.
             params: If the parameters is an array, it will be converted to free parameters.
@@ -228,7 +224,6 @@ class BaseMinimizer(ZfitMinimizer):
 
         Returns:
             loss, params, init:
-
         """
         if isinstance(loss, ZfitResult):
             init = loss  # make the names correct
@@ -374,8 +369,6 @@ class BaseMinimizer(ZfitMinimizer):
                 func.errordef = 0.5
                 params = [1.1, 3.5, 8.35]  # initial values
                 result = minimizer.minimize(func, param)
-
-
         """
 
         loss, params, init = self._check_convert_input(loss=loss, params=params, init=init, only_floating=True)
@@ -559,7 +552,7 @@ class BaseMinimizer(ZfitMinimizer):
 
 
 class BaseStepMinimizer(BaseMinimizer):
-    """Step minimizer that uses the `_step` method to advance a single step and check if the criterion is reached.py
+    """Step minimizer that uses the `_step` method to advance a single step and check if the criterion is reached.py.
 
     In order to subclass this correctly, override `_step`.
     """
@@ -594,7 +587,8 @@ class BaseStepMinimizer(BaseMinimizer):
                 message = 'Unfinished, for criterion'
                 info = {'success': False, 'message': message,
                         'n_eval': niter, 'inv_hesse': inv_hesse}
-                prelim_result = FitResult(params=params_result, edm=criterion_val, fmin=cur_val, info=info, converged=False,
+                prelim_result = FitResult(params=params_result, edm=criterion_val, fmin=cur_val, info=info,
+                                          converged=False,
                                           status=status, valid=False, message=message, niter=niter, criterion=criterion,
                                           loss=loss, minimizer=self)
                 converged = criterion.converged(prelim_result)

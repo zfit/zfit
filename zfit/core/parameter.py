@@ -103,6 +103,7 @@ class OverloadableMixin(ZfitParameter):
     @classmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
         """Defer an operator overload to `ops.Tensor`.
+
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
           operator: string. The operator name.
@@ -190,6 +191,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     @staticmethod
     def _OverloadOperator(operator):  # pylint: disable=invalid-name
         """Defer an operator overload to `ops.Tensor`.
+
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
           operator: string. The operator name.
@@ -299,8 +301,7 @@ class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
 
 
 class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter):
-    """Class for fit parameters, derived from TF Variable class.
-    """
+    """Class for fit parameters, derived from TF Variable class."""
     _independent = True
     _independent_params = []
     DEFAULT_STEP_SIZE = 0.001
@@ -497,7 +498,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
                   sampler: Callable = np.random.uniform) -> tf.Tensor:
         """Update the parameter with a randomised value between minval and maxval and return it.
 
-
         Args:
             minval: The lower bound of the sampler. If not given, `lower_limit` is used.
             maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
@@ -619,7 +619,10 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
 
 class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
-    """Constant parameter. Value cannot change."""
+    """Constant parameter.
+
+    Value cannot change.
+    """
 
     def __init__(self, name, value, dtype=ztypes.float):
         """
@@ -897,7 +900,6 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
         values: List-like object that supports indexing.
 
     Returns:
-
     """
     params = convert_to_container(params)
     if isinstance(values, ZfitResult):

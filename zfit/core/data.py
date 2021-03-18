@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
@@ -131,8 +131,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
 
         Args:
             weights:
-
-
         """
         if weights is not None:
             weights = z.convert_to_tensor(weights)
@@ -255,7 +253,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             name:
 
         Returns:
-
         """
 
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, 'numpy')):
@@ -276,7 +273,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             name:
 
         Returns:
-
         """
         # dataset = LightDataset.from_tensor(tensor=tensor)
         if dtype is None:
@@ -298,7 +294,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             obs: The observables to use as columns. If `None`, all observables are used.
 
         Returns:
-
         """
         values = self.value(obs=obs)
         if obs is None:
@@ -450,6 +445,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     @staticmethod
     def _OverloadOperator(operator):  # pylint: disable=invalid-name
         """Defer an operator overload to `ops.Tensor`.
+
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
           operator: string. The operator name.
@@ -480,8 +476,8 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     # TODO(Mayou36): refactor with pdf or other range things?
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
-        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.Space` and sort them according to
-        own `obs`.
+        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.Space` and sort them according to own
+        `obs`.
 
         Args:
             obs:
@@ -489,7 +485,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             limits:
 
         Returns:
-
         """
         if obs is None:  # for simple limits to convert them
             obs = self.obs

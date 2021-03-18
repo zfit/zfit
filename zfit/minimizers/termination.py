@@ -39,7 +39,6 @@ class ConvergenceCriterion(abc.ABC):
             result: Return the result which contains all the information
 
         Returns:
-
         """
         value = self.calculate(result)
         return value < self.tol

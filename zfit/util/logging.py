@@ -1,13 +1,13 @@
-"""
-This module controls the zfit logging.
+"""This module controls the zfit logging.
 
 The base logger for zfit is called `zfit`, and all loggers created by this module
 have the form `zfit.XX`, where `XX` is their name.
 
 By default, time, name of the logger and message with the default
 colorlog color scheme are printed.
-
 """
+
+#  Copyright (c) 2021 zfit
 
 import os
 
@@ -43,7 +43,6 @@ def get_logger(name, stdout_level=None, file_level=None, file_name=None):
 
     Raise:
         ValueError if `file_level` has been specified without having configured the output file.
-
     """
     if not name.startswith('zfit'):
         name = 'zfit.{}'.format(name.rstrip('.'))

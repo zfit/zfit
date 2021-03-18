@@ -190,13 +190,15 @@ class FunctionNotImplementedError(ZfitNotImplementedError):
 
 
 class StandardControlFlow(Exception):
-    """An exception that inherits from this class will be regarded as part of the standard control flow
-    and not as an Error. For example, if a function raises that values are NaN, this is often intercepted
-    on purpose."""
+    """An exception that inherits from this class will be regarded as part of the standard control flow and not as an
+    Error.
+
+    For example, if a function raises that values are NaN, this is often intercepted on purpose.
+    """
 
 
 class SpecificFunctionNotImplementedError(FunctionNotImplementedError):
-    """If a specific function, e.g. by the user is not implemented"""
+    """If a specific function, e.g. by the user is not implemented."""
 
 
 class MinimizeNotImplemented(FunctionNotImplementedError):
@@ -208,7 +210,7 @@ class MinimizeStepNotImplementedError(FunctionNotImplementedError):
 
 
 class AnalyticNotImplementedError(ZfitNotImplementedError):
-    """General exception if an analytic way is not implemented"""
+    """General exception if an analytic way is not implemented."""
 
 
 class AnalyticIntegralNotImplementedError(AnalyticNotImplementedError):
@@ -232,7 +234,7 @@ class MultipleLimitsNotImplementedError(StandardControlFlow):
     pass
 
 class InitNotImplemented(StandardControlFlow):
-    """Indicates that a minimize method does not support a FitResult instead of a loss"""
+    """Indicates that a minimize method does not support a FitResult instead of a loss."""
     pass
 
 
@@ -244,7 +246,10 @@ class VectorizedLimitsNotImplementedError(StandardControlFlow):
 # Developer verbose messages
 
 class WorkInProgressError(Exception):
-    """Only for developing purpose! Does not serve as a 'real' Exception."""
+    """Only for developing purpose!
+
+    Does not serve as a 'real' Exception.
+    """
     pass
 
 

@@ -1,4 +1,7 @@
-"""Baseclass for a Model. Handle integration and sampling"""
+"""Baseclass for a Model.
+
+Handle integration and sampling
+"""
 
 #  Copyright (c) 2021 zfit
 
@@ -42,7 +45,6 @@ def _BaseModel_register_check_support(has_support: bool):
     Args:
         has_support: If True, flags that it **requires** the `@supports` decorator. If False,
             flags that the `@supports` decorator is **not allowed**.
-
     """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
@@ -68,7 +70,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     """Base class for any generic model.
 
     # TODO instructions on how to use
-
     """
     _DEFAULTS_integration = zcontainer.DotDict()
     _DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
@@ -232,7 +233,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         Returns:
             Union[:py:class:`~zfit.Space`, False]:
-
         """
         if norm_range is None or (isinstance(norm_range, ZfitSpace) and not norm_range.limits_are_set):
             if none_is_error:
@@ -262,7 +262,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             limits:
 
         Returns:
-
         """
         if obs is None:  # for simple limits to convert them
             obs = self.obs
@@ -383,7 +382,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 auto-handled.
             supports_norm_range: If `True`, `norm_range` argument to the function may not be `None`.
                 If `False`, `norm_range` will always be `None` and care is taken of the normalization automatically.
-
         """
         cls._analytic_integral.register(func=func, limits=limits, supports_norm_range=supports_norm_range,
                                         priority=priority, supports_multiple_limits=supports_multiple_limits)
@@ -485,7 +483,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         Returns:
             The integral value
-
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -635,7 +632,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             NormRangeNotImplementedError: if the *norm_range* argument is not supported. This
                 means that no analytical normalization is available, explicitly: the **analytical**
                 integral over the limits = norm_range is not available.
-
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -887,7 +883,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return self._norm_sample(n=n, limits=limits)
 
     def _norm_sample(self, n, limits):
-        """Dummy function"""
+        """Dummy function."""
         return self._limits_sample(n=n, limits=limits)
 
     def _limits_sample(self, n, limits):
@@ -1054,7 +1050,7 @@ class SimpleModelSubclassMixin:
                 sigma = self.params['sigma']
                 x = z.unstack_x(x)
                 return z.exp(-z.square((x - mu) / sigma))
-        """
+    """
 
     def __init__(self, *args, **kwargs):
         try:

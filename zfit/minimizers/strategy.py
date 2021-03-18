@@ -107,7 +107,7 @@ class DefaultToyStrategy(PushbackStrategy, ToyStrategyFail):
     """Same as :py:class:`PushbackStrategy`, but does not raise an error on full failure, instead return an invalid
     FitResult.
 
-    This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a
-    failure instead of rising an error.
+    This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a failure
+    instead of rising an error.
     """
     pass

@@ -1,9 +1,9 @@
-"""
-Basic PDFs are provided here. Gauss, exponential... that can be used together with Functors to
-build larger models.
+"""Basic PDFs are provided here.
+
+Gauss, exponential... that can be used together with Functors to build larger models.
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import contextlib
 import math as mt
 

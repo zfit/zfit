@@ -1,4 +1,10 @@
-minimizer.verbosity: >
-    Verbosity of the minimizer.
-    A value above 5 starts printing more output with a value of 10 printing every
-    evaluation of the loss function and gradient.
+minimizer.verbosity: |1+
+ Verbosity of the minimizer. A value above 5 starts printing more
+                 output with a value of 10 printing every evaluation of the loss function and gradient.
+minimizer.tol: |1+
+    Termination value for the convergence/stopping criterion of the algorithm
+                    in order to determine if the minimum has been found. The default is 1e-3.
+minimizer.criterion: |1+
+    |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
+                    in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+#EOF

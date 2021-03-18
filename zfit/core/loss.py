@@ -26,7 +26,7 @@ from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradi
 
 # @z.function
 def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace):
-    """Return unbinned negative log likelihood graph for a PDF
+    """Return unbinned negative log likelihood graph for a PDF.
 
     Args:
         model: PDFs with a `.pdf` method. Has to be as many models as data
@@ -91,10 +91,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                  constraints: ztyping.ConstraintsTypeInput = None,
                  options: Optional[Mapping] = None):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
-        """
-
-        A "simultaneous fit" can be performed by giving one or more `model`, `data`, `fit_range`
-        to the loss. The length of each has to match the length of the others.
+        """A "simultaneous fit" can be performed by giving one or more `model`, `data`, `fit_range` to the loss. The
+        length of each has to match the length of the others.
 
         Args:
             model: The model or models to evaluate the data on
@@ -511,7 +509,6 @@ class SimpleLoss(BaseLoss):
 
             minimizer = zfit.minize.Minuit()
             result = minimizer.minimize(loss)
-
         """
 
         if dependents is not NONE:

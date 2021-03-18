@@ -1,11 +1,10 @@
-"""
-A rich selection of analytically implemented Distributions (models) are available in
-`TensorFlow Probability <https://github.com/tensorflow/probability>`_. While their API is slightly
-different from the zfit models, it is similar enough to be easily wrapped.
+"""A rich selection of analytically implemented Distributions (models) are available in `TensorFlow Probability
+<https://github.com/tensorflow/probability>`_. While their API is slightly different from the zfit models, it is similar
+enough to be easily wrapped.
 
 Therefore a convenient wrapper as well as a lot of implementations are provided.
 """
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from collections import OrderedDict
 
@@ -51,9 +50,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
 
 
 class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like icdf
-    """Baseclass to wrap tensorflow-probability distributions automatically.
-
-    """
+    """Baseclass to wrap tensorflow-probability distributions automatically."""
 
     def __init__(self, distribution, dist_params, obs, params=None, dist_kwargs=None, dtype=ztypes.float, name=None,
                  **kwargs):
@@ -290,8 +287,7 @@ class Poisson(WrapDistribution):
                  lamb: ztyping.ParamTypeInput,
                  obs: ztyping.ObsTypeInput,
                  name: str = "Poisson"):
-        """
-        Poisson distribution, parametrized with an event rate parameter (lamb).
+        """Poisson distribution, parametrized with an event rate parameter (lamb).
 
         The probability mass function of the Poisson distribution is given by
 

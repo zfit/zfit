@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 from typing import List, Union, Tuple, Iterable, Optional, Set
@@ -29,7 +29,6 @@ def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitS
         spaces:
 
     Returns:
-
     """
     spaces = convert_to_container(spaces)
     # combine spaces and limits
@@ -90,7 +89,10 @@ class FunctorMixin(ZfitFunctorMixin, BaseModel):
 
     @property
     def models(self) -> List[ZfitModel]:
-        """Return the models of this `Functor`. Can be `pdfs` or `funcs`."""
+        """Return the models of this `Functor`.
+
+        Can be `pdfs` or `funcs`.
+        """
         return self._models
 
     @property

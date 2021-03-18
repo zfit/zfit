@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from typing import Optional, Tuple, Union, List
 
 import numpy as np
@@ -60,7 +60,10 @@ class Coordinates(ZfitOrderableDimensional):
 
     @property
     def n_obs(self) -> int:
-        """Return the number of observables, the dimensionality. Corresponds to the last dimension."""
+        """Return the number of observables, the dimensionality.
+
+        Corresponds to the last dimension.
+        """
         return self._n_obs
 
     def with_obs(self,
@@ -400,7 +403,6 @@ def convert_to_axes(axes, container=tuple):
 
     Raises
         TypeError: if the axes are not int
-
     """
     if axes is None:
         return axes

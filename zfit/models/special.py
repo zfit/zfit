@@ -1,9 +1,9 @@
-"""
-Special PDFs are provided in this module. One example is a normal function `Function` that allows to
-simply define a non-normalizable function.
+"""Special PDFs are provided in this module.
+
+One example is a normal function `Function` that allows to simply define a non-normalizable function.
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import functools
 from types import MethodType

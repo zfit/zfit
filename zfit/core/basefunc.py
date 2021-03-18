@@ -74,7 +74,7 @@ class BaseFunc(BaseModel, ZfitFunc):
                                          "Original Error: {}".format(error))
 
     def as_pdf(self) -> "zfit.core.interfaces.ZfitPDF":
-        """Create a PDF out of the function
+        """Create a PDF out of the function.
 
         Returns:
             A PDF with the current function as the unnormalized probability.

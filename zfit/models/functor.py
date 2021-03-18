@@ -1,11 +1,10 @@
-"""
-Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
+"""Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
 
 A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import functools
 import operator
 from collections import OrderedDict

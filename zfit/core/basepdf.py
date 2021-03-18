@@ -1,5 +1,4 @@
-"""
-This  module defines the `BasePdf` that can be used to inherit from in order to build a custom PDF.
+"""This  module defines the `BasePdf` that can be used to inherit from in order to build a custom PDF.
 
 The `BasePDF` implements already a lot of ready-to-use functionality like integral, automatic normalization
 and sampling.
@@ -82,7 +81,6 @@ def _BasePDF_register_check_support(has_support: bool):
     Args:
         has_support: If True, flags that it **requires** the `@supports` decorator. If False,
             flags that the `@supports` decorator is **not allowed**.
-
     """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
@@ -161,7 +159,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
             norm_range:
-
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range)
 

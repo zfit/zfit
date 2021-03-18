@@ -1,6 +1,5 @@
 """Module for caching.
 
-
 The basic concept of caching in Zfit builds on a "cacher", that caches a certain value and that
 is dependent of "cache_dependents". By implementing `ZfitCachable`, an object will be able to play both
 roles. And most importantly, it has a `_cache` dict, that contains all the cache.
@@ -45,8 +44,6 @@ Example with a pdf that caches the normalization:
             else:
                 result = self._cache['my_name']
             return result
-
-
 """
 
 #  Copyright (c) 2021 zfit
@@ -243,7 +240,6 @@ class FunctionCacheHolder(GraphCachable):
             kwargs: dict-like
 
         Returns:
-
         """
         # is initialized before the core
         from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace

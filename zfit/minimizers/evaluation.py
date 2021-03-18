@@ -83,9 +83,7 @@ class LossEval:
 
     @contextlib.contextmanager
     def ignore_maxiter(self):
-        """Return temporary the maximum number of iterations and won't raise an error.
-
-        """
+        """Return temporary the maximum number of iterations and won't raise an error."""
         old = self._ignoring_maxiter
         self._ignoring_maxiter = True
         yield

@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from typing import Callable, Any
 
@@ -44,7 +44,7 @@ class TemporarilySet:
                 `setter(value, *setter_args, **setter_kwargs)`
             getter: The getter function with a signature that is compatible to the call:
                 `getter(*getter_args, **getter_kwargs)`
-         """
+        """
         self.setter = setter
         self.getter = getter
         self.value = value

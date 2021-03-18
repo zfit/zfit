@@ -20,7 +20,6 @@ def poly_complex(*args, real_x=False):
         real_x: If True, x is assumed to be real.
 
     Returns:
-
     """
     from .. import z
 
@@ -73,13 +72,13 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
 def numerical_value_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> [tf.Tensor, tf.Tensor]:
     """Calculate numerically the gradients of `func()` with respect to `params`, also returns the value of `func()`.
 
-        Args:
-            func: Function without arguments that depends on `params`
-            params: Parameters that `func` implicitly depends on and with respect to which the
-                derivatives will be taken.
+    Args:
+        func: Function without arguments that depends on `params`
+        params: Parameters that `func` implicitly depends on and with respect to which the
+            derivatives will be taken.
 
-        Returns:
-            Value, gradient
+    Returns:
+        Value, gradient
     """
     return func(), numerical_gradient(func, params)
 
@@ -92,13 +91,13 @@ def numerical_hessian(func: Optional[Callable],
                       hessian=None) -> tf.Tensor:
     """Calculate numerically the hessian matrix of func with respect to `params`.
 
-        Args:
-            func: Function without arguments that depends on `params`
-            params: Parameters that `func` implicitly depends on and with respect to which the
-                derivatives will be taken.
+    Args:
+        func: Function without arguments that depends on `params`
+        params: Parameters that `func` implicitly depends on and with respect to which the
+            derivatives will be taken.
 
-        Returns:
-            Hessian matrix
+    Returns:
+        Hessian matrix
     """
 
     params = convert_to_container(params)
@@ -147,13 +146,13 @@ def numerical_value_gradient_hessian(func: Optional[Callable],
                                      hessian: Optional[str] = None) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
     """Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
 
-        Args:
-            func: Function without arguments that depends on `params`
-            params: Parameters that `func` implicitly depends on and with respect to which the
-                derivatives will be taken.
+    Args:
+        func: Function without arguments that depends on `params`
+        params: Parameters that `func` implicitly depends on and with respect to which the
+            derivatives will be taken.
 
-        Returns:
-            Value, gradient and hessian matrix
+    Returns:
+        Value, gradient and hessian matrix
     """
     if params is None:
         raise ValueError("params cannot be None")

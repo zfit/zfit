@@ -160,7 +160,6 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         efficiency_estimation: estimation of the initial sampling efficiency.
 
     Returns:
-
     """
     prob_max_init = prob_max
     multiple_limits = len(limits) > 1
