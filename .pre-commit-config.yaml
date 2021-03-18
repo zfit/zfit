@@ -51,4 +51,13 @@ repos:
   rev: v1.3.1
   hooks:
     - id: docformatter
-      args: [--in-place]
+      args: [-r --in-place --wrap-descriptions 120 --wrap-summaries 120]
+
+- repo: local
+  hooks:
+    - id: doc arg replacer
+      name: docarg
+      entry: utils/api/replace_argdocs.py
+      language: python
+      always_run: true
+      additional_dependencies: [ pyyaml ]
