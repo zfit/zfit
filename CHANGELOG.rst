@@ -37,6 +37,11 @@ Requirement changes
 - tensorflow ~= 2.4
 - tensorflow-probability~=12
 
+For devs:
+- pre-commit
+- pyyaml
+- docformatter
+
 
 Thanks
 ------
