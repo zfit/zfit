@@ -3,20 +3,10 @@ check-manifest
 coverage>=4.5.1
 docformatter
 flake8>=3.5.0
-matplotlib  # for plots in examples
 pip>=9.0.1
 pre-commit
 pydata-sphinx-theme
-
-pytest>=3.4.2,<5.4  # breaks unittests
-pytest-ordering
-pytest-randomly
-pytest-rerunfailures>=6
-pytest-runner>=2.11.1
-pytest-timeout>=1
-pytest-xdist
 pyyaml
-scikit-hep-testdata
 setupext-janitor
 setuptools>=30.3.0
 setuptools_scm[toml]>=3.4

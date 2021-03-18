@@ -15,9 +15,9 @@ helps, and credit will always be given.
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `zfit` for local development.
+Ready to contribute? Here's how to set up *zfit* for local development.
 
-1. Fork the `zfit` repo on GitHub.
+1. Fork the *zfit* repo on GitHub.
 2. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/zfit.git

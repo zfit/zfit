@@ -12,7 +12,7 @@ The first step is to naturally import ``zfit`` and verify if the installation ha
     >>> import zfit
 
 
-Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an *observable space*. This can be created using the :py:class:`~zfit.Space` class
+Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an *observable space*. This can be created using the :py:class:``~zfit.Space`` class
 
 .. code-block:: pycon
 
@@ -21,8 +21,8 @@ Since we want to generate/fit a Gaussian within a given range, the domain of the
 The best interpretation of the observable at this stage is that it defines the name and range of the observable axis.
 
 Using this domain, we can now create a simple Gaussian PDF.
-The most common PDFs are already pre-defined within the :py:mod:`~zfit.pdf` module, including a simple Gaussian.
-First, we have to define the parameters of the PDF and their limits using the :py:class:`~zfit.Parameter` class:
+The most common PDFs are already pre-defined within the :py:mod:``~zfit.pdf`` module, including a simple Gaussian.
+First, we have to define the parameters of the PDF and their limits using the :py:class:``~zfit.Parameter`` class:
 
 .. code-block:: pycon
 
@@ -37,7 +37,7 @@ With these parameters we can instantiate the Gaussian PDF from the library
 
 It is recommended to pass the arguments of the PDF as keyword arguments.
 
-The next stage is to create a dataset to be fitted. There are several ways of producing this within the zfit framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we simply produce it using numpy and the :func:`Data.from_numpy <zfit.Data.from_numpy>` method:
+The next stage is to create a dataset to be fitted. There are several ways of producing this within the zfit framework (see the :ref:``Data <data-section>`` section). In this case, for simplicity we simply produce it using numpy and the :func:``Data.from_numpy <zfit.Data.from_numpy>`` method:
 
 .. code-block:: pycon
 
@@ -46,7 +46,7 @@ The next stage is to create a dataset to be fitted. There are several ways of pr
 
 Now we have all the ingredients in order to perform a maximum likelihood fit. Conceptually this corresponds to three basic steps:
 
-1. create a loss function, in our case a negative log-likelihood :math:`\log\mathcal{L}`;
+1. create a loss function, in our case a negative log-likelihood :math:``\log\mathcal{L}``;
 2. instantiate our choice of minimiser;
 3. and minimise the log-likelihood.
 
@@ -70,7 +70,7 @@ This corresponds to the most basic example where the negative likelihood is defi
 
 It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
 Most minimisers will implement their CPU-intensive error calculating with the ``error`` method.
-As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the ``MINOS`` with:
+As an example, with the :py:class:``~zfit.minimize.Minuit`` one can calculate the ``MINOS`` with:
 
 .. code-block:: pycon
 
@@ -82,7 +82,7 @@ As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the 
 
 
 Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results.
-The object ``result`` (:py:class:`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:
+The object ``result`` (:py:class:``~zfit.minimizers.fitresult.FitResult``) has all the relevant information we need:
 
 .. code-block:: pycon
 

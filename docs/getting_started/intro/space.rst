@@ -2,10 +2,10 @@
 Space, Observable and Range
 ============================
 
-Inside zfit, :py:class:`~zfit.Space` defines the domain of objects by specifying the observables/axes and *maybe* also
+Inside zfit, :py:class:``~zfit.Space`` defines the domain of objects by specifying the observables/axes and *maybe* also
 the limits. Any model and data needs to be specified in a certain domain, which is usually done using the
 ``obs`` argument. It is crucial that the axis used by the observable of the data and the model match, and this matching is
-handle by the :py:class:`~zfit.Space` class.
+handle by the :py:class:``~zfit.Space`` class.
 
 .. code:: python
 
@@ -20,10 +20,10 @@ with or without limits.
 
 .. note::
 
-    *compared to `RooFit`, a space is **not** the equivalent of an observable but rather corresponds
+    *compared to ``RooFit``, a space is **not** the equivalent of an observable but rather corresponds
     to an object combining **a set** of observables (which of course can be of size 1). Furthermore,
-    there is a **strong** distinction in zfit between a :py:class:`~zfit.Space` (or observables)
-    and a :py:class:`~zfit.Parameter`, both conceptually and in terms of implementation and usage.*
+    there is a **strong** distinction in zfit between a :py:class:``~zfit.Space`` (or observables)
+    and a :py:class:``~zfit.Parameter``, both conceptually and in terms of implementation and usage.*
 
 **Observable**: a string defining the axes; a named axes.
 
@@ -32,7 +32,7 @@ with or without limits.
 
 **Limit** The range on a certain axis. Typically defines an interval. In fact, there are two times of limits:
  * **rectangular**: This type is the usual limit as e.g. ``(-2, 5)`` for a simple, 1 dimensional interval. It is
-   rectangular. This can either be given as ``limits`` of a :py:class:`~zfit.Space` or as ``rect_limits``.
+   rectangular. This can either be given as ``limits`` of a :py:class:``~zfit.Space`` or as ``rect_limits``.
  * **functional**: In order to define arbitrary limits, a function can be used that receives a tensor-like
    object ``x`` and returns ``True`` on every position that is inside the limits, ``False`` for every value outside.
    When a functional limit is given, rectangular limits that contain the functional limit as a subset **must** be
@@ -60,7 +60,7 @@ This correspond for example to the default normalization range ``norm_range`` or
 
     assert obs1 * obs2 = product.space
 
-The ``product`` is now defined in the space with observables `['x', 'y', 'z']`. Any :py:class:`~zfit.Data` object
+The ``product`` is now defined in the space with observables ``['x', 'y', 'z']``. Any :py:class:``~zfit.Data`` object
 to be combined with ``product`` has to be specified in the same space.
 
 .. code:: python
@@ -70,7 +70,7 @@ to be combined with ``product`` has to be specified in the same space.
 
     data = zfit.Data.from_numpy(obs=combined_obs, ...)
 
-Now we have a :py:class:`~zfit.Data` object that is defined in the same domain as `product` and can be used to build a loss function.
+Now we have a :py:class:``~zfit.Data`` object that is defined in the same domain as ``product`` and can be used to build a loss function.
 
 Limits
 ------
@@ -88,17 +88,17 @@ two intervals) or combination (increase the dimensionality) are also possible.
 
     added_limits = simple_limit1 + simple_limit2
 
-In this case, `added_limits` is now a :py:class:`zfit.Space` with observable `'obs1'` defined in the intervals
+In this case, ``added_limits`` is now a :py:class:``zfit.Space`` with observable ``'obs1'`` defined in the intervals
 (-5, 1) and (3, 7.5). This can be useful, *e.g.*, when fitting in two regions.
-An example of the product of different :py:class:`zfit.Space` instances has been shown before as ``combined_obs``.
+An example of the product of different :py:class:``zfit.Space`` instances has been shown before as ``combined_obs``.
 
 Functional limits
 '''''''''''''''''
 
 Limits can be defined by a function that returns whether a value is inside the boundaries or not **and** rectangular
-limits (note that specifying `rect_limit` does *not* enforce them, the function itself has to take care of that).
+limits (note that specifying ``rect_limit`` does *not* enforce them, the function itself has to take care of that).
 
-This example specifies the bounds between (-4, 0.5) with the `limit_fn` (which, in this simple case, could be better
+This example specifies the bounds between (-4, 0.5) with the ``limit_fn`` (which, in this simple case, could be better
 achieved by directly specifying them as rectangular limits).
 
 .. code:: python
@@ -117,20 +117,20 @@ Combining limits
 ''''''''''''''''
 
 To define simple, 1-dimensional limits, a tuple with two numbers or a functional limit in 1 dimension is enough. For anything more complicated,
-the operators product `*` or addition `+` respectively their functional API :py:func:`zfit.dimension.combine_spaces`
-and :py:func:`zfit.dimension.add_spaces` can be used.
+the operators product ``*`` or addition ``+`` respectively their functional API :py:func:``zfit.dimension.combine_spaces``
+and :py:func:``zfit.dimension.add_spaces`` can be used.
 
 
-A working code example of :py:class:`~zfit.Space` handling is provided in :ref:`spaces.py <spaces-example>`.
+A working code example of :py:class:``~zfit.Space`` handling is provided in :ref:``spaces.py <spaces-example>``.
 
 
 
 Using the limits
 '''''''''''''''''
 
-To use the limits of any object, the methods :py:meth`~zfit.Space.inside` (to test if values are inside or outside of the boundaries)
-and :py:meth`~zfit.Space.filter` can be used.
+To use the limits of any object, the methods :py:meth``~zfit.Space.inside`` (to test if values are inside or outside of the boundaries)
+and :py:meth``~zfit.Space.filter`` can be used.
 
 The rectangular limits can also direclty be accessed by ``rect_limits``, ``rect_lower`` or ``rect_upper``. The returned shape is of
-`(n_events, n_obs)`, for the lower respectively upper limit (``rect_limits`` is a tuple of `(lower, upper)`).
+``(n_events, n_obs)``, for the lower respectively upper limit (``rect_limits`` is a tuple of ``(lower, upper)``).
 This should be used with caution and only if the rectangular limits are desired.

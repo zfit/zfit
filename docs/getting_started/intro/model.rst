@@ -3,14 +3,14 @@ Building a model
 
 In order to build a generic model the concept of function and distributed density functions (PDFs) need to be clarified.
 The PDF, or density of a continuous random variable, of X is a function f(x) that describes the relative likelihood for this random variable to take on a given value.
-In this sense, for any two numbers a and b with :math:`a \leq b`,
+In this sense, for any two numbers a and b with :math:``a \leq b``,
 
-:math:`P(a \leq X \leq b) = \int^{b}_{a}f(X)dx`
+:math:``P(a \leq X \leq b) = \int^{b}_{a}f(X)dx``
 
-That is, the probability that X takes on a value in the interval :math:`[a, b]` is the area above this interval and under the graph of the density function.
+That is, the probability that X takes on a value in the interval :math:``[a, b]`` is the area above this interval and under the graph of the density function.
 In other words, in order to a function to be a PDF it must satisfy two criteria:
-1. :math:`f(x) \geq 0` for all x;
-2. :math:`\int^{\infty}_{-\infty}f(x)dx =` are under the entire graph of :math:`f(x)=1`.
+1. :math:``f(x) \geq 0`` for all x;
+2. :math:``\int^{\infty}_{-\infty}f(x)dx =`` are under the entire graph of :math:``f(x)=1``.
 In zfit these distinctions are respected, *i.e.*, a function can be converted into a PDF by imposing the basic two criteria above.
 
 .. _basic-model:
@@ -84,7 +84,7 @@ Let's consider a second crystal ball with the same mean position and width, but 
     >>> # New crystal Ball function defined in the same observable range
     >>> model_cb2 = zfit.pdf.CrystalBall(obs=obs, mu=mu, sigma=sigma, alpha=a2, n=n2)
 
-We can now combine these two PDFs to create a double Crystal Ball with a single mean and width through the :py:class:`zfit.pdf.SumPDF` class:
+We can now combine these two PDFs to create a double Crystal Ball with a single mean and width through the :py:class:``zfit.pdf.SumPDF`` class:
 
 .. code-block:: pycon
 
@@ -130,11 +130,11 @@ In the event there are different *species* of distributions in a given observabl
 the simple sum of PDFs does not a priori provides the absolute number of events for each specie but rather the fraction as seen above.
 An example is a Gaussian mass distribution with an exponential background, e.g.
 
-:math:`P = f_{S}\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^{2}}{2\sigma^{2}}} + (1 - f_{S}) e^{-\alpha x}`
+:math:``P = f_{S}\frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x-\mu)^{2}}{2\sigma^{2}}} + (1 - f_{S}) e^{-\alpha x}``
 
 Since we are interested to express a measurement of the number of events,
-the expression :math:`M(x) = N_{S}S(x) + N_{B}B(x)` respect that M(x) is normalised to :math:`N_{S} + N_{B} = N` instead of one.
-This means that :math:`M(x)` is not a true PDF but rather an expression for two quantities, the shape and the number of events in the distributions.
+the expression :math:``M(x) = N_{S}S(x) + N_{B}B(x)`` respect that M(x) is normalised to :math:``N_{S} + N_{B} = N`` instead of one.
+This means that :math:``M(x)`` is not a true PDF but rather an expression for two quantities, the shape and the number of events in the distributions.
 
 An extended PDF can be easily implemented in zfit in two ways:
 
@@ -157,7 +157,7 @@ Let's consider a simplified implementation
 .. code-block:: pycon
 
     >>> class MyGauss(zfit.pdf.ZPDF):
-    ...    """Simple implementation of a Gaussian similar to :py:class`~zfit.pdf.Gauss` class"""
+    ...    """Simple implementation of a Gaussian similar to :py:class``~zfit.pdf.Gauss`` class"""
     ...    _N_OBS = 1  # dimension, can be omitted
     ...    _PARAMS = ['mean', 'std']  # the name of the parameters
 
@@ -202,26 +202,26 @@ Sampling from a Model
 '''''''''''''''''''''
 
 In order to sample from model, there are two different methods,
-:py:meth:`~zfit.core.basemodel.BaseModel.sample` for **advanced** sampling returning a Tensor, and
-:py:meth:`~zfit.core.basemodel.BaseModel.create_sampler` for **multiple sampling** as used for toys.
+:py:meth:``~zfit.core.basemodel.BaseModel.sample`` for **advanced** sampling returning a Tensor, and
+:py:meth:``~zfit.core.basemodel.BaseModel.create_sampler`` for **multiple sampling** as used for toys.
 
 Tensor sampling
 '''''''''''''''''
 
-The sample from :py:meth:`~zfit.core.basemodel.BaseModel.sample` is a Tensor that samples when executed.
+The sample from :py:meth:``~zfit.core.basemodel.BaseModel.sample`` is a Tensor that samples when executed.
 This is for an advanced usecase only
 
 Playing with toys: Multiple samplings
 '''''''''''''''''''''''''''''''''''''
 
-The method :py:meth:`~zfit.core.basemodel.BaseModel.create_sampler` returns a sampler that can be used
-like a :py:class:`~zift.Data` object (e.g. for building a :py:class:`~zfit.core.interfaces.ZfitLoss`).
-The sampling itself is *not yet done* but only when :py:meth:`~zfit.core.data.Sampler.resample` is
+The method :py:meth:``~zfit.core.basemodel.BaseModel.create_sampler`` returns a sampler that can be used
+like a :py:class:``~zift.Data`` object (e.g. for building a :py:class:``~zfit.core.interfaces.ZfitLoss``).
+The sampling itself is *not yet done* but only when :py:meth:``~zfit.core.data.Sampler.resample`` is
 invoked. The sample generated depends on the original pdf at this point, e.g. parameters have the
-value they have when the :py:meth:`~zfit.core.data.Sampler.resample` is invoked. To have certain
-parameters fixed, they have to be specified *either* on :py:meth:`~zfit.core.basemodel.BaseModel.create_sampler`
-via `fixed_params`, on :py:meth:`~zfit.core.data.Sampler.resample` by specifying which parameter
-will take which value via `param_values` or by changing the attribute of :py:class:`~zfit.core.data.Sampler`.
+value they have when the :py:meth:``~zfit.core.data.Sampler.resample`` is invoked. To have certain
+parameters fixed, they have to be specified *either* on :py:meth:``~zfit.core.basemodel.BaseModel.create_sampler``
+via ``fixed_params``, on :py:meth:``~zfit.core.data.Sampler.resample`` by specifying which parameter
+will take which value via ``param_values`` or by changing the attribute of :py:class:``~zfit.core.data.Sampler``.
 
 How typically toys look like:
 .. _playing_with_toys:
@@ -249,7 +249,7 @@ A typical example of toys would therefore look like
         ...    # safe the result, collect the values, calculate errors...
 
 Here we fixed all parameters as they have been initialized and then sample. If we do not provide any
-arguments to `resample`, this will always sample now from the distribution with the parameters set to the values when
+arguments to ``resample``, this will always sample now from the distribution with the parameters set to the values when
 the sampler was created.
 
 
@@ -268,10 +268,10 @@ To give another, though not very useful example:
     >>> minimizer.minimize(nll)  # minimize
 
     >>> sampler.resample()
-    >>> # note that the nll, being dependent on `sampler`, also changed!
+    >>> # note that the nll, being dependent on ``sampler``, also changed!
 
-The sample is now resampled with the *current values* (minimized values) of `sigma1`, `sigma2` and with
-the initial values of `mu1`, `mu2` (because they have been fixed).
+The sample is now resampled with the *current values* (minimized values) of ``sigma1``, ``sigma2`` and with
+the initial values of ``mu1``, ``mu2`` (because they have been fixed).
 
 We can also specify the parameter values explicitly by
 using the following argument. Reusing the example above
@@ -281,7 +281,7 @@ using the following argument. Reusing the example above
     >>> sigma.set_value(np.random.normal())
     >>> sampler.resample(param_values={sigma1: 5})
 
-The sample (and therefore also the sample the `nll` depends on) is now sampled with `sigma1` set to 5.
+The sample (and therefore also the sample the ``nll`` depends on) is now sampled with ``sigma1`` set to 5.
 
 If some parameters are constrained to values observed from external measurements, usually Gaussian constraints,
 then sampling of the observed values might be needed to obtain an unbiased sample from the model. Example:

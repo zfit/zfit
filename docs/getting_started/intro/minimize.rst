@@ -31,7 +31,7 @@ For instance, the Adam minimizer could have been initialised by
     >>> # Adam's TensorFlor optimiser using a wrapper
     >>> minimizer_wrapper = zfit.minimize.WrapOptimizer(tf.keras.optimizer.Adam())
 
-Any of these minimizers can then be used to minimize the loss function we created in :ref:`previous section <data-section>`, e.g.
+Any of these minimizers can then be used to minimize the loss function we created in :ref:``previous section <data-section>``, e.g.
 
 .. code-block:: pycon
 
@@ -47,12 +47,12 @@ The choice of which parameters of your model should be floating in the fit can a
 **Only** the parameters given in ``params`` are floated in the optimisation process.
 If this argument is not provided or ``params=None``, all the floating parameters in the loss function are floated in the minimization process.
 
-The result of the fit is return as a :py:class:`~zfit.minimizers.fitresult.FitResult` object, which provides access the minimiser state.
+The result of the fit is return as a :py:class:``~zfit.minimizers.fitresult.FitResult`` object, which provides access the minimiser state.
 zfit separates the minimisation of the loss function with respect to the error calculation in order to give the freedom of calculating this error whenever needed.
-The :py:func:`~zfit.minimizers.fitresult.FitResult.error` method can be used to perform the CPU-intensive error calculation.
-It returns two objects, the first are the parameter errors and the second is a new `FitResult` *in case a new
+The :py:func:``~zfit.minimizers.fitresult.FitResult.error`` method can be used to perform the CPU-intensive error calculation.
+It returns two objects, the first are the parameter errors and the second is a new ``FitResult`` *in case a new
 minimum was found during the profiling*; this will also render the original result invalid as can
-be check with `result.valid`.
+be check with ``result.valid``.
 
 .. code-block:: pycon
 
