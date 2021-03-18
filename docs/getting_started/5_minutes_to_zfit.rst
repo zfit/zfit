@@ -4,7 +4,7 @@
 
 The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.
 
-The first step is to naturally import ``zfit`` and verify if the installation has been done successfully:
+The first step is to import ``zfit`` and verify if the installation has been done successfully:
 
 .. code-block:: pycon
 
@@ -37,7 +37,7 @@ With these parameters we can instantiate the Gaussian PDF from the library
 
 It is recommended to pass the arguments of the PDF as keyword arguments.
 
-The next stage is to create a dataset to be fitted. There are several ways of producing this within the zfit framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we simply produce it using numpy and the :func:`Data.from_numpy <zfit.Data.from_numpy>` method:
+The next stage is to create a dataset to be fitted. There are several ways of producing this within the zfit framework (see the :ref:`Data <data-section>` section). For simplicity we simply produce it using numpy and the :func:`Data.from_numpy <zfit.Data.from_numpy>` method:
 
 .. code-block:: pycon
 
@@ -55,7 +55,7 @@ Now we have all the ingredients in order to perform a maximum likelihood fit. Co
     >>> # Stage 1: create an unbinned likelihood with the given PDF and dataset
     >>> nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
-    >>> # Stage 2: instantiate a minimiser (in this case a basic minuit
+    >>> # Stage 2: instantiate a minimiser (in this case a basic minuit)
     >>> minimizer = zfit.minimize.Minuit()
 
     >>> # Stage 3: minimise the given negative likelihood
@@ -75,7 +75,7 @@ In order to get an estimate for the errors, it is possible to call ``Hesse`` tha
 To call ``Hesse``, do:
 
 .. code-block:: pycon
-    
+
     >>> param_errors = result.hesse()
 
 which will return a dictionary of the fit parameters as keys with ``error`` values for each one.
@@ -125,8 +125,8 @@ As already mentioned, there is no dedicated plotting feature within zfit. Howeve
 
     >>> # Some simple matplotlib configurations
     >>> import matplotlib.pyplot as plt
-    >>> lower, upper = obs.limits
-    >>> data_np = zfit.run(data)
+    >>> lower, upper = obs.rect_limits
+    >>> data_np = zfit.run(data.value())
     >>> counts, bin_edges = np.histogram(data_np, 80, range=(lower[-1][0], upper[0][0]))
     >>> bin_centres = (bin_edges[:-1] + bin_edges[1:])/2.
     >>> err = np.sqrt(counts)
@@ -135,7 +135,7 @@ As already mentioned, there is no dedicated plotting feature within zfit. Howeve
     >>> x_plot = np.linspace(lower[-1][0], upper[0][0], num=1000)
     >>> y_plot = zfit.run(gauss.pdf(x_plot, norm_range=obs))
 
-    >>> plt.plot(x_plot, y_plot*data_np.shape[0]/80*obs.area(), color='xkcd:blue')
+    >>> plt.plot(x_plot, y_plot*data_np.shape[0]/80*obs.rect_area(), color='xkcd:blue')
     >>> plt.show()
 
 .. image:: ../images/Gaussian.png
@@ -143,6 +143,12 @@ As already mentioned, there is no dedicated plotting feature within zfit. Howeve
 The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to ``zfit.run``, a specialised wrapper around ``tf.Session().run``.
 While actions like ``minimize`` or ``sample`` return Python objects (including numpy arrays or scalars), functions like ``pdf`` or ``integrate`` return TensorFlow graphs, which are lazy-evaluated.
 To obtain the value of these PDFs, we need to execute the graph by using ``zfit.run``.
+
+Also note that we were able to plot the fitting result with the model gaussian without extracting the loss
+minimizing parameters from ``result``. This is possible because parameters are mutable. This means that the
+minimizer can directly manipulate the value of the floating parameter. So when you call the ``minimizer.minimize()``
+method the value of ``mu`` changes during the optimisation. ``gauss.pdf()`` then uses this new value to calculate the
+pdf.
 
 
 What did just happen?
