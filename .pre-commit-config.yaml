@@ -1,63 +1,78 @@
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v3.4.0
-  hooks:
-  - id: check-added-large-files
-  - id: check-case-conflict
-  - id: check-merge-conflict
-  - id: check-symlinks
-  - id: check-yaml
-  - id: debug-statements
-  - id: end-of-file-fixer
-  - id: mixed-line-ending
-  - id: requirements-txt-fixer
-  - id: trailing-whitespace
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v3.4.0
+      hooks:
+          - id: check-added-large-files
+          - id: check-case-conflict
+          - id: check-merge-conflict
+          - id: check-symlinks
+          - id: check-yaml
+          - id: check-toml
+          - id: debug-statements
+          - id: end-of-file-fixer
+          - id: mixed-line-ending
+          - id: requirements-txt-fixer
+          - id: trailing-whitespace
+          - id: detect-private-key
 
-- repo: https://github.com/PyCQA/isort
-  rev: 5.7.0
-  hooks:
-  - id: isort
+    - repo: https://github.com/pre-commit/mirrors-prettier
+      rev: v2.2.1
+      hooks:
+          - id: prettier
 
-- repo: https://github.com/asottile/pyupgrade
-  rev: v2.10.1
-  hooks:
-  - id: pyupgrade
-    args: [--py36-plus]
+    - repo: https://github.com/PyCQA/isort
+      rev: 5.7.0
+      hooks:
+          - id: isort
 
-- repo: https://github.com/asottile/setup-cfg-fmt
-  rev: v1.17.0
-  hooks:
-  - id: setup-cfg-fmt
+    - repo: https://github.com/asottile/pyupgrade
+      rev: v2.10.1
+      hooks:
+          - id: pyupgrade
+            args: [--py36-plus]
 
-# Notebook formatting
-- repo: https://github.com/nbQA-dev/nbQA
-  rev: 0.5.9
-  hooks:
-    - id: nbqa-isort
-      additional_dependencies: [isort==5.6.4]
+    - repo: https://github.com/asottile/setup-cfg-fmt
+      rev: v1.17.0
+      hooks:
+          - id: setup-cfg-fmt
 
-    - id: nbqa-pyupgrade
-      additional_dependencies: [pyupgrade==2.7.4]
-      args: ["--py36-plus"]
+    # Notebook formatting
+    - repo: https://github.com/nbQA-dev/nbQA
+      rev: 0.5.9
+      hooks:
+          - id: nbqa-isort
+            additional_dependencies: [isort==5.6.4]
 
+          - id: nbqa-pyupgrade
+            additional_dependencies: [pyupgrade==2.7.4]
+            args: ["--py36-plus"]
 
-- repo: https://github.com/mgedmin/check-manifest
-  rev: "0.46"
-  hooks:
-  - id: check-manifest
-    stages: [manual]
+    - repo: https://github.com/mgedmin/check-manifest
+      rev: "0.46"
+      hooks:
+          - id: check-manifest
+            stages: [manual]
 
-- repo: https://github.com/myint/docformatter
-  rev: v1.3.1
-  hooks:
-    - id: docformatter
-      args: ['-r', '--in-place', '--wrap-descriptions', '120', '--wrap-summaries', '120', '--']
+    - repo: https://github.com/myint/docformatter
+      rev: v1.4
+      hooks:
+          - id: docformatter
+            args:
+                [
+                    "-r",
+                    "--in-place",
+                    "--wrap-descriptions",
+                    "120",
+                    "--wrap-summaries",
+                    "120",
+                    "--",
+                ]
 
-- repo: local
-  hooks:
-    - id: doc arg replacer
-      name: docarg
-      entry: utils/api/replace_argdocs.py
-      language: python
-      always_run: true
-      additional_dependencies: [ pyyaml ]
+    - repo: local
+      hooks:
+          - id: doc arg replacer
+            name: docarg
+            entry: utils/api/replace_argdocs.py
+            language: python
+            always_run: true
+            additional_dependencies: [pyyaml]

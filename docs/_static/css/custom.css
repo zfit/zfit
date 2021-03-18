@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2021 zfit
+ */
+
 /*This css file is a bit of a hack for changing the look of pydata_sphinx_theme. As soon as */
 /*there will be an official way of doing this, we can change this.*/
 
-@import 'index.css';
+@import "index.css";
 
 #navbar-main {
-    background-color: #2F4858!important;
+    background-color: #2f4858 !important;
 }
 
 /* This is kept for reference, in case the logo needs to be adjusted in the css. */
@@ -13,12 +17,12 @@
 /*}*/
 
 .nav-link {
-    color: #ffffffff!important;
+    color: #ffffffff !important;
 }
 
-.navbar-nav>.active>.nav-link {
+.navbar-nav > .active > .nav-link {
     font-weight: 600;
-    color: #CB5628!important;
+    color: #cb5628 !important;
 }
 
 i.fa-github-square:before {
