@@ -2,7 +2,7 @@
 import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
-from typing import List, Tuple, Union, Dict, Mapping, Callable
+from typing import Callable, Dict, List, Mapping, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -12,20 +12,22 @@ from tensorflow.python.ops import array_ops
 
 # from ..settings import types as ztypes
 import zfit
-from .baseobject import BaseObject
-from .coordinates import convert_to_obs_str
-from .dimension import BaseDimensional
-from .interfaces import ZfitSpace, ZfitData
-from .parameter import register_tensor_conversion
-from .space import Space, convert_to_space
+
 from .. import z
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
 from ..util.container import convert_to_container
-from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleError, \
-    ObsIncompatibleError, WorkInProgressError
+from ..util.exception import (LogicalUndefinedOperationError,
+                              ObsIncompatibleError, ShapeIncompatibleError,
+                              WorkInProgressError)
 from ..util.temporary import TemporarilySet
+from .baseobject import BaseObject
+from .coordinates import convert_to_obs_str
+from .dimension import BaseDimensional
+from .interfaces import ZfitData, ZfitSpace
+from .parameter import register_tensor_conversion
+from .space import Space, convert_to_space
 
 
 # TODO: make cut only once, then remember
@@ -476,8 +478,8 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     # TODO(Mayou36): refactor with pdf or other range things?
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
-        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.Space` and sort them according to own
-        `obs`.
+        """Convert the inputs (using eventually `obs`, `axes`) to
+        :py:class:`~zfit.Space` and sort them according to own `obs`.
 
         Args:
             obs:
@@ -575,7 +577,7 @@ class Sampler(Data):
         sample_holder = tf.Variable(initial_value=sample_func(), dtype=dtype, trainable=False,  # HACK: sample_func
                                     # validate_shape=False,
                                     shape=(None, obs.n_obs),
-                                    name="sample_data_holder_{}".format(cls.get_cache_counting()))
+                                    name=f"sample_data_holder_{cls.get_cache_counting()}")
         dataset = LightDataset.from_tensor(sample_holder)
 
         return Sampler(dataset=dataset, sample_holder=sample_holder, sample_func=sample_func, fixed_params=fixed_params,

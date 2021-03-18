@@ -1,4 +1,4 @@
-"""Example test for a pdf or function"""
+"""Example test for a pdf or function."""
 #  Copyright (c) 2021 zfit
 
 import numpy as np
@@ -238,6 +238,7 @@ def test_conv_2D_simple():
     true_probs = true_conv_2d_np(func, gauss, obsfunc=obs_func,
                                  xfunc=linspace_func, xkernel=linspace_kernel)
     import matplotlib.pyplot as plt
+
     # np.testing.assert_allclose(probs, true_probs, rtol=0.2, atol=0.1)
     integral = conv.integrate(limits=obs_func)
     assert pytest.approx(1, rel=1e-3) == integral.numpy()

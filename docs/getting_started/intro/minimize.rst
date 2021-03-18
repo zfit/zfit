@@ -87,5 +87,3 @@ and the fitted parameters
     >>> # Printing information on specific parameters, e.g. mu
     >>> print("mu={}".format(params[mu]['value']))
     mu=0.012464509810750313
-
-

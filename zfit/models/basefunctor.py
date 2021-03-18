@@ -1,7 +1,7 @@
 #  Copyright (c) 2021 zfit
 
 import abc
-from typing import List, Union, Tuple, Iterable, Optional, Set
+from typing import Iterable, List, Optional, Set, Tuple, Union
 
 from ordered_set import OrderedSet
 
@@ -9,11 +9,12 @@ from ..core.basemodel import BaseModel
 from ..core.dependents import _extract_dependencies
 from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace
-from ..core.space import Space
-from ..core.space import combine_spaces
+from ..core.space import Space, combine_spaces
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import NormRangeNotSpecifiedError, LimitsIncompatibleError, SpaceIncompatibleError
+from ..util.exception import (LimitsIncompatibleError,
+                              NormRangeNotSpecifiedError,
+                              SpaceIncompatibleError)
 
 
 def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitSpace]) -> ZfitSpace:

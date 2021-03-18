@@ -9,8 +9,9 @@ def params():
 
 
 def test_approx(params):
-    from zfit.result import Approximations
     import numpy as np
+
+    from zfit.result import Approximations
 
     grad = np.array(range(3))
     hessian = np.random.normal(size=(3, 3)) + 15

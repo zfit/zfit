@@ -1,18 +1,18 @@
 #  Copyright (c) 2021 zfit
 
-from typing import Callable, Union, Iterable, List, Optional, Tuple
+from typing import Callable, Iterable, List, Optional, Tuple, Union
 
 import tensorflow as tf
 from tensorflow_probability import distributions as tfd
 
-from .data import Data
-from .interfaces import ZfitPDF
-from .space import Space
-from .. import z, settings
-from ..settings import ztypes, run
+from .. import settings, z
+from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WorkInProgressError
+from .data import Data
+from .interfaces import ZfitPDF
+from .space import Space
 
 
 class UniformSampleAndWeights:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 #  Copyright (c) 2021 zfit
 
@@ -53,7 +52,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'zfit'
+project = 'zfit'
 copyright = zfit.__copyright__
 author = zfit.__author__
 
@@ -62,7 +61,7 @@ author = zfit.__author__
 # the built documents.
 #
 # The short X.Y version.
-version = zfit.__version__.split(('+'))[0]
+version = zfit.__version__.split('+')[0]
 # The full version, including alpha/beta/rc tags.
 release = zfit.__version__
 
@@ -222,8 +221,8 @@ latex_elements = {
 # [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'zfit.tex',
-     u'zfit Documentation',
-     u'zfit', 'manual'),
+     'zfit Documentation',
+     'zfit', 'manual'),
 ]
 
 # -- Options for manual page output ------------------------------------
@@ -232,7 +231,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, 'zfit',
-     u'zfit Documentation',
+     'zfit Documentation',
      [author], 1)
 ]
 
@@ -243,7 +242,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'zfit',
-     u'zfit Documentation',
+     'zfit Documentation',
      author,
      'zfit',
      'One line description of project.',

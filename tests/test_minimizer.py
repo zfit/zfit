@@ -10,7 +10,6 @@ import zfit.minimizers.optimizers_tf
 from zfit.minimizers.base_tf import WrapOptimizer
 from zfit.util.exception import OperationNotAllowedError
 
-
 true_mu = 4.5
 true_sigma = 2
 true_lambda = -0.03

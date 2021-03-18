@@ -1,4 +1,4 @@
-"""Used to make pytest functions available globally"""
+"""Used to make pytest functions available globally."""
 
 #  Copyright (c) 2021 zfit
 import sys

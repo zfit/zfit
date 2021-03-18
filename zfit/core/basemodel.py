@@ -12,29 +12,36 @@ import inspect
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Dict, Union, Callable, List, Tuple, Optional
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
-from . import integration as zintegrate, sample as zsample
-from .baseobject import BaseNumeric
-from .data import Data, Sampler, SampleData
-from .dependents import _extract_dependencies
-from .dimension import BaseDimensional
-from .interfaces import ZfitModel, ZfitParameter, ZfitData, ZfitSpace
-from .sample import UniformSampleAndWeights
-from .space import Space, convert_to_space, no_norm_range, supports
 from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
-from ..util import container as zcontainer, ztyping
+from ..util import container as zcontainer
+from ..util import ztyping
 from ..util.cache import GraphCachable
-from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
-                              ShapeIncompatibleError, SubclassingError, CannotConvertToNumpyError, WorkInProgressError,
-                              SpaceIncompatibleError, AnalyticIntegralNotImplementedError,
+from ..util.exception import (AnalyticIntegralNotImplementedError,
+                              AnalyticSamplingNotImplementedError,
+                              BasePDFSubclassingError,
+                              CannotConvertToNumpyError,
+                              FunctionNotImplementedError,
+                              MultipleLimitsNotImplementedError,
+                              NormRangeNotImplementedError,
+                              ShapeIncompatibleError, SpaceIncompatibleError,
                               SpecificFunctionNotImplementedError,
-                              AnalyticSamplingNotImplementedError, FunctionNotImplementedError)
+                              SubclassingError, WorkInProgressError)
+from . import integration as zintegrate
+from . import sample as zsample
+from .baseobject import BaseNumeric
+from .data import Data, SampleData, Sampler
+from .dependents import _extract_dependencies
+from .dimension import BaseDimensional
+from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
+from .sample import UniformSampleAndWeights
+from .space import Space, convert_to_space, no_norm_range, supports
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -253,8 +260,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def convert_sort_space(self, obs: Union[ztyping.ObsTypeInput, ztyping.LimitsTypeInput] = None,
                            axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> Union[ZfitSpace, None]:
-        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
-        own `obs`.
+        """Convert the inputs (using eventually `obs`, `axes`) to
+        :py:class:`~zfit.ZfitSpace` and sort them according to own `obs`.
 
         Args:
             obs:
@@ -1072,4 +1079,4 @@ class SimpleModelSubclassMixin:
                                    "    _PARAMS = ['mu', 'sigma']")
         not_str = [param for param in params if not isinstance(param, str)]
         if not_str:
-            raise TypeError("The following parameters are not strings in `_PARAMS`: ".format(not_str))
+            raise TypeError(f"The following parameters are not strings in `_PARAMS`: ")

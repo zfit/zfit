@@ -5,13 +5,13 @@ import multiprocessing
 import os
 import sys
 import warnings
-from typing import List, Union, Optional
+from typing import List, Optional, Union
 
 import tensorflow as tf
 
 from .container import DotDict
-from .exception import IllegalInGraphModeError
 from .deprecation import deprecated
+from .exception import IllegalInGraphModeError
 from .temporary import TemporarilySet
 
 
@@ -75,7 +75,7 @@ class RunManager:
                               "`zfit.run.set_n_cpu(your_cpu_number)`")
         elif isinstance(n_cpu, int):
             cpu = range(n_cpu)
-        self._cpu = ['dummy_cpu{}'.format(i) for i in cpu]
+        self._cpu = [f'dummy_cpu{i}' for i in cpu]
         n_cpu = len(cpu)
         if strict ^ self._strict:
             intra = 1 if strict else 2

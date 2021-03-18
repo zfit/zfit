@@ -39,10 +39,14 @@ Some function are already wrapped, others are not. Best practice is to use `z` w
 # noinspection PyUnresolvedReferences
 import tensorflow.experimental.numpy as np
 
-from .wrapping_tf import (exp, random_normal, random_uniform, convert_to_tensor, reduce_sum, reduce_prod, square,
-                          sqrt, complex, check_numerics, pow)
+from . import math, random, unstable
+from .wrapping_tf import (check_numerics, complex, convert_to_tensor, exp, pow,
+                          random_normal, random_uniform, reduce_prod,
+                          reduce_sum, sqrt, square)
+from .zextension import abs_square, constant
 from .zextension import function as function
-from .zextension import (to_complex, to_real, constant, pi, abs_square, nth_pow, unstack_x, stack_x, safe_where,
-                         run_no_nan, function_tf_input, function_sampling, py_function)
-from . import random, math, unstable
+from .zextension import (function_sampling, function_tf_input, nth_pow, pi,
+                         py_function, run_no_nan, safe_where, stack_x,
+                         to_complex, to_real, unstack_x)
+
 # math

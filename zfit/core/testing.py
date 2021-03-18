@@ -4,12 +4,12 @@ Contains a singleton instance to register new PDFs and let them be tested.
 """
 #  Copyright (c) 2021 zfit
 from collections import OrderedDict
-from typing import Callable, Tuple, List, Union, Iterable
+from typing import Callable, Iterable, List, Tuple, Union
 
 import scipy.stats
 
-from .interfaces import ZfitPDF
 from ..util.container import convert_to_container
+from .interfaces import ZfitPDF
 
 __all__ = ["tester"]
 

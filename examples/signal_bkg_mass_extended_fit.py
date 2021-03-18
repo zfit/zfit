@@ -1,8 +1,9 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
-import numpy as np
-import zfit
 import matplotlib.pyplot as plt
+import numpy as np
+
+import zfit
 
 n_bins = 50
 

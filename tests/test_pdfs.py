@@ -11,7 +11,7 @@ from zfit.core.interfaces import ZfitPDF
 from zfit.core.parameter import Parameter
 from zfit.core.space import Space
 from zfit.models.dist_tfp import Gauss
-from zfit.models.functor import SumPDF, ProductPDF
+from zfit.models.functor import ProductPDF, SumPDF
 
 low, high = -0.64, 5.9
 

@@ -31,7 +31,7 @@ auto_start = r'|@docstart|'
 for filepath in cfg.files:
     if not filepath.endswith('.py'):
         continue
-    with open(filepath, 'r') as file:
+    with open(filepath) as file:
         filedata = file.read()
 
     infile = False
@@ -40,7 +40,7 @@ for filepath in cfg.files:
         replacement = replacement.rstrip('\n')
         while replacement[:1] == ' ':  # we want to remove the whitespace
             replacement = replacement[1:]
-        auto_param = r'|@doc:{}|'.format(param)
+        auto_param = fr'|@doc:{param}|'
         param_mod = f'{auto_start}{auto_param}{auto_end}'
         matches = re.findall(auto_start.replace('|', r'\|')
                              + auto_param.replace('|', r'\|')

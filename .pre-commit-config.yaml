@@ -51,7 +51,7 @@ repos:
   rev: v1.3.1
   hooks:
     - id: docformatter
-      args: [-r --in-place --wrap-descriptions 120 --wrap-summaries 120]
+      args: ['-r', '--in-place', '--wrap-descriptions', '120', '--wrap-summaries', '120', '--']
 
 - repo: local
   hooks:

@@ -6,7 +6,7 @@ import tensorflow as tf
 import zfit
 from zfit import z
 from zfit.core.coordinates import Coordinates
-from zfit.util.exception import ObsIncompatibleError, AxesIncompatibleError
+from zfit.util.exception import AxesIncompatibleError, ObsIncompatibleError
 
 coordinate_classes = [Coordinates, zfit.Space]
 

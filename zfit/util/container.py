@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
 
-from typing import Callable, Any, Iterable, Union
+from typing import Any, Callable, Iterable, Union
 
 import tensorflow as tf
 
@@ -27,7 +27,8 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
 
     Returns:
     """
-    from ..core.interfaces import ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter  # here due to dependency
+    from ..core.interfaces import ZfitData  # here due to dependency
+    from ..core.interfaces import ZfitLoss, ZfitModel, ZfitParameter, ZfitSpace
     if non_containers is None:
         non_containers = []
     if not isinstance(non_containers, list):

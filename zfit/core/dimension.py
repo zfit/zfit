@@ -1,14 +1,15 @@
 #  Copyright (c) 2021 zfit
 
-from typing import Iterable, List, Union, Dict, Set
+from typing import Dict, Iterable, List, Set, Union
 
 import numpy as np
 
 import zfit
-from zfit.util.exception import (SpaceIncompatibleError, )
-from .interfaces import ZfitDimensional
+from zfit.util.exception import SpaceIncompatibleError
+
 from ..util import ztyping
 from ..util.container import convert_to_container
+from .interfaces import ZfitDimensional
 
 
 class BaseDimensional(ZfitDimensional):
@@ -16,7 +17,7 @@ class BaseDimensional(ZfitDimensional):
     def _check_n_obs(self, space):
         if self._N_OBS is not None:
             if len(space.obs) != self._N_OBS:
-                raise SpaceIncompatibleError("Exactly {} obs are allowed, {} are given.".format(self._N_OBS, space.obs))
+                raise SpaceIncompatibleError(f"Exactly {self._N_OBS} obs are allowed, {space.obs} are given.")
 
     @classmethod
     def __init_subclass__(cls, **kwargs):

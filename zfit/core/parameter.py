@@ -6,7 +6,7 @@ import warnings
 from collections import OrderedDict
 from contextlib import suppress
 from inspect import signature
-from typing import Callable, Iterable, Union, Optional, Dict, Set
+from typing import Callable, Dict, Iterable, Optional, Set, Union
 
 import numpy as np
 import tensorflow as tf
@@ -15,25 +15,30 @@ import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
-from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
+from tensorflow.python.ops.resource_variable_ops import \
+    ResourceVariable as TFVariable
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
-from . import interfaces as zinterfaces
-from .dependents import _extract_dependencies
-from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
 from .. import z
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
-from ..settings import ztypes, run
+from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
-from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
-    WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError, FunctionNotImplementedError
+from ..util.exception import (BreakingAPIChangeError,
+                              FunctionNotImplementedError,
+                              IllegalInGraphModeError,
+                              LogicalUndefinedOperationError,
+                              NameAlreadyTakenError,
+                              ParameterNotIndependentError,
+                              WorkInProgressError)
 from ..util.temporary import TemporarilySet
-
+from . import interfaces as zinterfaces
+from .dependents import _extract_dependencies
+from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 
 # todo add type hints in this module for api
 
@@ -782,7 +787,7 @@ class ComplexParameter(ComposedParameter):
     def conj(self):
         """Returns a complex conjugated copy of the complex parameter."""
         if self._conj is None:
-            self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=lambda: tf.math.conj(self),
+            self._conj = ComplexParameter(name=f'{self.name}_conj', value_fn=lambda: tf.math.conj(self),
                                           params=self.get_cache_deps(),
                                           dtype=self.dtype)
         return self._conj

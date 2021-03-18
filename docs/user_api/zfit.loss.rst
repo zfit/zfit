@@ -11,5 +11,3 @@ Loss
     zfit.loss.BaseLoss
     zfit.loss.SimpleLoss
     zfit.loss.experimental_enable_loss_penalty
-
-

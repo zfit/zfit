@@ -274,4 +274,3 @@ def test_new_minimum(minimizer_class_and_kwargs):
         for param in params:
             assert errors[param]['lower'] < 0
             assert errors[param]['upper'] > 0
-

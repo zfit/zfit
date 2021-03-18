@@ -2,20 +2,20 @@
 import collections
 import copy
 import math
-from typing import Optional, Dict, Union, Callable, Mapping
+from typing import Callable, Dict, Mapping, Optional, Union
 
 import nlopt
 import numpy as np
 
-from .baseminimizer import BaseMinimizer, minimize_supports, NOT_SUPPORTED, print_minimization_status
-from .evaluation import LossEval
-from .fitresult import FitResult
-from .strategy import ZfitStrategy
-from .termination import EDM, CRITERION_NOT_AVAILABLE, ConvergenceCriterion
 from ..core.parameter import set_values
 from ..settings import run
 from ..util.exception import MaximumIterationReached
-
+from .baseminimizer import (NOT_SUPPORTED, BaseMinimizer, minimize_supports,
+                            print_minimization_status)
+from .evaluation import LossEval
+from .fitresult import FitResult
+from .strategy import ZfitStrategy
+from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
 
 # class NLopt(BaseMinimizer):
 #     def __init__(self, algorithm: int = nlopt.LD_LBFGS, tol: Optional[float] = None,

@@ -86,8 +86,9 @@ def create_mu_sigma_2(nameadd=""):
 
 
 def create_wrapped_gauss(nameadd=""):
-    import zfit
     import tensorflow_probability as tfp
+
+    import zfit
 
     obs1 = zfit.Space('obs1', (low, high))
     mu2, sigma2 = create_mu_sigma_2(nameadd)
@@ -148,6 +149,7 @@ def test_input_space():
 
 def test_func(obs1, test_values):
     import numpy as np
+
     import zfit
 
     test_values = np.array([3., 11.3, -0.2, -7.82])
@@ -172,6 +174,7 @@ def test_func(obs1, test_values):
 def test_normalization(obs1, pdf_factory):
     import numpy as np
     import tensorflow as tf
+
     import zfit
     from zfit import z
 
@@ -225,6 +228,7 @@ def test_sampling_simple(gauss_factory):
 
 def test_sampling_multiple_limits(obs1):
     import numpy as np
+
     import zfit
 
     gauss_params1 = create_gauss1()
@@ -280,8 +284,8 @@ def test_analytic_sampling(obs1):
 
 
 def test_multiple_limits(obs1):
-    from zfit.core.space import MultiSpace
     import zfit
+    from zfit.core.space import MultiSpace
 
     gauss_params1 = create_gauss1()
     dims = (0,)
@@ -325,8 +329,9 @@ def test_set_yield(obs1):
 
 
 def test_projection_pdf(test_values):
-    import zfit
     import numpy as np
+
+    import zfit
 
     x = zfit.Space("x", limits=(-1, 1))
     y = zfit.Space("y", limits=(-1, 1))

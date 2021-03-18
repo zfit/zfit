@@ -52,4 +52,3 @@ Simultanous fit
 Spaces
 ------
 .. literalinclude:: /../examples/spaces.py
-

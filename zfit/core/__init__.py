@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
-from . import (baseobject, basepdf, basemodel, basefunc, data, interfaces, integration, loss,
-               sample, space, operations, parameter, )
+from . import (basefunc, basemodel, baseobject, basepdf, data, integration,
+               interfaces, loss, operations, parameter, sample, space)

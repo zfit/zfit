@@ -5,15 +5,16 @@ from .minimizers.baseminimizer import DefaultStrategy
 from .minimizers.fitresult import FitResult
 from .minimizers.ipopt import IpyoptV1
 from .minimizers.minimizer_minuit import Minuit
-from .minimizers.minimizer_nlopt import (NLoptLBFGSV1, NLoptTruncNewtonV1, NLoptSLSQPV1, NLoptMMAV1,
-                                         NLoptCCSAQV1,
-                                         NLoptSubplexV1,
-                                         NLoptMLSLV1,
-                                         NLoptStoGOV1,
-                                         )
+from .minimizers.minimizer_nlopt import (NLoptCCSAQV1, NLoptLBFGSV1,
+                                         NLoptMLSLV1, NLoptMMAV1, NLoptSLSQPV1,
+                                         NLoptStoGOV1, NLoptSubplexV1,
+                                         NLoptTruncNewtonV1)
 from .minimizers.minimizer_tfp import BFGS
-from .minimizers.minimizers_scipy import ScipyLBFGSBV1, ScipyTrustKrylovV1, ScipyTrustConstrV1, ScipyDoglegV1, \
-    ScipyTrustNCGV1, ScipyPowellV1, ScipySLSQPV1, ScipyNewtonCGV1, ScipyTruncNCV1
+from .minimizers.minimizers_scipy import (ScipyDoglegV1, ScipyLBFGSBV1,
+                                          ScipyNewtonCGV1, ScipyPowellV1,
+                                          ScipySLSQPV1, ScipyTruncNCV1,
+                                          ScipyTrustConstrV1,
+                                          ScipyTrustKrylovV1, ScipyTrustNCGV1)
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
 from .minimizers.strategy import ZfitStrategy
 from .util.deprecation import deprecated

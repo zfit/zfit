@@ -1,14 +1,10 @@
 #  Copyright (c) 2021 zfit
 import math
-from typing import Optional, Union, Callable, Dict
+from typing import Callable, Dict, Optional, Union
 
 import ipyopt
 import numpy as np
 
-from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_status
-from .fitresult import FitResult
-from .strategy import ZfitStrategy
-from .termination import ConvergenceCriterion, EDM, CRITERION_NOT_AVAILABLE
 from ..core.parameter import set_values
 # class IPopt(ScipyBaseMinimizer):
 #
@@ -38,7 +34,11 @@ from ..core.parameter import set_values
 #                          strategy=strategy, criterion=criterion, name=name)
 from ..settings import run
 from ..util.exception import MaximumIterationReached
-
+from .baseminimizer import (BaseMinimizer, minimize_supports,
+                            print_minimization_status)
+from .fitresult import FitResult
+from .strategy import ZfitStrategy
+from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
 
 # import cyipopt
 

@@ -1,8 +1,8 @@
 #  Copyright (c) 2021 zfit
 import logging
 import time
-from functools import wraps, lru_cache
-from typing import Tuple, Dict, Optional, Callable, Union, List
+from functools import lru_cache, wraps
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numdifftools
 import numpy as np
@@ -10,7 +10,7 @@ import scipy.stats
 import tensorflow as tf
 from scipy import optimize
 
-from .. import z, settings
+from .. import settings, z
 from ..core.interfaces import ZfitIndependentParameter
 from ..param import set_values
 from ..util.container import convert_to_container

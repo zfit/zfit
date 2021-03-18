@@ -5,7 +5,8 @@ import itertools
 import math
 import warnings
 from collections import OrderedDict
-from typing import Dict, Union, Callable, Optional, Tuple, Iterable, Mapping, List
+from typing import (Callable, Dict, Iterable, List, Mapping, Optional, Tuple,
+                    Union)
 
 import colored
 import iminuit
@@ -17,16 +18,17 @@ from ordered_set import OrderedSet
 from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 
-from .errors import compute_errors, covariance_with_weights, dict_to_matrix, matrix_to_dict
-from .interface import ZfitMinimizer, ZfitResult
-from .termination import ConvergenceCriterion
-from ..core.interfaces import ZfitLoss, ZfitParameter, ZfitIndependentParameter
+from ..core.interfaces import ZfitIndependentParameter, ZfitLoss, ZfitParameter
 from ..core.parameter import set_values
 from ..settings import run
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
 from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
+from .errors import (compute_errors, covariance_with_weights, dict_to_matrix,
+                     matrix_to_dict)
+from .interface import ZfitMinimizer, ZfitResult
+from .termination import ConvergenceCriterion
 
 init(autoreset=True)
 
@@ -429,8 +431,8 @@ class FitResult(ZfitResult):
             zfit.minimizers.fitresult.FitResult:
             A `FitResult` as if zfit Minuit was used.
         """
-        from .termination import EDM
         from .minimizer_minuit import Minuit
+        from .termination import EDM
 
         if not isinstance(minimizer, Minuit):
             if isinstance(minimizer, iminuit.Minuit):
@@ -499,7 +501,7 @@ class FitResult(ZfitResult):
                       inv_hessian=info.get('inv_hesse'))
 
         fmin = result['fun']
-        params = dict((p, v) for p, v in zip(params, result_values))
+        params = dict(zip(params, result_values))
 
         fitresult = cls(params=params, edm=edm, fmin=fmin, info=info, approx=approx,
                         converged=converged, status=status, message=message, valid=valid, niter=niter,
@@ -721,8 +723,8 @@ class FitResult(ZfitResult):
 
     def _hesse(self, params, method):
         covariance_dict = self.covariance(params, method, as_dict=True)
-        return dict((p, {"error": covariance_dict[(p, p)] ** 0.5 if covariance_dict[(p, p)] is not None else None})
-                    for p in params)
+        return {p: {"error": covariance_dict[(p, p)] ** 0.5 if covariance_dict[(p, p)] is not None else None}
+                    for p in params}
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.0) -> OrderedDict:
@@ -847,7 +849,7 @@ class FitResult(ZfitResult):
             try:
                 method = self._error_methods[method]
             except KeyError:
-                raise KeyError("The following method is not a valid, implemented method: {}".format(method))
+                raise KeyError(f"The following method is not a valid, implemented method: {method}")
         return method(result=self, params=params, cl=cl)
 
     def covariance(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, as_dict: bool = False):
@@ -890,7 +892,7 @@ class FitResult(ZfitResult):
             try:
                 method = self._hesse_methods[method]
             except KeyError:
-                raise KeyError("The following method is not a valid, implemented method: {}".format(method))
+                raise KeyError(f"The following method is not a valid, implemented method: {method}")
 
         params = list(self.params.keys())
 

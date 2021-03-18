@@ -14,12 +14,15 @@ import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 
 from zfit import z
-from zfit.util.exception import AnalyticIntegralNotImplementedError, AnalyticSamplingNotImplementedError
+from zfit.util.exception import (AnalyticIntegralNotImplementedError,
+                                 AnalyticSamplingNotImplementedError)
+
 from ..core.basepdf import BasePDF
 from ..core.parameter import convert_to_parameter
-from ..core.space import supports, Space
+from ..core.space import Space, supports
 from ..settings import ztypes
 from ..util import ztyping
+
 
 # TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
 @supports()
@@ -173,12 +176,12 @@ class Gauss(WrapDistribution):
         The gaussian shape is defined as
 
         .. math::
-            f(x \mid \mu, \\sigma^2) = e^{ -\\frac{(x - \\mu)^{2}}{2\\sigma^2} }
+            f(x \\mid \\mu, \\sigma^2) = e^{ -\\frac{(x - \\mu)^{2}}{2\\sigma^2} }
 
         with the normalization over [-inf, inf] of
 
         .. math::
-            \\frac{1}{\\sqrt{2\pi\sigma^2} }
+            \\frac{1}{\\sqrt{2\\pi\\sigma^2} }
 
         The normalization changes for different normalization ranges
 

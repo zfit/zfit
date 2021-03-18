@@ -5,7 +5,8 @@ import scipy.stats
 
 import zfit
 from zfit import z
-from zfit.core.constraint import BaseConstraint, SimpleConstraint, GaussianConstraint
+from zfit.core.constraint import (BaseConstraint, GaussianConstraint,
+                                  SimpleConstraint)
 from zfit.util.container import convert_to_container
 from zfit.util.exception import ShapeIncompatibleError
 

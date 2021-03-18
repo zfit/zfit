@@ -5,8 +5,9 @@ import pytest
 import zfit
 from zfit.core.dimension import limits_overlap, obs_subsets
 from zfit.core.space import combine_spaces, limits_consistent
-from zfit.util.exception import (SpaceIncompatibleError,
-                                 ObsIncompatibleError, MultipleLimitsNotImplementedError, LimitsNotSpecifiedError)
+from zfit.util.exception import (LimitsNotSpecifiedError,
+                                 MultipleLimitsNotImplementedError,
+                                 ObsIncompatibleError, SpaceIncompatibleError)
 
 obs = ['obs' + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)

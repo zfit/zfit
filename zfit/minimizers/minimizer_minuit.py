@@ -5,15 +5,16 @@ from typing import List, Optional
 import iminuit
 import numpy as np
 
-from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_status
-from .fitresult import FitResult
-from .strategy import ZfitStrategy
-from .termination import EDM
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, set_values
 from ..settings import run
 from ..util.cache import GraphCachable
 from ..util.exception import MaximumIterationReached
+from .baseminimizer import (BaseMinimizer, minimize_supports,
+                            print_minimization_status)
+from .fitresult import FitResult
+from .strategy import ZfitStrategy
+from .termination import EDM
 
 
 class Minuit(BaseMinimizer, GraphCachable):
@@ -161,7 +162,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         else:
             minuit_verbosity = 0
         if minimizer_options:
-            raise ValueError("The following options are not (yet) supported: {}".format(minimizer_options))
+            raise ValueError(f"The following options are not (yet) supported: {minimizer_options}")
         init_values = np.array(run(params))
         # create Minuit compatible names
         params_name = [param.name for param in params]

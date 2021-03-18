@@ -1,15 +1,15 @@
 #  Copyright (c) 2021 zfit
 
-from typing import Iterable, Callable, Optional
+from typing import Callable, Iterable, Optional
 
 import numdifftools
 import tensorflow as tf
 
+from ..util.container import convert_to_container
+from ..util.deprecation import deprecated
 from . import function
 from .tools import _auto_upcast
 from .zextension import convert_to_tensor
-from ..util.container import convert_to_container
-from ..util.deprecation import deprecated
 
 
 def poly_complex(*args, real_x=False):

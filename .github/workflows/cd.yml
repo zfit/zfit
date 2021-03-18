@@ -42,4 +42,3 @@ jobs:
     - uses: pypa/gh-action-pypi-publish@v1.4.1
       with:
         password: ${{ secrets.PYPI_ZFIT_TOKEN }}
-

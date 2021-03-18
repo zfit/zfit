@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 """Top-level package for zfit."""
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import warnings
 
 from pkg_resources import get_distribution
@@ -60,16 +59,14 @@ if int(tf.__version__[0]) < 2:
     raise RuntimeError(f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
                        f" only with TF >= 2")
 
-from . import z
-from . import z as ztf  # legacy
-from .settings import ztypes
-
-from . import constraint, pdf, minimize, loss, core, data, func, param, dimension, exception, sample
-from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
-from .core.space import Space, convert_to_space, supports
+from . import z  # legacy
+from . import (constraint, core, data, dimension, exception, func, loss,
+               minimize, param, pdf, sample)
 from .core.data import Data
-
-from .settings import run
+from .core.parameter import (ComplexParameter, ComposedParameter, Parameter,
+                             convert_to_parameter)
+from .core.space import Space, convert_to_space, supports
+from .settings import run, ztypes
 from .util.graph import jit as _jit
 
 
@@ -82,7 +79,7 @@ def _maybe_disable_jit():
         warnings.warn("Depreceated to use `ZFIT_MODE_GRAPH`, use `ZFIT_GRAPH_MODE` instead.",
                       DeprecationWarning)
 
-    if not arg1 is None and arg2 is None:
+    if arg1 is not None and arg2 is None:
         warnings.warn("Depreceated to use `ZFIT_EXPERIMENTAL_DO_JIT`, use `ZFIT_GRAPH_MODE` instead.",
                       DeprecationWarning)
     arg = arg2 if arg1 is None else arg1

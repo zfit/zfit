@@ -9,23 +9,26 @@ import math
 import os
 import warnings
 from contextlib import contextmanager
-from typing import Union, Iterable, Mapping, Callable, Tuple, Optional, Dict
+from typing import Callable, Dict, Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
 from ordered_set import OrderedSet
 
-from .evaluation import LossEval
-from .fitresult import FitResult
-from .interface import ZfitMinimizer, ZfitResult
-from .strategy import FailMinimizeNaN, ZfitStrategy, PushbackStrategy
-from .termination import EDM, ConvergenceCriterion
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..core.parameter import set_values, convert_to_parameter
+from ..core.parameter import convert_to_parameter, set_values
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import MinimizeNotImplemented, MinimizeStepNotImplementedError, MinimizerSubclassingError, \
-    InitNotImplemented, ParameterNotIndependentError, MaximumIterationReached
+from ..util.exception import (InitNotImplemented, MaximumIterationReached,
+                              MinimizeNotImplemented,
+                              MinimizerSubclassingError,
+                              MinimizeStepNotImplementedError,
+                              ParameterNotIndependentError)
+from .evaluation import LossEval
+from .fitresult import FitResult
+from .interface import ZfitMinimizer, ZfitResult
+from .strategy import FailMinimizeNaN, PushbackStrategy, ZfitStrategy
+from .termination import EDM, ConvergenceCriterion
 
 DefaultStrategy = PushbackStrategy
 

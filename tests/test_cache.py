@@ -4,7 +4,7 @@ import pytest
 
 import zfit
 from zfit import z
-from zfit.util.cache import GraphCachable, invalidate_graph, clear_graph_cache
+from zfit.util.cache import GraphCachable, clear_graph_cache, invalidate_graph
 from zfit.z.zextension import FunctionWrapperRegistry
 
 

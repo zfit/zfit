@@ -1,15 +1,20 @@
 #  Copyright (c) 2021 zfit
-from typing import Optional, Tuple, Union, List
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 
 from zfit import z
-from .interfaces import ZfitOrderableDimensional, ZfitSpace, ZfitData, ZfitDimensional
+
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import OverdefinedError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError, \
-    AxesIncompatibleError, ObsIncompatibleError, WorkInProgressError, IntentionAmbiguousError
+from ..util.exception import (AxesIncompatibleError,
+                              CoordinatesIncompatibleError,
+                              CoordinatesUnderdefinedError,
+                              IntentionAmbiguousError, ObsIncompatibleError,
+                              OverdefinedError, WorkInProgressError)
+from .interfaces import (ZfitData, ZfitDimensional, ZfitOrderableDimensional,
+                         ZfitSpace)
 
 
 class Coordinates(ZfitOrderableDimensional):
@@ -399,7 +404,8 @@ def _reorder_indices(old: Union[List, Tuple], new: Union[List, Tuple]) -> Tuple[
 
 
 def convert_to_axes(axes, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if axes is None.
+    """Convert `obs` to the list of obs, also if it is a
+    :py:class:`~ZfitSpace`. Return None if axes is None.
 
     Raises
         TypeError: if the axes are not int
@@ -421,7 +427,8 @@ def convert_to_axes(axes, container=tuple):
 
 
 def convert_to_obs_str(obs, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if obs is None.
+    """Convert `obs` to the list of obs, also if it is a
+    :py:class:`~ZfitSpace`. Return None if obs is None.
 
     Raises:
         TypeError: if the observable is not a string

@@ -1,8 +1,6 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2021 zfit
 
 import tensorflow as tf
-
-
 
 from zfit.settings import ztypes
 

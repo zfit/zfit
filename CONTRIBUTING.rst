@@ -64,4 +64,3 @@ Before you submit a pull request, check that it meets these guidelines:
 3. The pull request should work for Python 3.6 and 3.7. Check
    https://travis-ci.org/zfit/zfit/pull_requests
    and make sure that the tests pass for all supported Python versions.
-

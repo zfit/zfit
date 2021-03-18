@@ -1,5 +1,5 @@
-**Questions**: feel free to [ask on StackOverflow](https://stackoverflow.com/questions/ask) with 
-the **zfit** tag (so we also get notified).
+**Questions**: feel free to [ask on StackOverflow](https://stackoverflow.com/questions/ask) with
+ the **zfit** tag (so we also get notified).
 
 **Bugs or Feature Requests** Please fill the below form _if possible_.
 

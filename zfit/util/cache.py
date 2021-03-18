@@ -51,7 +51,7 @@ Example with a pdf that caches the normalization:
 import functools
 import weakref
 from abc import abstractmethod
-from typing import Iterable, Union, Mapping
+from typing import Iterable, Mapping, Union
 
 import numpy as np
 import tensorflow as tf
@@ -307,4 +307,3 @@ def clear_graph_cache():
         instance.reset_cache('global')
     # Cachable.graph_caching_methods.clear()
     tf.compat.v1.reset_default_graph()
-

@@ -3,25 +3,28 @@
 import abc
 import inspect
 import warnings
-from typing import Optional, Union, List, Callable, Iterable, Tuple, Set, Mapping
+from typing import (Callable, Iterable, List, Mapping, Optional, Set, Tuple,
+                    Union)
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-from .baseobject import BaseNumeric
-from .constraint import BaseConstraint
-from .dependents import _extract_dependencies
-from .interfaces import ZfitLoss, ZfitSpace, ZfitData
-from .. import z, settings
+from .. import settings, z
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
 from ..util.deprecation import deprecated
-from ..util.exception import IntentionAmbiguousError, NotExtendedPDFError, WorkInProgressError, \
-    BreakingAPIChangeError
+from ..util.exception import (BreakingAPIChangeError, IntentionAmbiguousError,
+                              NotExtendedPDFError, WorkInProgressError)
 from ..util.warnings import warn_advanced_feature
-from ..z.math import numerical_gradient, autodiff_gradient, autodiff_value_gradients, numerical_value_gradient, \
-    automatic_value_gradients_hessian, numerical_value_gradients_hessian
+from ..z.math import (autodiff_gradient, autodiff_value_gradients,
+                      automatic_value_gradients_hessian, numerical_gradient,
+                      numerical_value_gradient,
+                      numerical_value_gradients_hessian)
+from .baseobject import BaseNumeric
+from .constraint import BaseConstraint
+from .dependents import _extract_dependencies
+from .interfaces import ZfitData, ZfitLoss, ZfitSpace
 
 
 # @z.function
@@ -446,7 +449,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         nevents_collected = []
         for mod, dat in zip(model, data):
             if not mod.is_extended:
-                raise NotExtendedPDFError("The pdf {} is not extended but has to be (for an extended fit)".format(mod))
+                raise NotExtendedPDFError(f"The pdf {mod} is not extended but has to be (for an extended fit)")
             nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
             nevents = tf.cast(nevents, tf.float64)
             nevents_collected.append(nevents)

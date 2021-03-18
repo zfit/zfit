@@ -9,9 +9,9 @@ colorlog color scheme are printed.
 
 #  Copyright (c) 2021 zfit
 
+import logging
 import os
 
-import logging
 import colorlog
 
 

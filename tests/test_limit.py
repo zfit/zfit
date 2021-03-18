@@ -4,7 +4,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import z
-from zfit.core.space import Limit, ANY
+from zfit.core.space import ANY, Limit
 
 rect_limits = (1., 3)
 rect_limits_tf = (tf.constant(1.), tf.constant(3))

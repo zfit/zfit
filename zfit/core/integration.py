@@ -3,7 +3,7 @@
 #  Copyright (c) 2021 zfit
 
 import collections
-from typing import Callable, Optional, Union, Type, Tuple, List
+from typing import Callable, List, Optional, Tuple, Type, Union
 
 import numpy as np
 import tensorflow as tf
@@ -12,13 +12,15 @@ import tensorflow_probability as tfp
 import zfit
 from zfit import z
 from zfit.core.dimension import BaseDimensional
-from zfit.core.interfaces import ZfitData, ZfitSpace, ZfitModel
+from zfit.core.interfaces import ZfitData, ZfitModel, ZfitSpace
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
-from .space import convert_to_space, Space, supports
+
 from ..settings import ztypes
 from ..util import ztyping
-from ..util.exception import WorkInProgressError, AnalyticIntegralNotImplementedError
+from ..util.exception import (AnalyticIntegralNotImplementedError,
+                              WorkInProgressError)
+from .space import Space, convert_to_space, supports
 
 
 @supports()
@@ -368,7 +370,7 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
 class AnalyticIntegral:
     def __init__(self, *args, **kwargs):
         """Hold analytic integrals and manage their dimensions, limits etc."""
-        super(AnalyticIntegral, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._integrals = collections.defaultdict(dict)
 
     def get_max_axes(self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None) -> Tuple[int]:

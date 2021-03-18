@@ -9,28 +9,38 @@ import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from contextlib import suppress
-from typing import Callable, Optional, Tuple, Union, Iterable, Mapping
+from typing import Callable, Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.util.deprecation import deprecated
 
 import zfit
-from .baseobject import BaseObject
-from .coordinates import Coordinates, _convert_obs_to_str, convert_to_axes, convert_to_obs_str
-from .dimension import common_obs, common_axes, limits_overlap
-from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
+
 from .. import z
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (AxesNotSpecifiedError, IntentionAmbiguousError, LimitsUnderdefinedError,
-                              MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
-                              OverdefinedError, BreakingAPIChangeError, LimitsIncompatibleError, SpaceIncompatibleError,
-                              ObsIncompatibleError, AxesIncompatibleError, ShapeIncompatibleError,
-                              IllegalInGraphModeError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError,
-                              InvalidLimitSubspaceError, CannotConvertToNumpyError, LimitsNotSpecifiedError,
-                              NumberOfEventsIncompatibleError)
+from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
+                              BreakingAPIChangeError,
+                              CannotConvertToNumpyError,
+                              CoordinatesIncompatibleError,
+                              CoordinatesUnderdefinedError,
+                              IllegalInGraphModeError, IntentionAmbiguousError,
+                              InvalidLimitSubspaceError,
+                              LimitsIncompatibleError, LimitsNotSpecifiedError,
+                              LimitsUnderdefinedError,
+                              MultipleLimitsNotImplementedError,
+                              NormRangeNotImplementedError,
+                              NumberOfEventsIncompatibleError,
+                              ObsIncompatibleError, ObsNotSpecifiedError,
+                              OverdefinedError, ShapeIncompatibleError,
+                              SpaceIncompatibleError)
+from .baseobject import BaseObject
+from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
+                          convert_to_obs_str)
+from .dimension import common_axes, common_obs, limits_overlap
+from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
 
 
 class LimitRangeDefinition:
@@ -876,7 +886,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             obs = convert_to_container(obs, container=tuple)
             obs_not_str = tuple(o for o in obs if not isinstance(o, str))
             if obs_not_str:
-                raise ValueError("The following observables are not strings: {}".format(obs_not_str))
+                raise ValueError(f"The following observables are not strings: {obs_not_str}")
         return obs
 
     def _check_coords_allowed(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
@@ -1851,9 +1861,9 @@ class Space(BaseSpace):
             RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
         """
         if self.n_obs > 1:
-            raise RuntimeError("Cannot call `limit1d, as `Space` has more than one observables: {}".format(self.n_obs))
+            raise RuntimeError(f"Cannot call `limit1d, as `Space` has more than one observables: {self.n_obs}")
         if self.n_limits > 1:
-            raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
+            raise RuntimeError(f"Cannot call `limit1d, as `Space` has several limits: {self.n_limits}")
         lower, upper = self.rect_limits
         return lower[0][0], upper[0][0]
 

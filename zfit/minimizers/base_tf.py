@@ -1,11 +1,11 @@
 #  Copyright (c) 2021 zfit
-from typing import Optional, Iterable
+from typing import Iterable, Optional
 
 import tensorflow as tf
 
-from .baseminimizer import BaseStepMinimizer, minimize_supports
 from ..core.interfaces import ZfitIndependentParameter, ZfitLoss
 from ..util.exception import OperationNotAllowedError
+from .baseminimizer import BaseStepMinimizer, minimize_supports
 
 
 class WrapOptimizer(BaseStepMinimizer):

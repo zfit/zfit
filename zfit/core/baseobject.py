@@ -3,23 +3,24 @@
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Optional, Iterable, Set
+from typing import Iterable, Optional, Set
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-from .dependents import BaseDependentsMixin
-from .interfaces import ZfitObject, ZfitNumericParametrized, ZfitParameter, ZfitParametrized, ZfitIndependentParameter
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
 from ..util.container import DotDict, convert_to_container
+from .dependents import BaseDependentsMixin
+from .interfaces import (ZfitIndependentParameter, ZfitNumericParametrized,
+                         ZfitObject, ZfitParameter, ZfitParametrized)
 
 
 class BaseObject(ZfitObject):
 
     def __init__(self, name, **kwargs):
-        assert not kwargs, "kwargs not empty, the following arguments are not captured: {}".format(kwargs)
+        assert not kwargs, f"kwargs not empty, the following arguments are not captured: {kwargs}"
         super().__init__()
 
         self._name = name  # TODO: uniquify name?
@@ -147,5 +148,5 @@ def extract_filter_params(params: Iterable[ZfitParametrized],
         if not extract_independent and not all(param.independent for param in params):
             raise ValueError("Since `extract_dependent` is not set to True, there are maybe dependent parameters for "
                              "which `floating` is an ill-defined attribute.")
-        params = OrderedSet((p for p in params if p.floating == floating))
+        params = OrderedSet(p for p in params if p.floating == floating)
     return params

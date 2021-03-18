@@ -2,13 +2,13 @@
 
 import abc
 from abc import ABCMeta, abstractmethod
-from typing import Union, List, Dict, Callable, Tuple, Optional, Set
+from typing import Callable, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
-from ..util.deprecation import deprecated
 
 from ..util import ztyping
+from ..util.deprecation import deprecated
 
 
 class ZfitObject(abc.ABC):

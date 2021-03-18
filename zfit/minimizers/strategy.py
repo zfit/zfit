@@ -6,10 +6,10 @@ from typing import Mapping, Union
 
 import numpy as np
 
-from .fitresult import FitResult
 from ..core.interfaces import ZfitLoss
 from ..settings import run
 from ..util import ztyping
+from .fitresult import FitResult
 
 
 class FailMinimizeNaN(Exception):

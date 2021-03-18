@@ -5,8 +5,10 @@ import tensorflow as tf
 import zfit
 from zfit import z
 from zfit.core.coordinates import Coordinates
-from zfit.core.space import Space, Limit, ANY
-from zfit.util.exception import CoordinatesUnderdefinedError, LimitsIncompatibleError
+from zfit.core.space import ANY, Limit, Space
+from zfit.util.exception import (CoordinatesUnderdefinedError,
+                                 LimitsIncompatibleError)
+
 
 @pytest.fixture(autouse=True, scope="module")
 def setup_teardown_vectors():

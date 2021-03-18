@@ -4,7 +4,7 @@ import pytest
 import tensorflow as tf
 
 import zfit
-from zfit import z, Space
+from zfit import Space, z
 from zfit.core.space import Limit
 from zfit.util.exception import AnalyticSamplingNotImplementedError
 

@@ -166,4 +166,3 @@ Integrating a given PDF for a given normalisation range also returns a graph, so
     0.4492509559828224
     0.9971473939649167
     1.0
-

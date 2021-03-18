@@ -8,7 +8,7 @@ Fixes #
 ## Tests added
 
   -
-  
+
 ## Checklist
 
  - [ ] change approved
@@ -16,4 +16,3 @@ Fixes #
  - [ ] correct namespace imported
  - [ ] tests added
  - [ ] CHANGELOG updated
-

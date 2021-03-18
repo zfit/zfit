@@ -1,16 +1,17 @@
 #  Copyright (c) 2021 zfit
 """Recurrent polynomials."""
 import abc
-from typing import List, Dict, Optional, Mapping
+from typing import Dict, List, Mapping, Optional
 
 import tensorflow as tf
 
 from zfit import z
+
+from ..core.basepdf import BasePDF
+from ..core.space import Space
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..settings import ztypes
-from ..core.space import Space
-from ..core.basepdf import BasePDF
 from ..util.exception import SpecificFunctionNotImplementedError
 
 
@@ -432,7 +433,7 @@ class Laguerre(RecursivePolynomial):
 def func_integral_laguerre(limits, norm_range, params: Dict, model):
     """The integral of the simple laguerre polynomials.
 
-    Defined as :math:`\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
+    Defined as :math:`\\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
 
     Args:
         limits:

@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
 
-from typing import Callable, Any
+from typing import Any, Callable
 
 
 class TemporarilySet:

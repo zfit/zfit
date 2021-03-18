@@ -11,10 +11,9 @@ if suppress_gpu:
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
     os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
+import numpy as np
 import pytest
 import tensorflow as tf
-
-import numpy as np
 
 import zfit.z.math
 

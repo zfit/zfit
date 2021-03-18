@@ -10,11 +10,13 @@ import typing
 import tensorflow as tf
 
 import zfit
-from zfit.util.exception import ShapeIncompatibleError, SpecificFunctionNotImplementedError
-from .basemodel import BaseModel
-from .interfaces import ZfitFunc
+from zfit.util.exception import (ShapeIncompatibleError,
+                                 SpecificFunctionNotImplementedError)
+
 from ..settings import ztypes
 from ..util import ztyping
+from .basemodel import BaseModel
+from .interfaces import ZfitFunc
 
 
 class BaseFunc(BaseModel, ZfitFunc):

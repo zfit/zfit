@@ -10,5 +10,3 @@ Func
     zfit.func.SimpleFunc
     zfit.func.ProdFunc
     zfit.func.SumFunc
-
-

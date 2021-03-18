@@ -5,9 +5,9 @@ from typing import Any
 
 import tensorflow as tf
 
-from .tools import _auto_upcast
 from ..settings import ztypes
 from ..util.deprecation import deprecated
+from .tools import _auto_upcast
 
 
 def exp(x, name=None):

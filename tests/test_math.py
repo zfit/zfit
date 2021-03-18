@@ -5,7 +5,8 @@ import scipy.stats
 
 import zfit
 from zfit import z
-from zfit.z.math import numerical_gradient, autodiff_gradient, numerical_hessian, autodiff_hessian
+from zfit.z.math import (autodiff_gradient, autodiff_hessian,
+                         numerical_gradient, numerical_hessian)
 
 
 def test_numerical_gradient():

@@ -10,16 +10,12 @@ from types import MethodType
 
 import tensorflow as tf
 
-
-
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF
-from .functor import BaseFunctor
-from ..util import ztyping
-
-from ..core.basepdf import BasePDF
 from ..core.space import no_norm_range
+from ..util import ztyping
 from ..util.exception import NormRangeNotImplementedError
+from .functor import BaseFunctor
 
 
 class SimplePDF(BasePDF):

@@ -50,4 +50,3 @@ jobs:
                     bash utils/ci/test_examples.sh
                     bash utils/ci/test_tutorials.sh
                     ZFIT_DO_JIT=1
-

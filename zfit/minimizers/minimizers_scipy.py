@@ -3,21 +3,22 @@ import copy
 import inspect
 import math
 import warnings
-from typing import Optional, Dict, Callable, Union, Mapping
+from typing import Callable, Dict, Mapping, Optional, Union
 
 import numpy as np
 import scipy.optimize
 from scipy.optimize import SR1, LbfgsInvHessProduct
 
-from .baseminimizer import BaseMinimizer, minimize_supports, NOT_SUPPORTED, print_minimization_status
-from .evaluation import LossEval
-from .fitresult import FitResult
-from .strategy import ZfitStrategy
-from .termination import ConvergenceCriterion, CRITERION_NOT_AVAILABLE, EDM
 from ..core.parameter import set_values
 from ..settings import run
 from ..util.exception import MaximumIterationReached
 from ..util.warnings import warn_experimental_feature
+from .baseminimizer import (NOT_SUPPORTED, BaseMinimizer, minimize_supports,
+                            print_minimization_status)
+from .evaluation import LossEval
+from .fitresult import FitResult
+from .strategy import ZfitStrategy
+from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
 
 
 class ScipyBaseMinimizer(BaseMinimizer):
@@ -569,5 +570,5 @@ def combine_optimize_results(results):
     result = results[-1]
     for field in ['nfev', 'njev', 'nhev', 'nit']:
         if field in result:
-            result[field] = sum((res[field] for res in results))
+            result[field] = sum(res[field] for res in results)
     return result

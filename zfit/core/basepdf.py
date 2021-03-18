@@ -52,25 +52,26 @@ also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tut
 
 import warnings
 from contextlib import suppress
-from typing import Union, Type, Dict, Optional, Set
+from typing import Dict, Optional, Set, Type, Union
 
 import tensorflow as tf
 
 from zfit import z
-from .basemodel import BaseModel
-from .baseobject import extract_filter_params
-from .interfaces import ZfitPDF, ZfitParameter
-from .parameter import Parameter, convert_to_parameter
-from .sample import extended_sampling
-from .space import Space
-from ..settings import ztypes, run
+
+from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
 from ..util.deprecation import deprecated
-from ..util.exception import (AlreadyExtendedPDFError,
-                              NotExtendedPDFError, BreakingAPIChangeError, FunctionNotImplementedError,
+from ..util.exception import (AlreadyExtendedPDFError, BreakingAPIChangeError,
+                              FunctionNotImplementedError, NotExtendedPDFError,
                               SpecificFunctionNotImplementedError)
 from ..util.temporary import TemporarilySet
+from .basemodel import BaseModel
+from .baseobject import extract_filter_params
+from .interfaces import ZfitParameter, ZfitPDF
+from .parameter import Parameter, convert_to_parameter
+from .sample import extended_sampling
+from .space import Space
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -561,8 +562,8 @@ class BasePDF(ZfitPDF, BaseModel):
 
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution
-        from ..models.polynomials import RecursivePolynomial
         from ..models.kde import GaussianKDE1DimV1
+        from ..models.polynomials import RecursivePolynomial
 
         if type(self) == WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = dict(distribution=self._distribution, dist_params=self.dist_params)

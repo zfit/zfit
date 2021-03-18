@@ -1,5 +1,6 @@
 #  Copyright (c) 2021 zfit
-from typing import Union, Tuple, Iterable, Optional, List, Dict, Callable, TypeVar
+from typing import (Callable, Dict, Iterable, List, Optional, Tuple, TypeVar,
+                    Union)
 
 import numpy as np
 import tensorflow as tf

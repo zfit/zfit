@@ -5,14 +5,14 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 import tensorflow_probability as tfp
 
-from .functor import BaseFunctor
 from .. import exception, z
-from ..core.data import add_samples, Data
+from ..core.data import Data, add_samples
 from ..core.interfaces import ZfitPDF
 from ..core.sample import accept_reject_sample
 from ..core.space import supports
 from ..util import ztyping
-from ..util.exception import WorkInProgressError, ShapeIncompatibleError
+from ..util.exception import ShapeIncompatibleError, WorkInProgressError
+from .functor import BaseFunctor
 
 
 class FFTConvPDFV1(BaseFunctor):

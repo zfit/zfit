@@ -6,12 +6,12 @@ import numpy as np
 import tensorflow as tf
 import texttable as tt
 
-from .strategy import ZfitStrategy
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import set_values
 from ..settings import run
 from ..util import ztyping
 from ..util.exception import MaximumIterationReached
+from .strategy import ZfitStrategy
 
 
 class LossEval:
@@ -25,7 +25,7 @@ class LossEval:
                  grad_fn: Optional[Callable] = None,
                  hesse_fn: Optional[Callable] = None,
                  niter_tol: Optional[float] = None):
-        """Convenience wrapper for the evaluation of a loss with given parameters and strategy.
+        r"""Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
         The methods `value`, `gradient` etc will raise a `MaximumIterationReached` error in case the maximum iterations
         is reached.
