@@ -145,15 +145,17 @@ class BaseMinimizer(ZfitMinimizer):
 
         Args:
             tol: |@docstart||@doc:minimizer.tol|Termination value for the convergence/stopping criterion of the algorithm
-                in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
             verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer. A value above 5 starts printing more
                 output with a value of 10 printing every evaluation of the loss function and gradient.|@docend|
             criterion: |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
-                in order to determine if the minimum has been found. The default is 1e-3.|@docend|
-            strategy:
-            minimizer_options:
-            maxiter:
-            name:
+                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Termination value for the convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            minimizer_options: Additional minimizer options
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
         """
         super().__init__()
         self._n_iter_per_param = 3000
@@ -199,9 +201,9 @@ class BaseMinimizer(ZfitMinimizer):
                                                         "but is not allowed to. Has to handle all "
                                                         "arguments.".format(method_name))
                 elif has_support:
-                    raise MinimizerSubclassingError(f"Method {method_name} has been overwritten and *has to* be "
-                                                    "wrapped by `@minimize_supports` decorator (don't forget () )"
-                                                    "to call the decorator as it takes arguments")
+                    raise MinimizerSubclassingError(f"Method {method_name} has been overwritten and *has to* be"
+                                                    " wrapped by `@minimize_supports` decorator (don't forget"
+                                                    " to call the decorator as it takes arguments)")
                 elif not has_support:
                     continue  # no support, has not been wrapped with
             else:

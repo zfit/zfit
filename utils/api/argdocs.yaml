@@ -5,6 +5,15 @@ minimizer.tol: |1+
     Termination value for the convergence/stopping criterion of the algorithm
                     in order to determine if the minimum has been found. The default is 1e-3.
 minimizer.criterion: |1+
-    |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
-                    in order to determine if the minimum has been found. The default is 1e-3.|@docend|
-#EOF
+    Termination value for the convergence/stopping criterion of the algorithm
+                    in order to determine if the minimum has been found. The default is 1e-3.
+minimizer.strategy: |1+
+    Termination value for the convergence/stopping criterion of the algorithm
+                    in order to determine if the minimum has been found. The default is 1e-3.
+minimizer.maxiter: |1+
+    Approximate number of iterations. This corresponds to roughly the maximum number of
+                    evaluations of the `value`, 'gradient` or `hessian`.
+minimizer.name: |1+
+    Human readable name of the minimizer.
+minimizer.maxcor: |1+
+    Maximum number of memory history to keep when using a quasi-Newton update formula such as BFGS.

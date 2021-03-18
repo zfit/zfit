@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #  Copyright (c) 2021 zfit
 
 import argparse
@@ -34,8 +35,11 @@ for filepath in cfg.files:
         filedata = file.read()
 
     infile = False
+    needs_replacement = False
     for param, replacement in replacements.items():
         replacement = replacement.rstrip('\n')
+        while replacement[:1] == ' ':  # we want to remove the whitespace
+            replacement = replacement[1:]
         auto_param = r'|@doc:{}|'.format(param)
         param_mod = f'{auto_start}{auto_param}{auto_end}'
         matches = re.findall(auto_start.replace('|', r'\|')
@@ -49,13 +53,24 @@ for filepath in cfg.files:
         replacement_mod = f'{auto_start}{auto_param}{replacement}{auto_end}'
 
         for match in matches:
-            filedata = filedata.replace(match, replacement_mod)
+            if auto_start in match[len(auto_start):]:  # sanity check
+                raise ValueError(f"Docstring formatting error,"
+                                 f" has more than one start until an end command: {match}")
+            if match != replacement_mod:
+                needs_replacement = True
+                filedata = filedata.replace(match, replacement_mod)
 
     # Write the file out again
+    replace_msg = 'replaced docs' if needs_replacement else 'docs already there'
+    filename = filepath.split("/")[-1]
     if infile:
         if cfg.dry:
-            print(f'Not writing to {filepath}, dry run.')
+            print(f'Match in {filename}, {replace_msg}, not writing to {filepath}, dry run.')
         else:
-            with open(filepath, 'w') as file:
-                file.write(filedata)
-            print(f'Written to {filepath}.')
+            if needs_replacement:
+                with open(filepath, 'w') as file:
+                    file.write(filedata)
+                print(f'Written to {filename}.')
+
+            else:
+                print(f'Match in {filename}, {replace_msg}, not writing as not needed')

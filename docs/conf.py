@@ -11,6 +11,8 @@
 import sys
 from pathlib import Path
 
+import yaml
+
 import zfit
 
 project_dir = Path(__file__).parents[1]
@@ -82,15 +84,22 @@ pygments_style = 'sphinx'
 # Automatically add substitutions to all RST files.
 with open('subst_types.txt') as subst_types:
     rst_epilog = subst_types.read()
-    rst_epilog += f"""
+
+# add whitespaces to the internal commands. Maybe move to preprocessing?
+rst_epilog += f"""
 .. |wzw| unicode:: U+200B
    :trim:
 
-.. |@docstart| replace:: |wsw|
+.. |@docstart| replace:: |wzw|
 
-.. |@docend| replace:: |wsw|
+.. |@docend| replace:: |wzw|
 """
-
+with open(str(project_dir) + '/utils/api/argdocs.yaml') as replfile:
+    replacements = yaml.load(replfile, Loader=yaml.Loader)
+for replacement_key in replacements:
+    rst_epilog += f'''
+.. |@doc:{replacement_key}| replace:: |wzw|
+'''
 with open('hyperlinks.txt') as hyperlinks:
     rst_epilog += hyperlinks.read()
 

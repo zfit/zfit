@@ -94,7 +94,7 @@ minimizers = [
 # minimizers = [
     # (zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'minuit_grad': True},
     #            {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.IPoptV1, {'verbosity': 7}, True)]
+minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
@@ -297,7 +297,7 @@ def test_minimizers(minimizer_class_and_kwargs, numgrad, chunksize, spaces,
             errors, _ = result.errors(method=profile_method)
             a_error = a_errors[mu_param]
             assert a_error["lower"] == pytest.approx(-a_error['upper'],
-                                                     rel=rel_error_tol)
+                                                     rel=0.1)
             assert a_error["lower"] == pytest.approx(-0.021, rel=rel_error_tol)
             assert errors[sigma_param]["lower"] == pytest.approx(-sigma_error_true,
                                                                  rel=rel_error_tol)

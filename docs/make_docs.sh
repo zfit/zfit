@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Copyright (c) 2021 zfit
+#
+
 # script has to be executed inside folder `docs`
 # get current directory name
 pushd `dirname $0` > /dev/null
@@ -10,6 +14,7 @@ popd > /dev/null
 #echo "debug"
 #echo ${MAKE_DOCS_PATH}/../zfit
 #ls ${MAKE_DOCS_PATH}
+bash prepare_apidocs.sh
 SPHINX_APIDOC_OPTIONS=members,undoc-members,show-inheritance,inherited-members sphinx-apidoc -o ${MAKE_DOCS_PATH}/full_api ${MAKE_DOCS_PATH}/../zfit  -fMeT && \
 #python3 ${MAKE_DOCS_PATH}/full_api/tools/change_headline.py ${MAKE_DOCS_PATH}/full_api/zfit.* && \
 make -C ${MAKE_DOCS_PATH} clean && make -C ${MAKE_DOCS_PATH} html -j8 && \

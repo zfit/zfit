@@ -1,4 +1,5 @@
-"""A rich selection of analytically implemented Distributions (models) are available in `TensorFlow Probability
+"""A rich selection of analytically implemented Distributions (models) are available in `TensorFlow Probability.
+
 <https://github.com/tensorflow/probability>`_. While their API is slightly different from the zfit models, it is similar
 enough to be easily wrapped.
 

@@ -51,22 +51,35 @@ class IpyoptV1(BaseMinimizer):
     )
 
     def __init__(self,
-                 tol: float = None,
-                 verbosity: Optional[int] = None,
+                 tol: Optional[float] = None,
                  maxcor: Optional[int] = None,
+                 verbosity: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = None,
                  hessian: Optional[str] = None,
-                 options: Dict[str, object] = None,
+                 options: Optional[Dict[str, object]] = None,
                  maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
-                 name: Optional[str] = "IPopt"):
-        """
+                 name: Optional[str] = "IpyoptV1") -> None:
+        """Ipopt performs large scale nonlinear optimization of continuous systems.
+
+        This implemenation uses the `IPyOpt wrapper <https://gitlab.com/g-braeunlich/ipyopt>`_
+
+         `Ipopt <https://coin-or.github.io/Ipopt/index.html>`_
+         (Interior Point Optimizer, pronounced "Eye-Pea-Opt") is an open source software package for
+         large-scale nonlinear optimization. It can be used to solve general nonlinear programming problems
+         It is written in Fortran and C and is released under the EPL (formerly CPL).
+         IPOPT implements a primal-dual interior point method, and uses line searches based on
+         Filter methods (Fletcher and Leyffer).
+
+        IPOPT is part of the `COIN-OR <https://www.coin-or.org/>`_ project.
 
         Args:
-            tol (Union[float, None]):
-            verbosity (int):
-            gradient (Union[None, None]):
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            maxcor: |@docstart||@doc:minimizer.maxcor|Maximum number of memory history to keep when using a quasi-Newton update formula such as BFGS.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer. A value above 5 starts printing more
+                output with a value of 10 printing every evaluation of the loss function and gradient.|@docend|
             hessian: Determine which hessian matrix to use during the minimization.
               One of the following option is possible
               - 'bfgs': BFGS quasi-Newton update formula for the limited approximation, update with skipping
@@ -75,9 +88,8 @@ class IpyoptV1(BaseMinimizer):
               - 'zfit': use the exact hessian provided by the loss (either the automatic gradient or the numerical gradient
                 computed inside the loss). This tends to be slow compared to the approximations and is usually
                 not necessary.
-            maxcor: Maximum number of memory history when using a quasi-Newton update formula
 
-            options (): possible options for the minimizer. All options can be seen by using the command in the shell
+            options (): Additional possible options for the minimizer. All options can be seen by using the command in the shell
                 `ipopt --print_options`.
                 A selection of parameters is presented here:
                 - *alpha_red_factor*:  between 0 and 1, default 0.5
@@ -148,15 +160,16 @@ class IpyoptV1(BaseMinimizer):
                     - no       [Verify solution of linear system by computing residuals.]
                     - yes      [Trust that linear systems are solved well.]
 
-            maxiter (int):
-            criterion (Union[None, None]):
-            strategy (Union[None, None]):
-            name (str):
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Termination value for the convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
         """
         minimizer_options = {}
 
-        if gradient is None:
-            gradient = 'zfit'
         if hessian is None:
             hessian = 'bfgs'
         options = {} if options is None else options
@@ -196,7 +209,6 @@ class IpyoptV1(BaseMinimizer):
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
-        previous_result = init
         if init:
             set_values(params=params, values=init)
         evaluator = self.create_evaluator()
@@ -212,11 +224,12 @@ class IpyoptV1(BaseMinimizer):
         nparams = len(params)
         hessian_sparsity_indices = np.meshgrid(range(nparams), range(nparams))
 
+        minimizer_options = self.minimizer_options.copy()
+
         def gradient_inplace(x, out):
             gradient = evaluator.gradient(x)
             out[:] = gradient
 
-        minimizer_options = self.minimizer_options.copy()
         ipopt_options = minimizer_options.pop('ipopt').copy()
         print_level = 0
         if self.verbosity > 5:
@@ -231,7 +244,7 @@ class IpyoptV1(BaseMinimizer):
 
         ipopt_options['tol'] = self.tol
         ipopt_options['max_iter'] = self.get_maxiter()
-        hessian = minimizer_options['hessian']
+        hessian = minimizer_options.pop('hessian')
 
         minimizer_kwargs = dict(n=nparams,
                                 xL=lower, xU=upper,
@@ -263,7 +276,7 @@ class IpyoptV1(BaseMinimizer):
 
         minimizer.set(**{k: v for k, v in ipopt_options.items() if v is not None})
 
-        criterion = self.criterion(tol=self.tol, loss=loss, params=params)
+        criterion = self.create_criterion()
 
         init_tol = min([math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e2])
         # init_tol **= 0.5
@@ -280,7 +293,7 @@ class IpyoptV1(BaseMinimizer):
             # 'warm_start_same_structure',
             'warm_start_entire_iterate'
         )
-        minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)
+        # minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)
 
         fmin = -999
         status = -999
