@@ -4,7 +4,7 @@
 @import 'index.css';
 
 #navbar-main {
-    background-color: #2F4858!important;
+    background-color: #2F4858 !important;
 }
 
 /* This is kept for reference, in case the logo needs to be adjusted in the css. */
@@ -16,9 +16,9 @@
     color: #ffffffff!important;
 }
 
-.navbar-nav>.active>.nav-link {
+.navbar-nav > .active > .nav-link {
     font-weight: 600;
-    color: #CB5628!important;
+    color: #CB5628 !important;
 }
 
 i.fa-github-square:before {
