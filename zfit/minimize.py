@@ -52,8 +52,7 @@ class ScipyMinimizer(Scipy):
     pass
 
 
-__all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
-           "WrapOptimizer",
+__all__ = ["WrapOptimizer",
            "Adam", "Minuit",
            "Scipy", "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1', "ScipyDoglegV1", "ScipyTrustNCGV1",
            "ScipyPowellV1", "ScipySLSQPV1", "ScipyNewtonCGV1", "ScipyTruncNCV1",
