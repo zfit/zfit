@@ -90,19 +90,19 @@ minimizers = [
 
 ]
 
-minimizers = [
-    (zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'minuit_grad': True},
-     {'error': True, 'longtests': True})
-    # minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
-    # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
-    # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
-    # minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
-    # minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
-    # minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
-    # minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-3, 'verbosity': 7}, True)]
-    # minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tol': 1e-5, 'verbosity': 7}, True)]
-    # minimizers = [(zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, 'verbosity': 7}, True)]
-    # minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tol': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [
+#     (zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'minuit_grad': True},
+#      {'error': True, 'longtests': True})]
+# minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-3, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tol': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tol': 1e-5, 'verbosity': 7}, True)]
     # minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.NLoptTruncNewtonV1, {'verbosity': 7}, True)]
@@ -113,7 +113,6 @@ minimizers = [
 # minimizers = [(zfit.minimize.NLoptStoGOV1, {'verbosity': 7}, {'error': True, 'longtests': True})]  # DOESN'T WORK!
 # minimizers = [(zfit.minimize.NLoptSubplexV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
-]
 
 
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
