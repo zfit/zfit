@@ -62,20 +62,22 @@ class Minuit(BaseMinimizer, GraphCachable):
                     scales quadratically with the number of fitted parameters. The different scales comes from the fact that the Hesse matrix is explicitly computed in a Newton step, if Minuit detects significant correlations between parameters.
                 - 2: same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
                     always explicitly computed in each Newton step.
-            options:
-            criterion:
-
-            strategy: A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
-            the minimizer in certain situations.
-
-            tol: Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower than `tolerance`
             verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer. A value above 5 starts printing more
                 output with a value of 10 printing every evaluation of the loss function and gradient.|@docend| This
                 also changes the iminuit internal verbosity at around 7.
-            name: Name of the minimizer
-            maxiter: Maximum number of minimization steps.
-            gradient: If True, iminuit uses it's internal numerical gradient calculation instead of the
-                (analytic/numerical) gradient provided by TensorFlow/zfit.
+            gradient: If True, iminuit uses its internal numerical gradient calculation instead of the
+                (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
+                is used. For smaller datasets with less stable losses, the internal Minuit gradient often performs
+                better while the zfit provided gradient improves the convergence rate for larger (10'000+) datasets.
+            options: Additional options that will be directly passsed into :meth:~``iminuitMinuit.migrad``
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+
 
             use_minuit_grad: deprecated, legacy.
             minuit_grad: deprecated, legacy.

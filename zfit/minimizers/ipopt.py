@@ -88,7 +88,7 @@ class IpyoptV1(BaseMinimizer):
                 computed inside the loss). This tends to be slow compared to the approximations and is usually
                 not necessary.
 
-            options (): Additional possible options for the minimizer. All options can be seen by using the command in the shell
+            options: Additional possible options for the minimizer. All options can be seen by using the command in the shell
                 `ipopt --print_options`.
                 A selection of parameters is presented here:
                 - *alpha_red_factor*:  between 0 and 1, default 0.5
@@ -163,8 +163,8 @@ class IpyoptV1(BaseMinimizer):
                    evaluations of the `value`, 'gradient` or `hessian`.|@docend|
             criterion: |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has been found. The default is 1e-3.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Termination value for the convergence/stopping criterion of the algorithm
-                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
             name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
         """
         minimizer_options = {}

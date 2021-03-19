@@ -8,8 +8,8 @@ minimizer.criterion: |1+
     Termination value for the convergence/stopping criterion of the algorithm
                     in order to determine if the minimum has been found. The default is 1e-3.
 minimizer.strategy: |1+
-    Termination value for the convergence/stopping criterion of the algorithm
-                    in order to determine if the minimum has been found. The default is 1e-3.
+    Determines the behavior of the minimizer in certain situations, most notably when encountering
+                    NaNs in which case
 minimizer.maxiter: |1+
     Approximate number of iterations. This corresponds to roughly the maximum number of
                     evaluations of the `value`, 'gradient` or `hessian`.

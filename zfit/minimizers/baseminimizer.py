@@ -153,8 +153,8 @@ class BaseMinimizer(ZfitMinimizer):
                 output with a value of 10 printing every evaluation of the loss function and gradient.|@docend|
             criterion: |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has been found. The default is 1e-3.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Termination value for the convergence/stopping criterion of the algorithm
-                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
             minimizer_options: Additional minimizer options
             maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`.|@docend|
