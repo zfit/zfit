@@ -100,7 +100,7 @@ def test_conv_1d_shifted():
     # plt.legend()
     # plt.show()
 
-
+@pytest.mark.skip  # TODO: reactivate, fix bug with conv https://github.com/zfit/zfit/issues/291
 def test_onedim_sampling():
     obs_kernel = zfit.Space("obs1", limits=(-3, 3))
     obs = zfit.Space("obs1", limits=(5, 15))

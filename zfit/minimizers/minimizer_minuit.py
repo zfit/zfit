@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
 import warnings
-from typing import List, Optional
+from typing import List, Mapping, Optional
 
 import iminuit
 import numpy as np
@@ -9,65 +9,118 @@ from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, set_values
 from ..settings import run
 from ..util.cache import GraphCachable
+from ..util.deprecation import deprecated_args
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (BaseMinimizer, minimize_supports,
                             print_minimization_status)
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
-from .termination import EDM
+from .termination import EDM, ConvergenceCriterion
 
 
 class Minuit(BaseMinimizer, GraphCachable):
     _DEFAULT_name = "Minuit"
 
+    @deprecated_args(None, "Use `options` instead.", 'minimizer_options')
+    @deprecated_args(None, "Use `maxiter` instead.", 'ncall')
+    @deprecated_args(None, "Use `mode` instead.", 'minimize_strategy')
+    @deprecated_args(None, "Use `gradient` instead.", 'minuit_grad')
+    @deprecated_args(None, "Use `gradient` instead.", 'use_minuit_grad')
     def __init__(self,
-                 strategy: ZfitStrategy = None,
-                 minimize_strategy: int = None,
-                 tol: float = None,
-                 verbosity: int = 5, name: str = None,
-                 ncall: Optional[int] = None,
-                 minuit_grad: Optional[bool] = None,
+                 tol: Optional[float] = None,
+                 mode: Optional[int] = None,
+                 verbosity: Optional[int] = None,
+                 gradient: Optional[bool] = None,
+                 options: Optional[Mapping[str, object]] = None,
+                 maxiter: Optional[int] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 name: Optional[str] = None,
+                 # legacy arguments
                  use_minuit_grad: Optional[bool] = None,
-                 minimizer_options=None):
+                 minuit_grad=None,
+                 minimize_strategy=None,
+                 ncall=None,
+                 minimizer_options=None,
+                 ):
         """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in
         `iminuit<https://iminuit.readthedocs.io/en/stable/>`_.
 
-        The package iminuit is the fast, interactive minimizer based on the Minuit2 C++ library maintained
-        by CERN’s ROOT team.
+        The package iminuit is the fast, interactive minimizer based on the Minuit2 C++ library; the latter is
+        maintained by CERN’s ROOT team.
 
         Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            mode: A number used by minuit to define the internal minimization strategy, either 0, 1 or 2.
+                As `explained in the iminuit docs <>`_, they mean:
+                - 0 (default with zfit gradient): the fastest and the number of function calls required to minimise
+                    scales linearly with the number of fitted parameters. The Hesse matrix is not computed during the
+                    minimisation (only an approximation that is continuously updated).
+                    When the number of fitted parameters > 10, you should prefer this strategy.
+                - 1 (default with Minuit gradient) medium in speed. The number of function calls required
+                    scales quadratically with the number of fitted parameters. The different scales comes from the fact that the Hesse matrix is explicitly computed in a Newton step, if Minuit detects significant correlations between parameters.
+                - 2: same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
+                    always explicitly computed in each Newton step.
+            options:
+            criterion:
+
             strategy: A :py:class:`~zfit.minimizer.baseminimizer.ZfitStrategy` object that defines the behavior of
             the minimizer in certain situations.
-            minimize_strategy: A number used by minuit to define the strategy, either 0, 1 or 2.
+
             tol: Stopping criteria: the Estimated Distance to Minimum (EDM) has to be lower than `tolerance`
-            verbosity: Regulates how much will be printed during minimization. Values between 0 and 10 are valid.
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer. A value above 5 starts printing more
+                output with a value of 10 printing every evaluation of the loss function and gradient.|@docend| This
+                also changes the iminuit internal verbosity at around 7.
             name: Name of the minimizer
-            ncall: Maximum number of minimization steps.
-            minuit_grad: If True, iminuit uses it's internal numerical gradient calculation instead of the
+            maxiter: Maximum number of minimization steps.
+            gradient: If True, iminuit uses it's internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit.
-            use_minuit_grad: If True, iminuit uses it's internal numerical gradient calculation instead of the
-                (analytic/numerical) gradient provided by TensorFlow/zfit.
+
+            use_minuit_grad: deprecated, legacy.
+            minuit_grad: deprecated, legacy.
+            minimize_strategy: deprecated, legacy.
+            ncall: deprecated, legacy.
+            minimizer_options: deprecated, legacy.
         """
+        # legacy
+        if isinstance(mode, float) or isinstance(tol, int):
+            raise TypeError('mode has to be int, tol a float. The API changed, make sure you use the'
+                            ' right parameters.')
+        if minimizer_options is not None:
+            options = minimizer_options
+        if ncall is not None:
+            maxiter = ncall
+        if minimize_strategy is not None:
+            mode = minimize_strategy
+
+        use_grad_legacy = use_minuit_grad if use_minuit_grad is not None else minuit_grad
+        if use_grad_legacy is not None:
+            gradient = use_grad_legacy
+        # end legacy
+
+        if gradient == 'zfit':
+            gradient = False
+        gradient = True if gradient is None else gradient
 
         self._internal_maxiter = 20
-        minuit_grad = use_minuit_grad if use_minuit_grad is not None else minuit_grad
-        minimizer_options = {} if minimizer_options is None else minimizer_options
-        minimizer_options['ncall'] = 0 if ncall is None else ncall
-        if minimize_strategy is None:
-            minimize_strategy = 0 if not minuit_grad else 1
-        else:
-            minimize_strategy = minimize_strategy
-        if minimize_strategy not in range(3):
-            raise ValueError(f"minimize_strategy has to be 0, 1 or 2, not {minimize_strategy}.")
-        minimizer_options['strategy'] = minimize_strategy
 
-        super().__init__(name=name, strategy=strategy, tol=tol, verbosity=verbosity, criterion=None,
+        options = {} if options is None else options
+        options['ncall'] = 0 if maxiter is None else maxiter
+        if mode is None:
+            mode = 0 if not gradient else 1
+        else:
+            mode = mode
+        if mode not in range(3):
+            raise ValueError(f"mode has to be 0, 1 or 2, not {mode}.")
+        options['strategy'] = mode
+
+        super().__init__(name=name, strategy=strategy, tol=tol, verbosity=verbosity, criterion=criterion,
                          maxiter=1e20,
-                         minimizer_options=minimizer_options)
-        minuit_grad = True if minuit_grad is None else minuit_grad
+                         minimizer_options=options)
         self._minuit_minimizer = None
-        self._use_tfgrad_internal = not minuit_grad
-        self.minuit_grad = minuit_grad
+        self._use_tfgrad_internal = not gradient
+        self.minuit_grad = gradient
 
     # TODO 0.7: legacy, remove `_use_tfgrad`
     @property

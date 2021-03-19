@@ -6,8 +6,9 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd
 
-from .. import z, ztypes
+from .. import z
 from ..core.interfaces import ZfitData, ZfitSpace
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
 from .dist_tfp import WrapDistribution

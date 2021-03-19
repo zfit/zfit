@@ -7,7 +7,6 @@ import tensorflow as tf
 
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated
-from . import function
 from .tools import _auto_upcast
 from .zextension import convert_to_tensor
 
@@ -283,7 +282,7 @@ automatic_value_gradients_hessian = deprecated(None,
     automatic_value_gradient_hessian)
 
 
-@function(wraps="tensor")
+@tf.function(autograph=False)
 def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):
     log_mean = tf.reduce_mean(tf.math.log(input_tensor), axis=axis, keepdims=keepdims)
     return tf.math.exp(log_mean)

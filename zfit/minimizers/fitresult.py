@@ -662,11 +662,13 @@ class FitResult(ZfitResult):
     def hesse(self,
               params: ParamsTypeOpt = None,
               method: Union[str, Callable] = None,
+              cl: Optional[float] = None,
               name: Optional[Union[str, bool]] = None,
               error_name: Optional[str] = None) -> Dict[ZfitIndependentParameter, Dict]:
         """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
         Args:
+            cl:
             params: The parameters to calculate the
                 Hessian symmetric error. If None, use all parameters.
             method: the method to calculate the covariance matrix. Can be
@@ -686,7 +688,10 @@ class FitResult(ZfitResult):
                 error_a is the hessian error.
         """
         # for compatibility with `errors`
-        cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)
+        cl = 0.68268949 if cl is None else cl  # scipy.stats.chi2(1).cdf(1)
+        if cl >= 1:
+            raise ValueError(f"cl is the confidence limit and has to be < 1, not {cl}")
+
         if method is None:
             # LEGACY START
             method = self._default_hesse
@@ -706,7 +711,7 @@ class FitResult(ZfitResult):
         with self._input_check_reset_params(params) as params:
             uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
             if uncached_params:
-                error_dict = self._hesse(params=uncached_params, method=method)
+                error_dict = self._hesse(params=uncached_params, method=method, cl=cl)
                 for p in error_dict:
                     error_dict[p]['cl'] = cl
                 if name:
@@ -721,10 +726,13 @@ class FitResult(ZfitResult):
         for param, error in errors.items():
             self.params[param][error_name] = error
 
-    def _hesse(self, params, method):
+    def _hesse(self, params, method, cl):
+        pseudo_sigma = scipy.stats.chi2(1).ppf(cl) ** 0.5
+
         covariance_dict = self.covariance(params, method, as_dict=True)
-        return {p: {"error": covariance_dict[(p, p)] ** 0.5 if covariance_dict[(p, p)] is not None else None}
-                    for p in params}
+        return {
+            p: {"error": covariance_dict[(p, p)] ** 0.5 * pseudo_sigma if covariance_dict[(p, p)] is not None else None}
+            for p in params}
 
     def error(self, params: ParamsTypeOpt = None, method: Union[str, Callable] = None, error_name: str = None,
               sigma: float = 1.0) -> OrderedDict:
@@ -834,7 +842,6 @@ class FitResult(ZfitResult):
                 self._cache_errors(error_name=name, errors=error_dict)
 
                 if new_result is not None:
-
                     msg = "Invalid, a new minimum was found."
                     self._cache_errors(error_name=name, errors={p: msg for p in params})
                     self._valid = False

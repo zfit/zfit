@@ -54,7 +54,6 @@ class IpyoptV1(BaseMinimizer):
                  tol: Optional[float] = None,
                  maxcor: Optional[int] = None,
                  verbosity: Optional[int] = None,
-                 gradient: Optional[Union[Callable, str]] = None,
                  hessian: Optional[str] = None,
                  options: Optional[Dict[str, object]] = None,
                  maxiter: Optional[Union[int, str]] = None,
@@ -173,7 +172,6 @@ class IpyoptV1(BaseMinimizer):
         if hessian is None:
             hessian = 'bfgs'
         options = {} if options is None else options
-        minimizer_options['gradient'] = gradient
         minimizer_options['hessian'] = hessian
         if 'tol' in options:
             raise ValueError("Cannot put 'tol' into the options. Use `tol` in the init instead")

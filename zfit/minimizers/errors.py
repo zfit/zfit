@@ -175,14 +175,13 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                                                 method=method)
         if new_result_ is not None:
             new_result = new_result_
-    print(f"Used {ncalls} calls.")
+    # print(f"Used {ncalls} calls.")
     return to_return, new_result
 
 
 def numerical_pdf_jacobian(func, params):
     jacobian_func = numdifftools.Jacobian(func)
-    jacobian = jacobian_func([param.value() for param in params]).T
-    return jacobian
+    return jacobian_func([param.value() for param in params]).T
 
 
 @z.function(wraps='autodiff')

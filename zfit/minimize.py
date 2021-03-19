@@ -32,9 +32,9 @@ class MinuitMinimizer(Minuit):
     @deprecated(None, "Use zfit.minimize.Minuit instead.")
     def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tol: float = None,
                  verbosity: int = 5, name: str = None, ncall: int = 10000, use_minuit_grad: bool = None,
-                 **minimizer_options):
+                 **options):
         super().__init__(strategy, minimize_strategy, tol, verbosity, name, ncall, use_minuit_grad,
-                         **minimizer_options)
+                         **options)
 
 
 class ScipyMinimizer():
