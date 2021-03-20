@@ -29,8 +29,8 @@ class Minuit(BaseMinimizer, GraphCachable):
     def __init__(self,
                  tol: Optional[float] = None,
                  mode: Optional[int] = None,
-                 verbosity: Optional[int] = None,
                  gradient: Optional[bool] = None,
+                 verbosity: Optional[int] = None,
                  options: Optional[Mapping[str, object]] = None,
                  maxiter: Optional[int] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
@@ -47,11 +47,15 @@ class Minuit(BaseMinimizer, GraphCachable):
         `iminuit<https://iminuit.readthedocs.io/en/stable/>`_.
 
         The package iminuit is the fast, interactive minimizer based on the Minuit2 C++ library; the latter is
-        maintained by CERN’s ROOT team.
+        maintained by CERN’s ROOT team. It is an especially robust minimizer that finds the global minimum
+        quiet reliably. It is however, like all local minimizers, still rather dependent on close enough
+        initial values.
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the convergence/stopping criterion of the algorithm
-                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
             mode: A number used by minuit to define the internal minimization strategy, either 0, 1 or 2.
                 As `explained in the iminuit docs <>`_, they mean:
                 - 0 (default with zfit gradient): the fastest and the number of function calls required to minimise
@@ -62,18 +66,27 @@ class Minuit(BaseMinimizer, GraphCachable):
                     scales quadratically with the number of fitted parameters. The different scales comes from the fact that the Hesse matrix is explicitly computed in a Newton step, if Minuit detects significant correlations between parameters.
                 - 2: same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
                     always explicitly computed in each Newton step.
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer. A value above 5 starts printing more
-                output with a value of 10 printing every evaluation of the loss function and gradient.|@docend| This
-                also changes the iminuit internal verbosity at around 7.
             gradient: If True, iminuit uses its internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
                 is used. For smaller datasets with less stable losses, the internal Minuit gradient often performs
                 better while the zfit provided gradient improves the convergence rate for larger (10'000+) datasets.
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend| This
+                also changes the iminuit internal verbosity at around 7.
             options: Additional options that will be directly passsed into :meth:~``iminuitMinuit.migrad``
             maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
-                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
             strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
                    NaNs in which case|@docend|
             name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|

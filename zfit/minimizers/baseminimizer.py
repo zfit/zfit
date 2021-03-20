@@ -147,12 +147,23 @@ class BaseMinimizer(ZfitMinimizer):
 
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the convergence/stopping criterion of the algorithm
-                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer. A value above 5 starts printing more
-                output with a value of 10 printing every evaluation of the loss function and gradient.|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Termination value for the convergence/stopping criterion of the algorithm
-                   in order to determine if the minimum has been found. The default is 1e-3.|@docend|
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
             strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
                    NaNs in which case|@docend|
             minimizer_options: Additional minimizer options

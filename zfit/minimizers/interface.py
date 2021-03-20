@@ -63,7 +63,7 @@ class ZfitResult:
         raise NotImplementedError
 
 
-class ZfitMinimizer:
+class ZfitMinimizer(abc.ABC):
     """Define the minimizer interface."""
 
     @abc.abstractmethod

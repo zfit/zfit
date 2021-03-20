@@ -5,8 +5,10 @@ from .minimizers.baseminimizer import DefaultStrategy
 from .minimizers.fitresult import FitResult
 from .minimizers.ipopt import IpyoptV1
 from .minimizers.minimizer_minuit import Minuit
-from .minimizers.minimizer_nlopt import (NLoptCCSAQV1, NLoptLBFGSV1,
-                                         NLoptMLSLV1, NLoptMMAV1, NLoptSLSQPV1,
+from .minimizers.minimizer_nlopt import (NLoptBOBYQAV1, NLoptCCSAQV1,
+                                         NLoptESCHV1, NLoptISRESV1,
+                                         NLoptLBFGSV1, NLoptMLSLV1, NLoptMMAV1,
+                                         NLoptShiftVarV1, NLoptSLSQPV1,
                                          NLoptStoGOV1, NLoptSubplexV1,
                                          NLoptTruncNewtonV1)
 from .minimizers.minimizer_tfp import BFGS
@@ -37,10 +39,17 @@ class MinuitMinimizer(Minuit):
                          **options)
 
 
-class ScipyMinimizer():
+class Scipy:
+    def __init__(self, *_, **__):
+        raise RuntimeError("This has been removed. Use the new Scipy* minimizer instead. In case anyone is missing,"
+                           " please feel free to open a request:"
+                           " https://github.com/zfit/zfit/issues/new?assignees="
+                           "&labels=discussion&template=feature-request.md&title="
+                           " or directly make a PR.")
 
-    def __init__(self, minimizer='L-BFGS-B', tol=None, verbosity=5, name=None, **minimizer_options):
-        raise RuntimeError("This has been removed. Use the new Scipy* minimizer instead.")
+
+class ScipyMinimizer(Scipy):
+    pass
 
 
 __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
@@ -48,9 +57,9 @@ __all__ = ['MinuitMinimizer', 'ScipyMinimizer', 'AdamMinimizer',
            "Adam", "Minuit",
            "Scipy", "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1', "ScipyDoglegV1", "ScipyTrustNCGV1",
            "ScipyPowellV1", "ScipySLSQPV1", "ScipyNewtonCGV1", "ScipyTruncNCV1",
-           "NLoptLBFGSV1", "NLoptTruncNewtonV1", "NLoptSLSQPV1", "NLoptMMAV1", "NLoptCCSAQV1",
-           "NLoptMLSLV1", 'NLoptStoGOV1',
+           "NLoptLBFGSV1", "NLoptTruncNewtonV1", "NLoptSLSQPV1", "NLoptMMAV1", "NLoptCCSAQV1", 'NLoptShiftVarV1',
+           "NLoptMLSLV1", 'NLoptStoGOV1', 'NLoptESCHV1', 'NLoptISRESV1',
            "IpyoptV1",
-           "NLoptSubplexV1",
-           "BFGS", "NLopt",
+           "NLoptSubplexV1", "NLoptBOBYQAV1",
+           "BFGS",
            "DefaultStrategy", "FitResult"]

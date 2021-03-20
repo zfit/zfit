@@ -2,7 +2,7 @@
 import collections
 import copy
 import math
-from typing import Callable, Dict, Mapping, Optional, Union
+from typing import Callable, Mapping, Optional, Union
 
 import nlopt
 import numpy as np
@@ -12,104 +12,9 @@ from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (NOT_SUPPORTED, BaseMinimizer, minimize_supports,
                             print_minimization_status)
-from .evaluation import LossEval
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
-
-# class NLopt(BaseMinimizer):
-#     def __init__(self, algorithm: int = nlopt.LD_LBFGS, tol: Optional[float] = None,
-#                  strategy: Optional[ZfitStrategy] = None, verbosity: Optional[int] = 5, name: Optional[str] = None,
-#                  maxiter: Optional[Union[int, str]] = 'auto', minimizer_options: Optional[Dict[str, object]] = None):
-#         """NLopt contains multiple different optimization algorithms.py
-#
-#         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a free/open-source library for nonlinear optimization,
-#         providing a common interface for a number of
-#         different free optimization routines available online as well as original implementations of various other
-#         algorithms.
-#
-#         Args:
-#             algorithm: Define which algorithm to be used. These are taken from `nlopt.ALGORITHM` (where `ALGORITHM` is
-#                 the actual algorithm). A comprehensive list and description of all implemented algorithms is
-#                 available `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
-#                 The wrapper is optimized for Local gradient-based optimization and may breaks with
-#                 others. However, please post a feature request in case other algorithms are requested.
-#
-#                 The naming of the algorithm starts with either L/G (Local/Global)
-#                  and N/D (derivative-free/derivative-based).
-#
-#                 Local optimizer ptions include (but not only)
-#
-#                 Derivative free:
-#                 - LN_NELDERMEAD: The Nelder Mead Simplex algorithm, which seems to perform not so well, but can be used
-#                   to narrow down a minimum.
-#                 - LN_SBPLX: SubPlex is an improved version of the Simplex algorithms and usually performs better.
-#
-#                 With derivative:
-#                 - LD_MMA: Method of Moving Asymptotes, an improved CCSA
-#                   ("conservative convex separable approximation") variant of the original MMA algorithm
-#                 - LD_SLSQP: this is a sequential quadratic programming (SQP) algorithm for (nonlinearly constrained)
-#                   gradient-based optimization
-#                 - LD_LBFGS: version of the famous low-storage BFGS algorithm, an approximate Newton method. The same as
-#                   the Minuit algorithm is built on.
-#                 - LD_TNEWTON_PRECOND_RESTART, LD_TNEWTON_PRECOND, LD_TNEWTON_RESTART, LD_TNEWTON: a preconditioned
-#                   inexact truncated Newton algorithm. Multiple variations, with and without preconditioning and/or
-#                   restart are provided.
-#                 - LD_VAR1, LD_VAR2: a shifted limited-memory variable-metric algorithm, either using a rank 1 or rank 2
-#                   method.
-#
-#             tol (Union[float, None]):
-#             strategy (Union[None, None]):
-#             verbosity (int):
-#             name (Union[None, None]):
-#             maxiter (Union[None, None]):
-#             minimizer_options (Union[None, None]):
-#         """
-#         self.algorithm = algorithm
-#         super().__init__(name=name, tol=tol, verbosity=verbosity, minimizer_options=minimizer_options,
-#                          strategy=strategy, maxiter=maxiter)
-#
-#     @minimize_supports(init=False)
-#     def _minimize(self, loss, params):
-#
-#         minimizer = nlopt.opt(self.algorithm, len(params))
-#
-#         n_eval = 0
-#
-#         init_val = np.array(run(params))
-#
-#         evaluator = LossEval(loss=loss,
-#                              params=params,
-#                              strategy=self.strategy,
-#                              do_print=self.verbosity > 8)
-#
-#         func = evaluator.value
-#         grad_value_func = evaluator.value_gradients
-#
-#         def obj_func(x, grad):
-#             if grad.size > 0:
-#                 value, gradients = grad_value_func(x)
-#                 grad[:] = np.array(run(gradients))
-#             else:
-#                 value = func(x)
-#
-#             return value
-#
-#         minimizer.set_min_objective(obj_func)
-#         lower = np.array([p.lower for p in params])
-#         upper = np.array([p.upper for p in params])
-#         minimizer.set_lower_bounds(lower)
-#         minimizer.set_upper_bounds(upper)
-#         minimizer.set_maxeval(self.get_maxiter(len(params)))
-#         minimizer.set_ftol_abs(self.tol)
-#
-#         for name, value in self.minimizer_options:
-#             minimizer.set_param(name, value)
-#
-#         xvalues = minimizer.optimize(init_val)
-#         set_values(params, xvalues)
-#         edm = -999
-#         return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm, params=params, xvalues=xvalues)
 
 
 class NLoptBaseMinimizerV1(BaseMinimizer):
@@ -122,62 +27,89 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
     def __init__(self,
                  algorithm: int,
-                 gradient: Optional[Union[Callable, str, NOT_SUPPORTED]],
-                 hessian: Optional[Union[Callable, str, NOT_SUPPORTED]],
-                 maxiter: Optional[Union[int, str]],
-                 minimizer_options: Optional[Mapping[str, object]],
+                 tol: Optional[float] = None,
+                 gradient: Optional[Union[Callable, str, NOT_SUPPORTED]] = NOT_SUPPORTED,
+                 hessian: Optional[Union[Callable, str, NOT_SUPPORTED]] = NOT_SUPPORTED,
+                 maxiter: Optional[Union[int, str]] = None,
+                 minimizer_options: Optional[Mapping[str, object]] = None,
                  internal_tols: Mapping[str, Optional[float]] = None,
-                 tol: float = None,
                  verbosity: Optional[int] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  name: str = "NLopt Base Minimizer V1"):
-        """NLopt contains multiple different optimization algorithms.py.
+        """NLopt is a library that contains multiple different optimization algorithms.
 
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a free/open-source library for nonlinear optimization,
+         |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
         providing a common interface for a number of
-        different free optimization routines available online as well as original implementations of various other
-        algorithms.
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
 
-        Args:
-            algorithm: Define which algorithm to be used. These are taken from `nlopt.ALGORITHM` (where `ALGORITHM` is
-                the actual algorithm). A comprehensive list and description of all implemented algorithms is
-                available `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
-                The wrapper is optimized for Local gradient-based optimization and may break with
-                others. However, please post a feature request in case other algorithms are requested.
+         Args:
 
-                The naming of the algorithm starts with either L/G (Local/Global)
-                 and N/D (derivative-free/derivative-based).
+             algorithm: Define which algorithm to be used. These are taken from `nlopt.ALGORITHM` (where `ALGORITHM` is
+                 the actual algorithm). A comprehensive list and description of all implemented algorithms is
+                 available `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+                 The wrapper is optimized for Local gradient-based optimization and may break with
+                 others. However, please post a feature request in case other algorithms are requested.
 
-                Local optimizer options include (but are not limited to)
+                 The naming of the algorithm starts with either L/G (Local/Global)
+                  and N/D (derivative-free/derivative-based).
 
-                Derivative free:
-                - LN_NELDERMEAD: The Nelder Mead Simplex algorithm, which seems to perform not so well, but can be used
-                  to narrow down a minimum.
-                - LN_SBPLX: SubPlex is an improved version of the Simplex algorithms and usually performs better.
+                 Local optimizer options include (but are not limited to)
 
-                With derivative:
-                - LD_MMA: Method of Moving Asymptotes, an improved CCSA
-                  ("conservative convex separable approximation") variant of the original MMA algorithm
-                - LD_SLSQP: this is a sequential quadratic programming (SQP) algorithm for (nonlinearly constrained)
-                  gradient-based optimization
-                - LD_LBFGS: version of the famous low-storage BFGS algorithm, an approximate Newton method. The same as
-                  the Minuit algorithm is built on.
-                - LD_TNEWTON_PRECOND_RESTART, LD_TNEWTON_PRECOND, LD_TNEWTON_RESTART, LD_TNEWTON: a preconditioned
-                  inexact truncated Newton algorithm. Multiple variations, with and without preconditioning and/or
-                  restart are provided.
-                - LD_VAR1, LD_VAR2: a shifted limited-memory variable-metric algorithm, either using a rank 1 or rank 2
-                  method.
+                 Derivative free:
+                 - LN_NELDERMEAD: The Nelder Mead Simplex algorithm, which seems to perform not so well, but can be used
+                   to narrow down a minimum.
+                 - LN_SBPLX: SubPlex is an improved version of the Simplex algorithms and usually performs better.
 
-            tol (Union[float, None]):
-            strategy (Union[None, None]):
-            verbosity (int):
-            name (Union[None, None]):
-            maxiter (Union[None, None]):
-            minimizer_options (Union[None, None]):
+                 With derivative:
+                 - LD_MMA: Method of Moving Asymptotes, an improved CCSA
+                   ("conservative convex separable approximation") variant of the original MMA algorithm
+                 - LD_SLSQP: this is a sequential quadratic programming (SQP) algorithm for (nonlinearly constrained)
+                   gradient-based optimization
+                 - LD_LBFGS: version of the famous low-storage BFGS algorithm, an approximate Newton method. The same as
+                   the Minuit algorithm is built on.
+                 - LD_TNEWTON_PRECOND_RESTART, LD_TNEWTON_PRECOND, LD_TNEWTON_RESTART, LD_TNEWTON: a preconditioned
+                   inexact truncated Newton algorithm. Multiple variations, with and without preconditioning and/or
+                   restart are provided.
+                 - LD_VAR1, LD_VAR2: a shifted limited-memory variable-metric algorithm, either using a rank 1 or rank 2
+                   method.
+
+             tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+             gradient: Gradient that will be given to the minimizer if supported.
+             hessian: Hessian that will be given to the minimizer if supported.
+             internal_tols: Tolerances for the minimizer. Has to contain possible tolerance criteria.
+             verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+             criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+             strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+             maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+             minimizer_options: Additional options that will be set in the minimizer.
+             name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
         """
         self._algorithm = algorithm
-
+        if minimizer_options is None:
+            minimizer_options = {}
         minimizer_options = copy.copy(minimizer_options)
 
         if gradient is not NOT_SUPPORTED:
@@ -254,6 +186,10 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         maxcor = minimizer_options.pop('maxcor', None)
         if maxcor is not None:
             minimizer.set_vector_storage(maxcor)
+
+        population = minimizer_options.pop('population', None)
+        if population is not None:
+            minimizer.set_population(population)
 
         for name, value in minimizer_options.items():
             minimizer.set_param(name, value)
@@ -382,13 +318,74 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
 class NLoptLBFGSV1(NLoptBaseMinimizerV1):
     def __init__(self,
-                 tol: float = None,
-                 maxcor: bool = None,
+                 tol: Optional[float] = None,
+                 maxcor: Optional[int] = None,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
-                 strategy: ZfitStrategy = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt L-BFGS V1"):
+                 name: str = "NLopt L-BFGS V1"
+                 ) -> None:
+        """Local, gradient quasi-Newton minimizer using the low storage BFGS Hessian approximation.
+
+        This is most probably the most popular algorithm for gradient based local minimum searches and also
+        the underlying algorithm in the
+        `Minuit <https://www.sciencedirect.com/science/article/abs/pii/0010465575900399>`_ minimizer that is
+        also available as :class:~``zfit.minimize.Minuit``.
+
+
+        This algorithm is based on a Fortran implementation of the low-storage BFGS algorithm
+        written by Prof. Ladislav Luksan, and graciously posted online under the GNU LGPL at:
+
+        -   <http://www.uivt.cas.cz/~luksan/subroutines.html>
+
+        The original L-BFGS algorithm, based on variable-metric updates via Strang recurrences,
+         was described by the papers:
+
+        -   J. Nocedal, "Updating quasi-Newton matrices with limited storage," *Math. Comput.* **35**, 773-782 (1980).
+        -   D. C. Liu and J. Nocedal, "On the limited memory BFGS method for large scale optimization,"
+            ''Math. Programming' **45**, p. 503-528 (1989).
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            maxcor: |@docstart||@doc:minimizer.maxcor|Maximum number of memory history to keep
+                   when using a quasi-Newton update formula such as BFGS.
+                   It is the number of gradients
+                   to “remember” from previous optimization
+                   steps: increasing it increases
+                   the memory requirements but may speed up the convergence.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
         super().__init__(name=name,
                          algorithm=nlopt.LD_LBFGS,
                          tol=tol,
@@ -405,15 +402,167 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
             return self.minimizer_options.get('maxcor')
 
 
+class NLoptShiftVarV1(NLoptBaseMinimizerV1):
+    def __init__(self,
+                 tol: Optional[float] = None,
+                 maxcor: Optional[int] = None,
+                 rank: Optional[int] = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name="NLopt Shifted Variable Memory") -> None:
+        """Local, gradient-based minimizer using a shifted limited-memory variable-metric.
+
+        This algorithm is based on a Fortran implementation of a shifted limited-memory variable-metric
+        algorithm by Prof. Ladislav Luksan, and graciously posted online under the GNU LGPL at:
+
+        -   <http://www.uivt.cas.cz/~luksan/subroutines.html>
+
+        There are two variations of this algorithm: either using a rank-2 method or a rank-1 method.
+
+        The algorithms are based on the ones described by:
+
+        -   J. Vlcek and L. Luksan, "Shifted limited-memory variable metric methods for large-scale unconstrained
+            minimization," *J. Computational Appl. Math.* **186**, p. 365-390 (2006).
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            maxcor: |@docstart||@doc:minimizer.maxcor|Maximum number of memory history to keep
+                   when using a quasi-Newton update formula such as BFGS.
+                   It is the number of gradients
+                   to “remember” from previous optimization
+                   steps: increasing it increases
+                   the memory requirements but may speed up the convergence.|@docend|
+            rank: Rank of the algorithm used, either 1 or 2. Defaults to 2.
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
+
+        if rank is None:
+            rank = 2
+
+        if rank == 1:
+            algorithm = nlopt.LD_VAR1
+        elif rank == 2:
+            algorithm = nlopt.LD_VAR2
+        else:
+            raise ValueError(f"rank has to be either 1 or 2, not {rank}")
+        self._rank = rank
+        super().__init__(name=name,
+                         algorithm=algorithm,
+                         tol=tol,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options={'maxcor': maxcor},
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+        @property
+        def rank(self):
+            return self._rank
+
+        @property
+        def maxcor(self):
+            return self.minimizer_options.get('maxcor')
+
+
 class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
     def __init__(self,
-                 tol: float = None,
-                 maxcor: bool = None,
+                 tol: Optional[float] = None,
+                 maxcor: Optional[int] = None,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
-                 strategy: ZfitStrategy = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt Truncated Newton"):
+                 name="NLopt Truncated Newton") -> None:
+        """Local, gradient-based truncated Newton minimizer using an inexact algorithm.
+
+        This algorithm is based on a Fortran implementation of a
+        preconditioned inexact truncated Newton algorithm written by
+        Prof. Ladislav Luksan, and graciously posted online under the GNU LGPL
+        at:
+
+        -  http://www.uivt.cas.cz/~luksan/subroutines.html
+
+        The algorithms is based on the ones described by:
+
+        -  R. S. Dembo and T. Steihaug, “Truncated Newton algorithms for
+           large-scale optimization,” *Math. Programming* **26**, p. 190-212
+           (1983) http://doi.org/10.1007/BF02592055.
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            maxcor: |@docstart||@doc:minimizer.maxcor|Maximum number of memory history to keep
+                   when using a quasi-Newton update formula such as BFGS.
+                   It is the number of gradients
+                   to “remember” from previous optimization
+                   steps: increasing it increases
+                   the memory requirements but may speed up the convergence.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
         super().__init__(name=name,
                          algorithm=nlopt.LD_TNEWTON_PRECOND_RESTART,
                          tol=tol,
@@ -432,12 +581,86 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
 
 class NLoptSLSQPV1(NLoptBaseMinimizerV1):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
-                 strategy: ZfitStrategy = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt SLSQP"):
+                 name: str = "NLopt SLSQP"
+                 ) -> None:
+        r"""Local gradient based minimizer using a sequential quadratic programming.
+
+        This is a sequential quadratic programming (SQP) algorithm for
+        non-linearly gradient-based optimization based on the implementation by
+        Dieter Kraft and described in:
+
+        -  Dieter Kraft, “A software package for sequential quadratic
+           programming”, Technical Report DFVLR-FB 88-28, Institut für Dynamik
+           der Flugsysteme, Oberpfaffenhofen, July 1988.
+        -  Dieter Kraft, “Algorithm 733: TOMP–Fortran modules for optimal
+           control calculations,” *ACM Transactions on Mathematical Software*,
+           vol. 20, no. 3, pp. 262-281 (1994).
+
+        The algorithm optimizes
+        successive second-order (quadratic/least-squares) approximations of the
+        objective function (via BFGS updates), with first-order (affine)
+        approximations of the constraints.
+
+        The Fortran code was obtained from the SciPy project, who are
+        responsible for `obtaining permission`_ to distribute it under a
+        free-software (3-clause BSD) license.
+
+        The code was modified for inclusion in NLopt by S. G. Johnson in 2010,
+        with the following changes. The code was converted to C and manually
+        cleaned up. It was modified to be re-entrant (preserving the
+        reverse-communication interface but explicitly saving the state in a
+        data structure). The inexact line
+        search was modified to evaluate the functions including gradients for
+        the first step, since this removes the need to evaluate the
+        function+gradient a second time for the same point in the common case
+        when the inexact line search concludes after a single step.
+
+        **Note:** Because the SLSQP code uses dense-matrix methods (ordinary
+        BFGS, not low-storage BFGS), it requires *O*\ (*n*\ 2) storage and
+        *O*\ (*n*\ 3) time in *n* dimensions, which makes it less practical for
+        optimizing more than a few thousand parameters.
+
+        .. _obtaining permission: http://permalink.gmane.org/gmane.comp.python.scientific.devel/6725
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
         super().__init__(name=name,
                          algorithm=nlopt.LD_SLSQP,
                          tol=tol,
@@ -450,14 +673,153 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                          maxiter=maxiter)
 
 
+class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
+    def __init__(self,
+                 tol: Optional[float] = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name: str = "NLopt BOBYQA"
+                 ) -> None:
+        """Derivative-free local minimizer that iteratively constructed quadratic approximation for the loss.
+
+        This is an algorithm derived from the `BOBYQA subroutine`_ of M. J. D.
+        Powell, converted to C and modified for the NLopt stopping criteria.
+        BOBYQA performs derivative-free bound-constrained optimization using an
+        iteratively constructed quadratic approximation for the objective
+        function. See:
+
+        -  M. J. D. Powell, “`The BOBYQA algorithm for bound constrained
+           optimization without derivatives`_,” Department of Applied
+           Mathematics and Theoretical Physics, Cambridge England, technical
+           report NA2009/06 (2009).
+
+        (Because BOBYQA constructs a quadratic approximation of the objective,
+        it may perform poorly for objective functions that are not
+        twice-differentiable.)
+
+        This algorithm largely
+        supersedes the NEWUOA algorithm, which is an earlier version of
+        the same idea by Powell.
+
+        .. _BOBYQA subroutine: http://plato.asu.edu/ftp/other_software/bobyqa.zip
+        .. _The BOBYQA algorithm for bound constrained optimization without derivatives: http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2009_06.pdf
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
+        super().__init__(name=name,
+                         algorithm=nlopt.LN_BOBYQA,
+                         tol=tol,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options={},
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
 class NLoptMMAV1(NLoptBaseMinimizerV1):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
-                 strategy: ZfitStrategy = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt MMA"):
+                 name: str = "NLopt MMA"):
+        """Method-of-moving-asymptotes for gradient-based local minimization.
+
+        Globally-convergent method-of-moving-asymptotes (MMA) for gradient-based local minimization.
+        The algorithm is described in:
+
+        -  Krister Svanberg, “`A class of globally convergent optimization
+           methods based on conservative convex separable approximations`_,”
+           *SIAM J. Optim.* **12** (2), p. 555-573 (2002).
+
+        This is an improved CCSA (“conservative convex separable approximation”)
+        variant of the original MMA algorithm published by Svanberg in 1987,
+        which has become popular for topology optimization. (*Note:* “globally
+        convergent” does *not* mean that this algorithm converges to the global
+        optimum; it means that it is guaranteed to converge to *some* local
+        minimum from any feasible starting point.)
+
+        At each point **x**, MMA forms a local approximation using the gradient
+        of *f* and the constraint functions, plus a quadratic “penalty” term to
+        make the approximations “conservative” (upper bounds for the exact
+        functions). The precise approximation MMA forms is difficult to describe
+        in a few words, because it includes nonlinear terms consisting of a
+        poles at some distance from *x* (outside of the current trust region),
+        almost a kind of Padé approximant. The main point is that the
+        approximation is both convex and separable, making it trivial to solve
+        the approximate optimization by a dual method. Optimizing the
+        approximation leads to a new candidate point **x**. The objective and
+        constraints are evaluated at the candidate point. If the approximations
+        were indeed conservative (upper bounds for the actual functions at the
+        candidate point), then the process is restarted at the new **x**.
+        Otherwise, the approximations are made more conservative (by increasing
+        the penalty term) and re-optimized.
+
+
+        .. _A class of globally convergent optimization methods based on conservative convex separable approximations: http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.146.5196
+        .. _Professor Svanberg: http://researchprojects.kth.se/index.php/kb_7902/pb_2085/pb.html
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
         super().__init__(name=name,
                          algorithm=nlopt.LD_MMA,
                          tol=tol,
@@ -472,12 +834,62 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
 
 class NLoptCCSAQV1(NLoptBaseMinimizerV1):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
-                 strategy: ZfitStrategy = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt CCSAQ"):
+                 name: str = "NLopt CCSAQ"):
+        """MMA-like minimizer with simpler, quadratic local approximations.
+
+        CCSA is an algorithm from the same paper as MMA as described in:
+
+        -  Krister Svanberg, “`A class of globally convergent optimization
+           methods based on conservative convex separable approximations`_,”
+           *SIAM J. Optim.* **12** (2), p. 555-573 (2002).
+
+        CCSA has the following differences:
+        instead of constructing local MMA approximations, it
+        constructs simple quadratic approximations (or rather, affine
+        approximations plus a quadratic penalty term to stay conservative). This
+        is the ccsa_quadratic code. It seems to have similar convergence rates
+        to MMA for most problems, which is not surprising as they are both
+        essentially similar.
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
         super().__init__(name=name,
                          algorithm=nlopt.LD_CCSAQ,
                          tol=tol,
@@ -492,12 +904,72 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
 
 class NLoptSubplexV1(NLoptBaseMinimizerV1):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
-                 strategy: ZfitStrategy = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt Subplex"):
+                 name: str = "NLopt Subplex"):
+        """Local derivative free minimizer which improves on the Nealder-Mead algorithm.
+
+        This is a re-implementation of Tom Rowan’s “Subplex” algorithm.
+
+        Subplex (a variant of Nelder-Mead that uses Nelder-Mead on a sequence of
+        subspaces) is claimed to be much more efficient and robust than the
+        original Nelder-Mead, while retaining the latter’s facility with
+        discontinuous objectives.
+
+        The description of Rowan’s algorithm in his PhD thesis is used:
+
+        -  T. Rowan, “Functional Stability Analysis of Numerical Algorithms”,
+           Ph.D. thesis, Department of Computer Sciences, University of Texas at
+           Austin, 1990.
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
         super().__init__(name=name,
                          algorithm=nlopt.LN_SBPLX,
                          tol=tol,
@@ -512,21 +984,98 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
 
 class NLoptMLSLV1(NLoptBaseMinimizerV1):
     def __init__(self,
-                 tol: float = None,
-                 randomized: bool = None,
+                 tol: Optional[float] = None,
+                 population: Optional[int] = None,
+                 randomized: Optional[bool] = None,
                  local_minimizer: Optional[Union[int, Mapping[str, object]]] = None,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
-                 strategy: ZfitStrategy = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt MLSL",
-                 ):
+                 name: str = "NLopt MLSL",
+                 ) -> None:
+        """Global minimizer using local optimization by randomly selecting points.
+
+        “Multi-Level Single-Linkage” (MLSL) is an algorithm for global optimization by
+        a sequence of local optimizations from random starting points, proposed
+        by:
+
+        -  A. H. G. Rinnooy Kan and G. T. Timmer, “Stochastic global
+           optimization methods,” *Mathematical Programming*, vol. 39, p. 27-78
+           (1987). (Actually 2 papers — part I: clustering methods, p. 27, then
+           part II: multilevel methods, p. 57.)
+
+        We also include a modification of MLSL use a Sobol’ `low-discrepancy
+        sequence`_ (LDS), also used in so-called
+        `quasi Monte Carlo methods <https://en.wikipedia.org/wiki/Quasi-Monte_Carlo_method>`_
+        that can be invoked by setting *randomized* to False
+        (as it is now *quasi*randomized) instead of pseudorandom numbers, which was argued to
+        improve the convergence rate by:
+
+        -  Sergei Kucherenko and Yury Sytsko, “Application of deterministic
+           low-discrepancy sequences in global optimization,” *Computational
+           Optimization and Applications*, vol. 30, p. 297-318 (2005).
+
+        In either case, MLSL is a “multistart” algorithm: it works by doing a
+        sequence of local optimizations (using some other local optimization
+        algorithm) from random or low-discrepancy starting points. MLSL is
+        distinguished, however by a “clustering” heuristic that helps it to
+        avoid repeated searches of the same local optima, and has some
+        theoretical guarantees of finding all local optima in a finite number of
+        local minimizations.
+
+        The local-search portion of MLSL can use any of the other algorithms in
+        NLopt. The local search uses the
+        derivative/nonderivative algorithm set by the *local_minimizer* argument.
+
+
+        .. _low-discrepancy sequence: https://en.wikipedia.org/wiki/Low-discrepancy_sequence
+        .. _local optimization: NLopt_Reference#localsubsidiary-optimization-algorithm
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            population: |@docstart||@doc:minimizer.nlopt.population|The population size for the evolutionary algorithm.|@docend|
+                By default, each iteration of MLSL samples 4 random new trial points.
+            randomized: If True, uses the randomized version 'GD_MLSL_LDS' instead of 'GD_MLSL'
+            local_minimizer: Configuration for the local minimizer. Defaults to L-BFGS.
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
         if randomized is None:
             randomized = False
         if randomized:
-            algorithm = nlopt.GD_MLSL_LDS
-        else:
             algorithm = nlopt.GD_MLSL
+        else:
+            algorithm = nlopt.GD_MLSL_LDS
 
         local_minimizer = nlopt.LD_LBFGS if local_minimizer is None else local_minimizer
         if not isinstance(local_minimizer, collections.Mapping):
@@ -535,6 +1084,8 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
             raise ValueError("algorithm needs to be specified in local_minimizer")
 
         minimizer_options = {'local_minimizer_options': local_minimizer}
+        if population is not None:
+            minimizer_options['population'] = population
         super().__init__(name=name,
                          algorithm=algorithm,
                          tol=tol,
@@ -549,13 +1100,71 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
 
 class NLoptStoGOV1(NLoptBaseMinimizerV1):
     def __init__(self,
-                 tol: float = None,
-                 randomized: bool = None,
+                 tol: Optional[float] = None,
+                 randomized: Optional[bool] = None,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
-                 strategy: ZfitStrategy = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt MLSL"):
+                 name: str = "NLopt MLSL"):
+        """Global minimizer which divides the space into smaller rectangles and uses a local BFGS variant inside.
+
+        StoGO is a global optimization algorithm that works by systematically dividing
+        the search space (which must be bound-constrained) into smaller
+        hyper-rectangles via a branch-and-bound technique, and searching them by
+        a gradient-based local-search algorithm (a BFGS variant), optionally
+        including some randomness (hence the “Sto”, which stands for
+        “stochastic” I believe).
+
+        Some references on StoGO are:
+
+        -  S. Gudmundsson, “Parallel Global Optimization,” M.Sc. Thesis, IMM,
+           Technical University of Denmark, 1998.
+        -  K. Madsen, S. Zertchaninov, and A. Zilinskas, “Global Optimization
+           using Branch-and-Bound,” unpublished (1998). A preprint of this paper
+           is included in the ``stogo`` subdirectory of NLopt as ``paper.pdf``.
+        -  S. Zertchaninov and K. Madsen, “A C++ Programme for Global
+           Optimization,” IMM-REP-1998-04, Department of Mathematical Modelling,
+           Technical University of Denmark, DK-2800 Lyngby, Denmark, 1998. A
+           copy of this report is included in the ``stogo`` subdirectory of
+           NLopt as ``techreport.pdf``.
+
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            randomized: If True, uses the randomized version 'GD_STOGO_RAND' instead of 'GD_STOGO'
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
 
         if randomized is None:
             randomized = False
@@ -572,5 +1181,184 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
                          criterion=criterion,
                          verbosity=verbosity,
                          minimizer_options=None,
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
+class NLoptESCHV1(NLoptBaseMinimizerV1):
+    def __init__(self,
+                 tol: Optional[float] = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name: str = "NLopt ESCH"):
+        """Global minimizer using an evolutionary algorithm.
+
+        This is a modified Evolutionary Algorithm for global optimization,
+        developed by Carlos Henrique da Silva Santos’s and described in the
+        following paper and Ph.D thesis:
+
+        -  C. H. da Silva Santos, M. S. Gonçalves, and H. E. Hernandez-Figueroa,
+           “Designing Novel Photonic Devices by Bio-Inspired Computing,” *IEEE
+           Photonics Technology Letters* **22** (15), pp. 1177–1179 (2010).
+
+        .. raw:: html
+
+           <!-- -->
+
+        -  C. H. da Silva Santos, “`Parallel and Bio-Inspired Computing Applied
+           to Analyze Microwave and Photonic Metamaterial Strucutures`_,”
+           Ph.D. thesis, University of Campinas, (2010).
+
+        The algorithm is adapted from ideas described in:
+
+        -  H.-G. Beyer and H.-P. Schwefel, “Evolution Strategies: A
+           Comprehensive Introduction,” *Journal Natural Computing*, **1** (1),
+           pp. 3–52 (2002_.
+
+        .. raw:: html
+
+           <!-- -->
+
+        -  Ingo Rechenberg, “Evolutionsstrategie – Optimierung technischer
+           Systeme nach Prinzipien der biologischen Evolution,” Ph.D. thesis
+           (1971), Reprinted by Fromman-Holzboog (1973).
+
+        .. _Parallel and Bio-Inspired Computing Applied to Analyze Microwave and Photonic Metamaterial Strucutures: http://www.bibliotecadigital.unicamp.br/document/?code=000767537&opt=4&lg=en_US
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+        Args:
+            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
+
+        algorithm = nlopt.GN_ESCH
+
+        super().__init__(name=name,
+                         algorithm=algorithm,
+                         tol=tol,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options=None,
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
+class NLoptISRESV1(NLoptBaseMinimizerV1):
+    def __init__(self,
+                 tol: Optional[float] = None,
+                 population: Optional[int] = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name: str = "NLopt ISRES"):
+        """Improved Stochastic Ranking Evolution Strategy using a mutation rule and differential variation.
+
+         The evolution strategy is based on a combination of a mutation rule (with a log-normal step-size update and
+         exponential smoothing) and differential variation (a Nelder–Mead-like update rule).
+         The fitness ranking is simply via the objective function for problems without nonlinear constraints,
+         but when nonlinear constraints are included the stochastic ranking proposed by Runarsson and Yao is employed.
+
+         The NLopt implementation is based on the method described in:
+
+         -   Thomas Philip Runarsson and Xin Yao,
+         `"Search biases in constrained evolutionary optimization <http://www3.hi.is/~tpr/papers/RuYa05.pdf>"`_,
+          *IEEE Trans. on Systems, Man, and Cybernetics Part C: Applications and Reviews*,
+           vol. 35 (no. 2), pp. 233-243 (2005).
+
+         It is a refinement of an earlier method described in:
+
+         -   Thomas P. Runarsson and Xin Yao,
+         `"Stochastic ranking for constrained evolutionary optimization
+          <http://www3.hi.is/~tpr/software/sres/Tec311r.pdf>"`_,
+          *IEEE Trans. Evolutionary Computation*, vol. 4 (no. 3), pp. 284-294 (2000).
+
+         The actual implementation is independent provided by S. G. Johnson (2009) based on the papers above.
+         Runarsson also has his own Matlab implemention available from `his web page <http://www3.hi.is/~tpr>`_.
+
+
+        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+        More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms.|@docend|
+
+         Args:
+             tol: |@docstart||@doc:minimizer.tol|Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3.|@docend|
+             population: |@docstart||@doc:minimizer.nlopt.population|The population size for the evolutionary algorithm.|@docend| Defaults to 20×(n+1) in n dimensions.
+             verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient.|@docend|
+             maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+             strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case|@docend|
+             criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found.|@docend|
+             name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+        """
+
+        algorithm = nlopt.GN_ISRES
+        if population is not None:
+            minimizer_options = {'population': population}
+        else:
+            minimizer_options = None
+
+        super().__init__(name=name,
+                         algorithm=algorithm,
+                         tol=tol,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options=minimizer_options,
                          strategy=strategy,
                          maxiter=maxiter)

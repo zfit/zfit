@@ -1,12 +1,23 @@
 minimizer.verbosity: |1+
- Verbosity of the minimizer. A value above 5 starts printing more
-                 output with a value of 10 printing every evaluation of the loss function and gradient.
+ Verbosity of the minimizer.
+                 A value above 5 starts printing more
+                 output with a value of 10 printing every
+                 evaluation of the loss function and gradient.
 minimizer.tol: |1+
-    Termination value for the convergence/stopping criterion of the algorithm
-                    in order to determine if the minimum has been found. The default is 1e-3.
+    Termination value for the
+                    convergence/stopping criterion of the algorithm
+                    in order to determine if the minimum has
+                    been found. Defaults to 1e-3.
 minimizer.criterion: |1+
-    Termination value for the convergence/stopping criterion of the algorithm
-                    in order to determine if the minimum has been found. The default is 1e-3.
+    Criterion of the minimum. This is an
+                    estimated measure for the distance to the
+                    minimum and can include the relative
+                    or absolute changes of the parameters,
+                    function value, gradients and more.
+                    If the value of the criterion is smaller
+                    than ``loss.errordef * tol``, the algorithm
+                    stopps and it is assumed that the minimum
+                    has been found.
 minimizer.strategy: |1+
     Determines the behavior of the minimizer in certain situations, most notably when encountering
                     NaNs in which case
@@ -16,4 +27,21 @@ minimizer.maxiter: |1+
 minimizer.name: |1+
     Human readable name of the minimizer.
 minimizer.maxcor: |1+
-    Maximum number of memory history to keep when using a quasi-Newton update formula such as BFGS.
+    Maximum number of memory history to keep
+                    when using a quasi-Newton update formula such as BFGS.
+                    It is the number of gradients
+                    to “remember” from previous optimization
+                    steps: increasing it increases
+                    the memory requirements but may speed up the convergence.
+minimizer.nlopt.population: |1+
+    The population size for the evolutionary algorithm.
+minimizer.nlopt.info: |1+
+    This implenemtation is based on the
+         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
+         More information on the algorithm can be found
+         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
+         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+         free/open-source library for nonlinear optimization,
+         providing a common interface for a number of
+         different free optimization routines available online as well as
+         original implementations of various other algorithms.
