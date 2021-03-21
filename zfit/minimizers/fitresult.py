@@ -238,35 +238,61 @@ class FitResult(ZfitResult):
             {parameter: {error_name1: {'low': value, 'high': value or similar}}
 
         Args:
-            loss: The loss function that was minimized. Contains also the pdf, data etc.
-            params: Result of the fit where each
-               :py:class:`~zfit.Parameter` key has the value from the minimum found by the minimizer.
-            minimizer: Minimizer that was used to obtain this `FitResult` and will be used to
-                calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
-                and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
-                won't be altered.
-            valid: Indicating whether the result is valid or not. This is the strongest indication and serves as
-                the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
-                - parameter(s) at the limit
-                - maxiter reached without proper convergence
-                - the minimizer may even converged but it is known that this is only a local minimum
+            loss: |@docstart||@doc:result.init.loss|The loss function that was minimized.
+               Usually, but not necessary, contains
+               also the pdf, data and constraints.|@docend|
+            params: |@docstart||@doc:result.init.params|Result of the fit where each
+               :py:class:`~zfit.Parameter` key has the
+               value from the minimum found by the minimizer.|@docend|
+            minimizer: |@docstart||@doc:result.init.minimizer|Minimizer that was used to obtain this `FitResult` and will be used to
+                   calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
+                   and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                   won't be altered.|@docend|
+            valid: |@docstart||@doc:result.init.valid|Indicating whether the result is valid or not. This is the strongest indication and serves as
+                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+                   - parameter(s) at the limit
+                   - maxiter reached without proper convergence
+                   - the minimizer may even converged but it is known that this is only a local minimum
 
-                To indicate the reason for the invalidity, pass a message.
-            edm: The estimated distance to minimum, estimated by the minimizer (if available)
-            fmin: Value at the minimum of the function found by the minimizer
-            criterion: Criterion that was used during the minimization
-            status: A status code (if available)
-            converged: Whether the fit has successfully converged or not.
-            message: Human readable message to indicate the reason if the fitresult is not valid.
-                If the fit is valid, the message (should) be an empty string (or None)
-            info: Additional information (if available) like *number of gradient function calls* and the
-                original minimizer return message. This is a relatively free field and _no single field_
-                in it is guaranteed to be stable.
-            approx: Collection of approximations found during the minimization process such as gradient and hessian.
-            niter: Approximate number of iterations ~= number of function evaluations ~= number of gradient evaluations.
-                This is an approximated value and the interpretation can differ between different minimizers.
-            evaluator: Loss evaluator that was used during the minimization and that may contains information
-                about the last evaluations of the gradient etc which can serve as approximations.
+                   To indicate the reason for the invalidity, pass a message.|@docend|
+            edm: |@docstart||@doc:result.init.edm|The estimated distance to minimum
+                   which is the criterion value at the minimum.|@docend|
+            fmin: |@docstart||@doc:result.init.fmin|Value of the function at the minimum.|@docend|
+            criterion: |@docstart||@doc:result.init.criterion|Criterion that was used during the minimization.
+                   This determines the estimated distance to the
+                   minimum (edm)|@docend|
+            status: |@docstart||@doc:result.init.status|A status code (if available) that describes
+                   the minimization termination. 0 means a valid
+                   termination.|@docend|
+            converged: |@docstart||@doc:result.init.converged|Whether the fit has successfully converged or not.
+                   The result itself can still be an invalid minimum
+                   such as if the parameters are at or close
+                   to the limits or in case another minimum is found.|@docend|
+            message: |@docstart||@doc:result.init.message|Human readable message to indicate the reason
+                   if the fitresult is not valid.
+                   If the fit is valid, the message (should)
+                   be an empty string (or None),
+                   otherwise it should denote the reason for the invalidity.|@docend|
+            info: |@docstart||@doc:result.init.info|Additional information (if available)
+                   such as *number of gradient function calls* or the
+                   original minimizer return message.
+                   This is a relatively free field and _no single field_
+                   in it is guaranteed to be stable.
+                   Some recommended fields:
+                   - *original*: contains the original returned object
+                     by the minimizer used internally.
+                   - *optimizer*: the actual instance of the wrapped
+                     optimizer (if available)|@docend|
+            approx: |@docstart||@doc:result.init.approx|Collection of approximations found during
+                   the minimization process such as gradient and hessian.|@docend|
+            niter: |@docstart||@doc:result.init.niter|Approximate number of iterations ~= number
+                   of function evaluations ~= number of gradient evaluations.
+                   This is an approximated value and the exact meaning
+                   can differ between different minimizers.|@docend|
+            evaluator: |@docstart||@doc:result.init.evaluator|Loss evaluator that was used during the
+                   minimization and that may contains information
+                   about the last evaluations of the gradient
+                   etc which can serve as approximations.|@docend|
         """
         super().__init__()
 
@@ -310,10 +336,25 @@ class FitResult(ZfitResult):
         """Convert approx (if a Mapping) to an `Approximation` using the information provided.
 
         Args:
-            approx:
-            evaluator:
-            info:
-            params:
+            approx: |@docstart||@doc:result.init.approx|Collection of approximations found during
+                   the minimization process such as gradient and hessian.|@docend|
+            evaluator: |@docstart||@doc:result.init.evaluator|Loss evaluator that was used during the
+                   minimization and that may contains information
+                   about the last evaluations of the gradient
+                   etc which can serve as approximations.|@docend|
+            info: |@docstart||@doc:result.init.info|Additional information (if available)
+                   such as *number of gradient function calls* or the
+                   original minimizer return message.
+                   This is a relatively free field and _no single field_
+                   in it is guaranteed to be stable.
+                   Some recommended fields:
+                   - *original*: contains the original returned object
+                     by the minimizer used internally.
+                   - *optimizer*: the actual instance of the wrapped
+                     optimizer (if available)|@docend|
+            params: |@docstart||@doc:result.init.params|Result of the fit where each
+               :py:class:`~zfit.Parameter` key has the
+               value from the minimum found by the minimizer.|@docend|
 
         Returns:
             The created approximation.
@@ -383,7 +424,59 @@ class FitResult(ZfitResult):
                    criterion: 'zfit.minimizers.termination.ConvergenceCriterion',
                    evaluator: Optional['zfit.minimizers.evaluation.LossEval'],
                    ) -> 'FitResult':
+        """Create a ``FitResult`` from an ipopt minimization.
 
+        Args:
+            loss: |@docstart||@doc:result.init.loss|The loss function that was minimized.
+               Usually, but not necessary, contains
+               also the pdf, data and constraints.|@docend|
+            params: |@docstart||@doc:result.init.params|Result of the fit where each
+               :py:class:`~zfit.Parameter` key has the
+               value from the minimum found by the minimizer.|@docend|
+            problem: |@docstart||@doc:problem||@docend|
+            minimizer: |@docstart||@doc:result.init.minimizer|Minimizer that was used to obtain this `FitResult` and will be used to
+                   calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
+                   and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                   won't be altered.|@docend|
+            valid: |@docstart||@doc:result.init.valid|Indicating whether the result is valid or not. This is the strongest indication and serves as
+                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+                   - parameter(s) at the limit
+                   - maxiter reached without proper convergence
+                   - the minimizer may even converged but it is known that this is only a local minimum
+
+                   To indicate the reason for the invalidity, pass a message.|@docend|
+            values: |@docstart||@doc:result.init.values|Values of the parameters at the
+                   found minimum.|@docend|
+            message: |@docstart||@doc:result.init.message|Human readable message to indicate the reason
+                   if the fitresult is not valid.
+                   If the fit is valid, the message (should)
+                   be an empty string (or None),
+                   otherwise it should denote the reason for the invalidity.|@docend|
+            converged: |@docstart||@doc:result.init.converged|Whether the fit has successfully converged or not.
+                   The result itself can still be an invalid minimum
+                   such as if the parameters are at or close
+                   to the limits or in case another minimum is found.|@docend|
+            edm: |@docstart||@doc:result.init.edm|The estimated distance to minimum
+                   which is the criterion value at the minimum.|@docend|
+            niter: |@docstart||@doc:result.init.niter|Approximate number of iterations ~= number
+                   of function evaluations ~= number of gradient evaluations.
+                   This is an approximated value and the exact meaning
+                   can differ between different minimizers.|@docend|
+            fmin: |@docstart||@doc:result.init.fmin|Value of the function at the minimum.|@docend|
+            status: |@docstart||@doc:result.init.status|A status code (if available) that describes
+                   the minimization termination. 0 means a valid
+                   termination.|@docend|
+            criterion: |@docstart||@doc:result.init.criterion|Criterion that was used during the minimization.
+                   This determines the estimated distance to the
+                   minimum (edm)|@docend|
+            evaluator: |@docstart||@doc:result.init.evaluator|Loss evaluator that was used during the
+                   minimization and that may contains information
+                   about the last evaluations of the gradient
+                   etc which can serve as approximations.|@docend|
+
+        Returns:
+            ``zfit.minimize.FitResult``:
+        """
         info = {'problem': problem}
         params = dict(zip(params, values))
         return cls(params=params, loss=loss, fmin=fmin, edm=edm, message=message,
@@ -404,7 +497,7 @@ class FitResult(ZfitResult):
                     niter: Optional[int] = None,
                     fmin: Optional[float] = None,
                     status: Optional[int] = None,
-                    criterion: 'zfit.minimizers.termination.ConvergenceCriterion' = None,
+                    criterion: Optional['zfit.minimizers.termination.ConvergenceCriterion'] = None,
                     evaluator: Optional['zfit.minimizers.evaluation.LossEval'] = None) -> 'FitResult':
         """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
         :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
@@ -415,21 +508,45 @@ class FitResult(ZfitResult):
             params: Iterable of the zfit parameters that were floating during the minimization.
             minuit: Return value of the iminuit migrad command, the instance of :class:`iminuit.Minuit`
             minimizer: Instance of the zfit Minuit minimizer that was used to minimize the loss.
-            valid (bool):
-            values ():
-            message (str):
-            converged ():
-            edm ():
-            niter ():
-            fmin ():
-            status ():
-            criterion (zfit.minimizers.termination.EDM):
-            evaluator ():
+            valid: |@docstart||@doc:result.init.valid|Indicating whether the result is valid or not. This is the strongest indication and serves as
+                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+                   - parameter(s) at the limit
+                   - maxiter reached without proper convergence
+                   - the minimizer may even converged but it is known that this is only a local minimum
+
+                   To indicate the reason for the invalidity, pass a message.|@docend|
+            values: |@docstart||@doc:result.init.values|Values of the parameters at the
+                   found minimum.|@docend|
+            message: |@docstart||@doc:result.init.message|Human readable message to indicate the reason
+                   if the fitresult is not valid.
+                   If the fit is valid, the message (should)
+                   be an empty string (or None),
+                   otherwise it should denote the reason for the invalidity.|@docend|
+            converged: |@docstart||@doc:result.init.converged|Whether the fit has successfully converged or not.
+                   The result itself can still be an invalid minimum
+                   such as if the parameters are at or close
+                   to the limits or in case another minimum is found.|@docend|
+            edm: |@docstart||@doc:result.init.edm|The estimated distance to minimum
+                   which is the criterion value at the minimum.|@docend|
+            niter: |@docstart||@doc:result.init.niter|Approximate number of iterations ~= number
+                   of function evaluations ~= number of gradient evaluations.
+                   This is an approximated value and the exact meaning
+                   can differ between different minimizers.|@docend|
+            fmin: |@docstart||@doc:result.init.fmin|Value of the function at the minimum.|@docend|
+            status: |@docstart||@doc:result.init.status|A status code (if available) that describes
+                   the minimization termination. 0 means a valid
+                   termination.|@docend|
+            criterion: |@docstart||@doc:result.init.criterion|Criterion that was used during the minimization.
+                   This determines the estimated distance to the
+                   minimum (edm)|@docend|
+            evaluator: |@docstart||@doc:result.init.evaluator|Loss evaluator that was used during the
+                   minimization and that may contains information
+                   about the last evaluations of the gradient
+                   etc which can serve as approximations.|@docend|
 
 
         Returns:
-            zfit.minimizers.fitresult.FitResult:
-            A `FitResult` as if zfit Minuit was used.
+            ``zfit.minimize.FitResult``: A `FitResult` as if zfit Minuit was used.
         """
         from .minimizer_minuit import Minuit
         from .termination import EDM
@@ -461,7 +578,6 @@ class FitResult(ZfitResult):
             criterion.last_value = edm
         fmin = fmin_object.fval if fmin is None else fmin
         valid = fmin_object.is_valid if valid is None else valid
-        converged = fmin_object.is_valid
         if values is None:
             values = (res.value for res in params_result)
         params = dict(zip(params, values))
@@ -470,10 +586,60 @@ class FitResult(ZfitResult):
                    minimizer=minimizer, evaluator=evaluator)
 
     @classmethod
-    def from_scipy(cls, loss: ZfitLoss, params: Iterable[ZfitParameter], result: scipy.optimize.OptimizeResult,
-                   minimizer: ZfitMinimizer, message=None, edm=False, niter=None, valid=None, criterion=None,
-                   evaluator=None) -> 'FitResult':
+    def from_scipy(cls,
+                   loss: ZfitLoss,
+                   params: Iterable[ZfitParameter],
+                   result: scipy.optimize.OptimizeResult,
+                   minimizer: ZfitMinimizer,
+                   message: Optional[str],
+                   valid: bool,
+                   criterion: ConvergenceCriterion,
+                   edm: Optional[float] = None,
+                   niter: Optional[int] = None,
+                   evaluator: Optional['zfit.minimize.LossEval'] = None) -> 'FitResult':
+        """Create a ``FitResult from a SciPy ``~scipy.optimize.OptimizeResult``.
 
+        Args:
+            loss: |@docstart||@doc:result.init.loss|The loss function that was minimized.
+               Usually, but not necessary, contains
+               also the pdf, data and constraints.|@docend|
+            params: |@docstart||@doc:result.init.params|Result of the fit where each
+               :py:class:`~zfit.Parameter` key has the
+               value from the minimum found by the minimizer.|@docend|
+            result: |@docstart||@doc:result.init.result||@docend|
+            minimizer: |@docstart||@doc:result.init.minimizer|Minimizer that was used to obtain this `FitResult` and will be used to
+                   calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
+                   and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                   won't be altered.|@docend|
+            message: |@docstart||@doc:result.init.message|Human readable message to indicate the reason
+                   if the fitresult is not valid.
+                   If the fit is valid, the message (should)
+                   be an empty string (or None),
+                   otherwise it should denote the reason for the invalidity.|@docend|
+            edm: |@docstart||@doc:result.init.edm|The estimated distance to minimum
+                   which is the criterion value at the minimum.|@docend|
+            niter: |@docstart||@doc:result.init.niter|Approximate number of iterations ~= number
+                   of function evaluations ~= number of gradient evaluations.
+                   This is an approximated value and the exact meaning
+                   can differ between different minimizers.|@docend|
+            valid: |@docstart||@doc:result.init.valid|Indicating whether the result is valid or not. This is the strongest indication and serves as
+                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+                   - parameter(s) at the limit
+                   - maxiter reached without proper convergence
+                   - the minimizer may even converged but it is known that this is only a local minimum
+
+                   To indicate the reason for the invalidity, pass a message.|@docend|
+            criterion: |@docstart||@doc:result.init.criterion|Criterion that was used during the minimization.
+                   This determines the estimated distance to the
+                   minimum (edm)|@docend|
+            evaluator: |@docstart||@doc:result.init.evaluator|Loss evaluator that was used during the
+                   minimization and that may contains information
+                   about the last evaluations of the gradient
+                   etc which can serve as approximations.|@docend|
+
+        Returns:
+            ``zfit.minimize.FitResult``:
+        """
         result_values = result['x']
         if niter is None:
             niter = result.get('nit')
@@ -512,12 +678,80 @@ class FitResult(ZfitResult):
         return fitresult
 
     @classmethod
-    def from_nlopt(cls, loss, minimizer, opt, edm, params, xvalues, message,
-                   valid, criterion, evaluator,
-                   niter=None,
-                   inv_hess=None, hess=None,
-                   ):
-        param_dict = {p: v for p, v in zip(params, xvalues)}
+    def from_nlopt(cls,
+                   loss: ZfitLoss,
+                   opt,
+                   params: Iterable[ZfitParameter],
+                   minimizer: Union[ZfitMinimizer, iminuit.Minuit],
+                   valid: Optional[bool],
+                   values: Optional[np.ndarray] = None,
+                   message: Optional[str] = None,
+                   converged: Optional[bool] = None,
+                   edm: Optional[Union['zfit.minimizers.termination.CriterionNotAvailable', float]] = None,
+                   niter: Optional[int] = None,
+                   fmin: Optional[float] = None,
+                   status: Optional[int] = None,
+                   criterion: Optional['zfit.minimizers.termination.ConvergenceCriterion'] = None,
+                   evaluator: Optional['zfit.minimizers.evaluation.LossEval'] = None,
+                   inv_hessian: Optional[np.ndarray]=None,
+                   hessian: Optional[np.ndarray]=None,
+                   ) -> 'FitResult':
+        """Create a ``FitResult`` from an NLopt optimizer.
+
+        Args:
+            loss: |@docstart||@doc:result.init.loss|The loss function that was minimized.
+               Usually, but not necessary, contains
+               also the pdf, data and constraints.|@docend|
+            opt: Optimizer instance of NLopt
+            params: |@docstart||@doc:result.init.params|Result of the fit where each
+               :py:class:`~zfit.Parameter` key has the
+               value from the minimum found by the minimizer.|@docend|
+            minimizer: |@docstart||@doc:result.init.minimizer|Minimizer that was used to obtain this `FitResult` and will be used to
+                   calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
+                   and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                   won't be altered.|@docend|
+            valid: |@docstart||@doc:result.init.valid|Indicating whether the result is valid or not. This is the strongest indication and serves as
+                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+                   - parameter(s) at the limit
+                   - maxiter reached without proper convergence
+                   - the minimizer may even converged but it is known that this is only a local minimum
+
+                   To indicate the reason for the invalidity, pass a message.|@docend|
+            values: |@docstart||@doc:result.init.values|Values of the parameters at the
+                   found minimum.|@docend|
+            message: |@docstart||@doc:result.init.message|Human readable message to indicate the reason
+                   if the fitresult is not valid.
+                   If the fit is valid, the message (should)
+                   be an empty string (or None),
+                   otherwise it should denote the reason for the invalidity.|@docend|
+            converged: |@docstart||@doc:result.init.converged|Whether the fit has successfully converged or not.
+                   The result itself can still be an invalid minimum
+                   such as if the parameters are at or close
+                   to the limits or in case another minimum is found.|@docend|
+            edm: |@docstart||@doc:result.init.edm|The estimated distance to minimum
+                   which is the criterion value at the minimum.|@docend|
+            niter: |@docstart||@doc:result.init.niter|Approximate number of iterations ~= number
+                   of function evaluations ~= number of gradient evaluations.
+                   This is an approximated value and the exact meaning
+                   can differ between different minimizers.|@docend|
+            fmin: |@docstart||@doc:result.init.fmin|Value of the function at the minimum.|@docend|
+            status: |@docstart||@doc:result.init.status|A status code (if available) that describes
+                   the minimization termination. 0 means a valid
+                   termination.|@docend|
+            criterion: |@docstart||@doc:result.init.criterion|Criterion that was used during the minimization.
+                   This determines the estimated distance to the
+                   minimum (edm)|@docend|
+            evaluator: |@docstart||@doc:result.init.evaluator|Loss evaluator that was used during the
+                   minimization and that may contains information
+                   about the last evaluations of the gradient
+                   etc which can serve as approximations.|@docend|
+            inv_hessian: The (approximated) inverse hessian matrix.
+            hessian: The (approximated) hessian matrix.
+
+        Returns:
+            zfit.minimizers.fitresult.FitResult:
+        """
+        param_dict = {p: v for p, v in zip(params, values)}
         fmin = opt.last_optimum_value()
         status = opt.last_optimize_result()
         niter = opt.get_numevals() if niter is None else niter
@@ -546,17 +780,17 @@ class FitResult(ZfitResult):
             message = message_nlopt
 
         approx = {}
-        if inv_hess is None:
-            if hess is None and evaluator is not None:
-                hess = evaluator.last_hessian
-            if hess is not None:
-                inv_hess = np.linalg.inv(hess)
+        if inv_hessian is None:
+            if hessian is None and evaluator is not None:
+                hessian = evaluator.last_hessian
+            if hessian is not None:
+                inv_hessian = np.linalg.inv(hessian)
 
-        if inv_hess is not None:
-            info['inv_hesse'] = inv_hess
-            approx['inv_hessian'] = inv_hess
+        if inv_hessian is not None:
+            info['inv_hesse'] = inv_hessian
+            approx['inv_hessian'] = inv_hessian
 
-        result = cls(params=param_dict,
+        return cls(params=param_dict,
                      edm=edm,
                      fmin=fmin,
                      status=status,
@@ -569,7 +803,6 @@ class FitResult(ZfitResult):
                      criterion=criterion,
                      message=message,
                      evaluator=evaluator)
-        return result
 
     @property
     def approx(self) -> Approximations:

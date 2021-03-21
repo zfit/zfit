@@ -108,7 +108,6 @@ class Minuit(BaseMinimizer, GraphCachable):
             maxiter = ncall
         if minimize_strategy is not None:
             mode = minimize_strategy
-
         use_grad_legacy = use_minuit_grad if use_minuit_grad is not None else minuit_grad
         if use_grad_legacy is not None:
             gradient = use_grad_legacy
@@ -205,9 +204,9 @@ class Minuit(BaseMinimizer, GraphCachable):
         return fitresult
 
     def _make_minuit(self, loss, params, init):
-        previous_result = init
 
         evaluator = self.create_evaluator(loss, params)
+
         # create options
         minimizer_options = self.minimizer_options.copy()
         minimize_options = {}
@@ -232,6 +231,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         if minimizer_options:
             raise ValueError(f"The following options are not (yet) supported: {minimizer_options}")
         init_values = np.array(run(params))
+
         # create Minuit compatible names
         params_name = [param.name for param in params]
         # TODO 0.7: legacy, remove `_use_tfgrad`
@@ -243,8 +243,9 @@ class Minuit(BaseMinimizer, GraphCachable):
         minimizer.precision = precision
         approx_step_sizes = {}
         # get possible initial step size from previous minimizer
-        if previous_result:
-            approx_step_sizes = previous_result.hesse(params=params, method='approx')
+        if init:
+            approx_step_sizes = init.hesse(params=params, method='approx')
+
         empty_dict = {}
         for param in params:
             step_size = approx_step_sizes.get(param, empty_dict).get('error')

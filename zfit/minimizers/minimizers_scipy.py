@@ -142,8 +142,14 @@ class ScipyBaseMinimizer(BaseMinimizer):
 
             optimize_results = combine_optimize_results(
                 [optim_result] if optimize_results is None else [optimize_results, optim_result])
-            result_prelim = FitResult.from_scipy(loss=loss, params=params, result=optimize_results, minimizer=self,
-                                                 edm=CRITERION_NOT_AVAILABLE, valid=valid)
+            result_prelim = FitResult.from_scipy(loss=loss,
+                                                 params=params,
+                                                 result=optimize_results,
+                                                 minimizer=self,
+                                                 edm=CRITERION_NOT_AVAILABLE,
+                                                 criterion=None,
+                                                 message='INTERNAL for Criterion',
+                                                 valid=valid)
 
             if use_hessian:
                 inv_hessian = result_prelim.approx.inv_hessian()

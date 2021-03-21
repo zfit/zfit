@@ -119,7 +119,7 @@ minimizers = [
 # minimizers = [(zfit.minimize.NLoptESCHV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.NLoptISRESV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.NLoptBOBYQAV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
-minimizers = [(zfit.minimize.NLoptShiftVarV1, {'verbosity': 7, 'rank': 2}, {'error': True, 'longtests': True})]
+# minimizers = [(zfit.minimize.NLoptShiftVarV1, {'verbosity': 7, 'rank': 2}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
 
 
