@@ -18,9 +18,3 @@
 .. |name_arg_descr| replace:: This is the stub description for names. Change it in docs/subst_types.txt.
 
 .. |Space_ref| replace:: :py:class:`~zfit.Space`
-
-# .. |@docstart| replace::
-#
-# .. |@docend| replace::
-.. |@doc:minimizer.verbosity| replace:: |wsw|
-# @formatter:on
