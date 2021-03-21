@@ -193,7 +193,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
-            limits: |@docstart| The limits on where to normalize over |@docend|
+            limits:  The limits on where to normalize over
 
         Returns:
             The normalization value

@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.todo',
     'sphinx_copybutton',
+    'seed_intersphinx_mapping',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -88,16 +89,18 @@ with open('subst_types.txt') as subst_types:
 rst_epilog += f"""
 .. |wzw| unicode:: U+200B
    :trim:
-
-.. |@docstart| replace:: |wzw|
-
-.. |@docend| replace:: |wzw|
 """
+# ..  replace:: |wzw|
+#
+# .. |@docend| replace:: |wzw|
+# """
 with open(str(project_dir) + '/utils/api/argdocs.yaml') as replfile:
     replacements = yaml.load(replfile, Loader=yaml.Loader)
 for replacement_key in replacements:
     rst_epilog += f'''
 .. |@doc:{replacement_key}| replace:: |wzw|
+
+.. |@docend:{replacement_key}| replace:: |wzw|
 '''
 with open('hyperlinks.txt') as hyperlinks:
     rst_epilog += hyperlinks.read()
@@ -177,18 +180,18 @@ html_css_files = [
 html_logo = "images/zfit-logo-light_400x168.png"
 
 html_theme_options = {
-    "github_url"          : "https://github.com/zfit/zfit",
+    "github_url": "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
-    "search_bar_text"     : "Search zfit...",
+    "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
-    "search_bar_position" : "sidebar",
+    "search_bar_position": "sidebar",
 }
 
 html_context = {
-    "github_user"   : "zfit",
-    "github_repo"   : "zfit",
+    "github_user": "zfit",
+    "github_repo": "zfit",
     "github_version": "develop",
-    "doc_path"      : "docs",
+    "doc_path": "docs",
 }
 
 # -- Options for HTMLHelp output ---------------------------------------
@@ -250,4 +253,9 @@ texinfo_documents = [
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'numdifftools': ('https://numdifftools.readthedocs.io/en/latest/index.html', None),
+    'tensorflow': ('https://www.tensorflow.org/api_docs/python/', None),
+    'tensorflow-probability': ('https://www.tensorflow.org/probability/api_docs/python/tfp', None),
+    'uproot': ('https://uproot.readthedocs.io/en/latest/', None),
+}

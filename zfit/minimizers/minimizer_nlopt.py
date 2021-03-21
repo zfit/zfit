@@ -39,7 +39,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                  name: str = "NLopt Base Minimizer V1"):
         """NLopt is a library that contains multiple different optimization algorithms.
 
-         |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+         |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -47,7 +47,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
          Args:
 
@@ -80,18 +80,18 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                  - LD_VAR1, LD_VAR2: a shifted limited-memory variable-metric algorithm, either using a rank 1 or rank 2
                    method.
 
-             tol: |@docstart||@doc:minimizer.tol|Termination value for the
+             tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
              gradient: Gradient that will be given to the minimizer if supported.
              hessian: Hessian that will be given to the minimizer if supported.
              internal_tols: Tolerances for the minimizer. Has to contain possible tolerance criteria.
-             verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-             criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -99,13 +99,13 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-             strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-             maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+             strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
              minimizer_options: Additional options that will be set in the minimizer.
-             name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         self._algorithm = algorithm
         if minimizer_options is None:
@@ -346,7 +346,7 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
         -   D. C. Liu and J. Nocedal, "On the limited memory BFGS method for large scale optimization,"
             ''Math. Programming' **45**, p. 503-528 (1989).
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -354,28 +354,28 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            maxcor: |@docstart||@doc:minimizer.maxcor|Maximum number of memory history to keep
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            maxcor: |@doc:minimizer.maxcor| Maximum number of memory history to keep
                    when using a quasi-Newton update formula such as BFGS.
                    It is the number of gradients
                    to “remember” from previous optimization
                    steps: increasing it increases
-                   the memory requirements but may speed up the convergence.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -383,8 +383,8 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_LBFGS,
@@ -426,7 +426,7 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
         -   J. Vlcek and L. Luksan, "Shifted limited-memory variable metric methods for large-scale unconstrained
             minimization," *J. Computational Appl. Math.* **186**, p. 365-390 (2006).
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -434,30 +434,30 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
 
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            maxcor: |@docstart||@doc:minimizer.maxcor|Maximum number of memory history to keep
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            maxcor: |@doc:minimizer.maxcor| Maximum number of memory history to keep
                    when using a quasi-Newton update formula such as BFGS.
                    It is the number of gradients
                    to “remember” from previous optimization
                    steps: increasing it increases
-                   the memory requirements but may speed up the convergence.|@docend|
+                   the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
             rank: Rank of the algorithm used, either 1 or 2. Defaults to 2.
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -465,8 +465,8 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
 
         if rank is None:
@@ -523,7 +523,7 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
            large-scale optimization,” *Math. Programming* **26**, p. 190-212
            (1983) http://doi.org/10.1007/BF02592055.
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -531,28 +531,28 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            maxcor: |@docstart||@doc:minimizer.maxcor|Maximum number of memory history to keep
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            maxcor: |@doc:minimizer.maxcor| Maximum number of memory history to keep
                    when using a quasi-Newton update formula such as BFGS.
                    It is the number of gradients
                    to “remember” from previous optimization
                    steps: increasing it increases
-                   the memory requirements but may speed up the convergence.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -560,8 +560,8 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_TNEWTON_PRECOND_RESTART,
@@ -627,7 +627,7 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
 
         .. _obtaining permission: http://permalink.gmane.org/gmane.comp.python.scientific.devel/6725
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -635,22 +635,22 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -658,8 +658,8 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_SLSQP,
@@ -706,7 +706,7 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
         .. _BOBYQA subroutine: http://plato.asu.edu/ftp/other_software/bobyqa.zip
         .. _The BOBYQA algorithm for bound constrained optimization without derivatives: http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2009_06.pdf
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -714,22 +714,22 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -737,8 +737,8 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LN_BOBYQA,
@@ -797,19 +797,19 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
         .. _Professor Svanberg: http://researchprojects.kth.se/index.php/kb_7902/pb_2085/pb.html
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -817,8 +817,8 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_MMA,
@@ -856,7 +856,7 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
         to MMA for most problems, which is not surprising as they are both
         essentially similar.
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -864,22 +864,22 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -887,8 +887,8 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_CCSAQ,
@@ -925,7 +925,7 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
            Ph.D. thesis, Department of Computer Sciences, University of Texas at
            Austin, 1990.
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -933,10 +933,10 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -944,22 +944,22 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -967,8 +967,8 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LN_SBPLX,
@@ -1032,7 +1032,7 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
         .. _low-discrepancy sequence: https://en.wikipedia.org/wiki/Low-discrepancy_sequence
         .. _local optimization: NLopt_Reference#localsubsidiary-optimization-algorithm
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -1040,26 +1040,26 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            population: |@docstart||@doc:minimizer.nlopt.population|The population size for the evolutionary algorithm.|@docend|
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            population: |@doc:minimizer.nlopt.population| The population size for the evolutionary algorithm. |@docend:minimizer.nlopt.population|
                 By default, each iteration of MLSL samples 4 random new trial points.
             randomized: If True, uses the randomized version 'GD_MLSL_LDS' instead of 'GD_MLSL'
             local_minimizer: Configuration for the local minimizer. Defaults to L-BFGS.
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -1067,8 +1067,8 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         if randomized is None:
             randomized = False
@@ -1130,7 +1130,7 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
            NLopt as ``techreport.pdf``.
 
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -1138,23 +1138,23 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
             randomized: If True, uses the randomized version 'GD_STOGO_RAND' instead of 'GD_STOGO'
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -1162,8 +1162,8 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
 
         if randomized is None:
@@ -1227,7 +1227,7 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
 
         .. _Parallel and Bio-Inspired Computing Applied to Analyze Microwave and Photonic Metamaterial Strucutures: http://www.bibliotecadigital.unicamp.br/document/?code=000767537&opt=4&lg=en_US
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -1235,22 +1235,22 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -1258,8 +1258,8 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
 
         algorithm = nlopt.GN_ESCH
@@ -1310,7 +1310,7 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
          Runarsson also has his own Matlab implemention available from `his web page <http://www3.hi.is/~tpr>`_.
 
 
-        |@docstart||@doc:minimizer.nlopt.info|This implenemtation is based on the
+        |@doc:minimizer.nlopt.info| This implenemtation is based on the
         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
         More information on the algorithm can be found
         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
@@ -1318,23 +1318,23 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
-        original implementations of various other algorithms.|@docend|
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
          Args:
-             tol: |@docstart||@doc:minimizer.tol|Termination value for the
+             tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-             population: |@docstart||@doc:minimizer.nlopt.population|The population size for the evolutionary algorithm.|@docend| Defaults to 20×(n+1) in n dimensions.
-             verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+             population: |@doc:minimizer.nlopt.population| The population size for the evolutionary algorithm. |@docend:minimizer.nlopt.population| Defaults to 20×(n+1) in n dimensions.
+             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-             maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-             strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-             criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+             strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -1342,8 +1342,8 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-             name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
 
         algorithm = nlopt.GN_ISRES

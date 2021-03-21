@@ -147,15 +147,15 @@ class BaseMinimizer(ZfitMinimizer):
 
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -163,13 +163,13 @@ class BaseMinimizer(ZfitMinimizer):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
             minimizer_options: Additional minimizer options
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__()
         self._n_iter_per_param = 3000

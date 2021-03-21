@@ -43,8 +43,9 @@ class Minuit(BaseMinimizer, GraphCachable):
                  ncall=None,
                  minimizer_options=None,
                  ):
-        """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in
-        `iminuit<https://iminuit.readthedocs.io/en/stable/>`_.
+        """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in `iminuit.
+
+        <https://iminuit.readthedocs.io/en/stable/>`_.
 
         The package iminuit is the fast, interactive minimizer based on the Minuit2 C++ library; the latter is
         maintained by CERN’s ROOT team. It is an especially robust minimizer that finds the global minimum
@@ -52,10 +53,10 @@ class Minuit(BaseMinimizer, GraphCachable):
         initial values.
 
         Args:
-            tol: |@docstart||@doc:minimizer.tol|Termination value for the
+            tol:  |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
-                   been found. Defaults to 1e-3.|@docend|
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
             mode: A number used by minuit to define the internal minimization strategy, either 0, 1 or 2.
                 As `explained in the iminuit docs <>`_, they mean:
                 - 0 (default with zfit gradient): the fastest and the number of function calls required to minimise
@@ -63,22 +64,24 @@ class Minuit(BaseMinimizer, GraphCachable):
                     minimisation (only an approximation that is continuously updated).
                     When the number of fitted parameters > 10, you should prefer this strategy.
                 - 1 (default with Minuit gradient) medium in speed. The number of function calls required
-                    scales quadratically with the number of fitted parameters. The different scales comes from the fact that the Hesse matrix is explicitly computed in a Newton step, if Minuit detects significant correlations between parameters.
+                    scales quadratically with the number of fitted parameters. The different scales comes from the fact
+                     that the Hesse matrix is explicitly computed in a Newton step,
+                     if Minuit detects significant correlations between parameters.
                 - 2: same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
                     always explicitly computed in each Newton step.
             gradient: If True, iminuit uses its internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
                 is used. For smaller datasets with less stable losses, the internal Minuit gradient often performs
                 better while the zfit provided gradient improves the convergence rate for larger (10'000+) datasets.
-            verbosity: |@docstart||@doc:minimizer.verbosity|Verbosity of the minimizer.
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
                 A value above 5 starts printing more
                 output with a value of 10 printing every
-                evaluation of the loss function and gradient.|@docend| This
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity| This
                 also changes the iminuit internal verbosity at around 7.
             options: Additional options that will be directly passsed into :meth:~``iminuitMinuit.migrad``
-            maxiter: |@docstart||@doc:minimizer.maxiter|Approximate number of iterations. This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`.|@docend|
-            criterion: |@docstart||@doc:minimizer.criterion|Criterion of the minimum. This is an
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
                    or absolute changes of the parameters,
@@ -86,10 +89,10 @@ class Minuit(BaseMinimizer, GraphCachable):
                    If the value of the criterion is smaller
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
-                   has been found.|@docend|
-            strategy: |@docstart||@doc:minimizer.strategy|Determines the behavior of the minimizer in certain situations, most notably when encountering
-                   NaNs in which case|@docend|
-            name: |@docstart||@doc:minimizer.name|Human readable name of the minimizer.|@docend|
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
 
 
             use_minuit_grad: deprecated, legacy.

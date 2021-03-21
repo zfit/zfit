@@ -2,12 +2,11 @@
 import copy
 import inspect
 import math
-import warnings
-from typing import Callable, Dict, Mapping, Optional, Union
+from typing import Callable, Mapping, Optional, Union
 
 import numpy as np
 import scipy.optimize
-from scipy.optimize import SR1, LbfgsInvHessProduct
+from scipy.optimize import SR1
 
 from ..core.parameter import set_values
 from ..settings import run
@@ -15,10 +14,9 @@ from ..util.exception import MaximumIterationReached
 from ..util.warnings import warn_experimental_feature
 from .baseminimizer import (NOT_SUPPORTED, BaseMinimizer, minimize_supports,
                             print_minimization_status)
-from .evaluation import LossEval
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
-from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
+from .termination import CRITERION_NOT_AVAILABLE, ConvergenceCriterion
 
 
 class ScipyBaseMinimizer(BaseMinimizer):
@@ -28,18 +26,49 @@ class ScipyBaseMinimizer(BaseMinimizer):
                  internal_tol: Mapping[str, Optional[float]],
                  gradient: Optional[Union[Callable, str, NOT_SUPPORTED]],
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy, NOT_SUPPORTED]],
-                 maxiter: Optional[Union[int, str]],
-                 minimizer_options: Optional[Mapping[str, object]],
-                 verbosity: Optional[int],
-                 strategy: Optional[ZfitStrategy],
-                 criterion: Optional[ConvergenceCriterion],
+                 maxiter: Optional[Union[int, str]] = None,
+                 minimizer_options: Optional[Mapping[str, object]] = None,
+                 verbosity: Optional[int] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
                  minimize_func: Optional[callable] = None,
-                 name="ScipyMinimizer"):
+                 name: str = "ScipyMinimizer"
+                 ) -> None:
+        """Base minimizer for the SciPy library wrapping.
+
+        Args:
+            method: Name of the method as given to :func:~`scipy.optimize.minimize`
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            minimizer_options:
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            minimize_func:
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+        """
         self._minimize_func = scipy.optimize.minimize if minimize_func is None else minimize_func
 
         minimizer_options = {} if minimizer_options is None else minimizer_options
         minimizer_options = copy.copy(minimizer_options)
         minimizer_options['method'] = method
+
         if 'options' not in minimizer_options:
             minimizer_options['options'] = {}
 
@@ -58,9 +87,8 @@ class ScipyBaseMinimizer(BaseMinimizer):
         super().__init__(name=name, tol=tol, verbosity=verbosity, minimizer_options=minimizer_options,
                          strategy=strategy, criterion=criterion, maxiter=maxiter)
 
-    @minimize_supports()
+    @minimize_supports(init=True)
     def _minimize(self, loss, params, init: FitResult):
-        previous_result = init
         if init:
             set_values(params=params, values=init)
 
@@ -70,6 +98,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
         init_values = np.array(run(params))
 
         minimizer_options = self.minimizer_options.copy()
+
         minimizer_options['bounds'] = limits
 
         use_gradient = 'grad' in minimizer_options
@@ -78,7 +107,6 @@ class ScipyBaseMinimizer(BaseMinimizer):
             gradient = evaluator.gradient if gradient == 'zfit' else gradient
             minimizer_options['jac'] = gradient
 
-        inv_hessian = None
         use_hessian = 'hess' in minimizer_options
         if use_hessian:
             hessian = minimizer_options.pop('hess')
@@ -89,8 +117,11 @@ class ScipyBaseMinimizer(BaseMinimizer):
                                                                       scipy.optimize.HessianUpdateStrategy)
 
             init_scale = 'auto'
-            if previous_result:
-                inv_hessian = previous_result.approx.inv_hessian(params)
+            # get possible initial step size from previous minimizer
+            if init:
+                approx_step_sizes = init.hesse(params=params, method='approx')
+            else:
+                approx_step_sizes = None
 
         maxiter = self.get_maxiter(len(params))
         if maxiter is not None:
@@ -114,7 +145,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
             # update from previous run/result
             if use_hessian and is_update_strat:
                 if not isinstance(init_scale, str):
-                    init_scale = np.mean(init_scale)
+                    init_scale = np.mean(approx_step_sizes)
                 minimizer_options['hess'] = hessian(init_scale=init_scale)
 
             for tol, val in internal_tol.items():
@@ -135,10 +166,10 @@ class ScipyBaseMinimizer(BaseMinimizer):
             else:
                 maxiter_reached = evaluator.niter > evaluator.maxiter
 
-            xvalues = optim_result['x']
+            values = optim_result['x']
 
             fmin = optim_result.fun
-            set_values(params, xvalues)
+            set_values(params, values)
 
             optimize_results = combine_optimize_results(
                 [optim_result] if optimize_results is None else [optimize_results, optim_result])
@@ -152,14 +183,10 @@ class ScipyBaseMinimizer(BaseMinimizer):
                                                  valid=valid)
 
             if use_hessian:
-                inv_hessian = result_prelim.approx.inv_hessian()
+                approx_step_sizes = init.hesse(params=params, method='approx')
             converged = criterion.converged(result_prelim)
             valid = converged
-            criterion_value = criterion.last_value
-            if isinstance(criterion, EDM):
-                edm = criterion.last_value
-            else:
-                edm = CRITERION_NOT_AVAILABLE
+            edm = criterion.last_value
 
             if self.verbosity > 5:
                 print_minimization_status(converged=converged,
@@ -171,15 +198,13 @@ class ScipyBaseMinimizer(BaseMinimizer):
 
             if converged or maxiter_reached:
                 break
-            if use_hessian and inv_hessian is not None:
-                init_scale = inv_hessian
-            init_values = xvalues
+            init_values = values
 
             # update the tolerances
-            self._update_tol_inplace(criterion_value=criterion_value, internal_tol=internal_tol)
+            self._update_tol_inplace(criterion_value=edm, internal_tol=internal_tol)
 
         else:
-            message = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tol} not reached."
+            message = f"Invalid, criterion {criterion.name} is {edm}, target {self.tol} not reached."
             valid = False
         return FitResult.from_scipy(
             loss=loss,
@@ -191,98 +216,22 @@ class ScipyBaseMinimizer(BaseMinimizer):
             edm=edm,
             message=message,
             niter=evaluator.niter,
+            evaluator=evaluator,
         )
-
-
-# class Scipy(BaseMinimizer):
-#
-#     def __init__(self, algorithm: str = 'L-BFGS-B', tol: Optional[float] = None,
-#                  strategy: Optional[ZfitStrategy] = None, verbosity: Optional[int] = 5,
-#                  name: Optional[str] = None, scipy_grad: Optional[bool] = None,
-#                  # criterion: ConvergenceCriterion = None,
-#                  minimizer_options: Optional[Dict[str, object]] = None, minimizer=None):
-#         """SciPy optimizer algorithms.
-#
-#         This is a wrapper for all the SciPy optimizers. More information can be found in their docs.
-#
-#         Args:
-#             algorithm: Name of the minimization algorithm to use.
-#             tol: Stopping criterion of the algorithm to determine when the minimum
-#                 has been found. The default is 1e-4, which is *different* from others.
-#             verbosity:             name: Name of the minimizer
-#             scipy_grad: If True, SciPy uses it's internal numerical gradient calculation instead of the
-#                 (analytic/numerical) gradient provided by TensorFlow/zfit.
-#             name: Name of the minimizer
-#             minimizer_options:
-#         """
-#         # if criterion is None:
-#         #     criterion = EDM
-#         # self.criterion = criterion
-#         if minimizer is not None:
-#             warnings.warn(DeprecationWarning, "`minimizer` keyword is gone, use `algorithm`")
-#             algorithm = minimizer
-#         scipy_grad = True if scipy_grad is None else scipy_grad
-#         minimizer_options = {} if minimizer_options is None else minimizer_options
-#         if tol is None:
-#             tol = 1e-4
-#         if name is None:
-#             name = algorithm
-#         self.scipy_grad = scipy_grad
-#         minimizer_options = minimizer_options.copy()
-#         minimizer_options.update(method=algorithm)
-#         super().__init__(tol=tol, name=name, verbosity=verbosity,
-#                          strategy=strategy,
-#                          minimizer_options=minimizer_options)
-#
-#     @minimize_supports()
-#     def _minimize(self, loss, params):
-#         # criterion = self.criterion(tolerance=self.tolerance, loss=loss)
-#         minimizer_options = self.minimizer_options.copy()
-#         evaluator = LossEval(loss=loss,
-#                              params=params,
-#                              strategy=self.strategy,
-#                              do_print=self.verbosity > 8,
-#                              minimizer=self)
-#
-#         initial_values = np.array(run(params))
-#         limits = [(run(p.lower), run(p.upper)) for p in params]
-#         minimize_kwargs = {
-#             'jac': not self.scipy_grad,
-#             # TODO: properly do hessian or jac
-#             # 'hess': scipy.optimize.BFGS() if self.scipy_grad else None,
-#             # 'callback': step_callback,
-#             'method': minimizer_options.pop('method'),
-#             # 'constraints': constraints,
-#             'bounds': limits,
-#             'tol': self.tol,
-#             'options': minimizer_options.pop('options', None),
-#         }
-#         minimize_kwargs.update(self.minimizer_options)
-#         result = scipy.optimize.minimize(fun=evaluator.value if self.scipy_grad else evaluator.value_gradients,
-#                                          x0=initial_values, **minimize_kwargs)
-#
-#         xvalues = result['x']
-#         set_values(params, xvalues)
-#         from .fitresult import FitResult
-#         return FitResult.from_scipy(loss=loss,
-#                                     params=params,
-#                                     result=result,
-#                                     minimizer=self
-#                                     )
 
 
 class ScipyLBFGSBV1(ScipyBaseMinimizer):
 
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  maxcor: Optional[int] = None,
                  maxls: Optional[int] = None,
                  verbosity: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
-                 name="Scipy L-BFGS-B V1"):
+                 strategy: Optional[ZfitStrategy] = None,
+                 name: str = "SciPy L-BFGS-B V1"):
         options = {}
         if maxcor is not None:
             options['maxcor'] = maxcor
@@ -304,15 +253,15 @@ class ScipyLBFGSBV1(ScipyBaseMinimizer):
 
 class ScipyTrustKrylovV1(ScipyBaseMinimizer):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  inexact: Optional[bool] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  verbosity: Optional[int] = None,
-                 name="Scipy trust-krylov V1"):
+                 name: str = "SciPy trust-krylov V1"):
         options = {}
         if inexact is not None:
             options['inexact'] = inexact
@@ -332,16 +281,16 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizer):
 
 class ScipyTrustNCGV1(ScipyBaseMinimizer):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  eta: Optional[float] = None,
                  max_trust_radius: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  verbosity: Optional[int] = None,
-                 name: str = "Scipy trust-ncg V1"):
+                 name: str = "SciPy trust-ncg V1"):
         options = {}
         if eta is not None:
             options['eta'] = eta
@@ -363,15 +312,15 @@ class ScipyTrustNCGV1(ScipyBaseMinimizer):
 
 class ScipyTrustConstrV1(ScipyBaseMinimizer):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  initial_tr_radius: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  verbosity: Optional[int] = None,
-                 name="Scipy trust-constr V1"):
+                 name: str = "SciPy trust-constr V1"):
         options = {}
         if initial_tr_radius is not None:
             options['initial_tr_radius'] = initial_tr_radius
@@ -393,14 +342,14 @@ class ScipyNewtonCGV1(ScipyBaseMinimizer):
 
     @warn_experimental_feature
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = 'zfit',
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  verbosity: Optional[int] = None,
-                 name="Scipy Newton-CG V1"):
+                 name: str = "SciPy Newton-CG V1"):
         """WARNING! This algorithm seems unstable and may does not perform well!
 
         Args:
@@ -429,7 +378,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizer):
 
 
 class ScipyTruncNCV1(ScipyBaseMinimizer):
-    def __init__(self, tol: float = None,
+    def __init__(self, tol: Optional[float] = None,
                  maxiter_cg: Optional[int] = None,  # maxCGit
                  maxstep_ls: Optional[int] = None,  # stepmx
                  eta: Optional[float] = None,
@@ -437,9 +386,9 @@ class ScipyTruncNCV1(ScipyBaseMinimizer):
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  verbosity: Optional[int] = None,
-                 name="Scipy Truncated Newton Conjugate V1"):
+                 name: str = "SciPy Truncated Newton Conjugate V1"):
         options = {}
         if maxiter_cg is not None:
             options['maxiter_cg'] = maxiter_cg
@@ -467,7 +416,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizer):
 
 
 class ScipyDoglegV1(ScipyBaseMinimizer):
-    def __init__(self, tol: float = None,
+    def __init__(self, tol: Optional[float] = None,
                  initial_trust_radius: Optional[int] = None,
                  eta: Optional[float] = None,
                  max_trust_radius: Optional[int] = None,
@@ -475,9 +424,9 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = 'zfit',
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  verbosity: Optional[int] = None,
-                 name="Scipy Dogleg V1"):
+                 name: str = "SciPy Dogleg V1"):
         options = {}
         if initial_trust_radius is not None:
             options['initial_tr_radius'] = initial_trust_radius
@@ -501,12 +450,12 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
 
 class ScipyPowellV1(ScipyBaseMinimizer):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  verbosity: Optional[int] = None,
-                 name="Scipy Powell V1"):
+                 name: str = "SciPy Powell V1"):
         options = {}
         minimizer_options = {}
         if options:
@@ -523,13 +472,13 @@ class ScipyPowellV1(ScipyBaseMinimizer):
 
 class ScipySLSQPV1(ScipyBaseMinimizer):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  gradient: Optional[Union[Callable, str]] = 'zfit',
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  verbosity: Optional[int] = None,
-                 name="Scipy SLSQP V1"):
+                 name: str = "SciPy SLSQP V1"):
         options = {}
         minimizer_options = {}
         if options:
@@ -546,13 +495,13 @@ class ScipySLSQPV1(ScipyBaseMinimizer):
 
 class ScipyNelderMeadV1(ScipyBaseMinimizer):
     def __init__(self,
-                 tol: float = None,
+                 tol: Optional[float] = None,
                  adaptive: Optional[bool] = True,
                  maxiter: Optional[Union[int, str]] = 'auto',
                  criterion: Optional[ConvergenceCriterion] = None,
-                 strategy: ZfitStrategy = None,
+                 strategy: Optional[ZfitStrategy] = None,
                  verbosity: Optional[int] = None,
-                 name="Scipy Nelder-Mead V1"):
+                 name: str = "SciPy Nelder-Mead V1"):
         options = {}
         minimizer_options = {}
 

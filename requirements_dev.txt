@@ -7,6 +7,7 @@ pip>=9.0.1
 pre-commit
 pydata-sphinx-theme>=0.5.0
 pyyaml
+seed_intersphinx_mapping
 setupext-janitor
 setuptools>=30.3.0
 setuptools_scm[toml]>=3.4
