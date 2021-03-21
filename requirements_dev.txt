@@ -5,7 +5,7 @@ docformatter
 flake8>=3.5.0
 pip>=9.0.1
 pre-commit
-pydata-sphinx-theme
+pydata-sphinx-theme>=0.5.0
 pyyaml
 setupext-janitor
 setuptools>=30.3.0
