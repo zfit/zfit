@@ -79,7 +79,8 @@ class Minuit(BaseMinimizer, GraphCachable):
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity| This
                 also changes the iminuit internal verbosity at around 7.
             options: Additional options that will be directly passsed into :meth:~``iminuitMinuit.migrad``
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -90,7 +91,8 @@ class Minuit(BaseMinimizer, GraphCachable):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
 

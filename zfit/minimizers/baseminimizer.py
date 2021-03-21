@@ -164,10 +164,12 @@ class BaseMinimizer(ZfitMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             minimizer_options: Additional minimizer options
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """

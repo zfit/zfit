@@ -100,9 +100,11 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-             strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+             strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
-             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
              minimizer_options: Additional options that will be set in the minimizer.
              name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
@@ -264,7 +266,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                                                      params=params,
                                                      evaluator=evaluator,
                                                      criterion=None,
-                                                     xvalues=xvalues,
+                                                     xvalues=values,
                                                      valid=valid, message=valid_message)
                 converged = criterion.converged(result_prelim)
                 valid = converged
@@ -371,9 +373,11 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -453,9 +457,11 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -548,9 +554,11 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -646,9 +654,11 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -725,9 +735,11 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -805,9 +817,11 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -875,9 +889,11 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -955,9 +971,11 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -1055,9 +1073,11 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -1150,9 +1170,11 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -1246,9 +1268,11 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -1330,9 +1354,11 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations. This corresponds to roughly the maximum number of
+             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-             strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in certain situations, most notably when encountering
+             strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
                    NaNs in which case |@docend:minimizer.strategy|
              criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the

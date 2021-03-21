@@ -1,4 +1,5 @@
 #  Copyright (c) 2021 zfit
+import itertools
 from collections import OrderedDict
 
 import numpy as np
@@ -13,6 +14,9 @@ from zfit.util.exception import OperationNotAllowedError
 true_mu = 4.5
 true_sigma = 2
 true_lambda = -0.03
+
+parameter_tol = 0.1
+max_distance_to_min = 2.5
 
 
 def create_loss(obs1):
@@ -43,7 +47,53 @@ def create_loss(obs1):
 
 verbosity = None
 
+
 # zfit.settings.set_verbosity(verbosity=verbosity)
+
+@pytest.mark.parametrize('gradient_hessian', itertools.product(zfit.minimize.ScipyTrustKrylovV1._ALLOWED_GRADIENT,
+                                                               zfit.minimize.ScipyTrustKrylovV1._ALLOWED_HESSIAN))
+@pytest.mark.flaky(reruns=3)
+def test_scipy_trustkrylov(gradient_hessian):
+    gradient, hessian = gradient_hessian
+    loss, true_min, params = create_loss(obs1=obs1)
+    (mu_param, sigma_param, lambda_param) = params
+    minimizer = zfit.minimize.ScipyTrustKrylovV1(gradient=gradient, hessian=hessian)
+
+    result = minimizer.minimize(loss=loss)
+    assert result.valid
+
+    found_min = loss.value().numpy()
+    assert true_min + max_distance_to_min >= found_min
+
+    aval, bval, cval = zfit.run((mu_param, sigma_param, lambda_param))
+
+    assert true_mu == pytest.approx(aval, abs=parameter_tol)
+    assert true_sigma == pytest.approx(bval, abs=parameter_tol)
+    assert true_lambda == pytest.approx(cval, abs=parameter_tol)
+    assert result.converged
+
+
+@pytest.mark.parametrize('gradient_hessian', zfit.minimize.ScipyLBFGSBV1._ALLOWED_GRADIENT)
+@pytest.mark.flaky(reruns=3)
+def test_scipy_lbfgs(gradient_hessian):
+    gradient = gradient_hessian
+    loss, true_min, params = create_loss(obs1=obs1)
+    (mu_param, sigma_param, lambda_param) = params
+    minimizer = zfit.minimize.ScipyLBFGSBV1(gradient=gradient)
+
+    result = minimizer.minimize(loss=loss)
+    assert result.valid
+
+    found_min = loss.value().numpy()
+    assert true_min + max_distance_to_min >= found_min
+
+    aval, bval, cval = zfit.run((mu_param, sigma_param, lambda_param))
+
+    assert true_mu == pytest.approx(aval, abs=parameter_tol)
+    assert true_sigma == pytest.approx(bval, abs=parameter_tol)
+    assert true_lambda == pytest.approx(cval, abs=parameter_tol)
+    assert result.converged
+
 
 minimizers = [
     # minimizers, minimizer_kwargs, do error estimation
@@ -216,9 +266,6 @@ def test_minimizers(minimizer_class_and_kwargs, numgrad, chunksize, spaces,
     zfit.run.set_autograd_mode(not numgrad)
 
     # minimize_func(minimizer_class_and_kwargs, obs=spaces)
-
-    parameter_tol = 0.1
-    max_distance_to_min = 2.5
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
 

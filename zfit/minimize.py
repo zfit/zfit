@@ -13,9 +13,9 @@ from .minimizers.minimizer_nlopt import (NLoptBOBYQAV1, NLoptCCSAQV1,
                                          NLoptTruncNewtonV1)
 from .minimizers.minimizer_tfp import BFGS
 from .minimizers.minimizers_scipy import (ScipyDoglegV1, ScipyLBFGSBV1,
-                                          ScipyNewtonCGV1, ScipyPowellV1,
-                                          ScipySLSQPV1, ScipyTruncNCV1,
-                                          ScipyTrustConstrV1,
+                                          ScipyNelderMeadV1, ScipyNewtonCGV1,
+                                          ScipyPowellV1, ScipySLSQPV1,
+                                          ScipyTruncNCV1, ScipyTrustConstrV1,
                                           ScipyTrustKrylovV1, ScipyTrustNCGV1)
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
 from .minimizers.strategy import ZfitStrategy
@@ -55,7 +55,7 @@ class ScipyMinimizer(Scipy):
 __all__ = ["WrapOptimizer",
            "Adam", "Minuit",
            "Scipy", "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1', "ScipyDoglegV1", "ScipyTrustNCGV1",
-           "ScipyPowellV1", "ScipySLSQPV1", "ScipyNewtonCGV1", "ScipyTruncNCV1",
+           "ScipyPowellV1", "ScipySLSQPV1", "ScipyNewtonCGV1", "ScipyTruncNCV1", "ScipyNelderMeadV1",
            "NLoptLBFGSV1", "NLoptTruncNewtonV1", "NLoptSLSQPV1", "NLoptMMAV1", "NLoptCCSAQV1", 'NLoptShiftVarV1',
            "NLoptMLSLV1", 'NLoptStoGOV1', 'NLoptESCHV1', 'NLoptISRESV1',
            "IpyoptV1",

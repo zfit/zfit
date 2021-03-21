@@ -245,11 +245,15 @@ class FitResult(ZfitResult):
                :py:class:`~zfit.Parameter` key has the
                value from the minimum found by the minimizer. |@docend:result.init.params|
             minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this `FitResult` and will be used to
-                   calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
-                   and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                   calculate certain errors. If the minimizer
+                   is state-based (like "iminuit"), then this is a copy
+                   and the state of other `FitResults` or of the *actual*
+                   minimizer that performed the minimization
                    won't be altered. |@docend:result.init.minimizer|
-            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest indication and serves as
-                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest
+                   indication and serves as
+                   the global flag. The reasons why a result may be
+                   invalid can be arbitrary, including but not exclusive:
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum
@@ -435,11 +439,15 @@ class FitResult(ZfitResult):
                value from the minimum found by the minimizer. |@docend:result.init.params|
             problem: |@doc:result.init.problem||@docend:result.init.problem|
             minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this `FitResult` and will be used to
-                   calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
-                   and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                   calculate certain errors. If the minimizer
+                   is state-based (like "iminuit"), then this is a copy
+                   and the state of other `FitResults` or of the *actual*
+                   minimizer that performed the minimization
                    won't be altered. |@docend:result.init.minimizer|
-            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest indication and serves as
-                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest
+                   indication and serves as
+                   the global flag. The reasons why a result may be
+                   invalid can be arbitrary, including but not exclusive:
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum
@@ -508,8 +516,10 @@ class FitResult(ZfitResult):
             params: Iterable of the zfit parameters that were floating during the minimization.
             minuit: Return value of the iminuit migrad command, the instance of :class:`iminuit.Minuit`
             minimizer: Instance of the zfit Minuit minimizer that was used to minimize the loss.
-            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest indication and serves as
-                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest
+                   indication and serves as
+                   the global flag. The reasons why a result may be
+                   invalid can be arbitrary, including but not exclusive:
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum
@@ -606,10 +616,12 @@ class FitResult(ZfitResult):
             params: |@doc:result.init.params| Result of the fit where each
                :py:class:`~zfit.Parameter` key has the
                value from the minimum found by the minimizer. |@docend:result.init.params|
-            result:
+            result: Result of the SciPy optimization.
             minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this `FitResult` and will be used to
-                   calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
-                   and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                   calculate certain errors. If the minimizer
+                   is state-based (like "iminuit"), then this is a copy
+                   and the state of other `FitResults` or of the *actual*
+                   minimizer that performed the minimization
                    won't be altered. |@docend:result.init.minimizer|
             message: |@doc:result.init.message| Human readable message to indicate the reason
                    if the fitresult is not valid.
@@ -622,8 +634,10 @@ class FitResult(ZfitResult):
                    of function evaluations ~= number of gradient evaluations.
                    This is an approximated value and the exact meaning
                    can differ between different minimizers. |@docend:result.init.niter|
-            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest indication and serves as
-                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest
+                   indication and serves as
+                   the global flag. The reasons why a result may be
+                   invalid can be arbitrary, including but not exclusive:
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum
@@ -707,11 +721,15 @@ class FitResult(ZfitResult):
                :py:class:`~zfit.Parameter` key has the
                value from the minimum found by the minimizer. |@docend:result.init.params|
             minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this `FitResult` and will be used to
-                   calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
-                   and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                   calculate certain errors. If the minimizer
+                   is state-based (like "iminuit"), then this is a copy
+                   and the state of other `FitResults` or of the *actual*
+                   minimizer that performed the minimization
                    won't be altered. |@docend:result.init.minimizer|
-            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest indication and serves as
-                   the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+            valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest
+                   indication and serves as
+                   the global flag. The reasons why a result may be
+                   invalid can be arbitrary, including but not exclusive:
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum

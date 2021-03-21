@@ -19,10 +19,12 @@ minimizer.criterion: |1+
                     stopps and it is assumed that the minimum
                     has been found.
 minimizer.strategy: |1+
-    Determines the behavior of the minimizer in certain situations, most notably when encountering
+    Determines the behavior of the minimizer in
+                    certain situations, most notably when encountering
                     NaNs in which case
 minimizer.maxiter: |1+
-    Approximate number of iterations. This corresponds to roughly the maximum number of
+    Approximate number of iterations.
+                    This corresponds to roughly the maximum number of
                     evaluations of the `value`, 'gradient` or `hessian`.
 minimizer.name: |1+
     Human readable name of the minimizer.
@@ -33,6 +35,17 @@ minimizer.maxcor: |1+
                     to “remember” from previous optimization
                     steps: increasing it increases
                     the memory requirements but may speed up the convergence.
+minimizer.init.maxls: |1+
+    Maximum number of linesearch points.
+
+minimizer.scipy.gradient: |1+
+    Define the method to use for the gradient computation
+                    that the minimizer should use.
+                    If it is set to False
+minimizer.scipy.hessian: |1+
+    Maximum number of linesearch points.
+
+
 minimizer.nlopt.population: |1+
     The population size for the evolutionary algorithm.
 minimizer.nlopt.info: |1+
@@ -58,12 +71,16 @@ result.init.params: |1+
 
 result.init.minimizer: |1+
     Minimizer that was used to obtain this `FitResult` and will be used to
-                    calculate certain errors. If the minimizer is state-based (like "iminuit"), then this is a copy
-                    and the state of other `FitResults` or of the *actual* minimizer that performed the minimization
+                    calculate certain errors. If the minimizer
+                    is state-based (like "iminuit"), then this is a copy
+                    and the state of other `FitResults` or of the *actual*
+                    minimizer that performed the minimization
                     won't be altered.
 result.init.valid: |1+
-    Indicating whether the result is valid or not. This is the strongest indication and serves as
-                    the global flag. The reasons why a result may be invalid can be arbitrary, including but not exclusive:
+    Indicating whether the result is valid or not. This is the strongest
+                    indication and serves as
+                    the global flag. The reasons why a result may be
+                    invalid can be arbitrary, including but not exclusive:
                     - parameter(s) at the limit
                     - maxiter reached without proper convergence
                     - the minimizer may even converged but it is known that this is only a local minimum
