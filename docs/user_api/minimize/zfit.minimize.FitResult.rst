@@ -1,4 +1,4 @@
-FitResult
+﻿FitResult
 ---------
 
 .. autoclass:: zfit.minimize.FitResult

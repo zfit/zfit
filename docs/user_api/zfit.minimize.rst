@@ -1,19 +1,25 @@
 Minimize
 --------
 
-.. todo:: Fill overview page
+This module contains everything related to minimization in zfit.
 
-.. todo:: Maybe group minimizer Strategies?
+Minimizers
+#########
+
+Click on the link to see the list of of minimizers.
+
+.. toctree::
+    :maxdepth: 1
+
+    minimize/minimizers
+
+
+Other Classes
+#############
 
 .. autosummary::
     :toctree: minimize
 
     zfit.minimize.WrapOptimizer
-    zfit.minimize.Adam
-    zfit.minimize.Minuit
-    zfit.minimize.Scipy
-    zfit.minimize.BFGS
     zfit.minimize.DefaultStrategy
-    zfit.minimize.DefaultToyStrategy
-    zfit.minimizers.baseminimizer.PushbackStrategy
     zfit.minimize.FitResult

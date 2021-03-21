@@ -1,4 +1,4 @@
-WrapOptimizer
+﻿WrapOptimizer
 -------------
 
 .. autoclass:: zfit.minimize.WrapOptimizer

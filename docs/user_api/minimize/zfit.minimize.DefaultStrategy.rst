@@ -1,4 +1,4 @@
-DefaultStrategy
+﻿DefaultStrategy
 ---------------
 
 .. autoclass:: zfit.minimize.DefaultStrategy

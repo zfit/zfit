@@ -1,4 +1,4 @@
-BFGS
+﻿BFGS
 ----
 
 .. autoclass:: zfit.minimize.BFGS

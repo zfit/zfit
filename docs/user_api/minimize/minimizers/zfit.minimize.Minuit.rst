@@ -1,4 +1,4 @@
-Minuit
+﻿Minuit
 ------
 
 .. autoclass:: zfit.minimize.Minuit

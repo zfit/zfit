@@ -1,4 +1,4 @@
-Adam
+﻿Adam
 ----
 
 .. autoclass:: zfit.minimize.Adam
