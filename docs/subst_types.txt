@@ -1,4 +1,3 @@
-# @formatter:off
 .. |range_init| replace:: This is the range object description
 
 .. |limits_init| replace:: A tuple containing the limits (as tuple) per dimension. So a tuple of the shape (n_obs, n_lower_upper) is expected. The limits within one dimension are specified by a tuple like (lower1, upper1, lower2, upper2,...). This example contains two ranges, from lower1 to upper1 and from lower2 to upper 2 (+ ,... more). Example: ((-1, 5), (-4, 1, 2, 5)) translates to: first dimension goes from -1 to 5, the second dimension from -4 to 1 and from 2 to 5.
@@ -18,9 +17,3 @@
 .. |name_arg_descr| replace:: This is the stub description for names. Change it in docs/subst_types.txt.
 
 .. |Space_ref| replace:: :py:class:`~zfit.Space`
-
-# .. |@docstart| replace::
-#
-# .. |@docend| replace::
-.. |@doc:minimizer.verbosity| replace:: |wsw|
-# @formatter:on
