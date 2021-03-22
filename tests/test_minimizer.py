@@ -48,38 +48,49 @@ def create_loss(obs1):
 verbosity = None
 
 
-# zfit.settings.set_verbosity(verbosity=verbosity)
+def make_min_grad_hesse():
+    minimizers = [
+        zfit.minimize.ScipyTruncNCV1,
+        zfit.minimize.ScipyTrustNCGV1,
+        zfit.minimize.ScipyTrustKrylovV1,
+        zfit.minimize.ScipySLSQPV1,
+        zfit.minimize.ScipyLBFGSBV1,
+    ]
+    min_options = []
+    for opt in minimizers:
+        grad = opt._VALID_SCIPY_GRADIENT
+        hess = opt._VALID_SCIPY_HESSIAN
+        if not grad:
+            grad = {None}  # the default is None, so this will skip it
+        if not hess:
+            hess = {None}
+        product = itertools.product([opt], grad, hess)
+        min_options.extend(product)
+    return min_options
 
-@pytest.mark.parametrize('gradient_hessian', itertools.product(zfit.minimize.ScipyTrustKrylovV1._ALLOWED_GRADIENT,
-                                                               zfit.minimize.ScipyTrustKrylovV1._ALLOWED_HESSIAN))
+
+def not_allowed(gradient, hessian):
+    from scipy.optimize import HessianUpdateStrategy
+    return (gradient in (True, '2-point', '3-point') and not isinstance(hessian, HessianUpdateStrategy))
+
+
+@pytest.mark.parametrize('minimizer_gradient_hessian', make_min_grad_hesse())
 @pytest.mark.flaky(reruns=3)
-def test_scipy_trustkrylov(gradient_hessian):
-    gradient, hessian = gradient_hessian
+def test_scipy_derivative_options(minimizer_gradient_hessian):
+    minimizer_cls, gradient, hessian = minimizer_gradient_hessian
     loss, true_min, params = create_loss(obs1=obs1)
     (mu_param, sigma_param, lambda_param) = params
-    minimizer = zfit.minimize.ScipyTrustKrylovV1(gradient=gradient, hessian=hessian)
+    kwargs = {}
 
-    result = minimizer.minimize(loss=loss)
-    assert result.valid
-
-    found_min = loss.value().numpy()
-    assert true_min + max_distance_to_min >= found_min
-
-    aval, bval, cval = zfit.run((mu_param, sigma_param, lambda_param))
-
-    assert true_mu == pytest.approx(aval, abs=parameter_tol)
-    assert true_sigma == pytest.approx(bval, abs=parameter_tol)
-    assert true_lambda == pytest.approx(cval, abs=parameter_tol)
-    assert result.converged
-
-
-@pytest.mark.parametrize('gradient_hessian', zfit.minimize.ScipyLBFGSBV1._ALLOWED_GRADIENT)
-@pytest.mark.flaky(reruns=3)
-def test_scipy_lbfgs(gradient_hessian):
-    gradient = gradient_hessian
-    loss, true_min, params = create_loss(obs1=obs1)
-    (mu_param, sigma_param, lambda_param) = params
-    minimizer = zfit.minimize.ScipyLBFGSBV1(gradient=gradient)
+    if gradient is not None:
+        kwargs['gradient'] = gradient
+    if hessian is not None:
+        kwargs['hessian'] = hessian
+    if not_allowed(gradient=gradient, hessian=hessian):
+        with pytest.raises(ValueError, match='Whenever the gradient is estimated via finite-differences'):
+            _ = minimizer_cls(**kwargs)
+        return  # end here
+    minimizer = minimizer_cls(**kwargs)
 
     result = minimizer.minimize(loss=loss)
     assert result.valid
@@ -155,7 +166,7 @@ minimizers = [
 # minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-3, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tol': 1e-5, 'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, 'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyDoglegV1, {'tol': 1e3, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tol': 1e-5, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, {'error': True, 'longtests': True})]

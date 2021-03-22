@@ -266,7 +266,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                                                      params=params,
                                                      evaluator=evaluator,
                                                      criterion=None,
-                                                     xvalues=values,
+                                                     values=xvalues,
                                                      valid=valid, message=valid_message)
                 converged = criterion.converged(result_prelim)
                 valid = converged
