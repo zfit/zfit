@@ -39,21 +39,17 @@ for filepath in cfg.files:
         replacement = replacement.rstrip('\n')
         while replacement[:1] == ' ':  # we want to remove the whitespace
             replacement = replacement[1:]
-        auto_start = fr'|@doc:{param}| '
-        # param_mod = f'{auto_start}{auto_end}'
-        auto_end = fr' |@docend:{param}|'
+        auto_start = fr'|@doc:{param}|'
+        auto_end = fr'|@docend:{param}|'
         matches = re.findall(auto_start.replace('|', r'\|')
                              + r".*?"
                              + auto_end.replace('|', r'\|'), filedata, re.DOTALL)
-        # matches_old = re.findall(auto_start.replace('|', r'\|')
-        #                          + r".*?"
-        #                          + auto_end_old.replace('|', r'\|'), filedata, re.DOTALL)
-        # matches += matches_old
+
         if not matches:
             continue
         infile = True
 
-        replacement_mod = f'{auto_start}{replacement}{auto_end}'
+        replacement_mod = f'{auto_start} {replacement} {auto_end}'
 
         for match in matches:
             if auto_start in match[len(auto_start):]:  # sanity check

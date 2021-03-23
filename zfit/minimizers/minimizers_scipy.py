@@ -274,24 +274,72 @@ class ScipyLBFGSBV1(ScipyBaseMinimizer):
                  maxcor: Optional[int] = None,
                  maxls: Optional[int] = None,
                  verbosity: Optional[int] = None,
-                 gradient: Optional[Union[Callable, str]] = 'zfit',
-                 maxiter: Optional[Union[int, str]] = 'auto',
+                 gradient: Optional[Union[Callable, str]] = None,
+                 maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy L-BFGS-B V1"
                  ) -> None:
-        """
+        """Local, gradient based quasi-Newton algorithm using the limited-memory BFGS approximation.
+
+        Limited-memory BFGS is an optimization algorithm in the family of quasi-Newton methods
+        that approximates the Broyden–Fletcher–Goldfarb–Shanno algorithm (BFGS) using a limited amount of
+        memory (or gradients, controlled by *maxcor*).
+
+        L-BFGS borrows ideas from the trust region methods while keeping the L-BFGS update
+        of the Hessian and line search algorithms.
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
 
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
-            maxcor: |@doc:minimizer.maxcor||@docend:minimizer.maxcor|
-            maxls: |@doc:minimizer.init.maxls||@docend:minimizer.init.maxls|
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            gradient: |@doc:minimizer.scipy.gradient||@docend:minimizer.scipy.gradient|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            maxcor: |@doc:minimizer.maxcor| Maximum number of memory history to keep
+                   when using a quasi-Newton update formula such as BFGS.
+                   It is the number of gradients
+                   to “remember” from previous optimization
+                   steps: increasing it increases
+                   the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
+            maxls: |@doc:minimizer.init.maxls| Maximum number of linesearch points. |@docend:minimizer.init.maxls|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+                   that the minimizer should use. This can be the
+                   gradient provided by the loss itself or
+                   method from the minimizer.
+                   In general, using the zfit provided automatic gradient is
+                   more precise and needs less computation time for the
+                   evaluation compared to a numerical method.
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                     loss gradient (usually the automatic gradient) will be used;
+                     the minimizer won't use an internal algorithm.
+                   - ``True`` tells the minimizer to use its default internal
+                     gradient estimation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if maxcor is not None:
@@ -322,26 +370,98 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizer):
     def __init__(self,
                  tol: Optional[float] = None,
                  inexact: Optional[bool] = None,
-                 gradient: Optional[Union[Callable, str]] = 'zfit',
+                 gradient: Optional[Union[Callable, str]] = None,
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
+                 maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy trust-krylov V1"
                  ) -> None:
-        """
+        """Local, gradient based (nearly) exact trust-region algorithm using matrix vector products with the hessian.
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
 
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
-            inexact:
-            gradient:
-            hessian:
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            inexact: Accuracy to solve subproblems.
+                If True requires less nonlinear iterations, but more vector products.
+            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+                   that the minimizer should use. This can be the
+                   gradient provided by the loss itself or
+                   method from the minimizer.
+                   In general, using the zfit provided automatic gradient is
+                   more precise and needs less computation time for the
+                   evaluation compared to a numerical method.
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                     loss gradient (usually the automatic gradient) will be used;
+                     the minimizer won't use an internal algorithm.
+                   - ``True`` tells the minimizer to use its default internal
+                     gradient estimation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+            hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
+                   that the minimizer should use. This can be the
+                   hessian provided by the loss itself or
+                   method from the minimizer.
+
+                   While the exact gradient can speed up the convergence and is
+                   often beneficial, this ain't true for the computation of the
+                   (inverse) Hessian matrix.
+                   Due to the $n^2$ number of entries (compared to $n$ in the
+                   gradient) from the $n$ parameters, this can grow quite
+                   large and become computationally expensive.
+
+                   Therefore, many algorithms use an approximated (inverse)
+                   Hessian matrix making use of the gradient updates instead
+                   of calculating the exact matrix. This turns out to be
+                   precise enough and usually considerably speeds up the
+                   convergence.
+
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'``, the
+                     loss hessian (usually using automatic differentiation)
+                     will be used;
+                     the minimizer won't use an internal algorithm.
+                   - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                     an approximation of the hessian. For example
+                     :class:~`scipy.optimize.BFGS` (which performs usually best)
+                     or :class:~`scipy.optimize.SR1`
+                     (sometimes unstable updates).
+                   - ``True``  (or ``None``; default) tells the minimizer
+                     to use its default internal
+                     hessian approximation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the hessian. This is only possible if the
+                     gradient is provided by zfit and not an internal numerical
+                     method is already used to determine it. |@docend:minimizer.scipy.hessian|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if inexact is not None:
@@ -373,29 +493,105 @@ class ScipyTrustNCGV1(ScipyBaseMinimizer):
 
     def __init__(self,
                  tol: Optional[float] = None,
+                 init_trust_radius: Optional[float] = None,
                  eta: Optional[float] = None,
                  max_trust_radius: Optional[int] = None,
-                 gradient: Optional[Union[Callable, str]] = 'zfit',
+                 gradient: Optional[Union[Callable, str]] = None,
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
+                 maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy trust-ncg V1"
                  ) -> None:
-        """
+        """Local Newton conjugate gradient trust-region algorithm.
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
+
 
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
-            eta:
-            max_trust_radius:
-            gradient:
-            hessian:
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            eta: |@doc:minimizer.trust.eta| Trust region related acceptance
+                   stringency for proposed steps. |@docend:minimizer.trust.eta|
+            init_trust_radius: |@doc:minimizer.trust.init_trust_radius| Initial trust-region radius. |@docend:minimizer.trust.init_trust_radius|
+            max_trust_radius: |@doc:minimizer.trust.max_trust_radius| Maximum value of the trust-region radius.
+                   No steps that are longer than this value will be proposed. |@docend:minimizer.trust.max_trust_radius|
+            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+                   that the minimizer should use. This can be the
+                   gradient provided by the loss itself or
+                   method from the minimizer.
+                   In general, using the zfit provided automatic gradient is
+                   more precise and needs less computation time for the
+                   evaluation compared to a numerical method.
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                     loss gradient (usually the automatic gradient) will be used;
+                     the minimizer won't use an internal algorithm.
+                   - ``True`` tells the minimizer to use its default internal
+                     gradient estimation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+            hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
+                   that the minimizer should use. This can be the
+                   hessian provided by the loss itself or
+                   method from the minimizer.
+
+                   While the exact gradient can speed up the convergence and is
+                   often beneficial, this ain't true for the computation of the
+                   (inverse) Hessian matrix.
+                   Due to the $n^2$ number of entries (compared to $n$ in the
+                   gradient) from the $n$ parameters, this can grow quite
+                   large and become computationally expensive.
+
+                   Therefore, many algorithms use an approximated (inverse)
+                   Hessian matrix making use of the gradient updates instead
+                   of calculating the exact matrix. This turns out to be
+                   precise enough and usually considerably speeds up the
+                   convergence.
+
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'``, the
+                     loss hessian (usually using automatic differentiation)
+                     will be used;
+                     the minimizer won't use an internal algorithm.
+                   - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                     an approximation of the hessian. For example
+                     :class:~`scipy.optimize.BFGS` (which performs usually best)
+                     or :class:~`scipy.optimize.SR1`
+                     (sometimes unstable updates).
+                   - ``True``  (or ``None``; default) tells the minimizer
+                     to use its default internal
+                     hessian approximation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the hessian. This is only possible if the
+                     gradient is provided by zfit and not an internal numerical
+                     method is already used to determine it. |@docend:minimizer.scipy.hessian|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if eta is not None:
@@ -429,26 +625,98 @@ class ScipyTrustConstrV1(ScipyBaseMinimizer):
     def __init__(self,
                  tol: Optional[float] = None,
                  init_trust_radius: Optional[int] = None,
-                 gradient: Optional[Union[Callable, str]] = 'zfit',
+                 gradient: Optional[Union[Callable, str]] = None,
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
+                 maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy trust-constr V1"
                  ) -> None:
-        """
+        """Trust-region based local minimizer.
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
+
 
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
-            init_trust_radius:
-            gradient:
-            hessian:
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            init_trust_radius: |@doc:minimizer.trust.init_trust_radius| Initial trust-region radius. |@docend:minimizer.trust.init_trust_radius|
+            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+                   that the minimizer should use. This can be the
+                   gradient provided by the loss itself or
+                   method from the minimizer.
+                   In general, using the zfit provided automatic gradient is
+                   more precise and needs less computation time for the
+                   evaluation compared to a numerical method.
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                     loss gradient (usually the automatic gradient) will be used;
+                     the minimizer won't use an internal algorithm.
+                   - ``True`` tells the minimizer to use its default internal
+                     gradient estimation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+            hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
+                   that the minimizer should use. This can be the
+                   hessian provided by the loss itself or
+                   method from the minimizer.
+
+                   While the exact gradient can speed up the convergence and is
+                   often beneficial, this ain't true for the computation of the
+                   (inverse) Hessian matrix.
+                   Due to the $n^2$ number of entries (compared to $n$ in the
+                   gradient) from the $n$ parameters, this can grow quite
+                   large and become computationally expensive.
+
+                   Therefore, many algorithms use an approximated (inverse)
+                   Hessian matrix making use of the gradient updates instead
+                   of calculating the exact matrix. This turns out to be
+                   precise enough and usually considerably speeds up the
+                   convergence.
+
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'``, the
+                     loss hessian (usually using automatic differentiation)
+                     will be used;
+                     the minimizer won't use an internal algorithm.
+                   - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                     an approximation of the hessian. For example
+                     :class:~`scipy.optimize.BFGS` (which performs usually best)
+                     or :class:~`scipy.optimize.SR1`
+                     (sometimes unstable updates).
+                   - ``True``  (or ``None``; default) tells the minimizer
+                     to use its default internal
+                     hessian approximation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the hessian. This is only possible if the
+                     gradient is provided by zfit and not an internal numerical
+                     method is already used to determine it. |@docend:minimizer.scipy.hessian|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if init_trust_radius is not None:
@@ -481,25 +749,97 @@ class ScipyNewtonCGV1(ScipyBaseMinimizer):
     @warn_experimental_feature
     def __init__(self,
                  tol: Optional[float] = None,
-                 gradient: Optional[Union[Callable, str]] = 'zfit',
+                 gradient: Optional[Union[Callable, str]] = None,
                  hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = 'zfit',
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
+                 maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy Newton-CG V1"
-                 ) -> object:
+                 ) -> None:
         """WARNING! This algorithm seems unstable and may does not perform well!
 
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
+
+
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
-            gradient:
-            hessian:
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+                   that the minimizer should use. This can be the
+                   gradient provided by the loss itself or
+                   method from the minimizer.
+                   In general, using the zfit provided automatic gradient is
+                   more precise and needs less computation time for the
+                   evaluation compared to a numerical method.
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                     loss gradient (usually the automatic gradient) will be used;
+                     the minimizer won't use an internal algorithm.
+                   - ``True`` tells the minimizer to use its default internal
+                     gradient estimation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+            hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
+                   that the minimizer should use. This can be the
+                   hessian provided by the loss itself or
+                   method from the minimizer.
+
+                   While the exact gradient can speed up the convergence and is
+                   often beneficial, this ain't true for the computation of the
+                   (inverse) Hessian matrix.
+                   Due to the $n^2$ number of entries (compared to $n$ in the
+                   gradient) from the $n$ parameters, this can grow quite
+                   large and become computationally expensive.
+
+                   Therefore, many algorithms use an approximated (inverse)
+                   Hessian matrix making use of the gradient updates instead
+                   of calculating the exact matrix. This turns out to be
+                   precise enough and usually considerably speeds up the
+                   convergence.
+
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'``, the
+                     loss hessian (usually using automatic differentiation)
+                     will be used;
+                     the minimizer won't use an internal algorithm.
+                   - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                     an approximation of the hessian. For example
+                     :class:~`scipy.optimize.BFGS` (which performs usually best)
+                     or :class:~`scipy.optimize.SR1`
+                     (sometimes unstable updates).
+                   - ``True``  (or ``None``; default) tells the minimizer
+                     to use its default internal
+                     hessian approximation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the hessian. This is only possible if the
+                     gradient is provided by zfit and not an internal numerical
+                     method is already used to determine it. |@docend:minimizer.scipy.hessian|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
 
@@ -527,39 +867,83 @@ ScipyNewtonCGV1._add_derivative_methods(gradient=['2-point', '3-point',
 
 class ScipyTruncNCV1(ScipyBaseMinimizer):
     def __init__(self, tol: Optional[float] = None,
-                 maxiter_cg: Optional[int] = None,  # maxCGit
-                 maxstep_ls: Optional[int] = None,  # stepmx
+                 maxcg: Optional[int] = None,  # maxCGit
+                 maxls: Optional[int] = None,  # stepmx
                  eta: Optional[float] = None,
                  rescale: Optional[float] = None,
-                 gradient: Optional[Union[Callable, str]] = 'zfit',
+                 gradient: Optional[Union[Callable, str]] = None,
                  verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = 'auto',
+                 maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy Truncated Newton Conjugate V1"
                  ) -> None:
-        """
+        """Local, gradient based minimization algorithm using a truncated Newton method.
+
+        `Truncated Newton Methods <https://en.wikipedia.org/wiki/Truncated_Newton_method>`_ provide
+        a hessian-free way of optimization.
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
+
 
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
-            maxiter_cg:
-            maxstep_ls:
-            eta:
-            rescale:
-            gradient:
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            maxcg: Maximum number of conjugate gradient evaluations (hessian*vector evaluations)
+                per main iteration. If maxCGit == 0, the direction chosen is -gradient if maxCGit < 0, maxCGit is set to max(1,min(50,n/2)). Defaults to -1.
+            maxls: Maximum step for the line search. May be increased during call.
+                If too small, it will be set to 10.0. Defaults to 0.
+            eta: Severity of the line search, should be between 0 and 1.
+            rescale: Scaling factor (in log10) used to trigger loss value rescaling.
+                 If set to 0, rescale at each iteration.
+                 If it is a very large value, never rescale.
+            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+                   that the minimizer should use. This can be the
+                   gradient provided by the loss itself or
+                   method from the minimizer.
+                   In general, using the zfit provided automatic gradient is
+                   more precise and needs less computation time for the
+                   evaluation compared to a numerical method.
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                     loss gradient (usually the automatic gradient) will be used;
+                     the minimizer won't use an internal algorithm.
+                   - ``True`` tells the minimizer to use its default internal
+                     gradient estimation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
-        if maxiter_cg is not None:
-            options['maxiter_cg'] = maxiter_cg
+        if maxcg is not None:
+            options['maxiter_cg'] = maxcg
         if eta is not None:
             options['eta'] = eta
-        if maxstep_ls is not None:
-            options['maxstep_ls'] = maxstep_ls
+        if maxls is not None:
+            options['maxstep_ls'] = maxls
         if rescale is not None:
             options['rescale'] = rescale
 
@@ -590,28 +974,43 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
                  init_trust_radius: Optional[int] = None,
                  eta: Optional[float] = None,
                  max_trust_radius: Optional[int] = None,
-                 gradient: Optional[Union[Callable, str]] = None,
-                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = None,
                  verbosity: Optional[int] = None,
                  maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy Dogleg V1"
                  ) -> None:
-        """
+        """This minimizer requires the hessian and gradient to be provided by the loss itself.
 
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
-            init_trust_radius:
-            eta:
-            max_trust_radius:
-            gradient:
-            hessian:
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            eta: |@doc:minimizer.trust.eta| Trust region related acceptance
+                   stringency for proposed steps. |@docend:minimizer.trust.eta|
+            init_trust_radius: |@doc:minimizer.trust.init_trust_radius| Initial trust-region radius. |@docend:minimizer.trust.init_trust_radius|
+            max_trust_radius: |@doc:minimizer.trust.max_max_trust_radius||@docend:minimizer.trust.max_max_trust_radius|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if init_trust_radius is not None:
@@ -627,23 +1026,12 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
 
         scipy_tols = {'gtol': None}
 
-        super().__init__(method="dogleg", internal_tol=scipy_tols, gradient=gradient,
-                         hessian=hessian,
+        super().__init__(method="dogleg", internal_tol=scipy_tols,
+                         gradient='zfit',
+                         hessian='zfit',
                          minimizer_options=minimizer_options, tol=tol, verbosity=verbosity,
                          maxiter=maxiter,
                          strategy=strategy, criterion=criterion, name=name)
-
-
-ScipyDoglegV1._add_derivative_methods(
-    gradient=[
-        # '2-point', '3-point',
-        # 'cs',  # works badly
-        None, False, 'zfit'],
-    hessian=[
-        # '2-point', '3-point',
-        # 'cs',
-        # scipy.optimize.BFGS, scipy.optimize.SR1,
-        None, False, 'zfit'])
 
 
 class ScipyPowellV1(ScipyBaseMinimizer):
@@ -655,15 +1043,36 @@ class ScipyPowellV1(ScipyBaseMinimizer):
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy Powell V1"
                  ) -> None:
-        """
+        """Local minimizer using the modified Powell algorithm.
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
 
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         minimizer_options = {}
@@ -689,19 +1098,56 @@ class ScipySLSQPV1(ScipyBaseMinimizer):
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy SLSQP V1"
                  ) -> None:
-        """
+        """Local, gradient-based minimizer using tho  Sequential Least Squares Programming algorithm.name.
+
+         `Sequential Least Squares Programming <https://en.wikipedia.org/wiki/Sequential_quadratic_programming>`_
+         is an iterative method for nonlinear parameter optimization.
+
+         |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
 
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
-            gradient:
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+                   that the minimizer should use. This can be the
+                   gradient provided by the loss itself or
+                   method from the minimizer.
+                   In general, using the zfit provided automatic gradient is
+                   more precise and needs less computation time for the
+                   evaluation compared to a numerical method.
+                   The following are possible choices:
+                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                     loss gradient (usually the automatic gradient) will be used;
+                     the minimizer won't use an internal algorithm.
+                   - ``True`` tells the minimizer to use its default internal
+                     gradient estimation.
+                   - arguments ``'2-point'`` and ``'3-point'`` specify which
+                     numerical algorithm the minimizer should use in order to
+                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
-        if gradient is None:
-            gradient = 'zfit'
         options = {}
         minimizer_options = {}
         if options:
@@ -731,16 +1177,42 @@ class ScipyNelderMeadV1(ScipyBaseMinimizer):
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy Nelder-Mead V1"
                  ) -> None:
-        """
+        """Local gradient-free dowhhill simplex method.py.
+
+        `Nelder-Mead <https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method>`_
+         is a gradient-free method to minimize an objective function. It's performance is
+         usually inferior to gradient based algorithms.
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
+
 
         Args:
-            tol: |@doc:minimizer.tol||@docend:minimizer.tol|
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
             adaptive:
-            verbosity: |@doc:minimizer.verbosity||@docend:minimizer.verbosity|
-            maxiter: |@doc:minimizer.maxiter||@docend:minimizer.maxiter|
-            criterion: |@doc:minimizer.criterion||@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy||@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
+                A value above 5 starts printing more
+                output with a value of 10 printing every
+                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs in which case |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         minimizer_options = {}

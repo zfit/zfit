@@ -40,14 +40,78 @@ minimizer.init.maxls: |1+
 
 minimizer.scipy.gradient: |1+
     Define the method to use for the gradient computation
-                    that the minimizer should use.
-                    If it is set to False
+                    that the minimizer should use. This can be the
+                    gradient provided by the loss itself or
+                    method from the minimizer.
+                    In general, using the zfit provided automatic gradient is
+                    more precise and needs less computation time for the
+                    evaluation compared to a numerical method.
+                    The following are possible choices:
+                    - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                      loss gradient (usually the automatic gradient) will be used;
+                      the minimizer won't use an internal algorithm.
+                    - ``True`` tells the minimizer to use its default internal
+                      gradient estimation.
+                    - arguments ``'2-point'`` and ``'3-point'`` specify which
+                      numerical algorithm the minimizer should use in order to
+                      estimate the gradient.
 minimizer.scipy.hessian: |1+
-    Maximum number of linesearch points.
+    Define the method to use for the hessian computation
+                    that the minimizer should use. This can be the
+                    hessian provided by the loss itself or
+                    method from the minimizer.
+
+                    While the exact gradient can speed up the convergence and is
+                    often beneficial, this ain't true for the computation of the
+                    (inverse) Hessian matrix.
+                    Due to the $n^2$ number of entries (compared to $n$ in the
+                    gradient) from the $n$ parameters, this can grow quite
+                    large and become computationally expensive.
+
+                    Therefore, many algorithms use an approximated (inverse)
+                    Hessian matrix making use of the gradient updates instead
+                    of calculating the exact matrix. This turns out to be
+                    precise enough and usually considerably speeds up the
+                    convergence.
+
+                    The following are possible choices:
+                    - If set to ``False`` or ``'zfit'``, the
+                      loss hessian (usually using automatic differentiation)
+                      will be used;
+                      the minimizer won't use an internal algorithm.
+                    - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                      an approximation of the hessian. For example
+                      :class:~`scipy.optimize.BFGS` (which performs usually best)
+                      or :class:~`scipy.optimize.SR1`
+                      (sometimes unstable updates).
+                    - ``True``  (or ``None``; default) tells the minimizer
+                      to use its default internal
+                      hessian approximation.
+                    - arguments ``'2-point'`` and ``'3-point'`` specify which
+                      numerical algorithm the minimizer should use in order to
+                      estimate the hessian. This is only possible if the
+                      gradient is provided by zfit and not an internal numerical
+                      method is already used to determine it.
+
+minimizer.scipy.info: |1+
+    This implenemtation wraps the minimizers in
+         `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_.
+minimizer.trust.eta: |1+
+    Trust region related acceptance
+                    stringency for proposed steps.
+minimizer.trust.init_trust_radius: |1+
+    Initial trust-region radius.
+minimizer.trust.max_trust_radius: |1+
+    Maximum value of the trust-region radius.
+                    No steps that are longer than this value will be proposed.
+
+
+
 
 
 minimizer.nlopt.population: |1+
     The population size for the evolutionary algorithm.
+
 minimizer.nlopt.info: |1+
     This implenemtation is based on the
          `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
