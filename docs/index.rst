@@ -20,7 +20,7 @@
     * **Project**: Learn who wrote zfit, how to contribute and other information about the project.
     * **Ask a question**: Does exactly what it says on the tin.
 
-    If you have suggestions, contact us on our $(Gitter channel)_ or open an issue on $(GitHub)_.
+    If you have suggestions, contact us on our `Gitter channel`_ or open an issue on `GitHub`_.
 
     Thanks to pandas for open sourcing `pydata-sphinx-theme <https://pydata-sphinx-theme.readthedocs.io/en/latest/>`_.
 
