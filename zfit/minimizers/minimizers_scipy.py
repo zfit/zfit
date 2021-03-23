@@ -21,8 +21,8 @@ from .termination import CRITERION_NOT_AVAILABLE, ConvergenceCriterion
 
 
 class ScipyBaseMinimizer(BaseMinimizer):
-    _VALID_SCIPY_GRADIENT = set()
-    _VALID_SCIPY_HESSIAN = set()
+    _VALID_SCIPY_GRADIENT = None
+    _VALID_SCIPY_HESSIAN = None
 
     def __init__(self,
                  method: str,
@@ -43,8 +43,8 @@ class ScipyBaseMinimizer(BaseMinimizer):
         To implemend a subclass, inherit from this class and:
         - override ``_minimize`` (which has the same signature as :meth:~`BaseMinimizer.minimize`.
           and decorate it with ``minimize_supports``.
-        - add the class attributes (before the init, under the class name)
-            - _ALLOWED_GRADIENT = ScipyBaseMinimizer._ALLOWED_GRADIENT.union{None, True, False, 'zfit'}
+        - (optional) add the allowed methods for gradients and hessian with Class._add_derivative_methods(...)
+
 
         Args:
             method: Name of the method as given to :func:~`scipy.optimize.minimize`
@@ -60,9 +60,10 @@ class ScipyBaseMinimizer(BaseMinimizer):
                 A value above 5 starts printing more
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -89,19 +90,18 @@ class ScipyBaseMinimizer(BaseMinimizer):
                              "the Hessian has to be estimated using one of the quasi-Newton strategies.")
 
         if gradient is not NOT_SUPPORTED:
-            if gradient not in self._VALID_SCIPY_GRADIENT:
+            if self._VALID_SCIPY_GRADIENT is not None and gradient not in self._VALID_SCIPY_GRADIENT:
                 raise ValueError(f"Requested gradient {gradient} is not a valid choice. Possible"
                                  f" gradient methods are {self._VALID_SCIPY_GRADIENT}")
             if gradient is False or gradient is None:
                 gradient = 'zfit'
 
-                # raise ValueError("grad cannot be False for SciPy minimizer.")
             elif gradient is True:
                 gradient = None
             minimizer_options['grad'] = gradient
 
         if hessian is not NOT_SUPPORTED:
-            if hessian not in self._VALID_SCIPY_HESSIAN:
+            if self._VALID_SCIPY_HESSIAN is not None and hessian not in self._VALID_SCIPY_HESSIAN:
                 raise ValueError(f"Requested hessian {hessian} is not a valid choice. Possible"
                                  f" hessian methods are {self._VALID_SCIPY_HESSIAN}")
             if isinstance(hessian, scipy.optimize.HessianUpdateStrategy) and not inspect.isclass(hessian):
@@ -124,15 +124,21 @@ class ScipyBaseMinimizer(BaseMinimizer):
         gradient = convert_to_container(gradient, container=set)
         hessian = convert_to_container(hessian, container=set)
         if gradient is not None:
+            if cls._VALID_SCIPY_GRADIENT is None:
+                cls._VALID_SCIPY_GRADIENT = set()
             cls._VALID_SCIPY_GRADIENT.update(gradient)
         if hessian is not None:
+            if cls._VALID_SCIPY_HESSIAN is None:
+                cls._VALID_SCIPY_HESSIAN = set()
             cls._VALID_SCIPY_HESSIAN.update(hessian)
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        cls._VALID_SCIPY_GRADIENT = ScipyBaseMinimizer._VALID_SCIPY_GRADIENT.copy()
-        cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizer._VALID_SCIPY_HESSIAN.copy()
+        if cls._VALID_SCIPY_GRADIENT is not None:
+            cls._VALID_SCIPY_GRADIENT = ScipyBaseMinimizer._VALID_SCIPY_GRADIENT.copy()
+        if cls._VALID_SCIPY_HESSIAN is not None:
+            cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizer._VALID_SCIPY_HESSIAN.copy()
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init: FitResult):
@@ -336,9 +342,10 @@ class ScipyLBFGSBV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
@@ -458,9 +465,10 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
@@ -588,9 +596,10 @@ class ScipyTrustNCGV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
@@ -713,9 +722,10 @@ class ScipyTrustConstrV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
@@ -836,9 +846,10 @@ class ScipyNewtonCGV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
@@ -932,9 +943,10 @@ class ScipyTruncNCV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
@@ -1007,9 +1019,10 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
@@ -1033,6 +1046,8 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
                          maxiter=maxiter,
                          strategy=strategy, criterion=criterion, name=name)
 
+
+ScipyDoglegV1._add_derivative_methods(gradient=['zfit'], hessian=['zfit'])
 
 class ScipyPowellV1(ScipyBaseMinimizer):
     def __init__(self,
@@ -1069,9 +1084,10 @@ class ScipyPowellV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
@@ -1143,9 +1159,10 @@ class ScipySLSQPV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
@@ -1209,9 +1226,10 @@ class ScipyNelderMeadV1(ScipyBaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}

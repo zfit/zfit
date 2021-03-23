@@ -6,32 +6,6 @@ import ipyopt
 import numpy as np
 
 from ..core.parameter import set_values
-# class IPopt(ScipyBaseMinimizer):
-#
-#     def __init__(self,
-#                  tol: float = None,
-#                  # maxcor: Optional[int] = None,
-#                  # maxls: Optional[int] = None,
-#                  verbosity: Optional[int] = None,
-#                  gradient: Optional[Union[Callable, str]] = 'zfit',
-#                  maxiter: Optional[Union[int, str]] = 'auto',
-#                  criterion: Optional[ConvergenceCriterion] = None,
-#                  strategy: Optional[ZfitStrategy] = None,
-#                  name="IPopt"):
-#         options = {'linear_solver': "mumps"}
-#
-#         minimizer_options = {}
-#         if options:
-#             minimizer_options['options'] = options
-#
-#         scipy_tols = {'tol': None}
-#
-#         super().__init__(method=None, internal_tols=scipy_tols, gradient=gradient,
-#                          hessian=NOT_SUPPORTED,
-#                          minimizer_options=minimizer_options, tol=tol, verbosity=verbosity,
-#                          maxiter=maxiter,
-#                          minimize_func=ipopt.minimize_ipopt,
-#                          strategy=strategy, criterion=criterion, name=name)
 from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (BaseMinimizer, minimize_supports,
@@ -39,8 +13,6 @@ from .baseminimizer import (BaseMinimizer, minimize_supports,
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
-
-# import cyipopt
 
 
 class IpyoptV1(BaseMinimizer):
@@ -60,7 +32,7 @@ class IpyoptV1(BaseMinimizer):
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: Optional[str] = "IpyoptV1") -> None:
-        """Ipopt performs large scale nonlinear optimization of continuous systems.
+        """Ipopt is a gradient-based minimizer that performs large scale nonlinear optimization of continuous systems.
 
         This implemenation uses the `IPyOpt wrapper <https://gitlab.com/g-braeunlich/ipyopt>`_
 
@@ -90,6 +62,7 @@ class IpyoptV1(BaseMinimizer):
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             hessian: Determine which hessian matrix to use during the minimization.
               One of the following option is possible
+
               - 'bfgs': BFGS quasi-Newton update formula for the limited approximation, update with skipping
               - 'sr1': SR1 quasi-Newton update formula for the limited approximation, update (doesn't work too well)
               - 'exact': Minimizer uses internally an exact calculation of the hessian using a numerical method.
@@ -97,9 +70,15 @@ class IpyoptV1(BaseMinimizer):
                 computed inside the loss). This tends to be slow compared to the approximations and is usually
                 not necessary.
 
-            options: Additional possible options for the minimizer. All options can be seen by using the command in the shell
-                `ipopt --print_options`.
+            options: Additional possible options for the minimizer. All options can be seen by using
+            the command in the shell
+
+            .. code-block:: bash
+
+                `ipopt --print_options`
+
                 A selection of parameters is presented here:
+
                 - *alpha_red_factor*:  between 0 and 1, default 0.5
                     Fractional reduction of the trial step size in the backtracking line search.
                     At every step of the backtracking line search, the trial step size is
@@ -180,9 +159,10 @@ class IpyoptV1(BaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         minimizer_options = {}

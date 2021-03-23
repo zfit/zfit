@@ -143,6 +143,10 @@ class LossEval:
             loss_value, gradient = self.value_gradients_fn(params=self.params)
             loss_value = run(loss_value)
             gradient_values = np.array(run(gradient))
+            loss_value, gradient_values, _ = self.strategy.callback(value=loss_value,
+                                                                    gradient=gradient_values,
+                                                                    hessian=None,
+                                                                    params=self.params)
         except Exception as error:
             loss_value = "invalid, error occured"
             gradient_values = ["invalid"] * len(self.params)
@@ -152,6 +156,7 @@ class LossEval:
                 raise
 
         finally:
+
             if self.do_print:
                 try:
                     print_gradient(self.params, values, gradient=gradient_values, loss=loss_value)
@@ -170,7 +175,7 @@ class LossEval:
             }
 
             loss_value, gradient_values = self.strategy.minimize_nan(loss=self.loss, params=self.params,
-                                                                      values=info_values)
+                                                                     values=info_values)
         else:
             self.nan_counter = 0
             self.last_value = loss_value
@@ -197,6 +202,10 @@ class LossEval:
         try:
             loss_value = self.loss.value()
             loss_value = run(loss_value)
+            loss_value, _, _ = self.strategy.callback(value=loss_value,
+                                                      gradient=None,
+                                                      hessian=None,
+                                                      params=self.params)
         except Exception as error:
             loss_value = "invalid, error occured"
             if isinstance(error, tf.errors.InvalidArgumentError):
@@ -228,10 +237,10 @@ class LossEval:
         return loss_value
 
     def gradient(self, values: np.ndarray) -> np.ndarray:
-        """Calculate the gradients like :py:meth:~`ZfitLoss.gradients`.
+        """Calculate the gradient like :py:meth:~`ZfitLoss.gradient`.
 
         Args:
-            values: parameter values to calculate the value and gradients at.
+            values: parameter values to calculate the value and gradient at.
 
         Returns:
             Tuple[numpy.float64, numpy.ndarray]:
@@ -245,10 +254,14 @@ class LossEval:
         is_nan = False
 
         try:
-            gradients = self.gradients_fn(params=self.params)
-            gradients_values = np.array(run(gradients))
+            gradient = self.gradients_fn(params=self.params)
+            gradient_values = np.array(run(gradient))
+            _, gradient_values, _ = self.strategy.callback(value=None,
+                                                           gradient=gradient_values,
+                                                           hessian=None,
+                                                           params=self.params)
         except Exception as error:
-            gradients_values = ["invalid"] * len(self.params)
+            gradient_values = ["invalid"] * len(self.params)
             if isinstance(error, tf.errors.InvalidArgumentError):
                 is_nan = True
             else:
@@ -257,27 +270,27 @@ class LossEval:
         finally:
             if self.do_print:
                 try:
-                    print_gradient(self.params, values, gradient=gradients_values, loss=-999)
+                    print_gradient(self.params, values, gradient=gradient_values, loss=-999)
                 except:
                     print("Cannot print loss value or gradient values.")
 
-        is_nan = is_nan or any(np.isnan(gradients_values))
+        is_nan = is_nan or any(np.isnan(gradient_values))
         if is_nan:
             self.nan_counter += 1
             info_values = {
                 'loss': -999,
-                'grad': gradients_values,
+                'grad': gradient_values,
                 'old_loss': self.last_value,
                 'old_grad': self.last_gradient,
                 'nan_counter': self.nan_counter,
             }
 
-            _, gradients_values = self.strategy.minimize_nan(loss=self.loss, params=self.params,
-                                                             values=info_values)
+            _, gradient_values = self.strategy.minimize_nan(loss=self.loss, params=self.params,
+                                                            values=info_values)
         else:
             self.nan_counter = 0
-            self.last_gradient = gradients_values
-        return gradients_values
+            self.last_gradient = gradient_values
+        return gradient_values
 
     def hessian(self, values) -> np.ndarray:
         """Calculate the hessian like :py:meth:~`ZfitLoss.hessian`.
@@ -299,6 +312,10 @@ class LossEval:
         try:
             hessian = self.hesse_fn(params=self.params)
             hessian_values = np.array(run(hessian))
+            _, _, hessian = self.strategy.callback(value=None,
+                                                   gradient=None,
+                                                   hessian=hessian,
+                                                   params=self.params)
         except Exception as error:
             hessian_values = ["invalid"] * len(self.params)
             if isinstance(error, tf.errors.InvalidArgumentError):

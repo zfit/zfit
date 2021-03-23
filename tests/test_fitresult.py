@@ -97,7 +97,7 @@ minimizers = [
     (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
-    # (zfit.minimize.Scipy, {}, False),
+    (zfit.minimize.IpyoptV1, {}, False),
 ]
 
 

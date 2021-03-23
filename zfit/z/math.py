@@ -82,7 +82,11 @@ def numerical_value_gradient(func: Callable, params: Iterable["zfit.Parameter"])
     return func(), numerical_gradient(func, params)
 
 
-numerical_value_gradients = deprecated(None, "Use `numerical_value_gradient` instead.")(numerical_value_gradient)
+deprecated(None, "Use `numerical_value_gradient` instead.")
+
+
+def numerical_value_gradients(*args, **kwargs):
+    return numerical_value_gradients(*args, **kwargs)
 
 
 def numerical_hessian(func: Optional[Callable],
@@ -163,9 +167,9 @@ def numerical_value_gradient_hessian(func: Optional[Callable],
     return value, gradients, hessian
 
 
-numerical_value_gradients_hessian = deprecated(None,
-                                               "Use `numerical_value_gradient_hessian` instead.")(
-    numerical_value_gradient_hessian)
+@deprecated(None, "Use `numerical_value_gradient_hessian` instead.")
+def numerical_value_gradients_hessian(*args, **kwargs):
+    return numerical_value_gradient_hessian(*args, **kwargs)
 
 
 def autodiff_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.Tensor:
@@ -209,7 +213,9 @@ def autodiff_value_gradient(func: Callable, params: Iterable["zfit.Parameter"]) 
     return value, gradients
 
 
-autodiff_value_gradients = deprecated(None, "Use `autodiff_value_gradient` instead.")(autodiff_value_gradient)
+@deprecated(None, "Use `autodiff_value_gradient` instead.")
+def autodiff_value_gradients(*args, **kwargs):
+    return autodiff_value_gradient(*args, **kwargs)
 
 
 def autodiff_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessian=None) -> tf.Tensor:
@@ -277,10 +283,9 @@ def automatic_value_gradient_hessian(func: Callable = None, params: Iterable["zf
     return loss, gradients, computed_hessian
 
 
-automatic_value_gradients_hessian = deprecated(None,
-                                               "Use `automatic_value_gradient_hessian` instead.")(
-    automatic_value_gradient_hessian)
-
+@deprecated(None, "Use `automatic_value_gradient_hessian` instead.")
+def automatic_value_gradients_hessian(*args, **kwargs):
+    return automatic_value_gradient_hessian(*args, **kwargs)
 
 @tf.function(autograph=False)
 def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):

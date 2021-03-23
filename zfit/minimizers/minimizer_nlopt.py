@@ -100,9 +100,10 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-             strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+             strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
              maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -292,7 +293,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
         return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm,
                                     niter=evaluator.niter, params=params, evaluator=evaluator,
-                                    xvalues=xvalues, valid=valid, criterion=criterion,
+                                    values=xvalues, valid=valid, criterion=criterion,
                                     message=valid_message)
 
     def _set_tols_inplace(self, minimizer, internal_tol, criterion_value):
@@ -376,9 +377,10 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -460,9 +462,10 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -557,9 +560,10 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -657,9 +661,10 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -738,9 +743,10 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -820,9 +826,10 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -892,9 +899,10 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -974,9 +982,10 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1076,9 +1085,10 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1173,9 +1183,10 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1271,9 +1282,10 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1357,9 +1369,10 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
              maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-             strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+             strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
              criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative

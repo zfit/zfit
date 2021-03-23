@@ -1,6 +1,5 @@
 #  Copyright (c) 2021 zfit
 import logging
-import time
 from functools import lru_cache, wraps
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
@@ -212,6 +211,8 @@ def covariance_with_weights(method, result, params):
     data = result.loss.data
 
     Hinv_dict = method(result=result, params=params)  # inverse of the hessian matrix
+    if not Hinv_dict:
+        return {}
     Hinv = dict_to_matrix(params, Hinv_dict)
 
     def func():
@@ -241,6 +242,8 @@ def covariance_with_weights(method, result, params):
 def dict_to_matrix(params, matrix_dict):
     nparams = len(params)
     matrix = np.empty((nparams, nparams))
+    if not matrix_dict:
+        return None
 
     for i in range(nparams):
         pi = params[i]
@@ -256,6 +259,8 @@ def dict_to_matrix(params, matrix_dict):
 def matrix_to_dict(params, matrix):
     nparams = len(params)
     matrix_dict = {}
+    if matrix is None:
+        return matrix_dict
 
     for i in range(nparams):
         pi = params[i]

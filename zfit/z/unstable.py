@@ -9,6 +9,10 @@ def is_tensor(x):
     return tf.is_tensor(x)
 
 
+def has_tensor(x):
+    return any(tf.is_tensor(t) for t in tf.nest.flatten(x))
+
+
 def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
     """Tests if x and y are close by first testing equality (with numpy), then within the limits.
 
@@ -23,7 +27,7 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
 
     Returns:
     """
-    if not SWITCH_ON or is_tensor(x) or is_tensor(y):
+    if not SWITCH_ON or has_tensor([x, y]):
         return tf.reduce_all(tf.less_equal(tf.abs(x - y), tf.abs(y) * rtol + atol))
     else:
         x = np.array(x)
@@ -51,14 +55,14 @@ def broadcast_to(input, shape):
 
 
 def expand_dims(input, axis):
-    if not SWITCH_ON or is_tensor(input):
+    if not SWITCH_ON or has_tensor(input):
         return tf.expand_dims(input, axis)
     else:
         return np.expand_dims(input, axis)
 
 
 def reduce_prod(input_tensor, axis=None, keepdims=None):
-    if not SWITCH_ON or is_tensor(input_tensor):
+    if not SWITCH_ON or has_tensor(input_tensor):
         return tf.reduce_prod(input_tensor, axis, keepdims=keepdims)
     else:
         if keepdims is None:
@@ -75,56 +79,56 @@ def equal(x, y):
 
 
 def reduce_all(input_tensor, axis=None):
-    if not SWITCH_ON or is_tensor(input_tensor):
+    if not SWITCH_ON or has_tensor(input_tensor):
         return tf.reduce_all(input_tensor, axis)
     else:
         return np.all(input_tensor, axis)
 
 
 def reduce_any(input_tensor, axis=None):
-    if not SWITCH_ON or is_tensor(input_tensor):
+    if not SWITCH_ON or has_tensor(input_tensor):
         return tf.reduce_any(input_tensor, axis)
     else:
         return np.any(input_tensor, axis)
 
 
 def logical_and(x, y):
-    if not SWITCH_ON or is_tensor(x) or is_tensor(y):
+    if not SWITCH_ON or has_tensor(x) or has_tensor(y):
         return tf.logical_and(x, y)
     else:
         return np.logical_and(x, y)
 
 
 def logical_or(x, y):
-    if not SWITCH_ON or is_tensor(x) or is_tensor(y):
+    if not SWITCH_ON or has_tensor(x) or has_tensor(y):
         return tf.logical_or(x, y)
     else:
         return np.logical_or(x, y)
 
 
 def less_equal(x, y):
-    if not SWITCH_ON or is_tensor(x) or is_tensor(y):
+    if not SWITCH_ON or has_tensor(x) or has_tensor(y):
         return tf.less_equal(x, y)
     else:
         return np.less_equal(x, y)
 
 
 def greater_equal(x, y):
-    if not SWITCH_ON or is_tensor(x) or is_tensor(y):
+    if not SWITCH_ON or has_tensor(x) or has_tensor(y):
         return tf.greater_equal(x, y)
     else:
         return np.greater_equal(x, y)
 
 
 def gather(x, indices=None, axis=None):
-    if not SWITCH_ON or is_tensor(x):
+    if not SWITCH_ON or has_tensor(x):
         return tf.gather(x, indices=indices, axis=axis)
     else:
         return np.take(x, indices=indices, axis=axis)
 
 
 def concat(values, axis, name=None):
-    if not SWITCH_ON or is_tensor(values) or any(is_tensor(value) for value in values):
+    if not SWITCH_ON or has_tensor(values):
         return tf.concat(values=values, axis=axis, name=name)
     else:
         return np.concatenate(values, axis=axis)

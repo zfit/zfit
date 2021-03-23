@@ -43,14 +43,15 @@ class Minuit(BaseMinimizer, GraphCachable):
                  ncall=None,
                  minimizer_options=None,
                  ):
-        """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in `iminuit.
-
-        <https://iminuit.readthedocs.io/en/stable/>`_.
+        """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in iminuit_.
 
         The package iminuit is the fast, interactive minimizer based on the Minuit2 C++ library; the latter is
         maintained by CERN’s ROOT team. It is an especially robust minimizer that finds the global minimum
         quiet reliably. It is however, like all local minimizers, still rather dependent on close enough
         initial values.
+
+        .. iminuit: https://iminuit.readthedocs.io/en/stable/.
+
 
         Args:
             tol:  |@doc:minimizer.tol| Termination value for the
@@ -91,9 +92,10 @@ class Minuit(BaseMinimizer, GraphCachable):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
 
 

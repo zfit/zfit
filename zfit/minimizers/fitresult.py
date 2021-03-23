@@ -915,7 +915,8 @@ class FitResult(ZfitResult):
               method: Union[str, Callable] = None,
               cl: Optional[float] = None,
               name: Optional[Union[str, bool]] = None,
-              error_name: Optional[str] = None) -> Dict[ZfitIndependentParameter, Dict]:
+              error_name: Optional[str] = None
+              ) -> Dict[ZfitIndependentParameter, Dict]:
         """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
         Args:
@@ -963,6 +964,8 @@ class FitResult(ZfitResult):
             uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
             if uncached_params:
                 error_dict = self._hesse(params=uncached_params, method=method, cl=cl)
+                if any(val['error'] is None for val in error_dict.values()):
+                    return {}
                 for p in error_dict:
                     error_dict[p]['cl'] = cl
                 if name:

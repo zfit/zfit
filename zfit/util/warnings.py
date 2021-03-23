@@ -57,7 +57,8 @@ warned_changed = set()
 def warn_changed_feature(message, identifier):
     from .. import settings
 
-    if settings.changed_warnings[identifier] and settings.changed_warnings.all and identifier not in warned_changed:
+    if settings.changed_warnings.get(identifier, True) \
+        and settings.changed_warnings.all and identifier not in warned_changed:
         warned_changed.add(identifier)
         warnings.warn(
             f"The behavior of this functionality recently changed."

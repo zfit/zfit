@@ -24,6 +24,7 @@ from ..util.exception import (InitNotImplemented, MaximumIterationReached,
                               MinimizerSubclassingError,
                               MinimizeStepNotImplementedError,
                               ParameterNotIndependentError)
+from ..util.warnings import warn_changed_feature
 from .evaluation import LossEval
 from .fitresult import FitResult
 from .interface import ZfitMinimizer, ZfitResult
@@ -164,9 +165,10 @@ class BaseMinimizer(ZfitMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| Determines the behavior of the minimizer in
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
-                   NaNs in which case |@docend:minimizer.strategy|
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             minimizer_options: Additional minimizer options
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -182,10 +184,19 @@ class BaseMinimizer(ZfitMinimizer):
         self.criterion = self._DEFAULTS['criterion'] if criterion is None else criterion
 
         if strategy is None:
-            strategy = self._DEFAULTS['strategy']()
-        if not isinstance(strategy, ZfitStrategy):
-            raise TypeError(f"strategy {strategy} is not an instance of ZfitStrategy.")
-        self.strategy = strategy
+            strategy = self._DEFAULTS['strategy']
+        try:
+            do_error = not issubclass(strategy, ZfitStrategy)
+        except TypeError:  # legacy
+            warn_changed_feature(message="A strategy should now be a class, not an instance. The minimizer will"
+                                         " at the beginning of the minimization create an instance that can be"
+                                         " stateful during the minimization and will be stored in the FitResult.",
+                                 identifier="strategies_in_minimizers.")
+            do_error = not isinstance(strategy, ZfitStrategy)
+        if do_error:
+            raise TypeError(f"strategy {strategy} is not a subclass of ZfitStrategy.")
+
+        self._strategy = strategy
         self._state = None
         self.maxiter = self._DEFAULTS['maxiter'] if maxiter is None else maxiter
         self.name = repr(self.__class__)[:-2].split(".")[-1] if name is None else name
@@ -352,18 +363,19 @@ class BaseMinimizer(ZfitMinimizer):
                 the parameters, the approximation of the covariance and more. Which information is used can depend on
                 the specific minimizer implementation.
 
-                In general, the assumption is that _the loss provided is similar enough_ to the one provided in `init`.
+                In general, the assumption is that *the loss provided is similar enough* to the one provided in `init`.
 
                 What is assumed to be close:
+
                 - the parameters at the minimum of *loss* will be close to the parameter values at the minimum of
                   *init*.
                 - Covariance matrix, or in general the shape, of *init* to the *loss* at its minimum.
 
                 What is explicitly _not_ assumed to be the same:
+
                 - absolute value of the loss function. If *init* has a function value at minimum x of fmin,
                   it is not assumed that `loss` will have the same/similar value at x.
                 - parameters that are used in the minimization may differ in order or which are fixed.
-
 
         Returns:
             The fit result containing all information about the minimization.
@@ -416,7 +428,9 @@ class BaseMinimizer(ZfitMinimizer):
             result = self._call_minimize(loss=loss, params=params)
         except (FailMinimizeNaN, RuntimeError):  # iminuit raises RuntimeError if user raises Error
             do_recovery = True
-            prelim_result = self.strategy.fit_result
+            strategy = self._state.get('strategy')
+            if strategy is not None:
+                prelim_result = strategy.fit_result
             if prelim_result is not None:
 
                 result = prelim_result
@@ -488,7 +502,7 @@ class BaseMinimizer(ZfitMinimizer):
     def create_evaluator(self,
                          loss: Optional[ZfitLoss] = None,
                          params: Optional[ztyping.ParametersType] = None,
-                         ) -> LossEval:
+                         strategy: Optional[ZfitStrategy] = None) -> LossEval:
         """Make a loss evaluator using the strategy and more from the minimizer.
 
         Convenience factory for the loss evaluator.
@@ -499,9 +513,10 @@ class BaseMinimizer(ZfitMinimizer):
             loss: Loss to be wrapped. Can be None if called inside `_minimize`
             params: Parameters that will be associated with the loss in this order. Can be None if called within
                 `_minimize`.
+            strategy: Instance of a Strategy that will be used during the evaluation.
 
         Returns:
-            LossEval: The evaluator that wraps the Loss
+            LossEval: The evaluator that wraps the Loss ant Strategy with the current parameters.
         """
         if loss is None:
             if self._is_stateful:
@@ -514,10 +529,20 @@ class BaseMinimizer(ZfitMinimizer):
                 params = self._state['params']
             else:
                 raise ValueError(f'params cannot be None if not called within minimize')
+        if strategy is None:
+            try:
+                strategy = self._strategy()
+                if not isinstance(strategy, ZfitStrategy):
+                    raise TypeError
+            except TypeError:  # cannot be called -> is not a class LEGACY
 
+                strategy = self._strategy
+
+        if self._is_stateful:
+            self._state['strategy'] = strategy
         evaluator = LossEval(loss=loss,
                              params=params,
-                             strategy=self.strategy,
+                             strategy=strategy,
                              do_print=self.verbosity > 8,
                              maxiter=self.get_maxiter(len(params)))
         if self._is_stateful:

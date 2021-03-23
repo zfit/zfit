@@ -19,9 +19,10 @@ minimizer.criterion: |1+
                     stopps and it is assumed that the minimum
                     has been found.
 minimizer.strategy: |1+
-    Determines the behavior of the minimizer in
+    A class of type `ZfitStrategy` that takes no
+                    input arguments in the init. Determines the behavior of the minimizer in
                     certain situations, most notably when encountering
-                    NaNs in which case
+                    NaNs. It can also implement a callback function.
 minimizer.maxiter: |1+
     Approximate number of iterations.
                     This corresponds to roughly the maximum number of
