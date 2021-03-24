@@ -126,7 +126,7 @@ napoleon_use_rtype = True
 # -- sphinx_autodoc_typehints settings ---------------------------------------------
 
 # if True, set typing.TYPE_CHECKING to True to enable “expensive” typing imports
-set_type_checking_flag = False
+set_type_checking_flag = True
 # if True, class names are always fully qualified (e.g. module.for.Class). If False, just the class
 # name displays (e.g. Class)
 typehints_fully_qualified = False
@@ -255,8 +255,14 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'numdifftools': ('https://numdifftools.readthedocs.io/en/latest/index.html', None),
-    'tensorflow': ('https://www.tensorflow.org/api_docs/python/', None),
-    'tensorflow-probability': ('https://www.tensorflow.org/probability/api_docs/python/tfp', None),
+    # 'numdifftools': ('https://numdifftools.readthedocs.io/en/latest/index.html', None),
+    "tensorflow": (
+        "https://www.tensorflow.org/api_docs/python",
+        "https://github.com/GPflow/tensorflow-intersphinx/raw/master/tf2_py_objects.inv"
+    ),
+    "tensorflow_probability": (
+        "https://www.tensorflow.org/probability/api_docs/python",
+        "https://github.com/GPflow/tensorflow-intersphinx/raw/master/tfp_py_objects.inv"
+    ),
     'uproot': ('https://uproot.readthedocs.io/en/latest/', None),
 }

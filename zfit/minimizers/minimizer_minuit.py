@@ -43,14 +43,14 @@ class Minuit(BaseMinimizer, GraphCachable):
                  ncall=None,
                  minimizer_options=None,
                  ):
-        """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in iminuit_.
+        """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in `iminuit`_.
 
         The package iminuit is the fast, interactive minimizer based on the Minuit2 C++ library; the latter is
         maintained by CERN’s ROOT team. It is an especially robust minimizer that finds the global minimum
         quiet reliably. It is however, like all local minimizers, still rather dependent on close enough
         initial values.
 
-        .. iminuit: https://iminuit.readthedocs.io/en/stable/.
+        .. _iminuit: https://iminuit.readthedocs.io/en/stable/.
 
 
         Args:
@@ -79,7 +79,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                 output with a value of 10 printing every
                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity| This
                 also changes the iminuit internal verbosity at around 7.
-            options: Additional options that will be directly passsed into :meth:~``iminuitMinuit.migrad``
+            options: Additional options that will be directly passsed into :meth:`~iminuitMinuit.migrad`
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|

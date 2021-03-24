@@ -121,7 +121,7 @@ class LossEval:
         self._check_maxiter()
 
     def value_gradient(self, values: np.ndarray) -> Tuple[np.float64, np.ndarray]:
-        """Calculate the value and gradient like :py:meth:~`ZfitLoss.value_gradients`.
+        """Calculate the value and gradient like :py:meth:`~ZfitLoss.value_gradients`.
 
         Args:
             values: parameter values to calculate the value and gradient at.
@@ -183,7 +183,7 @@ class LossEval:
         return loss_value, gradient_values
 
     def value(self, values: np.ndarray) -> np.float64:
-        """Calculate the value like :py:meth:~`ZfitLoss.value`.
+        """Calculate the value like :py:meth:`~ZfitLoss.value`.
 
         Args:
             values: parameter values to calculate the value at.
@@ -237,7 +237,7 @@ class LossEval:
         return loss_value
 
     def gradient(self, values: np.ndarray) -> np.ndarray:
-        """Calculate the gradient like :py:meth:~`ZfitLoss.gradient`.
+        """Calculate the gradient like :py:meth:`~ZfitLoss.gradient`.
 
         Args:
             values: parameter values to calculate the value and gradient at.
@@ -293,7 +293,7 @@ class LossEval:
         return gradient_values
 
     def hessian(self, values) -> np.ndarray:
-        """Calculate the hessian like :py:meth:~`ZfitLoss.hessian`.
+        """Calculate the hessian like :py:meth:`~ZfitLoss.hessian`.
 
         Args:
             values: parameter values to calculate the hessian at.

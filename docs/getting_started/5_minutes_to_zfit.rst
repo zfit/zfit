@@ -12,7 +12,7 @@ The first step is to naturally import ``zfit`` and verify if the installation ha
     >>> import zfit
 
 
-Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an *observable space*. This can be created using the :py:class:``~zfit.Space`` class
+Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an *observable space*. This can be created using the :py:class:`~zfit.Space` class
 
 .. code-block:: pycon
 
@@ -21,8 +21,8 @@ Since we want to generate/fit a Gaussian within a given range, the domain of the
 The best interpretation of the observable at this stage is that it defines the name and range of the observable axis.
 
 Using this domain, we can now create a simple Gaussian PDF.
-The most common PDFs are already pre-defined within the :py:mod:``~zfit.pdf`` module, including a simple Gaussian.
-First, we have to define the parameters of the PDF and their limits using the :py:class:``~zfit.Parameter`` class:
+The most common PDFs are already pre-defined within the :py:mod:`~zfit.pdf` module, including a simple Gaussian.
+First, we have to define the parameters of the PDF and their limits using the :py:class:`~zfit.Parameter` class:
 
 .. code-block:: pycon
 
@@ -38,7 +38,7 @@ With these parameters we can instantiate the Gaussian PDF from the library
 It is recommended to pass the arguments of the PDF as keyword arguments.
 
 The next stage is to create a dataset to be fitted. There are several ways of producing this within the
-zfit framework (see the :ref:``Data <data-section>`` section). In this case, for simplicity we simply produce it using numpy and the :func:``Data.from_numpy <zfit.Data.from_numpy>`` method:
+zfit framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we simply produce it using numpy and the :func:`Data.from_numpy <zfit.Data.from_numpy>` method:
 
 .. code-block:: pycon
 
@@ -48,7 +48,7 @@ zfit framework (see the :ref:``Data <data-section>`` section). In this case, for
 Now we have all the ingredients in order to perform a maximum likelihood fit.
 Conceptually this corresponds to three basic steps:
 
-1. create a loss function, in our case a negative log-likelihood :math:``\log\mathcal{L}``;
+1. create a loss function, in our case a negative log-likelihood :math:`\log\mathcal{L}`;
 2. instantiate our choice of minimiser;
 3. and minimise the log-likelihood.
 
@@ -74,7 +74,7 @@ It is important to highlight that conceptually zfit separates the minimisation o
 function with respect to the error calculation, in order to give the freedom of calculating this
 error whenever needed and to allow the use of external error calculation packages.
 Most minimisers will implement their CPU-intensive error calculating with the ``error`` method.
-As an example, with the :py:class:``~zfit.minimize.Minuit`` one can calculate the ``MINOS`` with:
+As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the `MINOS`` with:
 
 .. code-block:: pycon
 
@@ -86,7 +86,7 @@ As an example, with the :py:class:``~zfit.minimize.Minuit`` one can calculate th
 
 
 Once we've performed the fit and obtained the corresponding uncertainties, it is now important to examine the fit results.
-The object ``result`` (:py:class:``~zfit.minimizers.fitresult.FitResult``) has all the relevant information we need:
+The object ``result`` (:py:class:`~zfit.minimizers.fitresult.FitResult`) has all the relevant information we need:
 
 .. code-block:: pycon
 
@@ -110,7 +110,8 @@ Similarly one can obtain information on the fitted parameters with
     >>> print("mu={}".format(params[mu]['value']))
     mu=0.012464509810750313
 
-As already mentioned, there is no dedicated plotting feature within zfit. However, we can easily use external libraries, such as ``matplotlib``, to do the job:
+As already mentioned, there is no dedicated plotting feature within zfit. However, we can easily use external
+libraries, such as ``matplotlib``, to do the job:
 
 .. code-block:: pycon
 
@@ -131,42 +132,6 @@ As already mentioned, there is no dedicated plotting feature within zfit. Howeve
 
 .. image:: ../images/Gaussian.png
 
-The plotting example above presents a distinctive feature that had not been shown in the previous exercises: the specific call to ``zfit.run``, a specialised wrapper around ``tf.Session().run``.
-While actions like ``minimize`` or ``sample`` return Python objects (including numpy arrays or scalars), functions like ``pdf`` or ``integrate`` return TensorFlow graphs, which are lazy-evaluated.
-To obtain the value of these PDFs, we need to execute the graph by using ``zfit.run``.
-
-
-What did just happen?
----------------------
-
-The core idea of TensorFlow is to use dataflow *graphs*, in which *sessions* run part of the graphs that are required. Since zfit has TensorFlow at its core, it also preserves this feature, but wrapper functions are used to hide the graph generation and graph running two-stage procedure in the case of high-level functions such as ``minimize``. However, it is worth noting that most of the internal objects that are built by zfit are intrinsically graphs that are executed by running the session:
-
-.. code-block:: pycon
-
-    zfit.run(TensorFlow_object)
-
-One example is the Gauss PDF that has been shown above. The object ``gauss`` contains all the functions you would expect from a PDF, such as calculating a probability, calculating its integral, etc. As an example, let's calculate the probability for given values
-
-.. code-block:: pycon
-
-    >>> from zfit import z
-    >>> consts = [-1, 0, 1]
-    >>> probs = gauss.pdf(consts,norm_range=(-np.infty, np.infty))
-
-    >>> # And now execute the tensorflow graph
-    >>> result = zfit.run(probs)
-    >>> print("x values: {}\nresult:   {}".format(consts, result))
-    x values: [-1, 0, 1]
-    result:   [0.24262615 0.39670691 0.24130008]
-
-Integrating a given PDF for a given normalisation range also returns a graph, so it needs to be run using ``zfit.run``:
-
-.. code-block:: pycon
-
-    >>> with gauss.set_norm_range((-1e6, 1e6)):
-    ...    print(zfit.run(gauss.integrate((-0.6, 0.6))))
-    ...    print(zfit.run(gauss.integrate((-3, 3))))
-    ...    print(zfit.run(gauss.integrate((-100, 100))))
-    0.4492509559828224
-    0.9971473939649167
-    1.0
+The plotting example above presents a distinctive feature that had not been shown in the previous exercises:
+the specific call to :func:`zfit.run`, which simply converts the Tensor (that is already array-like) to a Numpy array.
+Often, this conversion is however not necessary and a Tensor can directly be used

@@ -80,10 +80,10 @@ minimizer.scipy.hessian: |1+
                       loss hessian (usually using automatic differentiation)
                       will be used;
                       the minimizer won't use an internal algorithm.
-                    - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                    - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
                       an approximation of the hessian. For example
-                      :class:~`scipy.optimize.BFGS` (which performs usually best)
-                      or :class:~`scipy.optimize.SR1`
+                      :class:`~scipy.optimize.BFGS` (which performs usually best)
+                      or :class:`~scipy.optimize.SR1`
                       (sometimes unstable updates).
                     - ``True``  (or ``None``; default) tells the minimizer
                       to use its default internal

@@ -10,7 +10,7 @@ zfit moved from TensorFlow 1.x to 2.x. The main difference is that in 1.x, you w
 a graph all the time and execute it when needed. In TF 2.x, this has gone and happens implicitly
 if a function is decorated with the right decorator. But it is also possible to build no graph at all
 and execute the code _eagerly_, just as Numpy would. So writing just TF 2.x code is "no different", if not wrapped
-by a :py:func:``tf.function``, than executing Numpy code.
+by a :py:func:`tf.function`, than executing Numpy code.
 
 In short: write TF 2.x as if you would write Numpy. If something is supposed to _change_, it has to be
 newly generated each time, e.g. be a function that can be called.
@@ -26,7 +26,7 @@ this implies that zfit does not rely on the graph structure anymore.
 Therefore, dependencies have to be given manually (although in the future, certain automatitions
 can surely be added).
 
-Affected from this is the :py:class:``~zfit.ComposedParameter``. Instead of giving a Tensor,
+Affected from this is the :py:class:`~zfit.ComposedParameter`. Instead of giving a Tensor,
 a function returning a value has to be given _and_ the dependents have to be specified
 explicitly.
 
@@ -41,4 +41,4 @@ explicitly.
 
 
 
-The same is true for the :py:class:``~zfit.loss.SimpleLoss``
+The same is true for the :py:class:`~zfit.loss.SimpleLoss`

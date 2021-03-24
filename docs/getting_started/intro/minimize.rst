@@ -11,7 +11,7 @@ zfit minimizers are stateless and have two main components:
   minimizer takes. This instance will be stateless and anything (inherently) stateful, such as the convergence
   criterion, are created newly during each minimization process.
   In this sense, a zfit minimizer is a way of "storing a configuration".
-- the actual minimization which is done through the :meth:~`zfit.minimize.BaseMinimizer.minimize` method, which
+- the actual minimization which is done through the :meth:`~zfit.minimize.BaseMinimizer.minimize` method, which
   takes a loss (or a callable), optionally the parameters and optionally a previous result to start from. This method
   looks exactly the same for all algorithms.
 
@@ -23,9 +23,9 @@ argument needed to configure the particular algorithm **may** be given.
 Minimization
 -------------------
 
-There are multiple minimizers currently included in the package: :class:~`zfit.minimize.IpyoptV1`,
-:class:~`zfit.minimize.Minuit`, the SciPy optimizers (such as :class:~`zfit.minimize.ScipyLBFGSBV1`...) and the
-NLopt library (such as :class:~`zfit.minimize.NLoptLBFGSV1`). Also TensorFlow minimizers are included, however due
+There are multiple minimizers currently included in the package: :class:`~zfit.minimize.IpyoptV1`,
+:class:`~zfit.minimize.Minuit`, the SciPy optimizers (such as :class:`~zfit.minimize.ScipyLBFGSBV1`) and the
+NLopt library (such as :class:`~zfit.minimize.NLoptLBFGSV1`). Also TensorFlow minimizers are included, however due
 to the different nature of problem that they usually intend to solve, their performance is often inferior.
 
 .. code-block:: pycon
@@ -58,7 +58,7 @@ The choice of which parameters of your model should be floating in the fit can a
 **Only** the parameters given in ``params`` are floated in the optimisation process.
 If this argument is not provided or ``params=None``, all the floating parameters in the loss function are floated in the minimization process.
 
-The result of the fit is return as a :py:class:``~zfit.minimizers.fitresult.FitResult`` object,
+The result of the fit is return as a :py:class:`~zfit.minimizers.fitresult.FitResult` object,
 which provides access the minimiser state.
 zfit separates the minimisation of the loss function with respect to the error calculation
 in order to give the freedom of calculating this error whenever needed.
@@ -86,7 +86,8 @@ The ``result`` object contains all the information about the minimization result
     >>> print("mu={}".format(params[mu]['value']))
     mu=0.012464509810750313
 
-More on the result and how to get an estimate of the uncertainty is described in the :ref:`nexi section <result-section>`
+More on the result and how to get an estimate of the uncertainty is described in
+the :ref:`nexi section <result-section>`.
 
 
 Creating your own minimizer

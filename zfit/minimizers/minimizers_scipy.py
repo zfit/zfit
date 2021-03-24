@@ -41,13 +41,13 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         """Base minimizer wrapping the SciPy librarys optimize module.
 
         To implemend a subclass, inherit from this class and:
-        - override ``_minimize`` (which has the same signature as :meth:~`BaseMinimizer.minimize`.
+        - override ``_minimize`` (which has the same signature as :meth:`~BaseMinimizer.minimize`.
           and decorate it with ``minimize_supports``.
         - (optional) add the allowed methods for gradients and hessian with Class._add_derivative_methods(...)
 
 
         Args:
-            method: Name of the method as given to :func:~`scipy.optimize.minimize`
+            method: Name of the method as given to :func:`~scipy.optimize.minimize`
             tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
@@ -436,10 +436,10 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                      loss hessian (usually using automatic differentiation)
                      will be used;
                      the minimizer won't use an internal algorithm.
-                   - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                   - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
                      an approximation of the hessian. For example
-                     :class:~`scipy.optimize.BFGS` (which performs usually best)
-                     or :class:~`scipy.optimize.SR1`
+                     :class:`~scipy.optimize.BFGS` (which performs usually best)
+                     or :class:`~scipy.optimize.SR1`
                      (sometimes unstable updates).
                    - ``True``  (or ``None``; default) tells the minimizer
                      to use its default internal
@@ -567,10 +567,10 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                      loss hessian (usually using automatic differentiation)
                      will be used;
                      the minimizer won't use an internal algorithm.
-                   - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                   - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
                      an approximation of the hessian. For example
-                     :class:~`scipy.optimize.BFGS` (which performs usually best)
-                     or :class:~`scipy.optimize.SR1`
+                     :class:`~scipy.optimize.BFGS` (which performs usually best)
+                     or :class:`~scipy.optimize.SR1`
                      (sometimes unstable updates).
                    - ``True``  (or ``None``; default) tells the minimizer
                      to use its default internal
@@ -693,10 +693,10 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                      loss hessian (usually using automatic differentiation)
                      will be used;
                      the minimizer won't use an internal algorithm.
-                   - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                   - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
                      an approximation of the hessian. For example
-                     :class:~`scipy.optimize.BFGS` (which performs usually best)
-                     or :class:~`scipy.optimize.SR1`
+                     :class:`~scipy.optimize.BFGS` (which performs usually best)
+                     or :class:`~scipy.optimize.SR1`
                      (sometimes unstable updates).
                    - ``True``  (or ``None``; default) tells the minimizer
                      to use its default internal
@@ -817,10 +817,10 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                      loss hessian (usually using automatic differentiation)
                      will be used;
                      the minimizer won't use an internal algorithm.
-                   - A :class:~`scipy.optimize.HessianUpdateStrategy` that holds
+                   - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
                      an approximation of the hessian. For example
-                     :class:~`scipy.optimize.BFGS` (which performs usually best)
-                     or :class:~`scipy.optimize.SR1`
+                     :class:`~scipy.optimize.BFGS` (which performs usually best)
+                     or :class:`~scipy.optimize.SR1`
                      (sometimes unstable updates).
                    - ``True``  (or ``None``; default) tells the minimizer
                      to use its default internal

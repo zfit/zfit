@@ -14,6 +14,9 @@ repos:
           - id: requirements-txt-fixer
           - id: trailing-whitespace
           - id: detect-private-key
+          #          - id: name-tests-test
+          - id: fix-byte-order-marker
+          - id: check-ast
     - repo: local
       hooks:
           - id: doc arg replacer
@@ -59,7 +62,7 @@ repos:
           - id: python-use-type-annotations
           - id: python-check-mock-methods
           - id: python-no-eval
-          - id: rst-backticks
+          #          - id: rst-backticks
           - id: rst-directive-colons
 
     #    - repo: https://github.com/pycqa/pydocstyle

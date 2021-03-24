@@ -799,7 +799,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 been created with when it resamples.
 
         Returns:
-            :py:class:~`zfit.core.data.Sampler`
+            :py:class:`~zfit.core.data.Sampler`
 
         Raises:
             NotExtendedPDFError: if 'extended' is chosen (implicitly by default or explicitly) as an

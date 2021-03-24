@@ -507,8 +507,8 @@ class FitResult(ZfitResult):
                     status: Optional[int] = None,
                     criterion: Optional['zfit.minimizers.termination.ConvergenceCriterion'] = None,
                     evaluator: Optional['zfit.minimizers.evaluation.LossEval'] = None) -> 'FitResult':
-        """Create a `FitResult` from a :py:class:~`iminuit.util.MigradResult` returned by
-        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:~`iminuit.Minuit` instance with the corresponding
+        """Create a `FitResult` from a :py:class:`~iminuit.util.MigradResult` returned by
+        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:`~iminuit.Minuit` instance with the corresponding
         zfit objects.
 
         Args:
@@ -607,7 +607,7 @@ class FitResult(ZfitResult):
                    edm: Optional[float] = None,
                    niter: Optional[int] = None,
                    evaluator: Optional['zfit.minimize.LossEval'] = None) -> 'FitResult':
-        """Create a ``FitResult from a SciPy ``~scipy.optimize.OptimizeResult``.
+        """Create a ``FitResult from a SciPy `~scipy.optimize.OptimizeResult`.
 
         Args:
             loss: |@doc:result.init.loss| The loss function that was minimized.
@@ -652,7 +652,7 @@ class FitResult(ZfitResult):
                    etc which can serve as approximations. |@docend:result.init.evaluator|
 
         Returns:
-            ``zfit.minimize.FitResult``:
+            `zfit.minimize.FitResult`:
         """
         result_values = result['x']
         if niter is None:

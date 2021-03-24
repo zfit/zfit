@@ -335,7 +335,7 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
         This is most probably the most popular algorithm for gradient based local minimum searches and also
         the underlying algorithm in the
         `Minuit <https://www.sciencedirect.com/science/article/abs/pii/0010465575900399>`_ minimizer that is
-        also available as :class:~``zfit.minimize.Minuit``.
+        also available as :class:`~zfit.minimize.Minuit`.
 
 
         This algorithm is based on a Fortran implementation of the low-storage BFGS algorithm
