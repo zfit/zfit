@@ -4,7 +4,7 @@ Minimize
 This module contains everything related to minimization in zfit.
 
 Minimizers
-#########
+##########
 
 Click on the link to see the list of of minimizers.
 
