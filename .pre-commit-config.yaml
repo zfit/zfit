@@ -32,10 +32,10 @@ repos:
       - id: docformatter
         args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
 
-  #    - repo: https://github.com/lorman/pre-commit-rstcheck
-  #    rev: 3.3.1
+  #  - repo: https://github.com/lorman/pre-commit-rstcheck
+  #    rev: 0decfca3d2b4f8354e84739d7e5c47a4401984d4
   #    hooks:
-  #        - id: rstcheck
+  #      - id: rstcheck
 
 
   - repo: https://github.com/mattlqx/pre-commit-sign
@@ -57,12 +57,12 @@ repos:
   #          - id: pydocstyle
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.7.0
+    rev: 5.8.0
     hooks:
       - id: isort
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.10.1
+    rev: v2.11.0
     hooks:
       - id: pyupgrade
         args: [ --py36-plus ]
