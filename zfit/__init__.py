@@ -18,7 +18,7 @@ __credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>",
                "Albert Puig <apuignav@gmail.com",
                "Rafael Silva Coutinho <rafael.silva.coutinho@cern.ch>", ]
 
-__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension", "exception",
+__all__ = ["z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension", "exception",
            "sample",
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
