@@ -89,6 +89,7 @@ with open('subst_types.txt') as subst_types:
 rst_epilog += f"""
 .. |wzw| unicode:: U+200B
    :trim:
+
 """
 # ..  replace:: |wzw|
 #

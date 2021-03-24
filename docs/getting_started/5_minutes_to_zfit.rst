@@ -37,14 +37,16 @@ With these parameters we can instantiate the Gaussian PDF from the library
 
 It is recommended to pass the arguments of the PDF as keyword arguments.
 
-The next stage is to create a dataset to be fitted. There are several ways of producing this within the zfit framework (see the :ref:``Data <data-section>`` section). In this case, for simplicity we simply produce it using numpy and the :func:``Data.from_numpy <zfit.Data.from_numpy>`` method:
+The next stage is to create a dataset to be fitted. There are several ways of producing this within the
+zfit framework (see the :ref:``Data <data-section>`` section). In this case, for simplicity we simply produce it using numpy and the :func:``Data.from_numpy <zfit.Data.from_numpy>`` method:
 
 .. code-block:: pycon
 
     >>> data_np = np.random.normal(0, 1, size=10000)
     >>> data = zfit.Data.from_numpy(obs=obs, array=data_np)
 
-Now we have all the ingredients in order to perform a maximum likelihood fit. Conceptually this corresponds to three basic steps:
+Now we have all the ingredients in order to perform a maximum likelihood fit.
+Conceptually this corresponds to three basic steps:
 
 1. create a loss function, in our case a negative log-likelihood :math:``\log\mathcal{L}``;
 2. instantiate our choice of minimiser;
@@ -68,7 +70,9 @@ This corresponds to the most basic example where the negative likelihood is defi
     >>> # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
     >>> result = minimizer.minimize(nll, params=[mu])
 
-It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
+It is important to highlight that conceptually zfit separates the minimisation of the loss
+function with respect to the error calculation, in order to give the freedom of calculating this
+error whenever needed and to allow the use of external error calculation packages.
 Most minimisers will implement their CPU-intensive error calculating with the ``error`` method.
 As an example, with the :py:class:``~zfit.minimize.Minuit`` one can calculate the ``MINOS`` with:
 

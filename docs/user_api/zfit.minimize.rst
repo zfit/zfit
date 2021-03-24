@@ -14,12 +14,20 @@ Click on the link to see the list of of minimizers.
     minimize/minimizers
 
 
-Other Classes
+Strategy
 #############
 
-.. autosummary::
-    :toctree: _generated/minimize
+.. toctree::
+    :maxdepth: 1
 
-    zfit.minimize.WrapOptimizer
-    zfit.minimize.DefaultStrategy
-    zfit.minimize.FitResult
+    minimize/strategy
+
+
+
+Strategy
+#############
+
+.. toctree::
+    :maxdepth: 1
+
+    minimize/criterion
