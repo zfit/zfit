@@ -182,6 +182,7 @@ minimizers = [
 # minimizers = [(zfit.minimize.NLoptBOBYQAV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.NLoptShiftVarV1, {'verbosity': 7, 'rank': 2}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
+# minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
 
 
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))

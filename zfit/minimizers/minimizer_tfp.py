@@ -32,7 +32,7 @@ class BFGS(BaseMinimizer):
         self.options = {} if options is None else options
         self.max_calls = max_calls
         super().__init__(strategy=strategy, tol=tol, verbosity=verbosity, name=name,
-                         minimizer_options={})
+                         minimizer_options={}, criterion=None, maxiter=None)
 
     @minimize_supports()
     def _minimize(self, loss, params):

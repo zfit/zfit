@@ -114,11 +114,12 @@ minimizer.nlopt.population: |1+
     The population size for the evolutionary algorithm.
 
 minimizer.nlopt.info: |1+
-    This implenemtation is based on the
-         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-         More information on the algorithm can be found
-         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-         `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+    More information on the algorithm can be found
+         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+         This implenemtation uses internally the
+         `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+         It is a
          free/open-source library for nonlinear optimization,
          providing a common interface for a number of
          different free optimization routines available online as well as

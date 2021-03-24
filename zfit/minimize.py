@@ -2,23 +2,24 @@
 
 
 from .minimizers.baseminimizer import DefaultStrategy
-from .minimizers.fitresult import FitResult
 from .minimizers.ipopt import IpyoptV1
 from .minimizers.minimizer_minuit import Minuit
-from .minimizers.minimizer_nlopt import (NLoptBOBYQAV1, NLoptCCSAQV1,
-                                         NLoptESCHV1, NLoptISRESV1,
-                                         NLoptLBFGSV1, NLoptMLSLV1, NLoptMMAV1,
+from .minimizers.minimizer_nlopt import (NLoptBaseMinimizerV1, NLoptBOBYQAV1,
+                                         NLoptCCSAQV1, NLoptESCHV1,
+                                         NLoptISRESV1, NLoptLBFGSV1,
+                                         NLoptMLSLV1, NLoptMMAV1,
                                          NLoptShiftVarV1, NLoptSLSQPV1,
                                          NLoptStoGOV1, NLoptSubplexV1,
                                          NLoptTruncNewtonV1)
-from .minimizers.minimizer_tfp import BFGS
-from .minimizers.minimizers_scipy import (ScipyDoglegV1, ScipyLBFGSBV1,
+from .minimizers.minimizers_scipy import (ScipyBaseMinimizerV1, ScipyLBFGSBV1,
                                           ScipyNelderMeadV1, ScipyNewtonCGV1,
                                           ScipyPowellV1, ScipySLSQPV1,
                                           ScipyTruncNCV1, ScipyTrustConstrV1,
                                           ScipyTrustKrylovV1, ScipyTrustNCGV1)
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
-from .minimizers.strategy import ZfitStrategy
+from .minimizers.strategy import (DefaultToyStrategy, PushbackStrategy,
+                                  ZfitStrategy)
+from .minimizers.termination import EDM
 from .util.deprecation import deprecated
 
 
@@ -52,13 +53,22 @@ class ScipyMinimizer(Scipy):
     pass
 
 
+class BFGS:
+
+    def __init__(self) -> None:
+        raise RuntimeError("BFGS (from TensorFlow Probability) has been removed as it is currently"
+                           " not working well. Use other BFGS-like implementations such as ScipyLBFGSBV1"
+                           " or NLoptLBFGSV1.")
+
+
 __all__ = ["WrapOptimizer",
            "Adam", "Minuit",
-           "Scipy", "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1', "ScipyDoglegV1", "ScipyTrustNCGV1",
+           "ScipyBaseMinimizerV1",
+           "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1', "ScipyTrustNCGV1",
            "ScipyPowellV1", "ScipySLSQPV1", "ScipyNewtonCGV1", "ScipyTruncNCV1", "ScipyNelderMeadV1",
+           "NLoptBaseMinimizerV1",
            "NLoptLBFGSV1", "NLoptTruncNewtonV1", "NLoptSLSQPV1", "NLoptMMAV1", "NLoptCCSAQV1", 'NLoptShiftVarV1',
-           "NLoptMLSLV1", 'NLoptStoGOV1', 'NLoptESCHV1', 'NLoptISRESV1',
+           "NLoptMLSLV1", 'NLoptStoGOV1', 'NLoptESCHV1', 'NLoptISRESV1', "NLoptSubplexV1", "NLoptBOBYQAV1",
            "IpyoptV1",
-           "NLoptSubplexV1", "NLoptBOBYQAV1",
-           "BFGS",
-           "DefaultStrategy", "FitResult"]
+           "DefaultStrategy", "DefaultToyStrategy", "PushbackStrategy",
+           "EDM"]

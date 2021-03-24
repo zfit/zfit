@@ -1,17 +1,25 @@
 Minimizers
 ----------
 
-Zfit supplies wrappers for different minimizers from multiple libraries.
+zfit supplies wrappers for different minimizers from multiple libraries.
 
 
-Root
-====
+Minuit
+=======
 
 .. autosummary::
     :toctree: minimizers
 
-    zfit.minimize.Adam
     zfit.minimize.Minuit
+
+Ipyopt
+======
+
+
+.. autosummary::
+    :toctree: minimizers
+
+    zfit.minimize.IpyoptV1
 
 
 Scipy
@@ -47,20 +55,12 @@ NLopt
     zfit.minimize.NLoptSubplexV1
 
 
-Ipyopt
-======
 
-
-.. autosummary::
-    :toctree: minimizers
-
-    zfit.minimize.IpyoptV1
-
-
-Tensorflow Probability
+Tensorflow
 ======================
 
 .. autosummary::
     :toctree: minimizers
 
-    zfit.minimize.BFGS
+    zfit.minimize.Adam
+    zfit.minimize.WrapOptimizer

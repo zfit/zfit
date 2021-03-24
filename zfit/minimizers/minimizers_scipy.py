@@ -20,7 +20,7 @@ from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, ConvergenceCriterion
 
 
-class ScipyBaseMinimizer(BaseMinimizer):
+class ScipyBaseMinimizerV1(BaseMinimizer):
     _VALID_SCIPY_GRADIENT = None
     _VALID_SCIPY_HESSIAN = None
 
@@ -136,9 +136,9 @@ class ScipyBaseMinimizer(BaseMinimizer):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if cls._VALID_SCIPY_GRADIENT is not None:
-            cls._VALID_SCIPY_GRADIENT = ScipyBaseMinimizer._VALID_SCIPY_GRADIENT.copy()
+            cls._VALID_SCIPY_GRADIENT = ScipyBaseMinimizerV1._VALID_SCIPY_GRADIENT.copy()
         if cls._VALID_SCIPY_HESSIAN is not None:
-            cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizer._VALID_SCIPY_HESSIAN.copy()
+            cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizerV1._VALID_SCIPY_HESSIAN.copy()
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init: FitResult):
@@ -273,7 +273,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
         )
 
 
-class ScipyLBFGSBV1(ScipyBaseMinimizer):
+class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
 
     def __init__(self,
                  tol: Optional[float] = None,
@@ -372,7 +372,7 @@ ScipyLBFGSBV1._add_derivative_methods(gradient=['2-point', '3-point',
                                                 None, True, False, 'zfit'])
 
 
-class ScipyTrustKrylovV1(ScipyBaseMinimizer):
+class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
 
     def __init__(self,
                  tol: Optional[float] = None,
@@ -497,7 +497,7 @@ ScipyTrustKrylovV1._add_derivative_methods(gradient=['2-point', '3-point',
                                                     None, True, False, 'zfit'])
 
 
-class ScipyTrustNCGV1(ScipyBaseMinimizer):
+class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
 
     def __init__(self,
                  tol: Optional[float] = None,
@@ -630,7 +630,7 @@ ScipyTrustNCGV1._add_derivative_methods(gradient=['2-point', '3-point',
                                                  None, True, False, 'zfit'])
 
 
-class ScipyTrustConstrV1(ScipyBaseMinimizer):
+class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
     def __init__(self,
                  tol: Optional[float] = None,
                  init_trust_radius: Optional[int] = None,
@@ -754,7 +754,7 @@ ScipyTrustConstrV1._add_derivative_methods(gradient=['2-point', '3-point',
                                                     None, True, False, 'zfit'])
 
 
-class ScipyNewtonCGV1(ScipyBaseMinimizer):
+class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
 
     @warn_experimental_feature
     def __init__(self,
@@ -876,7 +876,7 @@ ScipyNewtonCGV1._add_derivative_methods(gradient=['2-point', '3-point',
                                                  None, True, False, 'zfit'])
 
 
-class ScipyTruncNCV1(ScipyBaseMinimizer):
+class ScipyTruncNCV1(ScipyBaseMinimizerV1):
     def __init__(self, tol: Optional[float] = None,
                  maxcg: Optional[int] = None,  # maxCGit
                  maxls: Optional[int] = None,  # stepmx
@@ -980,7 +980,7 @@ ScipyTruncNCV1._add_derivative_methods(gradient=['2-point', '3-point',
                                                  None, True, False, 'zfit'])
 
 
-class ScipyDoglegV1(ScipyBaseMinimizer):
+class ScipyDoglegV1(ScipyBaseMinimizerV1):
     def __init__(self,
                  tol: Optional[float] = None,
                  init_trust_radius: Optional[int] = None,
@@ -1049,7 +1049,8 @@ class ScipyDoglegV1(ScipyBaseMinimizer):
 
 ScipyDoglegV1._add_derivative_methods(gradient=['zfit'], hessian=['zfit'])
 
-class ScipyPowellV1(ScipyBaseMinimizer):
+
+class ScipyPowellV1(ScipyBaseMinimizerV1):
     def __init__(self,
                  tol: Optional[float] = None,
                  verbosity: Optional[int] = None,
@@ -1104,7 +1105,7 @@ class ScipyPowellV1(ScipyBaseMinimizer):
                          verbosity=verbosity, strategy=strategy, criterion=criterion, name=name)
 
 
-class ScipySLSQPV1(ScipyBaseMinimizer):
+class ScipySLSQPV1(ScipyBaseMinimizerV1):
     def __init__(self,
                  tol: Optional[float] = None,
                  gradient: Optional[Union[Callable, str]] = None,
@@ -1184,7 +1185,7 @@ ScipySLSQPV1._add_derivative_methods(gradient=['2-point', '3-point',
                                                None, True, False, 'zfit'])
 
 
-class ScipyNelderMeadV1(ScipyBaseMinimizer):
+class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
     def __init__(self,
                  tol: Optional[float] = None,
                  adaptive: Optional[bool] = True,

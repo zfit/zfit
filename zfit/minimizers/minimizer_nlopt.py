@@ -39,11 +39,12 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                  name: str = "NLopt Base Minimizer V1"):
         """NLopt is a library that contains multiple different optimization algorithms.
 
-         |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+         |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -329,7 +330,7 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                  criterion: Optional[ConvergenceCriterion] = None,
                  name: str = "NLopt L-BFGS V1"
                  ) -> None:
-        """Local, gradient quasi-Newton minimizer using the low storage BFGS Hessian approximation.
+        """Local, gradient-based quasi-Newton minimizer using the low storage BFGS Hessian approximation.
 
         This is most probably the most popular algorithm for gradient based local minimum searches and also
         the underlying algorithm in the
@@ -349,11 +350,12 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
         -   D. C. Liu and J. Nocedal, "On the limited memory BFGS method for large scale optimization,"
             ''Math. Programming' **45**, p. 503-528 (1989).
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -432,11 +434,12 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
         -   J. Vlcek and L. Luksan, "Shifted limited-memory variable metric methods for large-scale unconstrained
             minimization," *J. Computational Appl. Math.* **186**, p. 365-390 (2006).
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -532,11 +535,12 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
            large-scale optimization,” *Math. Programming* **26**, p. 190-212
            (1983) http://doi.org/10.1007/BF02592055.
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -639,11 +643,12 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
 
         .. _obtaining permission: http://permalink.gmane.org/gmane.comp.python.scientific.devel/6725
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -721,11 +726,12 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
         .. _BOBYQA subroutine: http://plato.asu.edu/ftp/other_software/bobyqa.zip
         .. _The BOBYQA algorithm for bound constrained optimization without derivatives: http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2009_06.pdf
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -877,11 +883,12 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
         to MMA for most problems, which is not surprising as they are both
         essentially similar.
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -949,22 +956,24 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
            Ph.D. thesis, Department of Computer Sciences, University of Texas at
            Austin, 1990.
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
         original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -1059,11 +1068,12 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
         .. _low-discrepancy sequence: https://en.wikipedia.org/wiki/Low-discrepancy_sequence
         .. _local optimization: NLopt_Reference#localsubsidiary-optimization-algorithm
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -1160,11 +1170,12 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
            NLopt as ``techreport.pdf``.
 
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -1260,11 +1271,12 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
 
         .. _Parallel and Bio-Inspired Computing Applied to Analyze Microwave and Photonic Metamaterial Strucutures: http://www.bibliotecadigital.unicamp.br/document/?code=000767537&opt=4&lg=en_US
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
@@ -1346,11 +1358,12 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
          Runarsson also has his own Matlab implemention available from `his web page <http://www3.hi.is/~tpr>`_.
 
 
-        |@doc:minimizer.nlopt.info| This implenemtation is based on the
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_.
-        More information on the algorithm can be found
-        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_
-        `NLopt <https://nlopt.readthedocs.io/en/latest/>`_ is a
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
         free/open-source library for nonlinear optimization,
         providing a common interface for a number of
         different free optimization routines available online as well as
