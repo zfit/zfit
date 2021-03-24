@@ -18,7 +18,7 @@ Other Classes
 #############
 
 .. autosummary::
-    :toctree: minimize
+    :toctree: _generated/minimize
 
     zfit.minimize.WrapOptimizer
     zfit.minimize.DefaultStrategy

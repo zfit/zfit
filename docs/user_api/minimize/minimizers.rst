@@ -8,7 +8,7 @@ Minuit
 =======
 
 .. autosummary::
-    :toctree: minimizers
+    :toctree: _generated/minimizers
 
     zfit.minimize.Minuit
 
@@ -17,7 +17,7 @@ Ipyopt
 
 
 .. autosummary::
-    :toctree: minimizers
+    :toctree: _generated/minimizers
 
     zfit.minimize.IpyoptV1
 
@@ -26,7 +26,7 @@ Scipy
 =====
 
 .. autosummary::
-    :toctree: minimizers
+    :toctree: _generated/minimizers
 
     zfit.minimize.ScipyLBFGSBV1
     zfit.minimize.ScipyTrustKrylovV1
@@ -43,7 +43,7 @@ NLopt
 =====
 
 .. autosummary::
-    :toctree: minimizers
+    :toctree: _generated/minimizers
 
     zfit.minimize.NLoptLBFGSV1
     zfit.minimize.NLoptTruncNewtonV1
@@ -60,7 +60,6 @@ Tensorflow
 ======================
 
 .. autosummary::
-    :toctree: minimizers
+    :toctree: _generated/minimizers
 
     zfit.minimize.Adam
-    zfit.minimize.WrapOptimizer

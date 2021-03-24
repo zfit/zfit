@@ -4,7 +4,7 @@ Func
 .. todo:: Fill overview page
 
 .. autosummary::
-    :toctree: func
+    :toctree: _generated/func
 
     zfit.func.BaseFunc
     zfit.func.SimpleFunc
