@@ -87,29 +87,30 @@ only vary a given set of parameters. In this case it is necessary to specify whi
     # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
     result2 = minimizer.minimize(nll, params=[mu])
 
-It is important to highlight that conceptually zfit separates the minimisation of the loss
-function with respect to the error calculation, in order to give the freedom of calculating this
-error whenever needed and to allow the use of external error calculation packages.
+It is important to highlight that conceptually zfit separates the minimisation of the loss function with respect to the error calculation, 
+in order to give the freedom of calculating this error whenever needed and to allow the use of external error calculation packages.
 
-In order to estimate the uncertainty of the parameters, a hessian approximation can be made using
-:meth:`~zfit.result.FitResult.hesse`. This is a fast, symmetric estimation that usually works well
-and is also valid for weighted fits (as corrections are applied).
+In order to get an estimate for the errors, it is possible to call ``Hesse`` that will calculate 
+the parameter uncertainties. This uses the inverse Hessian to approximate the minimum of the loss and returns a symmetric estimate.
+When using weighted datasets, this will automatically perform the asymptotic correction to the fit covariance matrix,
+returning corrected parameter uncertainties to the user. The correction applied is based on Equation 18 in `this paper <https://arxiv.org/abs/1911.01303>`_.
 
-It is invoked as
+To call ``Hesse``, do:
 
 .. jupyter-execute::
 
     param_hesse = result.hesse()
     print(param_hesse)
-
+    
+which will return a dictionary of the fit parameters as keys with ``error`` values for each one. 
 The errors will also be added to the result object and show up when printing the result.
 
 While the hessian approximation has many advantages, it may not hold well for certain loss functions, especially for
-asymetric uncertainties. A more CPU-intensive error calculating can be invoked with the ``errors`` method,
-which is a profiling method that also minimizes at every point
-*(it is however not valid in the case of weights and takes
-considerably longer).*
-As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the `MINOS`` with:
+asymetric uncertainties. It is also possible to use a more CPU-intensive error calculating with the ``errors`` method.
+This has the advantage of taking into account all the correlations and can describe well a
+a loss minimum that is not well approximated by a quadratic function *(it is however not valid in the case of weights and takes
+considerably longer).* It estimates the lower and upper uncertainty independently.
+As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the ``MINOS`` uncertainties with:
 
 .. jupyter-execute::
     :hide-output:

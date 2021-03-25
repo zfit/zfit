@@ -31,7 +31,7 @@ class CustomPDF2D(zfit.pdf.BasePDF):
 
 # define the integral function
 def integral_full(limits, norm_range, params, model):
-    lower, upper = limits.rect_limits
+    lower, upper = limits.rect_limits    # for a more detailed guide, see the space.py example
     param1 = params['super_param']
     param2 = params['param2']
     param3 = params['param3']
@@ -62,7 +62,7 @@ def integral_axis1(x, limits, norm_range, params, model):
     param2 = params['param2']
     param3 = params['param3']
 
-    lower, upper = limits.limit1d
+    lower, upper = limits.limit1d  # for a more detailed guide, see the space.py example
     lower = z.convert_to_tensor(lower)  # the limits are now 1-D, for axis 1
     upper = z.convert_to_tensor(upper)
 
