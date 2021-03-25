@@ -12,6 +12,9 @@ The first step is to import ``zfit`` and to verify that the installation has bee
 
     import tensorflow as tf
     import zfit
+    from zfit import z  # math backend of zfit
+
+.. thebe-button:: Run this interactively
 
 
 Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an *observable space*. This can be created using the :py:class:`~zfit.Space` class
@@ -138,7 +141,8 @@ Similarly one can obtain only the information on the fitted parameters with
 
 
 As already mentioned, there is no dedicated plotting feature within zfit. However, we can easily use external
-libraries, such as ``matplotlib`` or `mplhel, a library for HEP-like plots <>`_ , to do the job:
+libraries, such as ``matplotlib`` and `mplhep, a library for HEP-like plots <https://github.com/scikit-hep/mplhep>`_ ,
+to do the job:
 
 .. jupyter-execute::
 

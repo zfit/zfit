@@ -14,3 +14,4 @@ Following and introduction to the elements of zfit
     loss
     minimize
     result
+    toy_studies
