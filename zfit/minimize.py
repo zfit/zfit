@@ -65,7 +65,7 @@ class BFGS:
 __all__ = ["WrapOptimizer",
            "Adam", "Minuit",
            "ScipyBaseMinimizerV1",
-           "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1', "ScipyTrustNCGV1", 'ScipyCOBYLAV1',
+           "ScipyLBFGSBV1", "ScipyTrustKrylovV1", 'ScipyTrustConstrV1', "ScipyTrustNCGV1",
            "ScipyPowellV1", "ScipySLSQPV1", "ScipyNewtonCGV1", "ScipyTruncNCV1", "ScipyNelderMeadV1",
            "NLoptBaseMinimizerV1",
            "NLoptLBFGSV1", "NLoptTruncNewtonV1", "NLoptSLSQPV1", "NLoptMMAV1", "NLoptCCSAQV1", 'NLoptShiftVarV1',

@@ -318,8 +318,6 @@ class FitResult(ZfitResult):
         if evaluator is not None:
             niter = evaluator.niter if niter is None else niter
 
-        params = self._input_convert_params(params)
-
         param_at_limit = any(param.at_limit for param in params)
         if param_at_limit:
             valid = False
@@ -335,7 +333,7 @@ class FitResult(ZfitResult):
         self._status = status
         self._message = "" if message is None else message
         self._converged = converged
-        self._params = params
+        self._params = self._input_convert_params(params)
         self._values = ValuesHolder(params)
         self._params_at_limit = param_at_limit
         self._edm = edm
