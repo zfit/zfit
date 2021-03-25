@@ -104,7 +104,6 @@ def compute_errors(result: "zfit.result.FitResult",
                 for d in ["lower", "upper"]:
                     ap_value_init = ap_value + direction[d] * error_factor
                     initial_values[d].append(ap_value_init)
-            initial_values = np.array(initial_values)
 
             # TODO: improvement, use jacobian?
             # @np_cache(maxsize=25)
@@ -147,7 +146,7 @@ def compute_errors(result: "zfit.result.FitResult",
             for d in ["lower", "upper"]:
                 roots = optimize.root(fun=func,
                                       args=(swap_sign[d],),
-                                      x0=initial_values[d],
+                                      x0=np.array(initial_values[d]),
                                       tol=rtol,
                                       options={
                                           'factor': 1,
@@ -155,6 +154,9 @@ def compute_errors(result: "zfit.result.FitResult",
                                           # 'diag': param_scale,
                                       },
                                       method=method)
+                to_return[param][d] = roots.x[all_params.index(param)] - param_value
+                # print(f"error {d}, time needed {time.time() - start2}")
+        # print(f"errors found, time needed {time.time() - start}")
 
     except NewMinimum as e:
         from .. import settings

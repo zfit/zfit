@@ -185,6 +185,9 @@ minimizers = [
 # minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
 
 
+# sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
+minimizers = sorted(minimizers, key=lambda val: repr(val))
+
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
               + zfit.Space(obs='obs1', limits=(1.3, 2.1))

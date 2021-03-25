@@ -31,16 +31,20 @@ def test_fail_on_nan_strategy():
 
 
 def minimizers():
-    return {
+    return [
         zfit.minimize.Adam,
         zfit.minimize.NLoptMMAV1,
         zfit.minimize.IpyoptV1,
         zfit.minimize.Minuit,
         zfit.minimize.ScipySLSQPV1,
-    }
+    ]
 
 
-@pytest.mark.parametrize('minimizer_cls', minimizers())
+# sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
+minimizers = sorted(minimizers(), key=lambda val: repr(val))
+
+
+@pytest.mark.parametrize('minimizer_cls', minimizers)
 def test_callback(minimizer_cls):
     from zfit.minimizers.strategy import PushbackStrategy
 

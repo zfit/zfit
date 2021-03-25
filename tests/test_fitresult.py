@@ -93,12 +93,13 @@ def test_set_values():
 
 
 minimizers = [
-    # (zfit.minimize.WrapOptimizer, dict(optimizer=tf.train.AdamOptimizer(learning_rate=0.5)), False),
     (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.ScipyTrustKrylovV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
     (zfit.minimize.IpyoptV1, {}, False),
 ]
+# sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
+minimizers = sorted(minimizers, key=lambda val: repr(val))
 
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
@@ -119,8 +120,7 @@ def test_params(minimizer_class_and_kwargs):
         assert result.values[param.name] == result.params[param.name]['value']
 
 
-@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-def test_params_at_limit(minimizer_class_and_kwargs):
+def test_params_at_limit():
     loss, (param_a, param_b, param_c) = create_loss(n=5000)
     old_lower = param_a.lower
     param_a.lower = param_a.upper
