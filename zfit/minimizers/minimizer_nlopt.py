@@ -88,7 +88,8 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
              gradient: Gradient that will be given to the minimizer if supported.
              hessian: Hessian that will be given to the minimizer if supported.
              internal_tols: Tolerances for the minimizer. Has to contain possible tolerance criteria.
-             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -377,7 +378,8 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                    to “remember” from previous optimization
                    steps: increasing it increases
                    the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -468,7 +470,8 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
                    steps: increasing it increases
                    the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
             rank: Rank of the algorithm used, either 1 or 2. Defaults to 2.
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -572,7 +575,8 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
                    to “remember” from previous optimization
                    steps: increasing it increases
                    the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -679,7 +683,8 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -767,7 +772,8 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -855,7 +861,8 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -934,7 +941,8 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -1024,7 +1032,8 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -1133,7 +1142,8 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
                 By default, each iteration of MLSL samples 4 random new trial points.
             randomized: If True, uses the randomized version 'GD_MLSL_LDS' instead of 'GD_MLSL'
             local_minimizer: Configuration for the local minimizer. Defaults to L-BFGS.
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -1237,7 +1247,8 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
             randomized: If True, uses the randomized version 'GD_STOGO_RAND' instead of 'GD_STOGO'
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -1342,7 +1353,8 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
@@ -1435,7 +1447,8 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
              population: |@doc:minimizer.nlopt.population| The population size for the evolutionary algorithm. |@docend:minimizer.nlopt.population| Defaults to 20×(n+1) in n dimensions.
-             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without

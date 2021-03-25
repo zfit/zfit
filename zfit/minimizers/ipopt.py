@@ -56,7 +56,8 @@ class IpyoptV1(BaseMinimizer):
                    to “remember” from previous optimization
                    steps: increasing it increases
                    the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without

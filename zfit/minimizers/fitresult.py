@@ -254,6 +254,7 @@ class FitResult(ZfitResult):
                    indication and serves as
                    the global flag. The reasons why a result may be
                    invalid can be arbitrary, including but not exclusive:
+
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum
@@ -283,6 +284,7 @@ class FitResult(ZfitResult):
                    This is a relatively free field and _no single field_
                    in it is guaranteed to be stable.
                    Some recommended fields:
+
                    - *original*: contains the original returned object
                      by the minimizer used internally.
                    - *optimizer*: the actual instance of the wrapped
@@ -352,6 +354,7 @@ class FitResult(ZfitResult):
                    This is a relatively free field and _no single field_
                    in it is guaranteed to be stable.
                    Some recommended fields:
+
                    - *original*: contains the original returned object
                      by the minimizer used internally.
                    - *optimizer*: the actual instance of the wrapped
@@ -448,6 +451,7 @@ class FitResult(ZfitResult):
                    indication and serves as
                    the global flag. The reasons why a result may be
                    invalid can be arbitrary, including but not exclusive:
+
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum
@@ -520,6 +524,7 @@ class FitResult(ZfitResult):
                    indication and serves as
                    the global flag. The reasons why a result may be
                    invalid can be arbitrary, including but not exclusive:
+
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum
@@ -638,6 +643,7 @@ class FitResult(ZfitResult):
                    indication and serves as
                    the global flag. The reasons why a result may be
                    invalid can be arbitrary, including but not exclusive:
+
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum
@@ -730,6 +736,7 @@ class FitResult(ZfitResult):
                    indication and serves as
                    the global flag. The reasons why a result may be
                    invalid can be arbitrary, including but not exclusive:
+
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
                    - the minimizer may even converged but it is known that this is only a local minimum

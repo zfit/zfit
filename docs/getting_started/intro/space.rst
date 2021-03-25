@@ -12,6 +12,9 @@ handle by the :py:class:`~zfit.Space` class.
     :hide-output:
 
     import zfit
+    from zfit import z
+    import numpy as np
+
 
 .. code-block::
 

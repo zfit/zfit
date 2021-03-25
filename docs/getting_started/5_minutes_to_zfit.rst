@@ -14,6 +14,8 @@ The first step is to import ``zfit`` and to verify that the installation has bee
 
     import os
     os.environ["ZFIT_DISABLE_TF_WARNINGS"] = "1"
+    import numpy as np
+
 
 .. jupyter-execute::
 
@@ -154,6 +156,8 @@ to do the job:
 .. jupyter-execute::
 
     import mplhep
+    import matplotlib.pyplot as plt
+    import numpy as np
 
     lower, upper = obs.limits
     data_np = zfit.run(data.value()[:, 0])

@@ -74,7 +74,8 @@ class Minuit(BaseMinimizer, GraphCachable):
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
                 is used. For smaller datasets with less stable losses, the internal Minuit gradient often performs
                 better while the zfit provided gradient improves the convergence rate for larger (10'000+) datasets.
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without

@@ -1,5 +1,6 @@
 minimizer.verbosity: |1+
- Verbosity of the minimizer. Has to be between 0 and 10
+ Verbosity of the minimizer. Has to be between 0 and 10.
+               The verbosity has the meaning:
 
                 - a value of 0 means quiet and no output
                 - above 0 up to 5, information that is good to know but without
@@ -8,6 +9,8 @@ minimizer.verbosity: |1+
                   is used more for debugging purposes.
                 - Setting the verbosity to 10 will print out every
                   evaluation of the loss function and gradient.
+
+
 minimizer.tol: |1+
     Termination value for the
                     convergence/stopping criterion of the algorithm
@@ -53,6 +56,7 @@ minimizer.scipy.gradient: |1+
                     more precise and needs less computation time for the
                     evaluation compared to a numerical method.
                     The following are possible choices:
+
                     - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
                       loss gradient (usually the automatic gradient) will be used;
                       the minimizer won't use an internal algorithm.
@@ -81,6 +85,7 @@ minimizer.scipy.hessian: |1+
                     convergence.
 
                     The following are possible choices:
+
                     - If set to ``False`` or ``'zfit'``, the
                       loss hessian (usually using automatic differentiation)
                       will be used;
@@ -110,10 +115,6 @@ minimizer.trust.init_trust_radius: |1+
 minimizer.trust.max_trust_radius: |1+
     Maximum value of the trust-region radius.
                     No steps that are longer than this value will be proposed.
-
-
-
-
 
 minimizer.nlopt.population: |1+
     The population size for the evolutionary algorithm.
@@ -152,6 +153,7 @@ result.init.valid: |1+
                     indication and serves as
                     the global flag. The reasons why a result may be
                     invalid can be arbitrary, including but not exclusive:
+
                     - parameter(s) at the limit
                     - maxiter reached without proper convergence
                     - the minimizer may even converged but it is known that this is only a local minimum
@@ -188,6 +190,7 @@ result.init.info: |1+
                     This is a relatively free field and _no single field_
                     in it is guaranteed to be stable.
                     Some recommended fields:
+
                     - *original*: contains the original returned object
                       by the minimizer used internally.
                     - *optimizer*: the actual instance of the wrapped

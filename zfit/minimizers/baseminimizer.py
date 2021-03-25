@@ -152,7 +152,8 @@ class BaseMinimizer(ZfitMinimizer):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
 
                - a value of 0 means quiet and no output
                - above 0 up to 5, information that is good to know but without
