@@ -36,7 +36,9 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                  strategy: Optional[ZfitStrategy] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  minimize_func: Optional[callable] = None,
-                 name: str = "ScipyMinimizer"
+                 initializer: Optional[Callable] = None,
+                 verbosity_setter: Optional[Callable] = None,
+                 name: str = "ScipyMinimizer",
                  ) -> None:
         """Base minimizer wrapping the SciPy librarys optimize module.
 
@@ -65,7 +67,10 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
@@ -80,9 +85,23 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
             minimize_func:
+            initializer:
+            verbosity_setter:
             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
         """
         self._minimize_func = scipy.optimize.minimize if minimize_func is None else minimize_func
+
+        if initializer is None:
+            initializer = lambda options, init: options
+        if not callable(initializer):
+            raise TypeError(f"Initializer has to be callable not {initializer}")
+        self._scipy_initializer = initializer
+
+        if verbosity_setter is None:
+            verbosity_setter = lambda options, verbosity: options
+        if not callable(verbosity_setter):
+            raise TypeError(f"verbosity_setter has to be callable not {verbosity_setter}")
+        self._scipy_verbosity_setter = verbosity_setter
 
         minimizer_options = {} if minimizer_options is None else minimizer_options
         minimizer_options = copy.copy(minimizer_options)
@@ -122,6 +141,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
         self._internal_tol = internal_tol
         self._internal_maxiter = 20
+        self._nrandom_max = 5
         super().__init__(name=name, tol=tol, verbosity=verbosity, minimizer_options=minimizer_options,
                          strategy=strategy, criterion=criterion, maxiter=maxiter)
 
@@ -150,6 +170,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
     def _minimize(self, loss, params, init: FitResult):
         if init:
             set_values(params=params, values=init)
+        result_prelim = init
 
         evaluator = self.create_evaluator(loss=loss, params=params)
 
@@ -188,6 +209,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             minimizer_options['options']['maxiter'] = maxiter - 3 if maxiter > 10 else maxiter
 
         minimizer_options['options']['disp'] = self.verbosity > 6
+        minimizer_options['options'] = self._scipy_verbosity_setter(minimizer_options['options'],
+                                                                    verbosity=self.verbosity)
 
         # tolerances and criterion
         criterion = self.create_criterion(loss, params)
@@ -199,7 +222,11 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         valid = None
         message = None
         optimize_results = None
+        nrandom = 0
+        old_edm = -1
+        n_paramatlim = 0
         for i in range(self._internal_maxiter):
+            minimizer_options['options'] = self._scipy_initializer(minimizer_options['options'], init=result_prelim)
 
             # update from previous run/result
             if use_hessian and is_update_strat:
@@ -240,7 +267,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                                                  criterion=None,
                                                  message='INTERNAL for Criterion',
                                                  valid=valid)
-
+            if result_prelim.params_at_limit:
+                n_paramatlim += 1
             if use_hessian:
                 approx_step_sizes = result_prelim.hesse(params=params, method='approx')
             converged = criterion.converged(result_prelim)
@@ -255,6 +283,21 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                                           fmin=fmin,
                                           internal_tol=internal_tol)
 
+            if math.isclose(old_edm, edm, rel_tol=1e-4, abs_tol=1e-12):
+                if nrandom < self._nrandom_max:  # in order not to start too close
+                    if init_scale is None:
+                        init_scale = np.ones_like(values)
+                    init_scale_no_nan = np.nan_to_num(init_scale, nan=1.)
+                    values += np.random.uniform(low=-init_scale_no_nan, high=init_scale_no_nan) / 5
+                    nrandom += 1
+                else:
+                    message = f"Stuck (no change in a few iterations) at the edm={edm}"
+                    valid = False
+                    break
+            old_edm = edm
+            if n_paramatlim > 4:
+                message = "Parameters too often at limit during minimization."
+                break
             if converged or maxiter_reached:
                 break
             init_values = values
@@ -325,7 +368,12 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
+
+              Increasing the verbosity will gradually increase the output.
             gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
                    that the minimizer should use. This can be the
                    gradient provided by the loss itself or
@@ -371,12 +419,17 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
         if options:
             minimizer_options['options'] = options
 
+        def verbosity_setter(options, verbosity):
+            options.pop('disp', None)
+            options['iprint'] = int((verbosity - 2) * 12.5)  # negative is quite, goes to 100. start at verbosity > 1
+            return options
+
         scipy_tols = {'ftol': None, 'gtol': None}
 
         super().__init__(method="L-BFGS-B", internal_tol=scipy_tols, gradient=gradient,
                          hessian=NOT_SUPPORTED,
                          minimizer_options=minimizer_options, tol=tol, verbosity=verbosity,
-                         maxiter=maxiter,
+                         maxiter=maxiter, verbosity_setter=verbosity_setter,
                          strategy=strategy, criterion=criterion, name=name)
 
 
@@ -473,7 +526,10 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -612,7 +668,10 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -636,6 +695,15 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
             options['eta'] = eta
         if max_trust_radius is not None:
             options['max_trust_radius'] = max_trust_radius
+        if init_trust_radius is not None:
+            options['initial_trust_radius'] = init_trust_radius
+
+        def initializer(options, init):
+            if init is not None:
+                trust_radius = init.info.get('tr_radius')
+                if trust_radius is not None:
+                    options['initial_trust_radius'] = trust_radius
+            return options
 
         minimizer_options = {}
         if options:
@@ -646,7 +714,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
         super().__init__(method="trust-constr", internal_tol=scipy_tols, gradient=gradient,
                          hessian=hessian,
                          minimizer_options=minimizer_options, tol=tol, verbosity=verbosity,
-                         maxiter=maxiter,
+                         maxiter=maxiter, initializer=initializer,
                          strategy=strategy, criterion=criterion, name=name)
 
 
@@ -746,7 +814,11 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
+
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -769,6 +841,26 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         if init_trust_radius is not None:
             options['initial_tr_radius'] = init_trust_radius
 
+        def initializer(options, init):
+            if init is not None:
+                trust_radius = init.info.get('tr_radius')
+                if trust_radius is not None:
+                    options['initial_tr_radius'] = trust_radius
+            return options
+
+        def verbosity_setter(options, verbosity):
+            options.pop('disp', None)
+            if verbosity > 8:
+                v = 3
+            elif verbosity > 6:
+                v = 2
+            elif verbosity > 1:
+                v = 1
+            else:
+                v = 0
+            options['verbose'] = v  # negative is quite, goes to 100. start at verbosity > 1
+            return options
+
         minimizer_options = {}
         if options:
             minimizer_options['options'] = options
@@ -778,7 +870,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         super().__init__(method="trust-constr", internal_tol=scipy_tols, gradient=gradient,
                          hessian=hessian,
                          minimizer_options=minimizer_options, tol=tol, verbosity=verbosity,
-                         maxiter=maxiter,
+                         maxiter=maxiter, initializer=initializer, verbosity_setter=verbosity_setter,
                          strategy=strategy, criterion=criterion, name=name)
 
 
@@ -878,7 +970,10 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -982,7 +1077,10 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1064,7 +1162,10 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1136,7 +1237,10 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1162,10 +1266,17 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
 
         scipy_tols = {'xtol': None, 'ftol': None}
 
+        def initializer(options, init):
+            if init is not None:
+                direc = init.info['original'].get('direc')
+                if direc is not None:
+                    options['direc'] = direc
+            return options
+
         method = "Powell"
         super().__init__(method=method, internal_tol=scipy_tols, gradient=NOT_SUPPORTED,
                          hessian=NOT_SUPPORTED, minimizer_options=minimizer_options, tol=tol,
-                         maxiter=maxiter,
+                         maxiter=maxiter, initializer=initializer,
                          verbosity=verbosity, strategy=strategy, criterion=criterion, name=name)
 
 
@@ -1218,7 +1329,10 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1256,6 +1370,74 @@ ScipySLSQPV1._add_derivative_methods(gradient=['2-point', '3-point',
                                                None, True, False, 'zfit'])
 
 
+class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
+    @warn_experimental_feature
+    def __init__(self,
+                 tol: Optional[float] = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 name: str = "SciPy COBYLA V1"
+                 ) -> None:
+        """UNSTABLE! Local gradient-free dowhhill simplex-like method with an implicit linear approximation.
+
+        COBYLA constructs successive linear approximations of the objective function and constraints via a
+         simplex of n+1 points (in n dimensions), and optimizes these approximations in a trust region at each step.
+
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
+
+
+        Args:
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+        """
+        options = {}
+        minimizer_options = {'options': options}
+
+        scipy_tols = {'tol': None}
+
+        method = "COBYLA"
+        super().__init__(method=method, internal_tol=scipy_tols, gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED, minimizer_options=minimizer_options, tol=tol,
+                         maxiter=maxiter,
+                         verbosity=verbosity, strategy=strategy, criterion=criterion, name=name)
+
+
 class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
     def __init__(self,
                  tol: Optional[float] = None,
@@ -1291,7 +1473,10 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1315,15 +1500,21 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
 
         if adaptive is not None:
             options['adaptive'] = adaptive
-        if options:
-            minimizer_options['options'] = options
+        minimizer_options['options'] = options
+
+        def initializer(options, init):
+            if init is not None:
+                init_simplex = init.info['original'].get('final_simplex')
+                if init_simplex is not None:
+                    options['initial_simplex'] = init_simplex
+            return options
 
         scipy_tols = {'fatol': None, 'xatol': None}
 
         method = "Nelder-Mead"
         super().__init__(method=method, internal_tol=scipy_tols, gradient=NOT_SUPPORTED,
                          hessian=NOT_SUPPORTED, minimizer_options=minimizer_options, tol=tol,
-                         maxiter=maxiter,
+                         maxiter=maxiter, initializer=initializer,
                          verbosity=verbosity, strategy=strategy, criterion=criterion, name=name)
 
 

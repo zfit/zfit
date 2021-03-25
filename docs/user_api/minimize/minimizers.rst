@@ -67,6 +67,7 @@ NLopt
     zfit.minimize.NLoptMMAV1
     zfit.minimize.NLoptCCSAQV1
     zfit.minimize.NLoptSubplexV1
+    zfit.minimize.NLoptCOBYLAV1
     zfit.minimize.NLoptMLSLV1
     zfit.minimize.NLoptStoGOV1
     zfit.minimize.NLoptBOBYQAV1

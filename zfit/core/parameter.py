@@ -579,7 +579,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
                               "Use preferably `ConstantParameter` instead", RuntimeWarning, stacklevel=2)
             else:  # this is the legacy case where the function didn't take arguments
                 warnings.warn("The `value_fn` for composed parameters should take the same number"
-                              " of arguments as `params` are given.", DeprecationWarning, stacklevel=2)
+                              " of arguments as `params` are given.", DeprecationWarning, stacklevel=3)
                 legacy_value_fn = value_fn
 
                 def value_fn(*_):

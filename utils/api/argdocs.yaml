@@ -10,6 +10,8 @@ minimizer.verbosity: |1+
                 - Setting the verbosity to 10 will print out every
                   evaluation of the loss function and gradient.
 
+                Some minimizer offer additional output which is also
+                distributed as above but may duplicate certain printed values.
 
 minimizer.tol: |1+
     Termination value for the

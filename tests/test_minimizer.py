@@ -141,6 +141,7 @@ minimizers = [
     (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, {'error': True}),
     (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, {'error': True}),
     (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.NLoptCOBYLAV1, {"verbosity": verbosity, }, {'error': True}),
     (zfit.minimize.NLoptMLSLV1, {"verbosity": verbosity, }, {'error': True}),
     (zfit.minimize.NLoptStoGOV1, {"verbosity": verbosity, }, {'error': True}),
     (zfit.minimize.NLoptBOBYQAV1, {"verbosity": verbosity, }, {'error': True}),
@@ -163,6 +164,8 @@ minimizers = [
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyCOBYLAV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.NLoptCOBYLAV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-3, 'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tol': 1e-5, 'verbosity': 7}, True)]

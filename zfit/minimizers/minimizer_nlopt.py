@@ -97,7 +97,10 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
              criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -387,7 +390,10 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -479,7 +485,10 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -584,7 +593,10 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -692,7 +704,10 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -781,7 +796,10 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -870,7 +888,10 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -950,7 +971,10 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -971,6 +995,118 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_CCSAQ,
+                         tol=tol,
+                         gradient=NOT_SUPPORTED,
+                         hessian=NOT_SUPPORTED,
+                         criterion=criterion,
+                         verbosity=verbosity,
+                         minimizer_options={},
+                         strategy=strategy,
+                         maxiter=maxiter)
+
+
+class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
+    def __init__(self,
+                 tol: Optional[float] = None,
+                 verbosity: Optional[int] = None,
+                 maxiter: Optional[Union[int, str]] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 name: str = "NLopt COBYLA"):
+        r"""Derivative free simplex minimizer using a linear approximation with trust region steps.
+
+        COBYLA (Constrained Optimization BY Linear Approximations) constructs successive linear approximations of the
+        objective function and constraints via a simplex of n+1 points (in n dimensions), and optimizes these
+        approximations in a trust region at each step.
+
+        This is a derivative of Powell’s implementation of the COBYLA  algorithm for derivative-free optimization
+        by M. J. D. Powell described in:
+
+        -  M. J. D. Powell, “A direct search optimization method that models the
+           objective and constraint functions by linear interpolation,” in
+           *Advances in Optimization and Numerical Analysis*, eds. S. Gomez and
+           J.-P. Hennart (Kluwer Academic: Dordrecht, 1994), p. 51-67.
+
+        and reviewed in:
+
+        -  M. J. D. Powell, “Direct search algorithms for optimization
+           calculations,” *Acta Numerica* **7**, 287-336 (1998).
+
+        It constructs successive linear approximations of the objective function
+        and constraints via a simplex of *n*\ +1 points (in *n* dimensions), and
+        optimizes these approximations in a trust region at each step.
+
+        The original code itself was written in Fortran by Powell and was
+        converted to C in 2004 by Jean-Sebastien Roy (js@jeannot.org) for the
+        SciPy project. The version in NLopt was based on Roy’s C version and offers a few improvements
+        over the original code:
+
+        - `COBYLA` can increase the trust-region radius if the predicted improvement
+          was approximately right and the simplex is OK
+        - pseudo-randomization of the simplex steps in the COBYLA algorithm improve the robustness by avoiding
+           accidentally taking steps that don't improve conditioning.
+
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
+
+
+        |@doc:minimizer.nlopt.info| More information on the algorithm can be found
+        `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+        This implenemtation uses internally the
+        `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+        It is a
+        free/open-source library for nonlinear optimization,
+        providing a common interface for a number of
+        different free optimization routines available online as well as
+        original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
+
+        Args:
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+        """
+        super().__init__(name=name,
+                         algorithm=nlopt.LN_COBYLA,
                          tol=tol,
                          gradient=NOT_SUPPORTED,
                          hessian=NOT_SUPPORTED,
@@ -1041,7 +1177,10 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1151,7 +1290,10 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1256,7 +1398,10 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1362,7 +1507,10 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1456,7 +1604,10 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
              maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|

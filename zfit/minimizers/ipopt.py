@@ -65,7 +65,10 @@ class IpyoptV1(BaseMinimizer):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             hessian: Determine which hessian matrix to use during the minimization.
               One of the following option is possible
 

@@ -318,6 +318,15 @@ class FitResult(ZfitResult):
         if evaluator is not None:
             niter = evaluator.niter if niter is None else niter
 
+        params = self._input_convert_params(params)
+
+        param_at_limit = any(param.at_limit for param in params)
+        if param_at_limit:
+            valid = False
+            if message:
+                message += ' AND '
+            message += "parameter(s) at their limit."
+
         self._cache_minuit = None  # in case used in errors
 
         self._evaluator = evaluator  # keep private for now
@@ -326,9 +335,9 @@ class FitResult(ZfitResult):
         self._status = status
         self._message = "" if message is None else message
         self._converged = converged
-        self._params = self._input_convert_params(params)
+        self._params = params
         self._values = ValuesHolder(params)
-        self._params_at_limit = any(param.at_limit for param in self.params)
+        self._params_at_limit = param_at_limit
         self._edm = edm
         self._criterion = criterion
         self._fmin = fmin
@@ -669,9 +678,9 @@ class FitResult(ZfitResult):
         inv_hesse = result.get('hess_inv')
         if isinstance(inv_hesse, LbfgsInvHessProduct):
             inv_hesse = inv_hesse.todense()
-        grad = result.get('grad')
-        if message is None:
+        if message is None and (not converged or not valid):
             message = result.get('message')
+        grad = result.get('grad')
         info = {'n_eval': result['nfev'],
                 'n_iter': niter,
                 'niter': niter,

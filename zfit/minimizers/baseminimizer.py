@@ -161,7 +161,10 @@ class BaseMinimizer(ZfitMinimizer):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -247,7 +250,7 @@ class BaseMinimizer(ZfitMinimizer):
             raise MinimizerSubclassingError(f"Method {method_name} has not been correctly wrapped with "
                                             f"@minimize_supports ")
 
-    def _check_convert_input(self, loss: ZfitLoss, params, init=None, only_floating=True
+    def _check_convert_input(self, loss: ZfitLoss, params, init=None, floating=True
                              ) -> Tuple[ZfitLoss, Iterable[ZfitParameter], Union[None, FitResult]]:
         """Sanitize the input values and return all of them.
 
@@ -255,7 +258,7 @@ class BaseMinimizer(ZfitMinimizer):
             loss: If the loss is a callable, it will be converted to a SimpleLoss.
             params: If the parameters is an array, it will be converted to free parameters.
             init:
-            only_floating:
+            floating:
 
         Returns:
             loss, params, init:
@@ -292,7 +295,7 @@ class BaseMinimizer(ZfitMinimizer):
 
         to_set_param_values = {}
         if params is None:
-            params = loss.get_params(only_floating=only_floating)
+            params = loss.get_params(floating=floating)
         else:
             if isinstance(params, collections.Mapping):
                 param_values = params
@@ -312,14 +315,14 @@ class BaseMinimizer(ZfitMinimizer):
                 params = convert_to_container(params, container=OrderedSet)
 
             # now extract all the independent parameters
-            params = list(OrderedSet.union(*(p.get_params(only_floating=only_floating) for p in params)))
+            params = list(OrderedSet.union(*(p.get_params(only_floating=floating) for p in params)))
 
         # set the parameter values from the init
         if init is not None:
             # don't set the user set
             params_to_set = OrderedSet(params).intersection(OrderedSet(init.params)) - OrderedSet(to_set_param_values)
             set_values(params_to_set, init)
-        if only_floating:
+        if floating:
             params = self._filter_floating_params(params)
         if not params:
             raise RuntimeError("No parameter for minimization given/found. Cannot minimize.")
@@ -407,7 +410,7 @@ class BaseMinimizer(ZfitMinimizer):
                 result = minimizer.minimize(func, param)
         """
 
-        loss, params, init = self._check_convert_input(loss=loss, params=params, init=init, only_floating=True)
+        loss, params, init = self._check_convert_input(loss=loss, params=params, init=init, floating=True)
         with self._make_stateful(loss=loss, params=params, init=init):
             return self._call_minimize(loss=loss, params=params, init=init)
 

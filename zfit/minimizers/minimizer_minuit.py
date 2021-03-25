@@ -83,7 +83,10 @@ class Minuit(BaseMinimizer, GraphCachable):
                - A value above 5 starts printing out considerably more and
                  is used more for debugging purposes.
                - Setting the verbosity to 10 will print out every
-                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity| This
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity| This
                 also changes the iminuit internal verbosity at around 7.
             options: Additional options that will be directly passsed into :meth:`~iminuitMinuit.migrad`
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
