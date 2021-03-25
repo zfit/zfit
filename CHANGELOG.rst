@@ -8,9 +8,32 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+
+- Added many new minimizers. A full list can be found in :ref:`minimize_user_api`.
+  - :class:`~zfit.minimize.IpyoptV1` that wraps the powerful Ipopt large scale minimization library
+  - Scipy minimizers now have their own, dedicated wrapper for each instance such as `~zfit.minimize.ScipyLBFGSBV1`,
+    :class:`~zfit.minimize.ScipyTrustKrylovV1` or :class:`~zfit.minimize.ScipySLSQPV1`
+  - NLopt library wrapper that contains many algorithms for local searches such as
+    :class:`~zfit.minimize.NLoptLBFGSV1`, :class:`~zfit.minimize.NLoptTruncNewtonV1` or
+    :class:`~zfit.minimize.NLoptMMAV1` but also includes more global minimizers such as
+    :class:`~zfit.minimize.NLoptMLSLV1` and :class:`~zfit.minimize.NLoptESCHV1`.
+
+- Completely new and overhauled minimizers design, including:
+  - minimizers can now be used with arbitrary Python functions and an initial array independent of zfit
+  - a minimization can be 'continued' by passing `init` to `minimize`
+  - more streamlined arguments for minimizers, harmonized names and behavior.
+  - Adding a flexible criterion (currently EDM) that will terminate the minimization.
+  - Making the minimizer fully stateless.
+  - Moving the loss evaluation and strategy into a LossEval that simplifies the handling of printing and NaNs.
+  - Callbacks are added to the strategy.
+- Major overhaul of the ``FitResult``, including:
+  - improved `zfit_error` (equivalent of `MINOS`)
+  - `minuit_hesse` and `minuit_minos` are now available with all minimizers as well thanks to an great
+    improvement in iminuit.
+  - Added an `approx` hesse that returns the approximate hessian (if available, otherwise empty)
 - upgrade to iminuit v2 changes the way it works and also the Minuit minimizer in zfit,
   including a new step size heuristic.
-  Possible problems can be caused by iminuit itself, please report somewhere
+  Possible problems can be caused by iminuit itself, please report
   in case your fits don't converge anymore.
 
 - improved ``compute_errors`` in speed by caching values and the reliability
@@ -18,9 +41,13 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- BFGS (from TensorFlow Probability) has been removed as it is not working properly. There are many alternatives
+  such as ScipyLBFGSV1 or NLoptLBFGSV1
+- Scipy (the minimizer) has been removed. Use specialized `Scipy*` minimizers instead.
 
 Depreceations
 -------------
+- strategy to minimizer should now be a class, not an instance anymore.
 
 Bug fixes and small changes
 ---------------------------
@@ -33,6 +60,7 @@ Experimental
 Requirement changes
 -------------------
 - ipyopt
+- nlopt
 - iminuit>=2.3
 - tensorflow ~= 2.4
 - tensorflow-probability~=12

@@ -6,7 +6,7 @@ The zfit library provides a simple model fitting and sampling framework for a br
 This section is designed to give an overview of the main concepts and features in the context of likelihood fits in
 a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.
 
-The first step is to naturally import ``zfit`` and verify if the installation has been done successfully:
+The first step is to import ``zfit`` and to verify that the installation has been done successfully:
 
 .. jupyter-execute::
 

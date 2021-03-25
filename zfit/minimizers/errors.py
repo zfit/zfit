@@ -26,13 +26,13 @@ class FailEvalLossNaN(Exception):
 
 
 @deprecated_args(None, "Use cl for confidence level instead.", 'sigma')
-def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
+def compute_errors(result: "zfit.result.FitResult",
                    params: List[ZfitIndependentParameter],
-                   cl: float = None,
-                   sigma: float = 1,
-                   rtol: float = 0.001,
+                   cl: Optional[float] = None,
+                   rtol: Optional[float] = 0.001,
                    method: Optional[str] = None,
-                   covariance_method: Optional[Union[str, Callable]] = None
+                   covariance_method: Optional[Union[str, Callable]] = None,
+                   sigma: float = 1,
                    ) -> Tuple[Dict[ZfitIndependentParameter, Dict[str, float]],
                               Union["zfit.result.FitResult", None]]:
     """Compute asymmetric errors of parameters by profiling the loss function in the fit result.
@@ -48,13 +48,14 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
         params: The parameters to calculate the
             errors error. If None, use all parameters.
         cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
-        sigma: Errors are calculated with respect to `sigma` std deviations.
         rtol: relative tol between the computed and the exact roots
         method: type of solver, `method` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
         covariance_method: The method to use to calculate the correlation matrix, will be forwarded directly
             to :py:meth:`FitResult.covariance`. Valid choices are
             by default {'minuit_hesse', 'hesse_np'} (or any other method defined in the result)
             or a Callable.
+        sigma: Errors are calculated with respect to `sigma` std deviations.
+
 
     Returns:
         out:
@@ -103,6 +104,7 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                 for d in ["lower", "upper"]:
                     ap_value_init = ap_value + direction[d] * error_factor
                     initial_values[d].append(ap_value_init)
+            initial_values = np.array(initial_values)
 
             # TODO: improvement, use jacobian?
             # @np_cache(maxsize=25)
@@ -143,8 +145,6 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                 "upper": lambda p: p < param_value,
             }
             for d in ["lower", "upper"]:
-                # start2 = time.time()
-
                 roots = optimize.root(fun=func,
                                       args=(swap_sign[d],),
                                       x0=initial_values[d],
@@ -155,9 +155,6 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                                           # 'diag': param_scale,
                                       },
                                       method=method)
-                to_return[param][d] = roots.x[all_params.index(param)] - param_value
-                # print(f"error {d}, time needed {time.time() - start2}")
-        # print(f"errors found, time needed {time.time() - start}")
 
     except NewMinimum as e:
         from .. import settings
@@ -174,7 +171,6 @@ def compute_errors(result: "zfit.minimizer_configuration.fitresult.FitResult",
                                                 method=method)
         if new_result_ is not None:
             new_result = new_result_
-    # print(f"Used {ncalls} calls.")
     return to_return, new_result
 
 
@@ -185,13 +181,6 @@ def numerical_pdf_jacobian(func, params):
 
 @z.function(wraps='autodiff')
 def autodiff_pdf_jacobian(func, params):
-    # with tf.GradientTape(persistent=False,
-    #                      watch_accessed_variables=False) as tape:
-    #     tape.watch(params)
-    #     values = func()
-    # jacobian = z.convert_to_tensor(tape.jacobian(values, params, experimental_use_pfor=False))
-    # return jacobian
-
     columns = []
 
     for p in params:
@@ -304,7 +293,7 @@ def np_cache(*args, **kwargs):
             return function(array, *args, **kwargs)
 
         def array_to_tuple(np_array):
-            """Iterates recursivelly."""
+            """Iterates recursively."""
             try:
                 return tuple(array_to_tuple(_) for _ in np_array)
             except TypeError:

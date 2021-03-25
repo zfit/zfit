@@ -1,4 +1,4 @@
-.. _loss:
+.. _loss-section:
 
 ====
 Loss

@@ -400,7 +400,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         if not self.has_limits:
             return tf.constant(False)
 
-        # Adding a slight tol to make sure we're not tricked by numerics
+        # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
         tol = (self.upper - self.lower) * 1e-2
         at_lower = z.unstable.less_equal(self.value(), self.lower + tol)
         at_upper = z.unstable.greater_equal(self.value(), self.upper - tol)

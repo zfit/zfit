@@ -1,3 +1,7 @@
+"""This example illustrates how to minimize an arbitrary Python function using the zfit minimizer.
+
+Copyright (c) 2021 zfit
+"""
 #  Copyright (c) 2021 zfit
 
 import numpy as np
@@ -29,7 +33,6 @@ params = [1, -3, 2, 1.4, 11]
 # minimize
 result = minimizer.minimize(func, params)
 
-print(result)
 # estimate errors
 result.hesse()
 result.errors()
