@@ -1,3 +1,5 @@
+.. _playing_with_toys:
+
 Toy studies and inference
 ================================================
 
@@ -28,11 +30,13 @@ will take which value via ``param_values`` or by changing the attribute of :py:c
 Reusing the model, obs and parameters from :ref:`basic-model`,
 this is how typically toys look like:
 
-.. _playing_with_toys:
 
 .. jupyter-execute::
     :hide-output:
     :hide-code:
+
+    import os
+    os.environ["ZFIT_DISABLE_TF_WARNINGS"] = "1"
 
     import zfit
     from zfit import z

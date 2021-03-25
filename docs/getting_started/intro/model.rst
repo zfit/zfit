@@ -1,3 +1,6 @@
+.. _basic-model:
+
+
 Building a model
 ================
 
@@ -13,8 +16,6 @@ In other words, in order to a function to be a PDF it must satisfy two criteria:
 2. :math:`\int^{\infty}_{-\infty}f(x)dx =` are under the entire graph of :math:`f(x)=1`.
 In zfit these distinctions are respected, *i.e.*, a function can be converted into a PDF by imposing the basic two criteria above.
 
-.. _basic-model:
-
 Predefined PDFs and basic properties
 ------------------------------------
 
@@ -24,9 +25,13 @@ A series of predefined PDFs are available to the users and can be easily accesse
     :hide-output:
     :hide-code:
 
+    import os
+    os.environ["ZFIT_DISABLE_TF_WARNINGS"] = "1"
+
     import zfit
     from zfit import z
     import numpy as np
+
 
 .. jupyter-execute::
 

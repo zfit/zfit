@@ -88,10 +88,15 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
              gradient: Gradient that will be given to the minimizer if supported.
              hessian: Hessian that will be given to the minimizer if supported.
              internal_tols: Tolerances for the minimizer. Has to contain possible tolerance criteria.
-             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
              criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -249,7 +254,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 valid = False
                 valid_message = "Maxiter reached, terminated without convergence"
             except RuntimeError:
-                if self.verbosity > 5:
+                if self.verbosity > 3:
                     print("Minimization in NLopt failed, restarting with slightly varied parameters.")
                 if nrandom < self._nrandom_max:  # in order not to start too close
                     init_scale_no_nan = np.nan_to_num(init_scale, nan=1.)
@@ -372,10 +377,15 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                    to “remember” from previous optimization
                    steps: increasing it increases
                    the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -458,10 +468,15 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
                    steps: increasing it increases
                    the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
             rank: Rank of the algorithm used, either 1 or 2. Defaults to 2.
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -557,10 +572,15 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
                    to “remember” from previous optimization
                    steps: increasing it increases
                    the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -659,10 +679,15 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -742,10 +767,15 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -825,10 +855,15 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -899,10 +934,15 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -984,10 +1024,15 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1088,10 +1133,15 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
                 By default, each iteration of MLSL samples 4 random new trial points.
             randomized: If True, uses the randomized version 'GD_MLSL_LDS' instead of 'GD_MLSL'
             local_minimizer: Configuration for the local minimizer. Defaults to L-BFGS.
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1187,10 +1237,15 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
             randomized: If True, uses the randomized version 'GD_STOGO_RAND' instead of 'GD_STOGO'
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1287,10 +1342,15 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1375,10 +1435,15 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
              population: |@doc:minimizer.nlopt.population| The population size for the evolutionary algorithm. |@docend:minimizer.nlopt.population| Defaults to 20×(n+1) in n dimensions.
-             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
              maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|

@@ -56,10 +56,15 @@ class IpyoptV1(BaseMinimizer):
                    to “remember” from previous optimization
                    steps: increasing it increases
                    the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             hessian: Determine which hessian matrix to use during the minimization.
               One of the following option is possible
 
@@ -227,16 +232,15 @@ class IpyoptV1(BaseMinimizer):
             out[:] = gradient
 
         ipopt_options = minimizer_options.pop('ipopt').copy()
-        print_level = 0
-        if self.verbosity > 5:
-            print_level = (self.verbosity - 5) * 2  # since the print-level is between 0 and 12
-        if print_level == 10:
-            print_level = 12
-        if print_level == 9:
-            print_level = 10
+        print_level = self.verbosity
+        if print_level == 8:
+            print_level = 9
+        elif print_level == 9:
+            print_level = 11
+        elif print_level == 10:
+            if 'print_timing_statistics' not in ipopt_options:
+                ipopt_options['print_timing_statistics'] = 'yes'
         ipopt_options['print_level'] = print_level
-        if print_level == 12:
-            ipopt_options['print_timing_statistics'] = 'yes'
 
         ipopt_options['tol'] = self.tol
         ipopt_options['max_iter'] = self.get_maxiter()

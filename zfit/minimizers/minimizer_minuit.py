@@ -74,10 +74,15 @@ class Minuit(BaseMinimizer, GraphCachable):
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
                 is used. For smaller datasets with less stable losses, the internal Minuit gradient often performs
                 better while the zfit provided gradient improves the convergence rate for larger (10'000+) datasets.
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity| This
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity| This
                 also changes the iminuit internal verbosity at around 7.
             options: Additional options that will be directly passsed into :meth:`~iminuitMinuit.migrad`
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
@@ -229,9 +234,11 @@ class Minuit(BaseMinimizer, GraphCachable):
         minimizer_init['pedantic'] = minimizer_options.pop('pedantic', False)
         minimizer_setter = {}
         minimizer_setter['strategy'] = minimizer_options.pop('strategy')
-        if self.verbosity > 6:
+        if self.verbosity > 8:
             minuit_verbosity = 3
-        elif self.verbosity > 2:
+        elif self.verbosity > 6:
+            minuit_verbosity = 2
+        elif self.verbosity > 1:
             minuit_verbosity = 1
         else:
             minuit_verbosity = 0

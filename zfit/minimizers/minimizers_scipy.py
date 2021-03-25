@@ -56,10 +56,15 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
             minimizer_options:
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
@@ -310,10 +315,15 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                    steps: increasing it increases
                    the memory requirements but may speed up the convergence. |@docend:minimizer.maxcor|
             maxls: |@doc:minimizer.init.maxls| Maximum number of linesearch points. |@docend:minimizer.init.maxls|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
                    that the minimizer should use. This can be the
                    gradient provided by the loss itself or
@@ -449,10 +459,15 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                      estimate the hessian. This is only possible if the
                      gradient is provided by zfit and not an internal numerical
                      method is already used to determine it. |@docend:minimizer.scipy.hessian|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -580,10 +595,15 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                      estimate the hessian. This is only possible if the
                      gradient is provided by zfit and not an internal numerical
                      method is already used to determine it. |@docend:minimizer.scipy.hessian|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -706,10 +726,15 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                      estimate the hessian. This is only possible if the
                      gradient is provided by zfit and not an internal numerical
                      method is already used to determine it. |@docend:minimizer.scipy.hessian|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -830,10 +855,15 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                      estimate the hessian. This is only possible if the
                      gradient is provided by zfit and not an internal numerical
                      method is already used to determine it. |@docend:minimizer.scipy.hessian|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -927,10 +957,15 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                    - arguments ``'2-point'`` and ``'3-point'`` specify which
                      numerical algorithm the minimizer should use in order to
                      estimate the gradient. |@docend:minimizer.scipy.gradient|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1003,10 +1038,15 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
                    stringency for proposed steps. |@docend:minimizer.trust.eta|
             init_trust_radius: |@doc:minimizer.trust.init_trust_radius| Initial trust-region radius. |@docend:minimizer.trust.init_trust_radius|
             max_trust_radius: |@doc:minimizer.trust.max_max_trust_radius||@docend:minimizer.trust.max_max_trust_radius|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1069,10 +1109,15 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1144,10 +1189,15 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                    - arguments ``'2-point'`` and ``'3-point'`` specify which
                      numerical algorithm the minimizer should use in order to
                      estimate the gradient. |@docend:minimizer.scipy.gradient|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -1211,10 +1261,15 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
             adaptive:
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|

@@ -128,7 +128,7 @@ def _Minimizer_register_check_support(has_support: bool):
 class BaseMinimizer(ZfitMinimizer):
     _DEFAULTS = {
         'tol': 1e-3,
-        'verbosity': 5,
+        'verbosity': 0,
         'strategy': DefaultStrategy,
         'criterion': EDM,
         'maxiter': 'auto',
@@ -152,10 +152,15 @@ class BaseMinimizer(ZfitMinimizer):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer.
-                A value above 5 starts printing more
-                output with a value of 10 printing every
-                evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient. |@docend:minimizer.verbosity|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -543,7 +548,7 @@ class BaseMinimizer(ZfitMinimizer):
         evaluator = LossEval(loss=loss,
                              params=params,
                              strategy=strategy,
-                             do_print=self.verbosity > 8,
+                             do_print=self.verbosity > 9,
                              maxiter=self.get_maxiter(len(params)))
         if self._is_stateful:
             self._state['evaluator'] = evaluator

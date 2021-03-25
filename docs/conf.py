@@ -111,7 +111,9 @@ with open('hyperlinks.txt') as hyperlinks:
 jupyter_sphinx_thebelab_config = {
     'requestKernel': True,
     'binderOptions': {
-        'repo': "binder-examples/requirements",
+        'repo': "zfit/zfit",
+        'binderUrl': "https://mybinder.org",
+        'repoProvider': "github",
     },
 }
 

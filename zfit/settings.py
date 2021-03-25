@@ -15,7 +15,7 @@ def set_seed(seed):
     tf.random.set_seed(seed)
 
 
-_verbosity = 5
+_verbosity = 0
 
 
 def set_verbosity(verbosity):

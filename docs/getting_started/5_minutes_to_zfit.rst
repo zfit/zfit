@@ -9,6 +9,13 @@ a *crash course* manner. The simplest example is to generate, fit and plot a Gau
 The first step is to import ``zfit`` and to verify that the installation has been done successfully:
 
 .. jupyter-execute::
+    :hide-output:
+    :hide-code:
+
+    import os
+    os.environ["ZFIT_DISABLE_TF_WARNINGS"] = "1"
+
+.. jupyter-execute::
 
     import tensorflow as tf
     import zfit

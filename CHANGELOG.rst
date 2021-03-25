@@ -9,7 +9,9 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- upgraded to TensorFlow 2.4
 - Added many new minimizers. A full list can be found in :ref:`minimize_user_api`.
+
   - :class:`~zfit.minimize.IpyoptV1` that wraps the powerful Ipopt large scale minimization library
   - Scipy minimizers now have their own, dedicated wrapper for each instance such as `~zfit.minimize.ScipyLBFGSBV1`,
     :class:`~zfit.minimize.ScipyTrustKrylovV1` or :class:`~zfit.minimize.ScipySLSQPV1`
@@ -19,6 +21,7 @@ Major Features and Improvements
     :class:`~zfit.minimize.NLoptMLSLV1` and :class:`~zfit.minimize.NLoptESCHV1`.
 
 - Completely new and overhauled minimizers design, including:
+
   - minimizers can now be used with arbitrary Python functions and an initial array independent of zfit
   - a minimization can be 'continued' by passing `init` to `minimize`
   - more streamlined arguments for minimizers, harmonized names and behavior.
@@ -26,11 +29,14 @@ Major Features and Improvements
   - Making the minimizer fully stateless.
   - Moving the loss evaluation and strategy into a LossEval that simplifies the handling of printing and NaNs.
   - Callbacks are added to the strategy.
+
 - Major overhaul of the ``FitResult``, including:
+
   - improved `zfit_error` (equivalent of `MINOS`)
   - `minuit_hesse` and `minuit_minos` are now available with all minimizers as well thanks to an great
     improvement in iminuit.
   - Added an `approx` hesse that returns the approximate hessian (if available, otherwise empty)
+
 - upgrade to iminuit v2 changes the way it works and also the Minuit minimizer in zfit,
   including a new step size heuristic.
   Possible problems can be caused by iminuit itself, please report

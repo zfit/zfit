@@ -23,8 +23,7 @@ class LossEval:
                  do_print: bool,
                  maxiter: int,
                  grad_fn: Optional[Callable] = None,
-                 hesse_fn: Optional[Callable] = None,
-                 niter_tol: Optional[float] = None):
+                 hesse_fn: Optional[Callable] = None):
         r"""Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
         The methods `value`, `gradient` etc will raise a `MaximumIterationReached` error in case the maximum iterations
@@ -38,11 +37,8 @@ class LossEval:
             maxiter: Maximum number of evaluations of the `value`, 'gradient` or `hessian`.
             grad_fn: Function that returns the gradient.
             hesse_fn: Function that returns the hessian matrix.
-            niter_tol: Tolerance for the number of iterations to go over it by a factor of $niter \cdot (niter_tol + 1$)
         """
         super().__init__()
-        niter_tol = 0.1 if niter_tol is None else niter_tol
-        self.niter_tol = niter_tol
         self.maxiter = maxiter
         self._ignoring_maxiter = False
         with self.ignore_maxiter():  # otherwise when trying to set, it gets all of them, which fails as not there
@@ -78,7 +74,7 @@ class LossEval:
         return max([self.nfunc_eval, self.ngrad_eval, self.nhess_eval])
 
     def _check_maxiter(self):
-        if not self.ignoring_maxiter and self.niter * (1 + self.niter_tol) > self.maxiter:
+        if not self.ignoring_maxiter and self.niter > self.maxiter:
             raise MaximumIterationReached
 
     @contextlib.contextmanager

@@ -21,4 +21,4 @@ class Adam(WrapOptimizer):
                                              beta_1=beta1, beta_2=beta2,
                                              epsilon=epsilon,
                                              name=name)
-        super().__init__(optimizer=optimizer, tol=tol, maxiter='auto', **kwargs)
+        super().__init__(optimizer=optimizer, tol=tol, maxiter=None, **kwargs)

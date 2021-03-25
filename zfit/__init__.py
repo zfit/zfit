@@ -41,8 +41,15 @@ __all__ = ["z", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
 
 def _maybe_disable_warnings():
     import os
-    if not os.environ.get("ZFIT_DISABLE_TF_WARNINGS"):
+    true = "IS_TRUE"
+    if not os.environ.get("ZFIT_DISABLE_TF_WARNINGS", true):
         return
+    elif true:
+        warnings.warn("All TensorFlow warnings are by default suppressed by zfit."
+                      " In order to not suppress them,"
+                      " set the environment variable ZFIT_DISABLE_TF_WARNINGS to 0."
+                      " In order to suppress the TensorFlow warnings AND this warning,"
+                      " set ZFIT_DISABLE_TF_WARNINGS manually to 1.")
     os.environ["KMP_AFFINITY"] = "noverbose"
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 

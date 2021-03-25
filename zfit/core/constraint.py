@@ -208,7 +208,7 @@ class GaussianConstraint(TFProbabilityConstraint):
             params_tensor = z.convert_to_tensor(params)
 
             if sigma.shape.ndims > 1:
-                covariance = sigma
+                covariance = sigma  # TODO: square as well?
             elif sigma.shape.ndims == 1:
                 covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
             else:

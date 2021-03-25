@@ -1,8 +1,13 @@
 minimizer.verbosity: |1+
- Verbosity of the minimizer.
-                 A value above 5 starts printing more
-                 output with a value of 10 printing every
-                 evaluation of the loss function and gradient.
+ Verbosity of the minimizer. Has to be between 0 and 10
+
+                - a value of 0 means quiet and no output
+                - above 0 up to 5, information that is good to know but without
+                  flooding the user, corresponding to a "INFO" level.
+                - A value above 5 starts printing out considerably more and
+                  is used more for debugging purposes.
+                - Setting the verbosity to 10 will print out every
+                  evaluation of the loss function and gradient.
 minimizer.tol: |1+
     Termination value for the
                     convergence/stopping criterion of the algorithm
