@@ -15,10 +15,9 @@ the dataset **must** be given, and
 where parameter constraints in form of a dictionary ``{param: constraint}`` **may** be given.
 As an example, we can create an unbinned negative log-likelihood loss (:py:class:`~zfit.loss.UnbinnedNLL`) from the model described in the :ref:`Basic model section <basic-model>` and the data from the :ref:`Data section <data-section>`:
 
-.. code-block:: pycon
+.. code-block::
 
-    >>> my_loss = zfit.loss.UnbinnedNLL(model_cb,
-    >>>                                 data)
+    my_loss = zfit.loss.UnbinnedNLL(model_cb, data)
 
 Adding constraints
 ------------------

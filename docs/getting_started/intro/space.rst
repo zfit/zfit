@@ -7,7 +7,13 @@ the limits. Any model and data needs to be specified in a certain domain, which 
 ``obs`` argument. It is crucial that the axis used by the observable of the data and the model match, and this matching is
 handle by the :py:class:`~zfit.Space` class.
 
-.. code:: python
+.. jupyter-execute::
+    :hide-code:
+    :hide-output:
+
+    import zfit
+
+.. code-block::
 
     obs = zfit.Space("x")
     model = zfit.pdf.Gauss(obs=obs, ...)
@@ -43,7 +49,7 @@ Since every object has a well defined domain, it is possible to combine them in 
 While not enforced, a space should usually be created with limits that define the default space of an object.
 This correspond for example to the default normalization range ``norm_range`` or sampling range.
 
-.. code:: python
+.. code-block::
 
     lower1, upper1 = [0, 1], [2, 3]
     lower2, upper2 = [-4, 1], [10, 3]
@@ -58,19 +64,20 @@ This correspond for example to the default normalization range ``norm_range`` or
     # OR, equivalently
     product = zfit.pdf.ProductPDF([model1, model2])
 
-    assert obs1 * obs2 = product.space
+    assert obs1 * obs2 == product.space
 
 The ``product`` is now defined in the space with observables ``['x', 'y', 'z']``. Any :py:class:`~zfit.Data` object
 to be combined with ``product`` has to be specified in the same space.
 
-.. code:: python
+.. code-block::
 
     # create the space
     combined_obs = obs1 * obs2
 
     data = zfit.Data.from_numpy(obs=combined_obs, ...)
 
-Now we have a :py:class:`~zfit.Data` object that is defined in the same domain as `product`` and can be used to build a loss function.
+Now we have a :py:class:`~zfit.Data` object that is defined in the same domain as `product``
+and can be used to build a loss function.
 
 Limits
 ------
@@ -81,7 +88,7 @@ Examples are a normalization range, the limits of an integration or sampling in 
 Simple, 1-dimensional limits can be specified as follows. Operations like addition (creating a space with
 two intervals) or combination (increase the dimensionality) are also possible.
 
-.. code:: python
+.. jupyter-execute::
 
     simple_limit1 = zfit.Space(obs='obs1', limits=(-5, 1))
     simple_limit2 = zfit.Space(obs='obs1', limits=(3, 7.5))
@@ -116,8 +123,10 @@ achieved by directly specifying them as rectangular limits).
 Combining limits
 ''''''''''''''''
 
-To define simple, 1-dimensional limits, a tuple with two numbers or a functional limit in 1 dimension is enough. For anything more complicated,
-the operators product ``*`` or addition ``+`` respectively their functional API :py:func:`zfit.dimension.combine_spaces`
+To define simple, 1-dimensional limits, a tuple with two numbers or a functional
+limit in 1 dimension is enough. For anything more complicated,
+the operators product ``*`` or addition ``+`` respectively their functional API
+:py:func:`zfit.dimension.combine_spaces`
 and :py:func:`zfit.dimension.add_spaces` can be used.
 
 
@@ -128,9 +137,11 @@ A working code example of :py:class:`~zfit.Space` handling is provided in :ref:`
 Using the limits
 '''''''''''''''''
 
-To use the limits of any object, the methods :py:meth``~zfit.Space.inside`` (to test if values are inside or outside of the boundaries)
-and :py:meth``~zfit.Space.filter`` can be used.
+To use the limits of any object, the methods :py:meth:`~zfit.Space.inside`
+(to test if values are inside or outside of the boundaries)
+and :py:meth:`~zfit.Space.filter` can be used.
 
-The rectangular limits can also direclty be accessed by ``rect_limits``, ``rect_lower`` or ``rect_upper``. The returned shape is of
+The rectangular limits can also direclty be accessed by ``rect_limits``, ``rect_lower`` or ``rect_upper``.
+The returned shape is of
 ``(n_events, n_obs)``, for the lower respectively upper limit (``rect_limits`` is a tuple of ``(lower, upper)``).
 This should be used with caution and only if the rectangular limits are desired.

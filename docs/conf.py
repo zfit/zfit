@@ -31,6 +31,7 @@ extensions = [
     'sphinx_autodoc_typehints',
     # sphinx_autodoc_typehints must be imported after napoleon to properly work.
     # See https://github.com/agronholm/sphinx-autodoc-typehints/issues/15
+    'jupyter_sphinx',
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
@@ -105,6 +106,14 @@ for replacement_key in replacements:
 '''
 with open('hyperlinks.txt') as hyperlinks:
     rst_epilog += hyperlinks.read()
+
+# makes the jupyter extension executable
+jupyter_sphinx_thebelab_config = {
+    'requestKernel': True,
+    'binderOptions': {
+        'repo': "binder-examples/requirements",
+    },
+}
 
 html_favicon = "images/zfit-favicon.png"
 

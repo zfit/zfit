@@ -345,10 +345,11 @@ def test_minimizers(minimizer_class_and_kwargs, numgrad, chunksize, spaces,
             hesse_methods = ['hesse_np']
             profile_methods = ['zfit_error']
             from zfit.minimizers.minimizer_minuit import Minuit
+            hesse_methods.append('minuit_hesse')
             if isinstance(minimizer, Minuit):
-                hesse_methods.append('minuit_hesse')
-                hesse_methods.append('approx')
+                # TODO: Move up for all once https://github.com/scikit-hep/iminuit/issues/631 fixed
                 profile_methods.append('minuit_minos')
+                hesse_methods.append('approx')
 
             rel_error_tol = 0.15
             for method in hesse_methods:

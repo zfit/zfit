@@ -35,18 +35,20 @@ Using this method as a context manager, the value can also temporarily changed.
 However, be aware that anything _dependent_ on the parameter will have a value with the
 parameter evaluated with the new value at run-time:
 
-.. code:: pycon
+.. jupyter-execute::
+    :hide-code:
+    :hide-output:
 
-    >>> mu = zfit.Parameter("mu_one", 1)  # no limits, but FLOATING (!)
-    >>> with mu.set_value(3):
-    ...    # in here, mu has the value 3
-    ...    mu_val = zfit.run(mu)  # 3
-    ...    five_mu = 5 * mu
-    ...    five_mu_val = zfit.run(five_mu)  # is evaluated with mu = 5. -> five_mu_val is 15
+    import zfit
 
-    >>> # here, mu is again 1
-    >>> mu_val_after = zfit.run(mu)  # 1
-    >>> five_mu_val_after = zfit.run(five_mu)  # is evaluated with mu = 1! -> five_mu_val_after is 5
+.. jupyter-execute::
+
+    mu = zfit.Parameter("mu_one", 1)  # no limits, but FLOATING (!)
+    with mu.set_value(3):
+        print(f'before {mu}')
+
+    # here, mu is again 1
+    print(f'after {mu}')
 
 
 Dependent Parameter
@@ -54,20 +56,21 @@ Dependent Parameter
 
 A parameter can be composed of several other parameters. They can be used equivalently to :py:class:`~zfit.Parameter`.
 
-.. code:: pycon
+.. jupyter-execute::
 
-    >>> mu2 = zfit.Parameter("mu_two", 7)
+    mu2 = zfit.Parameter("mu_two", 7)
 
-    >>> def dependent_func(mu, mu2):
-    ...     return mu * 5 + mu2  # or any kind of computation
-    >>> dep_param = zfit.ComposedParameter("dependent_param", dependent_func, dependents=[mu, mu2])
+    def dependent_func(mu, mu2):
+        return mu * 5 + mu2  # or any kind of computation
+    dep_param = zfit.ComposedParameter("dependent_param", dependent_func, params=[mu, mu2])
 
-    >>> dependents = dep_param.get_params()  # returns ordered-set(mu, mu2)
+    print(dep_param.get_params())
 
 
-A special case of the above is :py:class:`~zfit.ComplexParameter`: it takes a complex :py:class:`tf.Tensor` as input and
-provides a few special methods (like :py:func:`~zfit.ComplexParameter.real`, :py:func:`~zfit.ComplexParameterconj` etc.)
-to easier deal with them.
+A special case of the above is :py:class:`~zfit.ComplexParameter`: it
+provides a few special methods (like :py:func:`~zfit.ComplexParameter.real`,
+:py:func:`~zfit.ComplexParameter.conj` etc.)
+to easier deal with complex numbers.
 Additionally, the :py:func:`~zfit.ComplexParameter.from_cartesian` and :py:func:`~zfit.ComplexParameter.from_polar`
 methods can be used to initialize polar parameters from floats, avoiding the need of creating complex
 :py:class:`tf.Tensor` objects.
