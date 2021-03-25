@@ -2,6 +2,14 @@
 Examples
 ========
 
+Minimizing Python functions
+---------------------------
+
+zfit minimizers can also be used to minimize normal Python functions as shown here.
+
+.. literalinclude:: /../examples/minimize_python_func.py
+
+
 Composing PDFs
 --------------
 .. literalinclude:: /../examples/composing_pdf.py

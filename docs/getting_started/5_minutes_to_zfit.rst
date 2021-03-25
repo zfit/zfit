@@ -2,7 +2,9 @@
 5 minutes to zfit
 =================
 
-The zfit library provides a simple model fitting and sampling framework for a broad list of applications. This section is designed to give an overview of the main concepts and features in the context of likelihood fits in a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.
+The zfit library provides a simple model fitting and sampling framework for a broad list of applications.
+This section is designed to give an overview of the main concepts and features in the context of likelihood fits in
+a *crash course* manner. The simplest example is to generate, fit and plot a Gaussian distribution.
 
 The first step is to naturally import ``zfit`` and verify if the installation has been done successfully:
 
@@ -77,16 +79,24 @@ It is important to highlight that conceptually zfit separates the minimisation o
 function with respect to the error calculation, in order to give the freedom of calculating this
 error whenever needed and to allow the use of external error calculation packages.
 
-In order to
+In order to estimate the uncertainty of the parameters, a hessian approximation can be made using
+:meth:`~zfit.result.FitResult.hesse`. This is a fast, symmetric estimation that usually works well
+and is also valid for weighted fits (as corrections are applied).
 
-
+It is invoked as
 
 .. jupyter-execute::
 
     param_hesse = result.hesse()
     print(param_hesse)
 
-Most minimisers will implement their CPU-intensive error calculating with the ``errors`` method.
+The errors will also be added to the result object and show up when printing the result.
+
+While the hessian approximation has many advantages, it may not hold well for certain loss functions, especially for
+asymetric uncertainties. A more CPU-intensive error calculating can be invoked with the ``errors`` method,
+which is a profiling method that also minimizes at every point
+*(it is however not valid in the case of weights and takes
+considerably longer).*
 As an example, with the :py:class:`~zfit.minimize.Minuit` one can calculate the `MINOS`` with:
 
 .. jupyter-execute::
@@ -105,9 +115,9 @@ The object ``result`` (:py:class:`~zfit.minimizers.fitresult.FitResult`) has all
 
 .. jupyter-execute::
 
-    print("Function minimum:", result.fmin)
-    print("Converged:", result.converged)
-    print("Valid:", result.valid)
+    print(f"Function minimum: {result.fmin}")
+    print(f"Converged: {result.converged}")
+    print(f"Valid: {result.valid}")
 
 This is all available if we print the fitresult (not shown here as display problems).
 
@@ -151,3 +161,5 @@ libraries, such as ``matplotlib`` or `mplhel, a library for HEP-like plots <>`_ 
 
 The specific call to :func:`zfit.run` simply converts the Eager Tensor (that is already array-like) to a Numpy array.
 Often, this conversion is however not necessary and a Tensor can directly be used.
+
+The full script :jupyter-download:script:`can be downloaded here <5_minutes_to_zfit>`.

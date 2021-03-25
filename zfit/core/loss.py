@@ -549,8 +549,7 @@ class SimpleLoss(BaseLoss):
     def errordef(self):
         errordef = self._simple_errordef
         if errordef is None:
-            errordef = -999
-            # raise RuntimeError("For this SimpleLoss, no error calculation is possible.")
+            raise RuntimeError("For this SimpleLoss, no error calculation is possible.")
         else:
             return errordef
 

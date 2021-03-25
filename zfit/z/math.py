@@ -118,13 +118,13 @@ def numerical_hessian(func: Optional[Callable],
 
     if hessian == 'diag':
         hesse_func = numdifftools.Hessdiag(wrapped_func,
-                                           order=4,
+                                           order=2,
                                            # TODO: maybe add step to remove numerical problems?
                                            base_step=1e-4
                                            )
     else:
         hesse_func = numdifftools.Hessian(wrapped_func,
-                                          order=4,
+                                          order=2,
                                           base_step=1e-4,
                                           )
     if tf.executing_eagerly():

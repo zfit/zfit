@@ -42,7 +42,7 @@ to the different nature of problem that they usually intend to solve, their perf
 
 
 Any of these minimizers can then be used to minimize the loss function we created
-in :ref:`previous section <data-section>`, e.g.
+in :ref:`previous section <data-section>`, or a pure Python function
 
 .. code-block:: pycon
 
