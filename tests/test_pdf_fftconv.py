@@ -70,9 +70,10 @@ def test_conv_simple(interpolation):
 
 @pytest.mark.parametrize('interpolation', interpolation_methods)
 def test_asymetric_limits(interpolation):
+    from numpy import linspace
+
     import zfit
     from zfit.models.convolution import FFTConvPDFV1
-    from numpy import linspace
 
     ## Space
     low_obs = -30
