@@ -58,7 +58,7 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 - ``zfit_error`` moved only one parameter to the correct initial position. Speedup and more reliable.
-
+- FFTconv was shifted if the kernel limits were not symetrical, now properly taken into account.
 
 Experimental
 ------------

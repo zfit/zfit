@@ -20,11 +20,11 @@ class FFTConvPDFV1(BaseFunctor):
     def __init__(self,
                  func: ZfitPDF,
                  kernel: ZfitPDF,
-                 n: int = None,
+                 n: Optional[int] = None,
                  limits_func: Union[ztyping.LimitsType, float] = None,
                  limits_kernel: ztyping.LimitsType = None,
                  interpolation: Optional[str] = None,
-                 obs: ztyping.ObsTypeInput = None,
+                 obs: Optional[ztyping.ObsTypeInput] = None,
                  name: str = "FFTConvV1"):
         r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
 
@@ -44,6 +44,7 @@ class FFTConvPDFV1(BaseFunctor):
         The convolution of two (normalized) functions is defined as
 
         .. math::
+
             (f * g)(t) \triangleq\ \int_{-\infty}^\infty f(\tau) g(t - \tau) \, d\tau
 
         It defines the "smearing" of `func` by a `kernel`. This is when an element in `func` is
@@ -93,13 +94,13 @@ class FFTConvPDFV1(BaseFunctor):
                 - 'linear': this is the default for any convolution > 1 dimensional. It is a
                   fast, linear interpolation between the evaluated points and approximates the
                   function reasonably well in case of high number of points and a smooth response.
-                - 'spline' or `f'spline{order}'`: a spline interpolation with polynomials. If
-                  the order is not specified, a default is used. To specify the order, an integer
-                  should be followed the word 'spline' as e.g. in 'spline3' to use a spline of
-                  order three.
-                  This method is considerably more computationally intensive as it requires to solve
+                - 'spline' or `f'spline:{order}'`: a spline interpolation with polynomials. If
+                  the order is not specified, a default is used. To specify the order, 'spline'
+                  should be followed  an integer, separated by a colon as e.g. in 'spline:3'
+                  to use a spline of order three.
+                  This method is considerably more computationally expensive as it requires to solve
                   a system of equations. When using 1000+ points this can affect the runtime critical.
-                  However, it provides better solutions that are smooth even with less points
+                  However, it provides better solution, a curve that is smooth even with less points
                   than for a linear interpolation.
 
             obs: Observables of the class. If not specified, automatically taken from `func`
