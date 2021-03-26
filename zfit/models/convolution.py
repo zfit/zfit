@@ -20,11 +20,11 @@ class FFTConvPDFV1(BaseFunctor):
     def __init__(self,
                  func: ZfitPDF,
                  kernel: ZfitPDF,
-                 n: int = None,
+                 n: Optional[int] = None,
                  limits_func: Union[ztyping.LimitsType, float] = None,
                  limits_kernel: ztyping.LimitsType = None,
                  interpolation: Optional[str] = None,
-                 obs: ztyping.ObsTypeInput = None,
+                 obs: Optional[ztyping.ObsTypeInput] = None,
                  name: str = "FFTConvV1"):
         r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
 
@@ -33,6 +33,7 @@ class FFTConvPDFV1(BaseFunctor):
         EXPERIMENTAL: Feedback is very welcome! Performance, which parameters to tune, which fail etc.
 
         TL;DR technical details:
+
           - FFT-like technique: discretization of function. Number of bins splits the kernel into `n` bins
             and uses the same binwidth for the func while extending it by the kernel space. Internally,
             `tf.nn.convolution` is used.
@@ -43,14 +44,16 @@ class FFTConvPDFV1(BaseFunctor):
         The convolution of two (normalized) functions is defined as
 
         .. math::
+
             (f * g)(t) \triangleq\ \int_{-\infty}^\infty f(\tau) g(t - \tau) \, d\tau
 
         It defines the "smearing" of `func` by a `kernel`. This is when an element in `func` is
         randomly added to an element of `kernel`. While the sampling (the addition of elements) is rather
         simple to do computationally, the calculation of the convolutional PDF (if there is no analytic
         solution available) is not, as it requires:
+
             - an integral from -inf to inf
-            - an integral _for every point of x that is requested_
+            - an integral *for every point of x that is requested*
 
         This can be solved with a few tricks. Instead of integrating to infinity, it is usually sufficient to
         integrate from a point where the function is "small enough".
@@ -69,11 +72,12 @@ class FFTConvPDFV1(BaseFunctor):
                 Here x is a `Data` with the obs and limits of *limits*.
             kernel: PDF with `pdf` method that takes x acting as the kernel.
                 Here x is a `Data` with the obs and limits of *limits*.
-            n: Number of points _per dimension_ to evaluate the kernel and pdf at.
+            n: Number of points *per dimension* to evaluate the kernel and pdf at.
                 The higher the number of points, the more accurate the convolution at the cost
                 of computing time. If `None`, a heuristic is used (default to 100 in 1 dimension).
             limits_func: Specify in which limits the `func` should
                 be evaluated for the convolution:
+
                 - If `None`, the limits from the `func` are used and extended by a
                  default value (relative 0.2).
                 - If float: the fraction of the limit do be extended. 0 means no extension,
@@ -82,20 +86,23 @@ class FFTConvPDFV1(BaseFunctor):
                   As an example, the limits (1, 5) with a `limits_func` of 0.5 would result in
                   effective limits of (-1, 7), as 0.5 * (5 - 1) = 2 has been added to each side.
                 - If a space with limits is used, this is taken as the range.
+
             limits_kernel: the limits of the kernel. Usually not needed to change and automatically
                 taken from the kernel.
             interpolation: Specify the method that is used for interpolation. Available methods are:
+
                 - 'linear': this is the default for any convolution > 1 dimensional. It is a
                   fast, linear interpolation between the evaluated points and approximates the
                   function reasonably well in case of high number of points and a smooth response.
-                - 'spline' or `f'spline{order}'`: a spline interpolation with polynomials. If
-                  the order is not specified, a default is used. To specify the order, an integer
-                  should be followed the word 'spline' as e.g. in 'spline3' to use a spline of
-                  order three.
-                  This method is considerably more computationally intensive as it requires to solve
+                - 'spline' or `f'spline:{order}'`: a spline interpolation with polynomials. If
+                  the order is not specified, a default is used. To specify the order, 'spline'
+                  should be followed  an integer, separated by a colon as e.g. in 'spline:3'
+                  to use a spline of order three.
+                  This method is considerably more computationally expensive as it requires to solve
                   a system of equations. When using 1000+ points this can affect the runtime critical.
-                  However, it provides better solutions that are smooth even with less points
+                  However, it provides better solution, a curve that is smooth even with less points
                   than for a linear interpolation.
+
             obs: Observables of the class. If not specified, automatically taken from `func`
             name: Human readable name of the PDF
         """
@@ -175,7 +182,7 @@ class FFTConvPDFV1(BaseFunctor):
         # We take the binwidth of the kernel as the overall binwidth and need to have the same binning in
         # the function as well
         area_ratios = (upper_sample - lower_sample) / (
-            limits_kernel.rect_upper - limits_kernel.rect_lower)
+                limits_kernel.rect_upper - limits_kernel.rect_lower)
         nbins_func_exact_max = tf.reduce_max(area_ratios * n)
         nbins_func = tf.math.ceil(
             nbins_func_exact_max)  # plus one and floor is like ceiling (we want more bins) with the
@@ -190,7 +197,7 @@ class FFTConvPDFV1(BaseFunctor):
 
         binwidth = (upper_kernel - lower_kernel) / nbins_kernel
         to_extend = (binwidth * nbins_func - (
-            upper_sample - lower_sample)) / 2  # how much we need to extend the func_limits
+                upper_sample - lower_sample)) / 2  # how much we need to extend the func_limits
         # on each side in order to match the binwidth of the kernel
         lower_sample -= to_extend
         upper_sample += to_extend
@@ -215,14 +222,15 @@ class FFTConvPDFV1(BaseFunctor):
         nbins_kernel = self._conv_limits["nbins_kernel"]
         x_kernels = tf.linspace(lower_kernel, upper_kernel, tf.cast(nbins_kernel, tf.int32))
 
-        x_func = tf.transpose(tf.meshgrid(*tf.unstack(x_funcs, axis=-1),
-                                          indexing='ij'))
-        data_func = Data.from_tensor(tensor=x_func, obs=self.obs)
+        x_func = tf.meshgrid(*tf.unstack(x_funcs, axis=-1), indexing='ij')
+        x_func = tf.transpose(x_func)
+        x_func_flatish = tf.reshape(x_func, (-1, self.n_obs))
+        data_func = Data.from_tensor(tensor=x_func_flatish, obs=self.obs)
 
-        x_kernel = tf.transpose(tf.meshgrid(*tf.unstack(x_kernels, axis=-1),
-                                            indexing='ij'))
-
-        data_kernel = Data.from_tensor(tensor=x_kernel, obs=self.obs)
+        x_kernel = tf.meshgrid(*tf.unstack(x_kernels, axis=-1), indexing='ij')
+        x_kernel = tf.transpose(x_kernel)
+        x_kernel_flatish = tf.reshape(x_kernel, (-1, self.n_obs))
+        data_kernel = Data.from_tensor(tensor=x_kernel_flatish, obs=self.obs)
 
         y_func = self.pdfs[0].pdf(data_func, norm_range=False)
         y_kernel = self.pdfs[1].pdf(data_kernel, norm_range=False)
@@ -235,7 +243,14 @@ class FFTConvPDFV1(BaseFunctor):
 
         # flip the kernel to use the cross-correlation called `convolution function from TF
         # convolution = cross-correlation with flipped kernel
+        # this introduces a shift and has to be corrected when interpolating/x_func
+        # because the convolution has to be independent of the kernes **limits**
+        # We assume they are symmetric when doing the FFT, so shift them back.
         y_kernel = tf.reverse(y_kernel, axis=range(self.n_obs))
+        kernel_shift = (upper_kernel + lower_kernel) / 2
+        x_func += kernel_shift
+        lower_func += kernel_shift
+        upper_func += kernel_shift
 
         # make rectangular grid
         y_func_rect = tf.reshape(y_func, func_dims)
