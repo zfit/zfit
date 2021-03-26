@@ -1,11 +1,11 @@
-"""
-A rich selection of analytically implemented Distributions (models) are available in
-`TensorFlow Probability <https://github.com/tensorflow/probability>`_. While their API is slightly
-different from the zfit models, it is similar enough to be easily wrapped.
+"""A rich selection of analytically implemented Distributions (models) are available in `TensorFlow Probability.
+
+<https://github.com/tensorflow/probability>`_. While their API is slightly different from the zfit models, it is similar
+enough to be easily wrapped.
 
 Therefore a convenient wrapper as well as a lot of implementations are provided.
 """
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from collections import OrderedDict
 
@@ -14,12 +14,15 @@ import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 
 from zfit import z
-from zfit.util.exception import AnalyticIntegralNotImplementedError, AnalyticSamplingNotImplementedError
+from zfit.util.exception import (AnalyticIntegralNotImplementedError,
+                                 AnalyticSamplingNotImplementedError)
+
 from ..core.basepdf import BasePDF
 from ..core.parameter import convert_to_parameter
-from ..core.space import supports, Space
+from ..core.space import Space, supports
 from ..settings import ztypes
 from ..util import ztyping
+
 
 # TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
 @supports()
@@ -51,9 +54,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
 
 
 class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like icdf
-    """Baseclass to wrap tensorflow-probability distributions automatically.
-
-    """
+    """Baseclass to wrap tensorflow-probability distributions automatically."""
 
     def __init__(self, distribution, dist_params, obs, params=None, dist_kwargs=None, dtype=ztypes.float, name=None,
                  **kwargs):
@@ -175,12 +176,12 @@ class Gauss(WrapDistribution):
         The gaussian shape is defined as
 
         .. math::
-            f(x \mid \mu, \\sigma^2) = e^{ -\\frac{(x - \\mu)^{2}}{2\\sigma^2} }
+            f(x \\mid \\mu, \\sigma^2) = e^{ -\\frac{(x - \\mu)^{2}}{2\\sigma^2} }
 
         with the normalization over [-inf, inf] of
 
         .. math::
-            \\frac{1}{\\sqrt{2\pi\sigma^2} }
+            \\frac{1}{\\sqrt{2\\pi\\sigma^2} }
 
         The normalization changes for different normalization ranges
 
@@ -290,8 +291,7 @@ class Poisson(WrapDistribution):
                  lamb: ztyping.ParamTypeInput,
                  obs: ztyping.ObsTypeInput,
                  name: str = "Poisson"):
-        """
-        Poisson distribution, parametrized with an event rate parameter (lamb).
+        """Poisson distribution, parametrized with an event rate parameter (lamb).
 
         The probability mass function of the Poisson distribution is given by
 

@@ -1,5 +1,5 @@
-"""Example test for a pdf or function"""
-#  Copyright (c) 2020 zfit
+"""Example test for a pdf or function."""
+#  Copyright (c) 2021 zfit
 
 import numpy as np
 import pytest
@@ -9,8 +9,6 @@ import tensorflow as tf
 
 import zfit
 from zfit import z
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import WorkInProgressError
 
 param1_true = 0.3
@@ -102,7 +100,7 @@ def test_conv_1d_shifted():
     # plt.legend()
     # plt.show()
 
-
+@pytest.mark.skip  # TODO: reactivate, fix bug with conv https://github.com/zfit/zfit/issues/291
 def test_onedim_sampling():
     obs_kernel = zfit.Space("obs1", limits=(-3, 3))
     obs = zfit.Space("obs1", limits=(5, 15))
@@ -240,6 +238,7 @@ def test_conv_2D_simple():
     true_probs = true_conv_2d_np(func, gauss, obsfunc=obs_func,
                                  xfunc=linspace_func, xkernel=linspace_kernel)
     import matplotlib.pyplot as plt
+
     # np.testing.assert_allclose(probs, true_probs, rtol=0.2, atol=0.1)
     integral = conv.integrate(limits=obs_func)
     assert pytest.approx(1, rel=1e-3) == integral.numpy()

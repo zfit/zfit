@@ -1,11 +1,10 @@
-"""
-Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
+"""Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
 
 A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import functools
 import operator
 from collections import OrderedDict
@@ -17,15 +16,17 @@ import tensorflow as tf
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.coordinates import convert_to_obs_str
-from ..core.interfaces import ZfitPDF, ZfitModel, ZfitData
+from ..core.interfaces import ZfitData, ZfitModel, ZfitPDF
 from ..core.parameter import convert_to_parameter
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
-from ..settings import ztypes, run
+from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (ModelIncompatibleError, ObsIncompatibleError, NormRangeUnderdefinedError,
-                              AnalyticIntegralNotImplementedError, SpecificFunctionNotImplementedError)
+from ..util.exception import (AnalyticIntegralNotImplementedError,
+                              ModelIncompatibleError,
+                              NormRangeUnderdefinedError, ObsIncompatibleError,
+                              SpecificFunctionNotImplementedError)
 from ..util.warnings import warn_advanced_feature, warn_changed_feature
 from ..z.random import counts_multinomial
 
@@ -170,7 +171,7 @@ class SumPDF(BaseFunctor):
 
         params = OrderedDict()
         for i, frac in enumerate(param_fracs):
-            params['frac_{}'.format(i)] = frac
+            params[f'frac_{i}'] = frac
 
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
         if all_extended and not fracs_cleaned:

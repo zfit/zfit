@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import numpy as np
 import tensorflow as tf
@@ -10,14 +10,12 @@ run = RunManager()
 
 
 def set_seed(seed):
-    """
-      Set random seed for numpy
-    """
+    """Set random seed for numpy."""
     np.random.seed(seed)
     tf.random.set_seed(seed)
 
 
-_verbosity = 5
+_verbosity = 0
 
 
 def set_verbosity(verbosity):

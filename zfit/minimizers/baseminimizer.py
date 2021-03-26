@@ -1,174 +1,333 @@
-"""
-Definition of minimizers, wrappers etc.
+#  Copyright (c) 2021 zfit
+"""Definition of minimizers, wrappers etc."""
 
-"""
-
-#  Copyright (c) 2020 zfit
-import abc
 import collections
 import copy
+import functools
+import inspect
+import math
+import os
 import warnings
-from abc import abstractmethod
-from collections import OrderedDict
-from typing import List, Union, Iterable, Mapping
+from contextlib import contextmanager
+from typing import Callable, Dict, Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
-import texttable as tt
+from ordered_set import OrderedSet
 
-from .fitresult import FitResult
-from .interface import ZfitMinimizer
 from ..core.interfaces import ZfitLoss, ZfitParameter
+from ..core.parameter import convert_to_parameter, set_values
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import MinimizeNotImplementedError, MinimizeStepNotImplementedError
-
-
-class FailMinimizeNaN(Exception):
-    pass
-
-
-class ZfitStrategy(abc.ABC):
-    @abstractmethod
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
-                     values: Mapping = None) -> float:
-        raise NotImplementedError
-
-
-class BaseStrategy(ZfitStrategy):
-
-    def __init__(self) -> None:
-        self.fit_result = None
-        self.error = None
-        super().__init__()
-
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
-                     values: Mapping = None) -> float:
-        return self._minimize_nan(loss=loss, params=params, minimizer=minimizer, values=values)
-
-    def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
-                      values: Mapping = None) -> float:
-        print("The minimization failed due to too many NaNs being produced in the loss."
-              "This is most probably caused by negative"
-              " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
-              " problem. Also check your model (if custom) for problems. For more information,"
-              " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
-        raise FailMinimizeNaN()
-
-    def __str__(self) -> str:
-        return repr(self.__class__)[:-2].split(".")[-1]
-
-
-class ToyStrategyFail(BaseStrategy):
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.fit_result = FitResult(params={}, edm=-999, fmin=-999, status=-999, converged=False, info={},
-                                    loss=None, minimizer=None)
-
-    def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
-                      values: Mapping = None) -> float:
-        param_vals = run(params)
-        param_vals = OrderedDict((param, value) for param, value in zip(params, param_vals))
-        self.fit_result = FitResult(params=param_vals, edm=-999, fmin=-999, status=9, converged=False, info={},
-                                    loss=loss,
-                                    minimizer=minimizer)
-        raise FailMinimizeNaN()
-
-
-class PushbackStrategy(BaseStrategy):
-
-    def __init__(self, nan_penalty: Union[float, int] = 100, nan_tolerance: int = 30, **kwargs):
-        """Pushback by adding `nan_penalty * counter` to the loss if NaNs are encountered.
-
-        The counter indicates how many NaNs occurred in a row. The `nan_tolerance` is the upper limit, if this is
-        exceeded, the fallback will be used and an error is raised.
-
-        Args:
-            nan_penalty: Value to add to the previous loss in order to penalize the step taken.
-            nan_tolerance: If the number of NaNs encountered in a row exceeds this number, the fallback is used.
-        """
-        super().__init__(**kwargs)
-        self.nan_penalty = nan_penalty
-        self.nan_tolerance = nan_tolerance
-
-    def _minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, minimizer: ZfitMinimizer,
-                      values: Mapping = None) -> float:
-        assert 'nan_counter' in values, "'nan_counter' not in values, minimizer not correctly implemented"
-        nan_counter = values['nan_counter']
-        if nan_counter < self.nan_tolerance:
-            last_loss = values.get('old_loss')
-            if last_loss is not None:
-
-                loss_evaluated = last_loss + self.nan_penalty*nan_counter
-            else:
-                loss_evaluated = values.get('loss')
-            if isinstance(loss_evaluated, str):
-                raise RuntimeError("Loss starts already with NaN, cannot minimize.")
-            return loss_evaluated
-        else:
-            super()._minimize_nan(loss=loss, params=params, minimizer=minimizer, values=values)
-
+from ..util.exception import (InitNotImplemented, MaximumIterationReached,
+                              MinimizeNotImplemented,
+                              MinimizerSubclassingError,
+                              MinimizeStepNotImplementedError,
+                              ParameterNotIndependentError)
+from ..util.warnings import warn_changed_feature
+from .evaluation import LossEval
+from .fitresult import FitResult
+from .interface import ZfitMinimizer, ZfitResult
+from .strategy import FailMinimizeNaN, PushbackStrategy, ZfitStrategy
+from .termination import EDM, ConvergenceCriterion
 
 DefaultStrategy = PushbackStrategy
 
+status_messages = {
+    'maxiter': "Maximum iteration reached."
+}
 
-class DefaultToyStrategy(DefaultStrategy, ToyStrategyFail):
-    """Same as :py:class:`DefaultStrategy`, but does not raise an error on full failure, instead return an invalid
-    FitResult.
 
-    This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a
-    failure instead of rising an error.
+def minimize_supports(*, init: Union[bool] = False) -> Callable:
+    """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
+
+    If any of the flags is set to False, it will check the arguments and, in case they match a flag
+    (say if a *init* is passed while the *init* flag is set to `False`), it will
+    raise a corresponding exception (in this example a `FromResultNotImplemented`) that will
+    be caught by an outer function that knows how to handle things.
+
+    Args:
+        init: Specify whether the minimize method can handle a FitResult instead of a loss as a loss. There are
+            three options:
+            - False: This is the default and means that _no FitResult will ever come true_. The minimizer handles the
+              initial parameter values himselves.
+            - 'same': If 'same' is set, a `FitResult` will only come through if it was created with the *exact* same
+              type as
+        multiple_limits: If False, only simple limits are to be expected and no iteration is
+            therefore required.
     """
+
+    def wrapper(func):
+
+        parameters = inspect.signature(func).parameters
+        keys = list(parameters.keys())
+        init_str = 'init'
+        if init is True or init_str not in keys:  # no init as parameters -> no problem
+            new_func = func
+        else:
+            init_index = keys.index(init_str)
+
+            @functools.wraps(func)
+            def new_func(*args, **kwargs):
+                self_minimizer = args[0]
+                can_handle = True
+                loss_is_arg = len(args) > init_index
+                if loss_is_arg:
+                    init_result = args[init_index]
+                else:
+                    init_result = kwargs[init_str]
+
+                if isinstance(init_result, FitResult):
+                    if init == 'same':
+                        if not type(self_minimizer) == type(init_result.minimizer):
+                            can_handle = False
+                    elif not init:
+                        can_handle = False
+                    else:
+                        raise ValueError("`init` has to be True, False or 'same'")
+                if not can_handle:
+                    raise InitNotImplemented
+                return func(*args, **kwargs)
+
+        new_func.__wrapped__ = minimize_supports
+        return new_func
+
+    return wrapper
+
+
+_Minimizer_CHECK_HAS_SUPPORT = {}
+
+
+def _Minimizer_register_check_support(has_support: bool):
+    """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
+
+    Args:
+        has_support: If True, flags that it **requires** the `@supports` decorator. If False,
+            flags that the `@supports` decorator is **not allowed**.
+    """
+    if not isinstance(has_support, bool):
+        raise TypeError("Has to be boolean.")
+
+    def register(func):
+        """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
+
+        Args:
+            func:
+
+        Returns:
+            Function:
+        """
+        name = func.__name__
+        _Minimizer_CHECK_HAS_SUPPORT[name] = has_support
+        func.__wrapped__ = _Minimizer_register_check_support
+        return func
+
+    return register
 
 
 class BaseMinimizer(ZfitMinimizer):
-    """Minimizer for loss functions.
+    _DEFAULTS = {
+        'tol': 1e-3,
+        'verbosity': 0,
+        'strategy': DefaultStrategy,
+        'criterion': EDM,
+        'maxiter': 'auto',
+    }
 
-    Additional `minimizer_options` (given as **kwargs) can be accessed and changed via the
-    attribute (dict) `minimizer.minimizer_options`.
-    """
-    _DEFAULT_TOLERANCE = 1e-3
+    def __init__(self,
+                 tol: Optional[float],
+                 verbosity: Optional[int],
+                 criterion: Optional[ConvergenceCriterion],
+                 strategy: Optional[ZfitStrategy],
+                 minimizer_options: Optional[Dict],
+                 maxiter: Optional[Union[str, int]],
+                 name: Optional[str]) -> None:
+        """Base Minimizer to minimize loss functions and return a result.
 
-    def __init__(self, name, tolerance, verbosity, minimizer_options, strategy=None, **kwargs):
-        super().__init__(**kwargs)
-        if name is None:
-            name = repr(self.__class__)[:-2].split(".")[-1]
+        This class acts as a base class to implement a minimizer. The method `minimize` has to be overridden.
+
+
+        Args:
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient.
+
+               Some minimizer offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
+            minimizer_options: Additional minimizer options
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+        """
+        super().__init__()
+        self._n_iter_per_param = 3000
+
+        self.tol = self._DEFAULTS['tol'] if tol is None else tol
+        self.verbosity = self._DEFAULTS['verbosity'] if verbosity is None else verbosity
+        self.minimizer_options = {} if minimizer_options is None else minimizer_options
+        self.criterion = self._DEFAULTS['criterion'] if criterion is None else criterion
+
         if strategy is None:
-            strategy = DefaultStrategy()
-        if not isinstance(strategy, ZfitStrategy):
-            raise TypeError(f"strategy {strategy} is not an instance of ZfitStrategy.")
-        self.strategy = strategy
-        self.name = name
-        if tolerance is None:
-            tolerance = self._DEFAULT_TOLERANCE
-        self.tolerance = tolerance
-        self.verbosity = verbosity
-        if minimizer_options is None:
-            minimizer_options = {}
-        self.minimizer_options = minimizer_options
-        self._max_steps = 5000
+            strategy = self._DEFAULTS['strategy']
+        try:
+            do_error = not issubclass(strategy, ZfitStrategy)
+        except TypeError:  # legacy
+            warn_changed_feature(message="A strategy should now be a class, not an instance. The minimizer will"
+                                         " at the beginning of the minimization create an instance that can be"
+                                         " stateful during the minimization and will be stored in the FitResult.",
+                                 identifier="strategies_in_minimizers.")
+            do_error = not isinstance(strategy, ZfitStrategy)
+        if do_error:
+            raise TypeError(f"strategy {strategy} is not a subclass of ZfitStrategy.")
 
-    def _check_input_params(self, loss: ZfitLoss, params, only_floating=True):
+        self._strategy = strategy
+        self._state = None
+        self.maxiter = self._DEFAULTS['maxiter'] if maxiter is None else maxiter
+        self.name = repr(self.__class__)[:-2].split(".")[-1] if name is None else name
 
-        params = convert_to_container(params)
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # check if subclass has decorator if required
+        cls._subclass_check_support(methods_to_check=_Minimizer_CHECK_HAS_SUPPORT,
+                                    wrapper_not_overwritten=_Minimizer_register_check_support)
+
+    @classmethod
+    def _subclass_check_support(cls, methods_to_check, wrapper_not_overwritten):
+        for method_name, has_support in methods_to_check.items():
+            if not hasattr(cls, method_name):
+                continue  # skip if only subclass requires it
+            method = getattr(cls, method_name)
+            if hasattr(method, "__wrapped__"):
+                if method.__wrapped__ == wrapper_not_overwritten:
+                    continue  # not overwritten, fine
+
+            # here means: overwritten
+            if hasattr(method, "__wrapped__"):
+                if method.__wrapped__ == minimize_supports:
+                    if has_support:
+                        continue  # needs support, has been wrapped
+                    else:
+                        raise MinimizerSubclassingError("Method {} has been wrapped with minimize_supports "
+                                                        "but is not allowed to. Has to handle all "
+                                                        "arguments.".format(method_name))
+                elif has_support:
+                    raise MinimizerSubclassingError(f"Method {method_name} has been overwritten and *has to* be"
+                                                    " wrapped by `@minimize_supports` decorator (don't forget"
+                                                    " to call the decorator as it takes arguments)")
+                elif not has_support:
+                    continue  # no support, has not been wrapped with
+            else:
+                if not has_support:
+                    continue  # not wrapped, no support, need no
+
+            # if we reach this points, somethings was implemented wrongly
+            raise MinimizerSubclassingError(f"Method {method_name} has not been correctly wrapped with "
+                                            f"@minimize_supports ")
+
+    def _check_convert_input(self, loss: ZfitLoss, params, init=None, floating=True
+                             ) -> Tuple[ZfitLoss, Iterable[ZfitParameter], Union[None, FitResult]]:
+        """Sanitize the input values and return all of them.
+
+        Args:
+            loss: If the loss is a callable, it will be converted to a SimpleLoss.
+            params: If the parameters is an array, it will be converted to free parameters.
+            init:
+            floating:
+
+        Returns:
+            loss, params, init:
+        """
+        if isinstance(loss, ZfitResult):
+            init = loss  # make the names correct
+            loss = init.loss
+            if params is None:
+                params = list(init.params)
+
+        # convert the function to a SimpleLoss
+        if not isinstance(loss, ZfitLoss):
+            if not callable(loss):
+                raise TypeError("Given Loss has to  be a ZfitLoss or a callable.")
+            elif params is None:
+                raise ValueError("If the loss is a callable, the params cannot be None.")
+
+            if not isinstance(params, collections.Mapping):
+                values = convert_to_container(params)
+                names = [None] * len(params)
+            else:
+                values = list(params.values())
+                names = list(params.keys())
+            params = [convert_to_parameter(value=val, name=name, prefer_constant=False)
+                      for val, name in zip(values, names)]
+
+            from zfit.core.loss import SimpleLoss
+            if hasattr(loss, 'errordef'):
+                errordef = loss.errordef
+            else:
+                raise ValueError(f"{self} cannot minimize {loss} as `errordef` is missing: "
+                                 f"it has to be set as an attribute. Typically 1 (chi2) or 0.5 (NLL).")
+            loss = SimpleLoss(func=loss, deps=params, errordef=errordef)
+
+        to_set_param_values = {}
         if params is None:
-            params = loss.get_params(only_floating=only_floating)
-            params = list(params)
+            params = loss.get_params(floating=floating)
         else:
-            params_indep = []
-            for param in params:
-                if param.independent:
-                    params_indep.append(param)
-                else:
-                    params_indep.extend(param.get_params(only_floating=only_floating))
-            params = params_indep
+            if isinstance(params, collections.Mapping):
+                param_values = params
+                to_set_param_values = {p: val for p, val in param_values.items() if val is not None}
+                try:
+                    set_values(list(to_set_param_values), list(to_set_param_values.values()))
+                except ParameterNotIndependentError as error:
+                    not_indep_and_set = {p for p, val in param_values.items() if val is not None and not p.independent}
+                    raise ParameterNotIndependentError(f"Cannot set parameter {not_indep_and_set} to a value as they"
+                                                       f" are not independent. The following `param` argument was"
+                                                       f" given: {params}."
+                                                       f""
+                                                       f"Original error"
+                                                       f"--------------"
+                                                       f"{error}") from error
+            else:
+                params = convert_to_container(params, container=OrderedSet)
 
-        if only_floating:
+            # now extract all the independent parameters
+            params = list(OrderedSet.union(*(p.get_params(only_floating=floating) for p in params)))
+
+        # set the parameter values from the init
+        if init is not None:
+            # don't set the user set
+            params_to_set = OrderedSet(params).intersection(OrderedSet(init.params)) - OrderedSet(to_set_param_values)
+            set_values(params_to_set, init)
+        if floating:
             params = self._filter_floating_params(params)
         if not params:
             raise RuntimeError("No parameter for minimization given/found. Cannot minimize.")
-        return params
+        params = list(params)
+        return loss, params, init
 
     @staticmethod
     def _filter_floating_params(params):
@@ -178,63 +337,346 @@ class BaseMinimizer(ZfitMinimizer):
                           f"minimization.")
         return [param for param in params if param.floating]
 
-    @staticmethod
-    def _extract_load_method(params):
-        return [param.load for param in params]
-
-    @staticmethod
-    def _extract_param_names(params):
-        return [param.name for param in params]
-
-    def _check_gradients(self, params, gradients):
-        non_dependents = [param for param, grad in zip(params, gradients) if grad is None]
-        if non_dependents:
-            raise ValueError("Invalid gradients for the following parameters: {}"
-                             "The function does not depend on them. Probably a Tensor"
-                             "instead of a `CompositeParameter` was created implicitly.".format(non_dependents))
-
     @property
-    def tolerance(self):
-        return self._tolerance
+    def tol(self):
+        return self._tol
 
-    @tolerance.setter
-    def tolerance(self, tolerance):
-        self._tolerance = tolerance
+    @tol.setter
+    def tol(self, tol):
+        self._tol = tol
 
-    @staticmethod
-    def _extract_start_values(params):
-        """Extract the current value if defined, otherwise random.
+    def minimize(self,
+                 loss: Union[ZfitLoss, Callable],
+                 params: Optional[ztyping.ParamsTypeOpt] = None,
+                 init: Optional[ZfitResult] = None
+                 ) -> FitResult:
+        """Fully minimize the `loss` with respect to `params`, optionally using information from `init`.
 
-        Arguments:
-            params:
-
-        Return:
-            list(const): the current value of parameters
-        """
-        values = [p for p in params]
-        return values
-
-    @staticmethod
-    def _update_params(params: Union[Iterable[ZfitParameter]], values: Union[Iterable[float], np.ndarray]) -> List[
-        ZfitParameter]:
-        """Update `params` with `values`. Returns the assign op (if `use_op`, otherwise use a session to load the value.
+        The minimizer changes the parameter values in order to minimize the loss function until the convergence
+        criterion value is less than the tolerance. This is a stateless function that can take a `FitResult` in order
+        to initialize the minimization.
 
         Args:
-            params: The parameters to be updated
-            values: New values for the parameters.
+            loss: Loss to be minimized until convergence is reached.
+
+            - If this is a simple callable that takes an array as argument and an attribute `errordef`
+            - A `FitResult` can be provided as the only argument to the method, in which case the loss as well as the
+              parameters to be minimized are taken from it. This allows to easily chain minimization algorithms.
+
+            params: The parameters with respect to which to
+                minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
+
+                Instead of `Parameters`, an array of initial values can be provided. This however does not allow to
+                specify limits. For more control, use a `ZfitIndepentendParameter`.
+            init: A result of a previous minimization that provides auxiliary information such as the starting point for
+                the parameters, the approximation of the covariance and more. Which information is used can depend on
+                the specific minimizer implementation.
+
+                In general, the assumption is that *the loss provided is similar enough* to the one provided in `init`.
+
+                What is assumed to be close:
+
+                - the parameters at the minimum of *loss* will be close to the parameter values at the minimum of
+                  *init*.
+                - Covariance matrix, or in general the shape, of *init* to the *loss* at its minimum.
+
+                What is explicitly _not_ assumed to be the same:
+
+                - absolute value of the loss function. If *init* has a function value at minimum x of fmin,
+                  it is not assumed that `loss` will have the same/similar value at x.
+                - parameters that are used in the minimization may differ in order or which are fixed.
 
         Returns:
-            List of assign operations if `use_op`, otherwise empty. The output
-                can therefore be directly used as argument to :py:func:`~tf.control_dependencies`.
+            The fit result containing all information about the minimization.
+
+        Examples:
+            Using the ability to restart a minimization with a previous result allows to use a more global search
+            algorithm with a high tolerance and an additional local minimization to polish the found minimum.
+
+            .. code-block:: python
+
+                result_approx = minimizer_global.minimize(loss, params)
+                result = minimizer_local.minimize(result_approx)
+
+            For a simple usage with a callable only, the parameters can be given as an array of initial values.
+
+            .. code-block:: python
+
+                def func(x):
+                    return np.log(np.sum(x ** 2))
+
+                func.errordef = 0.5
+                params = [1.1, 3.5, 8.35]  # initial values
+                result = minimizer.minimize(func, param)
         """
-        if len(params) == 1 and len(values) > 1:
-            values = (values,)  # iteration will be correctly
-        for param, value in zip(params, values):
-            param.set_value(value)
 
-        return params
+        loss, params, init = self._check_convert_input(loss=loss, params=params, init=init, floating=True)
+        with self._make_stateful(loss=loss, params=params, init=init):
+            return self._call_minimize(loss=loss, params=params, init=init)
 
-    def step(self, loss, params: ztyping.ParamsOrNameType = None):
+    def _call_minimize(self,
+                       loss: Union[ZfitLoss, Callable],
+                       params: Optional[ztyping.ParamsTypeOpt] = None,
+                       init: Optional[ZfitResult] = None
+                       ) -> FitResult:
+        do_recovery = False
+        prelim_result = None
+
+        try:
+            result = self._minimize(loss=loss, params=params, init=init)
+        except TypeError as error:
+            if "got an unexpected keyword argument 'init'" in error.args[0]:
+                warnings.warn(
+                    '_minimize has to take an `init` argument. This will be mandatory in the future, please'
+                    ' change the signature accordingly.', category=FutureWarning, stacklevel=2)
+                result = self._call_minimize(loss=loss, params=params)
+            else:
+                raise
+        except InitNotImplemented:
+            set_values(params=params, values=init)
+            result = self._call_minimize(loss=loss, params=params)
+        except (FailMinimizeNaN, RuntimeError):  # iminuit raises RuntimeError if user raises Error
+            do_recovery = True
+            strategy = self._state.get('strategy')
+            if strategy is not None:
+                prelim_result = strategy.fit_result
+            if prelim_result is not None:
+
+                result = prelim_result
+            else:
+                raise
+        except MaximumIterationReached:
+            do_recovery = True
+            # TODO (enh): implement a recovery
+
+        if do_recovery:
+            result = self._recover_result(prelim_result=prelim_result)
+        return result
+
+    @_Minimizer_register_check_support(True)
+    def _minimize(self,
+                  loss: Union[ZfitLoss, Callable],
+                  params: Optional[ztyping.ParamsTypeOpt] = None,
+                  init: Optional[ZfitResult] = None
+                  ) -> FitResult:
+        raise MinimizeNotImplemented
+
+    @property
+    def _is_stateful(self):
+        return self._state is not None
+
+    @contextmanager
+    def _make_stateful(self,
+                       loss: Union[ZfitLoss, Callable],
+                       params: Optional[ztyping.ParamsTypeOpt] = None,
+                       init: Optional[ZfitResult] = None
+                       ) -> None:
+        """Remember the loss, param and init that is currently used inside the minimization.
+
+        Args:
+            loss: Loss to be minimized. Can be a simple callable that takes an array as
+            params: The parameters with respect to which to
+                minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
+            init: A result of a previous minimization that provides auxiliary information such as the starting point for
+                the parameters
+        """
+        state = {
+            'loss': loss,
+            'params': params,
+            'init': init
+        }
+        self._state = state
+        yield
+        self._state = None
+
+    def copy(self):
+        return copy.copy(self)
+
+    def __str__(self) -> str:
+        return f'<{type(self).__name__} {self.name} tol={self.tol}>'
+
+    def get_maxiter(self, n=None):
+        if n is None:
+            if self._is_stateful:
+                n = len(self._state['params'])
+            else:
+                raise ValueError(f'n cannot be None if not called within minimize')
+        maxiter = self.maxiter
+        if callable(maxiter):
+            maxiter = maxiter(n)
+        elif maxiter == 'auto':
+            maxiter = self._n_iter_per_param * n
+        return maxiter
+
+    def create_evaluator(self,
+                         loss: Optional[ZfitLoss] = None,
+                         params: Optional[ztyping.ParametersType] = None,
+                         strategy: Optional[ZfitStrategy] = None) -> LossEval:
+        """Make a loss evaluator using the strategy and more from the minimizer.
+
+        Convenience factory for the loss evaluator.
+        This wraps the loss to return a numpy array, to catch NaNs, stop on maxiter and evaluate the gradient
+        and hessian without the need to specify the order every time.
+
+        Args:
+            loss: Loss to be wrapped. Can be None if called inside `_minimize`
+            params: Parameters that will be associated with the loss in this order. Can be None if called within
+                `_minimize`.
+            strategy: Instance of a Strategy that will be used during the evaluation.
+
+        Returns:
+            LossEval: The evaluator that wraps the Loss ant Strategy with the current parameters.
+        """
+        if loss is None:
+            if self._is_stateful:
+                loss = self._state['loss']
+            else:
+                raise ValueError(f'loss cannot be None if not called within minimize')
+
+        if params is None:
+            if self._is_stateful:
+                params = self._state['params']
+            else:
+                raise ValueError(f'params cannot be None if not called within minimize')
+        if strategy is None:
+            try:
+                strategy = self._strategy()
+                if not isinstance(strategy, ZfitStrategy):
+                    raise TypeError
+            except TypeError:  # cannot be called -> is not a class LEGACY
+
+                strategy = self._strategy
+
+        if self._is_stateful:
+            self._state['strategy'] = strategy
+        evaluator = LossEval(loss=loss,
+                             params=params,
+                             strategy=strategy,
+                             do_print=self.verbosity > 9,
+                             maxiter=self.get_maxiter(len(params)))
+        if self._is_stateful:
+            self._state['evaluator'] = evaluator
+        return evaluator
+
+    def _update_tol_inplace(self, criterion_value, internal_tol):
+        tol_factor = min([max([self.tol / criterion_value * 0.3, 1e-2]), 0.2])
+        for tol in internal_tol:
+            if tol in ('gtol', 'xtol'):
+                internal_tol[tol] *= math.sqrt(tol_factor)
+            else:
+                internal_tol[tol] *= tol_factor
+
+    def create_criterion(self,
+                         loss: Optional[ZfitLoss] = None,
+                         params: Optional[ztyping.ParametersType] = None
+                         ) -> ConvergenceCriterion:
+        """Create a criterion instance for the given loss and parameters.
+
+        Args:
+            loss: Loss that is used for the criterion. Can be None if called inside `_minimize`
+            params: Parameters that will be associated with the loss in this order. Can be None if called within
+                `_minimize`.
+
+        Returns:
+            ConvergenceCriterion to check if the function converged.
+        """
+        if loss is None:
+            if self._is_stateful:
+                loss = self._state['loss']
+            else:
+                raise ValueError(f'loss cannot be None if not called within minimize')
+
+        if params is None:
+            if self._is_stateful:
+                params = self._state['params']
+            else:
+                raise ValueError(f'params cannot be None if not called within minimize')
+
+        criterion = self.criterion(tol=self.tol, loss=loss, params=params)
+        if self._is_stateful:
+            self._state['criterion'] = criterion
+        return criterion
+
+    # TODO: implement a recovery by using a "stateful" minimization
+    def _recover_result(self, prelim_result):
+        warnings.warn("recovering result, yet no special functionality implemented yet.")
+        return prelim_result
+
+
+class BaseStepMinimizer(BaseMinimizer):
+    """Step minimizer that uses the `_step` method to advance a single step and check if the criterion is reached.py.
+
+    In order to subclass this correctly, override `_step`.
+    """
+
+    @minimize_supports()
+    def _minimize(self, loss, params, init):
+        if init:
+            set_values(params=params, values=init)
+        n_old_vals = 5
+        changes = collections.deque(np.ones(n_old_vals))
+        last_val = -10
+        niter = 0
+        criterion = self.criterion(tol=self.tol, loss=loss, params=params)
+        prelim_result = None
+        maxiter = self.get_maxiter(len(params))
+        criterion_val = None
+        while True:
+            cur_val = run(self._step(loss=loss, params=params, init=prelim_result))
+            niter += 1
+
+            changes.popleft()
+            changes.append(abs(cur_val - last_val))
+            sum_changes = np.sum(changes)
+            maxiter_reached = niter > maxiter
+            if (sum_changes < self.tol and niter % 3) or maxiter_reached:  # test the last time surely
+                xvalues = np.array(run(params))
+                hesse = run(loss.hessian(params))
+                inv_hesse = np.linalg.inv(hesse)
+                status = 10
+                params_result = {p: val for p, val in zip(params, xvalues)}
+
+                message = 'Unfinished, for criterion'
+                info = {'success': False, 'message': message,
+                        'n_eval': niter, 'inv_hesse': inv_hesse}
+                prelim_result = FitResult(params=params_result, edm=criterion_val, fmin=cur_val, info=info,
+                                          converged=False,
+                                          status=status, valid=False, message=message, niter=niter, criterion=criterion,
+                                          loss=loss, minimizer=self)
+                converged = criterion.converged(prelim_result)
+                criterion_val = criterion.last_value
+
+                if converged or maxiter_reached:
+                    break
+
+            last_val = cur_val
+
+        # compose fit result
+        message = "Maxiter reached" if maxiter_reached else ""
+
+        success = converged
+        status = 0 if success else 10
+        info = {'success': success, 'message': message, 'n_eval': niter, 'inv_hesse': inv_hesse}
+
+        params = {p: val for p, val in zip(params, xvalues)}
+        valid = converged
+
+        return FitResult(
+            edm=criterion_val,
+            message=message,
+            niter=niter,
+            valid=valid,
+            params=params,
+            criterion=criterion,
+            fmin=cur_val,
+            info=info,
+            converged=success,
+            status=status,
+            loss=loss,
+            minimizer=self.copy(),
+        )
+
+    def step(self, loss, params: ztyping.ParamsOrNameType = None, init: FitResult = None):
         """Perform a single step in the minimization (if implemented).
 
         Args:
@@ -245,115 +687,23 @@ class BaseMinimizer(ZfitMinimizer):
         Raises:
             MinimizeStepNotImplementedError: if the `step` method is not implemented in the minimizer.
         """
-        params = self._check_input_params(loss, params)
+        loss, params, init = self._check_convert_input(loss, params, init=init)
 
-        return self._step(loss, params=params)
+        return self._step(loss, params=params, init=init)
 
-    def minimize(self, loss: ZfitLoss, params: ztyping.ParamsTypeOpt = None) -> FitResult:
-        """Fully minimize the `loss` with respect to `params`.
-
-        Args:
-            loss: Loss to be minimized.
-            params: The parameters with respect to which to
-                minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
-
-        Returns:
-            The fit result.
-        """
-        params = self._check_input_params(loss=loss, params=params, only_floating=True)
-        try:
-            return self._hook_minimize(loss=loss, params=params)
-        except (FailMinimizeNaN, RuntimeError) as error:  # iminuit raises RuntimeError if user raises Error
-            fail_result = self.strategy.fit_result
-            if fail_result is not None:
-                return fail_result
-            else:
-                raise
-
-    def _hook_minimize(self, loss, params):
-        return self._call_minimize(loss=loss, params=params)
-
-    def _call_minimize(self, loss, params):
-        try:
-            return self._minimize(loss=loss, params=params)
-        except MinimizeNotImplementedError as error:
-            try:
-                return self._minimize_with_step(loss=loss, params=params)
-            except MinimizeStepNotImplementedError:
-                raise error
-
-    def _minimize_with_step(self, loss, params):  # TODO improve
-        n_old_vals = 10
-        changes = collections.deque(np.ones(n_old_vals))
-        last_val = -10
-        n_steps = 0
-
-        def step_fn(loss, params):
-            try:
-                self._step_tf(loss=loss.value, params=params)
-            except MinimizeStepNotImplementedError:
-                self.step(loss, params)
-            return loss.value()
-
-        while sum(sorted(changes)[-3:]) > self.tolerance and n_steps < self._max_steps:  # TODO: improve condition
-            cur_val = step_fn(loss=loss, params=params)
-            changes.popleft()
-            changes.append(abs(cur_val - last_val))
-            last_val = cur_val
-            n_steps += 1
-        fmin = cur_val
-        edm = -999  # TODO: get edm
-
-        # compose fit result
-        message = "successful finished"
-        are_unique = len(set([float(change.numpy()) for change in changes])) > 1  # values didn't change...
-        if not are_unique:
-            message = "Loss unchanged for last {} steps".format(n_old_vals)
-
-        success = are_unique
-        status = 0 if success else 10
-
-        info = {'success': success, 'message': message}  # TODO: create status
-        param_values = [float(p.numpy()) for p in params]
-        params = OrderedDict((p, val) for p, val in zip(params, param_values))
-
-        return FitResult(params=params, edm=edm, fmin=fmin, info=info,
-                         converged=success, status=status,
-                         loss=loss, minimizer=self.copy())
-
-    def copy(self):
-        return copy.copy(self)
-
-    def _minimize(self, loss, params):
-        raise MinimizeNotImplementedError
-
-    def _step_tf(self, loss, params):
+    def _step(self, loss, params, init):
         raise MinimizeStepNotImplementedError
 
-    def _step(self, loss, params):
-        raise MinimizeStepNotImplementedError
 
-    def __str__(self) -> str:
-        string = f'<{self.name} strategy={self.strategy} tolerance={self.tolerance}>'
-        return string
+class NOT_SUPPORTED:
+    def __new__(cls, *args, **kwargs):
+        raise RuntimeError("Should never be instantated.")
 
 
-def print_params(params, values, loss=None):
-    table = tt.Texttable()
-    table.header(['Parameter', 'Value'])
-
-    for param, value in zip(params, values):
-        table.add_row([param.name, value])
-    if loss is not None:
-        table.add_row(["Loss value:", loss])
-    print(table.draw())
-
-
-def print_gradients(params, values, gradients, loss=None):
-    table = tt.Texttable()
-    table.header(['Parameter', 'Value', 'Gradient'])
-    for param, value, grad in zip(params, values, gradients):
-        table.add_row([param.name, value, grad])
-    if loss is not None:
-        table.add_row(["Loss value:", loss, "|"])
-    print(table.draw())
+def print_minimization_status(converged, criterion, evaluator, i, fmin,
+                              internal_tol: Optional[Mapping[str, float]] = None):
+    internal_tol = {} if internal_tol is None else internal_tol
+    tols_str = ', '.join(f'{tol}={val:.3g}' for tol, val in internal_tol.items())
+    print(f"{f'CONVERGED{os.linesep}' if converged else ''}"
+          f"Finished iteration {i}, niter={evaluator.niter}, fmin={fmin:.7g},"
+          f" {criterion.name}={criterion.last_value:.3g} {tols_str}")

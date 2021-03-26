@@ -6,7 +6,7 @@ import warnings
 from collections import OrderedDict
 from contextlib import suppress
 from inspect import signature
-from typing import Callable, Iterable, Union, Optional, Dict, Set
+from typing import Callable, Dict, Iterable, Optional, Set, Union
 
 import numpy as np
 import tensorflow as tf
@@ -15,25 +15,30 @@ import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
-from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
+from tensorflow.python.ops.resource_variable_ops import \
+    ResourceVariable as TFVariable
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
 from .. import z
-from ..util.container import convert_to_container
-from . import interfaces as zinterfaces
-from .dependents import _extract_dependencies
-from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
-from ..settings import ztypes, run
+from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
 from ..util.checks import NotSpecified
-from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
-    WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError, FunctionNotImplementedError
+from ..util.container import convert_to_container
+from ..util.exception import (BreakingAPIChangeError,
+                              FunctionNotImplementedError,
+                              IllegalInGraphModeError,
+                              LogicalUndefinedOperationError,
+                              NameAlreadyTakenError,
+                              ParameterNotIndependentError,
+                              WorkInProgressError)
 from ..util.temporary import TemporarilySet
-
+from . import interfaces as zinterfaces
+from .dependents import _extract_dependencies
+from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 
 # todo add type hints in this module for api
 
@@ -103,6 +108,7 @@ class OverloadableMixin(ZfitParameter):
     @classmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
         """Defer an operator overload to `ops.Tensor`.
+
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
           operator: string. The operator name.
@@ -190,6 +196,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     @staticmethod
     def _OverloadOperator(operator):  # pylint: disable=invalid-name
         """Defer an operator overload to `ops.Tensor`.
+
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
           operator: string. The operator name.
@@ -212,7 +219,6 @@ class WrappedVariable(metaclass=MetaBaseParameter):
 
 
 register_tensor_conversion(WrappedVariable, "WrappedVariable", overload_operators=True)
-
 
 
 class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParameter):
@@ -300,8 +306,7 @@ class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
 
 
 class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter):
-    """Class for fit parameters, derived from TF Variable class.
-    """
+    """Class for fit parameters, derived from TF Variable class."""
     _independent = True
     _independent_params = []
     DEFAULT_STEP_SIZE = 0.001
@@ -395,9 +400,10 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         if not self.has_limits:
             return tf.constant(False)
 
-        # Adding a slight tolerance to make sure we're not tricked by numerics
-        at_lower = z.unstable.less_equal(self.value(), self.lower + (tf.math.abs(self.lower * 1e-5)))
-        at_upper = z.unstable.greater_equal(self.value(), self.upper - (tf.math.abs(self.upper * 1e-5)))
+        # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
+        tol = (self.upper - self.lower) * 1e-2
+        at_lower = z.unstable.less_equal(self.value(), self.lower + tol)
+        at_upper = z.unstable.greater_equal(self.value(), self.upper - tol)
         return z.unstable.logical_or(at_lower, at_upper)
 
     def value(self):
@@ -497,7 +503,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
                   sampler: Callable = np.random.uniform) -> tf.Tensor:
         """Update the parameter with a randomised value between minval and maxval and return it.
 
-
         Args:
             minval: The lower bound of the sampler. If not given, `lower_limit` is used.
             maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
@@ -574,7 +579,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
                               "Use preferably `ConstantParameter` instead", RuntimeWarning, stacklevel=2)
             else:  # this is the legacy case where the function didn't take arguments
                 warnings.warn("The `value_fn` for composed parameters should take the same number"
-                              " of arguments as `params` are given.", DeprecationWarning, stacklevel=2)
+                              " of arguments as `params` are given.", DeprecationWarning, stacklevel=3)
                 legacy_value_fn = value_fn
 
                 def value_fn(*_):
@@ -619,7 +624,10 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
 
 class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
-    """Constant parameter. Value cannot change."""
+    """Constant parameter.
+
+    Value cannot change.
+    """
 
     def __init__(self, name, value, dtype=ztypes.float):
         """
@@ -779,7 +787,7 @@ class ComplexParameter(ComposedParameter):
     def conj(self):
         """Returns a complex conjugated copy of the complex parameter."""
         if self._conj is None:
-            self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=lambda: tf.math.conj(self),
+            self._conj = ComplexParameter(name=f'{self.name}_conj', value_fn=lambda: tf.math.conj(self),
                                           params=self.get_cache_deps(),
                                           dtype=self.dtype)
         return self._conj
@@ -830,7 +838,11 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None) -> "ZfitParameter":
+def convert_to_parameter(value,
+                         name: Optional[str] = None,
+                         prefer_constant: bool = True,
+                         dependents=None
+                         ) -> ZfitParameter:
     """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
     Args:
@@ -893,7 +905,6 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
         values: List-like object that supports indexing.
 
     Returns:
-
     """
     params = convert_to_container(params)
     if isinstance(values, ZfitResult):

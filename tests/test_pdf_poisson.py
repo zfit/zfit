@@ -1,11 +1,9 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 
 import zfit
 from zfit import Parameter
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.dist_tfp import Poisson
 
 lamb_true = 50
@@ -22,8 +20,8 @@ def create_poisson():
 
 
 def create_poisson_composed_rate():
-    N1 = Parameter("N1", lamb_true/2)
-    N2 = Parameter("N2", lamb_true/2)
+    N1 = Parameter("N1", lamb_true / 2)
+    N2 = Parameter("N2", lamb_true / 2)
     N = zfit.param.ComposedParameter("N", lambda n1, n2: n1 + n2, params=[N1, N2])
 
     poisson = Poisson(obs=obs, lamb=N)
@@ -32,7 +30,6 @@ def create_poisson_composed_rate():
 
 @pytest.mark.parametrize('composed_rate', [False, True])
 def test_poisson(composed_rate):
-
     if composed_rate:
         poisson = create_poisson_composed_rate()
     else:
@@ -43,4 +40,4 @@ def test_poisson(composed_rate):
 
     samples = poisson.sample(10000).numpy()
 
-    assert np.std(samples) == pytest.approx(50**0.5, rel=0.05)
+    assert np.std(samples) == pytest.approx(50 ** 0.5, rel=0.05)

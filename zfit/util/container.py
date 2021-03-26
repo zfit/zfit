@@ -1,12 +1,12 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
-from typing import Callable, Any, Iterable, Union
+from typing import Any, Callable, Iterable, Union
 
 import tensorflow as tf
 
 
 class DotDict(dict):
-    """dot.notation access to dictionary attributes"""
+    """dot.notation access to dictionary attributes."""
 
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
@@ -26,9 +26,9 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
             up as (if the container is e.g. a tuple): ([5, 3],) (a tuple with one entry).
 
     Returns:
-
     """
-    from ..core.interfaces import ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter  # here due to dependency
+    from ..core.interfaces import ZfitData  # here due to dependency
+    from ..core.interfaces import ZfitLoss, ZfitModel, ZfitParameter, ZfitSpace
     if non_containers is None:
         non_containers = []
     if not isinstance(non_containers, list):

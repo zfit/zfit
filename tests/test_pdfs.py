@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from typing import List
 
 import numpy as np
@@ -10,10 +10,8 @@ from zfit.core.data import Data
 from zfit.core.interfaces import ZfitPDF
 from zfit.core.parameter import Parameter
 from zfit.core.space import Space
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.dist_tfp import Gauss
-from zfit.models.functor import SumPDF, ProductPDF
+from zfit.models.functor import ProductPDF, SumPDF
 
 low, high = -0.64, 5.9
 

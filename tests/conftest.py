@@ -1,17 +1,42 @@
-"""Used to make pytest functions available globally"""
+"""Used to make pytest functions available globally."""
 
-#  Copyright (c) 2020 zfit
-#
-#
-# def pytest_generate_tests(metafunc):
-#     if metafunc.config.option.all_jit_levels:
-#
-#         # We're going to duplicate these tests by parametrizing them,
-#         # which requires that each test has a fixture to accept the parameter.
-#         # We can add a new fixture like so:
-#         metafunc.fixturenames.append('tmp_ct')
-#
-#         # Now we parametrize. This is what happens when we do e.g.,
-#         # @pytest.mark.parametrize('tmp_ct', range(count))
-#         # def test_foo(): pass
-#         metafunc.parametrize('tmp_ct', range(2))
+#  Copyright (c) 2021 zfit
+import sys
+
+import pytest
+
+import zfit
+
+try:
+    import pytest_randomly
+except ImportError:
+    pass
+else:
+    pytest_randomly.random_seeder = [zfit.settings.set_seed]
+init_modules = sys.modules.keys()
+
+
+@pytest.fixture(autouse=True)
+def setup_teardown():
+    for m in sys.modules.keys():
+        if m not in init_modules:
+            del (sys.modules[m])
+
+    yield
+    from zfit.core.parameter import ZfitParameterMixin
+    ZfitParameterMixin._existing_params.clear()
+
+    from zfit.util.cache import clear_graph_cache
+    clear_graph_cache()
+    import zfit
+    zfit.run.set_graph_mode()
+    zfit.run.set_autograd_mode()
+    for m in sys.modules.keys():
+        if m not in init_modules:
+            del (sys.modules[m])
+    import gc
+    gc.collect()
+
+
+def pytest_addoption(parser):
+    parser.addoption("--longtests", action="store", default=False)

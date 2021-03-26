@@ -1,16 +1,16 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2021 zfit
+
+import tensorflow as tf
 
 import zfit
 from zfit import z
-import tensorflow as tf
-
 
 # IMPORTANT! The communication of which axis corresponds to which data point happens here. So the user knows now that
 # he should create this pdf with a space in the obs (x, y, z).
 
 
 class CustomPDF(zfit.pdf.ZPDF):
-    """3-dimensional PDF calculating doing something fancy. Takes x, y, z as data."""
+    """3-dimensional PDF calculating doing something fancy, takes x, y, z as data."""
     _PARAMS = ['alpha', 'beta']  # specify which parameters to take
     _N_OBS = 3
 

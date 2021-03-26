@@ -1,6 +1,6 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from functools import wraps
-from typing import Union, Iterable, Any
+from typing import Any, Iterable, Union
 
 import tensorflow as tf
 import tensorflow_probability as tfp

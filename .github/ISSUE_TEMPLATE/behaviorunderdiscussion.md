@@ -4,7 +4,6 @@ about: If the code raises a BehaviorUnderDiscussion error
 title: "[BEHAVIOR]"
 labels: discussion
 assignees: mayou36
-
 ---
 
 ## Describe what happens
@@ -18,11 +17,12 @@ Please include the stacktrace here
 ## Environment
 
 Please fill in the relevant points (if possible).
-* zfit version:
-* Python version:
-* Are you using conda, pipenv, etc? :
-* Operating System:
-* Tensorflow version:
+
+-   zfit version:
+-   Python version:
+-   Are you using conda, pipenv, etc? :
+-   Operating System:
+-   Tensorflow version:
 
 ## Desired behavior
 

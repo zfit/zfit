@@ -1,16 +1,17 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 """Recurrent polynomials."""
 import abc
-from typing import List, Dict, Optional, Mapping
+from typing import Dict, List, Mapping, Optional
 
 import tensorflow as tf
 
 from zfit import z
+
+from ..core.basepdf import BasePDF
+from ..core.space import Space
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..settings import ztypes
-from ..core.space import Space
-from ..core.basepdf import BasePDF
 from ..util.exception import SpecificFunctionNotImplementedError
 
 
@@ -30,10 +31,7 @@ def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
 
 
 class RecursivePolynomial(BasePDF):
-    """1D polynomial generated via three-term recurrence.
-
-
-    """
+    """1D polynomial generated via three-term recurrence."""
 
     def __init__(self, obs, coeffs: list,
                  apply_scaling: bool = True, coeff0: Optional[tf.Tensor] = None,
@@ -46,7 +44,6 @@ class RecursivePolynomial(BasePDF):
 
                 .. math::
                    x_{n+1} = recurrence(x_{n}, x_{n-1}, n)
-
         """
         # 0th coefficient set to 1 by default
         coeff0 = z.constant(1.) if coeff0 is None else tf.cast(coeff0, dtype=ztypes.float)
@@ -102,7 +99,6 @@ def legendre_recurrence(p1, p2, n, x):
 
     .. math::
          (n+1) P_{n+1}(x) = (2n + 1) x P_{n}(x) - n P_{n-1}(x)
-
     """
     return ((2 * n + 1) * tf.multiply(x, p1) - n * p2) / (n + 1)
 
@@ -113,7 +109,7 @@ def legendre_shape(x, coeffs):
 
 def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
                       params: List["zfit.Parameter"], model: RecursivePolynomial):
-    """Recursive integral of Legendre polynomials"""
+    """Recursive integral of Legendre polynomials."""
     lower, upper = limits.limit1d
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
@@ -196,7 +192,6 @@ def chebyshev_recurrence(p1, p2, _, x):
     """Recurrence relation for Chebyshev polynomials.
 
     T_{n+1}(x) = 2 x T_{n}(x) - T_{n-1}(x)
-
     """
     return 2 * tf.multiply(x, p1) - p2
 
@@ -373,7 +368,6 @@ def generalized_laguerre_recurrence_factory(alpha=0.):
         """Recurrence relation for Laguerre polynomials.
 
         :math:`(n+1) L_{n+1}(x) = (2n + 1 + \alpha - x) L_{n}(x) - (n + \alpha) L_{n-1}(x)`
-
         """
         return (tf.multiply(2 * n + 1 + alpha - x, p1) - (n + alpha) * p2) / (n + 1)
 
@@ -439,7 +433,7 @@ class Laguerre(RecursivePolynomial):
 def func_integral_laguerre(limits, norm_range, params: Dict, model):
     """The integral of the simple laguerre polynomials.
 
-    Defined as :math:`\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
+    Defined as :math:`\\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
 
     Args:
         limits:
@@ -448,7 +442,6 @@ def func_integral_laguerre(limits, norm_range, params: Dict, model):
         model:
 
     Returns:
-
     """
     lower, upper = limits.limit1d
     lower_rescaled = model._polynomials_rescale(lower)
@@ -483,7 +476,6 @@ def hermite_recurrence(p1, p2, n, x):
     """Recurrence relation for Hermite polynomials (physics).
 
     :math:`H_{n+1}(x) = 2x H_{n}(x) - 2n H_{n-1}(x)`
-
     """
     return 2 * (tf.multiply(x, p1) - n * p2)
 

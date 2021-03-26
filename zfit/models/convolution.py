@@ -1,18 +1,18 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from typing import Optional, Union
 
 import tensorflow as tf
 import tensorflow_addons as tfa
 import tensorflow_probability as tfp
 
-from .functor import BaseFunctor
 from .. import exception, z
-from ..core.data import add_samples, Data
+from ..core.data import Data, add_samples
 from ..core.interfaces import ZfitPDF
 from ..core.sample import accept_reject_sample
 from ..core.space import supports
 from ..util import ztyping
-from ..util.exception import WorkInProgressError, ShapeIncompatibleError
+from ..util.exception import ShapeIncompatibleError, WorkInProgressError
+from .functor import BaseFunctor
 
 
 class FFTConvPDFV1(BaseFunctor):
@@ -35,7 +35,7 @@ class FFTConvPDFV1(BaseFunctor):
         TL;DR technical details:
           - FFT-like technique: discretization of function. Number of bins splits the kernel into `n` bins
             and uses the same binwidth for the func while extending it by the kernel space. Internally,
-            `tf.nn.convolution` (attention, this is actually a cross-correlation) is used.
+            `tf.nn.convolution` is used.
           - Then interpolation by either linear or spline function
           - The kernel is assumed to be "small enough" outside of it's `space` and points there won't be
             evaluated.

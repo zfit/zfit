@@ -1,12 +1,10 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import numpy as np
 import pytest
 import tensorflow as tf
 
 from zfit import z
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 
 
 @pytest.mark.flaky(2)

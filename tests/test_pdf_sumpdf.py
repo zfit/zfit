@@ -1,11 +1,9 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import scipy.stats
 
 import zfit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import SpecificFunctionNotImplementedError
 
 
@@ -65,6 +63,7 @@ def test_frac_behavior(yields):
         if isinstance(fracs, list) and len(fracs) == 3:
             assert sumpdf2.params['frac_2'] == frac3
 
+
 @pytest.mark.flaky(2)  # ks test
 def test_sampling():
     class SimpleSampleSumPDF(zfit.pdf.SumPDF):
@@ -74,7 +73,7 @@ def test_sampling():
             raise SpecificFunctionNotImplementedError  # fallback to the default sampling
 
     sample_size = 100000
-    tolerance = 0.1
+    tol = 0.1
     mu1, mu2 = 0, 10
     frac = 0.9
     true_mu = mu1 * frac + mu2 * (1 - frac)
@@ -90,9 +89,9 @@ def test_sampling():
     sample_true = sumpdf_true.sample(sample_size).value().numpy()[:, 0]
 
     assert true_mu == pytest.approx(np.mean(sample_true),
-                                    abs=tolerance)  # if this is not True, it's a problem, the test is flawed
-    assert true_mu == pytest.approx(np.mean(sample), abs=tolerance)
-    assert np.std(sample_true) == pytest.approx(np.std(sample), abs=tolerance)
+                                    abs=tol)  # if this is not True, it's a problem, the test is flawed
+    assert true_mu == pytest.approx(np.mean(sample), abs=tol)
+    assert np.std(sample_true) == pytest.approx(np.std(sample), abs=tol)
 
     assert scipy.stats.ks_2samp(sample_true, sample).pvalue > 0.05
 

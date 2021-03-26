@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import functools
 import warnings
 
@@ -14,7 +14,7 @@ def warn_experimental_feature(func):
     def wrapped_func(*args, **kwargs):
         nonlocal warned
         if not warned:
-            warnings.warn(f"The function {func} is EXPERIMENTAL and likely to change in the future!"
+            warnings.warn(f"The function {func} is EXPERIMENTAL, potentially unstable and likely to change in the future!"
                           f" Use it with caution and feedback (Gitter, e-mail or "
                           f"https://github.com/zfit/zfit/issues)"
                           f" is very welcome!", category=ExperimentalFeatureWarning, stacklevel=2)
@@ -57,7 +57,8 @@ warned_changed = set()
 def warn_changed_feature(message, identifier):
     from .. import settings
 
-    if settings.changed_warnings[identifier] and settings.changed_warnings.all and identifier not in warned_changed:
+    if settings.changed_warnings.get(identifier, True) \
+        and settings.changed_warnings.all and identifier not in warned_changed:
         warned_changed.add(identifier)
         warnings.warn(
             f"The behavior of this functionality recently changed."

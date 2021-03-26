@@ -1,9 +1,9 @@
-"""
-Basic PDFs are provided here. Gauss, exponential... that can be used together with Functors to
-build larger models.
+"""Basic PDFs are provided here.
+
+Gauss, exponential... that can be used together with Functors to build larger models.
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import contextlib
 import math as mt
 
@@ -12,10 +12,12 @@ import tensorflow as tf
 
 import zfit.z.math
 from zfit import z
+
 from ..core.basepdf import BasePDF
-from ..core.space import Space, ANY_LOWER, ANY_UPPER
+from ..core.space import ANY_LOWER, ANY_UPPER, Space
 from ..util import ztyping
-from ..util.exception import AnalyticIntegralNotImplementedError, BreakingAPIChangeError
+from ..util.exception import (AnalyticIntegralNotImplementedError,
+                              BreakingAPIChangeError)
 from ..util.warnings import warn_advanced_feature
 
 infinity = mt.inf

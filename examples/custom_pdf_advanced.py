@@ -7,9 +7,7 @@ from zfit import z
 
 
 class CustomPDF2D(zfit.pdf.BasePDF):
-    """My custom, 2 dimensional pdf. The axes are: Energy, Momentum.
-
-    """
+    """My custom, 2 dimensional pdf where the axes are: Energy, Momentum."""
 
     def __init__(self, param1, param2, param3, obs, name="CustomPDF", ):
         # we can now do complicated stuff here if needed

@@ -1,14 +1,12 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
 
 from zfit import Parameter, z
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.models.functions import SimpleFunc
 from zfit.models.special import SimplePDF
-from zfit.util.exception import ModelIncompatibleError, BreakingAPIChangeError
+from zfit.util.exception import BreakingAPIChangeError, ModelIncompatibleError
 
 rnd_test_values = np.array([1., 0.01, -14.2, 0., 1.5, 152, -0.1, 12])
 

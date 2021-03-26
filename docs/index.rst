@@ -1,7 +1,7 @@
 :notoc:
 
 .. |zfit_logo| image:: images/zfit-logo_400x168.png
-   :target: GitHub_
+   :target: https://github.com/zfit/zfit/
    :alt: zfit logo
 
 .. |scikit-hep_logo| image:: images/scikit-hep-logo_168x168.png

@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import copy
 import random
@@ -8,10 +8,10 @@ import pytest
 
 import zfit
 from zfit.core.space import Space, convert_to_space
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import LimitsUnderdefinedError, \
-    CoordinatesUnderdefinedError, ShapeIncompatibleError, LimitsIncompatibleError
+from zfit.util.exception import (CoordinatesUnderdefinedError,
+                                 LimitsIncompatibleError,
+                                 LimitsUnderdefinedError,
+                                 ShapeIncompatibleError)
 
 lower11 = 1
 lower12 = 4

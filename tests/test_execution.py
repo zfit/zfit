@@ -1,12 +1,11 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import copy
 
 import pytest
 
 import zfit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+
 
 @pytest.mark.first  # needs to run before initialization
 @pytest.mark.parametrize(["n_cpu", 'taken', 'left'], [[3, 5, 0], [0, -1, 0], [10, 3, 7],

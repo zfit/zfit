@@ -1,6 +1,9 @@
-"""Baseclass for a Model. Handle integration and sampling"""
+"""Baseclass for a Model.
 
-#  Copyright (c) 2020 zfit
+Handle integration and sampling
+"""
+
+#  Copyright (c) 2021 zfit
 
 import abc
 import builtins
@@ -9,29 +12,36 @@ import inspect
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Dict, Union, Callable, List, Tuple, Optional
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import tensorflow as tf
 from tensorflow_probability.python import mcmc as mc
 
-from . import integration as zintegrate, sample as zsample
-from .baseobject import BaseNumeric
-from .data import Data, Sampler, SampleData
-from .dependents import _extract_dependencies
-from .dimension import BaseDimensional
-from .interfaces import ZfitModel, ZfitParameter, ZfitData, ZfitSpace
-from .sample import UniformSampleAndWeights
-from .space import Space, convert_to_space, no_norm_range, supports
 from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
-from ..util import container as zcontainer, ztyping
+from ..util import container as zcontainer
+from ..util import ztyping
 from ..util.cache import GraphCachable
-from ..util.exception import (BasePDFSubclassingError, MultipleLimitsNotImplementedError, NormRangeNotImplementedError,
-                              ShapeIncompatibleError, SubclassingError, CannotConvertToNumpyError, WorkInProgressError,
-                              SpaceIncompatibleError, AnalyticIntegralNotImplementedError,
+from ..util.exception import (AnalyticIntegralNotImplementedError,
+                              AnalyticSamplingNotImplementedError,
+                              BasePDFSubclassingError,
+                              CannotConvertToNumpyError,
+                              FunctionNotImplementedError,
+                              MultipleLimitsNotImplementedError,
+                              NormRangeNotImplementedError,
+                              ShapeIncompatibleError, SpaceIncompatibleError,
                               SpecificFunctionNotImplementedError,
-                              AnalyticSamplingNotImplementedError, FunctionNotImplementedError)
+                              SubclassingError, WorkInProgressError)
+from . import integration as zintegrate
+from . import sample as zsample
+from .baseobject import BaseNumeric
+from .data import Data, SampleData, Sampler
+from .dependents import _extract_dependencies
+from .dimension import BaseDimensional
+from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
+from .sample import UniformSampleAndWeights
+from .space import Space, convert_to_space, no_norm_range, supports
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -42,7 +52,6 @@ def _BaseModel_register_check_support(has_support: bool):
     Args:
         has_support: If True, flags that it **requires** the `@supports` decorator. If False,
             flags that the `@supports` decorator is **not allowed**.
-
     """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
@@ -68,7 +77,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     """Base class for any generic model.
 
     # TODO instructions on how to use
-
     """
     _DEFAULTS_integration = zcontainer.DotDict()
     _DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
@@ -218,7 +226,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             self.integration.mc_sampler = mc_sampler
 
     # TODO: remove below? or add "analytic gradients"?
-    def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
+    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise NotImplementedError("Are the gradients needed?")
 
     def _check_input_norm_range(self, norm_range, none_is_error=False) -> Optional[ZfitSpace]:
@@ -232,7 +240,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         Returns:
             Union[:py:class:`~zfit.Space`, False]:
-
         """
         if norm_range is None or (isinstance(norm_range, ZfitSpace) and not norm_range.limits_are_set):
             if none_is_error:
@@ -253,8 +260,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def convert_sort_space(self, obs: Union[ztyping.ObsTypeInput, ztyping.LimitsTypeInput] = None,
                            axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> Union[ZfitSpace, None]:
-        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
-        own `obs`.
+        """Convert the inputs (using eventually `obs`, `axes`) to
+        :py:class:`~zfit.ZfitSpace` and sort them according to own `obs`.
 
         Args:
             obs:
@@ -262,7 +269,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             limits:
 
         Returns:
-
         """
         if obs is None:  # for simple limits to convert them
             obs = self.obs
@@ -383,7 +389,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 auto-handled.
             supports_norm_range: If `True`, `norm_range` argument to the function may not be `None`.
                 If `False`, `norm_range` will always be `None` and care is taken of the normalization automatically.
-
         """
         cls._analytic_integral.register(func=func, limits=limits, supports_norm_range=supports_norm_range,
                                         priority=priority, supports_multiple_limits=supports_multiple_limits)
@@ -485,7 +490,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         Returns:
             The integral value
-
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -635,7 +639,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             NormRangeNotImplementedError: if the *norm_range* argument is not supported. This
                 means that no analytical normalization is available, explicitly: the **analytical**
                 integral over the limits = norm_range is not available.
-
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range)
         limits = self._check_input_limits(limits=limits)
@@ -796,7 +799,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 been created with when it resamples.
 
         Returns:
-            :py:class:~`zfit.core.data.Sampler`
+            :py:class:`~zfit.core.data.Sampler`
 
         Raises:
             NotExtendedPDFError: if 'extended' is chosen (implicitly by default or explicitly) as an
@@ -887,7 +890,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return self._norm_sample(n=n, limits=limits)
 
     def _norm_sample(self, n, limits):
-        """Dummy function"""
+        """Dummy function."""
         return self._limits_sample(n=n, limits=limits)
 
     def _limits_sample(self, n, limits):
@@ -1054,7 +1057,7 @@ class SimpleModelSubclassMixin:
                 sigma = self.params['sigma']
                 x = z.unstack_x(x)
                 return z.exp(-z.square((x - mu) / sigma))
-        """
+    """
 
     def __init__(self, *args, **kwargs):
         try:
@@ -1076,4 +1079,4 @@ class SimpleModelSubclassMixin:
                                    "    _PARAMS = ['mu', 'sigma']")
         not_str = [param for param in params if not isinstance(param, str)]
         if not_str:
-            raise TypeError("The following parameters are not strings in `_PARAMS`: ".format(not_str))
+            raise TypeError(f"The following parameters are not strings in `_PARAMS`: ")

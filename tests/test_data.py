@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import copy
 
@@ -9,8 +9,6 @@ import tensorflow as tf
 import uproot
 
 import zfit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 
 obs1 = ('obs1', 'obs2', 'obs3')
 
@@ -177,6 +175,7 @@ def test_subdata():
 
     assert data1.obs == obs1
     np.testing.assert_array_equal(example_data1, data1.value())
+
 
 @pytest.mark.parametrize("weights_factory", [lambda: None,
                                              lambda: np.random.normal(size=5), ])

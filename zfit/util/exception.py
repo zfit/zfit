@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 # TODO: improve errors of models. Generate more general error, inherit and use more specific?
 import warnings
@@ -37,6 +37,10 @@ class SubclassingError(Exception):
 
 
 class BasePDFSubclassingError(SubclassingError):
+    pass
+
+
+class MinimizerSubclassingError(SubclassingError):
     pass
 
 
@@ -186,16 +190,18 @@ class FunctionNotImplementedError(ZfitNotImplementedError):
 
 
 class StandardControlFlow(Exception):
-    """An exception that inherits from this class will be regarded as part of the standard control flow
-    and not as an Error. For example, if a function raises that values are NaN, this is often intercepted
-    on purpose."""
+    """An exception that inherits from this class will be regarded as part of the standard control flow and not as an
+    Error.
+
+    For example, if a function raises that values are NaN, this is often intercepted on purpose.
+    """
 
 
 class SpecificFunctionNotImplementedError(FunctionNotImplementedError):
-    """If a specific function, e.g. by the user is not implemented"""
+    """If a specific function, e.g. by the user is not implemented."""
 
 
-class MinimizeNotImplementedError(FunctionNotImplementedError):
+class MinimizeNotImplemented(FunctionNotImplementedError):
     """The `minimize` function of a minimizer is not implemented."""
 
 
@@ -204,7 +210,7 @@ class MinimizeStepNotImplementedError(FunctionNotImplementedError):
 
 
 class AnalyticNotImplementedError(ZfitNotImplementedError):
-    """General exception if an analytic way is not implemented"""
+    """General exception if an analytic way is not implemented."""
 
 
 class AnalyticIntegralNotImplementedError(AnalyticNotImplementedError):
@@ -218,17 +224,21 @@ class AnalyticSamplingNotImplementedError(AnalyticNotImplementedError):
 
 
 # PDF class internal handling errors
-class NormRangeNotImplementedError(Exception):
+class NormRangeNotImplementedError(StandardControlFlow):
     """Indicates that a function does not support the normalization range argument `norm_range`."""
     pass
 
 
-class MultipleLimitsNotImplementedError(Exception):
+class MultipleLimitsNotImplementedError(StandardControlFlow):
     """Indicates that a function does not support several limits in a :py:class:`~zfit.Space`."""
     pass
 
+class InitNotImplemented(StandardControlFlow):
+    """Indicates that a minimize method does not support a FitResult instead of a loss."""
+    pass
 
-class VectorizedLimitsNotImplementedError(Exception):
+
+class VectorizedLimitsNotImplementedError(StandardControlFlow):
     """Indicates that a function does not support vectorized (n_events > 1) limits in a :py:class:`~zfit.Space`."""
     pass
 
@@ -236,7 +246,10 @@ class VectorizedLimitsNotImplementedError(Exception):
 # Developer verbose messages
 
 class WorkInProgressError(Exception):
-    """Only for developing purpose! Does not serve as a 'real' Exception."""
+    """Only for developing purpose!
+
+    Does not serve as a 'real' Exception.
+    """
     pass
 
 
@@ -256,3 +269,7 @@ class BehaviorUnderDiscussion(Exception):
                        "")
         msg = default_msg + str(msg)
         super().__init__(msg, *args)
+
+
+class MaximumIterationReached(StandardControlFlow):
+    pass
