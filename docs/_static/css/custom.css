@@ -14,5 +14,5 @@
 }
 
 i.fa-github-square:before {
-    color: #ffffffff;
+    color: #ffffffff !important;
 }
