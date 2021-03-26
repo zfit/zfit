@@ -22,12 +22,15 @@ class FFTConvPDFV1NoSampling(zfit.pdf.FFTConvPDFV1):
         raise zfit.exception.SpecificFunctionNotImplementedError
 
 
-@pytest.mark.parametrize('interpolation', (
+interpolation_methods = (
     'linear',
     'spline',
     'spline:5',
     'spline:3'
-))
+)
+
+
+@pytest.mark.parametrize('interpolation', interpolation_methods)
 def test_conv_simple(interpolation):
     n_points = 2432
     obs = zfit.Space("obs1", limits=(-5, 5))
@@ -65,8 +68,55 @@ def test_conv_simple(interpolation):
     # plt.show()
 
 
-def test_conv_1d_shifted():
-    obs_kernel = zfit.Space("obs1", limits=(-3, 1.5))
+@pytest.mark.parametrize('interpolation', interpolation_methods)
+def test_asymetric_limits(interpolation):
+    import zfit
+    from zfit.models.convolution import FFTConvPDFV1
+    from numpy import linspace
+
+    ## Space
+    low_obs = -30
+    high_obs = 30
+    obs = zfit.Space('space', limits=[low_obs, high_obs])
+
+    ## PDFs
+    uniform1 = zfit.pdf.Uniform(low=-10, high=10, obs=obs)
+    uniform2 = zfit.pdf.Uniform(low=-10, high=10, obs=obs)
+
+    conv_uniforms_1 = FFTConvPDFV1(
+        func=uniform1,
+        kernel=uniform2,
+        limits_kernel=(-18, 18),
+        interpolation=interpolation,
+    )
+
+    conv_uniforms_2 = FFTConvPDFV1(
+        func=uniform1,
+        kernel=uniform2,
+        limits_kernel=(-12, 12),
+        interpolation=interpolation,
+    )
+    conv_uniforms_3 = FFTConvPDFV1(
+        func=uniform1,
+        kernel=uniform2,
+        limits_kernel=(-25, 12),
+        interpolation=interpolation,
+    )
+
+    x = linspace(low_obs, high_obs, 300)
+
+    tol = 5e-3
+    # If this fails, we're too sensitive
+    np.testing.assert_allclose(conv_uniforms_1.pdf(x), conv_uniforms_2.pdf(x), rtol=tol, atol=tol)
+
+    # this is the "actual" test
+    np.testing.assert_allclose(conv_uniforms_1.pdf(x), conv_uniforms_3.pdf(x), rtol=tol, atol=tol)
+
+
+@pytest.mark.parametrize('interpolation', interpolation_methods)
+def test_conv_1d_shifted(interpolation):
+    kerlim = (-3, 3)  # symmetric to make the np conv comparison simple
+    obs_kernel = zfit.Space("obs1", limits=kerlim)
     obs = zfit.Space("obs1", limits=(5, 15))
     func1 = zfit.pdf.GaussianKDE1DimV1(obs=obs, data=np.random.uniform(6, 12, size=100))
     # func1 = zfit.pdf.Uniform(6, 12, obs=obs)
@@ -100,9 +150,12 @@ def test_conv_1d_shifted():
     # plt.legend()
     # plt.show()
 
-@pytest.mark.skip  # TODO: reactivate, fix bug with conv https://github.com/zfit/zfit/issues/291
-def test_onedim_sampling():
-    obs_kernel = zfit.Space("obs1", limits=(-3, 3))
+
+@pytest.mark.parametrize('interpolation', interpolation_methods)
+@pytest.mark.flaky(reruns=3)
+def test_onedim_sampling(interpolation):
+    # there is a sampling shortcut, so we test if it also works without the shortcut
+    obs_kernel = zfit.Space("obs1", limits=(-3, 1))
     obs = zfit.Space("obs1", limits=(5, 15))
     func1 = zfit.pdf.Uniform(6, 12, obs=obs)
     func2 = zfit.pdf.Uniform(11, 11.5, obs=obs)
@@ -113,13 +166,13 @@ def test_onedim_sampling():
     funck = zfit.pdf.SumPDF([func1k, func2k], 0.5)
     conv = zfit.pdf.FFTConvPDFV1(func=func, kernel=funck, n=200)
 
-    conv_nosample = FFTConvPDFV1NoSampling(func=func, kernel=funck, n=200)
+    conv_nosample = FFTConvPDFV1NoSampling(func=func, kernel=funck, n=200, interpolation=interpolation)
     npoints_sample = 10000
     sample = conv.sample(npoints_sample)
     sample_nosample = conv_nosample.sample(npoints_sample)
     x = z.unstack_x(sample)
     xns = z.unstack_x(sample_nosample)
-    assert scipy.stats.ks_2samp(x, xns).pvalue > 1e-7  # can vary a lot, but still means close
+    assert scipy.stats.ks_2samp(x, xns).pvalue > 1e-3  # can vary a lot, but still means close
     # uni1sample = func1k.sample(npoints_sample // 2)
     # uni2sample = func2k.sample(npoints_sample // 2)
     # xcomb = tf.concat([uni1sample.value(), uni2sample.value()], axis=0)
@@ -188,22 +241,27 @@ def test_max_1dim():
 @pytest.mark.skip  # not yet implemented WIP
 def test_conv_2D_simple():
     zfit.run.set_graph_mode(False)  # TODO: remove, just for debugging
-    raise WorkInProgressError("2D convolution not yet implemented, re-activate if so")
+    # raise WorkInProgressError("2D convolution not yet implemented, re-activate if so")
     n_points = 1000
-    obs1 = zfit.Space("obs1", limits=(-2, 4))
-    obs2 = zfit.Space("obs2", limits=(-6, 4))
+    # obs1 = zfit.Space("obs1", limits=(-2, 4))
+    # obs2 = zfit.Space("obs2", limits=(-6, 4))
+    obs1 = zfit.Space("obs1", limits=(-5, 5))
+    obs2 = zfit.Space("obs2", limits=(-5, 5))
     obskernel = obs1 * obs2
 
     param2 = zfit.Parameter('param2', 0.4)
     gauss1 = zfit.pdf.Gauss(1., 0.5, obs=obs1)
     gauss22 = zfit.pdf.CrystalBall(0.0, param2, -0.2, 3, obs=obs2)
 
-    obs1func = zfit.Space("obs1", limits=(4, 10))
-    obs2func = zfit.Space("obs2", limits=(-6, 4))
+    gauss1 = zfit.pdf.Uniform(-1, 1, obs=obs1)
+    gauss22 = zfit.pdf.Uniform(-2, 2, obs=obs2)
+
+    obs1func = zfit.Space("obs1", limits=(-10, 10))
+    obs2func = zfit.Space("obs2", limits=(-26, 26))
     obs_func = obs1func * obs2func
 
     gauss21 = zfit.pdf.Gauss(-0.5, param2, obs=obs2func)
-    func1 = zfit.pdf.Uniform(5, 8, obs=obs1func)
+    func1 = zfit.pdf.Uniform(2, 8, obs=obs1func)
     func2 = zfit.pdf.Uniform(6, 7, obs=obs1func)
     func = zfit.pdf.SumPDF([func1, func2], 0.5)
     func = func * gauss21
