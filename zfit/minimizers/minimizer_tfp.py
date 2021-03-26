@@ -107,7 +107,7 @@ class BFGS(BaseMinimizer):
 
         # save result
         params_result = run(result.position)
-        set_values(params, values=params_result)
+        assign_values(params, values=params_result)
 
         info = {'n_eval'  : run(result.num_objective_evaluations),
                 'n_iter'  : run(result.num_iterations),

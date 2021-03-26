@@ -7,7 +7,7 @@ import tensorflow as tf
 import texttable as tt
 
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import set_values
+from ..core.parameter import assign_values, set_values
 from ..settings import run
 from ..util import ztyping
 from ..util.exception import MaximumIterationReached
@@ -132,7 +132,7 @@ class LossEval:
             self.nfunc_eval += 1
             self.ngrad_eval += 1
 
-        set_values(self.params, values=values)
+        assign_values(self.params, values=values)
         is_nan = False
 
         try:
@@ -192,7 +192,7 @@ class LossEval:
         """
         if not self._ignoring_maxiter:
             self.nfunc_eval += 1
-        set_values(self.params, values=values)
+        assign_values(self.params, values=values)
         is_nan = False
 
         try:
@@ -246,7 +246,7 @@ class LossEval:
         """
         if not self._ignoring_maxiter:
             self.ngrad_eval += 1
-        set_values(self.params, values=values)
+        assign_values(self.params, values=values)
         is_nan = False
 
         try:
@@ -302,7 +302,7 @@ class LossEval:
         """
         if not self._ignoring_maxiter:
             self.nhess_eval += 1
-        set_values(self.params, values=values)
+        assign_values(self.params, values=values)
         is_nan = False
 
         try:

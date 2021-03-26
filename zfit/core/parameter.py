@@ -28,6 +28,7 @@ from ..util import ztyping
 from ..util.cache import invalidate_graph
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
+from ..util.deprecation import deprecated
 from ..util.exception import (BreakingAPIChangeError,
                               FunctionNotImplementedError,
                               IllegalInGraphModeError,
@@ -397,13 +398,15 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         Returns:
             Boolean `tf.Tensor` that tells whether the value is at the limits.
         """
+        return self._check_at_limit(self.value())
+
+    def _check_at_limit(self, value):
         if not self.has_limits:
             return tf.constant(False)
-
         # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
-        tol = (self.upper - self.lower) * 1e-2
-        at_lower = z.unstable.less_equal(self.value(), self.lower + tol)
-        at_upper = z.unstable.greater_equal(self.value(), self.upper - tol)
+        tol = (self.upper - self.lower) * 1e-8
+        at_lower = z.unstable.less_equal(value, self.lower + tol)
+        at_upper = z.unstable.greater_equal(value, self.upper - tol)
         return z.unstable.logical_or(at_lower, at_upper)
 
     def value(self):
@@ -412,6 +415,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             value = self.constraint(value)
         return value
 
+    @deprecated(None, 'Use `value` instead.')
     def read_value(self):
         value = super().read_value()
         if self.has_limits:
@@ -488,15 +492,30 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         Args:
             value: The value the parameter will take on.
         """
-        super_assign = super().assign
 
         def getter():
             return self.value()
 
         def setter(value):
-            super_assign(value=value, read_value=False)
+            if self._check_at_limit(value):
+                raise ValueError(f"Value {value} over limits {self.lower} - {self.upper}. This is changed."
+                                 f" In order to silence this and clip the value, you can use (with caution,"
+                                 f" advanced) `Parameter.assign`")
+            self.assign(value=value, read_value=False)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
+
+    def assign(self, value, use_locking=None, name=None, read_value=False):
+        """Set the :py:class:`~zfit.Parameter` to `value` without any checks.
+
+        Compared to `set_value`, this method cannot be used with a context manager and won't raise an
+        error
+
+        Args:
+            value: The value the parameter will take on.
+        """
+
+        return super().assign(value=value, use_locking=use_locking, name=name, read_value=read_value)
 
     def randomize(self, minval: Optional[ztyping.NumericalScalarType] = None,
                   maxval: Optional[ztyping.NumericalScalarType] = None,
@@ -895,6 +914,14 @@ def convert_to_parameter(value,
     return value
 
 
+def assign_values(params: Union[Parameter, Iterable[Parameter]],
+                  values: Union[ztyping.NumericalScalarType,
+                                Iterable[ztyping.NumericalScalarType]], use_locking=False):
+    params, values = _check_convert_param_values(params, values)
+    for i, param in enumerate(params):
+        param.assign(values[i], read_value=False, use_locking=use_locking)
+
+
 def set_values(params: Union[Parameter, Iterable[Parameter]],
                values: Union[ztyping.NumericalScalarType,
                              Iterable[ztyping.NumericalScalarType], ZfitResult]):
@@ -905,7 +932,23 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
         values: List-like object that supports indexing.
 
     Returns:
+        An object for a context manager (but can also be used without), can be ignored.
+    Raises:
+        ValueError: If the value is not between the limits of the parameter
     """
+    params, values = _check_convert_param_values(params, values)
+
+    def setter(values):
+        for i, param in enumerate(params):
+            param.set_value(values[i])
+
+    def getter():
+        return [param.value() for param in params]
+
+    return TemporarilySet(values, setter=setter, getter=getter)
+
+
+def _check_convert_param_values(params, values):
     params = convert_to_container(params)
     if isinstance(values, ZfitResult):
         result = values
@@ -922,12 +965,4 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
     if not all(param.independent for param in params):
         raise ParameterNotIndependentError(f'trying to set value of parameters that are not independent '
                                            f'{[param for param in params if not param.independent]}')
-
-    def setter(values):
-        for i, param in enumerate(params):
-            param.set_value(values[i])
-
-    def getter():
-        return [param.read_value() for param in params]
-
-    return TemporarilySet(values, setter=setter, getter=getter)
+    return params, values

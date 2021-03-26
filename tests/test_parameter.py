@@ -110,7 +110,8 @@ def test_composed_param():
     assert param_a.get_cache_deps(only_floating=False) == {param1, param2, param3}
     a_unchanged = value_fn(param1, param2, param3).numpy()
     assert a_unchanged == param_a.numpy()
-    assert param2.assign(3.5).numpy()
+    param2.assign(3.5)
+    assert param2.numpy()
     a_changed = value_fn(param1, param2, param3).numpy()
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
@@ -167,17 +168,21 @@ def test_param_limits():
     assert param1.has_limits
     assert not param2.has_limits
 
-    param1.set_value(upper + 0.5)
+    with pytest.raises(ValueError):
+        param1.set_value(upper + 0.5)
+    param1.assign(upper + 0.5)
     assert upper == param1.value().numpy()
     assert param1.at_limit
-    param1.set_value(lower - 1.1)
+    with pytest.raises(ValueError):
+        param1.set_value(lower - 1.1)
+    param1.assign(lower - 1.1)
     assert lower == param1.value().numpy()
     assert param1.at_limit
     param1.set_value(upper - 0.1)
     assert not param1.at_limit
 
     param2.lower = lower
-    param2.set_value(lower - 1.1)
+    param2.assign(lower - 1.1)
     assert lower == param2.value().numpy()
 
 

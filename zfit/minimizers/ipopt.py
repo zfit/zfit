@@ -5,7 +5,7 @@ from typing import Callable, Dict, Optional, Union
 import ipyopt
 import numpy as np
 
-from ..core.parameter import set_values
+from ..core.parameter import assign_values, set_values
 from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (BaseMinimizer, minimize_supports,
@@ -320,7 +320,7 @@ class IpyoptV1(BaseMinimizer):
             else:
                 maxiter_reached = evaluator.maxiter_reached
 
-            set_values(params, xvalues)
+            assign_values(params, xvalues)
             with evaluator.ignore_maxiter():
                 result_prelim = FitResult.from_ipopt(loss=loss,
                                                      params=params,

@@ -6,7 +6,7 @@ import iminuit
 import numpy as np
 
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import Parameter, set_values
+from ..core.parameter import Parameter, assign_values, set_values
 from ..settings import run
 from ..util.cache import GraphCachable
 from ..util.deprecation import deprecated_args
@@ -207,7 +207,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                                           internal_tol=internal_tol)
 
             if converged or maxiter_reached:
-                set_values(params, minimizer.values)  # make sure it's at the right value
+                assign_values(params, minimizer.values)  # make sure it's at the right value
                 break
 
         fitresult = FitResult.from_minuit(loss=loss,

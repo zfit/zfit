@@ -156,9 +156,7 @@ minimizers = [
 
 ]
 
-# minimizers = [
-#     (zfit.minimize.Minuit, {"tol": 0.0001, "verbosity": verbosity, 'minuit_grad': True},
-#      {'error': True, 'longtests': True})]
+# minimizers = [(zfit.minimize.Minuit, {"verbosity": verbosity, 'gradient': True}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
@@ -352,9 +350,9 @@ def test_minimizers(minimizer_class_and_kwargs, numgrad, chunksize, spaces,
             profile_methods = ['zfit_error']
             from zfit.minimizers.minimizer_minuit import Minuit
             hesse_methods.append('minuit_hesse')
+            profile_methods.append('minuit_minos')
             if isinstance(minimizer, Minuit):
                 # TODO: Move up for all once https://github.com/scikit-hep/iminuit/issues/631 fixed
-                profile_methods.append('minuit_minos')
                 hesse_methods.append('approx')
 
             rel_error_tol = 0.15

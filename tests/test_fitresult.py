@@ -79,8 +79,9 @@ def test_set_values():
     val_a = fitresult['a']
     val_b = fitresult['b']
     val_c = fitresult['c']
-    param_b.set_value(999)
-    param_c.set_value(9999)
+    with pytest.raises(ValueError):
+        param_b.set_value(999)
+    param_c.assign(9999)
     zfit.param.set_values([param_c, param_b], values=result)
 
     assert param_a.value() == val_a
@@ -124,14 +125,14 @@ def test_params_at_limit():
     loss, (param_a, param_b, param_c) = create_loss(n=5000)
     old_lower = param_a.lower
     param_a.lower = param_a.upper
-    param_a.upper += 5
-    minimizer = zfit.minimize.Minuit(use_minuit_grad=True, tol=0.1)
+    param_a.assign(param_a.upper + 5)
+    minimizer = zfit.minimize.Minuit(gradient=True, tol=10.)
     result = minimizer.minimize(loss)
+    param_a.assign(100)
     assert param_a.at_limit
     assert result.params_at_limit
     param_a.lower = old_lower
-    assert not param_a.at_limit
-    assert result.params_at_limit
+    assert param_a.at_limit
     assert not result.valid
 
 

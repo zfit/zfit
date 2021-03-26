@@ -42,11 +42,12 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
     Returns:
         Gradients
     """
+    from ..core.parameter import assign_values
+
     params = convert_to_container(params)
 
     def wrapped_func(param_values):
-        for param, value in zip(params, param_values):
-            param.assign(value)
+        assign_values(params, param_values)
         value = func()
         if hasattr(value, 'numpy'):
             value = value.numpy()
@@ -63,8 +64,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
     if gradient.shape == ():
         gradient = tf.reshape(gradient, shape=(1,))
     gradient.set_shape(param_vals.shape)
-    for param, val in zip(params, original_vals):
-        param.set_value(val)
+    assign_values(params, original_vals)
     return gradient
 
 
@@ -102,12 +102,12 @@ def numerical_hessian(func: Optional[Callable],
     Returns:
         Hessian matrix
     """
+    from ..core.parameter import assign_values
 
     params = convert_to_container(params)
 
     def wrapped_func(param_values):
-        for param, value in zip(params, param_values):
-            param.assign(value)
+        assign_values(params, param_values)
         value = func()
         if hasattr(value, 'numpy'):
             value = value.numpy()
@@ -138,8 +138,7 @@ def numerical_hessian(func: Optional[Callable],
     else:
         computed_hessian.set_shape((n_params, n_params))
 
-    for param, val in zip(params, original_vals):
-        param.set_value(val)
+    assign_values(params, original_vals)
     return computed_hessian
 
 
