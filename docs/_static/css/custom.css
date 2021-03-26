@@ -1,21 +1,18 @@
-/*This css file is a bit of a hack for changing the look of pydata_sphinx_theme. As soon as*/
-/*there will be an official way of doing this, we can change this.*/
-/*An official way for most of these elements seems to be on it's ways.*/
-/*See https://github.com/pydata/pydata-sphinx-theme/issues/339 */
+/*pydata-sphinx-theme provides some css variables for customizing the look of the theme.*/
+/*See a list of supported css variables at*/
+/*https://github.com/pydata/pydata-sphinx-theme/blob/master/pydata_sphinx_theme/static/css/theme.css*/
+:root {
+    --pst-color-navbar-link: 255, 255, 255;
+    --pst-color-navbar-link-hover: 203, 86, 40;
+    --pst-color-navbar-link-active: 203, 86, 40;
+}
 
+/*Here we use css directly because for these attributes there exist no css variables defined by pydata-sphinx-theme.*/
+/*See https://github.com/pydata/pydata-sphinx-theme/issues/353 for possible changes in the future.*/
 #navbar-main {
-    background-color: #2F4858 !important;
-}
-
-.navbar-nav > .nav-item > .nav-link {
-    color: #ffffffff;
-}
-
-.navbar-nav > .active > .nav-link {
-    font-weight: 600;
-    color: #CB5628 !important;
+    background-color: #2f4858 !important;
 }
 
 i.fa-github-square:before {
-    color: #ffffffff;
+    color: #ffffffff !important;
 }
