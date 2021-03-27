@@ -37,7 +37,7 @@ Some function are already wrapped, others are not. Best practice is to use `z` w
 
 
 # noinspection PyUnresolvedReferences
-import tensorflow.experimental.numpy as np
+import tensorflow.experimental.numpy as numpy
 
 from . import math, random, unstable
 from .wrapping_tf import (check_numerics, complex, convert_to_tensor, exp, pow,

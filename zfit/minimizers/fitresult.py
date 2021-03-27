@@ -118,7 +118,15 @@ class Approximations:
 def _minos_minuit(result, params, cl=None):
     minuit_minimizer = result._create_minuit_instance()
 
-    merror_result = minuit_minimizer.minos(*(p.name for p in params), cl=cl).merrors  # returns every var
+    try:
+        minuit_minimizer.minos(*(p.name for p in params), cl=cl)
+    except RuntimeError as error:
+        if 'Function minimum is not valid.' not in error.args[0]:
+            raise
+        minuit_minimizer.migrad()
+        minuit_minimizer.minos(*(p.name for p in params), cl=cl)
+
+    merror_result = minuit_minimizer.merrors  # returns every var
     attrs = ['lower', 'upper', 'is_valid', 'upper_valid', 'lower_valid', 'at_lower_limit', 'at_upper_limit', 'nfcn']
     errors = {}
     for p in params:
