@@ -15,6 +15,7 @@ from contextlib import suppress
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import tensorflow as tf
+from dotmap import DotMap
 from tensorflow_probability.python import mcmc as mc
 
 from .. import z
@@ -78,7 +79,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     # TODO instructions on how to use
     """
-    _DEFAULTS_integration = zcontainer.DotDict()
+    _DEFAULTS_integration = DotMap()
     _DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
                                                                                          **kwargs)
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
@@ -105,7 +106,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         super().__init__(name=name, dtype=dtype, params=params, **kwargs)
         self._check_set_space(obs)
 
-        self._integration = zcontainer.DotDict()
+        self._integration = DotMap()
         self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
         self.integration = Integration(mc_sampler=self._DEFAULTS_integration.mc_sampler,
                                        draws_per_dim=self._DEFAULTS_integration.draws_per_dim)
@@ -174,8 +175,17 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
-    def _convert_sort_x(self, x: ztyping.XTypeInput, partial: bool = False) -> Data:
-        if isinstance(x, ZfitData):
+    def _convert_sort_x(self,
+                        x: ztyping.XTypeInput,
+                        partial: bool = False,
+                        allow_none: bool = False) -> Data:
+        if x is None:
+            if not allow_none:
+                raise ValueError(f"x {x} given to {self} must be non-empty (not None).")
+            else:
+                yield None
+
+        elif isinstance(x, ZfitData):
             if x.obs is not None:
                 with x.sort_by_obs(obs=self.obs, allow_superset=True):
                     yield x
@@ -288,7 +298,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         raise SpecificFunctionNotImplemented
 
     @z.function(wraps='model')
-    def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+    def integrate(self,
+                  limits: ztyping.LimitsType,
+                  norm_range: ztyping.LimitsType = None,
+                  *,
+                  x: Optional[ztyping.DataInputType] = None) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
@@ -301,7 +315,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """
         norm_range = self._check_input_norm_range(norm_range)
         limits = self._check_input_limits(limits=limits)
-        integral = self._single_hook_integrate(limits=limits, norm_range=norm_range)
+        with self._convert_sort_x(x, allow_none=True) as x:
+            integral = self._single_hook_integrate(limits=limits, norm_range=norm_range, x=x)
         # TODO: allow integral values as arrays?
         # if isinstance(integral, tf.Tensor):
         #     if not integral.shape.as_list() == []:
@@ -313,7 +328,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         #                                      "instead of tensor)".format(integral.shape.as_list()))
         return integral
 
-    def _single_hook_integrate(self, limits, norm_range):
+    def _single_hook_integrate(self, limits, norm_range, x):
+        del x  # TODO HACK: how and what to pass through?
         return self._hook_integrate(limits=limits, norm_range=norm_range)
 
     def _hook_integrate(self, limits, norm_range):
@@ -833,7 +849,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     @z.function(wraps='model')
     def _create_sampler_tensor(self, limits, n):
 
-        sample = self._single_hook_sample(n=n, limits=limits)
+        sample = self._single_hook_sample(n=n, limits=limits, x=None)
         return sample
 
     @_BaseModel_register_check_support(True)
@@ -841,7 +857,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         raise SpecificFunctionNotImplemented
 
     def sample(self, n: ztyping.nSamplingTypeIn = None,
-               limits: ztyping.LimitsType = None) -> SampleData:  # TODO: change poissonian top-level with multinomial
+               limits: ztyping.LimitsType = None,
+               x: Optional[
+                   ztyping.DataInputType] = None) -> SampleData:  # TODO: change poissonian top-level with multinomial
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
@@ -875,15 +893,22 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits = self._check_input_limits(limits=limits, none_is_error=True)
 
         @z.function(wraps='model_sampling')
-        def run_tf(n, limits):
-            sample = self._single_hook_sample(n=n, limits=limits)
+        def run_tf(n, limits, x):
+            sample = self._single_hook_sample(n=n, limits=limits, x=x)
             return sample
 
-        sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits), obs=limits)
+        with self._convert_sort_x(x, allow_none=True) as x:
+            if x is not None:
+                new_obs = limits * x.data_range
+            else:
+                new_obs = limits
+            sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits, x=x),
+                                                 obs=new_obs)  # TODO: which limits?
 
         return sample_data
 
-    def _single_hook_sample(self, n, limits):
+    def _single_hook_sample(self, n, limits, x=None):
+        del x
         return self._hook_sample(n=n, limits=limits)
 
     def _hook_sample(self, limits, n):

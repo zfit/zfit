@@ -2,6 +2,7 @@
 
 from .core.basepdf import BasePDF
 from .models.basic import Exponential
+from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (Cauchy, Gauss, Poisson, TruncatedGauss, Uniform,
                               WrapDistribution)
@@ -20,5 +21,6 @@ __all__ = ['BasePDF', 'BaseFunctor',
            'ProductPDF', 'SumPDF',
            'GaussianKDE1DimV1',
            'FFTConvPDFV1',
+           'ConditionalPDFV1',
            'ZPDF', 'SimplePDF', 'SimpleFunctorPDF'
            ]

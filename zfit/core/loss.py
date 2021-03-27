@@ -55,8 +55,11 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
         # nll_finished = (nlls_total_summed, nlls_correction_summed)
         nll_finished = nlls_summed
     else:
-        with data.set_data_range(fit_range):
-            probs = model.pdf(data, norm_range=fit_range)
+        if fit_range is not None:
+            with data.set_data_range(fit_range):
+                probs = model.pdf(data, norm_range=fit_range)
+        else:
+            probs = model.pdf(data)
         log_probs = tf.math.log(probs)
         nll = _nll_calc_unbinned_tf(log_probs=log_probs,
                                     weights=data.weights if data.weights is not None else None)
@@ -192,8 +195,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 if p.norm_range != d.data_range:
                     non_consistent['data'].append(d)
                     non_consistent['model'].append(p)
-                    non_consistent['range'].append((p.norm_range, d.data_range))
-                fit_range.append(p.norm_range)
+                    non_consistent['range'].append((p.space, d.data_range))
+                fit_range.append(None)
             if non_consistent['range']:  # TODO: test
                 warn_advanced_feature(f"PDFs {non_consistent['model']} as "
                                       f"well as `data` {non_consistent['data']}"
@@ -211,11 +214,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                              "\nfit_range: {}".format(pdf, data, fit_range))
 
         # sanitize fit_range
-        fit_range = [p.convert_sort_space(limits=range_) for p, range_ in zip(pdf, fit_range)]
+        fit_range = [p.convert_sort_space(limits=range_) if range_ is not None else None for p, range_ in
+                     zip(pdf, fit_range)]
         # TODO: sanitize pdf, data?
         self.add_cache_deps(cache_deps=pdf)
         self.add_cache_deps(cache_deps=data)
-        self.add_cache_deps(cache_deps=fit_range)
+        # self.add_cache_deps(cache_deps=fit_range)
         return pdf, data, fit_range
 
     def _check_convert_model_data(self, model, data, fit_range):
@@ -313,7 +317,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             return self._loss_func(model=self.model, data=self.data, fit_range=self.fit_range,
                                    constraints=self.constraints)
         except NotImplementedError as error:
-            raise NotImplementedError("_loss_func not properly defined!") from error
+            raise NotImplementedError(f"_loss_func not properly defined! error {error}") from error
 
     def __add__(self, other):
         if not isinstance(other, BaseLoss):

@@ -1,6 +1,8 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2021 zfit
+import inspect
+import sys
 import warnings
 
 from pkg_resources import get_distribution
@@ -27,16 +29,16 @@ __all__ = ["z", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
 
 #  Copyright (c) 2019 zfit
 
-# msg = inspect.cleandoc(
-#     """zfit has moved from TensorFlow 1.x to 2.x, which has some profound
-#     implications behind the scenes of zfit and minor ones on the user side.
-#     Be sure to read the upgrade guide (can be found in the README at the top)
-#     to have a seamless transition. If this is currently not doable you can
-#     downgrade zfit to <0.4.
-#     Feel free to contact us in case of problems in order to fix them ASAP.
-#     """
-# )
-# warnings.warn(msg, stacklevel=2)
+if sys.version_info < (3, 7):
+    msg = inspect.cleandoc(
+        """zfit is being actively developed and keeps up with the newest versions of other packages.
+        This includes Python itself. Therefore, Python 3.6 will be dropped in the near future (beginning of May 2021)
+        and 3.9 will be added to the supported versions.
+
+        Feel free to contact us in case of problems to upgrade to a more recent version of Python.
+        """
+    )
+    warnings.warn(msg, FutureWarning, stacklevel=2)
 
 
 def _maybe_disable_warnings():

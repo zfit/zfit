@@ -11,7 +11,7 @@ from ordered_set import OrderedSet
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
-from ..util.container import DotDict, convert_to_container
+from ..util.container import convert_to_container
 from .dependents import BaseDependentsMixin
 from .interfaces import (ZfitIndependentParameter, ZfitNumericParametrized,
                          ZfitObject, ZfitParameter, ZfitParametrized)
@@ -27,7 +27,7 @@ class BaseObject(ZfitObject):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        cls._repr = DotDict()  # TODO: make repr more sophisticated
+        cls._repr = {}  # TODO: make repr more sophisticated
 
     @property
     def name(self) -> str:
@@ -68,7 +68,7 @@ class BaseParametrized(ZfitParametrized):
 
         # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
         self._params = params
-        self._repr.params = self.params
+        self._repr['params'] = self.params
 
     def get_params(self,
                    floating: Optional[bool] = True,

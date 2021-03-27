@@ -1,3 +1,8 @@
+model.init.name: |1+
+    Name of the PDF for a better visibility.
+                Has no programmatical functional purpose.
+
+
 minimizer.verbosity: |1+
  Verbosity of the minimizer. Has to be between 0 and 10.
                The verbosity has the meaning:

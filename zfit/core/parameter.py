@@ -490,16 +490,30 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
         Args:
             value: The value the parameter will take on.
+        Raises:
+            ValueError: If the value is not inside the limits (in normal Python/eager mode)
+            InvalidArgumentError: If the value is not inside the limits (in JIT/traced/graph mode)
         """
 
         def getter():
             return self.value()
 
         def setter(value):
-            if self._check_at_limit(value):
-                raise ValueError(f"Value {value} over limits {self.lower} - {self.upper}. This is changed."
-                                 f" In order to silence this and clip the value, you can use (with caution,"
-                                 f" advanced) `Parameter.assign`")
+            if self.has_limits:
+                message = (f"Value {value} over limits {self.lower} - {self.upper}. This is changed."
+                           f" In order to silence this and clip the value, you can use (with caution,"
+                           f" advanced) `Parameter.assign`")
+                if run.executing_eagerly():
+                    if self._check_at_limit(value):
+                        raise ValueError(message)
+                else:
+                    tf.debugging.assert_greater(tf.cast(value, tf.float64),
+                                                tf.cast(self.lower, tf.float64),
+                                                message=message)
+                    tf.debugging.assert_less(tf.cast(value, tf.float64),
+                                             tf.cast(self.upper, tf.float64),
+                                             message=message)
+            #     tf.debugging.Assert(self._check_at_limit(value), [value])
             self.assign(value=value, read_value=False)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)

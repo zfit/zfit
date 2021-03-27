@@ -241,7 +241,7 @@ def test_max_1dim():
 
 @pytest.mark.skip  # not yet implemented WIP
 def test_conv_2D_simple():
-    zfit.run.set_graph_mode(False)  # TODO: remove, just for debugging
+    # zfit.run.set_graph_mode(False)  # TODO: remove, just for debugging
     # raise WorkInProgressError("2D convolution not yet implemented, re-activate if so")
     n_points = 1000
     # obs1 = zfit.Space("obs1", limits=(-2, 4))

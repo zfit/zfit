@@ -8,8 +8,8 @@ import warnings
 from typing import List, Optional, Union
 
 import tensorflow as tf
+from dotmap import DotMap
 
-from .container import DotDict
 from .deprecation import deprecated
 from .exception import IllegalInGraphModeError
 from .temporary import TemporarilySet
@@ -25,7 +25,7 @@ class RunManager:
         The `run` method is equivalent to `sess.run`
         """
         self.MAX_CHUNK_SIZE = sys.maxsize
-        self.chunking = DotDict()
+        self.chunking = DotMap()
         self._cpu = []
         self._n_cpu = None
         self._inter_cpus = None
@@ -293,6 +293,9 @@ class RunManager:
 
     def _set_graph_mode(self, graph):
         from .graph import jit as jit_obj
+
+        # only run eagerly if no graph
+        tf.config.run_functions_eagerly(graph is False)
         if graph is True:
             jit_obj._set_all(True)
         elif graph is False:
@@ -340,7 +343,10 @@ class RunManager:
 
     def set_mode_default(self):
         """Reset the mode to the default of `graph` = 'auto' and `autograd` = True."""
-        self.set_mode(**self.DEFAULT_MODE)
+
+        return TemporarilySet(value=self.DEFAULT_MODE,
+                              setter=lambda v: self.set_mode(**v),
+                              getter=lambda: self._mode)
 
     def clear_graph_cache(self):
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
@@ -367,7 +373,10 @@ class RunManager:
     @property
     @deprecated(None, "Use `current_policy_graph() is False`")
     def experimental_is_eager(self):
-        return not self.mode['graph']
+        return tf.executing_eagerly()
+
+    def executing_eagerly(self):
+        return tf.executing_eagerly()
 
     @deprecated(date=None, instructions="Use clear_graph_caches instead.")
     def experimental_clear_caches(self):

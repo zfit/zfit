@@ -95,7 +95,6 @@ gaussian_dists = [create_gauss1, create_test_gauss1]
 
 
 def test_mutlidim_sampling():
-    zfit.run.set_graph_mode(False)
     spaces = [zfit.Space(f'obs{i}', (i * 10, i * 10 + 6)) for i in range(4)]
     pdfs = [GaussNoAnalyticSampling(obs=spaces[0], mu=3, sigma=1),
             GaussNoAnalyticSampling(obs=spaces[2], mu=23, sigma=1),
