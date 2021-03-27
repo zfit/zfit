@@ -169,7 +169,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init: FitResult):
         if init:
-            set_values(params=params, values=init)
+            assign_values(params=params, values=init)
         result_prelim = init
 
         evaluator = self.create_evaluator(loss=loss, params=params)

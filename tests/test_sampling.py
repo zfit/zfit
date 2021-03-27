@@ -6,7 +6,7 @@ import tensorflow as tf
 import zfit
 from zfit import Space, z
 from zfit.core.space import Limit
-from zfit.util.exception import AnalyticSamplingNotImplementedError
+from zfit.util.exception import AnalyticSamplingNotImplemented
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -26,13 +26,13 @@ obs1 = zfit.Space('obs1', (low, high))
 class GaussNoAnalyticSampling(zfit.pdf.Gauss):
 
     def _analytic_sample(self, n, limits: Space):
-        raise AnalyticSamplingNotImplementedError  # HACK do make importance sampling work
+        raise AnalyticSamplingNotImplemented  # HACK do make importance sampling work
 
 
 class UniformNoAnalyticSampling(zfit.pdf.Uniform):
 
     def _analytic_sample(self, n, limits: Space):
-        raise AnalyticSamplingNotImplementedError  # HACK do make importance sampling work
+        raise AnalyticSamplingNotImplemented  # HACK do make importance sampling work
 
 
 def create_gauss1():

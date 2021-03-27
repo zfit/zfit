@@ -18,7 +18,7 @@ from zfit.util.temporary import TemporarilySet
 
 from ..settings import ztypes
 from ..util import ztyping
-from ..util.exception import (AnalyticIntegralNotImplementedError,
+from ..util.exception import (AnalyticIntegralNotImplemented,
                               WorkInProgressError)
 from .space import Space, convert_to_space, supports
 
@@ -485,10 +485,10 @@ class AnalyticIntegral:
         integral_holder = self._integrals.get(axes)
         # limits = convert_to_space(axes=self.axes, limits=limits)
         if integral_holder is None:
-            raise AnalyticIntegralNotImplementedError(f"Analytic integral is not available for axes {axes}")
+            raise AnalyticIntegralNotImplemented(f"Analytic integral is not available for axes {axes}")
         integral_fn = self.get_max_integral(limits=limits)
         if integral_fn is None:
-            raise AnalyticIntegralNotImplementedError(
+            raise AnalyticIntegralNotImplemented(
                 f"Integral is available for axes {axes}, but not for limits {limits}")
 
         try:

@@ -157,7 +157,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
     def _minimize(self, loss, params, init):
         previous_result = init
         if init:
-            set_values(params=params, values=init)
+            assign_values(params=params, values=init)
         evaluator = self.create_evaluator(loss, params)
 
         # create minimizer instance

@@ -215,7 +215,7 @@ class IpyoptV1(BaseMinimizer):
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
         if init:
-            set_values(params=params, values=init)
+            assign_values(params=params, values=init)
         evaluator = self.create_evaluator()
 
         # initial values as array
@@ -364,6 +364,7 @@ class IpyoptV1(BaseMinimizer):
 
         # cleanup of convergence
         minimizer.set(**{option: 'no' for option in warm_start_options})
+        assign_values(params=params, values=xvalues)
 
         return FitResult.from_ipopt(loss=loss,
                                     params=params,

@@ -182,7 +182,7 @@ class ZfitNotImplementedError(NotImplementedError):
             warnings.warn("Prefer to use a more specific subclass. See in `zfit.exceptions`")
 
 
-class FunctionNotImplementedError(ZfitNotImplementedError):
+class FunctionNotImplemented(ZfitNotImplementedError):
     """Any function, e.g. in a BaseModel, that not implemented and a fallback should be called.
 
     Preferably use more specific exceptions
@@ -197,39 +197,39 @@ class StandardControlFlow(Exception):
     """
 
 
-class SpecificFunctionNotImplementedError(FunctionNotImplementedError):
+class SpecificFunctionNotImplemented(FunctionNotImplemented):
     """If a specific function, e.g. by the user is not implemented."""
 
 
-class MinimizeNotImplemented(FunctionNotImplementedError):
+class MinimizeNotImplemented(FunctionNotImplemented):
     """The `minimize` function of a minimizer is not implemented."""
 
 
-class MinimizeStepNotImplementedError(FunctionNotImplementedError):
+class MinimizeStepNotImplemented(FunctionNotImplemented):
     """The `step` function of a minimizer is not implemented."""
 
 
-class AnalyticNotImplementedError(ZfitNotImplementedError):
+class AnalyticNotImplemented(ZfitNotImplementedError):
     """General exception if an analytic way is not implemented."""
 
 
-class AnalyticIntegralNotImplementedError(AnalyticNotImplementedError):
+class AnalyticIntegralNotImplemented(AnalyticNotImplemented):
     """If an analytic integral is not provided."""
     pass
 
 
-class AnalyticSamplingNotImplementedError(AnalyticNotImplementedError):
+class AnalyticSamplingNotImplemented(AnalyticNotImplemented):
     """If analytic sampling from a distribution is not possible."""
     pass
 
 
 # PDF class internal handling errors
-class NormRangeNotImplementedError(StandardControlFlow):
+class NormRangeNotImplemented(StandardControlFlow):
     """Indicates that a function does not support the normalization range argument `norm_range`."""
     pass
 
 
-class MultipleLimitsNotImplementedError(StandardControlFlow):
+class MultipleLimitsNotImplemented(StandardControlFlow):
     """Indicates that a function does not support several limits in a :py:class:`~zfit.Space`."""
     pass
 
@@ -238,7 +238,7 @@ class InitNotImplemented(StandardControlFlow):
     pass
 
 
-class VectorizedLimitsNotImplementedError(StandardControlFlow):
+class VectorizedLimitsNotImplemented(StandardControlFlow):
     """Indicates that a function does not support vectorized (n_events > 1) limits in a :py:class:`~zfit.Space`."""
     pass
 

@@ -30,8 +30,8 @@ from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
                               InvalidLimitSubspaceError,
                               LimitsIncompatibleError, LimitsNotSpecifiedError,
                               LimitsUnderdefinedError,
-                              MultipleLimitsNotImplementedError,
-                              NormRangeNotImplementedError,
+                              MultipleLimitsNotImplemented,
+                              NormRangeNotImplemented,
                               NumberOfEventsIncompatibleError,
                               ObsIncompatibleError, ObsNotSpecifiedError,
                               OverdefinedError, ShapeIncompatibleError,
@@ -2417,7 +2417,7 @@ class MultiSpace(BaseSpace):
         """
         try:
             return self.limits_are_set and not self.limits_are_false
-        except MultipleLimitsNotImplementedError:
+        except MultipleLimitsNotImplemented:
             return True
 
     @property
@@ -2647,7 +2647,7 @@ class MultiSpace(BaseSpace):
         return new_space
 
     def _raise_limits_not_implemented(self):
-        raise MultipleLimitsNotImplementedError(
+        raise MultipleLimitsNotImplemented(
             "Limits/lower/upper not implemented for MultiSpace. This error is either caught"
             " automatically as part of the codes logic or the MultiLimit case should"
             " be considered. To do that, simply iterate through the MultiSpace, which returns"
@@ -2787,7 +2787,7 @@ def no_norm_range(func):
             norm_range_is_arg = False
             kwargs.pop('norm_range', None)  # remove if in signature (= norm_range_index not None)
         if norm_range_not_false or norm_range_is_arg:
-            raise NormRangeNotImplementedError()
+            raise NormRangeNotImplemented()
         else:
             return func(*args, **kwargs)
 
@@ -2812,7 +2812,7 @@ def no_multiple_limits(func):
             limits = kwargs['limits']
 
         if limits.n_limits > 1:
-            raise MultipleLimitsNotImplementedError
+            raise MultipleLimitsNotImplemented
         else:
             return func(*args, **kwargs)
 

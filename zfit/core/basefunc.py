@@ -11,7 +11,7 @@ import tensorflow as tf
 
 import zfit
 from zfit.util.exception import (ShapeIncompatibleError,
-                                 SpecificFunctionNotImplementedError)
+                                 SpecificFunctionNotImplemented)
 
 from ..settings import ztypes
 from ..util import ztyping
@@ -44,7 +44,7 @@ class BaseFunc(BaseModel, ZfitFunc):
 
     @abc.abstractmethod
     def _func(self, x):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
         """The function evaluated at `x`.

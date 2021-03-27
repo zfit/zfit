@@ -14,7 +14,7 @@ from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF
 from ..core.space import no_norm_range
 from ..util import ztyping
-from ..util.exception import NormRangeNotImplementedError
+from ..util.exception import NormRangeNotImplemented
 from .functor import BaseFunctor
 
 
@@ -47,7 +47,7 @@ def raise_error_if_norm_range(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except NormRangeNotImplementedError:  # TODO: silently remove norm_range? Or loudly fail?
+        except NormRangeNotImplemented:  # TODO: silently remove norm_range? Or loudly fail?
             raise tf.errors.InvalidArgumentError("Norm_range given to Function: cannot be normalized.")
 
     return wrapped

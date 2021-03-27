@@ -6,7 +6,7 @@ import zfit
 from zfit.core.dimension import limits_overlap, obs_subsets
 from zfit.core.space import combine_spaces, limits_consistent
 from zfit.util.exception import (LimitsNotSpecifiedError,
-                                 MultipleLimitsNotImplementedError,
+                                 MultipleLimitsNotImplemented,
                                  ObsIncompatibleError, SpaceIncompatibleError)
 
 obs = ['obs' + str(i) for i in range(4)]
@@ -90,7 +90,7 @@ def test_add_spaces():
 
     with pytest.raises(ObsIncompatibleError):
         add_spaces(space1d_2, space2d_1)
-    with pytest.raises(MultipleLimitsNotImplementedError):
+    with pytest.raises(MultipleLimitsNotImplemented):
         add_spaces(space1d_2, space1d_1).limits
 
 

@@ -4,7 +4,7 @@ import pytest
 import scipy.stats
 
 import zfit
-from zfit.util.exception import SpecificFunctionNotImplementedError
+from zfit.util.exception import SpecificFunctionNotImplemented
 
 
 def create_gaussians(yields):
@@ -70,7 +70,7 @@ def test_sampling():
 
         @zfit.supports()
         def _sample(self, n, limits):
-            raise SpecificFunctionNotImplementedError  # fallback to the default sampling
+            raise SpecificFunctionNotImplemented  # fallback to the default sampling
 
     sample_size = 100000
     tol = 0.1
@@ -102,15 +102,15 @@ def test_integrate():
 
         @zfit.supports()
         def _integrate(self, limits, norm_range):
-            raise SpecificFunctionNotImplementedError  # fallback to the default sampling
+            raise SpecificFunctionNotImplemented  # fallback to the default sampling
 
         @zfit.supports()
         def _analytic_integrate(self, limits, norm_range):
-            raise SpecificFunctionNotImplementedError
+            raise SpecificFunctionNotImplemented
 
         @zfit.supports()
         def _numeric_integrate(self, limits, norm_range):
-            raise SpecificFunctionNotImplementedError
+            raise SpecificFunctionNotImplemented
 
     mu1, mu2 = 0, 1.7
     frac = 0.7

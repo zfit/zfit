@@ -11,7 +11,7 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WorkInProgressError
 from .data import Data
-from .interfaces import ZfitPDF
+from .interfaces import ZfitPDF, ZfitSpace
 from .space import Space
 
 
@@ -118,7 +118,7 @@ class EventSpace(Space):
 
 # TODO: estimate maximum initially?
 @z.function(wraps='sample')
-def accept_reject_sample(prob: Callable, n: int, limits: Space,
+def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
                          sample_and_weights_factory: Callable = UniformSampleAndWeights,
                          dtype=ztypes.float, prob_max: Union[None, int] = None,
                          efficiency_estimation: float = 0.5) -> tf.Tensor:

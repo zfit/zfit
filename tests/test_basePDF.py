@@ -57,7 +57,7 @@ def TmpGaussian():
 
             from zfit import z
             return z.exp((-(x - mu) ** 2) / (
-                2 * sigma ** 2))  # non-normalized gaussian
+                    2 * sigma ** 2))  # non-normalized gaussian
 
     return TmpGaussian
 
@@ -74,7 +74,7 @@ def true_gaussian_grad(x):
         -(-mu_true + x) ** 2 / (2 * sigma_true ** 2)) / sigma_true ** 3
     grad_sigma = -0.398942280401433 * np.exp(
         -(-mu_true + x) ** 2 / (2 * sigma_true ** 2)) / sigma_true ** 2 + 0.398942280401433 * (
-                     -mu_true + x) ** 2 * np.exp(-(-mu_true + x) ** 2 / (2 * sigma_true ** 2)) / sigma_true ** 4
+            -mu_true + x) ** 2 * np.exp(-(-mu_true + x) ** 2 / (2 * sigma_true ** 2)) / sigma_true ** 4
     return np.array((grad_mu, grad_sigma)).transpose()
 
 
@@ -328,6 +328,7 @@ def test_set_yield(obs1):
         gauss_params1._set_yield(None)
 
 
+@pytest.mark.flaky(reruns=3)
 def test_projection_pdf(test_values):
     import numpy as np
 

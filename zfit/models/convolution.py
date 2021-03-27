@@ -11,7 +11,9 @@ from ..core.interfaces import ZfitPDF
 from ..core.sample import accept_reject_sample
 from ..core.space import supports
 from ..util import ztyping
-from ..util.exception import ShapeIncompatibleError, WorkInProgressError
+from ..util.exception import (ShapeIncompatibleError,
+                              SpecificFunctionNotImplemented,
+                              WorkInProgressError)
 from .functor import BaseFunctor
 
 
@@ -163,6 +165,11 @@ class FFTConvPDFV1(BaseFunctor):
         limits_func = limits_func.with_obs(obs)
         limits_kernel = limits_kernel.with_obs(obs)
 
+        self._initargs = {
+            'limits_kernel': limits_kernel,
+            'limits_func': limits_func
+        }
+
         if n is None:
             n = 51  # default kernel points
         if not n % 2:
@@ -305,6 +312,7 @@ class FFTConvPDFV1(BaseFunctor):
 
     @supports()
     def _sample(self, n, limits):
+        raise SpecificFunctionNotImplemented("Unfortunately currently not working.")
         # this is a custom implementation of sampling. Since the kernel and func are not correlated,
         # we can simply sample from both and add them. This is "trivial" compared to accept reject sampling
         # However, one large pitfall is that we cannot simply request n events from each pdf and then add them.
@@ -321,26 +329,31 @@ class FFTConvPDFV1(BaseFunctor):
         kernel = self.pdfs[1]
 
         sample_and_weights = AddingSampleAndWeights(func=func,
-                                                    kernel=kernel)
+                                                    kernel=kernel,
+                                                    limits_func=self._initargs['limits_func'],
+                                                    limits_kernel=self._initargs['limits_kernel'],
+                                                    )
 
-        sample = accept_reject_sample(lambda x: tf.ones(shape=tf.shape(x)[0], dtype=self.dtype),
-                                      # all the points are inside
-                                      n=n,
-                                      limits=limits,
-                                      sample_and_weights_factory=lambda: sample_and_weights,
-                                      dtype=self.dtype,
-                                      prob_max=1.,
-                                      efficiency_estimation=0.95)
-
-        return sample
+        return accept_reject_sample(
+            lambda x: tf.ones(shape=tf.shape(x)[0], dtype=self.dtype),
+            # all the points are inside
+            n=n,
+            limits=limits,
+            sample_and_weights_factory=lambda: sample_and_weights,
+            dtype=self.dtype,
+            prob_max=None,
+            efficiency_estimation=0.9,
+        )
 
 
 class AddingSampleAndWeights:
 
-    def __init__(self, func, kernel) -> None:
+    def __init__(self, func, kernel, limits_func, limits_kernel) -> None:
         super().__init__()
         self.func = func
         self.kernel = kernel
+        self.limits_func = limits_func
+        self.limits_kernel = limits_kernel
 
     def __call__(self, n_to_produce: Union[int, tf.Tensor], limits, dtype):
         kernel_lower, kernel_upper = self.kernel.space.rect_limits
@@ -351,7 +364,8 @@ class AddingSampleAndWeights:
         sample_ext_space = limits.with_limits((sample_ext_lower, sample_ext_upper))
 
         sample_func = self.func.sample(n=n_to_produce, limits=sample_ext_space)
-        sample_kernel = self.kernel.sample(n=n_to_produce)  # no limits! it's the kernel, around 0
+        sample_kernel = self.kernel.sample(n=n_to_produce,
+                                           limits=self.limits_kernel)  # no limits! it's the kernel, around 0
         sample = add_samples(sample_func, sample_kernel, obs=limits, shuffle=True)
         sample = limits.filter(sample)
         n_drawn = tf.shape(sample)[0]

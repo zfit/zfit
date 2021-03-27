@@ -80,6 +80,8 @@ def compute_errors(result: "zfit.result.FitResult",
     fmin = result.fmin
     rtol *= errordef
     minimizer = result.minimizer
+    from zfit import run
+    old_values = run(result)
 
     covariance = result.covariance(method=covariance_method, as_dict=True)
     param_errors = {param: covariance[(param, param)] ** 0.5 for param in params}
@@ -90,75 +92,76 @@ def compute_errors(result: "zfit.result.FitResult",
         # start = time.time()
         to_return = {}
         for param in params:
-            with set_values(all_params, result):
+            assign_values(all_params, result)
 
-                logging.info(f"profiling the parameter {param}")
-                param_error = param_errors[param]
-                param_value = result.params[param]["value"]
-                other_params = [p for p in all_params if p != param]
+            logging.info(f"profiling the parameter {param}")
+            param_error = param_errors[param]
+            param_value = result.params[param]["value"]
+            other_params = [p for p in all_params if p != param]
 
-                initial_values = {"lower": [], "upper": []}
-                direction = {"lower": -sigma, "upper": sigma}
+            initial_values = {"lower": [], "upper": []}
+            direction = {"lower": -sigma, "upper": sigma}
 
-                for ap in all_params:
-                    ap_value = result.params[ap]["value"]
-                    error_factor = covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
-                    for d in ["lower", "upper"]:
-                        ap_value_init = ap_value + direction[d] * error_factor
-                        initial_values[d].append(ap_value_init)
-
-                # TODO: improvement, use jacobian?
-                # @np_cache(maxsize=25)
-                def func(values, args):
-                    nonlocal ncalls
-                    ncalls += 1
-                    swap_sign = args
-
-                    assign_values(all_params, values)
-                    try:
-                        loss_value, gradient = loss.value_gradient(params=other_params)
-                    except tf.errors.InvalidArgumentError:
-                        msg = (f"The evaluation of the errors of {param.name} failed due to too many NaNs"
-                               " being produced in the loss and/or its gradient. This is most probably"
-                               " caused by negative values returned from the PDF.")
-                        raise FailEvalLossNaN(msg)
-
-                    zeroed_loss = loss_value.numpy() - fmin
-
-                    gradient = np.array(gradient)
-                    if swap_sign(param):  # mirror at x-axis to remove second zero
-                        zeroed_loss = - zeroed_loss
-                        gradient = - gradient
-                        logging.info("Swapping sign in error calculation 'zfit_error'")
-
-                    elif zeroed_loss < - minimizer.tol:
-                        set_values(all_params, values)  # set values to the new minimum
-                        raise NewMinimum("A new minimum is found.")
-
-                    downward_shift = errordef * sigma ** 2
-                    shifted_loss = zeroed_loss - downward_shift
-
-                    return np.concatenate([[shifted_loss], gradient])
-
-                to_return[param] = {}
-                swap_sign = {
-                    "lower": lambda p: p > param_value,
-                    "upper": lambda p: p < param_value,
-                }
+            for ap in all_params:
+                ap_value = result.params[ap]["value"]
+                error_factor = covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
                 for d in ["lower", "upper"]:
-                    roots = optimize.root(fun=func,
-                                          args=(swap_sign[d],),
-                                          x0=np.array(initial_values[d]),
-                                          tol=rtol,
-                                          options={
-                                              'factor': 1,
-                                              # 'diag': 1 / param_scale,  # scale factor for variables
-                                              # 'diag': param_scale,
-                                          },
-                                          method=method)
-                    to_return[param][d] = roots.x[all_params.index(param)] - param_value
-                    # print(f"error {d}, time needed {time.time() - start2}")
-            # print(f"errors found, time needed {time.time() - start}")
+                    ap_value_init = ap_value + direction[d] * error_factor
+                    initial_values[d].append(ap_value_init)
+
+            # TODO: improvement, use jacobian?
+            # @np_cache(maxsize=25)
+            def func(values, args):
+                nonlocal ncalls
+                ncalls += 1
+                swap_sign = args
+
+                assign_values(all_params, values)
+                try:
+                    loss_value, gradient = loss.value_gradient(params=other_params)
+                except tf.errors.InvalidArgumentError:
+                    msg = (f"The evaluation of the errors of {param.name} failed due to too many NaNs"
+                           " being produced in the loss and/or its gradient. This is most probably"
+                           " caused by negative values returned from the PDF.")
+                    raise FailEvalLossNaN(msg)
+
+                zeroed_loss = loss_value.numpy() - fmin
+
+                gradient = np.array(gradient)
+                if swap_sign(param):  # mirror at x-axis to remove second zero
+                    zeroed_loss = - zeroed_loss
+                    gradient = - gradient
+                    logging.info("Swapping sign in error calculation 'zfit_error'")
+
+                elif zeroed_loss < - minimizer.tol:
+                    assign_values(all_params, values)  # set values to the new minimum
+                    raise NewMinimum("A new minimum is found.")
+
+                downward_shift = errordef * sigma ** 2
+                shifted_loss = zeroed_loss - downward_shift
+
+                return np.concatenate([[shifted_loss], gradient])
+
+            to_return[param] = {}
+            swap_sign = {
+                "lower": lambda p: p > param_value,
+                "upper": lambda p: p < param_value,
+            }
+            for d in ["lower", "upper"]:
+                roots = optimize.root(fun=func,
+                                      args=(swap_sign[d],),
+                                      x0=np.array(initial_values[d]),
+                                      tol=rtol,
+                                      options={
+                                          'factor': 1,
+                                          # 'diag': 1 / param_scale,  # scale factor for variables
+                                          # 'diag': param_scale,
+                                      },
+                                      method=method)
+                to_return[param][d] = roots.x[all_params.index(param)] - param_value
+                # print(f"error {d}, time needed {time.time() - start2}")
+        # print(f"errors found, time needed {time.time() - start}")
+        assign_values(all_params, old_values)
 
     except NewMinimum as e:
         from .. import settings
@@ -202,6 +205,8 @@ def autodiff_pdf_jacobian(func, params):
 def covariance_with_weights(method, result, params):
     model = result.loss.model
     data = result.loss.data
+    from zfit import run
+    old_vals = run(params)
 
     Hinv_dict = method(result=result, params=params)  # inverse of the hessian matrix
     if not Hinv_dict:
@@ -219,8 +224,8 @@ def covariance_with_weights(method, result, params):
 
     if settings.options['numerical_grad']:
         def wrapped_func(values):
-            with set_values(params, values):
-                return func()
+            assign_values(params, values)
+            return func()
 
         jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params)
     else:
@@ -228,7 +233,7 @@ def covariance_with_weights(method, result, params):
 
     C = np.matmul(jacobian, jacobian.T)
     covariance = np.matmul(Hinv, np.matmul(C, Hinv))
-
+    assign_values(params, old_vals)
     return matrix_to_dict(params, covariance)
 
 

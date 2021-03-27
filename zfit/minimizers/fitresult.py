@@ -120,6 +120,7 @@ def _minos_minuit(result, params, cl=None):
 
     try:
         minuit_minimizer.minos(*(p.name for p in params), cl=cl)
+        # Minuit seems very ustable on this and the call can fail after a few trials
     except RuntimeError as error:
         if 'Function minimum is not valid.' not in error.args[0]:
             raise

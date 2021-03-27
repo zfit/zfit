@@ -23,10 +23,10 @@ from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (AnalyticIntegralNotImplementedError,
+from ..util.exception import (AnalyticIntegralNotImplemented,
                               ModelIncompatibleError,
                               NormRangeUnderdefinedError, ObsIncompatibleError,
-                              SpecificFunctionNotImplementedError)
+                              SpecificFunctionNotImplemented)
 from ..util.warnings import warn_advanced_feature, warn_changed_feature
 from ..z.random import counts_multinomial
 
@@ -199,7 +199,7 @@ class SumPDF(BaseFunctor):
     def _pdf(self, x, norm_range):  # NOT _pdf, as the normalization range can differ
         equal_norm_ranges = len(set([pdf.norm_range for pdf in self.pdfs] + [norm_range])) == 1
         if not equal_norm_ranges:
-            raise SpecificFunctionNotImplementedError
+            raise SpecificFunctionNotImplemented
         pdfs = self.pdfs
         fracs = self.params.values()
         probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
@@ -228,8 +228,8 @@ class SumPDF(BaseFunctor):
         try:
             integrals = [frac * pdf.analytic_integrate(limits=limits)  # do NOT propagate the norm_range!
                          for pdf, frac in zip(pdfs, fracs)]
-        except AnalyticIntegralNotImplementedError as error:
-            raise AnalyticIntegralNotImplementedError(
+        except AnalyticIntegralNotImplemented as error:
+            raise AnalyticIntegralNotImplemented(
                 f"analytic_integrate of pdf {self.name} is not implemented in this"
                 f" SumPDF, as at least one sub-pdf does not implement it.") from error
 
@@ -259,8 +259,8 @@ class SumPDF(BaseFunctor):
             partial_integral = [pdf.partial_analytic_integrate(x=x, limits=limits) * frac
                                 # do NOT propagate the norm_range!
                                 for pdf, frac in zip(pdfs, fracs)]
-        except AnalyticIntegralNotImplementedError as error:
-            raise AnalyticIntegralNotImplementedError(
+        except AnalyticIntegralNotImplemented as error:
+            raise AnalyticIntegralNotImplemented(
                 "partial_analytic_integrate of pdf {name} is not implemented in this"
                 " SumPDF, as at least one sub-pdf does not implement it.") from error
         partial_integral = functools.reduce(operator.add, partial_integral)
@@ -302,4 +302,4 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
             return z.convert_to_tensor(functools.reduce(operator.mul, probs))
             # return tf.reduce_prod(input_tensor=probs, axis=0)
         else:
-            raise SpecificFunctionNotImplementedError
+            raise SpecificFunctionNotImplemented

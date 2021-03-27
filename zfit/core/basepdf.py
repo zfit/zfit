@@ -63,8 +63,8 @@ from ..util import ztyping
 from ..util.cache import invalidate_graph
 from ..util.deprecation import deprecated
 from ..util.exception import (AlreadyExtendedPDFError, BreakingAPIChangeError,
-                              FunctionNotImplementedError, NotExtendedPDFError,
-                              SpecificFunctionNotImplementedError)
+                              FunctionNotImplemented, NotExtendedPDFError,
+                              SpecificFunctionNotImplemented)
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
@@ -187,7 +187,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @_BasePDF_register_check_support(True)
     def _normalization(self, limits):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def normalization(self, limits: ztyping.LimitsType) -> ztyping.XType:
         """Return the normalization of the function (usually the integral over `limits`).
@@ -210,7 +210,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_normalization(self, limits):
         # TODO: caching? alternative
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return self._normalization(limits=limits)
         return self._fallback_normalization(limits)
 
@@ -218,7 +218,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._hook_integrate(limits=limits, norm_range=False)
 
     def _unnormalized_pdf(self, x):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     @deprecated(None, "Use `pdf(norm_range=False)` instead")
     def unnormalized_pdf(self, x: ztyping.XType, component_norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
@@ -284,7 +284,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     @z.function(wraps='model')
     def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
@@ -314,9 +314,9 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_pdf(x=x, norm_range=norm_range)
 
     def _call_pdf(self, x, norm_range):
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return self._pdf(x, norm_range=norm_range)
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return tf.exp(self._log_pdf(x=x, norm_range=norm_range))
         return self._fallback_pdf(x=x, norm_range=norm_range)
 
@@ -328,7 +328,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @_BasePDF_register_check_support(False)
     def _log_pdf(self, x, norm_range):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def log_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         """Log probability density function normalized over `norm_range`.
@@ -355,9 +355,9 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_log_pdf(x=x, norm_range=norm_range)
 
     def _call_log_pdf(self, x, norm_range):
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return self._log_pdf(x=x, norm_range=norm_range)
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return tf.math.log(self._pdf(x=x, norm_range=norm_range))
         return self._fallback_log_pdf(x=x, norm_range=norm_range)
 

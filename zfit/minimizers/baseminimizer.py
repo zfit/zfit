@@ -15,14 +15,14 @@ import numpy as np
 from ordered_set import OrderedSet
 
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..core.parameter import convert_to_parameter, set_values
+from ..core.parameter import assign_values, convert_to_parameter, set_values
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (InitNotImplemented, MaximumIterationReached,
                               MinimizeNotImplemented,
                               MinimizerSubclassingError,
-                              MinimizeStepNotImplementedError,
+                              MinimizeStepNotImplemented,
                               ParameterNotIndependentError)
 from ..util.warnings import warn_changed_feature
 from .evaluation import LossEval
@@ -301,7 +301,7 @@ class BaseMinimizer(ZfitMinimizer):
                 param_values = params
                 to_set_param_values = {p: val for p, val in param_values.items() if val is not None}
                 try:
-                    set_values(list(to_set_param_values), list(to_set_param_values.values()))
+                    assign_values(list(to_set_param_values), list(to_set_param_values.values()))
                 except ParameterNotIndependentError as error:
                     not_indep_and_set = {p for p, val in param_values.items() if val is not None and not p.independent}
                     raise ParameterNotIndependentError(f"Cannot set parameter {not_indep_and_set} to a value as they"
@@ -321,7 +321,7 @@ class BaseMinimizer(ZfitMinimizer):
         if init is not None:
             # don't set the user set
             params_to_set = OrderedSet(params).intersection(OrderedSet(init.params)) - OrderedSet(to_set_param_values)
-            set_values(params_to_set, init)
+            assign_values(params_to_set, init)
         if floating:
             params = self._filter_floating_params(params)
         if not params:
@@ -433,7 +433,7 @@ class BaseMinimizer(ZfitMinimizer):
             else:
                 raise
         except InitNotImplemented:
-            set_values(params=params, values=init)
+            assign_values(params=params, values=init)
             result = self._call_minimize(loss=loss, params=params)
         except (FailMinimizeNaN, RuntimeError):  # iminuit raises RuntimeError if user raises Error
             do_recovery = True
@@ -612,7 +612,7 @@ class BaseStepMinimizer(BaseMinimizer):
     @minimize_supports()
     def _minimize(self, loss, params, init):
         if init:
-            set_values(params=params, values=init)
+            assign_values(params=params, values=init)
         n_old_vals = 5
         changes = collections.deque(np.ones(n_old_vals))
         last_val = -10
@@ -692,7 +692,7 @@ class BaseStepMinimizer(BaseMinimizer):
         return self._step(loss, params=params, init=init)
 
     def _step(self, loss, params, init):
-        raise MinimizeStepNotImplementedError
+        raise MinimizeStepNotImplemented
 
 
 class NOT_SUPPORTED:

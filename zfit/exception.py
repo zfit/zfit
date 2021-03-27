@@ -1,22 +1,69 @@
 #  Copyright (c) 2021 zfit
 """.. todo:: Add module docstring."""
 from .util.checks import NONE
-from .util.exception import (AnalyticIntegralNotImplementedError,
-                             AnalyticNotImplementedError,
-                             AnalyticSamplingNotImplementedError,
-                             FunctionNotImplementedError,
-                             IllegalInGraphModeError, InitNotImplemented,
-                             MaximumIterationReached,
+from .util.deprecation import deprecated
+from .util.exception import (AnalyticIntegralNotImplemented,
+                             AnalyticNotImplemented,
+                             AnalyticSamplingNotImplemented,
+                             FunctionNotImplemented, IllegalInGraphModeError,
+                             InitNotImplemented, MaximumIterationReached,
                              MinimizerSubclassingError,
-                             MultipleLimitsNotImplementedError,
-                             NameAlreadyTakenError,
-                             NormRangeNotImplementedError,
-                             SpecificFunctionNotImplementedError,
-                             VectorizedLimitsNotImplementedError)
+                             MultipleLimitsNotImplemented,
+                             NameAlreadyTakenError, NormRangeNotImplemented,
+                             SpecificFunctionNotImplemented,
+                             VectorizedLimitsNotImplemented)
 
-__all__ = ['NameAlreadyTakenError', 'IllegalInGraphModeError', 'NormRangeNotImplementedError',
-           'MultipleLimitsNotImplementedError', 'VectorizedLimitsNotImplementedError',
-           'AnalyticNotImplementedError', 'FunctionNotImplementedError', 'AnalyticSamplingNotImplementedError',
-           'AnalyticIntegralNotImplementedError', 'SpecificFunctionNotImplementedError', 'MinimizerSubclassingError',
+__all__ = ['NameAlreadyTakenError', 'IllegalInGraphModeError', 'NormRangeNotImplemented',
+           'MultipleLimitsNotImplemented', 'VectorizedLimitsNotImplemented',
+           'AnalyticNotImplemented', 'FunctionNotImplemented', 'AnalyticSamplingNotImplemented',
+           'AnalyticIntegralNotImplemented', 'SpecificFunctionNotImplemented', 'MinimizerSubclassingError',
            "MaximumIterationReached",
            'InitNotImplemented', 'NONE']
+
+
+class VectorizedLimitsNotImplementedError(VectorizedLimitsNotImplemented):
+    @deprecated(None, 'Use VectorizedLimitsNotImplemented instead.')
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class SpecificFunctionNotImplementedError(SpecificFunctionNotImplemented):
+    @deprecated(None, 'Use SpecificFunctionNotImplemented instead.')
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class NormRangeNotImplementedError(NormRangeNotImplemented):
+    @deprecated(None, 'Use NormRangeNotImplemented instead.')
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class MultipleLimitsNotImplementedError(MultipleLimitsNotImplemented):
+    @deprecated(None, 'Use MultipleLimitsNotImplemented instead.')
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class FunctionNotImplementedError(FunctionNotImplemented):
+    @deprecated(None, 'Use FunctionNotImplemented instead.')
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class AnalyticSamplingNotImplementedError(AnalyticSamplingNotImplemented):
+    @deprecated(None, 'Use AnalyticSamplingNotImplemented instead.')
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class AnalyticIntegralNotImplementedError(AnalyticIntegralNotImplemented):
+    @deprecated(None, 'Use AnalyticIntegralNotImplemented instead.')
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+
+class AnalyticNotImplementedError(AnalyticNotImplemented):
+    @deprecated(None, 'Use AnalyticNotImplemented instead.')
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)

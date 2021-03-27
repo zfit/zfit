@@ -12,7 +12,7 @@ from ..core.space import Space
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import SpecificFunctionNotImplementedError
+from ..util.exception import SpecificFunctionNotImplemented
 
 
 def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
@@ -73,7 +73,7 @@ class RecursivePolynomial(BasePDF):
 
     @abc.abstractmethod
     def _poly_func(self, x):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
 
 def create_poly(x, polys, coeffs, recurrence):

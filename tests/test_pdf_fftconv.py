@@ -19,7 +19,7 @@ class FFTConvPDFV1NoSampling(zfit.pdf.FFTConvPDFV1):
 
     @zfit.supports()
     def _sample(self, n, limits):
-        raise zfit.exception.SpecificFunctionNotImplementedError
+        raise zfit.exception.SpecificFunctionNotImplemented
 
 
 interpolation_methods = (
@@ -165,7 +165,7 @@ def test_onedim_sampling(interpolation):
     func1k = zfit.pdf.Uniform(-2, 1, obs=obs_kernel)
     func2k = zfit.pdf.Uniform(-0.5, 1., obs=obs_kernel)
     funck = zfit.pdf.SumPDF([func1k, func2k], 0.5)
-    conv = zfit.pdf.FFTConvPDFV1(func=func, kernel=funck, n=200)
+    conv = zfit.pdf.FFTConvPDFV1(func=func, kernel=funck, n=200, interpolation=interpolation)
 
     conv_nosample = FFTConvPDFV1NoSampling(func=func, kernel=funck, n=200, interpolation=interpolation)
     npoints_sample = 10000

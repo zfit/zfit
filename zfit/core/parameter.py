@@ -29,8 +29,7 @@ from ..util.cache import invalidate_graph
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated
-from ..util.exception import (BreakingAPIChangeError,
-                              FunctionNotImplementedError,
+from ..util.exception import (BreakingAPIChangeError, FunctionNotImplemented,
                               IllegalInGraphModeError,
                               LogicalUndefinedOperationError,
                               NameAlreadyTakenError,
@@ -265,28 +264,28 @@ class ZfitParameterMixin(BaseNumeric):
     def __add__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(FunctionNotImplementedError):
+            with suppress(FunctionNotImplemented):
                 return operations.add(self, other)
         return super().__add__(other)
 
     def __radd__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(FunctionNotImplementedError):
+            with suppress(FunctionNotImplemented):
                 return operations.add(other, self)
         return super().__radd__(other)
 
     def __mul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(FunctionNotImplementedError):
+            with suppress(FunctionNotImplemented):
                 return operations.multiply(self, other)
         return super().__mul__(other)
 
     def __rmul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(FunctionNotImplementedError):
+            with suppress(FunctionNotImplemented):
                 return operations.multiply(other, self)
         return super().__rmul__(other)
 
