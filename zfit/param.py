@@ -1,8 +1,8 @@
 #  Copyright (c) 2021 zfit
 
 from .core.parameter import (ComplexParameter, ComposedParameter,
-                             ConstantParameter, Parameter,
+                             ConstantParameter, Parameter, assign_values,
                              convert_to_parameter, set_values)
 
 __all__ = ['ConstantParameter', 'Parameter', 'ComposedParameter', 'ComplexParameter', 'convert_to_parameter',
-           'set_values']
+           'set_values', 'assign_values']
