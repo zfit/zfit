@@ -5,19 +5,23 @@ import sys
 
 import pytest
 
-import zfit
-
 try:
     import pytest_randomly
 except ImportError:
     pass
 else:
+    import zfit
+
     pytest_randomly.random_seeder = [zfit.settings.set_seed]
 init_modules = sys.modules.keys()
 
 
 @pytest.fixture(autouse=True)
 def setup_teardown():
+    import zfit
+    old_chunksize = zfit.run.chunking.max_n_points
+    old_active = zfit.run.chunking.active
+
     for m in sys.modules.keys():
         if m not in init_modules:
             del (sys.modules[m])
@@ -29,6 +33,8 @@ def setup_teardown():
     from zfit.util.cache import clear_graph_cache
     clear_graph_cache()
     import zfit
+    zfit.run.chunking.active = old_active
+    zfit.run.chunking.max_n_points = old_chunksize
     zfit.run.set_graph_mode()
     zfit.run.set_autograd_mode()
     for m in sys.modules.keys():

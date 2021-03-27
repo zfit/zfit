@@ -273,12 +273,12 @@ error_scales = {
 # @pytest.mark.parametrize("cl_scale", [(0.683, 1), (0.9548, 2), (0.99747, 3)])  # cl and expected scale of error
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.flaky(reruns=3)
-def test_minimizers(minimizer_class_and_kwargs, numgrad, chunksize, spaces,
+def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
                     pytestconfig):
     long_clarg = pytestconfig.getoption("longtests")
     # long_clarg = True
-    zfit.run.chunking.active = True
-    zfit.run.chunking.max_n_points = chunksize
+    # zfit.run.chunking.active = True
+    # zfit.run.chunking.max_n_points = chunksize
     zfit.run.set_autograd_mode(not numgrad)
 
     # minimize_func(minimizer_class_and_kwargs, obs=spaces)
