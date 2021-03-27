@@ -8,8 +8,8 @@ import warnings
 from typing import List, Optional, Union
 
 import tensorflow as tf
-
 from dotmap import DotMap
+
 from .deprecation import deprecated
 from .exception import IllegalInGraphModeError
 from .temporary import TemporarilySet
@@ -293,6 +293,7 @@ class RunManager:
 
     def _set_graph_mode(self, graph):
         from .graph import jit as jit_obj
+
         # only run eagerly if no graph
         tf.config.run_functions_eagerly(graph is False)
         if graph is True:

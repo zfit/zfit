@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
 from functools import wraps
-from typing import Union, Iterable, Any, Tuple
+from typing import Any, Iterable, Tuple, Union
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -35,7 +35,6 @@ def sample_with_replacement(a: tf.Tensor, axis: int, sample_shape: Tuple[int]) -
         <tf.Tensor 'GatherV2_2:0' shape=(10, 2, 3, 30) dtype=float32
         >>> random_choice(a, axis=0, samples_shape=(100,))
         <tf.Tensor 'GatherV2_3:0' shape=(100, 20, 30) dtype=float32>
-
     """
 
     dim = tf.shape(a)[axis]

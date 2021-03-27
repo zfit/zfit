@@ -4,18 +4,44 @@ from typing import Mapping, Optional, Set
 
 import tensorflow as tf
 
-from .functor import BaseFunctor
-from ..settings import run
-from ..core.interfaces import ZfitPDF, ZfitSpace, ZfitIndependentParameter
+from .. import z
+from ..core.interfaces import ZfitIndependentParameter, ZfitPDF, ZfitSpace
 from ..core.parameter import set_values
 from ..core.space import combine_spaces, convert_to_space
 from ..util.exception import WorkInProgressError
+from ..util.warnings import warn_experimental_feature
+from .functor import BaseFunctor
 
 
 class ConditionalPDFV1(BaseFunctor):
 
-    def __init__(self, pdf: ZfitPDF, cond: Mapping[ZfitIndependentParameter, ZfitSpace], name="ConditionalPDF",
-                 *, use_vectorized_map: bool = False, sample_with_replacement: bool = True):
+    @warn_experimental_feature
+    def __init__(self,
+                 pdf: ZfitPDF,
+                 cond: Mapping[ZfitIndependentParameter, ZfitSpace],
+                 name: str = "ConditionalPDF",
+                 *,
+                 use_vectorized_map: bool = False,
+                 sample_with_replacement: bool = True
+                 ) -> None:
+        """EXPERIMENTAL! Implementation of a Conditional PDF, rather slow and for research purpose.
+
+        As an example, a Gaussian is wrapped in order to make 'sigma' conditional.
+
+        .. jupyter-execute::
+
+
+
+        Args:
+            pdf: PDF that will be wrapped. Convert one or several parameters of *pdf* to a conditional
+                parameter, meaning that the parameter *param* in the ``cond`` mapping will now be
+                determined by the data in the ``Space``, the value of the ``cond``.
+            cond: Mapping of parameter to input data.
+            name: |@doc:model.init.name| Name of the PDF for a better visibility.
+               Has no programmatical functional purpose. |@docend:model.init.name|
+            use_vectorized_map ():
+            sample_with_replacement ():
+        """
         self._sample_with_replacement = sample_with_replacement
         self._use_vectorized_map = use_vectorized_map
         self._cond, cond_obs = self._check_input_cond(cond)
@@ -31,6 +57,7 @@ class ConditionalPDFV1(BaseFunctor):
             spaces.append(convert_to_space(obs))
         return cond, combine_spaces(*spaces)
 
+    @z.function(wraps='conditional_pdf')
     def _pdf(self, x, norm_range):
         pdf = self.pdfs[0]
         param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
@@ -62,6 +89,7 @@ class ConditionalPDFV1(BaseFunctor):
         params -= set(self._cond)
         return params
 
+    @z.function(wraps='conditional_pdf')
     def _single_hook_integrate(self, limits, norm_range, x):
 
         param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
@@ -84,6 +112,7 @@ class ConditionalPDFV1(BaseFunctor):
         integrals = integrals[:, 0]  # removing stack dimension, implicitly in map_fn
         return integrals
 
+    @z.function(wraps='conditional_pdf')
     def _single_hook_sample(self, n, limits, x):
         tf.assert_equal(n, x.nevents, message="Different number of n requested than x given for "
                                               "conditional sampling. Needs to agree")

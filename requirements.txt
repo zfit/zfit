@@ -1,6 +1,7 @@
 colorama
 colored
 colorlog
+dotmap
 iminuit>=2.3
 ipyopt
 nlopt
@@ -15,4 +16,3 @@ tensorflow-addons
 tensorflow_probability~=0.12
 texttable
 uproot>=4,<5
-dotmap

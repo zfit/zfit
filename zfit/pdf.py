@@ -3,8 +3,6 @@
 from .core.basepdf import BasePDF
 from .models.basic import Exponential
 from .models.conditional import ConditionalPDFV1
-from .models.dist_tfp import Gauss, Uniform, WrapDistribution, TruncatedGauss, Cauchy, Poisson
-from .models.functor import ProductPDF, SumPDF, BaseFunctor
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (Cauchy, Gauss, Poisson, TruncatedGauss, Uniform,
                               WrapDistribution)

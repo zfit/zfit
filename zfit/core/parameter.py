@@ -496,10 +496,16 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             return self.value()
 
         def setter(value):
-            if self._check_at_limit(value):
-                raise ValueError(f"Value {value} over limits {self.lower} - {self.upper}. This is changed."
-                                 f" In order to silence this and clip the value, you can use (with caution,"
-                                 f" advanced) `Parameter.assign`")
+            message = (f"Value {value} over limits {self.lower} - {self.upper}. This is changed."
+                       f" In order to silence this and clip the value, you can use (with caution,"
+                       f" advanced) `Parameter.assign`")
+            if run.experimental_is_eager:
+                if not self._check_at_limit(value):
+                    raise ValueError(message)
+            else:
+                tf.debugging.assert_less(value, self.upper, message=message)
+                tf.debugging.assert_greater(value, self.lower, message=message)
+            #     tf.debugging.Assert(self._check_at_limit(value), [value])
             self.assign(value=value, read_value=False)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)

@@ -6,10 +6,9 @@ import zfit
 
 
 def test_conditional_pdf_simple():
-    # zfit.run.set_graph_mode(False)
     xobs = zfit.Space('x', (-2, 5))
     muobs = zfit.Space('y', (-1, 15))
-    sigmaobs = zfit.Space('z', (-1.5, 13))
+    sigmaobs = zfit.Space('z', (0.2, 13))
 
     mu = zfit.Parameter('mu', 2, -5, 25)
 
@@ -19,7 +18,7 @@ def test_conditional_pdf_simple():
     uniform_sample = np.random.uniform(size=(nsample, 1), low=-1, high=4)
     normal_sample1 = np.random.normal(loc=2, scale=3.5, size=(nsample, 1))
     normal_sample2 = np.abs(np.random.normal(loc=5, scale=2, size=(nsample, 1))) + 0.9
-    sigma = zfit.Parameter('sigma', 3, 0.1, 10)
+    sigma = zfit.Parameter('sigma', 3, 0.1, 15)
 
     gauss = zfit.pdf.Gauss(obs=xobs, mu=mu, sigma=sigma)
     # gauss = zfit.pdf.Gauss(xmuobs=muobs, mu=mu, sigma=sigma)
@@ -31,7 +30,7 @@ def test_conditional_pdf_simple():
                                   obs=obs)
     data1dmu = zfit.Data.from_numpy(array=uniform_sample, obs=muobs)
 
-    cond_gauss2d = zfit.pdf.ConditionalPDFV1(pdf=gauss, cond={mu: muobs})
+    cond_gauss2d = zfit.pdf.ConditionalPDFV1(pdf=gauss, cond={mu: muobs}, use_vectorized_map=False)
     prob2 = cond_gauss2d.pdf(data2d)
     assert prob2.shape[0] == data2d.nevents
     assert prob2.shape.rank == 1
@@ -75,6 +74,7 @@ def test_conditional_pdf_simple():
     integrals2 = cond_gauss2d.integrate(limits=xobs, x=data2d)
     assert integrals2.shape[0] == data2d.nevents
     assert integrals2.shape.rank == 1
+    np.testing.assert_allclose(integrals2, np.ones_like(integrals2), atol=1e-5)
 
     sample2 = cond_gauss2d.sample(n=data1dmu.nevents, limits=xobs, x=data1dmu)
     assert sample2.value().shape == (data1dmu.nevents, cond_gauss2d.n_obs)
