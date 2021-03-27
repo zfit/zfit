@@ -19,7 +19,7 @@ from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 
 from ..core.interfaces import ZfitIndependentParameter, ZfitLoss, ZfitParameter
-from ..core.parameter import set_values
+from ..core.parameter import assign_values, set_values
 from ..settings import run
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
@@ -416,7 +416,7 @@ class FitResult(ZfitResult):
             if isinstance(self.minimizer, Minuit):
                 minuit = self.minimizer._minuit_minimizer
             else:
-                minimizer = Minuit(tol=self.minimizer.tol, verbosity=0, name="ZFIT_TMP_UNCERTAINTY")
+                minimizer = Minuit(tol=self.minimizer.tol, verbosity=0, name="ZFIT_TMP_UNCERTAINITIES")
                 minuit, _, _ = minimizer._make_minuit(loss=self.loss, params=self.params, init=self)
             self._cache_minuit = minuit
         return minuit
@@ -914,7 +914,7 @@ class FitResult(ZfitResult):
                           " used state. If this happens during normal operation, make sure you reset the values.",
                           RuntimeWarning)
             raise
-        set_values(params=params, values=old_values)
+        assign_values(params=params, values=old_values)  # TODO: or set?
 
     def _input_check_params(self, params):
         if params is not None:

@@ -7,7 +7,7 @@ from typing import Callable, Mapping, Optional, Union
 import nlopt
 import numpy as np
 
-from ..core.parameter import set_values
+from ..core.parameter import assign_values, set_values
 from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (NOT_SUPPORTED, BaseMinimizer, minimize_supports,
@@ -267,7 +267,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             else:
                 maxiter_reached = evaluator.niter > evaluator.maxiter
 
-            set_values(params, xvalues)
+            assign_values(params, xvalues)
             fmin = minimizer.last_optimum_value()  # TODO: what happens if minimization terminated?
             with evaluator.ignore_maxiter():
                 result_prelim = FitResult.from_nlopt(loss,

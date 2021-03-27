@@ -11,6 +11,7 @@ from scipy import optimize
 
 from .. import settings, z
 from ..core.interfaces import ZfitIndependentParameter
+from ..core.parameter import assign_values
 from ..param import set_values
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
@@ -81,7 +82,6 @@ def compute_errors(result: "zfit.result.FitResult",
     minimizer = result.minimizer
 
     covariance = result.covariance(method=covariance_method, as_dict=True)
-    set_values(all_params, result)
     param_errors = {param: covariance[(param, param)] ** 0.5 for param in params}
     # param_scale = np.array(list(param_errors.values()))  # TODO: can be used for root finding initialization?
 
@@ -90,29 +90,31 @@ def compute_errors(result: "zfit.result.FitResult",
         # start = time.time()
         to_return = {}
         for param in params:
-            logging.info(f"profiling the parameter {param}")
-            param_error = param_errors[param]
-            param_value = result.params[param]["value"]
-            other_params = [p for p in all_params if p != param]
+            with set_values(all_params, result):
 
-            initial_values = {"lower": [], "upper": []}
-            direction = {"lower": -sigma, "upper": sigma}
+                logging.info(f"profiling the parameter {param}")
+                param_error = param_errors[param]
+                param_value = result.params[param]["value"]
+                other_params = [p for p in all_params if p != param]
 
-            for ap in all_params:
-                ap_value = result.params[ap]["value"]
-                error_factor = covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
-                for d in ["lower", "upper"]:
-                    ap_value_init = ap_value + direction[d] * error_factor
-                    initial_values[d].append(ap_value_init)
+                initial_values = {"lower": [], "upper": []}
+                direction = {"lower": -sigma, "upper": sigma}
 
-            # TODO: improvement, use jacobian?
-            # @np_cache(maxsize=25)
-            def func(values, args):
-                nonlocal ncalls
-                ncalls += 1
-                swap_sign = args
+                for ap in all_params:
+                    ap_value = result.params[ap]["value"]
+                    error_factor = covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
+                    for d in ["lower", "upper"]:
+                        ap_value_init = ap_value + direction[d] * error_factor
+                        initial_values[d].append(ap_value_init)
 
-                with set_values(all_params, values):
+                # TODO: improvement, use jacobian?
+                # @np_cache(maxsize=25)
+                def func(values, args):
+                    nonlocal ncalls
+                    ncalls += 1
+                    swap_sign = args
+
+                    assign_values(all_params, values)
                     try:
                         loss_value, gradient = loss.value_gradient(params=other_params)
                     except tf.errors.InvalidArgumentError:
@@ -124,39 +126,39 @@ def compute_errors(result: "zfit.result.FitResult",
                     zeroed_loss = loss_value.numpy() - fmin
 
                     gradient = np.array(gradient)
-                if swap_sign(param):  # mirror at x-axis to remove second zero
-                    zeroed_loss = - zeroed_loss
-                    gradient = - gradient
-                    logging.info("Swapping sign in error calculation 'zfit_error'")
+                    if swap_sign(param):  # mirror at x-axis to remove second zero
+                        zeroed_loss = - zeroed_loss
+                        gradient = - gradient
+                        logging.info("Swapping sign in error calculation 'zfit_error'")
 
-                elif zeroed_loss < - minimizer.tol:
-                    set_values(all_params, values)  # set values to the new minimum
-                    raise NewMinimum("A new minimum is found.")
+                    elif zeroed_loss < - minimizer.tol:
+                        set_values(all_params, values)  # set values to the new minimum
+                        raise NewMinimum("A new minimum is found.")
 
-                downward_shift = errordef * sigma ** 2
-                shifted_loss = zeroed_loss - downward_shift
+                    downward_shift = errordef * sigma ** 2
+                    shifted_loss = zeroed_loss - downward_shift
 
-                return np.concatenate([[shifted_loss], gradient])
+                    return np.concatenate([[shifted_loss], gradient])
 
-            to_return[param] = {}
-            swap_sign = {
-                "lower": lambda p: p > param_value,
-                "upper": lambda p: p < param_value,
-            }
-            for d in ["lower", "upper"]:
-                roots = optimize.root(fun=func,
-                                      args=(swap_sign[d],),
-                                      x0=np.array(initial_values[d]),
-                                      tol=rtol,
-                                      options={
-                                          'factor': 1,
-                                          # 'diag': 1 / param_scale,  # scale factor for variables
-                                          # 'diag': param_scale,
-                                      },
-                                      method=method)
-                to_return[param][d] = roots.x[all_params.index(param)] - param_value
-                # print(f"error {d}, time needed {time.time() - start2}")
-        # print(f"errors found, time needed {time.time() - start}")
+                to_return[param] = {}
+                swap_sign = {
+                    "lower": lambda p: p > param_value,
+                    "upper": lambda p: p < param_value,
+                }
+                for d in ["lower", "upper"]:
+                    roots = optimize.root(fun=func,
+                                          args=(swap_sign[d],),
+                                          x0=np.array(initial_values[d]),
+                                          tol=rtol,
+                                          options={
+                                              'factor': 1,
+                                              # 'diag': 1 / param_scale,  # scale factor for variables
+                                              # 'diag': param_scale,
+                                          },
+                                          method=method)
+                    to_return[param][d] = roots.x[all_params.index(param)] - param_value
+                    # print(f"error {d}, time needed {time.time() - start2}")
+            # print(f"errors found, time needed {time.time() - start}")
 
     except NewMinimum as e:
         from .. import settings
