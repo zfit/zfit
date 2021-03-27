@@ -499,19 +499,20 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             return self.value()
 
         def setter(value):
-            message = (f"Value {value} over limits {self.lower} - {self.upper}. This is changed."
-                       f" In order to silence this and clip the value, you can use (with caution,"
-                       f" advanced) `Parameter.assign`")
-            if run.experimental_is_eager:
-                if self._check_at_limit(value):
-                    raise ValueError(message)
-            else:
-                tf.debugging.assert_greater(tf.cast(value, tf.float64),
-                                            tf.cast(self.lower, tf.float64),
-                                            message=message)
-                tf.debugging.assert_less(tf.cast(value, tf.float64),
-                                         tf.cast(self.upper, tf.float64),
-                                         message=message)
+            if self.has_limits:
+                message = (f"Value {value} over limits {self.lower} - {self.upper}. This is changed."
+                           f" In order to silence this and clip the value, you can use (with caution,"
+                           f" advanced) `Parameter.assign`")
+                if run.executing_eagerly():
+                    if self._check_at_limit(value):
+                        raise ValueError(message)
+                else:
+                    tf.debugging.assert_greater(tf.cast(value, tf.float64),
+                                                tf.cast(self.lower, tf.float64),
+                                                message=message)
+                    tf.debugging.assert_less(tf.cast(value, tf.float64),
+                                             tf.cast(self.upper, tf.float64),
+                                             message=message)
             #     tf.debugging.Assert(self._check_at_limit(value), [value])
             self.assign(value=value, read_value=False)
 

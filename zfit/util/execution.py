@@ -373,7 +373,10 @@ class RunManager:
     @property
     @deprecated(None, "Use `current_policy_graph() is False`")
     def experimental_is_eager(self):
-        return not self.mode['graph']
+        return tf.executing_eagerly()
+
+    def executing_eagerly(self):
+        return tf.executing_eagerly()
 
     @deprecated(date=None, instructions="Use clear_graph_caches instead.")
     def experimental_clear_caches(self):

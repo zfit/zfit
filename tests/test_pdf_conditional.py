@@ -37,7 +37,7 @@ def test_conditional_pdf_simple():
 
     prob_check2 = np.ones_like(prob2)
     for i, (xval, muval) in enumerate(data2d.value()):
-        with mu.set_value(muval):
+        with mu.assign(muval):
             prob_check2[i] = gauss.pdf(xval)
     np.testing.assert_allclose(prob_check2, prob2, rtol=1e-5)
 
