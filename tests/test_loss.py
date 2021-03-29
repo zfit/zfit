@@ -114,13 +114,14 @@ def test_unbinned_simultaneous_nll():
 @pytest.mark.flaky(3)
 @pytest.mark.parametrize('weights', (None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])))
 @pytest.mark.parametrize('sigma', (constr, constr_tf, covariance, covariance_tf))
-def test_unbinned_nll(weights, sigma):
+@pytest.mark.parametrize('options', ({'subtr_const': False}, {'subtr_const': True}))
+def test_unbinned_nll(weights, sigma, options):
     gaussian1, mu1, sigma1 = create_gauss1()
     gaussian2, mu2, sigma2 = create_gauss2()
 
     test_values = tf.constant(test_values_np)
     test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values, weights=weights)
-    nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values)
+    nll_object = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values, options=options)
     minimizer = Minuit(tol=1e-5)
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
@@ -133,7 +134,7 @@ def test_unbinned_nll(weights, sigma):
                                                observation=[mu_constr[0], sigma_constr[0]],
                                                uncertainty=sigma())
     nll_object = UnbinnedNLL(model=gaussian2, data=test_values,
-                             constraints=constraints)
+                             constraints=constraints, options=options)
 
     minimizer = Minuit(tol=1e-4)
     status = minimizer.minimize(loss=nll_object, params=[mu2, sigma2])
