@@ -15,7 +15,8 @@ import numpy as np
 from ordered_set import OrderedSet
 
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..core.parameter import assign_values, convert_to_parameter, set_values
+from ..core.parameter import (assign_values, convert_to_parameter,
+                              convert_to_parameters, set_values)
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -276,22 +277,9 @@ class BaseMinimizer(ZfitMinimizer):
             elif params is None:
                 raise ValueError("If the loss is a callable, the params cannot be None.")
 
-            if not isinstance(params, collections.Mapping):
-                values = convert_to_container(params)
-                names = [None] * len(params)
-            else:
-                values = list(params.values())
-                names = list(params.keys())
-            params = [convert_to_parameter(value=val, name=name, prefer_constant=False)
-                      for val, name in zip(values, names)]
-
+            params = convert_to_parameters(params, prefer_constant=False)
             from zfit.core.loss import SimpleLoss
-            if hasattr(loss, 'errordef'):
-                errordef = loss.errordef
-            else:
-                raise ValueError(f"{self} cannot minimize {loss} as `errordef` is missing: "
-                                 f"it has to be set as an attribute. Typically 1 (chi2) or 0.5 (NLL).")
-            loss = SimpleLoss(func=loss, deps=params, errordef=errordef)
+            loss = SimpleLoss(func=loss, deps=params)
 
         to_set_param_values = {}
         if params is None:
@@ -357,16 +345,29 @@ class BaseMinimizer(ZfitMinimizer):
         to initialize the minimization.
 
         Args:
-            loss: Loss to be minimized until convergence is reached.
+            loss: Loss to be minimized until convergence is reached. Usually a :class:`ZfitLoss`.
 
-            - If this is a simple callable that takes an array as argument and an attribute `errordef`
+            - If this is a simple callable that takes an array as argument and an attribute `errordef`. The attribute
+              can be set to any arbitrary function like
+
+              .. code-block::
+
+                    def loss(x):
+                        return - x ** 2
+
+                    loss.errordef = 0.5  # as an example
+
             - A `FitResult` can be provided as the only argument to the method, in which case the loss as well as the
               parameters to be minimized are taken from it. This allows to easily chain minimization algorithms.
 
             params: The parameters with respect to which to
                 minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
 
-                Instead of `Parameters`, an array of initial values can be provided. This however does not allow to
+                In order to fix the parameter values to a specific value (and thereby make them indepented
+                of their current value), a dictionary mapping a parameter to a value can be given.
+
+                Instead of `Parameters`, an array of initial values can be provided *if `loss` is a callable*.
+                 This however does not allow to
                 specify limits. For more control, use a `ZfitIndepentendParameter`.
             init: A result of a previous minimization that provides auxiliary information such as the starting point for
                 the parameters, the approximation of the covariance and more. Which information is used can depend on

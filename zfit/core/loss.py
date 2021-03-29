@@ -13,7 +13,7 @@ from .. import settings, z
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
-from ..util.deprecation import deprecated
+from ..util.deprecation import deprecated, deprecated_args
 from ..util.exception import (BreakingAPIChangeError, IntentionAmbiguousError,
                               NotExtendedPDFError, WorkInProgressError)
 from ..util.warnings import warn_advanced_feature
@@ -473,7 +473,9 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, deps: Iterable["zfit.Parameter"] = NONE,
+    @deprecated_args(None, )
+    def __init__(self,
+                 func: Callable, deps: Iterable["zfit.Parameter"] = NONE,
                  dependents: Iterable["zfit.Parameter"] = NONE,
                  errordef: Optional[float] = None):
         """Loss from a (function returning a) Tensor.
@@ -528,6 +530,12 @@ class SimpleLoss(BaseLoss):
         # @z.function(wraps='loss')
         # def wrapped_func():
         #     return func()
+        if hasattr(func, 'errordef'):
+            errordef = func.errordef
+        else:
+            raise ValueError(f"{self} cannot minimize {loss} as `errordef` is missing: "
+                             f"it has to be set as an attribute. Typically 1 (chi2) or 0.5 (NLL).")
+
         sig = inspect.signature(func)
         self._call_with_args = len(sig.parameters) > 0
 

@@ -1,6 +1,7 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2021 zfit
 import abc
+import collections
 import functools
 import warnings
 from collections import OrderedDict
@@ -868,6 +869,40 @@ def get_auto_number():
     auto_number = _auto_number
     _auto_number += 1
     return auto_number
+
+
+def convert_to_parameters(value, name: Optional[str] = None,
+                          prefer_constant: bool = True,
+                          lower=None,
+                          upper=None,
+                          step_size=None):
+    if isinstance(value, collections.Mapping):
+        return convert_to_parameters(**value, prefer_constant=False)
+    value = convert_to_container(value)
+    is_param_already = [isinstance(val, ZfitIndependentParameter) for val in value]
+    if all(is_param_already):
+        return value
+    elif any(is_param_already):
+        raise ValueError(f'value has to be either ZfitParameters or values, not mixed (currently).'
+                         f' Is {value}.')
+    params_dict = {
+        'value': value,
+        'name': name,
+        'lower': lower,
+        'upper': upper,
+        'step_size': step_size,
+    }
+    params_dict = {key: convert_to_container(val)
+                   for key, val in params_dict.items() if val is not None}
+    lengths = {len(v) for v in params_dict.values()}
+    if len(lengths) != 1:
+        raise ValueError(f"Inconsistent length in values when converting the parameters: {params_dict}")
+
+    params = []
+    for i in range(len(params_dict['value'])):
+        pdict = {k: params_dict[k][i] for k in params_dict}
+        params.append(convert_to_parameter(**pdict, prefer_constant=prefer_constant))
+    return params
 
 
 def convert_to_parameter(value,

@@ -124,7 +124,7 @@ def _minos_minuit(result, params, cl=None):
     except RuntimeError as error:
         if 'Function minimum is not valid.' not in error.args[0]:
             raise
-        minuit_minimizer.migrad()
+        minuit_minimizer.reset()
         minuit_minimizer.minos(*(p.name for p in params), cl=cl)
 
     merror_result = minuit_minimizer.merrors  # returns every var
