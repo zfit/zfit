@@ -41,7 +41,6 @@ Major Features and Improvements
   including a new step size heuristic.
   Possible problems can be caused by iminuit itself, please report
   in case your fits don't converge anymore.
-
 - improved ``compute_errors`` in speed by caching values and the reliability
   by making the solution unique.
 - increased stability for large datasets with a constant subtraction in the NLL
