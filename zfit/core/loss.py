@@ -25,6 +25,7 @@ from .baseobject import BaseNumeric
 from .constraint import BaseConstraint
 from .dependents import _extract_dependencies
 from .interfaces import ZfitData, ZfitLoss, ZfitSpace
+from .parameter import convert_to_parameters
 
 
 # @z.function
@@ -473,11 +474,15 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    @deprecated_args(None, )
+    @deprecated_args(None, "Use params instead.", ('deps', 'dependents'))
     def __init__(self,
-                 func: Callable, deps: Iterable["zfit.Parameter"] = NONE,
+                 func: Callable,
+                 params: Iterable["zfit.Parameter"] = None,
+                 errordef: Optional[float] = None,
+                 # legacy
+                 deps: Iterable["zfit.Parameter"] = NONE,
                  dependents: Iterable["zfit.Parameter"] = NONE,
-                 errordef: Optional[float] = None):
+                 ):
         """Loss from a (function returning a) Tensor.
 
         This allows for a very generic loss function as the functions only restriction is that is
@@ -485,7 +490,7 @@ class SimpleLoss(BaseLoss):
 
         Args:
             func: Callable that constructs the loss and returns a tensor without taking an argument.
-            deps: The dependents (independent `zfit.Parameter`) of the loss. Essentially the (free) parameters that
+            params: The dependents (independent `zfit.Parameter`) of the loss. Essentially the (free) parameters that
               the `func` depends on.
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
@@ -520,11 +525,12 @@ class SimpleLoss(BaseLoss):
             result = minimizer.minimize(loss)
         """
 
-        if dependents is not NONE:
-            warnings.warn("`dependents` is deprecated and will be removed in the future, use `deps`"
-                          " instead as a keyword.")
-        if deps is NONE:  # depreceation
-            raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
+        if dependents is not NONE and params is None:
+            params = dependents
+        elif deps is not NONE and params is None:  # depreceation
+            params = deps
+        elif params is None:  # legacy, remove in 0.7
+            raise BreakingAPIChangeError("params need to be specified explicitly due to the upgrade to 0.4."
                                          "More information can be found in the upgrade guide on the website.")
 
         # @z.function(wraps='loss')
@@ -532,18 +538,18 @@ class SimpleLoss(BaseLoss):
         #     return func()
         if hasattr(func, 'errordef'):
             errordef = func.errordef
-        else:
-            raise ValueError(f"{self} cannot minimize {loss} as `errordef` is missing: "
+
+        if errordef is None:
+            raise ValueError(f"{self} cannot minimize {func} as `errordef` is missing: "
                              f"it has to be set as an attribute. Typically 1 (chi2) or 0.5 (NLL).")
 
         sig = inspect.signature(func)
         self._call_with_args = len(sig.parameters) > 0
 
         self._simple_func = func
-        self._simple_errordef = errordef
         self._errordef = errordef
-        deps = convert_to_container(deps, container=OrderedSet)
-        self._simple_func_params = _extract_dependencies(deps)
+        params = convert_to_parameters(params, prefer_constant=False)
+        self._simple_func_params = _extract_dependencies(params)
 
         super().__init__(model=[], data=[], fit_range=[])
 
@@ -559,7 +565,7 @@ class SimpleLoss(BaseLoss):
 
     @property
     def errordef(self):
-        errordef = self._simple_errordef
+        errordef = self._errordef
         if errordef is None:
             raise RuntimeError("For this SimpleLoss, no error calculation is possible.")
         else:

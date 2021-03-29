@@ -277,9 +277,9 @@ class BaseMinimizer(ZfitMinimizer):
             elif params is None:
                 raise ValueError("If the loss is a callable, the params cannot be None.")
 
-            params = convert_to_parameters(params, prefer_constant=False)
             from zfit.core.loss import SimpleLoss
-            loss = SimpleLoss(func=loss, deps=params)
+            loss = SimpleLoss(func=loss, params=params)
+            params = loss.get_params()
 
         to_set_param_values = {}
         if params is None:

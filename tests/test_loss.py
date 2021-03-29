@@ -256,9 +256,9 @@ def test_simple_loss():
                                     + (c_param - true_c) ** 4) + 0.42
         return tf.reduce_sum(input_tensor=tf.math.log(probs))
 
-    loss_deps = zfit.loss.SimpleLoss(func=loss_func, deps=param_list)
+    loss_deps = zfit.loss.SimpleLoss(func=loss_func, params=param_list)
     # loss = zfit.loss.SimpleLoss(func=loss_func)
-    loss = zfit.loss.SimpleLoss(func=loss_func, deps=param_list, errordef=1.)
+    loss = zfit.loss.SimpleLoss(func=loss_func, params=param_list, errordef=1.)
 
     assert loss_deps.get_cache_deps() == set(param_list)
     assert set(loss_deps.get_params()) == set(param_list)
