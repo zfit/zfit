@@ -252,14 +252,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             params = convert_to_container(params)
         return params
 
-    def gradient(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
-        params = self._input_check_params(params)
-        numgrad = self._options['numgrad']
-
-        return self._gradient(params=params, numgrad=numgrad)
-
-    gradients = deprecated(None, "Use `gradient` instead.")(gradient)
-
     def add_constraints(self, constraints):
         constraints = convert_to_container(constraints)
         return self._add_constraints(constraints)
@@ -332,6 +324,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             model=model, data=data, fit_range=fit_range, constraints=constraints
         )
 
+    def gradient(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
+        params = self._input_check_params(params)
+        numgrad = self._options['numgrad']
+
+        return self._gradient(params=params, numgrad=numgrad)
+
+    @deprecated(None, "Use `gradient` instead.")
+    def gradients(self, *args, **kwargs):
+        return self.gradient(*args, **kwargs)
+
     # @z.function(wraps='loss')
     def _gradient(self, params, numgrad):
         if numgrad:
@@ -345,7 +347,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         numgrad = self._options['numgrad']
         return self._value_gradient(params=params, numgrad=numgrad)
 
-    value_gradients = deprecated(None, "Use `value_gradient` instead.")(value_gradient)
+    @deprecated(None, "Use `value_gradient` instead.")
+    def value_gradients(self, *args, **kwargs):
+        return self.value_gradient(*args, **kwargs)
 
     @z.function(wraps='loss')
     def _value_gradient(self, params, numgrad=False):
@@ -367,7 +371,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         vals = vals[0], z.convert_to_tensor(vals[1]), vals[2]
         return vals
 
-    value_gradients_hessian = deprecated(None, "Use `value_gradient_hessian` instead.")(value_gradient_hessian)
+    @deprecated(None, "Use `value_gradient_hessian` instead.")
+    def value_gradients_hessian(self, *args, **kwargs):
+        return self.value_gradient_hessian(*args, **kwargs)
 
     @z.function(wraps='loss')
     def _value_gradient_hessian(self, params, hessian, numerical=False):
