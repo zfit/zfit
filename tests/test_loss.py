@@ -244,26 +244,33 @@ def test_simple_loss():
     true_a = 1.
     true_b = 4.
     true_c = -0.3
+    truevals = true_a, true_b, true_c
     a_param = zfit.Parameter("variable_a15151loss", 1.5, -1., 20.,
                              step_size=z.constant(0.1))
     b_param = zfit.Parameter("variable_b15151loss", 3.5)
     c_param = zfit.Parameter("variable_c15151loss", -0.23)
     param_list = [a_param, b_param, c_param]
 
-    def loss_func():
+    def loss_func(params):
+        a_param, b_param, c_param = params
         probs = z.convert_to_tensor((a_param - true_a) ** 2
                                     + (b_param - true_b) ** 2
                                     + (c_param - true_c) ** 4) + 0.42
         return tf.reduce_sum(input_tensor=tf.math.log(probs))
 
+    with pytest.raises(ValueError):
+        _ = zfit.loss.SimpleLoss(func=loss_func, params=param_list)
+
+    loss_func.errordef = 1
     loss_deps = zfit.loss.SimpleLoss(func=loss_func, params=param_list)
     # loss = zfit.loss.SimpleLoss(func=loss_func)
-    loss = zfit.loss.SimpleLoss(func=loss_func, params=param_list, errordef=1.)
+    loss = zfit.loss.SimpleLoss(func=loss_func, params=param_list)
+    loss2 = zfit.loss.SimpleLoss(func=loss_func, params=truevals)
 
     assert loss_deps.get_cache_deps() == set(param_list)
     assert set(loss_deps.get_params()) == set(param_list)
 
-    loss_tensor = loss_func()
+    loss_tensor = loss_func(param_list)
     loss_value_np = loss_tensor.numpy()
 
     assert loss.value().numpy() == pytest.approx(loss_value_np)
@@ -274,7 +281,15 @@ def test_simple_loss():
 
     minimizer = zfit.minimize.Minuit()
     result = minimizer.minimize(loss=loss)
-
+    assert result.valid
     assert true_a == pytest.approx(result.params[a_param]['value'], rel=0.03)
     assert true_b == pytest.approx(result.params[b_param]['value'], rel=0.06)
     assert true_c == pytest.approx(result.params[c_param]['value'], rel=0.5)
+
+    zfit.param.set_values(param_list, np.array(zfit.run(param_list)) + 0.6)
+    result2 = minimizer.minimize(loss=loss2)
+    assert result2.valid
+    params = list(result2.params)
+    assert true_a == pytest.approx(result2.params[params[0]]['value'], rel=0.03)
+    assert true_b == pytest.approx(result2.params[params[1]]['value'], rel=0.06)
+    assert true_c == pytest.approx(result2.params[params[2]]['value'], rel=0.5)

@@ -524,7 +524,7 @@ class SimpleLoss(BaseLoss):
             minimizer = zfit.minize.Minuit()
             result = minimizer.minimize(loss)
         """
-
+        super().__init__(model=[], data=[], fit_range=[])
         if dependents is not NONE and params is None:
             params = dependents
         elif deps is not NONE and params is None:  # depreceation
@@ -550,8 +550,6 @@ class SimpleLoss(BaseLoss):
         self._errordef = errordef
         params = convert_to_parameters(params, prefer_constant=False)
         self._simple_func_params = _extract_dependencies(params)
-
-        super().__init__(model=[], data=[], fit_range=[])
 
     def _get_dependencies(self):
         dependents = self._simple_func_params
