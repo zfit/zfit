@@ -279,7 +279,6 @@ class BaseMinimizer(ZfitMinimizer):
 
             from zfit.core.loss import SimpleLoss
             loss = SimpleLoss(func=loss, params=params)
-            params = loss.get_params()
 
         to_set_param_values = {}
         if params is None:
@@ -366,9 +365,21 @@ class BaseMinimizer(ZfitMinimizer):
                 In order to fix the parameter values to a specific value (and thereby make them indepented
                 of their current value), a dictionary mapping a parameter to a value can be given.
 
-                Instead of `Parameters`, an array of initial values can be provided *if `loss` is a callable*.
-                 This however does not allow to
-                specify limits. For more control, use a `ZfitIndepentendParameter`.
+                If `loss` is a callable, `params` can also be, instead of `Parameters`:
+
+                  - an array of initial values
+                  - for more control, a ``dict`` with the keys:
+
+                    - ``value`` (required): array-like initial values.
+                    - ``name``: list of unique names of the parameters.
+                    - ``lower``: array-like lower limits of the parameters,
+                    - ``upper``: array-like upper limits of the parameters,
+                    - ``step_size``: array-like initial step size of the parameters (approximately the expected
+                      uncertainty)
+                    ,
+                This will create internally a single parameter for each value that can be accessed in the `FitResult`
+                via params. Repeated calls can therefore (in the current implement) cause a memory increase.
+                The recommended way is to re-use parameters (just taken from the `FitResult`.
             init: A result of a previous minimization that provides auxiliary information such as the starting point for
                 the parameters, the approximation of the covariance and more. Which information is used can depend on
                 the specific minimizer implementation.
