@@ -261,6 +261,8 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 if self.verbosity > 3:
                     print("Minimization in NLopt failed, restarting with slightly varied parameters.")
                 if nrandom < self._nrandom_max:  # in order not to start too close
+                    if init_scale is None:
+                        init_scale = np.ones_like(xvalues)
                     init_scale_no_nan = np.nan_to_num(init_scale, nan=1.)
                     xvalues += np.random.uniform(low=-init_scale_no_nan, high=init_scale_no_nan) / 2
                     nrandom += 1

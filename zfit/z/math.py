@@ -54,10 +54,11 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
         return value
 
     param_vals = tf.stack(params)
-    original_vals = [param.read_value() for param in params]
+    original_vals = [param.value() for param in params]
     grad_func = numdifftools.Gradient(wrapped_func, order=2, base_step=1e-4)
     if tf.executing_eagerly():
-        gradient = convert_to_tensor(grad_func(param_vals))
+        grad_vals = grad_func(param_vals)
+        gradient = convert_to_tensor(grad_vals)
     else:
         gradient = tf.numpy_function(grad_func, inp=[param_vals],
                                      Tout=tf.float64)
