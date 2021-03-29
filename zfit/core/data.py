@@ -651,14 +651,15 @@ class LightDataset:
         return self.tensor
 
 
-def add_samples(sample1: ZfitData, sample2: ZfitData, obs: ZfitSpace, shuffle: bool = False):
+def sum_samples(sample1: ZfitData, sample2: ZfitData, obs: ZfitSpace, shuffle: bool = False):
     samples = [sample1, sample2]
     if obs is None:
         raise WorkInProgressError
     sample2 = sample2.value(obs=obs)
     if shuffle:
         sample2 = tf.random.shuffle(sample2)
-    tensor = sample1.value(obs=obs) + sample2
+    sample1 = sample1.value(obs=obs)
+    tensor = sample1 + sample2
     if any([s.weights is not None for s in samples]):
         raise WorkInProgressError("Cannot combine weights currently")
     weights = None

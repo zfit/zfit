@@ -6,7 +6,7 @@ import tensorflow_addons as tfa
 import tensorflow_probability as tfp
 
 from .. import exception, z
-from ..core.data import Data, add_samples
+from ..core.data import Data, sum_samples
 from ..core.interfaces import ZfitPDF
 from ..core.sample import accept_reject_sample
 from ..core.space import supports
@@ -312,7 +312,6 @@ class FFTConvPDFV1(BaseFunctor):
 
     @supports()
     def _sample(self, n, limits):
-        raise SpecificFunctionNotImplemented("Unfortunately currently not working.")
         # this is a custom implementation of sampling. Since the kernel and func are not correlated,
         # we can simply sample from both and add them. This is "trivial" compared to accept reject sampling
         # However, one large pitfall is that we cannot simply request n events from each pdf and then add them.
@@ -335,13 +334,13 @@ class FFTConvPDFV1(BaseFunctor):
                                                     )
 
         return accept_reject_sample(
-            lambda x: tf.ones(shape=tf.shape(x)[0], dtype=self.dtype),
+            lambda x: tf.ones(shape=tf.shape(x)[0], dtype=self.dtype),  # use inside?
             # all the points are inside
             n=n,
             limits=limits,
             sample_and_weights_factory=lambda: sample_and_weights,
             dtype=self.dtype,
-            prob_max=None,
+            prob_max=1.,
             efficiency_estimation=0.9,
         )
 
@@ -366,7 +365,7 @@ class AddingSampleAndWeights:
         sample_func = self.func.sample(n=n_to_produce, limits=sample_ext_space)
         sample_kernel = self.kernel.sample(n=n_to_produce,
                                            limits=self.limits_kernel)  # no limits! it's the kernel, around 0
-        sample = add_samples(sample_func, sample_kernel, obs=limits, shuffle=True)
+        sample = sum_samples(sample_func, sample_kernel, obs=limits, shuffle=True)
         sample = limits.filter(sample)
         n_drawn = tf.shape(sample)[0]
         from zfit import run
