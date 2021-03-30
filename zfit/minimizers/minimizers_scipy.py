@@ -568,7 +568,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
 
         scipy_tols = {'gtol': None}
 
-        super().__init__(method="trust-constr", internal_tol=scipy_tols, gradient=gradient,
+        super().__init__(method="trust-krylov", internal_tol=scipy_tols, gradient=gradient,
                          hessian=hessian,
                          minimizer_options=minimizer_options, tol=tol, verbosity=verbosity,
                          maxiter=maxiter,
@@ -724,7 +724,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
 
         scipy_tols = {'gtol': None}
 
-        super().__init__(method="trust-constr", internal_tol=scipy_tols, gradient=gradient,
+        super().__init__(method="trust-ncg", internal_tol=scipy_tols, gradient=gradient,
                          hessian=hessian,
                          minimizer_options=minimizer_options, tol=tol, verbosity=verbosity,
                          maxiter=maxiter, initializer=initializer,
