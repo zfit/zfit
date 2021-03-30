@@ -598,7 +598,7 @@ class SimpleLoss(BaseLoss):
             minimizer = zfit.minize.Minuit()
             result = minimizer.minimize(loss)
         """
-        super().__init__(model=[], data=[])
+        super().__init__(model=[], data=[], options={'subtr_const': False})
         if dependents is not NONE and params is None:
             params = dependents
         elif deps is not NONE and params is None:  # depreceation
