@@ -363,6 +363,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         self.upper = tf.cast(upper, dtype=ztypes.float) if upper is not None else upper
         self.floating = floating
         self.step_size = step_size
+        self.set_value(value)  # to check that it is in the limits
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
