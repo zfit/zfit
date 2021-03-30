@@ -255,7 +255,7 @@ def test_convert_to_parameters():
 
     truename4 = ['oe', 'myname1', 'ue', 'eu', 'eue']
     stepsize4 = [23, 1.5, 10., 34, 23]
-    trueupper4 = [213, 4., 110., 314, 213]
+    trueupper4 = [213, 14., 1110., 314, 213]
     values4 = [23, 12, 121, 34, 23]
 
     conv_param4dict = zfit.param.convert_to_parameters({'value': values4,
@@ -299,7 +299,7 @@ def test_convert_to_parameters_equivalence_to_single_multi():
     truename4 = ['oe', 'myname1', 'ue', 'eu', 'eue']
     stepsize4 = [23, 1.5, 10., 34, 23]
     conv_param4 = zfit.param.convert_to_parameters([23, 12, 121, 34, 23], name=truename4,
-                                                   upper=[213, 4., 110., 314, 213],
+                                                   upper=[213, 14., 1110., 314, 213],
                                                    prefer_constant=False,
                                                    step_size=stepsize4)[1]
     assert conv_param4.floating
@@ -328,7 +328,7 @@ def test_convert_to_parameters_equivalence_to_single():
     truename4 = 'myname1'
     stepsize4 = 1.5
     conv_param4 = zfit.param.convert_to_parameters(12., name=truename4,
-                                                   upper=4., prefer_constant=False, step_size=stepsize4)[0]
+                                                   upper=14., prefer_constant=False, step_size=stepsize4)[0]
     assert conv_param4.floating
     assert conv_param4.name == truename4
     assert conv_param4.has_limits
@@ -352,10 +352,16 @@ def test_convert_to_parameter():
     assert pytest.approx(zfit.run(conv_param3.lower)) == 5.
     assert conv_param3.has_limits
 
+    with pytest.raises(ValueError):
+        _ = zfit.param.convert_to_parameter(5., lower=15., prefer_constant=False)
+
+    with pytest.raises(ValueError):
+        _ = zfit.param.convert_to_parameter(5., upper=1., prefer_constant=False)
+
     truename4 = 'myname1'
     stepsize4 = 1.5
     conv_param4 = zfit.param.convert_to_parameter(12., name=truename4,
-                                                  upper=4., prefer_constant=False, step_size=stepsize4)
+                                                  upper=14., prefer_constant=False, step_size=stepsize4)
     assert conv_param4.floating
     assert conv_param4.name == truename4
     assert conv_param4.has_limits

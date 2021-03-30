@@ -363,6 +363,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         self.upper = tf.cast(upper, dtype=ztypes.float) if upper is not None else upper
         self.floating = floating
         self.step_size = step_size
+        self.set_value(value)  # to check that it is in the limits
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -418,7 +419,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         if not self.has_limits:
             return tf.constant(False)
         # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
-        tol = (self.upper - self.lower) * 1e-8
+        diff = znp.abs(self.upper - self.lower)  # catch if it is minus inf
+        tol = znp.minimum(diff * 1e-8, 1e-8)  # if one limit is inf we would get inf
         at_lower = z.unstable.less_equal(value, self.lower + tol)
         at_upper = z.unstable.greater_equal(value, self.upper - tol)
         return z.unstable.logical_or(at_lower, at_upper)
