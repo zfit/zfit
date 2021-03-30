@@ -225,7 +225,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # TODO: sanitize pdf, data?
         self.add_cache_deps(cache_deps=pdf)
         self.add_cache_deps(cache_deps=data)
-        # self.add_cache_deps(cache_deps=fit_range)
         return pdf, data, fit_range
 
     def _precompile(self):
@@ -234,7 +233,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             if log_offset is None:
                 from zfit import run
                 run.assert_executing_eagerly()  # first time subtr
-                nevents_tot = znp.sum([d.nevents for d in self.data])
+                nevents_tot = znp.sum([d._approx_nevents for d in self.data])
                 log_offset_sum = (self._call_value(data=self.data,
                                                    model=self.model,
                                                    fit_range=self.fit_range,

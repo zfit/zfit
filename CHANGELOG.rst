@@ -63,7 +63,9 @@ Bug fixes and small changes
 - ``zfit_error`` moved only one parameter to the correct initial position. Speedup and more reliable.
 - FFTconv was shifted if the kernel limits were not symetrical, now properly taken into account.
 - circumvent overflow error in sampling
-- shuffle samples from sum pdfs to ensure uniformity
+- shuffle samples from sum pdfs to ensure uniformity and remove conv sampling bias
+- `create_sampler` now samples immediately to allow for precompile, a new hook that will allow objects to optimize
+  themselves.
 
 Experimental
 ------------

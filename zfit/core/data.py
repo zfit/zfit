@@ -80,6 +80,10 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     # TODO: which naming? nevents or n_events
 
     @property
+    def _approx_nevents(self):
+        return self.nevents
+
+    @property
     def n_events(self):
         return self.nevents
 
@@ -546,10 +550,18 @@ class Sampler(Data):
         self.sample_func = sample_func
         self.n = n
         self._n_holder = n
+        self.resample()  # to be used for precompilations etc
 
     @property
     def n_samples(self):
         return self._n_holder
+
+    @property
+    def _approx_nevents(self):
+        nevents = super()._approx_nevents
+        if nevents is None:
+            nevents = self.n
+        return nevents
 
     def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
         if not self._initial_resampled:
