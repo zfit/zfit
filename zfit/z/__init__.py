@@ -1,4 +1,6 @@
-"""z is a zfit TensorFlow version, that wraps TF while adding some conveniences, basically using a different default
+"""Thin wrapper around tensorflow.
+
+z is a zfit TensorFlow version, that wraps TF while adding some conveniences, basically using a different default
 dtype (`zfit.ztypes`). In addition, it expands TensorFlow by adding a few convenient functions helping to deal with
 `NaN`s and similar.
 
