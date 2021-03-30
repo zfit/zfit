@@ -385,7 +385,7 @@ class BaseMinimizer(ZfitMinimizer):
                     ,
                 This will create internally a single parameter for each value that can be accessed in the `FitResult`
                 via params. Repeated calls can therefore (in the current implement) cause a memory increase.
-                The recommended way is to re-use parameters (just taken from the `FitResult`.
+                The recommended way is to re-use parameters (just taken from the `FitResult` attribute `params`).
             init: A result of a previous minimization that provides auxiliary information such as the starting point for
                 the parameters, the approximation of the covariance and more. Which information is used can depend on
                 the specific minimizer implementation.
