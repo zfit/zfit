@@ -132,6 +132,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             constraints = []
         self._constraints = _constraint_check_convert(convert_to_container(constraints, list))
 
+        self._precompile()
+
     def _check_init_options(self, options, data):
         try:
             nevents = sum(d.nevents for d in data)
@@ -226,6 +228,23 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # self.add_cache_deps(cache_deps=fit_range)
         return pdf, data, fit_range
 
+    def _precompile(self):
+        if self._options['subtr_const']:
+            log_offset = self._subtractions.get('subtr_const')
+            if log_offset is None:
+                from zfit import run
+                run.assert_executing_eagerly()  # first time subtr
+                nevents_tot = znp.sum([d.nevents for d in self.data])
+                log_offset_sum = (self._call_value(data=self.data,
+                                                   model=self.model,
+                                                   fit_range=self.fit_range,
+                                                   constraints=self.constraints,
+                                                   # presumably were not at the minimum,
+                                                   # so the loss will decrease
+                                                   log_offset=z.convert_to_tensor(0.)) - 1000.)
+                log_offset = tf.stop_gradient(- znp.divide(log_offset_sum, nevents_tot))
+                self._subtractions['subtr_const'] = log_offset
+
     def _check_convert_model_data(self, model, data, fit_range):
         model, data = tuple(convert_to_container(obj) for obj in (model, data))
 
@@ -291,7 +310,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return pdf_dependents
 
     @abc.abstractmethod
-    def _loss_func(self, model, data, fit_range, constraints):
+    def _loss_func(self, model, data, fit_range, constraints, log_offset):
         raise NotImplementedError
 
     @property
@@ -299,11 +318,17 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return self._errordef
 
     def value(self):
-        value = self._call_value()
+        log_offset = self._subtractions.get('subtr_const')
+
+        value = self._call_value(self.model, self.data, self.fit_range, self.constraints, log_offset)
         return value
 
-    def _call_value(self):
-        value = self._value(model=self.model, data=self.data)
+    def _call_value(self, model, data, fit_range, constraints, log_offset):
+        value = self._value(model=model,
+                            data=data,
+                            fit_range=fit_range,
+                            constraints=constraints,
+                            log_offset=log_offset)
         # if self._subtractions.get('kahan') is None:
         #     self._subtractions['kahan'] = value
         # value_subtracted = (value[0] - self._subtractions['kahan'][0]) - (
@@ -312,10 +337,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return value
         # value = value_substracted[0] - value_substracted[1]
 
-    def _value(self, model, data):
+    def _value(self, model, data, fit_range, constraints, log_offset):
         try:
-            return self._loss_func(model=model, data=data, fit_range=self.fit_range,
-                                   constraints=self.constraints)
+            return self._loss_func(model=model, data=data, fit_range=fit_range,
+                                   constraints=constraints, log_offset=log_offset)
         except NotImplementedError as error:
             raise NotImplementedError(f"_loss_func not properly defined! error {error}") from error
 
@@ -419,7 +444,6 @@ def one_two_many(values, n=3, many='multiple'):
     return values
 
 
-
 class UnbinnedNLL(BaseLoss):
     _name = "UnbinnedNLL"
 
@@ -458,23 +482,13 @@ class UnbinnedNLL(BaseLoss):
                                   "into account and simply treat the PDFs as non-extended PDFs. To create an "
                                   "extended NLL, use the `ExtendedUnbinnedNLL`.", identifier='extended_in_UnbinnedNLL')
 
-    def _loss_func(self, model, data, fit_range, constraints):
-        log_offset = None
-        if self._options['subtr_const']:
-            log_offset = self._subtractions.get('mean')
-            if log_offset is None:
-                from zfit import run
-                run.assert_executing_eagerly()  # first time subtr
-                nevents_tot = znp.sum([d.nevents for d in data])
-                log_offset_sum = (self._loss_func_watched(data,
-                                                          model=model,
-                                                          fit_range=fit_range,
-                                                          constraints=constraints,
-                                                          # presumably were not at the minimum, so the loss will decrease
-                                                          log_offset=z.convert_to_tensor(0.)) - 1000.)
-                log_offset = tf.stop_gradient(- znp.divide(log_offset_sum, nevents_tot))
-                self._subtractions['mean'] = log_offset
-        return self._loss_func_watched(data, model, fit_range, constraints, log_offset)
+    def _loss_func(self, model, data, fit_range, constraints, log_offset):
+
+        return self._loss_func_watched(data=data,
+                                       model=model,
+                                       fit_range=fit_range,
+                                       constraints=constraints,
+                                       log_offset=log_offset)
 
     @property
     def is_extended(self):
@@ -501,8 +515,9 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
     """An Unbinned Negative Log Likelihood with an additional poisson term for the number of events in the dataset."""
 
     @z.function(wraps='loss')
-    def _loss_func(self, model, data, fit_range, constraints):
-        nll = super()._loss_func(model=model, data=data, fit_range=fit_range, constraints=constraints)
+    def _loss_func(self, model, data, fit_range, constraints, log_offset):
+        nll = super()._loss_func(model=model, data=data, fit_range=fit_range, constraints=constraints,
+                                 log_offset=log_offset)
         yields = []
         nevents_collected = []
         for mod, dat in zip(model, data):
@@ -516,6 +531,8 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         nevents_collected = tf.stack(nevents_collected, axis=0)
 
         term_new = tf.nn.log_poisson_loss(nevents_collected, tf.math.log(yields))
+        if log_offset is not None:
+            term_new += log_offset
         nll += tf.reduce_sum(term_new, axis=0)
         return nll
 
@@ -612,7 +629,7 @@ class SimpleLoss(BaseLoss):
             return errordef
 
     # @z.function(wraps='loss')
-    def _loss_func(self, model, data, fit_range, constraints=None):
+    def _loss_func(self, model, data, fit_range, constraints=None, log_offset=None):
 
         if self._call_with_args:
             params = self._simple_func_params
