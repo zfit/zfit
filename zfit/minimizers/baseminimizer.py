@@ -15,8 +15,7 @@ import numpy as np
 from ordered_set import OrderedSet
 
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..core.parameter import (assign_values, convert_to_parameter,
-                              convert_to_parameters, set_values)
+from ..core.parameter import assign_values, convert_to_parameters
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -269,6 +268,11 @@ class BaseMinimizer(ZfitMinimizer):
             loss = init.loss
             if params is None:
                 params = list(init.params)
+        to_set_param_values = {}
+
+        if isinstance(params, collections.Mapping) and all(isinstance(p, ZfitParameter) for p in params):
+            to_set_param_values = {p: val for p, val in params.items() if val is not None}
+            params = list(params.keys())
 
         # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
@@ -278,19 +282,18 @@ class BaseMinimizer(ZfitMinimizer):
                 raise ValueError("If the loss is a callable, the params cannot be None.")
 
             from zfit.core.loss import SimpleLoss
+            params = convert_to_parameters(params, prefer_constant=False)
             loss = SimpleLoss(func=loss, params=params)
 
-        to_set_param_values = {}
         if params is None:
             params = loss.get_params(floating=floating)
         else:
-            if isinstance(params, collections.Mapping):
-                param_values = params
-                to_set_param_values = {p: val for p, val in param_values.items() if val is not None}
+            if to_set_param_values:
                 try:
                     assign_values(list(to_set_param_values), list(to_set_param_values.values()))
                 except ParameterNotIndependentError as error:
-                    not_indep_and_set = {p for p, val in param_values.items() if val is not None and not p.independent}
+                    not_indep_and_set = {p for p, val in to_set_param_values.items()
+                                         if val is not None and not p.independent}
                     raise ParameterNotIndependentError(f"Cannot set parameter {not_indep_and_set} to a value as they"
                                                        f" are not independent. The following `param` argument was"
                                                        f" given: {params}."
