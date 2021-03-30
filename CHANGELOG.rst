@@ -52,7 +52,8 @@ Breaking changes
 - BFGS (from TensorFlow Probability) has been removed as it is not working properly. There are many alternatives
   such as ScipyLBFGSV1 or NLoptLBFGSV1
 - Scipy (the minimizer) has been removed. Use specialized `Scipy*` minimizers instead.
-- ``set_value`` or ``set_values`` now raises a ``ValueError`` if it is outside the limits. Use ``assign`` to ignore it.
+- Creating a ``zfit.Parameter``, usign ``set_value`` or ``set_values`` now raises a ``ValueError``
+  if the value is outside the limits. Use ``assign`` to suppress it.
 
 Depreceations
 -------------
