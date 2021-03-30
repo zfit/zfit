@@ -19,7 +19,7 @@ from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 
 from ..core.interfaces import ZfitIndependentParameter, ZfitLoss, ZfitParameter
-from ..core.parameter import assign_values, set_values
+from ..core.parameter import assign_values
 from ..settings import run
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
@@ -124,7 +124,7 @@ def _minos_minuit(result, params, cl=None):
     except RuntimeError as error:
         if 'Function minimum is not valid.' not in error.args[0]:
             raise
-        minuit_minimizer.migrad()
+        minuit_minimizer.reset()
         minuit_minimizer.minos(*(p.name for p in params), cl=cl)
 
     merror_result = minuit_minimizer.merrors  # returns every var
@@ -729,8 +729,8 @@ class FitResult(ZfitResult):
                    status: Optional[int] = None,
                    criterion: Optional['zfit.minimizers.termination.ConvergenceCriterion'] = None,
                    evaluator: Optional['zfit.minimizers.evaluation.LossEval'] = None,
-                   inv_hessian: Optional[np.ndarray]=None,
-                   hessian: Optional[np.ndarray]=None,
+                   inv_hessian: Optional[np.ndarray] = None,
+                   hessian: Optional[np.ndarray] = None,
                    ) -> 'FitResult':
         """Create a ``FitResult`` from an NLopt optimizer.
 
@@ -832,18 +832,18 @@ class FitResult(ZfitResult):
             approx['inv_hessian'] = inv_hessian
 
         return cls(params=param_dict,
-                     edm=edm,
-                     fmin=fmin,
-                     status=status,
-                     converged=converged,
-                     info=info,
-                     niter=niter,
-                     valid=valid,
-                     loss=loss,
-                     minimizer=minimizer,
-                     criterion=criterion,
-                     message=message,
-                     evaluator=evaluator)
+                   edm=edm,
+                   fmin=fmin,
+                   status=status,
+                   converged=converged,
+                   info=info,
+                   niter=niter,
+                   valid=valid,
+                   loss=loss,
+                   minimizer=minimizer,
+                   criterion=criterion,
+                   message=message,
+                   evaluator=evaluator)
 
     @property
     def approx(self) -> Approximations:
@@ -1102,7 +1102,11 @@ class FitResult(ZfitResult):
             name = method
 
         if method == 'zfit_error':
-            warnings.warn("'zfit_error' is still experimental and may fails.", ExperimentalFeatureWarning)
+            warnings.warn(
+                "'zfit_error' is still rather new. If it fails, please report it here:"
+                " https://github.com/zfit/zfit/issues/new?assignees=&labels=bug&template"
+                "=bug_report.md&title=zfit%20error%20fails.",
+                ExperimentalFeatureWarning, stacklevel=2)
 
         params = self._input_check_params(params)
 

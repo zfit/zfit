@@ -15,7 +15,7 @@ import numpy as np
 from ordered_set import OrderedSet
 
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..core.parameter import assign_values, convert_to_parameter, set_values
+from ..core.parameter import assign_values, convert_to_parameters
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -268,6 +268,11 @@ class BaseMinimizer(ZfitMinimizer):
             loss = init.loss
             if params is None:
                 params = list(init.params)
+        to_set_param_values = {}
+
+        if isinstance(params, collections.Mapping) and all(isinstance(p, ZfitParameter) for p in params):
+            to_set_param_values = {p: val for p, val in params.items() if val is not None}
+            params = list(params.keys())
 
         # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
@@ -276,34 +281,19 @@ class BaseMinimizer(ZfitMinimizer):
             elif params is None:
                 raise ValueError("If the loss is a callable, the params cannot be None.")
 
-            if not isinstance(params, collections.Mapping):
-                values = convert_to_container(params)
-                names = [None] * len(params)
-            else:
-                values = list(params.values())
-                names = list(params.keys())
-            params = [convert_to_parameter(value=val, name=name, prefer_constant=False)
-                      for val, name in zip(values, names)]
-
             from zfit.core.loss import SimpleLoss
-            if hasattr(loss, 'errordef'):
-                errordef = loss.errordef
-            else:
-                raise ValueError(f"{self} cannot minimize {loss} as `errordef` is missing: "
-                                 f"it has to be set as an attribute. Typically 1 (chi2) or 0.5 (NLL).")
-            loss = SimpleLoss(func=loss, deps=params, errordef=errordef)
+            params = convert_to_parameters(params, prefer_constant=False)
+            loss = SimpleLoss(func=loss, params=params)
 
-        to_set_param_values = {}
         if params is None:
             params = loss.get_params(floating=floating)
         else:
-            if isinstance(params, collections.Mapping):
-                param_values = params
-                to_set_param_values = {p: val for p, val in param_values.items() if val is not None}
+            if to_set_param_values:
                 try:
                     assign_values(list(to_set_param_values), list(to_set_param_values.values()))
                 except ParameterNotIndependentError as error:
-                    not_indep_and_set = {p for p, val in param_values.items() if val is not None and not p.independent}
+                    not_indep_and_set = {p for p, val in to_set_param_values.items()
+                                         if val is not None and not p.independent}
                     raise ParameterNotIndependentError(f"Cannot set parameter {not_indep_and_set} to a value as they"
                                                        f" are not independent. The following `param` argument was"
                                                        f" given: {params}."
@@ -357,17 +347,45 @@ class BaseMinimizer(ZfitMinimizer):
         to initialize the minimization.
 
         Args:
-            loss: Loss to be minimized until convergence is reached.
+            loss: Loss to be minimized until convergence is reached. Usually a :class:`ZfitLoss`.
 
-            - If this is a simple callable that takes an array as argument and an attribute `errordef`
+            - If this is a simple callable that takes an array as argument and an attribute `errordef`. The attribute
+              can be set to any arbitrary function like
+
+              .. code-block::
+
+                    def loss(x):
+                        return - x ** 2
+
+                    loss.errordef = 0.5  # as an example
+                    minimizer.minimize(loss, [2, 5])
+
+              If not TensorFlow is used inside the function, make sure to set `zfit.run.set_graph_mode(False)`
+              and `zfit.run.set_autograd_mode(False)`.
             - A `FitResult` can be provided as the only argument to the method, in which case the loss as well as the
               parameters to be minimized are taken from it. This allows to easily chain minimization algorithms.
 
             params: The parameters with respect to which to
                 minimize the `loss`. If `None`, the parameters will be taken from the `loss`.
 
-                Instead of `Parameters`, an array of initial values can be provided. This however does not allow to
-                specify limits. For more control, use a `ZfitIndepentendParameter`.
+                In order to fix the parameter values to a specific value (and thereby make them indepented
+                of their current value), a dictionary mapping a parameter to a value can be given.
+
+                If `loss` is a callable, `params` can also be (instead of `Parameters`):
+
+                  - an array of initial values
+                  - for more control, a ``dict`` with the keys:
+
+                    - ``value`` (required): array-like initial values.
+                    - ``name``: list of unique names of the parameters.
+                    - ``lower``: array-like lower limits of the parameters,
+                    - ``upper``: array-like upper limits of the parameters,
+                    - ``step_size``: array-like initial step size of the parameters (approximately the expected
+                      uncertainty)
+                    ,
+                This will create internally a single parameter for each value that can be accessed in the `FitResult`
+                via params. Repeated calls can therefore (in the current implement) cause a memory increase.
+                The recommended way is to re-use parameters (just taken from the `FitResult` attribute `params`).
             init: A result of a previous minimization that provides auxiliary information such as the starting point for
                 the parameters, the approximation of the covariance and more. Which information is used can depend on
                 the specific minimizer implementation.

@@ -189,6 +189,15 @@ minimizers = [
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
+minimizers_small = [
+    (zfit.minimize.NLoptLBFGSV1, {}, True),
+    (zfit.minimize.ScipyTrustKrylovV1, {}, True),
+    (zfit.minimize.Minuit, {}, True),
+    (zfit.minimize.IpyoptV1, {}, False),
+]
+# sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
+minimizers_small = sorted(minimizers_small, key=lambda val: repr(val))
+
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 obs1_split = (zfit.Space(obs='obs1', limits=(-2.4, 1.3))
               + zfit.Space(obs='obs1', limits=(1.3, 2.1))
@@ -210,23 +219,35 @@ def test_floating_flag():
     assert sigma not in result.params
 
 
-@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-def test_minimize_pure_func(minimizer_class_and_kwargs):
+@pytest.mark.parametrize("params", [
+    # np.random.normal(size=5),
+    [1.4, 0.6, 1.5],
+    {'value': [1.4, 0.6, 1.5],
+     'lower': np.ones(3) * (-5),
+     'upper': np.ones(3) * (9),
+     'step_size': np.linspace(0.1, 0.2, 3)}])
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers_small)
+@pytest.mark.flaky(reruns=1)
+def test_minimize_pure_func(params, minimizer_class_and_kwargs):
     zfit.run.set_autograd_mode(False)
     zfit.run.set_graph_mode(False)
     minimizer_class, minimizer_kwargs, _ = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
     func = scipy.optimize.rosen
     func.errordef = 0.5
-    params = np.random.normal(size=5)
     if isinstance(minimizer, WrapOptimizer):
         with pytest.raises(OperationNotAllowedError):
             _ = minimizer.minimize(func, params)
     else:
         result = minimizer.minimize(func, params)
         assert result.valid
-    # result.hesse()
-    # result.errors()
+    result.hesse(name='hesse_np')
+    for param, error in zip(result.params, [0.32, 0.64, 1.3]):
+        assert pytest.approx(result.params[param]['hesse_np']['error'], rel=0.15) == error
+    param = list(result.params)[1]
+    result.errors(param, name='errors')
+    assert pytest.approx(result.params[param]['errors']['lower'], rel=0.15) == -0.61
+    assert pytest.approx(result.params[param]['errors']['upper'], rel=0.15) == 0.7
 
 
 def test_dependent_param_extraction():

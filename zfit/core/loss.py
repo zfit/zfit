@@ -19,7 +19,7 @@ znp = z.numpy
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
-from ..util.deprecation import deprecated
+from ..util.deprecation import deprecated, deprecated_args
 from ..util.exception import (BreakingAPIChangeError, IntentionAmbiguousError,
                               NotExtendedPDFError, WorkInProgressError)
 from ..util.warnings import warn_advanced_feature
@@ -27,6 +27,11 @@ from ..z.math import (autodiff_gradient, autodiff_value_gradients,
                       automatic_value_gradients_hessian, numerical_gradient,
                       numerical_value_gradient,
                       numerical_value_gradients_hessian)
+from .baseobject import BaseNumeric
+from .constraint import BaseConstraint
+from .dependents import _extract_dependencies
+from .interfaces import ZfitData, ZfitLoss, ZfitSpace
+from .parameter import convert_to_parameters
 
 
 # @z.function
@@ -196,8 +201,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # TODO: data, range consistency?
         if fit_range is None:
             fit_range = []
+            non_consistent = {'data': [], 'model': [], 'range': []}
             for p, d in zip(pdf, data):
-                non_consistent = {'data': [], 'model': [], 'range': []}
                 if p.norm_range != d.data_range:
                     non_consistent['data'].append(d)
                     non_consistent['model'].append(p)
@@ -543,9 +548,15 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
 
-    def __init__(self, func: Callable, deps: Iterable["zfit.Parameter"] = NONE,
+    @deprecated_args(None, "Use params instead.", ('deps', 'dependents'))
+    def __init__(self,
+                 func: Callable,
+                 params: Iterable["zfit.Parameter"] = None,
+                 errordef: Optional[float] = None,
+                 # legacy
+                 deps: Iterable["zfit.Parameter"] = NONE,
                  dependents: Iterable["zfit.Parameter"] = NONE,
-                 errordef: Optional[float] = None):
+                 ):
         """Loss from a (function returning a) Tensor.
 
         This allows for a very generic loss function as the functions only restriction is that is
@@ -553,7 +564,7 @@ class SimpleLoss(BaseLoss):
 
         Args:
             func: Callable that constructs the loss and returns a tensor without taking an argument.
-            deps: The dependents (independent `zfit.Parameter`) of the loss. Essentially the (free) parameters that
+            params: The dependents (independent `zfit.Parameter`) of the loss. Essentially the (free) parameters that
               the `func` depends on.
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
@@ -587,27 +598,32 @@ class SimpleLoss(BaseLoss):
             minimizer = zfit.minize.Minuit()
             result = minimizer.minimize(loss)
         """
-
-        if dependents is not NONE:
-            warnings.warn("`dependents` is deprecated and will be removed in the future, use `deps`"
-                          " instead as a keyword.")
-        if deps is NONE:  # depreceation
-            raise BreakingAPIChangeError("Dependents need to be specified explicitly due to the upgrade to 0.4."
+        super().__init__(model=[], data=[], options={'subtr_const': False})
+        if dependents is not NONE and params is None:
+            params = dependents
+        elif deps is not NONE and params is None:  # depreceation
+            params = deps
+        elif params is None:  # legacy, remove in 0.7
+            raise BreakingAPIChangeError("params need to be specified explicitly due to the upgrade to 0.4."
                                          "More information can be found in the upgrade guide on the website.")
 
         # @z.function(wraps='loss')
         # def wrapped_func():
         #     return func()
+        if hasattr(func, 'errordef'):
+            errordef = func.errordef
+
+        if errordef is None:
+            raise ValueError(f"{self} cannot minimize {func} as `errordef` is missing: "
+                             f"it has to be set as an attribute. Typically 1 (chi2) or 0.5 (NLL).")
+
         sig = inspect.signature(func)
         self._call_with_args = len(sig.parameters) > 0
 
         self._simple_func = func
-        self._simple_errordef = errordef
         self._errordef = errordef
-        deps = convert_to_container(deps, container=OrderedSet)
-        self._simple_func_params = _extract_dependencies(deps)
-
-        super().__init__(model=[], data=[], fit_range=[])
+        params = convert_to_parameters(params, prefer_constant=False)
+        self._simple_func_params = _extract_dependencies(params)
 
     def _get_dependencies(self):
         dependents = self._simple_func_params
@@ -621,7 +637,7 @@ class SimpleLoss(BaseLoss):
 
     @property
     def errordef(self):
-        errordef = self._simple_errordef
+        errordef = self._errordef
         if errordef is None:
             raise RuntimeError("For this SimpleLoss, no error calculation is possible.")
         else:

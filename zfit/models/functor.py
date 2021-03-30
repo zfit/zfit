@@ -129,7 +129,7 @@ class SumPDF(BaseFunctor):
             if len(fracs) == len(pdfs) - 1:
                 remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
                 remaining_frac = convert_to_parameter(remaining_frac_func,
-                                                      dependents=fracs)
+                                                      params=fracs)
                 if run.numeric_checks:
                     tf.debugging.assert_non_negative(remaining_frac,
                                                      f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}")  # check fractions
@@ -157,9 +157,9 @@ class SumPDF(BaseFunctor):
                 return tf.reduce_sum(
                     input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
 
-            sum_yields = convert_to_parameter(sum_yields_func, dependents=yields)
+            sum_yields = convert_to_parameter(sum_yields_func, params=yields)
             yield_fracs = [convert_to_parameter(lambda sum_yields, yield_: yield_ / sum_yields,
-                                                dependents=[sum_yields, yield_])
+                                                params=[sum_yields, yield_])
                            for yield_ in yields]
 
             fracs_cleaned = None

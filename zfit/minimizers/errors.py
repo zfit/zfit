@@ -153,7 +153,7 @@ def compute_errors(result: "zfit.result.FitResult",
                                       x0=np.array(initial_values[d]),
                                       tol=rtol,
                                       options={
-                                          'factor': 1,
+                                          'factor': 0.1,
                                           # 'diag': 1 / param_scale,  # scale factor for variables
                                           # 'diag': param_scale,
                                       },
