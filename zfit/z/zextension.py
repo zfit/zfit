@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import functools
 import math as _mt
 from collections import defaultdict
@@ -43,7 +43,7 @@ def nth_pow(x, n, name=None):
         name: No effect, for API compatibility with tf.pow
     """
     if not n >= 0:
-        raise ValueError("n (power) has to be >= 0. Currently, n={}".format(n))
+        raise ValueError(f"n (power) has to be >= 0. Currently, n={n}")
 
     power = to_complex(1.)
     for _ in range(n):
@@ -147,7 +147,7 @@ class FunctionWrapperRegistry:
 
     @classmethod
     def all_wrapped_functions_registered(cls):
-        return all((func.zfit_graph_cache_registered for func in cls.all_wrapped_functions))
+        return all(func.zfit_graph_cache_registered for func in cls.all_wrapped_functions)
 
     def __init__(self, wraps=None, **kwargs_user) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
@@ -161,7 +161,7 @@ class FunctionWrapperRegistry:
         self.registries.append(self)
         self.wrapped_func = None
 
-        if not wraps in self.do_jit_types:
+        if wraps not in self.do_jit_types:
             # raise RuntimeError(f"Currently custom 'wraps' category ({wraps}) not allowed, set explicitly in `do_jit_types`")
             self.do_jit_types[wraps] = True
         self.wraps = wraps

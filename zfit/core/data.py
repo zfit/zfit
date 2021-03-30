@@ -1,8 +1,8 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
-from typing import List, Tuple, Union, Dict, Mapping, Callable
+from typing import Callable, Dict, List, Mapping, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -12,20 +12,22 @@ from tensorflow.python.ops import array_ops
 
 # from ..settings import types as ztypes
 import zfit
-from .baseobject import BaseObject
-from .coordinates import convert_to_obs_str
-from .dimension import BaseDimensional
-from .interfaces import ZfitSpace, ZfitData
-from .parameter import register_tensor_conversion
-from .space import Space, convert_to_space
+
 from .. import z
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
 from ..util.container import convert_to_container
-from ..util.exception import LogicalUndefinedOperationError, ShapeIncompatibleError, \
-    ObsIncompatibleError, WorkInProgressError
+from ..util.exception import (LogicalUndefinedOperationError,
+                              ObsIncompatibleError, ShapeIncompatibleError,
+                              WorkInProgressError)
 from ..util.temporary import TemporarilySet
+from .baseobject import BaseObject
+from .coordinates import convert_to_obs_str
+from .dimension import BaseDimensional
+from .interfaces import ZfitData, ZfitSpace
+from .parameter import register_tensor_conversion
+from .space import Space, convert_to_space
 
 
 # TODO: make cut only once, then remember
@@ -76,6 +78,10 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         return nevents
 
     # TODO: which naming? nevents or n_events
+
+    @property
+    def _approx_nevents(self):
+        return self.nevents
 
     @property
     def n_events(self):
@@ -131,8 +137,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
 
         Args:
             weights:
-
-
         """
         if weights is not None:
             weights = z.convert_to_tensor(weights)
@@ -255,7 +259,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             name:
 
         Returns:
-
         """
 
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, 'numpy')):
@@ -276,7 +279,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             name:
 
         Returns:
-
         """
         # dataset = LightDataset.from_tensor(tensor=tensor)
         if dtype is None:
@@ -298,7 +300,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             obs: The observables to use as columns. If `None`, all observables are used.
 
         Returns:
-
         """
         values = self.value(obs=obs)
         if obs is None:
@@ -450,6 +451,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     @staticmethod
     def _OverloadOperator(operator):  # pylint: disable=invalid-name
         """Defer an operator overload to `ops.Tensor`.
+
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
           operator: string. The operator name.
@@ -480,8 +482,8 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     # TODO(Mayou36): refactor with pdf or other range things?
     def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
-        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.Space` and sort them according to
-        own `obs`.
+        """Convert the inputs (using eventually `obs`, `axes`) to
+        :py:class:`~zfit.Space` and sort them according to own `obs`.
 
         Args:
             obs:
@@ -489,7 +491,6 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             limits:
 
         Returns:
-
         """
         if obs is None:  # for simple limits to convert them
             obs = self.obs
@@ -549,10 +550,18 @@ class Sampler(Data):
         self.sample_func = sample_func
         self.n = n
         self._n_holder = n
+        self.resample()  # to be used for precompilations etc
 
     @property
     def n_samples(self):
         return self._n_holder
+
+    @property
+    def _approx_nevents(self):
+        nevents = super()._approx_nevents
+        if nevents is None:
+            nevents = self.n
+        return nevents
 
     def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
         if not self._initial_resampled:
@@ -580,7 +589,7 @@ class Sampler(Data):
         sample_holder = tf.Variable(initial_value=sample_func(), dtype=dtype, trainable=False,  # HACK: sample_func
                                     # validate_shape=False,
                                     shape=(None, obs.n_obs),
-                                    name="sample_data_holder_{}".format(cls.get_cache_counting()))
+                                    name=f"sample_data_holder_{cls.get_cache_counting()}")
         dataset = LightDataset.from_tensor(sample_holder)
 
         return Sampler(dataset=dataset, sample_holder=sample_holder, sample_func=sample_func, fixed_params=fixed_params,
@@ -654,14 +663,15 @@ class LightDataset:
         return self.tensor
 
 
-def add_samples(sample1: ZfitData, sample2: ZfitData, obs: ZfitSpace, shuffle: bool = False):
+def sum_samples(sample1: ZfitData, sample2: ZfitData, obs: ZfitSpace, shuffle: bool = False):
     samples = [sample1, sample2]
     if obs is None:
         raise WorkInProgressError
     sample2 = sample2.value(obs=obs)
     if shuffle:
         sample2 = tf.random.shuffle(sample2)
-    tensor = sample1.value(obs=obs) + sample2
+    sample1 = sample1.value(obs=obs)
+    tensor = sample1 + sample2
     if any([s.weights is not None for s in samples]):
         raise WorkInProgressError("Cannot combine weights currently")
     weights = None

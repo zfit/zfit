@@ -1,8 +1,9 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2021 zfit
 
 # create space
-import zfit
 import numpy as np
+
+import zfit
 
 obs = zfit.Space("x", limits=(-10, 10))
 

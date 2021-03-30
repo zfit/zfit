@@ -1,9 +1,7 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import pytest
 
 import zfit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 from zfit.util.exception import NormRangeUnderdefinedError
 
 limits1 = (-4, 3)

@@ -1,9 +1,7 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import pytest
 
 import zfit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def test_get_dependents_is_deterministic():
@@ -64,7 +62,7 @@ def test_get_params():
     with pytest.raises(ValueError):
         set(gauss_ext.get_params(floating=False, is_yield=None, extract_independent=False))
 
-    assert set(gauss_ext.get_params(floating=False, is_yield=True, extract_independent=False)) == set([])
+    assert set(gauss_ext.get_params(floating=False, is_yield=True, extract_independent=False)) == set()
     assert set(gauss_ext.get_params(floating=None, is_yield=True, extract_independent=False)) == {yield1}
     assert set(gauss_ext.get_params(floating=True, is_yield=True, extract_independent=False)) == {yield1}
 
@@ -87,12 +85,12 @@ def test_get_params():
     assert set(gauss_ext.get_params(floating=None, is_yield=True,
                                     extract_independent=True)) == {yield1}
     assert set(gauss_ext.get_params(floating=False, is_yield=True,
-                                    extract_independent=True)) == set([])
+                                    extract_independent=True)) == set()
 
     # Gauss ext2
     assert set(gauss2_ext.get_params(floating=True, is_yield=False, extract_independent=False)) == {mu2, sigma2}
     assert set(gauss2_ext.get_params(floating=None, is_yield=False, extract_independent=False)) == {mu2, sigma2}
-    assert set(gauss2_ext.get_params(floating=False, is_yield=False, extract_independent=False)) == set([])
+    assert set(gauss2_ext.get_params(floating=False, is_yield=False, extract_independent=False)) == set()
 
     with pytest.raises(ValueError):
         set(gauss2_ext.get_params(floating=True, is_yield=None, extract_independent=False))
@@ -113,24 +111,24 @@ def test_get_params():
                                      extract_independent=True)) == {mu2, sigma2}
     yield2.floating = False
     assert set(gauss2_ext.get_params(floating=False, is_yield=False,
-                                     extract_independent=True)) == set([])
+                                     extract_independent=True)) == set()
     yield2.floating = True
     assert set(gauss2_ext.get_params(floating=False, is_yield=False,
-                                     extract_independent=True)) == set([])
+                                     extract_independent=True)) == set()
 
     assert set(gauss2_ext.get_params(floating=True, is_yield=None,
                                      extract_independent=True)) == {mu2, sigma2, yield2}
     assert set(gauss2_ext.get_params(floating=None, is_yield=None,
                                      extract_independent=True)) == {mu2, sigma2, yield2}
     assert set(gauss2_ext.get_params(floating=False, is_yield=None,
-                                     extract_independent=True)) == set([])
+                                     extract_independent=True)) == set()
 
     assert set(gauss2_ext.get_params(floating=True, is_yield=True,
                                      extract_independent=True)) == {yield2}
     assert set(gauss2_ext.get_params(floating=None, is_yield=True,
                                      extract_independent=True)) == {yield2}
     assert set(gauss2_ext.get_params(floating=False, is_yield=True,
-                                     extract_independent=True)) == set([])
+                                     extract_independent=True)) == set()
 
     # sum extended
     with pytest.raises(ValueError):
@@ -185,4 +183,4 @@ def test_get_params():
     assert set(sum1_ext.get_params(floating=None, is_yield=True,
                                    extract_independent=True)) == {yield1, yield2}
     assert set(sum1_ext.get_params(floating=False, is_yield=True,
-                                   extract_independent=True)) == set([])
+                                   extract_independent=True)) == set()

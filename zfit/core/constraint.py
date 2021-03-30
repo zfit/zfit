@@ -1,23 +1,23 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 from collections import OrderedDict
-from typing import Dict, Union, Callable, Optional
+from typing import Callable, Dict, Optional, Union
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
 from zfit import z
-from .baseobject import BaseNumeric
-from .dependents import _extract_dependencies
-from .interfaces import ZfitConstraint
-from .interfaces import ZfitParameter
-from .parameter import convert_to_parameter
+
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError
+from .baseobject import BaseNumeric
+from .dependents import _extract_dependencies
+from .interfaces import ZfitConstraint, ZfitParameter
+from .parameter import convert_to_parameter
 
 tfd = tfp.distributions
 
@@ -50,7 +50,7 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
 
 class SimpleConstraint(BaseConstraint):
 
-    def __init__(self, func: Callable, params: Optional[ztyping.ParametersType]):
+    def __init__(self, func: Callable, params: Optional[ztyping.ParameterType]):
         """Constraint from a (function returning a) Tensor.
 
         The parameters are named "param_{i}" with i starting from 0 and corresponding to the index of params.
@@ -105,9 +105,7 @@ class ProbabilityConstraint(BaseConstraint):
 
     @property
     def observation(self):
-        """
-        Return the observed values of the parameters constrained.
-        """
+        """Return the observed values of the parameters constrained."""
         return self._observation
 
     def value(self):
@@ -145,12 +143,11 @@ class TFProbabilityConstraint(ProbabilityConstraint):
                  params: Dict[str, ZfitParameter], distribution: tfd.Distribution,
                  dist_params, dist_kwargs=None, name: str = "DistributionConstraint", dtype=ztypes.float,
                  **kwargs):
-        """ Base class for constraints using a probability density function from `tensorflow_probability`.
+        """Base class for constraints using a probability density function from `tensorflow_probability`.
 
         Args:
             distribution: The probability density function
                 used to constraint the parameters
-
         """
         super().__init__(observation=observation, params=params, name=name, dtype=dtype, **kwargs)
 
@@ -211,7 +208,7 @@ class GaussianConstraint(TFProbabilityConstraint):
             params_tensor = z.convert_to_tensor(params)
 
             if sigma.shape.ndims > 1:
-                covariance = sigma
+                covariance = sigma  # TODO: square as well?
             elif sigma.shape.ndims == 1:
                 covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
             else:
@@ -238,7 +235,5 @@ class GaussianConstraint(TFProbabilityConstraint):
 
     @property
     def covariance(self):
-        """
-        Return the covariance matrix of the observed values of the parameters constrained.
-        """
+        """Return the covariance matrix of the observed values of the parameters constrained."""
         return self._covariance()

@@ -1,5 +1,4 @@
-"""
-This  module defines the `BasePdf` that can be used to inherit from in order to build a custom PDF.
+"""This  module defines the `BasePdf` that can be used to inherit from in order to build a custom PDF.
 
 The `BasePDF` implements already a lot of ready-to-use functionality like integral, automatic normalization
 and sampling.
@@ -49,28 +48,30 @@ For more advanced methods and ways to register analytic integrals or overwrite c
 also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tutorials>`_
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import warnings
 from contextlib import suppress
-from typing import Union, Type, Dict, Optional, Set
+from typing import Dict, Optional, Set, Type, Union
 
 import tensorflow as tf
-from ..util.deprecation import deprecated
+
 from zfit import z
-from .sample import extended_sampling
+
+from ..settings import run, ztypes
+from ..util import ztyping
 from ..util.cache import invalidate_graph
+from ..util.deprecation import deprecated
+from ..util.exception import (AlreadyExtendedPDFError, BreakingAPIChangeError,
+                              FunctionNotImplemented, NotExtendedPDFError,
+                              SpecificFunctionNotImplemented)
+from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
-from .interfaces import ZfitPDF, ZfitParameter
+from .interfaces import ZfitParameter, ZfitPDF
 from .parameter import Parameter, convert_to_parameter
+from .sample import extended_sampling
 from .space import Space
-from ..settings import ztypes, run
-from ..util import ztyping
-from ..util.exception import (AlreadyExtendedPDFError,
-                              NotExtendedPDFError, BreakingAPIChangeError, FunctionNotImplementedError,
-                              SpecificFunctionNotImplementedError)
-from ..util.temporary import TemporarilySet
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -81,7 +82,6 @@ def _BasePDF_register_check_support(has_support: bool):
     Args:
         has_support: If True, flags that it **requires** the `@supports` decorator. If False,
             flags that the `@supports` decorator is **not allowed**.
-
     """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
@@ -119,14 +119,14 @@ class BasePDF(ZfitPDF, BaseModel):
         cls._subclass_check_support(methods_to_check=_BasePDF_USER_IMPL_METHODS_TO_CHECK,
                                     wrapper_not_overwritten=_BasePDF_register_check_support)
 
-    @property
-    def space(self) -> "zfit.Space":
-        if self._norm_range is not None:
-            space = self._norm_range
-        else:
-            space = super().space
-
-        return space
+    # @property
+    # def space(self) -> "zfit.Space":
+    #     if self._norm_range is not None:
+    #         space = self._norm_range
+    #     else:
+    #         space = super().space
+    #
+    #     return space
 
     def _check_input_norm_range(self, norm_range, none_is_error=False):
         if norm_range is None:
@@ -160,7 +160,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
         Args:
             norm_range:
-
         """
         norm_range = self._check_input_norm_range(norm_range=norm_range)
 
@@ -188,13 +187,13 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @_BasePDF_register_check_support(True)
     def _normalization(self, limits):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def normalization(self, limits: ztyping.LimitsType) -> ztyping.XType:
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
-            limits: The limits on where to normalize over
+            limits:  The limits on where to normalize over
 
         Returns:
             The normalization value
@@ -211,7 +210,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _call_normalization(self, limits):
         # TODO: caching? alternative
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return self._normalization(limits=limits)
         return self._fallback_normalization(limits)
 
@@ -219,7 +218,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._hook_integrate(limits=limits, norm_range=False)
 
     def _unnormalized_pdf(self, x):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     @deprecated(None, "Use `pdf(norm_range=False)` instead")
     def unnormalized_pdf(self, x: ztyping.XType, component_norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
@@ -285,7 +284,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     @z.function(wraps='model')
     def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
@@ -315,9 +314,9 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_pdf(x=x, norm_range=norm_range)
 
     def _call_pdf(self, x, norm_range):
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return self._pdf(x, norm_range=norm_range)
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return tf.exp(self._log_pdf(x=x, norm_range=norm_range))
         return self._fallback_pdf(x=x, norm_range=norm_range)
 
@@ -329,7 +328,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @_BasePDF_register_check_support(False)
     def _log_pdf(self, x, norm_range):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def log_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         """Log probability density function normalized over `norm_range`.
@@ -356,16 +355,16 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_log_pdf(x=x, norm_range=norm_range)
 
     def _call_log_pdf(self, x, norm_range):
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return self._log_pdf(x=x, norm_range=norm_range)
-        with suppress(FunctionNotImplementedError):
+        with suppress(FunctionNotImplemented):
             return tf.math.log(self._pdf(x=x, norm_range=norm_range))
         return self._fallback_log_pdf(x=x, norm_range=norm_range)
 
     def _fallback_log_pdf(self, x, norm_range):
         return tf.math.log(self._hook_pdf(x=x, norm_range=norm_range))
 
-    def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
+    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise BreakingAPIChangeError("Removed with 0.5.x: is this needed?")
 
     @z.function(wraps='model')
@@ -563,8 +562,8 @@ class BasePDF(ZfitPDF, BaseModel):
 
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution
-        from ..models.polynomials import RecursivePolynomial
         from ..models.kde import GaussianKDE1DimV1
+        from ..models.polynomials import RecursivePolynomial
 
         if type(self) == WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = dict(distribution=self._distribution, dist_params=self.dist_params)

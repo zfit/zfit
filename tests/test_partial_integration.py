@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import scipy
@@ -6,8 +6,6 @@ import scipy.special
 import tensorflow as tf
 
 import zfit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 
 
 def func_cosxy2_np(x, y):

@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from typing import Union
 
 import numpy as np
@@ -6,11 +6,12 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd
 
-from .dist_tfp import WrapDistribution
-from .. import z, ztypes
+from .. import z
 from ..core.interfaces import ZfitData, ZfitSpace
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
+from .dist_tfp import WrapDistribution
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):

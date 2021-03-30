@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from typing import List
 
@@ -10,7 +10,7 @@ from zfit.util.temporary import TemporarilySet
 def all_parents(op, current_obs=None):
     if current_obs is None:
         current_obs = set()
-    ops = set(input_.op for input_ in op.inputs if input_.op not in current_obs)
+    ops = {input_.op for input_ in op.inputs if input_.op not in current_obs}
     current_obs = current_obs.union(ops)
     return ops.union(*(all_parents(op, current_obs=current_obs) for op in ops))
 

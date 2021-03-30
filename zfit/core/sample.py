@@ -1,18 +1,18 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
-from typing import Callable, Union, Iterable, List, Optional, Tuple
+from typing import Callable, Iterable, List, Optional, Tuple, Union
 
 import tensorflow as tf
 from tensorflow_probability import distributions as tfd
 
-from .data import Data
-from .interfaces import ZfitPDF
-from .space import Space
-from .. import z, settings
-from ..settings import ztypes, run
+from .. import settings, z
+from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WorkInProgressError
+from .data import Data
+from .interfaces import ZfitPDF, ZfitSpace
+from .space import Space
 
 
 class UniformSampleAndWeights:
@@ -20,7 +20,7 @@ class UniformSampleAndWeights:
         rnd_samples = []
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(z.constant(1., shape=(1,)), shape=(n_to_produce,))
-        n_produced = tf.constant(0)
+        n_produced = tf.constant(0, tf.int64)
         for i, space in enumerate(limits):
             lower, upper = space.rect_limits  # TODO: remove new space
             if i == len(limits) - 1:
@@ -32,7 +32,7 @@ class UniformSampleAndWeights:
                     tot_area = limits.rect_area()
                     frac = (space.rect_area() / tot_area)[0]
                 n_partial_to_produce = tf.cast(
-                    z.to_real(n_to_produce) * z.to_real(frac), dtype=tf.int32)  # TODO(Mayou36): split right!
+                    z.to_real(n_to_produce) * z.to_real(frac), dtype=tf.int64)  # TODO(Mayou36): split right!
 
             sample_drawn = tf.random.uniform(shape=(n_partial_to_produce, limits.n_obs + 1),
                                              # + 1 dim for the function value
@@ -118,7 +118,7 @@ class EventSpace(Space):
 
 # TODO: estimate maximum initially?
 @z.function(wraps='sample')
-def accept_reject_sample(prob: Callable, n: int, limits: Space,
+def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
                          sample_and_weights_factory: Callable = UniformSampleAndWeights,
                          dtype=ztypes.float, prob_max: Union[None, int] = None,
                          efficiency_estimation: float = 0.5) -> tf.Tensor:
@@ -160,19 +160,18 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         efficiency_estimation: estimation of the initial sampling efficiency.
 
     Returns:
-
     """
     prob_max_init = prob_max
     multiple_limits = len(limits) > 1
     if prob_max is None:
-        n_min_to_produce = 10000
+        n_min_to_produce = 3000
         overestimate_factor_scaling = 1.25
     else:  # if an exact estimation is given
         n_min_to_produce = 0
         overestimate_factor_scaling = 1.
 
     sample_and_weights = sample_and_weights_factory()
-    n = tf.cast(n, dtype=tf.int32)
+    n = tf.cast(n, dtype=tf.int64)
     if run.numeric_checks:
         tf.debugging.assert_non_negative(n)
 
@@ -188,14 +187,15 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     if (isinstance(limits, EventSpace) and not limits.is_generator) or limits.n_events > 1:
         dynamic_array_shape = False
         if run.numeric_checks:
-            tf.debugging.assert_equal(limits.n_events, n)
+            tf.debugging.assert_equal(tf.cast(limits.n_events, dtype=tf.int64), n)
 
         initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
 
-    inital_n_produced = tf.constant(0, dtype=tf.int32)
-    initial_n_drawn = tf.constant(0, dtype=tf.int32)
-    sample = tf.TensorArray(dtype=dtype, size=n, dynamic_size=dynamic_array_shape,
+    inital_n_produced = tf.constant(0, dtype=tf.int64)
+    initial_n_drawn = tf.constant(0, dtype=tf.int64)
+    sample = tf.TensorArray(dtype=dtype, size=tf.cast(n, dtype=tf.int32),
+                            dynamic_size=dynamic_array_shape,
                             clear_after_read=True,  # we read only once at end to tensor
                             element_shape=(limits.n_obs,))
 
@@ -208,7 +208,6 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.,
                     weights_maximum=0., prob_maximum=0., n_min_to_produce=10000):
         eff = tf.reduce_max(input_tensor=[eff, z.to_real(1e-6)])
-
         n_to_produce = n - n_produced
 
         if isinstance(limits, EventSpace):  # EXPERIMENTAL(Mayou36): added to test EventSpace
@@ -222,14 +221,22 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
 
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
-            n_to_produce = tf.cast(z.to_real(n_to_produce) / eff * 1.01, dtype=tf.int32) + 3  # just to make sure
+            # this section is non-trivial due to numerical issues with large numbers in n_to_produce
+            # and small numbers in the efficiency. To prevent an overflow, we scale the efficieny up
+            # and convert it to an int, effectively precision after the floaning point.
+            # Then we scale it down again.
+            eff_precision: int = 100
+            one_over_eff_int = tf.cast(1 / eff * 1.01 * eff_precision, dtype=tf.int64)
+            n_to_produce *= one_over_eff_int
+            n_to_produce = tf.math.floordiv(n_to_produce, eff_precision)
+            # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
+            # n_to_produce = tf.cast(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
             n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
-            n_min_to_produce -= tf.maximum(n_to_produce, 0)  # reduce to minimum of 0
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
-            max_produce_cap = tf.constant(800000, dtype=tf.int32)
+            max_produce_cap = tf.constant(800000, dtype=tf.int64)
             tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
             # TODO: remove below? was there due to overflow in tf?
-            # safe_to_produce = tf.maximum(max_produce_cap, n_to_produce)  # protect against overflow, n_to_prod -> neg.
+            # n_to_produce = tf.maximum(5, n_to_produce)  # protect against overflow, n_to_prod -> neg.
             n_to_produce = tf.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
             new_limits = limits  # because limits in the vector space case can change
         else:
@@ -249,7 +256,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             dtype=dtype)
 
         rnd_sample = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
-        n_drawn = tf.cast(n_drawn, dtype=tf.int32)
+        n_drawn = tf.cast(n_drawn, dtype=tf.int64)
         if run.numeric_checks: tf.debugging.assert_non_negative(n_drawn)
         n_total_drawn += n_drawn
         probabilities = prob(rnd_sample)
@@ -289,7 +296,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
             def calc_new_n_produced():
                 n_produced_float = tf.cast(n_produced, dtype=ztypes.float)
                 binomial = tfd.Binomial(n_produced_float, probs=old_scaling / weights_scaling)
-                return tf.cast(tf.round(binomial.sample()), dtype=tf.int32)
+                return tf.cast(tf.round(binomial.sample()), dtype=tf.int64)
 
             n_produced = tf.cond(new_scaling_needed,
                                  calc_new_n_produced,
@@ -340,7 +347,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
         take_or_not = take_or_not[0] if len(take_or_not.shape) == 2 else take_or_not
         filtered_sample = tf.boolean_mask(tensor=rnd_sample, mask=take_or_not, axis=0)
 
-        n_accepted = tf.shape(input=filtered_sample)[0]
+        n_accepted = tf.shape(input=filtered_sample, out_type=tf.int64)[0]
         n_produced_new = n_produced + n_accepted
         if not dynamic_array_shape:
             indices = tf.boolean_mask(tensor=draw_indices, mask=take_or_not)
@@ -369,8 +376,13 @@ def accept_reject_sample(prob: Callable, n: int, limits: Space,
     weights_scaling = z.constant(0.)
     weights_maximum = z.constant(0.)
     prob_maximum = z.constant(0.)
+    n_min_to_produce = tf.cast(n_min_to_produce, dtype=tf.int64)
+    inital_n_produced = tf.cast(inital_n_produced, dtype=tf.int64)
+    initial_n_drawn = tf.cast(initial_n_drawn, dtype=tf.int64)
+
     loop_vars = (
-        n, sample, inital_n_produced, initial_n_drawn, efficiency_estimation, initial_is_sampled, weights_scaling,
+        n, sample, inital_n_produced, initial_n_drawn,
+        efficiency_estimation, initial_is_sampled, weights_scaling,
         weights_maximum, prob_maximum, n_min_to_produce)
 
     sample_array = tf.while_loop(cond=not_enough_produced, body=sample_body,  # paraopt

@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 from abc import abstractmethod
@@ -25,20 +25,20 @@ class ZfitResult:
         raise NotImplementedError
 
     @abstractmethod
-    def errors(self, params, method, sigma):
+    def errors(self, params, method, cl):
         """Calculate and set for `params` the asymmetric error using the set error method.
 
-            Args:
-                params: The parameters or their names to calculate the
-                     errors. If `params` is `None`, use all *floating* parameters.
-                method: The method to use to calculate the errors. Valid choices are
-                    {'minuit_minos'} or a Callable.
+        Args:
+            params: The parameters or their names to calculate the
+                 errors. If `params` is `None`, use all *floating* parameters.
+            method: The method to use to calculate the errors. Valid choices are
+                {'minuit_minos'} or a Callable.
 
-            Returns:
-                A `OrderedDict` containing as keys the parameter names and as value a `dict` which
-                    contains (next to probably more things) two keys 'lower' and 'upper',
-                    holding the calculated errors.
-                    Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
+        Returns:
+            A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+                contains (next to probably more things) two keys 'lower' and 'upper',
+                holding the calculated errors.
+                Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
         raise NotImplementedError
 
@@ -63,11 +63,11 @@ class ZfitResult:
         raise NotImplementedError
 
 
-class ZfitMinimizer:
+class ZfitMinimizer(abc.ABC):
     """Define the minimizer interface."""
 
     @abc.abstractmethod
-    def minimize(self, loss, params=None):
+    def minimize(self, loss, params=None, init=None):
         raise NotImplementedError
 
     def step(self, loss, params=None):
@@ -75,5 +75,5 @@ class ZfitMinimizer:
 
     @property
     @abc.abstractmethod
-    def tolerance(self):
+    def tol(self):
         raise NotImplementedError

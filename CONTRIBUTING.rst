@@ -15,9 +15,9 @@ helps, and credit will always be given.
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `zfit` for local development.
+Ready to contribute? Here's how to set up *zfit* for local development.
 
-1. Fork the `zfit` repo on GitHub.
+1. Fork the *zfit* repo on GitHub.
 2. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/zfit.git
@@ -64,4 +64,3 @@ Before you submit a pull request, check that it meets these guidelines:
 3. The pull request should work for Python 3.6 and 3.7. Check
    https://travis-ci.org/zfit/zfit/pull_requests
    and make sure that the tests pass for all supported Python versions.
-

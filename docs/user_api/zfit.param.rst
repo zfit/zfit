@@ -4,7 +4,7 @@ Param
 .. todo:: Fill overview page
 
 .. autosummary::
-    :toctree: param
+    :toctree: _generated/param
 
     zfit.param.ConstantParameter
     zfit.param.Parameter
