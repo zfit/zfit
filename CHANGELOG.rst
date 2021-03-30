@@ -3,6 +3,33 @@ Changelog
 *********
 
 
+
+Develop
+========
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
+
 0.6.0 (30.3.2021
 ===================
 
