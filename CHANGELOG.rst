@@ -3,8 +3,11 @@ Changelog
 *********
 
 
-Develop
-========
+
+0.6.0 (30.3.2021
+===================
+
+Added many new minimizers from different libraries, all with uncertainty estimation available.
 
 Major Features and Improvements
 -------------------------------
@@ -68,8 +71,6 @@ Bug fixes and small changes
 - `create_sampler` now samples immediately to allow for precompile, a new hook that will allow objects to optimize
   themselves.
 
-Experimental
-------------
 
 Requirement changes
 -------------------
@@ -87,6 +88,9 @@ For devs:
 
 Thanks
 ------
+
+- Hans Dembinski for the help on upgrade to imituit V2
+- Thibaud Humair for helpful remarks on the parameters
 
 
 0.5.6 (26.1.2020)

@@ -13,19 +13,19 @@ __license__ = "BSD 3-Clause"
 __copyright__ = "Copyright 2018, zfit"
 __status__ = "Beta"
 
-__author__ = "Jonas Eschle"
+__author__ = ("Jonas Eschle <Jonas.Eschle@cern.ch>,"
+              "Albert Puig <apuignav@gmail.com>, "
+              "Rafael Silva Coutinho <rsilvaco@cern.ch>, "
+              "Matthieu Marinangeli <matthieu.marinangeli@cern.ch>")
 __maintainer__ = "zfit"
 __email__ = 'zfit@physik.uzh.ch'
-__credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>",
-               "Albert Puig <apuignav@gmail.com",
-               "Rafael Silva Coutinho <rafael.silva.coutinho@cern.ch>", ]
+__credits__ = "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade"
 
 __all__ = ["z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension", "exception",
            "sample",
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
-
 
 #  Copyright (c) 2019 zfit
 
