@@ -20,12 +20,12 @@ max_distance_to_min = 2.5
 
 
 def create_loss(obs1):
-    mu_param = zfit.Parameter("mu", true_mu - 2., -5., 9.,
+    mu_param = zfit.Parameter("mu", true_mu - 2.5, -5., 9.,
                               step_size=0.03
                               )
     sigma_param = zfit.Parameter("sigma", true_sigma * 0.3, 0.01, 10,
                                  step_size=0.03)
-    lambda_param = zfit.Parameter("lambda", true_lambda * 0.5, -0.5, -0.0003,
+    lambda_param = zfit.Parameter("lambda", true_lambda * 0.3, -0.5, -0.0003,
                                   step_size=0.001)
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
@@ -39,7 +39,7 @@ def create_loss(obs1):
                 sampled_data = sum_pdf1.create_sampler(n=25000)
                 sampled_data.resample()
 
-                loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
+                loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data, options={'subtr_const': True})
                 minimum = loss.value().numpy()
 
     return loss, minimum, (mu_param, sigma_param, lambda_param)
@@ -313,8 +313,6 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
     do_long = test_error.get('longtests', False)
     has_approx = test_error.get('approx', False)
     test_error = test_error['error']
-    # if numgrad:
-    #     return
 
     skip_tests = (not long_clarg
                   and not do_long
@@ -354,7 +352,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
 
     assert result_lowtol2.fmin == pytest.approx(result.fmin, abs=2.)
     if not isinstance(minimizer, zfit.minimize.IpyoptV1):
-        assert result_lowtol2.info['n_eval'] < 0.99 * result.info['n_eval']
+        assert result_lowtol2.info['n_eval'] < 1.2 * result.info['n_eval']  # should not be more, surely not a lot
 
     aval, bval, cval = [zfit.run(v) for v in
                         (mu_param, sigma_param, lambda_param)]

@@ -281,6 +281,7 @@ class SumPDF(BaseFunctor):
                 sub_sample = sub_sample.value()
             samples.append(sub_sample)
         sample = tf.concat(samples, axis=0)
+        sample = tf.random.shuffle(sample)
         return sample
 
 

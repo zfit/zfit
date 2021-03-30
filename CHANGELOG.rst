@@ -41,12 +41,14 @@ Major Features and Improvements
   including a new step size heuristic.
   Possible problems can be caused by iminuit itself, please report
   in case your fits don't converge anymore.
-
 - improved ``compute_errors`` in speed by caching values and the reliability
   by making the solution unique.
+- increased stability for large datasets with a constant subtraction in the NLL
 
 Breaking changes
 ------------------
+- NLL (and extended) subtracts now by default a constant value. This can be changed with a new `options` argument.
+  COMPARISON OF DIFFEREN NLLs (their absolute values) fails now! (flag can be deactivated)
 - BFGS (from TensorFlow Probability) has been removed as it is not working properly. There are many alternatives
   such as ScipyLBFGSV1 or NLoptLBFGSV1
 - Scipy (the minimizer) has been removed. Use specialized `Scipy*` minimizers instead.
@@ -60,6 +62,10 @@ Bug fixes and small changes
 ---------------------------
 - ``zfit_error`` moved only one parameter to the correct initial position. Speedup and more reliable.
 - FFTconv was shifted if the kernel limits were not symetrical, now properly taken into account.
+- circumvent overflow error in sampling
+- shuffle samples from sum pdfs to ensure uniformity and remove conv sampling bias
+- `create_sampler` now samples immediately to allow for precompile, a new hook that will allow objects to optimize
+  themselves.
 
 Experimental
 ------------

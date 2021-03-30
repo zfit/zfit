@@ -164,7 +164,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
     prob_max_init = prob_max
     multiple_limits = len(limits) > 1
     if prob_max is None:
-        n_min_to_produce = 10000
+        n_min_to_produce = 3000
         overestimate_factor_scaling = 1.25
     else:  # if an exact estimation is given
         n_min_to_produce = 0
@@ -221,8 +221,14 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
 
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
-            one_over_eff_int = tf.cast(1 / eff * 1.01, dtype=tf.int64)
-            n_to_produce *= one_over_eff_int + 1
+            # this section is non-trivial due to numerical issues with large numbers in n_to_produce
+            # and small numbers in the efficiency. To prevent an overflow, we scale the efficieny up
+            # and convert it to an int, effectively precision after the floaning point.
+            # Then we scale it down again.
+            eff_precision: int = 100
+            one_over_eff_int = tf.cast(1 / eff * 1.01 * eff_precision, dtype=tf.int64)
+            n_to_produce *= one_over_eff_int
+            n_to_produce = tf.math.floordiv(n_to_produce, eff_precision)
             # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
             # n_to_produce = tf.cast(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
             n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
