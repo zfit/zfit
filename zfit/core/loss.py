@@ -191,8 +191,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # TODO: data, range consistency?
         if fit_range is None:
             fit_range = []
+            non_consistent = {'data': [], 'model': [], 'range': []}
             for p, d in zip(pdf, data):
-                non_consistent = {'data': [], 'model': [], 'range': []}
                 if p.norm_range != d.data_range:
                     non_consistent['data'].append(d)
                     non_consistent['model'].append(p)
@@ -524,7 +524,7 @@ class SimpleLoss(BaseLoss):
             minimizer = zfit.minize.Minuit()
             result = minimizer.minimize(loss)
         """
-        super().__init__(model=[], data=[], fit_range=[])
+        super().__init__(model=[], data=[])
         if dependents is not NONE and params is None:
             params = dependents
         elif deps is not NONE and params is None:  # depreceation

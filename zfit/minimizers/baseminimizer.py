@@ -358,7 +358,10 @@ class BaseMinimizer(ZfitMinimizer):
                         return - x ** 2
 
                     loss.errordef = 0.5  # as an example
+                    minimizer.minimize(loss, [2, 5])
 
+              If not TensorFlow is used inside the function, make sure to set `zfit.run.set_graph_mode(False)`
+              and `zfit.run.set_autograd_mode(False)`.
             - A `FitResult` can be provided as the only argument to the method, in which case the loss as well as the
               parameters to be minimized are taken from it. This allows to easily chain minimization algorithms.
 
@@ -368,7 +371,7 @@ class BaseMinimizer(ZfitMinimizer):
                 In order to fix the parameter values to a specific value (and thereby make them indepented
                 of their current value), a dictionary mapping a parameter to a value can be given.
 
-                If `loss` is a callable, `params` can also be, instead of `Parameters`:
+                If `loss` is a callable, `params` can also be (instead of `Parameters`):
 
                   - an array of initial values
                   - for more control, a ``dict`` with the keys:
