@@ -30,7 +30,7 @@ def crystalball_func(x, mu, sigma, alpha, n):
                         lambda t: _powerlaw(b - t, a, -n),
                         lambda t: znp.exp(-0.5 * tf.square(t)),
                         values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
-    func = tf.maximum(func, tf.zeros_like(func))
+    func = znp.maximum(func, tf.zeros_like(func))
     return func
 
 
