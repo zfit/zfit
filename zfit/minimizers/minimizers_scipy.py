@@ -6,9 +6,9 @@ from typing import Callable, Mapping, Optional, Union
 
 import numpy as np
 import scipy.optimize
-from scipy.optimize import SR1, HessianUpdateStrategy
+from scipy.optimize import BFGS, HessianUpdateStrategy
 
-from ..core.parameter import assign_values, set_values
+from ..core.parameter import assign_values
 from ..settings import run
 from ..util.container import convert_to_container
 from ..util.exception import MaximumIterationReached
@@ -390,17 +390,20 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method.
+                   evaluation compared to a numerical method but it may not always be
+                   possible. In this case, zfit switches to a generic, numerical gradient
+                   which in general performs worse than if the minimizer has its own
+                   numerical gradient.
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
-                     loss gradient (usually the automatic gradient) will be used;
-                     the minimizer won't use an internal algorithm.
-                   - ``True`` tells the minimizer to use its default internal
-                     gradient estimation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+                   If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                   gradient of the loss (usually the automatic gradient) will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.gradient|
+                   |@doc:minimizer.scipy.gradient.internal| ``True`` tells the minimizer to use its default internal
+                   gradient estimation. This can be specified more clearly using the
+                   arguments ``'2-point'`` and ``'3-point'``, which specify the
+                   numerical algorithm the minimizer should use in order to
+                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -450,18 +453,20 @@ ScipyLBFGSBV1._add_derivative_methods(gradient=['2-point', '3-point',
 
 class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
 
+    @warn_experimental_feature
     def __init__(self,
                  tol: Optional[float] = None,
                  inexact: Optional[bool] = None,
                  gradient: Optional[Union[Callable, str]] = None,
-                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = None,
                  verbosity: Optional[int] = None,
                  maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy trust-krylov V1"
                  ) -> None:
-        """Local, gradient based (nearly) exact trust-region algorithm using matrix vector products with the hessian.
+        """PERFORMS POORLY! Local, gradient based (nearly) exact trust-region algorithm using matrix vector products
+        with the hessian.
 
         |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
         `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
@@ -479,17 +484,21 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method.
+                   evaluation compared to a numerical method but it may not always be
+                   possible. In this case, zfit switches to a generic, numerical gradient
+                   which in general performs worse than if the minimizer has its own
+                   numerical gradient.
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
-                     loss gradient (usually the automatic gradient) will be used;
-                     the minimizer won't use an internal algorithm.
-                   - ``True`` tells the minimizer to use its default internal
-                     gradient estimation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+                   If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                   gradient of the loss (usually the automatic gradient) will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.gradient|
+                   |@doc:minimizer.scipy.gradient.internal| ``True`` tells the minimizer to use its default internal
+                   gradient estimation. This can be specified more clearly using the
+                   arguments ``'2-point'`` and ``'3-point'``, which specify the
+                   numerical algorithm the minimizer should use in order to
+                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+
             hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
                    that the minimizer should use. This can be the
                    hessian provided by the loss itself or
@@ -510,23 +519,10 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
 
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'``, the
-                     loss hessian (usually using automatic differentiation)
-                     will be used;
-                     the minimizer won't use an internal algorithm.
-                   - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
-                     an approximation of the hessian. For example
-                     :class:`~scipy.optimize.BFGS` (which performs usually best)
-                     or :class:`~scipy.optimize.SR1`
-                     (sometimes unstable updates).
-                   - ``True``  (or ``None``; default) tells the minimizer
-                     to use its default internal
-                     hessian approximation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the hessian. This is only possible if the
-                     gradient is provided by zfit and not an internal numerical
-                     method is already used to determine it. |@docend:minimizer.scipy.hessian|
+                   If set to ``False`` or ``'zfit'``, the
+                   hessian defined in the loss (usually using automatic differentiation)
+                   will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.hessian|
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
 
@@ -575,31 +571,35 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                          strategy=strategy, criterion=criterion, name=name)
 
 
-ScipyTrustKrylovV1._add_derivative_methods(gradient=['2-point', '3-point',
-                                                     # 'cs',  # works badly
-                                                     None, True, False, 'zfit'],
-                                           hessian=['2-point', '3-point',
-                                                    # 'cs',
-                                                    scipy.optimize.BFGS, scipy.optimize.SR1,
-                                                    None, True, False, 'zfit'])
+ScipyTrustKrylovV1._add_derivative_methods(gradient=[
+    '2-point', '3-point',
+    # 'cs',  # works badly
+    None, True, False, 'zfit'],
+    hessian=[
+        # '2-point', '3-point',
+        # 'cs',
+        # scipy.optimize.BFGS, scipy.optimize.SR1,
+        None,
+        # True,
+        False, 'zfit'])
 
 
 class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
-
+    @warn_experimental_feature
     def __init__(self,
                  tol: Optional[float] = None,
                  init_trust_radius: Optional[float] = None,
                  eta: Optional[float] = None,
                  max_trust_radius: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = None,
-                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = None,
                  verbosity: Optional[int] = None,
                  maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
                  strategy: Optional[ZfitStrategy] = None,
                  name: str = "SciPy trust-ncg V1"
                  ) -> None:
-        """Local Newton conjugate gradient trust-region algorithm.
+        """PERFORMS POORLY! Local Newton conjugate gradient trust-region algorithm.
 
         |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
         `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
@@ -621,17 +621,15 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method.
+                   evaluation compared to a numerical method but it may not always be
+                   possible. In this case, zfit switches to a generic, numerical gradient
+                   which in general performs worse than if the minimizer has its own
+                   numerical gradient.
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
-                     loss gradient (usually the automatic gradient) will be used;
-                     the minimizer won't use an internal algorithm.
-                   - ``True`` tells the minimizer to use its default internal
-                     gradient estimation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+                   If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                   gradient of the loss (usually the automatic gradient) will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.gradient|
             hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
                    that the minimizer should use. This can be the
                    hessian provided by the loss itself or
@@ -652,23 +650,10 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
 
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'``, the
-                     loss hessian (usually using automatic differentiation)
-                     will be used;
-                     the minimizer won't use an internal algorithm.
-                   - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
-                     an approximation of the hessian. For example
-                     :class:`~scipy.optimize.BFGS` (which performs usually best)
-                     or :class:`~scipy.optimize.SR1`
-                     (sometimes unstable updates).
-                   - ``True``  (or ``None``; default) tells the minimizer
-                     to use its default internal
-                     hessian approximation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the hessian. This is only possible if the
-                     gradient is provided by zfit and not an internal numerical
-                     method is already used to determine it. |@docend:minimizer.scipy.hessian|
+                   If set to ``False`` or ``'zfit'``, the
+                   hessian defined in the loss (usually using automatic differentiation)
+                   will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.hessian|
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
 
@@ -731,13 +716,20 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                          strategy=strategy, criterion=criterion, name=name)
 
 
-ScipyTrustNCGV1._add_derivative_methods(gradient=['2-point', '3-point',
-                                                  # 'cs'  # works badly
-                                                  None, True, False, 'zfit'],
-                                        hessian=['2-point', '3-point',
-                                                 # 'cs',
-                                                 scipy.optimize.BFGS, scipy.optimize.SR1,
-                                                 None, True, False, 'zfit'])
+ScipyTrustNCGV1._add_derivative_methods(gradient=[
+    # '2-point', '3-point',
+    # 'cs'  # works badly
+    None,
+    # True,
+    False, 'zfit'],
+    hessian=[
+        # '2-point', '3-point',
+        # 'cs',
+        # scipy.optimize.BFGS, scipy.optimize.SR1,
+
+        None,
+        # True,
+        False, 'zfit'])
 
 
 class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
@@ -745,7 +737,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                  tol: Optional[float] = None,
                  init_trust_radius: Optional[int] = None,
                  gradient: Optional[Union[Callable, str]] = None,
-                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = SR1,
+                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = None,
                  verbosity: Optional[int] = None,
                  maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
@@ -770,17 +762,20 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method.
+                   evaluation compared to a numerical method but it may not always be
+                   possible. In this case, zfit switches to a generic, numerical gradient
+                   which in general performs worse than if the minimizer has its own
+                   numerical gradient.
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
-                     loss gradient (usually the automatic gradient) will be used;
-                     the minimizer won't use an internal algorithm.
-                   - ``True`` tells the minimizer to use its default internal
-                     gradient estimation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+                   If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                   gradient of the loss (usually the automatic gradient) will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.gradient|
+                   |@doc:minimizer.scipy.gradient.internal| ``True`` tells the minimizer to use its default internal
+                   gradient estimation. This can be specified more clearly using the
+                   arguments ``'2-point'`` and ``'3-point'``, which specify the
+                   numerical algorithm the minimizer should use in order to
+                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
             hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
                    that the minimizer should use. This can be the
                    hessian provided by the loss itself or
@@ -801,23 +796,24 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
 
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'``, the
-                     loss hessian (usually using automatic differentiation)
-                     will be used;
-                     the minimizer won't use an internal algorithm.
-                   - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
-                     an approximation of the hessian. For example
-                     :class:`~scipy.optimize.BFGS` (which performs usually best)
-                     or :class:`~scipy.optimize.SR1`
-                     (sometimes unstable updates).
-                   - ``True``  (or ``None``; default) tells the minimizer
-                     to use its default internal
-                     hessian approximation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the hessian. This is only possible if the
-                     gradient is provided by zfit and not an internal numerical
-                     method is already used to determine it. |@docend:minimizer.scipy.hessian|
+                   If set to ``False`` or ``'zfit'``, the
+                   hessian defined in the loss (usually using automatic differentiation)
+                   will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.hessian|
+                   |@doc:minimizer.scipy.hessian.internal| A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
+                   an approximation of the hessian. For example
+                   :class:`~scipy.optimize.BFGS` (which performs usually best)
+                   or :class:`~scipy.optimize.SR1`
+                   (sometimes unstable updates).
+                   ``True``  (or ``None``; default) tells the minimizer
+                   to use its default internal
+                   hessian approximation.
+                   Arguments ``'2-point'`` and ``'3-point'`` specify which
+                   numerical algorithm the minimizer should use in order to
+                   estimate the hessian. This is only possible if the
+                   gradient is provided by zfit and not an internal numerical
+                   method is already used to determine it. |@docend:minimizer.scipy.hessian.internal|
+
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
 
@@ -882,6 +878,8 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
             minimizer_options['options'] = options
 
         scipy_tols = {'gtol': None, 'xtol': None}
+        if hessian is None:
+            hessian = BFGS
 
         super().__init__(method="trust-constr", internal_tol=scipy_tols, gradient=gradient,
                          hessian=hessian,
@@ -905,7 +903,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
     def __init__(self,
                  tol: Optional[float] = None,
                  gradient: Optional[Union[Callable, str]] = None,
-                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = 'zfit',
+                 hessian: Optional[Union[Callable, str, scipy.optimize.HessianUpdateStrategy]] = None,
                  verbosity: Optional[int] = None,
                  maxiter: Optional[Union[int, str]] = None,
                  criterion: Optional[ConvergenceCriterion] = None,
@@ -929,17 +927,21 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method.
+                   evaluation compared to a numerical method but it may not always be
+                   possible. In this case, zfit switches to a generic, numerical gradient
+                   which in general performs worse than if the minimizer has its own
+                   numerical gradient.
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
-                     loss gradient (usually the automatic gradient) will be used;
-                     the minimizer won't use an internal algorithm.
-                   - ``True`` tells the minimizer to use its default internal
-                     gradient estimation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+                   If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                   gradient of the loss (usually the automatic gradient) will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.gradient|
+                   |@doc:minimizer.scipy.gradient.internal| ``True`` tells the minimizer to use its default internal
+                   gradient estimation. This can be specified more clearly using the
+                   arguments ``'2-point'`` and ``'3-point'``, which specify the
+                   numerical algorithm the minimizer should use in order to
+                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+
             hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
                    that the minimizer should use. This can be the
                    hessian provided by the loss itself or
@@ -960,23 +962,23 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
 
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'``, the
-                     loss hessian (usually using automatic differentiation)
-                     will be used;
-                     the minimizer won't use an internal algorithm.
-                   - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
-                     an approximation of the hessian. For example
-                     :class:`~scipy.optimize.BFGS` (which performs usually best)
-                     or :class:`~scipy.optimize.SR1`
-                     (sometimes unstable updates).
-                   - ``True``  (or ``None``; default) tells the minimizer
-                     to use its default internal
-                     hessian approximation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the hessian. This is only possible if the
-                     gradient is provided by zfit and not an internal numerical
-                     method is already used to determine it. |@docend:minimizer.scipy.hessian|
+                   If set to ``False`` or ``'zfit'``, the
+                   hessian defined in the loss (usually using automatic differentiation)
+                   will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.hessian|
+                   |@doc:minimizer.scipy.hessian.internal| A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
+                   an approximation of the hessian. For example
+                   :class:`~scipy.optimize.BFGS` (which performs usually best)
+                   or :class:`~scipy.optimize.SR1`
+                   (sometimes unstable updates).
+                   ``True``  (or ``None``; default) tells the minimizer
+                   to use its default internal
+                   hessian approximation.
+                   Arguments ``'2-point'`` and ``'3-point'`` specify which
+                   numerical algorithm the minimizer should use in order to
+                   estimate the hessian. This is only possible if the
+                   gradient is provided by zfit and not an internal numerical
+                   method is already used to determine it. |@docend:minimizer.scipy.hessian.internal|
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
 
@@ -1073,17 +1075,21 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method.
+                   evaluation compared to a numerical method but it may not always be
+                   possible. In this case, zfit switches to a generic, numerical gradient
+                   which in general performs worse than if the minimizer has its own
+                   numerical gradient.
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
-                     loss gradient (usually the automatic gradient) will be used;
-                     the minimizer won't use an internal algorithm.
-                   - ``True`` tells the minimizer to use its default internal
-                     gradient estimation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+                   If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                   gradient of the loss (usually the automatic gradient) will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.gradient|
+                   |@doc:minimizer.scipy.gradient.internal| ``True`` tells the minimizer to use its default internal
+                   gradient estimation. This can be specified more clearly using the
+                   arguments ``'2-point'`` and ``'3-point'``, which specify the
+                   numerical algorithm the minimizer should use in order to
+                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
 
@@ -1330,17 +1336,21 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method.
+                   evaluation compared to a numerical method but it may not always be
+                   possible. In this case, zfit switches to a generic, numerical gradient
+                   which in general performs worse than if the minimizer has its own
+                   numerical gradient.
                    The following are possible choices:
 
-                   - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
-                     loss gradient (usually the automatic gradient) will be used;
-                     the minimizer won't use an internal algorithm.
-                   - ``True`` tells the minimizer to use its default internal
-                     gradient estimation.
-                   - arguments ``'2-point'`` and ``'3-point'`` specify which
-                     numerical algorithm the minimizer should use in order to
-                     estimate the gradient. |@docend:minimizer.scipy.gradient|
+                   If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                   gradient of the loss (usually the automatic gradient) will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.gradient|
+                   |@doc:minimizer.scipy.gradient.internal| ``True`` tells the minimizer to use its default internal
+                   gradient estimation. This can be specified more clearly using the
+                   arguments ``'2-point'`` and ``'3-point'``, which specify the
+                   numerical algorithm the minimizer should use in order to
+                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
 

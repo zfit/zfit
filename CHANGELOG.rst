@@ -12,6 +12,8 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- remove badly performing Scipy minimizers :class:`~zfit.minimize.ScipyTrustKrylovV1` and
+  :class:`~zfit.minimize.ScipyTrustNCGV1`
 
 Depreceations
 -------------
@@ -43,7 +45,7 @@ Major Features and Improvements
 
   - :class:`~zfit.minimize.IpyoptV1` that wraps the powerful Ipopt large scale minimization library
   - Scipy minimizers now have their own, dedicated wrapper for each instance such as `~zfit.minimize.ScipyLBFGSBV1`,
-    :class:`~zfit.minimize.ScipyTrustKrylovV1` or :class:`~zfit.minimize.ScipySLSQPV1`
+    or :class:`~zfit.minimize.ScipySLSQPV1`
   - NLopt library wrapper that contains many algorithms for local searches such as
     :class:`~zfit.minimize.NLoptLBFGSV1`, :class:`~zfit.minimize.NLoptTruncNewtonV1` or
     :class:`~zfit.minimize.NLoptMMAV1` but also includes more global minimizers such as
