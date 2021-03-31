@@ -2,38 +2,21 @@
 Changelog
 *********
 
-
-
-Develop
-========
-
-Major Features and Improvements
--------------------------------
+0.6.1 (31.03.2021)
+===================
+Release for fix of minimizers that performed too bad
 
 Breaking changes
 ------------------
 - remove badly performing Scipy minimizers :class:`~zfit.minimize.ScipyTrustKrylovV1` and
   :class:`~zfit.minimize.ScipyTrustNCGV1`
 
-Depreceations
--------------
-
 Bug fixes and small changes
 ---------------------------
-
 - fix auto conversion to complex parameter using constructor
-Experimental
-------------
-
-Requirement changes
--------------------
 
 
-Thanks
-------
-
-
-0.6.0 (30.3.2021
+0.6.0 (30.3.2021)
 ===================
 
 Added many new minimizers from different libraries, all with uncertainty estimation available.

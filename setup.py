@@ -23,8 +23,12 @@ tests_require = [
     'scikit-hep-testdata',
     'pytest-timeout>=1',
     'matplotlib'  # for plots in examples
-    ]
+]
 setup(
+    author=("Jonas Eschle <Jonas.Eschle@cern.ch>,"
+            " Albert Puig <albert.puig.navarro@gmail.com>,"
+            "Rafael Silva Coutinho <rsilvaco@cern.ch>,"
+            "Matthieu Marinangeli <matthieu.marinangeli@cern.ch>"),
     install_requires=requirements,
     tests_require=tests_require,
     extras_require={
