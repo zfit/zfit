@@ -769,7 +769,7 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
 
     def __repr__(self):
-        if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
+        if tf.executing_eagerly():
             value = f'{self.numpy():.4g}'
         else:
             value = "graph-node"
@@ -981,7 +981,9 @@ def convert_to_parameter(value,
         else:
             complex_params = (Parameter(name + '_REALPART', value=znp.real(value)),
                               Parameter(name + '_IMAGPART', value=znp.imag(value)))
-        value = ComplexParameter(name, value_fn=value, params=complex_params)
+        value = ComplexParameter.from_cartesian(name,
+                                                real=complex_params[0],
+                                                imag=complex_params[1])
 
     else:
         if prefer_constant:
