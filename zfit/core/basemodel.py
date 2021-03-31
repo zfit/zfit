@@ -21,7 +21,6 @@ from tensorflow_probability.python import mcmc as mc
 from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
-from ..util import container as zcontainer
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.exception import (AnalyticIntegralNotImplemented,
@@ -1029,13 +1028,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def __repr__(self):  # TODO(mayou36):repr to baseobject with _repr
 
         return ("<zfit.{type_name} "
-                " params=[{params}]"
-                " dtype={dtype}>".format(type_name=type(self).__name__,
-                                         params=", ".join(sorted(str(p.name) for p in self.params.values())),
-                                         dtype=self.dtype.name) + str(sum(" {k}={v}".format(k=str(k), v=str(v))
-                                                                          for k, v in
-                                                                          self._get_additional_repr(
-                                                                              sorted=True).items())))
+                " params=[{params}]".format(type_name=type(self),
+                                            params=", ".join(sorted(str(p.name) for p in self.params.values())),
+                                            ))
 
     def _check_input_x_function(self, func):
         # TODO: signature etc?

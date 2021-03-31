@@ -10,10 +10,7 @@ import tensorflow as tf
 from ordered_set import OrderedSet
 
 from .. import settings, z
-from .baseobject import BaseNumeric
-from .constraint import BaseConstraint
-from .dependents import _extract_dependencies
-from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
+from .interfaces import ZfitPDF
 
 znp = z.numpy
 from ..util import ztyping
@@ -342,11 +339,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # value = value_substracted[0] - value_substracted[1]
 
     def _value(self, model, data, fit_range, constraints, log_offset):
-        try:
-            return self._loss_func(model=model, data=data, fit_range=fit_range,
-                                   constraints=constraints, log_offset=log_offset)
-        except NotImplementedError as error:
-            raise NotImplementedError(f"_loss_func not properly defined! error {error}") from error
+        # try:
+        return self._loss_func(model=model, data=data, fit_range=fit_range,
+                               constraints=constraints, log_offset=log_offset)
+
+    # except NotImplementedError as error:
+    #     raise NotImplementedError(f"_loss_func not properly defined! error {error}") from error
 
     def __add__(self, other):
         if not isinstance(other, BaseLoss):
