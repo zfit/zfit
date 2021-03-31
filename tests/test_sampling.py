@@ -1,31 +1,20 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
 
 import zfit
-from zfit import z, Space
+from zfit import Space, z
 from zfit.core.space import Limit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import AnalyticSamplingNotImplementedError
-
-setup_func_general = setup_function
-teardown_func_general = teardown_function
+from zfit.util.exception import AnalyticSamplingNotImplemented
 
 
-def setup_function():
+@pytest.fixture(autouse=True, scope="module")
+def setup_teardown_vectors():
     Limit._experimental_allow_vectors = True
-    setup_func_general()
-
-
-def teardown_function():
+    yield
     Limit._experimental_allow_vectors = False
-    teardown_func_general()
 
-
-ztf = z
-from zfit.core.sample import accept_reject_sample
 
 mu_true = 1.5
 sigma_true = 1.2
@@ -37,13 +26,13 @@ obs1 = zfit.Space('obs1', (low, high))
 class GaussNoAnalyticSampling(zfit.pdf.Gauss):
 
     def _analytic_sample(self, n, limits: Space):
-        raise AnalyticSamplingNotImplementedError  # HACK do make importance sampling work
+        raise AnalyticSamplingNotImplemented  # HACK do make importance sampling work
 
 
 class UniformNoAnalyticSampling(zfit.pdf.Uniform):
 
     def _analytic_sample(self, n, limits: Space):
-        raise AnalyticSamplingNotImplementedError  # HACK do make importance sampling work
+        raise AnalyticSamplingNotImplemented  # HACK do make importance sampling work
 
 
 def create_gauss1():
@@ -66,7 +55,7 @@ class TmpGaussian(zfit.pdf.BasePDF):
         mu = self.params['mu']
         sigma = self.params['sigma']
 
-        return ztf.exp((-(x - mu) ** 2) / (
+        return z.exp((-(x - mu) ** 2) / (
             2 * sigma ** 2))  # non-normalized gaussian
 
 
@@ -82,7 +71,7 @@ class TmpGaussianPDFNonNormed(zfit.pdf.BasePDF):
         mu = self.params['mu']
         sigma = self.params['sigma']
 
-        return ztf.exp((-(x - mu) ** 2) / (
+        return z.exp((-(x - mu) ** 2) / (
             2 * sigma ** 2))  # non-normalized gaussian
 
 
@@ -106,7 +95,6 @@ gaussian_dists = [create_gauss1, create_test_gauss1]
 
 
 def test_mutlidim_sampling():
-    zfit.run.set_graph_mode(False)
     spaces = [zfit.Space(f'obs{i}', (i * 10, i * 10 + 6)) for i in range(4)]
     pdfs = [GaussNoAnalyticSampling(obs=spaces[0], mu=3, sigma=1),
             GaussNoAnalyticSampling(obs=spaces[2], mu=23, sigma=1),
@@ -138,11 +126,11 @@ def test_multiple_limits_sampling(gauss_factory):
     sample1 = gauss.sample(n=n, limits=obs)
     sample2 = gauss.sample(n=n, limits=obs_split)
 
-    rel_tolerance = 1e-2
-    assert np.mean(sample1.value()) == pytest.approx(mu_true, rel_tolerance)
-    assert np.std(sample1.value()) == pytest.approx(sigma_true, rel_tolerance)
-    assert np.mean(sample2.value()) == pytest.approx(mu_true, rel_tolerance)
-    assert np.std(sample2.value()) == pytest.approx(sigma_true, rel_tolerance)
+    rel_tol = 1e-2
+    assert np.mean(sample1.value()) == pytest.approx(mu_true, rel_tol)
+    assert np.std(sample1.value()) == pytest.approx(sigma_true, rel_tol)
+    assert np.mean(sample2.value()) == pytest.approx(mu_true, rel_tol)
+    assert np.std(sample2.value()) == pytest.approx(sigma_true, rel_tol)
 
 
 @pytest.mark.parametrize('gauss_factory', gaussian_dists + [create_test_pdf_overriden_gauss1])
@@ -267,6 +255,8 @@ def test_sampling_floating(gauss_factory):
 # @pytest.mark.skipif(not zfit.EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY, reason="deadlock in tf.function, issue #35540")  # currently, importance sampling is not working, odd deadlock in TF
 @pytest.mark.flaky(3)  # statistical
 def test_importance_sampling():
+    from zfit.core.sample import accept_reject_sample
+
     mu_sampler = 5.
     sigma_sampler = 4.
     mu_pdf = 4.
@@ -326,7 +316,7 @@ def test_importance_sampling_uniform():
 
             import tensorflow_probability.python.distributions as tfd
             n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
-            gaussian = tfd.TruncatedNormal(loc=ztf.constant(-1.), scale=ztf.constant(2.),
+            gaussian = tfd.TruncatedNormal(loc=z.constant(-1.), scale=z.constant(2.),
                                            low=low, high=high)
             sample = gaussian.sample(sample_shape=(n_to_produce, 1))
             weights = gaussian.prob(sample)[:, 0]

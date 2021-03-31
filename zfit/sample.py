@@ -1,10 +1,11 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from typing import Iterable
 
 from zfit import z
 from zfit.core.interfaces import ZfitModel, ZfitPDF
 from zfit.util.exception import NotExtendedPDFError
+
 from .util.container import convert_to_container
 
 
@@ -16,7 +17,7 @@ def poisson(n=None, pdfs: Iterable[ZfitPDF] = None):
         pdfs = convert_to_container(pdfs)
         not_extended = [pdf.is_extended for pdf in pdfs]
         if not_extended:
-            raise NotExtendedPDFError("The following pdfs are not extended but need to be: {}".format(not_extended))
+            raise NotExtendedPDFError(f"The following pdfs are not extended but need to be: {not_extended}")
         if len(pdfs) > 1:
             raise ValueError("More than one model (currently) not supported.")
 

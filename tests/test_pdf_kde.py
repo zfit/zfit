@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import numpy as np
 import pytest
@@ -6,10 +6,6 @@ import pytest
 import zfit
 import zfit.models.dist_tfp
 import zfit.models.kde
-
-
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 
 
 @pytest.mark.skip()  # copy not yet implemented

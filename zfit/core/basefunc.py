@@ -2,7 +2,7 @@
 
 TODO(Mayou36): subclassing?
 """
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 import typing
@@ -10,11 +10,13 @@ import typing
 import tensorflow as tf
 
 import zfit
-from zfit.util.exception import ShapeIncompatibleError, SpecificFunctionNotImplementedError
-from .basemodel import BaseModel
-from .interfaces import ZfitFunc
+from zfit.util.exception import (ShapeIncompatibleError,
+                                 SpecificFunctionNotImplemented)
+
 from ..settings import ztypes
 from ..util import ztyping
+from .basemodel import BaseModel
+from .interfaces import ZfitFunc
 
 
 class BaseFunc(BaseModel, ZfitFunc):
@@ -36,13 +38,13 @@ class BaseFunc(BaseModel, ZfitFunc):
         new_params.update(override_params)
         return type(self)(new_params)
 
-    def gradients(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
+    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
         # TODO(Mayou36): well, really needed... this gradient?
         raise NotImplementedError("What do you need? Use tf.gradient...")
 
     @abc.abstractmethod
     def _func(self, x):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
         """The function evaluated at `x`.
@@ -74,7 +76,7 @@ class BaseFunc(BaseModel, ZfitFunc):
                                          "Original Error: {}".format(error))
 
     def as_pdf(self) -> "zfit.core.interfaces.ZfitPDF":
-        """Create a PDF out of the function
+        """Create a PDF out of the function.
 
         Returns:
             A PDF with the current function as the unnormalized probability.

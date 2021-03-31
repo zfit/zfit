@@ -1,4 +1,4 @@
-.. _loss:
+.. _loss-section:
 
 ====
 Loss
@@ -12,13 +12,12 @@ The MLE is a specific type of probability model estimation, where the loss funct
 
 In zfit, loss functions inherit from the :py:class:`~zfit.loss.BaseLoss` class and they follow a common interface, in which the model,
 the dataset **must** be given, and
-where parameter constraints in form of a dictionary `{param: constraint}` **may** be given.
+where parameter constraints in form of a dictionary ``{param: constraint}`` **may** be given.
 As an example, we can create an unbinned negative log-likelihood loss (:py:class:`~zfit.loss.UnbinnedNLL`) from the model described in the :ref:`Basic model section <basic-model>` and the data from the :ref:`Data section <data-section>`:
 
-.. code-block:: pycon
+.. code-block::
 
-    >>> my_loss = zfit.loss.UnbinnedNLL(model_cb,
-    >>>                                 data)
+    my_loss = zfit.loss.UnbinnedNLL(model_cb, data)
 
 Adding constraints
 ------------------
@@ -47,7 +46,7 @@ Custom penalties can also be added to the loss function, for instance if you wan
             max_value = 5400
             return tf.cond(tf.greater_equal(param, max_value), lambda: 10000., lambda: 0.)
 
-The custom penalty needs to be a `SimpleConstraint` to be added to the loss function whereas `mu` will be used
+The custom penalty needs to be a ``SimpleConstraint`` to be added to the loss function whereas ``mu`` will be used
 as the argument to the constraint
 
 .. code-block:: pycon

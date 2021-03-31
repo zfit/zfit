@@ -12,7 +12,7 @@ insufficient!
     `GitHub <https://github.com/>`_ account to do this.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
     zfit.constraint
     zfit.data

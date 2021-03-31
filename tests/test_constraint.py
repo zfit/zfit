@@ -1,13 +1,12 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import scipy.stats
 
 import zfit
 from zfit import z
-from zfit.core.constraint import BaseConstraint, SimpleConstraint, GaussianConstraint
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.core.constraint import (BaseConstraint, GaussianConstraint,
+                                  SimpleConstraint)
 from zfit.util.container import convert_to_container
 from zfit.util.exception import ShapeIncompatibleError
 
@@ -57,7 +56,6 @@ def test_gaussian_constraint_shape_errors():
         GaussianConstraint(params=param1, observation=[obs1, obs3], uncertainty=[2, 3]).value()
 
 
-
 def test_gaussian_constraint_matrix():
     param1 = zfit.Parameter("Param1", 5)
     param2 = zfit.Parameter("Param2", 6)
@@ -72,7 +70,7 @@ def test_gaussian_constraint_matrix():
     constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
     constr_np = zfit.run(constr.value())
     assert constr_np == pytest.approx(trueval)
-    #assert constr_np == pytest.approx(3.989638)
+    # assert constr_np == pytest.approx(3.989638)
 
     assert constr.get_cache_deps() == set(params)
 

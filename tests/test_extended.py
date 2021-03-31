@@ -1,12 +1,10 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import numpy as np
 import pytest
 
 import zfit
-from zfit.core.sample import extract_extended_pdfs, extended_sampling
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.core.sample import extended_sampling, extract_extended_pdfs
 
 obs1 = zfit.Space('obs1', limits=(-3, 4))
 

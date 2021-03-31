@@ -1,12 +1,13 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2021 zfit
 import abc
+import collections
 import functools
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
 from inspect import signature
-from typing import Callable, Iterable, Union, Optional, Dict, Set
+from typing import Callable, Dict, Iterable, List, Optional, Set, Union
 
 import numpy as np
 import tensorflow as tf
@@ -15,25 +16,31 @@ import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
-from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
+from tensorflow.python.ops.resource_variable_ops import \
+    ResourceVariable as TFVariable
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
 from .. import z
-from ..util.container import convert_to_container
 from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies
-from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
+from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+
+znp = z.numpy
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
-from ..settings import ztypes, run
+from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
 from ..util.checks import NotSpecified
-from ..util.exception import LogicalUndefinedOperationError, NameAlreadyTakenError, BreakingAPIChangeError, \
-    WorkInProgressError, ParameterNotIndependentError, IllegalInGraphModeError, FunctionNotImplementedError
+from ..util.container import convert_to_container
+from ..util.deprecation import deprecated, deprecated_args
+from ..util.exception import (BreakingAPIChangeError, FunctionNotImplemented,
+                              IllegalInGraphModeError,
+                              LogicalUndefinedOperationError,
+                              NameAlreadyTakenError,
+                              ParameterNotIndependentError)
 from ..util.temporary import TemporarilySet
-
 
 # todo add type hints in this module for api
 
@@ -103,6 +110,7 @@ class OverloadableMixin(ZfitParameter):
     @classmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
         """Defer an operator overload to `ops.Tensor`.
+
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
           operator: string. The operator name.
@@ -190,6 +198,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     @staticmethod
     def _OverloadOperator(operator):  # pylint: disable=invalid-name
         """Defer an operator overload to `ops.Tensor`.
+
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
           operator: string. The operator name.
@@ -212,7 +221,6 @@ class WrappedVariable(metaclass=MetaBaseParameter):
 
 
 register_tensor_conversion(WrappedVariable, "WrappedVariable", overload_operators=True)
-
 
 
 class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParameter):
@@ -258,28 +266,28 @@ class ZfitParameterMixin(BaseNumeric):
     def __add__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(FunctionNotImplementedError):
+            with suppress(FunctionNotImplemented):
                 return operations.add(self, other)
         return super().__add__(other)
 
     def __radd__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(FunctionNotImplementedError):
+            with suppress(FunctionNotImplemented):
                 return operations.add(other, self)
         return super().__radd__(other)
 
     def __mul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(FunctionNotImplementedError):
+            with suppress(FunctionNotImplemented):
                 return operations.multiply(self, other)
         return super().__mul__(other)
 
     def __rmul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
             from . import operations
-            with suppress(FunctionNotImplementedError):
+            with suppress(FunctionNotImplemented):
                 return operations.multiply(other, self)
         return super().__rmul__(other)
 
@@ -300,35 +308,47 @@ class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
 
 
 class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter):
-    """Class for fit parameters, derived from TF Variable class.
-    """
+    """Class for fit parameters, derived from TF Variable class."""
     _independent = True
     _independent_params = []
     DEFAULT_STEP_SIZE = 0.001
 
+    @deprecated_args(None, "Use `lower` instead.", 'lower_limit')
+    @deprecated_args(None, "Use `upper` instead.", 'upper_limit')
     def __init__(self, name: str,
                  value: ztyping.NumericalScalarType,
-                 lower_limit: Optional[ztyping.NumericalScalarType] = None,
-                 upper_limit: Optional[ztyping.NumericalScalarType] = None,
+                 lower: Optional[ztyping.NumericalScalarType] = None,
+                 upper: Optional[ztyping.NumericalScalarType] = None,
                  step_size: Optional[ztyping.NumericalScalarType] = None,
                  floating: bool = True,
-                 dtype: tf.DType = ztypes.float, **kwargs):
+                 dtype: tf.DType = ztypes.float,
+                 # legacy
+                 lower_limit: Optional[ztyping.NumericalScalarType] = None,
+                 upper_limit: Optional[ztyping.NumericalScalarType] = None):
         """
 
         Args:
             name : name of the parameter
             value : starting value
-            lower_limit : lower limit
-            upper_limit : upper limit
+            lower : lower limit
+            upper : upper limit
             step_size : step size
         """
         self._independent_params.append(self)
+
+        # legacy start
+        if lower_limit is not None:
+            lower = lower_limit
+        if upper_limit is not None:
+            upper = upper_limit
+        # legacy end
+
         # TODO: sanitize input for TF2
         self._lower_limit_neg_inf = None
         self._upper_limit_neg_inf = None
-        if lower_limit is None:
+        if lower is None:
             self._lower_limit_neg_inf = tf.cast(-np.infty, dtype)
-        if upper_limit is None:
+        if upper is None:
             self._upper_limit_neg_inf = tf.cast(np.infty, dtype)
         value = tf.cast(value, dtype=ztypes.float)
 
@@ -337,12 +357,13 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
                                                             clip_value_max=self.upper)
 
         super().__init__(initial_value=value, dtype=dtype, name=name, constraint=constraint,
-                         params={}, **kwargs)
+                         params={})
 
-        self.lower = tf.cast(lower_limit, dtype=ztypes.float) if lower_limit is not None else lower_limit
-        self.upper = tf.cast(upper_limit, dtype=ztypes.float) if upper_limit is not None else upper_limit
+        self.lower = tf.cast(lower, dtype=ztypes.float) if lower is not None else lower
+        self.upper = tf.cast(upper, dtype=ztypes.float) if upper is not None else upper
         self.floating = floating
         self.step_size = step_size
+        self.set_value(value)  # to check that it is in the limits
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -350,7 +371,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
     @property
     def lower(self):
-        limit = self._lower_limit
+        limit = self._lower
         if limit is None:
             limit = self._lower_limit_neg_inf
         return limit
@@ -360,11 +381,11 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
     def lower(self, value):
         if value is None and self._lower_limit_neg_inf is None:
             self._lower_limit_neg_inf = tf.cast(-np.infty, dtype=ztypes.float)
-        self._lower_limit = value
+        self._lower = value
 
     @property
     def upper(self):
-        limit = self._upper_limit
+        limit = self._upper
         if limit is None:
             limit = self._upper_limit_neg_inf
         return limit
@@ -374,13 +395,13 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
     def upper(self, value):
         if value is None and self._upper_limit_neg_inf is None:
             self._upper_limit_neg_inf = tf.cast(np.infty, dtype=ztypes.float)
-        self._upper_limit = value
+        self._upper = value
 
     @property
     def has_limits(self) -> bool:
         """If the parameter has limits set or not."""
 
-        no_limits = self._lower_limit is None and self._upper_limit is None
+        no_limits = self._lower is None and self._upper is None
         return not no_limits
 
     @property
@@ -392,12 +413,16 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         Returns:
             Boolean `tf.Tensor` that tells whether the value is at the limits.
         """
+        return self._check_at_limit(self.value())
+
+    def _check_at_limit(self, value):
         if not self.has_limits:
             return tf.constant(False)
-
-        # Adding a slight tolerance to make sure we're not tricked by numerics
-        at_lower = z.unstable.less_equal(self.value(), self.lower + (tf.math.abs(self.lower * 1e-5)))
-        at_upper = z.unstable.greater_equal(self.value(), self.upper - (tf.math.abs(self.upper * 1e-5)))
+        # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
+        diff = znp.abs(self.upper - self.lower)  # catch if it is minus inf
+        tol = znp.minimum(diff * 1e-8, 1e-8)  # if one limit is inf we would get inf
+        at_lower = z.unstable.less_equal(value, self.lower + tol)
+        at_upper = z.unstable.greater_equal(value, self.upper - tol)
         return z.unstable.logical_or(at_lower, at_upper)
 
     def value(self):
@@ -406,6 +431,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             value = self.constraint(value)
         return value
 
+    @deprecated(None, 'Use `value` instead.')
     def read_value(self):
         value = super().read_value()
         if self.has_limits:
@@ -481,22 +507,50 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
         Args:
             value: The value the parameter will take on.
+        Raises:
+            ValueError: If the value is not inside the limits (in normal Python/eager mode)
+            InvalidArgumentError: If the value is not inside the limits (in JIT/traced/graph mode)
         """
-        super_assign = super().assign
 
         def getter():
             return self.value()
 
         def setter(value):
-            super_assign(value=value, read_value=False)
+            if self.has_limits:
+                message = (f"Value {value} over limits {self.lower} - {self.upper}. This is changed."
+                           f" In order to silence this and clip the value, you can use (with caution,"
+                           f" advanced) `Parameter.assign`")
+                if run.executing_eagerly():
+                    if self._check_at_limit(value):
+                        raise ValueError(message)
+                else:
+                    tf.debugging.assert_greater(tf.cast(value, tf.float64),
+                                                tf.cast(self.lower, tf.float64),
+                                                message=message)
+                    tf.debugging.assert_less(tf.cast(value, tf.float64),
+                                             tf.cast(self.upper, tf.float64),
+                                             message=message)
+            #     tf.debugging.Assert(self._check_at_limit(value), [value])
+            self.assign(value=value, read_value=False)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
+
+    def assign(self, value, use_locking=None, name=None, read_value=False):
+        """Set the :py:class:`~zfit.Parameter` to `value` without any checks.
+
+        Compared to `set_value`, this method cannot be used with a context manager and won't raise an
+        error
+
+        Args:
+            value: The value the parameter will take on.
+        """
+
+        return super().assign(value=value, use_locking=use_locking, name=name, read_value=read_value)
 
     def randomize(self, minval: Optional[ztyping.NumericalScalarType] = None,
                   maxval: Optional[ztyping.NumericalScalarType] = None,
                   sampler: Callable = np.random.uniform) -> tf.Tensor:
         """Update the parameter with a randomised value between minval and maxval and return it.
-
 
         Args:
             minval: The lower bound of the sampler. If not given, `lower_limit` is used.
@@ -574,7 +628,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
                               "Use preferably `ConstantParameter` instead", RuntimeWarning, stacklevel=2)
             else:  # this is the legacy case where the function didn't take arguments
                 warnings.warn("The `value_fn` for composed parameters should take the same number"
-                              " of arguments as `params` are given.", DeprecationWarning, stacklevel=2)
+                              " of arguments as `params` are given.", DeprecationWarning, stacklevel=3)
                 legacy_value_fn = value_fn
 
                 def value_fn(*_):
@@ -619,7 +673,10 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
 
 class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
-    """Constant parameter. Value cannot change."""
+    """Constant parameter.
+
+    Value cannot change.
+    """
 
     def __init__(self, name, value, dtype=ztypes.float):
         """
@@ -712,14 +769,14 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
 
     def __repr__(self):
-        if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
+        if tf.executing_eagerly():
             value = f'{self.numpy():.4g}'
         else:
             value = "graph-node"
         return f"<zfit.{self.__class__.__name__} '{self.name}' params={self.params} value={value}>"
 
 
-class ComplexParameter(ComposedParameter):
+class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as input?
     def __init__(self, name, value_fn, params, dtype=ztypes.complex):
         """Create a complex parameter.
 
@@ -779,7 +836,7 @@ class ComplexParameter(ComposedParameter):
     def conj(self):
         """Returns a complex conjugated copy of the complex parameter."""
         if self._conj is None:
-            self._conj = ComplexParameter(name='{}_conj'.format(self.name), value_fn=lambda: tf.math.conj(self),
+            self._conj = ComplexParameter(name=f'{self.name}_conj', value_fn=lambda: tf.math.conj(self),
                                           params=self.get_cache_deps(),
                                           dtype=self.dtype)
         return self._conj
@@ -830,22 +887,75 @@ def get_auto_number():
     return auto_number
 
 
-def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None) -> "ZfitParameter":
+def convert_to_parameters(value,
+                          name: Optional[Union[str, List[str]]] = None,
+                          prefer_constant: bool = None,
+                          lower=None,
+                          upper=None,
+                          step_size=None):
+    if prefer_constant is None:
+        prefer_constant = True
+    if isinstance(value, collections.Mapping):
+        return convert_to_parameters(**value, prefer_constant=False)
+    value = convert_to_container(value)
+    is_param_already = [isinstance(val, ZfitIndependentParameter) for val in value]
+    if all(is_param_already):
+        return value
+    elif any(is_param_already):
+        raise ValueError(f'value has to be either ZfitParameters or values, not mixed (currently).'
+                         f' Is {value}.')
+    params_dict = {
+        'value': value,
+        'name': name,
+        'lower': lower,
+        'upper': upper,
+        'step_size': step_size,
+    }
+    params_dict = {key: convert_to_container(val)
+                   for key, val in params_dict.items() if val is not None}
+    lengths = {len(v) for v in params_dict.values()}
+    if len(lengths) != 1:
+        raise ValueError(f"Inconsistent length in values when converting the parameters: {params_dict}")
+
+    params = []
+    for i in range(len(params_dict['value'])):
+        pdict = {k: params_dict[k][i] for k in params_dict}
+        params.append(convert_to_parameter(**pdict, prefer_constant=prefer_constant))
+    return params
+
+
+def convert_to_parameter(value,
+                         name: Optional[str] = None,
+                         prefer_constant: bool = True,
+                         params=None,
+                         lower=None,
+                         upper=None,
+                         step_size=None,
+                         # legacy
+                         dependents=None,
+                         ) -> ZfitParameter:
     """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
     Args:
         value:
         name:
         prefer_constant: If True, create a ConstantParameter instead of a Parameter, if possible.
+        params:
+        lower:
+        upper:
+        step_size:
     """
-    is_python = False
+    # legacy start
+    if dependents is not None:
+        params = dependents
+    # legacy end
     if name is not None:
         name = str(name)
 
     if callable(value):
-        if dependents is None:
-            raise ValueError("If the value is a callable, the dependents have to be specified as an empty list/tuple")
-        return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", value_fn=value, params=dependents)
+        if params is None:
+            raise ValueError("If the value is a callable, the params have to be specified as an empty list/tuple")
+        return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", value_fn=value, params=params)
 
     if isinstance(value, ZfitParameter):  # TODO(Mayou36): autoconvert variable. TF 2.0?
         return value
@@ -854,7 +964,6 @@ def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None
 
     # convert to Tensor
     if not isinstance(value, tf.Tensor):
-        is_python = True
         if isinstance(value, complex):
             value = z.to_complex(value)
         else:
@@ -867,8 +976,14 @@ def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None
         if name is None:
             name = "FIXED_complex_autoparam_" + str(get_auto_number())
         if prefer_constant:
-            raise WorkInProgressError("Constant complex param not here yet, complex Mixin?")
-        value = ComplexParameter(name, value_fn=value, floating=not prefer_constant)
+            complex_params = (ConstantParameter(name + '_REALPART', value=znp.real(value)),
+                              ConstantParameter(name + '_IMAGPART', value=znp.imag(value)))
+        else:
+            complex_params = (Parameter(name + '_REALPART', value=znp.real(value)),
+                              Parameter(name + '_IMAGPART', value=znp.imag(value)))
+        value = ComplexParameter.from_cartesian(name,
+                                                real=complex_params[0],
+                                                imag=complex_params[1])
 
     else:
         if prefer_constant:
@@ -878,14 +993,24 @@ def convert_to_parameter(value, name=None, prefer_constant=True, dependents=None
 
         else:
             name = "autoparam_" + str(get_auto_number()) if name is None else name
-            value = Parameter(name=name, value=value)
+            value = Parameter(name=name,
+                              value=value,
+                              lower=lower, upper=upper, step_size=step_size)
 
     return value
 
 
+def assign_values(params: Union[Parameter, Iterable[Parameter]],
+                  values: Union[ztyping.NumericalScalarType,
+                                Iterable[ztyping.NumericalScalarType]],
+                  use_locking=False):
+    params, values = _check_convert_param_values(params, values)
+    for i, param in enumerate(params):
+        param.assign(values[i], read_value=False, use_locking=use_locking)
+
+
 def set_values(params: Union[Parameter, Iterable[Parameter]],
-               values: Union[ztyping.NumericalScalarType,
-                             Iterable[ztyping.NumericalScalarType], ZfitResult]):
+               values: Union[ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType], ZfitResult]):
     """Set the values (using a context manager or not) of multiple parameters.
 
     Args:
@@ -893,8 +1018,23 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
         values: List-like object that supports indexing.
 
     Returns:
-
+        An object for a context manager (but can also be used without), can be ignored.
+    Raises:
+        ValueError: If the value is not between the limits of the parameter
     """
+    params, values = _check_convert_param_values(params, values)
+
+    def setter(values):
+        for i, param in enumerate(params):
+            param.set_value(values[i])
+
+    def getter():
+        return [param.value() for param in params]
+
+    return TemporarilySet(values, setter=setter, getter=getter)
+
+
+def _check_convert_param_values(params, values):
     params = convert_to_container(params)
     if isinstance(values, ZfitResult):
         result = values
@@ -911,12 +1051,4 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
     if not all(param.independent for param in params):
         raise ParameterNotIndependentError(f'trying to set value of parameters that are not independent '
                                            f'{[param for param in params if not param.independent]}')
-
-    def setter(values):
-        for i, param in enumerate(params):
-            param.set_value(values[i])
-
-    def getter():
-        return [param.read_value() for param in params]
-
-    return TemporarilySet(values, setter=setter, getter=getter)
+    return params, values

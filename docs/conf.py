@@ -1,13 +1,16 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
+#  Copyright (c) 2021 zfit
+
 #
-#  Copyright (c) 2020 zfit
 #
 # zfit documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
 
 import sys
 from pathlib import Path
+
+import yaml
 
 import zfit
 
@@ -28,6 +31,7 @@ extensions = [
     'sphinx_autodoc_typehints',
     # sphinx_autodoc_typehints must be imported after napoleon to properly work.
     # See https://github.com/agronholm/sphinx-autodoc-typehints/issues/15
+    'jupyter_sphinx',
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
@@ -36,6 +40,7 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.todo',
     'sphinx_copybutton',
+    'seed_intersphinx_mapping',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -49,7 +54,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'zfit'
+project = 'zfit'
 copyright = zfit.__copyright__
 author = zfit.__author__
 
@@ -58,7 +63,7 @@ author = zfit.__author__
 # the built documents.
 #
 # The short X.Y version.
-version = zfit.__version__.split(('+'))[0]
+version = zfit.__version__.split('+')[0]
 # The full version, including alpha/beta/rc tags.
 release = zfit.__version__
 
@@ -80,8 +85,37 @@ pygments_style = 'sphinx'
 # Automatically add substitutions to all RST files.
 with open('subst_types.txt') as subst_types:
     rst_epilog = subst_types.read()
+
+# add whitespaces to the internal commands. Maybe move to preprocessing?
+rst_epilog += f"""
+.. |wzw| unicode:: U+200B
+   :trim:
+
+"""
+# ..  replace:: |wzw|
+#
+# .. |@docend| replace:: |wzw|
+# """
+with open(str(project_dir) + '/utils/api/argdocs.yaml') as replfile:
+    replacements = yaml.load(replfile, Loader=yaml.Loader)
+for replacement_key in replacements:
+    rst_epilog += f'''
+.. |@doc:{replacement_key}| replace:: |wzw|
+
+.. |@docend:{replacement_key}| replace:: |wzw|
+'''
 with open('hyperlinks.txt') as hyperlinks:
     rst_epilog += hyperlinks.read()
+
+# makes the jupyter extension executable
+jupyter_sphinx_thebelab_config = {
+    'requestKernel': True,
+    'binderOptions': {
+        'repo': "zfit/zfit",
+        'binderUrl': "https://mybinder.org",
+        'repoProvider': "github",
+    },
+}
 
 html_favicon = "images/zfit-favicon.png"
 
@@ -103,7 +137,7 @@ napoleon_use_rtype = True
 # -- sphinx_autodoc_typehints settings ---------------------------------------------
 
 # if True, set typing.TYPE_CHECKING to True to enable “expensive” typing imports
-set_type_checking_flag = False
+set_type_checking_flag = True
 # if True, class names are always fully qualified (e.g. module.for.Class). If False, just the class
 # name displays (e.g. Class)
 typehints_fully_qualified = False
@@ -158,18 +192,18 @@ html_css_files = [
 html_logo = "images/zfit-logo-light_400x168.png"
 
 html_theme_options = {
-    "github_url"          : "https://github.com/zfit/zfit",
+    "github_url": "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
-    "search_bar_text"     : "Search zfit...",
+    "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
-    "search_bar_position" : "sidebar",
+    "search_bar_position": "sidebar",
 }
 
 html_context = {
-    "github_user"   : "zfit",
-    "github_repo"   : "zfit",
+    "github_user": "zfit",
+    "github_repo": "zfit",
     "github_version": "develop",
-    "doc_path"      : "docs",
+    "doc_path": "docs",
 }
 
 # -- Options for HTMLHelp output ---------------------------------------
@@ -202,8 +236,8 @@ latex_elements = {
 # [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'zfit.tex',
-     u'zfit Documentation',
-     u'zfit', 'manual'),
+     'zfit Documentation',
+     'zfit', 'manual'),
 ]
 
 # -- Options for manual page output ------------------------------------
@@ -212,7 +246,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, 'zfit',
-     u'zfit Documentation',
+     'zfit Documentation',
      [author], 1)
 ]
 
@@ -223,7 +257,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'zfit',
-     u'zfit Documentation',
+     'zfit Documentation',
      author,
      'zfit',
      'One line description of project.',
@@ -231,4 +265,15 @@ texinfo_documents = [
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    # 'numdifftools': ('https://numdifftools.readthedocs.io/en/latest/index.html', None),
+    "tensorflow": (
+        "https://www.tensorflow.org/api_docs/python",
+        "https://github.com/GPflow/tensorflow-intersphinx/raw/master/tf2_py_objects.inv"
+    ),
+    "tensorflow_probability": (
+        "https://www.tensorflow.org/probability/api_docs/python",
+        "https://github.com/GPflow/tensorflow-intersphinx/raw/master/tfp_py_objects.inv"
+    ),
+    'uproot': ('https://uproot.readthedocs.io/en/latest/', None),
+}

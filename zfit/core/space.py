@@ -9,28 +9,38 @@ import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from contextlib import suppress
-from typing import Callable, Optional, Tuple, Union, Iterable, Mapping
+from typing import Callable, Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.util.deprecation import deprecated
 
 import zfit
-from .baseobject import BaseObject
-from .coordinates import Coordinates, _convert_obs_to_str, convert_to_axes, convert_to_obs_str
-from .dimension import common_obs, common_axes, limits_overlap
-from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
+
 from .. import z
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import (AxesNotSpecifiedError, IntentionAmbiguousError, LimitsUnderdefinedError,
-                              MultipleLimitsNotImplementedError, NormRangeNotImplementedError, ObsNotSpecifiedError,
-                              OverdefinedError, BreakingAPIChangeError, LimitsIncompatibleError, SpaceIncompatibleError,
-                              ObsIncompatibleError, AxesIncompatibleError, ShapeIncompatibleError,
-                              IllegalInGraphModeError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError,
-                              InvalidLimitSubspaceError, CannotConvertToNumpyError, LimitsNotSpecifiedError,
-                              NumberOfEventsIncompatibleError)
+from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
+                              BreakingAPIChangeError,
+                              CannotConvertToNumpyError,
+                              CoordinatesIncompatibleError,
+                              CoordinatesUnderdefinedError,
+                              IllegalInGraphModeError, IntentionAmbiguousError,
+                              InvalidLimitSubspaceError,
+                              LimitsIncompatibleError, LimitsNotSpecifiedError,
+                              LimitsUnderdefinedError,
+                              MultipleLimitsNotImplemented,
+                              NormRangeNotImplemented,
+                              NumberOfEventsIncompatibleError,
+                              ObsIncompatibleError, ObsNotSpecifiedError,
+                              OverdefinedError, ShapeIncompatibleError,
+                              SpaceIncompatibleError)
+from .baseobject import BaseObject
+from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
+                          convert_to_obs_str)
+from .dimension import common_axes, common_obs, limits_overlap
+from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
 
 
 class LimitRangeDefinition:
@@ -210,7 +220,6 @@ class Limit(ZfitLimit):
                 such as only a tuple/list of values that will be interpreted as the last dimension. They should cover an
                 area that includes `limit_fn` fully.
             n_obs: dimensionality of the Limits, the last dimension.
-
         """
         super().__init__()
         limit_fn, rect_limits, n_obs, is_rect, sublimits = self._check_convert_input_limits(limit_fn=limit_fn,
@@ -331,7 +340,6 @@ class Limit(ZfitLimit):
             limit:
 
         Returns:
-
         """
         if is_range_definition(limit):  # as the above ANY
             dtype = object
@@ -421,7 +429,10 @@ class Limit(ZfitLimit):
         return self.rect_limits[1]
 
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
-        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
+        """Calculate the total rectangular area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         return calculate_rect_area(rect_limits=self._rect_limits_tf)
 
     def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturnNoData:
@@ -511,7 +522,6 @@ class Limit(ZfitLimit):
         """If the limits have never explicitly been set to a limit or to False.
 
         Returns:
-
         """
         return self._rect_limits is not None
 
@@ -520,7 +530,6 @@ class Limit(ZfitLimit):
         """If the limits have been set to False, so the object on purpose does not contain limits.
 
         Returns:
-
         """
         return self._rect_limits is False
 
@@ -529,7 +538,6 @@ class Limit(ZfitLimit):
         """If there are limits set and they are not false.
 
         Returns:
-
         """
         return not (self.limits_are_false or (not self.limits_are_set))
 
@@ -612,7 +620,6 @@ class Limit(ZfitLimit):
             Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
-
         """
         if not isinstance(other, ZfitLimit):
             return False
@@ -723,7 +730,7 @@ def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
             lower, upper = limit1.rect_limits
             lower_other, upper_other = limit2.rect_limits
 
-    # TODO add tolerances
+    # TODO add tols
     lower_limits_equal = z.unstable.reduce_all(z.unstable.allclose_anyaware(lower, lower_other))
     upper_limits_equal = z.unstable.reduce_all(z.unstable.allclose_anyaware(upper, upper_other))
     rect_limits_equal = z.unstable.logical_and(lower_limits_equal, upper_limits_equal)
@@ -804,7 +811,6 @@ class BaseSpace(ZfitSpace, BaseObject):
         """The observables ("axes with str")the space is defined in.
 
         Returns:
-
         """
         return self.coords.obs
 
@@ -813,7 +819,6 @@ class BaseSpace(ZfitSpace, BaseObject):
         """The axes ("obs with int") the space is defined in.
 
         Returns:
-
         """
         return self.coords.axes
 
@@ -868,7 +873,6 @@ class BaseSpace(ZfitSpace, BaseObject):
             obs:
 
         Returns:
-
         """
         if obs is None:
             if allow_none:
@@ -882,7 +886,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             obs = convert_to_container(obs, container=tuple)
             obs_not_str = tuple(o for o in obs if not isinstance(o, str))
             if obs_not_str:
-                raise ValueError("The following observables are not strings: {}".format(obs_not_str))
+                raise ValueError(f"The following observables are not strings: {obs_not_str}")
         return obs
 
     def _check_coords_allowed(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
@@ -1124,7 +1128,6 @@ class Space(BaseSpace):
         Returns:
             Limits dictionary containing the observables and/or the axes as a key matching
                 `ZfitLimits` objects.
-
         """
         limits_dict = defaultdict(dict)
         input_limits = limit
@@ -1236,7 +1239,6 @@ class Space(BaseSpace):
         """Return the limits.
 
         Returns:
-
         """
         return self.rect_limits
 
@@ -1267,7 +1269,6 @@ class Space(BaseSpace):
         """Return the limits as `tf.Tensor`.
 
         Returns:
-
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(f"Limits are False or not set, cannot return the rectangular limits.")
@@ -1347,7 +1348,10 @@ class Space(BaseSpace):
         return lower_ordered, upper_ordered
 
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
-        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
+        """Calculate the total rectangular area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         return calculate_rect_area(rect_limits=self._rect_limits_tf)
 
     @property
@@ -1394,7 +1398,6 @@ class Space(BaseSpace):
         """Whether there are limits set and they are not false.
 
         Returns:
-
         """
         return self.limits_are_set and not self.limits_are_false
 
@@ -1456,7 +1459,6 @@ class Space(BaseSpace):
         """Return the lower limits.
 
         Returns:
-
         """
         return self.rect_lower
         # raise BreakingAPIChangeError("Use rect_lower")
@@ -1469,7 +1471,6 @@ class Space(BaseSpace):
         """Return the upper limits.
 
         Returns:
-
         """
         return self.rect_upper
 
@@ -1803,7 +1804,10 @@ class Space(BaseSpace):
 
     @warn_or_fail_not_rect
     def area(self) -> float:
-        """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
+        """Return the total area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         return self.rect_area()
 
     def copy(self, **overwrite_kwargs) -> "zfit.Space":
@@ -1857,9 +1861,9 @@ class Space(BaseSpace):
             RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
         """
         if self.n_obs > 1:
-            raise RuntimeError("Cannot call `limit1d, as `Space` has more than one observables: {}".format(self.n_obs))
+            raise RuntimeError(f"Cannot call `limit1d, as `Space` has more than one observables: {self.n_obs}")
         if self.n_limits > 1:
-            raise RuntimeError("Cannot call `limit1d, as `Space` has several limits: {}".format(self.n_limits))
+            raise RuntimeError(f"Cannot call `limit1d, as `Space` has several limits: {self.n_limits}")
         lower, upper = self.rect_limits
         return lower[0][0], upper[0][0]
 
@@ -2167,7 +2171,6 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
         comparator:
 
     Returns:
-
     """
     axes_not_none = space1.axes is not None and space2.axes is not None
     obs_not_none = space1.obs is not None and space2.obs is not None
@@ -2371,7 +2374,10 @@ class MultiSpace(BaseSpace):
         self._raise_limits_not_implemented()
 
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
-        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
+        """Calculate the total rectangular area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         return z.reduce_sum([space.rect_area() for space in self], axis=0)
 
     @property
@@ -2408,11 +2414,10 @@ class MultiSpace(BaseSpace):
         """Whether there are limits set and they are not false.
 
         Returns:
-
         """
         try:
             return self.limits_are_set and not self.limits_are_false
-        except MultipleLimitsNotImplementedError:
+        except MultipleLimitsNotImplemented:
             return True
 
     @property
@@ -2510,35 +2515,35 @@ class MultiSpace(BaseSpace):
                   allow_subset: bool = True) -> "MultiSpace":
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
-            The behavior is as follows:
+        The behavior is as follows:
 
-             * axes are already set:
-               * input axes are None: the axes will be dropped. If no observables are set, an error
-                 will be raised, as no coordinates will be assigned to this instance anymore.
-               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
-                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.
-                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
-                 be used to retrieve a subspace of limits, data etc.
-                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
-                 if the axes not contained in the instances axes were not present in the input axes.
-             * axes are not set:
-               * if the input axes are None, the same object is returned.
-               * if the input axes are not None, they will be set as-is and now correspond to the already
-                 existing obs in the object.
+         * axes are already set:
+           * input axes are None: the axes will be dropped. If no observables are set, an error
+             will be raised, as no coordinates will be assigned to this instance anymore.
+           * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
+             objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+             If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
+             be used to retrieve a subspace of limits, data etc.
+             If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
+             if the axes not contained in the instances axes were not present in the input axes.
+         * axes are not set:
+           * if the input axes are None, the same object is returned.
+           * if the input axes are not None, they will be set as-is and now correspond to the already
+             existing obs in the object.
 
-            Args:
-                axes: Axes to sort/associate this instance with
-                allow_superset: if False and a strict superset of the own axeservables is given, an error
-                is raised.
-                allow_subset:if False and a strict subset of the own axeservables is given, an error
-                is raised.
+        Args:
+            axes: Axes to sort/associate this instance with
+            allow_superset: if False and a strict superset of the own axeservables is given, an error
+            is raised.
+            allow_subset:if False and a strict subset of the own axeservables is given, an error
+            is raised.
 
-            Returns:
-                A copy of the object with the new ordering/axes
-            Raises:
-                CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
-                AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
-                    allow_allow_subset is False
+        Returns:
+            A copy of the object with the new ordering/axes
+        Raises:
+            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
         spaces = [space.with_axes(axes, allow_superset=allow_superset, allow_subset=allow_subset)
                   for space in self.spaces]
@@ -2642,7 +2647,7 @@ class MultiSpace(BaseSpace):
         return new_space
 
     def _raise_limits_not_implemented(self):
-        raise MultipleLimitsNotImplementedError(
+        raise MultipleLimitsNotImplemented(
             "Limits/lower/upper not implemented for MultiSpace. This error is either caught"
             " automatically as part of the codes logic or the MultiLimit case should"
             " be considered. To do that, simply iterate through the MultiSpace, which returns"
@@ -2782,7 +2787,7 @@ def no_norm_range(func):
             norm_range_is_arg = False
             kwargs.pop('norm_range', None)  # remove if in signature (= norm_range_index not None)
         if norm_range_not_false or norm_range_is_arg:
-            raise NormRangeNotImplementedError()
+            raise NormRangeNotImplemented()
         else:
             return func(*args, **kwargs)
 
@@ -2807,7 +2812,7 @@ def no_multiple_limits(func):
             limits = kwargs['limits']
 
         if limits.n_limits > 1:
-            raise MultipleLimitsNotImplementedError
+            raise MultipleLimitsNotImplemented
         else:
             return func(*args, **kwargs)
 
@@ -2874,7 +2879,6 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
         spaces:
 
     Returns:
-
     """
     try:
         new_space = combine_spaces(*spaces)

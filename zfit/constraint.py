@@ -1,10 +1,9 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2021 zfit
 
-from .util import ztyping
-from .core.constraint import SimpleConstraint, GaussianConstraint
 import tensorflow as tf
 
-
+from .core.constraint import GaussianConstraint, SimpleConstraint
+from .util import ztyping
 
 __all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint"]
 

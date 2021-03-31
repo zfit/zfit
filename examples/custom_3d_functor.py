@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 zfit
+#  Copyright (c) 2021 zfit
 
 # Functors are PDfs and Functions that depend on other PDFs or Functions. They can be used to define
 # in a custom way combinations of PDFs or wrapping a single PDF.
@@ -6,13 +6,14 @@
 # as the functor SumPDF([pdf1, pdf2], fracs=...). For advanced uses, you
 # can define your own functor as demonstrated below.
 
-import zfit
 import numpy as np
+
+import zfit
 
 
 class CombinePolynomials(zfit.pdf.BaseFunctor):
     """Example of a functor pdf that adds three polynomials.
-    
+
     DEMONSTRATION PURPOSE ONLY, DO **NOT** USE IN REAL CASE.
     """
 

@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
 """Top-level package for zfit."""
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
+import inspect
+import sys
 import warnings
 
 from pkg_resources import get_distribution
@@ -12,38 +13,45 @@ __license__ = "BSD 3-Clause"
 __copyright__ = "Copyright 2018, zfit"
 __status__ = "Beta"
 
-__author__ = "Jonas Eschle"
+__author__ = ("Jonas Eschle <Jonas.Eschle@cern.ch>,"
+              "Albert Puig <apuignav@gmail.com>, "
+              "Rafael Silva Coutinho <rsilvaco@cern.ch>, "
+              "Matthieu Marinangeli <matthieu.marinangeli@cern.ch>")
 __maintainer__ = "zfit"
 __email__ = 'zfit@physik.uzh.ch'
-__credits__ = ["Jonas Eschle <Jonas.Eschle@cern.ch>",
-               "Albert Puig <apuignav@gmail.com",
-               "Rafael Silva Coutinho <rafael.silva.coutinho@cern.ch>", ]
+__credits__ = "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade"
 
-__all__ = ["ztf", "z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension", "exception",
+__all__ = ["z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension", "exception",
            "sample",
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
 
-
 #  Copyright (c) 2019 zfit
 
-# msg = inspect.cleandoc(
-#     """zfit has moved from TensorFlow 1.x to 2.x, which has some profound
-#     implications behind the scenes of zfit and minor ones on the user side.
-#     Be sure to read the upgrade guide (can be found in the README at the top)
-#     to have a seamless transition. If this is currently not doable you can
-#     downgrade zfit to <0.4.
-#     Feel free to contact us in case of problems in order to fix them ASAP.
-#     """
-# )
-# warnings.warn(msg, stacklevel=2)
+if sys.version_info < (3, 7):
+    msg = inspect.cleandoc(
+        """zfit is being actively developed and keeps up with the newest versions of other packages.
+        This includes Python itself. Therefore, Python 3.6 will be dropped in the near future (beginning of May 2021)
+        and 3.9 will be added to the supported versions.
+
+        Feel free to contact us in case of problems to upgrade to a more recent version of Python.
+        """
+    )
+    warnings.warn(msg, FutureWarning, stacklevel=2)
 
 
 def _maybe_disable_warnings():
     import os
-    if not os.environ.get("ZFIT_DISABLE_TF_WARNINGS"):
+    true = "IS_TRUE"
+    if not os.environ.get("ZFIT_DISABLE_TF_WARNINGS", true):
         return
+    elif true:
+        warnings.warn("All TensorFlow warnings are by default suppressed by zfit."
+                      " In order to not suppress them,"
+                      " set the environment variable ZFIT_DISABLE_TF_WARNINGS to 0."
+                      " In order to suppress the TensorFlow warnings AND this warning,"
+                      " set ZFIT_DISABLE_TF_WARNINGS manually to 1.")
     os.environ["KMP_AFFINITY"] = "noverbose"
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -60,16 +68,13 @@ if int(tf.__version__[0]) < 2:
     raise RuntimeError(f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
                        f" only with TF >= 2")
 
-from . import z
-from . import z as ztf  # legacy
-from .settings import ztypes
-
-from . import constraint, pdf, minimize, loss, core, data, func, param, dimension, exception, sample
-from .core.parameter import Parameter, ComposedParameter, ComplexParameter, convert_to_parameter
-from .core.space import Space, convert_to_space, supports
+from . import (constraint, core, data, dimension, exception, func, loss,
+               minimize, param, pdf, sample, z)
 from .core.data import Data
-
-from .settings import run
+from .core.parameter import (ComplexParameter, ComposedParameter, Parameter,
+                             convert_to_parameter)
+from .core.space import Space, convert_to_space, supports
+from .settings import run, ztypes
 from .util.graph import jit as _jit
 
 
@@ -82,7 +87,7 @@ def _maybe_disable_jit():
         warnings.warn("Depreceated to use `ZFIT_MODE_GRAPH`, use `ZFIT_GRAPH_MODE` instead.",
                       DeprecationWarning)
 
-    if not arg1 is None and arg2 is None:
+    if arg1 is not None and arg2 is None:
         warnings.warn("Depreceated to use `ZFIT_EXPERIMENTAL_DO_JIT`, use `ZFIT_GRAPH_MODE` instead.",
                       DeprecationWarning)
     arg = arg2 if arg1 is None else arg1

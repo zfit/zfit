@@ -1,15 +1,20 @@
-#  Copyright (c) 2020 zfit
-from typing import Optional, Tuple, Union, List
+#  Copyright (c) 2021 zfit
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 
 from zfit import z
-from .interfaces import ZfitOrderableDimensional, ZfitSpace, ZfitData, ZfitDimensional
+
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import OverdefinedError, CoordinatesUnderdefinedError, CoordinatesIncompatibleError, \
-    AxesIncompatibleError, ObsIncompatibleError, WorkInProgressError, IntentionAmbiguousError
+from ..util.exception import (AxesIncompatibleError,
+                              CoordinatesIncompatibleError,
+                              CoordinatesUnderdefinedError,
+                              IntentionAmbiguousError, ObsIncompatibleError,
+                              OverdefinedError, WorkInProgressError)
+from .interfaces import (ZfitData, ZfitDimensional, ZfitOrderableDimensional,
+                         ZfitSpace)
 
 
 class Coordinates(ZfitOrderableDimensional):
@@ -60,7 +65,10 @@ class Coordinates(ZfitOrderableDimensional):
 
     @property
     def n_obs(self) -> int:
-        """Return the number of observables, the dimensionality. Corresponds to the last dimension."""
+        """Return the number of observables, the dimensionality.
+
+        Corresponds to the last dimension.
+        """
         return self._n_obs
 
     def with_obs(self,
@@ -396,11 +404,11 @@ def _reorder_indices(old: Union[List, Tuple], new: Union[List, Tuple]) -> Tuple[
 
 
 def convert_to_axes(axes, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if axes is None.
+    """Convert `obs` to the list of obs, also if it is a
+    :py:class:`~ZfitSpace`. Return None if axes is None.
 
     Raises
         TypeError: if the axes are not int
-
     """
     if axes is None:
         return axes
@@ -419,7 +427,8 @@ def convert_to_axes(axes, container=tuple):
 
 
 def convert_to_obs_str(obs, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if obs is None.
+    """Convert `obs` to the list of obs, also if it is a
+    :py:class:`~ZfitSpace`. Return None if obs is None.
 
     Raises:
         TypeError: if the observable is not a string

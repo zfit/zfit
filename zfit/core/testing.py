@@ -1,36 +1,17 @@
-"""
-Module for testing of the zfit components. Contains a singleton instance to register new PDFs and let
-them be tested.
-"""
-#  Copyright (c) 2020 zfit
+"""Module for testing of the zfit components.
 
+Contains a singleton instance to register new PDFs and let them be tested.
+"""
+#  Copyright (c) 2021 zfit
 from collections import OrderedDict
-from typing import Callable, Tuple, List, Union, Iterable
+from typing import Callable, Iterable, List, Tuple, Union
 
 import scipy.stats
 
-from .interfaces import ZfitPDF
-from .parameter import ZfitParameterMixin
-from ..util.cache import clear_graph_cache
 from ..util.container import convert_to_container
+from .interfaces import ZfitPDF
 
-__all__ = ["tester", "setup_function", "teardown_function"]
-
-old_graph_mode = None
-
-
-def setup_function():
-    global old_graph_mode
-    import zfit
-    old_graph_mode = zfit.run.get_graph_mode()
-
-
-def teardown_function():
-    ZfitParameterMixin._existing_params.clear()
-
-    clear_graph_cache()
-    import zfit
-    zfit.run.set_graph_mode(old_graph_mode)
+__all__ = ["tester"]
 
 
 class BaseTester:

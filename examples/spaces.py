@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import zfit
 
@@ -24,3 +24,21 @@ space4 = space1 * space2
 
 assert space4.obs == ('obs1', 'obs2', 'obs3', 'obs4')
 assert space4.n_obs == 4
+
+# retreiving the limits
+# for a one dimensional space, we can use `limit1d` as a shortcut
+lower, upper = simple_limit1.limit1d
+
+# However, for a higher dimensional space, this won't work. We can use `space.limits`, which is equivalent to
+# (space.lower, space.upper).
+lower2d, upper2d = space1.limits
+
+# these have shape (nevents, nobs), whereas nevents is usually just 1
+assert lower2d.shape == (1, space1.n_obs)
+
+# order to retrieve now the same limits as from the first space, we can use array notation [:, i]
+lower1_from2d = lower2d[:, 0]
+upper1_from2d = upper2d[:, 0]
+
+assert lower1_from2d == first_limit_lower[0]
+assert upper1_from2d == first_limit_upper[0]

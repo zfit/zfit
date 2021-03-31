@@ -8,4 +8,3 @@ Project
 
     contributing
     authors
-

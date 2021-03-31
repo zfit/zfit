@@ -1,3 +1,5 @@
 #  Copyright (c) 2021 zfit
 
-from .legacy import deprecated, deprecated_args  # noqa
+from tensorflow.python.util.deprecation import deprecated, deprecated_args
+
+__all__ = "deprecated", "deprecated_args"  # noqa

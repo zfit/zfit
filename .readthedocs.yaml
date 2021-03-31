@@ -13,7 +13,7 @@ formats: []
 python:
     version: 3.7
     install:
-        -   requirements: requirements_dev.txt
-        -   requirements: requirements.txt
-        -   method: pip
-            path: .
+        - requirements: requirements_dev.txt
+        - requirements: requirements.txt
+        - method: pip
+          path: .
