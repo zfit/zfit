@@ -25,10 +25,10 @@ tests_require = [
     'matplotlib'  # for plots in examples
 ]
 setup(
-    author=("Jonas Eschle <Jonas.Eschle@cern.ch>,"
-            " Albert Puig <albert.puig.navarro@gmail.com>,"
-            "Rafael Silva Coutinho <rsilvaco@cern.ch>,"
-            "Matthieu Marinangeli <matthieu.marinangeli@cern.ch>"),
+    author=("Jonas Eschle, "
+            "Albert Puig, "
+            "Rafael Silva Coutinho, "
+            "Matthieu Marinangeli"),
     install_requires=requirements,
     tests_require=tests_require,
     extras_require={
