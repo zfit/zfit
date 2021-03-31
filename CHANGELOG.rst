@@ -12,6 +12,8 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- remove badly performing Scipy minimizers :class:`~zfit.minimize.ScipyTrustKrylovV1` and
+  :class:`~zfit.minimize.ScipyTrustNCGV1`
 
 Depreceations
 -------------
