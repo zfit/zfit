@@ -5,13 +5,14 @@ from typing import Any
 
 import tensorflow as tf
 
+import zfit.z.numpy as znp
 from ..settings import ztypes
 from ..util.deprecation import deprecated
 from .tools import _auto_upcast
 
 
-def exp(x, name=None):
-    return _auto_upcast(tf.exp(x=x, name=name))
+def exp(x):
+    return _auto_upcast(znp.exp(x=x))
 
 
 @functools.wraps(tf.convert_to_tensor)

@@ -7,12 +7,15 @@ Defining your own pdf
 ---------------------
 
 A simple example:
+>>> import zfit
+>>> import zfit.z.numpy as znp
+>>>
 >>> class MyGauss(BasePDF):
 >>>     def __init__(self, mean, stddev, name="MyGauss"):
 >>>         super().__init__(mean=mean, stddev=stddev, name=name)
 >>>
 >>>     def _unnormalized_pdf(self, x):
->>>         return tf.exp((x - mean) ** 2 / (2 * stddev**2))
+>>>         return znp.exp((x - mean) ** 2 / (2 * stddev**2))
 
 Notice that *here* we only specify the *function* and no normalization. This
 **No** attempt to **explicitly** normalize the function should be done inside `_unnormalized_pdf`.
@@ -57,6 +60,7 @@ from typing import Dict, Optional, Set, Type, Union
 import tensorflow as tf
 
 from zfit import z
+import zfit.z.numpy as znp
 
 from ..settings import run, ztypes
 from ..util import ztyping
@@ -317,7 +321,7 @@ class BasePDF(ZfitPDF, BaseModel):
         with suppress(FunctionNotImplemented):
             return self._pdf(x, norm_range=norm_range)
         with suppress(FunctionNotImplemented):
-            return tf.exp(self._log_pdf(x=x, norm_range=norm_range))
+            return znp.exp(self._log_pdf(x=x, norm_range=norm_range))
         return self._fallback_pdf(x=x, norm_range=norm_range)
 
     def _fallback_pdf(self, x, norm_range):

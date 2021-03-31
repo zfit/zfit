@@ -12,6 +12,7 @@ import tensorflow as tf
 
 import zfit.z.math
 from zfit import z
+import zfit.z.numpy as znp
 
 from ..core.basepdf import BasePDF
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
@@ -32,7 +33,7 @@ class CustomGaussOLD(BasePDF):
         x = x.unstack_x()
         mu = self.params['mu']
         sigma = self.params['sigma']
-        gauss = tf.exp(- 0.5 * tf.square((x - mu) / sigma))
+        gauss = znp.exp(- 0.5 * tf.square((x - mu) / sigma))
 
         return gauss
 

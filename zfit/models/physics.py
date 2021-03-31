@@ -7,6 +7,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import z
+import zfit.z.numpy as znp
 
 from ..core.basepdf import BasePDF
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
@@ -22,12 +23,12 @@ def _powerlaw(x, a, k):
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = tf.abs(alpha)
-    a = tf.pow((n / abs_alpha), n) * tf.exp(-0.5 * tf.square(alpha))
+    a = tf.pow((n / abs_alpha), n) * znp.exp(-0.5 * tf.square(alpha))
     b = (n / abs_alpha) - abs_alpha
     cond = tf.less(t, -abs_alpha)
     func = z.safe_where(cond,
                         lambda t: _powerlaw(b - t, a, -n),
-                        lambda t: tf.exp(-0.5 * tf.square(t)),
+                        lambda t: znp.exp(-0.5 * tf.square(t)),
                         values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
     func = tf.maximum(func, tf.zeros_like(func))
     return func
@@ -84,7 +85,7 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
         def if_true_3():
             result_3 = result_6
-            a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
+            a = tf.pow(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
             b = n / abs_alpha - abs_alpha
 
             def if_true_1():
@@ -103,7 +104,7 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
         def if_false_3():
             result_4, = result_6,
-            a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
+            a = tf.pow(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
             b = n / abs_alpha - abs_alpha
 
             def if_true_2():

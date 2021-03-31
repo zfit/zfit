@@ -5,6 +5,8 @@ from typing import Callable, Iterable, Optional
 import numdifftools
 import tensorflow as tf
 
+import zfit.z.numpy as znp
+
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated
 from .tools import _auto_upcast
@@ -290,7 +292,7 @@ def automatic_value_gradients_hessian(*args, **kwargs):
 @tf.function(autograph=False)
 def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):
     log_mean = tf.reduce_mean(tf.math.log(input_tensor), axis=axis, keepdims=keepdims)
-    return tf.math.exp(log_mean)
+    return znp.exp(log_mean)
 
 
 def log(x, name=None):
