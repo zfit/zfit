@@ -95,7 +95,7 @@ def test_set_values():
 
 minimizers = [
     (zfit.minimize.NLoptLBFGSV1, {}, True),
-    (zfit.minimize.ScipyTrustKrylovV1, {}, True),
+    (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
     (zfit.minimize.IpyoptV1, {}, False),
 ]
