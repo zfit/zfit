@@ -93,7 +93,7 @@ Let's consider a second crystal ball with the same mean position and width, but 
 .. jupyter-execute::
 
     # New tail parameters for the second CB
-    a2 = zfit.Parameter("a2", -1, 0, -10)
+    a2 = zfit.Parameter("a2", -1, -10, 0)
     n2 = zfit.Parameter("n2", 1, 0, 10)
 
     # New crystal Ball function defined in the same observable range

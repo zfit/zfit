@@ -61,17 +61,23 @@ minimizer.scipy.gradient: |1+
                     method from the minimizer.
                     In general, using the zfit provided automatic gradient is
                     more precise and needs less computation time for the
-                    evaluation compared to a numerical method.
+                    evaluation compared to a numerical method but it may not always be
+                    possible. In this case, zfit switches to a generic, numerical gradient
+                    which in general performs worse than if the minimizer has its own
+                    numerical gradient.
                     The following are possible choices:
 
-                    - If set to ``False`` or ``'zfit'`` (or ``None``; default), the
-                      loss gradient (usually the automatic gradient) will be used;
-                      the minimizer won't use an internal algorithm.
-                    - ``True`` tells the minimizer to use its default internal
-                      gradient estimation.
-                    - arguments ``'2-point'`` and ``'3-point'`` specify which
-                      numerical algorithm the minimizer should use in order to
-                      estimate the gradient.
+                    If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                    gradient of the loss (usually the automatic gradient) will be used;
+                    the minimizer won't use an internal algorithm.
+
+
+minimizer.scipy.gradient.internal: |1+
+    ``True`` tells the minimizer to use its default internal
+                    gradient estimation. This can be specified more clearly using the
+                    arguments ``'2-point'`` and ``'3-point'``, which specify the
+                    numerical algorithm the minimizer should use in order to
+                     estimate the gradient.
 minimizer.scipy.hessian: |1+
     Define the method to use for the hessian computation
                     that the minimizer should use. This can be the
@@ -93,23 +99,24 @@ minimizer.scipy.hessian: |1+
 
                     The following are possible choices:
 
-                    - If set to ``False`` or ``'zfit'``, the
-                      loss hessian (usually using automatic differentiation)
-                      will be used;
-                      the minimizer won't use an internal algorithm.
-                    - A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
-                      an approximation of the hessian. For example
-                      :class:`~scipy.optimize.BFGS` (which performs usually best)
-                      or :class:`~scipy.optimize.SR1`
-                      (sometimes unstable updates).
-                    - ``True``  (or ``None``; default) tells the minimizer
-                      to use its default internal
-                      hessian approximation.
-                    - arguments ``'2-point'`` and ``'3-point'`` specify which
-                      numerical algorithm the minimizer should use in order to
-                      estimate the hessian. This is only possible if the
-                      gradient is provided by zfit and not an internal numerical
-                      method is already used to determine it.
+                    If set to ``False`` or ``'zfit'``, the
+                    hessian defined in the loss (usually using automatic differentiation)
+                    will be used;
+                    the minimizer won't use an internal algorithm.
+minimizer.scipy.hessian.internal: |1+
+    A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
+                    an approximation of the hessian. For example
+                    :class:`~scipy.optimize.BFGS` (which performs usually best)
+                    or :class:`~scipy.optimize.SR1`
+                    (sometimes unstable updates).
+                    ``True``  (or ``None``; default) tells the minimizer
+                    to use its default internal
+                    hessian approximation.
+                    Arguments ``'2-point'`` and ``'3-point'`` specify which
+                    numerical algorithm the minimizer should use in order to
+                    estimate the hessian. This is only possible if the
+                    gradient is provided by zfit and not an internal numerical
+                    method is already used to determine it.
 
 minimizer.scipy.info: |1+
     This implenemtation wraps the minimizers in
