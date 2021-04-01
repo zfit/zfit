@@ -22,7 +22,7 @@ def _powerlaw(x, a, k):
 @z.function(wraps='zfit_tensor')
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
-    abs_alpha = tf.abs(alpha)
+    abs_alpha = znp.abs(alpha)
     a = tf.pow((n / abs_alpha), n) * znp.exp(-0.5 * tf.square(alpha))
     b = (n / abs_alpha) - abs_alpha
     cond = tf.less(t, -abs_alpha)
@@ -63,9 +63,9 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
     sqrt2 = np.sqrt(2)
 
-    use_log = tf.less(tf.abs(n - 1.0), 1e-05)
-    abs_sigma = tf.abs(sigma)
-    abs_alpha = tf.abs(alpha)
+    use_log = tf.less(znp.abs(n - 1.0), 1e-05)
+    abs_sigma = znp.abs(sigma)
+    abs_alpha = znp.abs(alpha)
     tmin = (lower - mu) / abs_sigma
     tmax = (upper - mu) / abs_sigma
 

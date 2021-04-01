@@ -862,7 +862,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         """Modulus (r) of the complex parameter."""
         mod = self._mod
         if mod is None:
-            mod = tf.math.abs(self)
+            mod = znp.abs(self)
         return mod
 
     @property

@@ -2,6 +2,8 @@
 import numpy as np
 import tensorflow as tf
 
+import zfit.z.numpy as znp
+
 SWITCH_ON = True
 
 
@@ -28,7 +30,7 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
     Returns:
     """
     if not SWITCH_ON or has_tensor([x, y]):
-        return tf.reduce_all(tf.less_equal(tf.abs(x - y), tf.abs(y) * rtol + atol))
+        return tf.reduce_all(tf.less_equal(znp.abs(x - y), znp.abs(y) * rtol + atol))
     else:
         x = np.array(x)
         y = np.array(y)
