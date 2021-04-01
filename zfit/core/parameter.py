@@ -21,6 +21,7 @@ from tensorflow.python.ops.resource_variable_ops import \
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
+import zfit.z.numpy as znp
 from .. import z
 from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies
@@ -824,7 +825,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(name=name,
                     value_fn=lambda: tf.cast(
-                        tf.complex(mod * tf.math.cos(arg), mod * tf.math.sin(arg)),
+                        tf.complex(mod * znp.cos(arg), mod * znp.sin(arg)),
                         dtype=dtype),
                     params=[mod, arg])
         param._mod = mod
