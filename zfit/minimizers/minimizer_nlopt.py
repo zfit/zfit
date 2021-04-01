@@ -207,6 +207,8 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         for name, value in minimizer_options.items():
             minimizer.set_param(name, value)
 
+        minimizer.set_param('verbosity', max(0, self.verbosity - 6))
+
         criterion = self.criterion(tol=self.tol, loss=loss, params=params)
         init_tol = min([math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e3])
         # init_tol *= 10
@@ -252,6 +254,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
             # run the minimization
             try:
+                raise RuntimeError
                 xvalues = minimizer.optimize(xvalues)
             except MaximumIterationReached:
                 maxiter_reached = True
@@ -261,9 +264,9 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 if self.verbosity > 3:
                     print("Minimization in NLopt failed, restarting with slightly varied parameters.")
                 if nrandom < self._nrandom_max:  # in order not to start too close
-                    if init_scale is None:
-                        init_scale = np.ones_like(xvalues)
+                    init_scale = np.where(init_scale != None, init_scale, np.ones_like(init_scale))
                     init_scale_no_nan = np.nan_to_num(init_scale, nan=1.)
+
                     xvalues += np.random.uniform(low=-init_scale_no_nan, high=init_scale_no_nan) / 2
                     nrandom += 1
             else:
