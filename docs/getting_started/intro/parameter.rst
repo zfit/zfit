@@ -14,7 +14,7 @@ Parameters in zfit are global, unique objects. No Parameters with the same name 
 be ambiguous. If a new parameter with the same name will be created, a :class:`~zfit.exception.NameAlreadyTakenError`
 will be raised.
 
-For Jupyter notebooks, see also :ref:`about parameters in Jupyter <params_in_jupyter>` for
+For Jupyter notebooks, see also :ref:`about parameters in Jupyter <params-in-jupyter>` for
 additional information
 
 Independent Parameter
