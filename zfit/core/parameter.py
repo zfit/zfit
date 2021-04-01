@@ -1,7 +1,7 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2021 zfit
 import abc
-import collections
+import collections.abc
 import functools
 import warnings
 from collections import OrderedDict
@@ -895,7 +895,7 @@ def convert_to_parameters(value,
                           step_size=None):
     if prefer_constant is None:
         prefer_constant = True
-    if isinstance(value, collections.Mapping):
+    if isinstance(value, collections.abc.Mapping):
         return convert_to_parameters(**value, prefer_constant=False)
     value = convert_to_container(value)
     is_param_already = [isinstance(val, ZfitIndependentParameter) for val in value]

@@ -144,7 +144,7 @@ def test_shape_composed_parameter():
     def compose():
         return tf.square(a) - b
 
-    c = ComposedParameter(name='c', value_fn=compose, dependents=[a, b])
+    c = ComposedParameter(name='c', value_fn=compose, params=[a, b])
     assert c.shape.rank == 0
 
 
