@@ -15,21 +15,19 @@ from zfit.util.exception import NameAlreadyTakenError
 def test_complex_param():
     real_part = 1.3
     imag_part = 0.3
+    complex_value = real_part + 1j * imag_part
 
-    # Constant complex
-    def complex_value():
-        return real_part + imag_part * 1.j
-
-    param1 = ComplexParameter("param1_compl", complex_value, params=None)
+    param1 = ComplexParameter("param1_compl", lambda: complex_value, params=None)
     some_value = 3. * param1 ** 2 - 1.2j
-    true_value = 3. * complex_value() ** 2 - 1.2j
+    true_value = 3. * complex_value ** 2 - 1.2j
     assert true_value == pytest.approx(some_value.numpy(), rel=1e-8)
-    assert not param1.get_cache_deps()
+    assert not param1.get_params()
+
     # Cartesian complex
     real_part_param = Parameter("real_part_param", real_part)
     imag_part_param = Parameter("imag_part_param", imag_part)
     param2 = ComplexParameter.from_cartesian("param2_compl", real_part_param, imag_part_param)
-    part1, part2 = param2.get_cache_deps()
+    part1, part2 = param2.get_params()
     part1_val, part2_val = [part1.value().numpy(), part2.value().numpy()]
     if part1_val == pytest.approx(real_part):
         assert part2_val == pytest.approx(imag_part)
@@ -37,8 +35,9 @@ def test_complex_param():
         assert part1_val == pytest.approx(imag_part)
     else:
         assert False, "one of the if or elif should be the case"
+
     # Polar complex
-    mod_val = 1.0
+    mod_val = 2
     arg_val = pi / 4.0
     mod_part_param = Parameter("mod_part_param", mod_val)
     arg_part_param = Parameter("arg_part_param", arg_val)
@@ -58,15 +57,18 @@ def test_complex_param():
     assert len(deps_param4) == 2
     for dep in deps_param4:
         assert dep.floating
-    assert param4.mod.name == param4_name + "_mod"
-    assert param4.arg.name == param4_name + "_arg"
 
     # Test properties (1e-8 is too precise)
-    assert real_part == pytest.approx(param1.real.numpy(), rel=1e-6)
-    assert imag_part == pytest.approx(param2.imag.numpy(), rel=1e-6)
-    assert mod_val == pytest.approx(param3.mod.numpy(), rel=1e-6)
-    assert arg_val == pytest.approx(param3.arg.numpy(), rel=1e-6)
-    assert cos(arg_val) == pytest.approx(param3.real.numpy(), rel=1e-6)
+    assert param1.real == pytest.approx(real_part, rel=1e-6)
+    assert param1.imag == pytest.approx(imag_part, rel=1e-6)
+    assert param2.real == pytest.approx(real_part, rel=1e-6)
+    assert param2.imag == pytest.approx(imag_part, rel=1e-6)
+    assert param2.mod == pytest.approx(np.abs(complex_value))
+    assert param2.arg == pytest.approx(np.angle(complex_value))
+    assert param3.mod == pytest.approx(mod_val, rel=1e-6)
+    assert param3.arg == pytest.approx(arg_val, rel=1e-6)
+    assert param3.real == pytest.approx(mod_val * np.cos(arg_val), rel=1e-6)
+    assert param3.imag == pytest.approx(mod_val * np.sin(arg_val), rel=1e-6)
 
 
 def test_repr():
