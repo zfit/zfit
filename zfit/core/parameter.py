@@ -818,8 +818,8 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
 
         Args:
             name: Name of the parameter.
-            real: Modulus (r) the complex number.
-            imag: Argument (phi) of the complex number.
+            mod: Modulus (r) the complex number.
+            arg: Argument (phi) of the complex number.
         """
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
