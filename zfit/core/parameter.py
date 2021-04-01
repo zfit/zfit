@@ -806,7 +806,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
         param = cls(name=name,
-                    value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
+                    value_fn=lambda _real, _imag: tf.cast(tf.complex(_real, _imag), dtype=dtype),
                     params=[real, imag])
         param._real = real
         param._imag = imag
@@ -824,8 +824,8 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(name=name,
-                    value_fn=lambda: tf.cast(
-                        tf.complex(mod * znp.cos(arg), mod * znp.sin(arg)),
+                    value_fn=lambda _mod, _arg: tf.cast(
+                        tf.complex(_mod * znp.cos(_arg), _mod * znp.sin(_arg)),
                         dtype=dtype),
                     params=[mod, arg])
         param._mod = mod
