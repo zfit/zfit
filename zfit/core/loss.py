@@ -9,10 +9,10 @@ from typing import (Callable, Iterable, List, Mapping, Optional, Set, Tuple,
 import tensorflow as tf
 from ordered_set import OrderedSet
 
+import zfit.z.numpy as znp
 from .. import settings, z
 from .interfaces import ZfitPDF
 
-znp = z.numpy
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
@@ -64,7 +64,7 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
                 probs = model.pdf(data, norm_range=fit_range)
         else:
             probs = model.pdf(data)
-        log_probs = tf.math.log(probs)
+        log_probs = znp.log(probs)
         nll = _nll_calc_unbinned_tf(log_probs=log_probs,
                                     weights=data.weights if data.weights is not None else None,
                                     log_offset=log_offset)
@@ -631,7 +631,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         yields = tf.stack(yields, axis=0)
         nevents_collected = tf.stack(nevents_collected, axis=0)
 
-        term_new = tf.nn.log_poisson_loss(nevents_collected, tf.math.log(yields))
+        term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yields))
         if log_offset is not None:
             term_new += log_offset
         nll += tf.reduce_sum(term_new, axis=0)

@@ -90,7 +90,7 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
             def if_true_1():
                 result_1, = result_3,
-                result_1 += a * abs_sigma * (tf.math.log(b - tmin) - tf.math.log(b - tmax))
+                result_1 += a * abs_sigma * (znp.log(b - tmin) - znp.log(b - tmax))
                 return result_1
 
             def if_false_1():
@@ -108,7 +108,7 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
             b = n / abs_alpha - abs_alpha
 
             def if_true_2():
-                term1 = a * abs_sigma * (tf.math.log(b - tmin) - tf.math.log(n / abs_alpha))
+                term1 = a * abs_sigma * (znp.log(b - tmin) - znp.log(n / abs_alpha))
                 return term1
 
             def if_false_2():

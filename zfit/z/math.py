@@ -291,10 +291,10 @@ def automatic_value_gradients_hessian(*args, **kwargs):
 
 @tf.function(autograph=False)
 def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):
-    log_mean = tf.reduce_mean(tf.math.log(input_tensor), axis=axis, keepdims=keepdims)
+    log_mean = tf.reduce_mean(znp.log(input_tensor), axis=axis, keepdims=keepdims)
     return znp.exp(log_mean)
 
 
-def log(x, name=None):
+def log(x):
     x = _auto_upcast(x)
-    return _auto_upcast(tf.math.log(x=x, name=name))
+    return _auto_upcast(znp.log(x=x))

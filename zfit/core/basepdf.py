@@ -284,7 +284,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
-        return self.log_pdf(x=x, norm_range=norm_range) + tf.math.log(self.get_yield())
+        return self.log_pdf(x=x, norm_range=norm_range) + znp.log(self.get_yield())
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
@@ -362,11 +362,11 @@ class BasePDF(ZfitPDF, BaseModel):
         with suppress(FunctionNotImplemented):
             return self._log_pdf(x=x, norm_range=norm_range)
         with suppress(FunctionNotImplemented):
-            return tf.math.log(self._pdf(x=x, norm_range=norm_range))
+            return znp.log(self._pdf(x=x, norm_range=norm_range))
         return self._fallback_log_pdf(x=x, norm_range=norm_range)
 
     def _fallback_log_pdf(self, x, norm_range):
-        return tf.math.log(self._hook_pdf(x=x, norm_range=norm_range))
+        return znp.log(self._hook_pdf(x=x, norm_range=norm_range))
 
     def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
         raise BreakingAPIChangeError("Removed with 0.5.x: is this needed?")
@@ -392,7 +392,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
         if self.is_extended and not norm_range.limits_are_false:
             if log:
-                value += tf.math.log(self.get_yield())
+                value += znp.log(self.get_yield())
             else:
                 value *= self.get_yield()
         return value
