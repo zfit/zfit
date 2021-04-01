@@ -795,7 +795,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
 
     @classmethod
     def from_cartesian(cls, name, real, imag, dtype=ztypes.complex,
-                       floating=True):  # TODO: correct dtype handling, also below
+                       floating=True) -> 'ComplexParameter':  # TODO: correct dtype handling, also below
         """Create a complex parameter from cartesian coordinates.
 
         Args:
@@ -813,7 +813,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         return param
 
     @classmethod
-    def from_polar(cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
+    def from_polar(cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs) -> 'ComplexParameter':
         """Create a complex parameter from polar coordinates.
 
         Args:
@@ -842,36 +842,24 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         return self._conj
 
     @property
-    def real(self):
+    def real(self) -> znp.ndarray:
         """Real part of the complex parameter."""
-        real = self._real
-        if real is None:
-            real = z.to_real(self)
-        return real
+        return znp.real(self)
 
     @property
-    def imag(self):
+    def imag(self) -> znp.ndarray:
         """Imaginary part of the complex parameter."""
-        imag = self._imag
-        if imag is None:
-            imag = tf.math.imag(tf.convert_to_tensor(value=self, dtype_hint=self.dtype))  # HACK tf bug #30029
-        return imag
+        return znp.imag(self)
 
     @property
-    def mod(self):
+    def mod(self) -> znp.ndarray:
         """Modulus (r) of the complex parameter."""
-        mod = self._mod
-        if mod is None:
-            mod = znp.abs(self)
-        return mod
+        return znp.abs(self)
 
     @property
-    def arg(self):
+    def arg(self) -> znp.ndarray:
         """Argument (phi) of the complex parameter."""
-        arg = self._arg
-        if arg is None:
-            arg = znp.arctan(self.imag / self.real)
-        return arg
+        return znp.angle(self)
 
 
 # register_tensor_conversion(ConstantParameter, "ConstantParameter", True)
