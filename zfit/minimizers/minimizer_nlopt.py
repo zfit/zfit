@@ -254,7 +254,6 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
             # run the minimization
             try:
-                raise RuntimeError
                 xvalues = minimizer.optimize(xvalues)
             except MaximumIterationReached:
                 maxiter_reached = True
