@@ -870,7 +870,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         """Argument (phi) of the complex parameter."""
         arg = self._arg
         if arg is None:
-            arg = tf.math.atan(self.imag / self.real)
+            arg = znp.arctan(self.imag / self.real)
         return arg
 
 
