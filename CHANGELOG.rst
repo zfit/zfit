@@ -19,6 +19,8 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 
+- add `loss` to callback signature that gives full access to the model
+
 Experimental
 ------------
 
