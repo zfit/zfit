@@ -151,7 +151,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         norm_range = self._norm_range
         if norm_range is None:
-            norm_range = self.space
+            norm_range = self.space.limits
         return norm_range
 
     @invalidate_graph
