@@ -25,6 +25,8 @@ Experimental
 Requirement changes
 -------------------
 
+- remove Python 3.6 support
+
 
 Thanks
 ------
