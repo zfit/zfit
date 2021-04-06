@@ -107,8 +107,8 @@ class Exponential(BasePDF):
                     upper.append(z.convert_to_tensor(up[:, 0]))
                 lower = z.convert_to_tensor(lower)
                 upper = z.convert_to_tensor(upper)
-                lower_val = tf.math.reduce_min(lower, axis=0)
-                upper_val = tf.math.reduce_max(upper, axis=0)
+                lower_val = znp.min(lower, axis=0)
+                upper_val = znp.max(upper, axis=0)
 
                 return (upper_val + lower_val) / 2
 
