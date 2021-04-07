@@ -5,6 +5,7 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 import tensorflow_probability as tfp
 
+import zfit.z.numpy as znp
 from .. import exception, z
 from ..core.data import Data, sum_samples
 from ..core.interfaces import ZfitPDF
@@ -191,8 +192,7 @@ class FFTConvPDFV1(BaseFunctor):
         area_ratios = (upper_sample - lower_sample) / (
                 limits_kernel.rect_upper - limits_kernel.rect_lower)
         nbins_func_exact_max = tf.reduce_max(area_ratios * n)
-        nbins_func = tf.math.ceil(
-            nbins_func_exact_max)  # plus one and floor is like ceiling (we want more bins) with the
+        nbins_func = znp.ceil(nbins_func_exact_max)  # plus one and floor is like ceiling (we want more bins) with the
         # guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.
         nbins_kernel = n
         # n = max(n, npoints_scaling)
