@@ -10,9 +10,8 @@ import tensorflow as tf
 from ordered_set import OrderedSet
 
 import zfit.z.numpy as znp
-from .. import settings, z
-from .interfaces import ZfitPDF
 
+from .. import settings, z
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
@@ -27,7 +26,7 @@ from ..z.math import (autodiff_gradient, autodiff_value_gradients,
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
 from .dependents import _extract_dependencies
-from .interfaces import ZfitData, ZfitLoss, ZfitSpace
+from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
 from .parameter import convert_to_parameters
 
 

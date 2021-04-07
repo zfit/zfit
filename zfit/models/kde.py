@@ -7,6 +7,7 @@ import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd
 
 import zfit.z.numpy as znp
+
 from .. import z
 from ..core.interfaces import ZfitData, ZfitSpace
 from ..settings import ztypes

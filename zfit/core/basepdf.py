@@ -59,8 +59,8 @@ from typing import Dict, Optional, Set, Type, Union
 
 import tensorflow as tf
 
-from zfit import z
 import zfit.z.numpy as znp
+from zfit import z
 
 from ..settings import run, ztypes
 from ..util import ztyping

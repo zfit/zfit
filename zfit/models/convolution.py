@@ -6,6 +6,7 @@ import tensorflow_addons as tfa
 import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
+
 from .. import exception, z
 from ..core.data import Data, sum_samples
 from ..core.interfaces import ZfitPDF

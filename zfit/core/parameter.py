@@ -22,6 +22,7 @@ from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
 import zfit.z.numpy as znp
+
 from .. import z
 from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies

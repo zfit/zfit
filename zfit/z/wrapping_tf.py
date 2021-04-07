@@ -6,6 +6,7 @@ from typing import Any
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+
 from ..settings import ztypes
 from ..util.deprecation import deprecated
 from .tools import _auto_upcast
