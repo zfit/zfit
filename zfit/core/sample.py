@@ -5,6 +5,8 @@ from typing import Callable, Iterable, List, Optional, Tuple, Union
 import tensorflow as tf
 from tensorflow_probability import distributions as tfd
 
+import zfit.z.numpy as znp
+
 from .. import settings, z
 from ..settings import run, ztypes
 from ..util import ztyping
@@ -228,7 +230,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
             eff_precision: int = 100
             one_over_eff_int = tf.cast(1 / eff * 1.01 * eff_precision, dtype=tf.int64)
             n_to_produce *= one_over_eff_int
-            n_to_produce = tf.math.floordiv(n_to_produce, eff_precision)
+            n_to_produce = znp.floor_divide(n_to_produce, eff_precision)
             # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
             # n_to_produce = tf.cast(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
             n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
