@@ -1,6 +1,4 @@
 #  Copyright (c) 2021 zfit
-from math import cos, pi
-
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -38,7 +36,7 @@ def test_complex_param():
 
     # Polar complex
     mod_val = 2
-    arg_val = pi / 4.0
+    arg_val = np.pi / 4.0
     mod_part_param = Parameter("mod_part_param", mod_val)
     arg_part_param = Parameter("arg_part_param", arg_val)
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
