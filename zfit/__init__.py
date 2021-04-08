@@ -1,8 +1,6 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2021 zfit
-import inspect
-import sys
 import warnings
 
 from pkg_resources import get_distribution
@@ -32,15 +30,16 @@ __all__ = ["z", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
 
 def _maybe_disable_warnings():
     import os
-    true = "IS_TRUE"
-    if not os.environ.get("ZFIT_DISABLE_TF_WARNINGS", true):
-        return
-    elif true:
-        warnings.warn("All TensorFlow warnings are by default suppressed by zfit."
-                      " In order to not suppress them,"
-                      " set the environment variable ZFIT_DISABLE_TF_WARNINGS to 0."
+    disable_warnings = os.environ.get("ZFIT_DISABLE_TF_WARNINGS")
+    if disable_warnings is None:
+        warnings.warn("TensorFlow warnings are by default suppressed by zfit."
+                      " In order to show them,"
+                      " set the environment variable ZFIT_DISABLE_TF_WARNINGS=0."
                       " In order to suppress the TensorFlow warnings AND this warning,"
-                      " set ZFIT_DISABLE_TF_WARNINGS manually to 1.")
+                      " set ZFIT_DISABLE_TF_WARNINGS=1.")
+    elif disable_warnings == '0':
+        return
+
     os.environ["KMP_AFFINITY"] = "noverbose"
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
