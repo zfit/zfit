@@ -22,13 +22,10 @@ from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
 import zfit.z.numpy as znp
-
-from .. import z
 from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies
 from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
-
-znp = z.numpy
+from .. import z
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
 from ..settings import run, ztypes
