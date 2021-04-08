@@ -10,7 +10,6 @@ import operator
 from collections import OrderedDict
 from typing import List, Optional
 
-import numpy as np
 import tensorflow as tf
 
 from .. import z
@@ -192,8 +191,7 @@ class SumPDF(BaseFunctor):
         pdfs = self.pdfs
         fracs = self.params.values()
         probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
-        prob = functools.reduce(operator.add, probs)
-        # prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
+        prob = sum(probs)
         return z.convert_to_tensor(prob)
 
     def _pdf(self, x, norm_range):  # NOT _pdf, as the normalization range can differ
@@ -203,8 +201,7 @@ class SumPDF(BaseFunctor):
         pdfs = self.pdfs
         fracs = self.params.values()
         probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
-        prob = functools.reduce(operator.add, probs)
-        # prob = tf.math.accumulate_n([pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)])
+        prob = sum(probs)
         return z.convert_to_tensor(prob)
 
     @supports(multiple_limits=True)
@@ -215,10 +212,7 @@ class SumPDF(BaseFunctor):
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [frac * pdf.integrate(limits=limits)  # do NOT propagate the norm_range!
                      for pdf, frac in zip(pdfs, fracs)]
-        # TODO(SUM): change the below? broadcast integrals?
-        # integral = tf.reduce_sum(input_tensor=integrals, axis=0)
-        integral = functools.reduce(operator.add, integrals)
-        # integral = tf.math.accumulate_n(integrals)
+        integral = sum(integrals)
         return z.convert_to_tensor(integral)
 
     @supports(multiple_limits=True)
@@ -233,10 +227,7 @@ class SumPDF(BaseFunctor):
                 f"analytic_integrate of pdf {self.name} is not implemented in this"
                 f" SumPDF, as at least one sub-pdf does not implement it.") from error
 
-        # TODO(SUM): change the below? broadcast integrals?
-        # integral = tf.reduce_sum(input_tensor=integrals)
-        integral = functools.reduce(operator.add, integrals)
-        # integral = tf.math.accumulate_n(integrals)
+        integral = sum(integrals)
         return z.convert_to_tensor(integral)
 
     @supports(multiple_limits=True)
@@ -247,8 +238,7 @@ class SumPDF(BaseFunctor):
 
         partial_integral = [pdf.partial_integrate(x=x, limits=limits) * frac  # do NOT propagate the norm_range!
                             for pdf, frac in zip(pdfs, fracs)]
-        partial_integral = functools.reduce(operator.add, partial_integral)
-        # partial_integral = tf.math.accumulate_n(partial_integral)
+        partial_integral = sum(partial_integral)
         return z.convert_to_tensor(partial_integral)
 
     @supports(multiple_limits=True)
@@ -263,8 +253,7 @@ class SumPDF(BaseFunctor):
             raise AnalyticIntegralNotImplemented(
                 "partial_analytic_integrate of pdf {name} is not implemented in this"
                 " SumPDF, as at least one sub-pdf does not implement it.") from error
-        partial_integral = functools.reduce(operator.add, partial_integral)
-        # partial_integral = tf.math.accumulate_n(partial_integral)
+        partial_integral = sum(partial_integral)
         return z.convert_to_tensor(partial_integral)
 
     @supports(multiple_limits=True)
@@ -290,17 +279,16 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
     def _unnormalized_pdf(self, x: ztyping.XType):
-
         probs = [pdf.pdf(x, norm_range=False) for pdf in self.pdfs]
-        return z.convert_to_tensor(functools.reduce(operator.mul, probs))
-        # return tf.math.reduce_prod(probs, axis=0)
+        prob = functools.reduce(operator.mul, probs)
+        return z.convert_to_tensor(prob)
 
     def _pdf(self, x, norm_range):
         equal_norm_ranges = len(set([pdf.norm_range for pdf in self.pdfs] + [norm_range])) == 1  # all equal
         if not any(self._model_same_obs) and equal_norm_ranges:
 
             probs = [pdf.pdf(x=x) for pdf in self.pdfs]
-            return z.convert_to_tensor(functools.reduce(operator.mul, probs))
-            # return tf.reduce_prod(input_tensor=probs, axis=0)
+            prob = functools.reduce(operator.mul, probs)
+            return z.convert_to_tensor(prob)
         else:
             raise SpecificFunctionNotImplemented
