@@ -59,16 +59,16 @@ def test_complex_param():
         assert dep.floating
 
     # Test properties (1e-8 is too precise)
-    assert param1.real == pytest.approx(real_part, rel=1e-6)
-    assert param1.imag == pytest.approx(imag_part, rel=1e-6)
-    assert param2.real == pytest.approx(real_part, rel=1e-6)
-    assert param2.imag == pytest.approx(imag_part, rel=1e-6)
-    assert param2.mod == pytest.approx(np.abs(complex_value))
-    assert param2.arg == pytest.approx(np.angle(complex_value))
-    assert param3.mod == pytest.approx(mod_val, rel=1e-6)
-    assert param3.arg == pytest.approx(arg_val, rel=1e-6)
-    assert param3.real == pytest.approx(mod_val * np.cos(arg_val), rel=1e-6)
-    assert param3.imag == pytest.approx(mod_val * np.sin(arg_val), rel=1e-6)
+    assert zfit.run(param1.real) == pytest.approx(real_part, rel=1e-6)
+    assert zfit.run(param1.imag) == pytest.approx(imag_part, rel=1e-6)
+    assert zfit.run(param2.real) == pytest.approx(real_part, rel=1e-6)
+    assert zfit.run(param2.imag) == pytest.approx(imag_part, rel=1e-6)
+    assert zfit.run(param2.mod) == pytest.approx(np.abs(complex_value))
+    assert zfit.run(param2.arg) == pytest.approx(np.angle(complex_value))
+    assert zfit.run(param3.mod) == pytest.approx(mod_val, rel=1e-6)
+    assert zfit.run(param3.arg) == pytest.approx(arg_val, rel=1e-6)
+    assert zfit.run(param3.real) == pytest.approx(mod_val * np.cos(arg_val), rel=1e-6)
+    assert zfit.run(param3.imag) == pytest.approx(mod_val * np.sin(arg_val), rel=1e-6)
 
 
 def test_repr():
