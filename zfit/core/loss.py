@@ -183,13 +183,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return params
 
     def _input_check(self, pdf, data, fit_range):
-        if is_container(pdf) ^ is_container(data):
-            raise ValueError("`pdf` and `data` either both have to be a list or not.")
-        if not is_container(pdf) and isinstance(fit_range, list):
-            raise TypeError("`pdf` and `data` are not a `list`, `fit_range` can't be a `list` then.")
+
         if isinstance(pdf, tuple):
             raise TypeError("`pdf` has to be a pdf or a list of pdfs, not a tuple.")
-
         if isinstance(data, tuple):
             raise TypeError("`data` has to be a data or a list of data, not a tuple.")
 
@@ -606,8 +602,10 @@ class UnbinnedNLL(BaseLoss):
             fit_range = self.fit_range
         if constraints is NONE:
             constraints = self.constraints
+            if constraints is not None:
+                constraints = constraints.copy()
         if options is NONE:
-            options = self.options
+            options = self._options
             if isinstance(options, dict):
                 options = options.copy()
         return type(self)(model=model, data=data, fit_range=fit_range, constraints=constraints, options=options)
