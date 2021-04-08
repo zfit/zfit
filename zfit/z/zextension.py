@@ -1,14 +1,13 @@
 #  Copyright (c) 2021 zfit
 import functools
-import math as _mt
 from collections import defaultdict
 from typing import Any, Callable
 
+import math as _mt
 import numpy as np
 import tensorflow as tf
 
 import zfit.z.numpy as znp
-
 from ..settings import ztypes
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
@@ -120,7 +119,7 @@ def run_no_nan(func, x):
     value_with_nans = func(x=x)
     if value_with_nans.dtype in (tf.complex128, tf.complex64):
         value_with_nans = znp.real(value_with_nans) + znp.imag(value_with_nans)  # we care only about NaN or not
-    finite_bools = tf.math.is_finite(tf.cast(value_with_nans, dtype=tf.float64))
+    finite_bools = znp.isfinite(tf.cast(value_with_nans, dtype=tf.float64))
     finite_indices = tf.where(finite_bools)
     new_x = tf.gather_nd(params=x, indices=finite_indices)
     new_x = Data.from_tensor(obs=x.obs, tensor=new_x)
