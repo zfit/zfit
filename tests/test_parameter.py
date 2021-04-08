@@ -56,6 +56,9 @@ def test_complex_param():
     for dep in deps_param4:
         assert dep.floating
 
+    # Test complex conjugate
+    param5 = param2.conj
+
     # Test properties (1e-8 is too precise)
     assert zfit.run(param1.real) == pytest.approx(real_part, rel=1e-6)
     assert zfit.run(param1.imag) == pytest.approx(imag_part, rel=1e-6)
@@ -67,6 +70,8 @@ def test_complex_param():
     assert zfit.run(param3.arg) == pytest.approx(arg_val, rel=1e-6)
     assert zfit.run(param3.real) == pytest.approx(mod_val * np.cos(arg_val), rel=1e-6)
     assert zfit.run(param3.imag) == pytest.approx(mod_val * np.sin(arg_val), rel=1e-6)
+    assert zfit.run(param5.real) == pytest.approx(real_part)
+    assert zfit.run(param5.imag) == pytest.approx(-imag_part)
 
 
 def test_repr():

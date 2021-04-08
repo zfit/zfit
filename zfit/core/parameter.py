@@ -41,6 +41,7 @@ from ..util.exception import (BreakingAPIChangeError, FunctionNotImplemented,
                               ParameterNotIndependentError)
 from ..util.temporary import TemporarilySet
 
+
 # todo add type hints in this module for api
 
 
@@ -834,7 +835,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
     def conj(self):
         """Returns a complex conjugated copy of the complex parameter."""
         if self._conj is None:
-            self._conj = ComplexParameter(name=f'{self.name}_conj', value_fn=lambda: tf.math.conj(self),
+            self._conj = ComplexParameter(name=f'{self.name}_conj', value_fn=lambda: znp.conj(self),
                                           params=self.get_cache_deps(),
                                           dtype=self.dtype)
         return self._conj
