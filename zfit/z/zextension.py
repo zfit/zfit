@@ -1,13 +1,14 @@
 #  Copyright (c) 2021 zfit
 import functools
+import math as _mt
 from collections import defaultdict
 from typing import Any, Callable
 
-import math as _mt
 import numpy as np
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+
 from ..settings import ztypes
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature

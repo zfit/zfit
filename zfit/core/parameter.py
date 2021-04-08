@@ -22,9 +22,7 @@ from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
 import zfit.z.numpy as znp
-from . import interfaces as zinterfaces
-from .dependents import _extract_dependencies
-from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+
 from .. import z
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
@@ -40,7 +38,9 @@ from ..util.exception import (BreakingAPIChangeError, FunctionNotImplemented,
                               NameAlreadyTakenError,
                               ParameterNotIndependentError)
 from ..util.temporary import TemporarilySet
-
+from . import interfaces as zinterfaces
+from .dependents import _extract_dependencies
+from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 
 # todo add type hints in this module for api
 
