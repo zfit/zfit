@@ -146,6 +146,52 @@ minimizer.nlopt.info: |1+
          original implementations of various other algorithms.
 
 
+
+
+loss.init.model: |1+
+   PDFs that return the normalized probability for
+                *data* under the given parameters.
+                If multiple model and data are given, they will be used
+                in the same order to do a simultaneous fit.
+
+loss.init.data: |1+
+   Dataset that will be given to the *model*.
+                If multiple model and data are given, they will be used
+                in the same order to do a simultaneous fit.
+
+loss.init.constraints: |1+
+   Auxiliary measurements that add a term to the loss
+                or terms that restrict the loss in an other way such as penalties.
+loss.init.options: |1+
+   Additional options (as a dict) for the loss.
+                Current possibilities include:
+
+                - 'subtr_const' (default True): subtract from each points
+                  log probability density a constant that
+                  is approximately equal to the average log probability
+                  density in the very first evaluation before
+                  the summation. This brings the initial loss value closer to 0 and increases,
+                  especially for large datasets, the numerical stability.
+
+                  The value will be stored ith 'subtr_const_value' and can also be given
+                  directly.
+
+                  The subtraction should not affect the minimum as the absolute
+                  value of the NLL is meaningless. However,
+                  with this switch on, one cannot directly compare
+                  different likelihoods ablolute value as the constant
+                  may differs! Use `create_new` in order to have a comparable likelihood
+                  between different losses
+
+
+                These settings may extend over time. In order to make sure that a loss is the
+                same under the same data, make sure to use `create_new` instead of instantiating
+                a new loss as the former will automatically overtake any relevant constants
+                and behavior.
+
+
+
+
 result.init.loss: |1+
     The loss function that was minimized.
                 Usually, but not necessary, contains
