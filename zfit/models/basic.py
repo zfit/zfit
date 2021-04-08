@@ -5,7 +5,6 @@ Gauss, exponential... that can be used together with Functors to build larger mo
 
 #  Copyright (c) 2021 zfit
 import contextlib
-import math as mt
 
 import numpy as np
 import tensorflow as tf
@@ -13,37 +12,12 @@ import tensorflow as tf
 import zfit.z.math
 import zfit.z.numpy as znp
 from zfit import z
-
 from ..core.basepdf import BasePDF
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
 from ..util import ztyping
 from ..util.exception import (AnalyticIntegralNotImplemented,
                               BreakingAPIChangeError)
 from ..util.warnings import warn_advanced_feature
-
-infinity = mt.inf
-
-
-class CustomGaussOLD(BasePDF):
-
-    def __init__(self, mu, sigma, obs, name="Gauss"):
-        super().__init__(name=name, obs=obs, params=dict(mu=mu, sigma=sigma))
-
-    def _unnormalized_pdf(self, x):
-        x = x.unstack_x()
-        mu = self.params['mu']
-        sigma = self.params['sigma']
-        gauss = znp.exp(- 0.5 * tf.square((x - mu) / sigma))
-
-        return gauss
-
-
-def _gauss_integral_from_inf_to_inf(limits, params, model):
-    return tf.sqrt(2 * z.pi) * params['sigma']
-
-
-CustomGaussOLD.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
-                                          limits=Space(limits=(-infinity, infinity), axes=(0,)))
 
 
 class Exponential(BasePDF):
