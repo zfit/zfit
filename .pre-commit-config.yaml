@@ -88,9 +88,9 @@ repos:
     hooks:
       - id: check-manifest
         stages: [ manual ]
-# TODO(py37): add the following once 3.6 is gone. Changes the Type hints.
-#    -   repo: https://github.com/sondrelg/pep585-upgrade
-#        rev: ''  # Use the sha / tag you want to point at
-#        hooks:
-#            -   id: upgrade-type-hints
-#                args: [ '--futures=true' ]
+  # TODO(py37): add the following once 3.6 is gone. Changes the Type hints.
+  - repo: https://github.com/sondrelg/pep585-upgrade
+    rev: ''  # Use the sha / tag you want to point at
+    hooks:
+      - id: upgrade-type-hints
+        args: [ '--futures=true' ]
