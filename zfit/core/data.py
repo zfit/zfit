@@ -262,7 +262,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """
 
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, 'numpy')):
-            raise TypeError("`array` has to be a `np.ndarray`. Is currently {}".format(type(array)))
+            raise TypeError(f"`array` has to be a `np.ndarray`. Is currently {type(array)}")
         if dtype is None:
             dtype = ztypes.float
         tensor = tf.cast(array, dtype=dtype)

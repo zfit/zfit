@@ -121,7 +121,7 @@ class GraphCachable(ZfitGraphCachable):
             cacher:
         """
         if not isinstance(cacher, ZfitGraphCachable):
-            raise TypeError("`cacher` is not a `ZfitCachable` but {}".format(type(cacher)))
+            raise TypeError(f"`cacher` is not a `ZfitCachable` but {type(cacher)}")
         if not cacher in self._cachers:
             self._cachers[cacher] = None  # could we have a more useful value?
 
