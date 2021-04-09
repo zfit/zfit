@@ -294,3 +294,63 @@ def test_simple_loss():
     assert true_a == pytest.approx(result2.params[params[0]]['value'], rel=0.03)
     assert true_b == pytest.approx(result2.params[params[1]]['value'], rel=0.06)
     assert true_c == pytest.approx(result2.params[params[2]]['value'], rel=0.5)
+
+
+def test_create_new_nll():
+    gaussian1, mu1, sigma1 = create_gauss1()
+    gaussian2, mu2, sigma2 = create_gauss2()
+
+    test_values = tf.constant(test_values_np)
+    test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
+    nll = zfit.loss.UnbinnedNLL(model=gaussian1, data=test_values)
+
+    nll2 = nll.create_new(model=gaussian2)
+    assert nll2.data[0] is nll.data[0]
+    assert nll2.constraints == nll.constraints
+    assert nll2._options == nll._options
+
+    nll3 = nll.create_new()
+    assert nll3.data[0] is nll.data[0]
+    assert nll3.constraints == nll.constraints
+    assert nll3._options == nll._options
+
+    nll4 = nll.create_new(options={})
+    assert nll4.data[0] is nll.data[0]
+    assert nll4.constraints == nll.constraints
+    assert nll4._options != nll._constraints
+
+
+def test_create_new_extnll():
+    gaussian1, mu1, sigma1, yield1 = create_gauss3ext()
+
+    test_values = tf.constant(test_values_np)
+    test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
+    nll = zfit.loss.ExtendedUnbinnedNLL(model=gaussian1, data=test_values,
+                                        constraints=zfit.constraint.GaussianConstraint(mu1, 1., 0.1))
+
+    nll2 = nll.create_new(model=gaussian1)
+    assert nll2.data[0] is nll.data[0]
+    assert nll2.constraints == nll.constraints
+    assert nll2._options == nll._options
+
+    nll3 = nll.create_new()
+    assert nll3.data[0] is nll.data[0]
+    assert nll3.constraints == nll.constraints
+    assert nll3._options == nll._options
+
+    nll4 = nll.create_new(options={})
+    assert nll4.data[0] is nll.data[0]
+    assert nll4.constraints == nll.constraints
+    assert nll4._options != nll._constraints
+
+
+def test_create_new_simple():
+    _, mu1, sigma1 = create_gauss1()
+
+    loss = zfit.loss.SimpleLoss(lambda x, y: x * y,
+                                params=[mu1, sigma1],
+                                errordef=0.5)
+
+    loss1 = loss.create_new()
+    assert loss1._simple_func is loss._simple_func
+    assert loss1.errordef == loss.errordef

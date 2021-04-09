@@ -783,6 +783,10 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
     def value_gradient_hessian(self, params, hessian=None):
         pass
 
+    @abstractmethod
+    def create_new(self, **kwargs):
+        pass
+
 
 class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
 

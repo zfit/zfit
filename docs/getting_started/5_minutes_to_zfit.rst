@@ -82,6 +82,13 @@ observable range and all the parameters in the PDF are floated in the fit. It is
 only vary a given set of parameters. In this case it is necessary to specify which are the parameters to be floated
 (so all the remaining ones are fixed to their initial values).
 
+Also note that we can now do various things with the pdf such as plotting the fitting result
+with the model gaussian without extracting the loss
+minimizing parameters from ``result``. This is possible because parameters are mutable. This means that the
+minimizer can directly manipulate the value of the floating parameter. So when you call the ``minimizer.minimize()``
+method the value of ``mu`` changes during the optimisation. ``gauss.pdf()`` then uses this new value to calculate the
+pdf.
+
 .. jupyter-execute::
 
     # Stage 3: minimise the given negative likelihood but floating only specific parameters (e.g. mu)
