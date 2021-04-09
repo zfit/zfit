@@ -784,7 +784,7 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def create_new(self, model, data, fit_range, constraints, options):
+    def create_new(self, **kwargs):
         pass
 
 
