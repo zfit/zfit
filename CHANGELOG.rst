@@ -2,8 +2,6 @@
 Changelog
 *********
 
-
-
 Develop
 ========
 
@@ -19,11 +17,6 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 
-- add ``loss`` to callback signature that gives full access to the model
-- add :meth:`~zfit.loss.UnbinnedNLL.create_new` to losses in order to re-instantiate
-  them with new models and data
-  preserving their current (and future) options and other arguments
-
 Experimental
 ------------
 
@@ -36,6 +29,21 @@ Requirement changes
 Thanks
 ------
 
+
+
+0.6.2
+========
+
+Minor small fixes.
+
+
+Bug fixes and small changes
+---------------------------
+
+- add ``loss`` to callback signature that gives full access to the model
+- add :meth:`~zfit.loss.UnbinnedNLL.create_new` to losses in order to re-instantiate
+  them with new models and data
+  preserving their current (and future) options and other arguments
 
 
 0.6.1 (31.03.2021)
