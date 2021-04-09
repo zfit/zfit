@@ -257,9 +257,6 @@ class ZfitParameterMixin(BaseNumeric):
         return self._name
 
     def __del__(self):
-        with suppress(NotImplementedError):  # PY36 bug, gets stuck
-            if self.name in self._existing_params:  # bug, creates segmentation fault in unittests
-                del self._existing_params[self.name]
         with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
             super().__del__(self)
 
