@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from typing import Optional, Tuple, Union, List
 
 import numpy as np
@@ -62,6 +62,10 @@ class Coordinates(ZfitOrderableDimensional):
     def n_obs(self) -> int:
         """Return the number of observables, the dimensionality. Corresponds to the last dimension."""
         return self._n_obs
+
+    @property
+    def space(self):
+        raise WorkInProgressError('This should not be here, refactor `Space` attribute?')
 
     def with_obs(self,
                  obs: Optional[ztyping.ObsTypeInput],

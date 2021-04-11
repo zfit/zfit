@@ -1,6 +1,6 @@
 """Baseclass for a Model. Handle integration and sampling"""
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 import builtins
@@ -64,7 +64,7 @@ def _BaseModel_register_check_support(has_support: bool):
     return register
 
 
-class BaseModel(BaseNumericParameterized, ZfitModel):
+class BaseModel(BaseNumericParameterized, BaseDimensional, ZfitModel):
     """Base class for any generic model.
 
     # TODO instructions on how to use
@@ -162,7 +162,7 @@ class BaseModel(BaseNumericParameterized, ZfitModel):
     def _check_set_space(self, obs):
         if not isinstance(obs, ZfitSpace):
             obs = Space(obs=obs)
-        self._check_n_obs(space=obs)
+        # self._check_n_obs(space=obs)  # TODO: reactivate
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager

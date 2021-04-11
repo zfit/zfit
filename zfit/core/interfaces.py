@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 from abc import ABCMeta, abstractmethod
@@ -19,7 +19,7 @@ class ZfitObject(abc.ABC):
         raise NotImplementedError
 
 
-class ZfitDimensional(ZfitObject):
+class ZfitDimensional:  # TODO: make abstract again
 
     @property
     @abstractmethod

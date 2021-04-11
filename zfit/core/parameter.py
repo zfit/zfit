@@ -1,5 +1,5 @@
 """Define Parameter which holds the value."""
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import abc
 import warnings
 from collections import OrderedDict
@@ -69,7 +69,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     def numpy(self):
         return self.variable.numpy()
 
-    def assign(self, value, use_locking=False, name=None, read_value=True):
+    def assign(self, value, use_locking=False, name=None, read_value=False):
         return self.variable.assign(value=value, use_locking=use_locking,
                                     name=name, read_value=read_value)
 
@@ -140,7 +140,7 @@ register_tensor_conversion(WrappedVariable, "WrappedVariable", overload_operator
 class BaseParameter(ZfitParameter, BaseNumericParameterized, OverloadableMixin):
     _existing_params = OrderedDict()
 
-    def __init__(self, name, value, constraint, value_holder=tf.Variable, *args, **kwargs):
+    def __init__(self, name, value, constraint=None, value_holder=tf.Variable, *args, **kwargs):
         if name in self._existing_params:
             raise NameAlreadyTakenError("Another parameter is already named {}. "
                                         "Use a different, unique one.".format(name))
@@ -148,7 +148,7 @@ class BaseParameter(ZfitParameter, BaseNumericParameterized, OverloadableMixin):
         self._name = name
         super().__init__(name=name, **kwargs)
         value_holder = value_holder
-        self.variable = value_holder(initial_value=value, constraint=constraint, name=self.name,
+        self.variable = value_holder(value, constraint=constraint, name=self.name,
                                      dtype=self.dtype)
 
     @property
@@ -553,7 +553,7 @@ class BaseComposedParameter(BaseParameter):
 
 
 class ConstantVariable:
-    def __init__(self, value, dtype, name):
+    def __init__(self, value, dtype, name, **kwargs):  # TODO: control better what gets inside?
         del name
         static_value = tf.get_static_value(value, partial=True)
         self._value_np = static_value

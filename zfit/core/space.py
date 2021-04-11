@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 # TODO(Mayou36): update docs above
 
@@ -1048,6 +1048,10 @@ class BaseSpace(ZfitSpace, BaseObject):
 
     def __bool__(self):
         return self.has_limits
+
+    @property
+    def space(self):
+        return self
 
 
 class Space(BaseSpace):
