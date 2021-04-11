@@ -45,7 +45,7 @@ def _maybe_disable_warnings():
 
     import tensorflow as tf
 
-    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+    tf.get_logger().setLevel('ERROR')
 
 
 _maybe_disable_warnings()
