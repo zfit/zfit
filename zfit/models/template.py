@@ -1,15 +1,26 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
+import zfit
+from .. import convert_to_parameter
 from ..core.binnedpdf import BaseBinnedPDF
 from ..util.exception import WorkInProgressError
+import tensorflow as tf
 
 
 class BinnedTemplatePDF(BaseBinnedPDF):
 
-    def __init__(self, data, name="BinnedTemplatePDF"):
+    def __init__(self, data, sysshape=None, name="BinnedTemplatePDF"):
         obs = data.space
-        super().__init__(obs=obs, name=name, params={})
+        if sysshape is None:
+            sysshape = {f'sysshape_{i}': zfit.Parameter(f'auto_sysshape_{self}_{i}', 1.) for i in
+                        range(data.get_counts().shape.num_elements())}
+        params = {}
+        params.update(sysshape)
+        super().__init__(obs=obs, name=name, params=params)
 
         self._data = data
 
     def _ext_pdf(self, x, norm_range):
-        return self._data.get_counts()
+        sysshape_flat = tf.stack([p for name, p in self.params.items() if name.startswith('sysshape')])
+        counts = self._data.get_counts()
+        sysshape = tf.reshape(sysshape_flat, counts.shape)
+        return counts * sysshape

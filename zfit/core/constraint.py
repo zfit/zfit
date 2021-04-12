@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 from collections import OrderedDict
@@ -97,11 +97,11 @@ class ProbabilityConstraint(BaseConstraint):
             raise ShapeIncompatibleError("observation and params have to be the same length. Currently"
                                          f"observation: {len(observation)}, params: {len(params)}")
 
-        self._observation = []
-        for obs, p in zip(observation, params):
-            obs = convert_to_parameter(obs, f"{p.name}_obs", prefer_constant=False)
-            obs.floating = False
-            self._observation.append(obs)
+        self._observation = observation  # TODO: needed below? Why?
+        # for obs, p in zip(observation, params):
+        #     obs = convert_to_parameter(obs, f"{p.name}_obs", prefer_constant=False)
+        #     obs.floating = False
+        #     self._observation.append(obs)
 
         self._ordered_params = params
 
@@ -175,7 +175,6 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         return tf.reduce_sum(value)
 
     def _sample(self, n):
-        # TODO cache: add proper caching
         return self.distribution.sample(n)
 
 

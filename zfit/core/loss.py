@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 import warnings
@@ -250,6 +250,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         loss = type(self)(model=model, data=data, fit_range=fit_range, constraints=constraints)
         return loss
 
+    @z.function
     def _gradients(self, params):
         if settings.options['numerical_grad']:
             gradients = numerical_gradient(self.value, params=params)
