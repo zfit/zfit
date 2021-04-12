@@ -8,4 +8,6 @@ Getting started
     installation
     5_minutes_to_zfit
     intro/index
+    models/index
+    guides
     examples

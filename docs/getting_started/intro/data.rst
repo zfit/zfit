@@ -48,14 +48,14 @@ A very simple manipulation of the dataset is provided via the pandas DataFrame. 
 
 .. code-block:: pycon
 
-    >>> data = zfit.Data.from_pandas(pandas_DataFrame,
-    ...                                   obs=None,
-    ...                                   weights=None)
+    >>> data = zfit.Data.from_pandas(pandas.DataFrame,
+    ...                              obs=None,
+    ...                              weights=None)
 
 In the case of Numpy, the only difference is that as input is required a numpy ndarray and the :py:class:`~zfit.Space` (obs) is mandatory:
 
 .. code-block:: pycon
 
-    >>> data = zfit.Data.from_numpy(numpy_ndarray,
-    ...                                  obs,
-    ...                                  weights=None)
+    >>> data = zfit.Data.from_numpy(numpy.ndarray,
+    ...                             obs,
+    ...                             weights=None)

@@ -45,7 +45,7 @@ True
 >>> integral_extended = gauss.integrate(limits=(-10, 10), norm_range=(-10, 10))  # yields approx 100
 
 For more advanced methods and ways to register analytic integrals or overwrite certain methods, see
-also the advanced tutorials in `zfit tutorials <https://github.com/zfit/zfit-tutorials>`_
+also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials>`_
 """
 
 #  Copyright (c) 2021 zfit
