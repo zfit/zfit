@@ -6,5 +6,6 @@ Project
     :titlesonly:
     :maxdepth: 1
 
+    outreach
     contributing
     authors
