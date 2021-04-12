@@ -19,12 +19,14 @@ Papers and proceedings
 Material
 =========
 
-:download:`zfit logo high resolution <images/zfit-logo_veryhires.png>`
+:download:`zfit logo high resolution <../images/zfit-logo_veryhires.png>`
 
 :download:`zfit logo normal resolution <../images/zfit-logo_hires.png>`
 
-:download:`zfit favicon <images/zfit-favicon.png>`
+:download:`zfit vectorgraphics <../images/zfit-vector.svg>`
 
-:download:`zfit workflow <images/zfit_workflow_v2.png>`
+:download:`zfit favicon <../images/zfit-favicon.png>`
+
+:download:`zfit workflow <../images/zfit_workflow_v2.png>`
 
 If there is material missing, do not hesitate to contact us.
