@@ -65,7 +65,7 @@ def expand_dims(input, axis):
 
 def reduce_prod(input_tensor, axis=None, keepdims=None):
     if not SWITCH_ON or has_tensor(input_tensor):
-        return tf.reduce_prod(input_tensor, axis, keepdims=keepdims)
+        return znp.prod(input_tensor, axis, keepdims=keepdims)
     else:
         if keepdims is None:
             return np.prod(input_tensor, axis)

@@ -75,4 +75,4 @@ def check_numerics(tensor: Any, message: Any, name: Any = None):
 
 reduce_sum = znp.sum
 
-reduce_prod = tf.reduce_prod
+reduce_prod = znp.prod
