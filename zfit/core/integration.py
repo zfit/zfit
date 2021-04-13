@@ -10,17 +10,17 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 import zfit
+import zfit.z.numpy as znp
 from zfit import z
 from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitData, ZfitModel, ZfitSpace
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
-
+from .space import Space, convert_to_space, supports
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import (AnalyticIntegralNotImplemented,
                               WorkInProgressError)
-from .space import Space, convert_to_space, supports
 
 
 @supports()
@@ -137,7 +137,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
             # convert rnd samples with value to feedable vector
             reduce_axis = 1 if partial else None
-            avg = tf.reduce_mean(input_tensor=func(x), axis=reduce_axis)
+            avg = znp.mean(func(x), axis=reduce_axis)
             # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
             # TODO: importance sampling?
             # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
@@ -174,7 +174,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
             reduce_axis = 1
             if len(func_vals.shape) == 1:
                 func_vals = tf.expand_dims(func_vals, -1)
-        batch_mean = tf.reduce_mean(input_tensor=func_vals, axis=reduce_axis)  # if there are gradients
+        batch_mean = znp.mean(func_vals, axis=reduce_axis)  # if there are gradients
         err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
 
         do_print = False
@@ -227,8 +227,6 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
     return normalization_func(fake_x)
 
 
-
-
 # @z.function
 def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     lower, upper = space.limits
@@ -257,7 +255,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
             sample = func(sample)
             sample = tf.guarantee_const(sample)
 
-            batch_mean = tf.reduce_mean(input_tensor=sample)
+            batch_mean = znp.mean(sample)
             batch_mean = tf.guarantee_const(batch_mean)
             err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
             # err_weight /= err_weight + 1

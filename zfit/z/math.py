@@ -6,11 +6,10 @@ import numdifftools
 import tensorflow as tf
 
 import zfit.z.numpy as znp
-
-from ..util.container import convert_to_container
-from ..util.deprecation import deprecated
 from .tools import _auto_upcast
 from .zextension import convert_to_tensor
+from ..util.container import convert_to_container
+from ..util.deprecation import deprecated
 
 
 def poly_complex(*args, real_x=False):
@@ -291,7 +290,7 @@ def automatic_value_gradients_hessian(*args, **kwargs):
 
 @tf.function(autograph=False)
 def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):
-    log_mean = tf.reduce_mean(znp.log(input_tensor), axis=axis, keepdims=keepdims)
+    log_mean = znp.mean(znp.log(input_tensor), axis=axis, keepdims=keepdims)
     return znp.exp(log_mean)
 
 
