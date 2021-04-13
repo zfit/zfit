@@ -6,15 +6,14 @@ import tensorflow as tf
 from tensorflow_probability import distributions as tfd
 
 import zfit.z.numpy as znp
-
+from .data import Data
+from .interfaces import ZfitPDF, ZfitSpace
+from .space import Space
 from .. import settings, z
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WorkInProgressError
-from .data import Data
-from .interfaces import ZfitPDF, ZfitSpace
-from .space import Space
 
 
 class UniformSampleAndWeights:
@@ -233,13 +232,13 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
             n_to_produce = znp.floor_divide(n_to_produce, eff_precision)
             # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
             # n_to_produce = tf.cast(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
-            n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
+            n_to_produce = znp.maximum(n_to_produce, n_min_to_produce)
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.constant(800000, dtype=tf.int64)
             tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
             # TODO: remove below? was there due to overflow in tf?
-            # n_to_produce = tf.maximum(5, n_to_produce)  # protect against overflow, n_to_prod -> neg.
-            n_to_produce = tf.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
+            # n_to_produce = znp.maximum(5, n_to_produce)  # protect against overflow, n_to_prod -> neg.
+            n_to_produce = znp.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
             new_limits = limits  # because limits in the vector space case can change
         else:
             # TODO(Mayou36): add cap for n_to_produce here as well
@@ -270,23 +269,23 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
 
             # safety margin, predicting future, improve for small samples?
             weights_maximum_new = tf.reduce_max(input_tensor=weights)
-            weights_maximum = tf.maximum(weights_maximum, weights_maximum_new)
+            weights_maximum = znp.maximum(weights_maximum, weights_maximum_new)
             # if run.numeric_checks:
             #     tf.debugging.assert_greater_equal(weights, weights_maximum * 1e-5, message="The ")
-            weights_clipped = tf.maximum(weights, weights_maximum * 1e-5)
+            weights_clipped = znp.maximum(weights, weights_maximum * 1e-5)
             # prob_weights_ratio = probabilities / weights
             prob_maximum_new = tf.reduce_max(probabilities)
-            prob_maximum = tf.maximum(prob_maximum, prob_maximum_new)
+            prob_maximum = znp.maximum(prob_maximum, prob_maximum_new)
             # prob_weights_ratio = probabilities / weights_clipped
             prob_weights_ratio_max = tf.reduce_max(probabilities / weights_clipped)
-            max_prob_weights_ratio = tf.maximum(prob_maximum / weights_maximum, prob_weights_ratio_max)
+            max_prob_weights_ratio = znp.maximum(prob_maximum / weights_maximum, prob_weights_ratio_max)
             # clipping means that we don't scale more for a certain threshold
             # to properly account for very small numbers, the thresholds should be scaled to match the ratio
             # but if a weight of a sample is very low (compared to the other weights), this would force the acceptance
             # of other samples to decrease strongly. We introduce a cut here, meaning that any event with an acceptance
             # chance of less then 1 in ratio_threshold will be underestimated.
             # TODO(Mayou36): make ratio_threshold a global setting
-            # max_prob_weights_ratio_clipped = tf.minimum(max_prob_weights_ratio,
+            # max_prob_weights_ratio_clipped = znp.minimum(max_prob_weights_ratio,
             #                                             min_prob_weights_ratio * ratio_threshold)
             # max_prob_weights_ratio_clipped = max_prob_weights_ratio
             new_scaling_needed = max_prob_weights_ratio > weights_scaling
@@ -304,9 +303,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
                                  calc_new_n_produced,
                                  lambda: n_produced)
             # TODO: for fixed array shape?
-            # weights_scaling = tf.maximum(max_prob_weights_ratio, weights_scaling)
+            # weights_scaling = znp.maximum(max_prob_weights_ratio, weights_scaling)
 
-            # weights_scaling = tf.maximum(weights_scaling, max_prob_weights_ratio_clipped * (1 + 1e-2))
+            # weights_scaling = znp.maximum(weights_scaling, max_prob_weights_ratio_clipped * (1 + 1e-2))
         else:
             weights_scaling = prob_max / weights_max
 
