@@ -670,20 +670,26 @@ class SimpleLoss(BaseLoss):
         .. code:: python
 
             import zfit
-            from zfit import z
+            import zfit.z.numpy as znp
+
+            import tensorflow as tf
 
             param1 = zfit.Parameter('param1', 5, 1, 10)
             # we can build a model here if we want, but in principle, it's not necessary
 
-            x = z.random.uniform(shape=(100,))
-            y = x * z.random.normal(mean=4, stddev=0.1, shape=x.shape)
+            x = znp.random.uniform(size=(100,))
+            # Todo: change to znp.random.normal when introduced into tensorflow.experimental.numpy.
+            y = x*tf.random.normal(mean=4, stddev=0.1, shape=x.shape, dtype=tf.double)
+
 
             def squared_loss():
-                y_pred = x * param1  # this is very simple, but we can of course use any
-                                     # zfit PDF or Func inside
-                squared = (y_pred - y) ** 2
-                mse = tf.reduce_mean(squared)
+                y_pred = x*param1  # this is very simple, but we can of course use any
+                # zfit PDF or Func inside
+                squared = (y_pred - y)**2
+                mse = znp.mean(squared)
                 return mse
+
+            squared_loss.errordef = 1
 
             loss = zfit.loss.SimpleLoss(squared_loss, param1)
 
@@ -691,7 +697,7 @@ class SimpleLoss(BaseLoss):
 
         .. code:: python
 
-            minimizer = zfit.minize.Minuit()
+            minimizer = zfit.minimize.Minuit()
             result = minimizer.minimize(loss)
         """
         super().__init__(model=[], data=[], options={'subtr_const': False})
