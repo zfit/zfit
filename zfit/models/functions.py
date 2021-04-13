@@ -5,6 +5,7 @@ from typing import Callable, Dict, Iterable, Union
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+
 from ..core.basefunc import BaseFunc
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.dependents import _extract_dependencies

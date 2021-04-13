@@ -6,10 +6,11 @@ import numdifftools
 import tensorflow as tf
 
 import zfit.z.numpy as znp
-from .tools import _auto_upcast
-from .zextension import convert_to_tensor
+
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated
+from .tools import _auto_upcast
+from .zextension import convert_to_tensor
 
 
 def poly_complex(*args, real_x=False):

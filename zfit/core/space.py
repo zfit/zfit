@@ -17,11 +17,7 @@ from tensorflow.python.util.deprecation import deprecated
 
 import zfit
 import zfit.z.numpy as znp
-from .baseobject import BaseObject
-from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
-                          convert_to_obs_str)
-from .dimension import common_axes, common_obs, limits_overlap
-from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
+
 from .. import z
 from ..settings import ztypes
 from ..util import ztyping
@@ -41,6 +37,11 @@ from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
                               ObsIncompatibleError, ObsNotSpecifiedError,
                               OverdefinedError, ShapeIncompatibleError,
                               SpaceIncompatibleError)
+from .baseobject import BaseObject
+from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
+                          convert_to_obs_str)
+from .dimension import common_axes, common_obs, limits_overlap
+from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
 
 
 class LimitRangeDefinition:

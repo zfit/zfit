@@ -16,11 +16,12 @@ from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitData, ZfitModel, ZfitSpace
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
-from .space import Space, convert_to_space, supports
+
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import (AnalyticIntegralNotImplemented,
                               WorkInProgressError)
+from .space import Space, convert_to_space, supports
 
 
 @supports()

@@ -13,6 +13,7 @@ from typing import List, Optional
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.coordinates import convert_to_obs_str
