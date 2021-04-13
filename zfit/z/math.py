@@ -26,7 +26,7 @@ def poly_complex(*args, real_x=False):
     args = list(args)
     x = args.pop()
     if real_x is not None:
-        pow_func = tf.pow
+        pow_func = znp.power
     else:
         pow_func = z.nth_pow
     return tf.add_n([coef * z.to_complex(pow_func(x, p)) for p, coef in enumerate(args)])
