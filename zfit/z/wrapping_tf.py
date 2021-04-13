@@ -6,10 +6,9 @@ from typing import Any
 import tensorflow as tf
 
 import zfit.z.numpy as znp
-
+from .tools import _auto_upcast
 from ..settings import ztypes
 from ..util.deprecation import deprecated
-from .tools import _auto_upcast
 
 
 def exp(x):
@@ -74,6 +73,6 @@ def check_numerics(tensor: Any, message: Any, name: Any = None):
     return check_op
 
 
-reduce_sum = tf.reduce_sum
+reduce_sum = znp.sum
 
 reduce_prod = tf.reduce_prod

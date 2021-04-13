@@ -12,6 +12,7 @@ from typing import List, Optional
 
 import tensorflow as tf
 
+import zfit.z.numpy as znp
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.coordinates import convert_to_obs_str
@@ -153,8 +154,8 @@ class SumPDF(BaseFunctor):
             yields = [pdf.get_yield() for pdf in pdfs]
 
             def sum_yields_func():
-                return tf.reduce_sum(
-                    input_tensor=[tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
+                return znp.sum(
+                    [tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
 
             sum_yields = convert_to_parameter(sum_yields_func, params=yields)
             yield_fracs = [convert_to_parameter(lambda sum_yields, yield_: yield_ / sum_yields,

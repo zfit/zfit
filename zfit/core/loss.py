@@ -51,10 +51,10 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
                 for p, d, r in zip(model, data, fit_range)]
         # nlls_total = [nll.total for nll in nlls]
         # nlls_correction = [nll.correction for nll in nlls]
-        # nlls_total_summed = tf.reduce_sum(input_tensor=nlls_total, axis=0)
-        nlls_summed = tf.reduce_sum(input_tensor=nlls, axis=0)
+        # nlls_total_summed = znp.sum(input_tensor=nlls_total, axis=0)
+        nlls_summed = znp.sum(nlls, axis=0)
 
-        # nlls_correction_summed = tf.reduce_sum(input_tensor=nlls_correction, axis=0)
+        # nlls_correction_summed = znp.sum(input_tensor=nlls_correction, axis=0)
         # nll_finished = (nlls_total_summed, nlls_correction_summed)
         nll_finished = nlls_summed
     else:
@@ -77,7 +77,7 @@ def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
         log_probs *= weights  # because it's prob ** weights
     if log_offset is not None:
         log_probs -= log_offset
-    nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
+    nll = -znp.sum(log_probs, axis=0)
     # nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
     return nll
 
@@ -633,7 +633,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yields))
         if log_offset is not None:
             term_new += log_offset
-        nll += tf.reduce_sum(term_new, axis=0)
+        nll += znp.sum(term_new, axis=0)
         return nll
 
     @property

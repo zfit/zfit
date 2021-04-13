@@ -5,8 +5,8 @@ from typing import Dict, List, Mapping, Optional
 
 import tensorflow as tf
 
+import zfit.z.numpy as znp
 from zfit import z
-
 from ..core.basepdf import BasePDF
 from ..core.space import Space
 from ..settings import ztypes
@@ -79,7 +79,7 @@ class RecursivePolynomial(BasePDF):
 def create_poly(x, polys, coeffs, recurrence):
     degree = len(coeffs) - 1
     polys = do_recurrence(x, polys=polys, degree=degree, recurrence=recurrence)
-    sum_polys = tf.reduce_sum(input_tensor=[coeff * poly for coeff, poly in zip(coeffs, polys)], axis=0)
+    sum_polys = znp.sum([coeff * poly for coeff, poly in zip(coeffs, polys)], axis=0)
     return sum_polys
 
 

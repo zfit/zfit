@@ -7,13 +7,12 @@ import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd
 
 import zfit.z.numpy as znp
-
+from .dist_tfp import WrapDistribution
 from .. import z
 from ..core.interfaces import ZfitData, ZfitSpace
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
-from .dist_tfp import WrapDistribution
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):
@@ -145,7 +144,7 @@ class GaussianKDE1DimV1(WrapDistribution):
         shape_data = tf.shape(data)
         size = tf.cast(shape_data[0], dtype=ztypes.float)
         if weights is not None:
-            probs = weights / tf.reduce_sum(weights)
+            probs = weights / znp.sum(weights)
         else:
             probs = tf.broadcast_to(1 / size, shape=(tf.cast(size, tf.int32),))
         categorical = tfd.Categorical(probs=probs)  # no grad -> no need to recreate
