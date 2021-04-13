@@ -4,7 +4,10 @@ coverage>=4.5.1
 docformatter
 flake8>=3.5.0
 jupyter-sphinx
+matplotlib  # docs
+mplhep  # docs
 mplhep
+myst-nb
 pip>=9.0.1
 pre-commit
 pydata-sphinx-theme~=0.5.2

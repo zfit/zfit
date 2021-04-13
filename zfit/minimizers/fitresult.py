@@ -150,10 +150,11 @@ def _covariance_minuit(result, params):
     covariance = minuit.covariance
 
     covariance_dict = {}
-    for p1 in params:
-        for p2 in params:
-            key = (p1, p2)
-            covariance_dict[key] = covariance[tuple(k.name for k in key)]
+    if covariance is not None:
+        for p1 in params:
+            for p2 in params:
+                key = (p1, p2)
+                covariance_dict[key] = covariance[tuple(k.name for k in key)]
 
     return covariance_dict
 

@@ -4,3 +4,5 @@
 zfit.egg-info/
 /.mypy_cache/
 *.coverage
+/docs/_tmp/
+/docs/_tmp/zfit-tutorial/
