@@ -30,7 +30,7 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
     Returns:
     """
     if not SWITCH_ON or has_tensor([x, y]):
-        return tf.reduce_all(tf.less_equal(znp.abs(x - y), znp.abs(y) * rtol + atol))
+        return znp.all(tf.less_equal(znp.abs(x - y), znp.abs(y) * rtol + atol))
     else:
         x = np.array(x)
         y = np.array(y)
@@ -82,14 +82,14 @@ def equal(x, y):
 
 def reduce_all(input_tensor, axis=None):
     if not SWITCH_ON or has_tensor(input_tensor):
-        return tf.reduce_all(input_tensor, axis)
+        return znp.all(input_tensor, axis)
     else:
         return np.all(input_tensor, axis)
 
 
 def reduce_any(input_tensor, axis=None):
     if not SWITCH_ON or has_tensor(input_tensor):
-        return tf.reduce_any(input_tensor, axis)
+        return znp.any(input_tensor, axis)
     else:
         return np.any(input_tensor, axis)
 

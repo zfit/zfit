@@ -169,7 +169,7 @@ class GaussianKDE1DimV1(WrapDistribution):
             if not isinstance(obs, ZfitSpace):
                 raise ValueError(f"`obs` has to be a `ZfitSpace` if `truncated` is True.")
             inside = obs.inside(data)
-            all_inside = tf.reduce_all(inside)
+            all_inside = znp.all(inside)
             tf.debugging.assert_equal(all_inside, True, message="Not all data points are inside the limits but"
                                                                 " a truncate kernel was chosen.")
 

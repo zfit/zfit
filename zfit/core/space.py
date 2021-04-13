@@ -16,7 +16,12 @@ import tensorflow as tf
 from tensorflow.python.util.deprecation import deprecated
 
 import zfit
-
+import zfit.z.numpy as znp
+from .baseobject import BaseObject
+from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
+                          convert_to_obs_str)
+from .dimension import common_axes, common_obs, limits_overlap
+from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
 from .. import z
 from ..settings import ztypes
 from ..util import ztyping
@@ -36,11 +41,6 @@ from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
                               ObsIncompatibleError, ObsNotSpecifiedError,
                               OverdefinedError, ShapeIncompatibleError,
                               SpaceIncompatibleError)
-from .baseobject import BaseObject
-from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
-                          convert_to_obs_str)
-from .dimension import common_axes, common_obs, limits_overlap
-from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
 
 
 class LimitRangeDefinition:
@@ -158,8 +158,8 @@ def inside_rect_limits(x, rect_limits):
     lower, upper = z.unstack_x(rect_limits, axis=0)
     lower = z.convert_to_tensor(lower)
     upper = z.convert_to_tensor(upper)
-    below_upper = tf.reduce_all(input_tensor=tf.less_equal(x, upper), axis=-1)  # if all obs inside
-    above_lower = tf.reduce_all(input_tensor=tf.greater_equal(x, lower), axis=-1)
+    below_upper = znp.all(tf.less_equal(x, upper), axis=-1)  # if all obs inside
+    above_lower = znp.all(tf.greater_equal(x, lower), axis=-1)
     inside = tf.logical_and(above_lower, below_upper)
     return inside
 
@@ -1844,7 +1844,7 @@ class Space(BaseSpace):
             x_sub = self.reorder_x(x, **reorder_kwargs)
             x_inside = limit.inside(x_sub)
             xs_inside.append(x_inside)
-        all_inside = tf.reduce_all(xs_inside, axis=0)
+        all_inside = znp.all(xs_inside, axis=0)
         return all_inside
 
     @property  # TODO(discussion): depreceate 1d limits? or keep?
@@ -2656,7 +2656,7 @@ class MultiSpace(BaseSpace):
 
     def _inside(self, x, guarantee_limits):
         inside_limits = [space.inside(x, guarantee_limits=guarantee_limits) for space in self]
-        inside = tf.reduce_any(input_tensor=inside_limits, axis=0)  # has to be inside one limit
+        inside = znp.any(inside_limits, axis=0)  # has to be inside one limit
         return inside
 
     def __iter__(self) -> ZfitSpace:
