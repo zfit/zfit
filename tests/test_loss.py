@@ -20,6 +20,12 @@ sigma_true2 = 3.5
 
 yield_true = 3000
 test_values_np = np.random.normal(loc=mu_true, scale=sigma_true, size=(yield_true, 1))
+
+
+def create_test_values(size):
+    return tf.random.normal(mean=mu_true, stddev=sigma_true, shape=(size, 1))
+
+
 test_values_np2 = np.random.normal(loc=mu_true2, scale=sigma_true2, size=yield_true)
 
 low, high = -24.3, 28.6
@@ -40,7 +46,7 @@ def create_params2(nameadd=""):
 def create_params3(nameadd=""):
     mu3 = zfit.Parameter("mu35" + nameadd, z.to_real(mu_true) - 0.2, mu_true - 1., mu_true + 1.)
     sigma3 = zfit.Parameter("sigma35" + nameadd, z.to_real(sigma_true) - 0.3, sigma_true - 2., sigma_true + 2.)
-    yield3 = zfit.Parameter("yield35" + nameadd, yield_true + 300, 0, yield_true + 20000)
+    yield3 = zfit.Parameter("yield35" + nameadd, yield_true + 300, 0, 10000000)
     return mu3, sigma3, yield3
 
 
@@ -72,21 +78,26 @@ def create_gauss3ext():
     return gaussian3, mu, sigma, yield3
 
 
+@pytest.mark.parametrize('size', [None, 5000, 50000, 300000, 3_000_000])
 @pytest.mark.flaky(3)  # minimization can fail
-def test_extended_unbinned_nll():
-    test_values = z.constant(test_values_np)
+def test_extended_unbinned_nll(size):
+    if size is None:
+        test_values = z.constant(test_values_np)
+        size = test_values.shape[0]
+    else:
+        test_values = create_test_values(size)
     test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
     gaussian3, mu3, sigma3, yield3 = create_gauss3ext()
     nll = zfit.loss.ExtendedUnbinnedNLL(model=gaussian3,
                                         data=test_values,
                                         fit_range=(-20, 20))
     assert {mu3, sigma3, yield3} == nll.get_params()
-    minimizer = Minuit()
+    minimizer = Minuit(tol=1e-4)
     status = minimizer.minimize(loss=nll)
     params = status.params
-    assert params[mu3]['value'] == pytest.approx(np.mean(test_values_np), rel=0.007)
-    assert params[sigma3]['value'] == pytest.approx(np.std(test_values_np), rel=0.007)
-    assert params[yield3]['value'] == pytest.approx(yield_true, rel=0.007)
+    assert params[mu3]['value'] == pytest.approx(zfit.run(tf.math.reduce_mean(test_values)), rel=0.05)
+    assert params[sigma3]['value'] == pytest.approx(zfit.run(tf.math.reduce_std(test_values)), rel=0.05)
+    assert params[yield3]['value'] == pytest.approx(size, rel=0.005)
 
 
 def test_unbinned_simultaneous_nll():
