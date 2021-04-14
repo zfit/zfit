@@ -27,6 +27,17 @@ __all__ = ["z", "constraint", "pdf", "minimize", "loss", "core", "data", "func",
 
 #  Copyright (c) 2019 zfit
 
+if sys.version_info < (3, 7):
+    msg = inspect.cleandoc(
+        """zfit is being actively developed and keeps up with the newest versions of other packages.
+        This includes Python itself. Therefore, Python 3.6 will be dropped in the near future (beginning of May 2021)
+        and 3.9 will be added to the supported versions.
+
+        Feel free to contact us in case of problems to upgrade to a more recent version of Python.
+        """
+    )
+    warnings.warn(msg, FutureWarning, stacklevel=2)
+
 
 def _maybe_disable_warnings():
     import os
