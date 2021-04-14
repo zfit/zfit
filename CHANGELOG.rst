@@ -16,6 +16,8 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- fix loss failed for large datasets
+- catch hesse failing for iminuit
 
 Experimental
 ------------

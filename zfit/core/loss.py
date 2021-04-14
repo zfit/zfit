@@ -152,15 +152,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if options.get('kahansum') is None:
             options['kahansum'] = nevents > 500_000  # start using kahan if we have more than 500k events
 
-        if options.get('subtr_const') is None:
-            if nevents < 200_000:
-                subst_const = True
-            elif nevents < 1_000_000:
-                subst_const = 'kahan'
-            else:
-                subst_const = 'elewise'
+        if options.get('subtr_const') is None:  # TODO: balance better?
 
-            options['subtr_const'] = subst_const
+            # if nevents < 200_000:
+            #     subtr_const = True
+            # elif nevents < 1_000_000:
+            #     subtr_const = 'kahan'
+            # else:
+            #     subtr_const = 'elewise'
+            subtr_const = True
+            options['subtr_const'] = subtr_const
 
         return options
 
