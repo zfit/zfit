@@ -48,6 +48,8 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
     """
 
     if is_container(model):
+        if fit_range is None:  # TODO: remove with removing the fit_range
+            fit_range = [None] * len(model)
         nlls = [_unbinned_nll_tf(model=p, data=d, fit_range=r, log_offset=log_offset)
                 for p, d, r in zip(model, data, fit_range)]
         # nlls_total = [nll.total for nll in nlls]
@@ -221,6 +223,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # sanitize fit_range
         fit_range = [p.convert_sort_space(limits=range_) if range_ is not None else None for p, range_ in
                      zip(pdf, fit_range)]
+        if all(fr is None for fr in fit_range):
+            fit_range = None
         # TODO: sanitize pdf, data?
         self.add_cache_deps(cache_deps=pdf)
         self.add_cache_deps(cache_deps=data)
