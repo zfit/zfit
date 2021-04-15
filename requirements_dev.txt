@@ -11,6 +11,7 @@ myst-nb
 pip>=9.0.1
 pre-commit
 pydata-sphinx-theme~=0.5.2
+pygit2
 pyyaml
 seed_intersphinx_mapping
 setupext-janitor

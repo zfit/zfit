@@ -70,6 +70,18 @@ def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
 
 
 def test_set_values():
+    upper1 = 5.33
+    lower1 = 0.
+    param1 = zfit.Parameter('param1', 2., lower1, upper1)
+    param1.set_value(lower1)
+    assert pytest.approx(zfit.run(param1.value()), lower1)
+    param1.set_value(upper1)
+    assert pytest.approx(zfit.run(param1.value()), upper1)
+    with pytest.raises(ValueError):
+        param1.set_value(lower1 - 0.001)
+    with pytest.raises(ValueError):
+        param1.set_value(upper1 + 0.001)
+
     fitresult = create_fitresult((zfit.minimize.Minuit, {}, True))
     result = fitresult['result']
     param_a = fitresult['a_param']
