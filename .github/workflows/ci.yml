@@ -13,14 +13,19 @@ on:
 
 jobs:
   unittests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 150
     strategy:
       max-parallel: 8
       fail-fast: False
       matrix:
+        os: [ ubuntu-latest ]
         use-graph: [ 0, 1 ]
         python-version: [ 3.7, 3.8 ]
+        include:
+          - os: macos-latest
+          - use-graph: [ 0, 1 ]
+          - python-version: [ 3.8 ]
     name: tests for Python ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v2
