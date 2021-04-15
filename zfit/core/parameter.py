@@ -417,7 +417,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             return tf.constant(False)
         # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
         diff = znp.abs(self.upper - self.lower)  # catch if it is minus inf
-        tol = znp.minimum(diff * 1e-8, 1e-6)  # if one limit is inf we would get inf
+        tol = znp.minimum(diff * 1e-5, 1e-3)  # if one limit is inf we would get inf
         if not exact:
             tol = - tol
         at_lower = z.unstable.less_equal(value, self.lower - tol)
