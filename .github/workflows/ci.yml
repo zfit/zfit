@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 150
     strategy:
-      max-parallel: 4
+      max-parallel: 8
       fail-fast: False
       matrix:
-        python-version: [ 3.6, 3.7, 3.8 ]
+        python-version: [ 3.7, 3.8 ]
     name: JIT compiled tests for Python ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v2
