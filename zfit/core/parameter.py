@@ -412,12 +412,14 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         """
         return self._check_at_limit(self.value())
 
-    def _check_at_limit(self, value):
+    def _check_at_limit(self, value, exact=False):
         if not self.has_limits:
             return tf.constant(False)
         # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
         diff = znp.abs(self.upper - self.lower)  # catch if it is minus inf
         tol = znp.minimum(diff * 1e-8, 1e-6)  # if one limit is inf we would get inf
+        if not exact:
+            tol = - tol
         at_lower = z.unstable.less_equal(value, self.lower - tol)
         at_upper = z.unstable.greater_equal(value, self.upper + tol)
         return z.unstable.logical_or(at_lower, at_upper)
@@ -518,7 +520,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
                            f" In order to silence this and clip the value, you can use (with caution,"
                            f" advanced) `Parameter.assign`")
                 if run.executing_eagerly():
-                    if self._check_at_limit(value):
+                    if self._check_at_limit(value, exact=True):
                         raise ValueError(message)
                 else:
                     tf.debugging.assert_greater(tf.cast(value, tf.float64),
