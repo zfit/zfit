@@ -16,8 +16,6 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
-- fix loss failed for large datasets
-- catch hesse failing for iminuit
 
 Experimental
 ------------
@@ -31,6 +29,14 @@ Requirement changes
 Thanks
 ------
 
+0.6.3 (15.4.2021)
+==================
+
+
+Bug fixes and small changes
+---------------------------
+- fix loss failed for large datasets
+- catch hesse failing for iminuit
 
 
 0.6.2
