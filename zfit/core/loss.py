@@ -116,7 +116,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             options: Different options for the loss calculation.
         """
         super().__init__(name=type(self).__name__, params={})
-        if fit_range is not None:
+        if fit_range is not None and all(fr is not None for fr in fit_range):
             warnings.warn("The fit_range argument is depreceated and will maybe removed in future releases. "
                           "It is preferred to define the range in the space"
                           " when creating the data and the model.", stacklevel=2)
@@ -152,15 +152,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if options.get('kahansum') is None:
             options['kahansum'] = nevents > 500_000  # start using kahan if we have more than 500k events
 
-        if options.get('subtr_const') is None:
-            if nevents < 200_000:
-                subst_const = True
-            elif nevents < 1_000_000:
-                subst_const = 'kahan'
-            else:
-                subst_const = 'elewise'
+        if options.get('subtr_const') is None:  # TODO: balance better?
 
-            options['subtr_const'] = subst_const
+            # if nevents < 200_000:
+            #     subtr_const = True
+            # elif nevents < 1_000_000:
+            #     subtr_const = 'kahan'
+            # else:
+            #     subtr_const = 'elewise'
+            subtr_const = True
+            options['subtr_const'] = subtr_const
 
         return options
 

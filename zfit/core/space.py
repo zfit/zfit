@@ -927,7 +927,7 @@ class BaseSpace(ZfitSpace, BaseObject):
 
     def __add__(self, other):
         if not isinstance(other, ZfitSpace):
-            raise TypeError("Cannot add a {} and a {}".format(type(self), type(other)))
+            raise TypeError(f"Cannot add a {type(self)} and a {type(other)}")
         return add_spaces(self, other)
 
     # TODO: implement properly, just sketch
@@ -1828,7 +1828,7 @@ class Space(BaseSpace):
                   'obs': self.obs}
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
-            raise KeyError("Not usable keys in `overwrite_kwargs`: {}".format(set(overwrite_kwargs) - set(kwargs)))
+            raise KeyError(f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}")
 
         new_space = type(self)(**kwargs)
         return new_space

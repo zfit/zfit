@@ -32,7 +32,7 @@ class WrapOptimizer(BaseStepMinimizer):
             in :py:class:`~BaseStepMinimizer`
         """
         if not isinstance(optimizer, tf.keras.optimizers.Optimizer):
-            raise TypeError("optimizer {} has to be from class Optimizer".format(str(optimizer)))
+            raise TypeError(f"optimizer {str(optimizer)} has to be from class Optimizer")
         super().__init__(tol=tol, criterion=criterion, strategy=strategy, verbosity=verbosity, name=name,
                          minimizer_options=None, **kwargs)
         self._optimizer_tf = optimizer

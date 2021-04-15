@@ -19,7 +19,7 @@ jobs:
       max-parallel: 4
       fail-fast: False
       matrix:
-        python-version: [ 3.7, 3.8 ]
+        python-version: [ 3.6, 3.7, 3.8 ]
     name: JIT compiled tests for Python ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v2

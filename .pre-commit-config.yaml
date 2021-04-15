@@ -62,10 +62,10 @@ repos:
       - id: isort
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.11.0
+    rev: v2.12.0
     hooks:
       - id: pyupgrade
-        args: [ --py36-plus ]
+        args: [ --py37-plus ]
 
   - repo: https://github.com/asottile/setup-cfg-fmt
     rev: v1.17.0
@@ -81,16 +81,16 @@ repos:
 
       - id: nbqa-pyupgrade
         additional_dependencies: [ pyupgrade==2.7.4 ]
-        args: [ --py36-plus ]
+        args: [ --py37-plus ]
 
   - repo: https://github.com/mgedmin/check-manifest
     rev: '0.46'
     hooks:
       - id: check-manifest
         stages: [ manual ]
-# TODO(py37): add the following once 3.6 is gone. Changes the Type hints.
-#    -   repo: https://github.com/sondrelg/pep585-upgrade
-#        rev: ''  # Use the sha / tag you want to point at
-#        hooks:
-#            -   id: upgrade-type-hints
-#                args: [ '--futures=true' ]
+  # TODO(py37): add the following once 3.6 is gone. Changes the Type hints.
+#  - repo: https://github.com/sondrelg/pep585-upgrade
+#    rev: '5f7033a0d0174c65105b041500060b993c1bc211'  # Use the sha / tag you want to point at
+#    hooks:
+#      - id: upgrade-type-hints
+#        args: [ '--futures=true' ]
