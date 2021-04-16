@@ -1,5 +1,6 @@
 #  Copyright (c) 2021 zfit
 import itertools
+import platform
 from collections import OrderedDict
 
 import numpy as np
@@ -118,7 +119,6 @@ minimizers = [
     (zfit.minimize.Minuit, {"verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
 
     # Ipyopt minimizer
-    (zfit.minimize.IpyoptV1, {"verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
 
     # TensorFlow Probability minimizer
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
@@ -186,7 +186,8 @@ minimizers = [
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
 # minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
 
-
+if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
+    minimizers.append((zfit.minimize.IpyoptV1, {"verbosity": verbosity}, {'error': True, 'longtests': True}))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
@@ -194,8 +195,9 @@ minimizers_small = [
     (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
-    (zfit.minimize.IpyoptV1, {}, False),
 ]
+if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
+    minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers_small = sorted(minimizers_small, key=lambda val: repr(val))
 
