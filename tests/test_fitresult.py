@@ -1,4 +1,6 @@
 #  Copyright (c) 2021 zfit
+import platform
+
 import numpy as np
 import pytest
 
@@ -109,8 +111,9 @@ minimizers = [
     (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
-    (zfit.minimize.IpyoptV1, {}, False),
 ]
+if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
+    minimizers.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
