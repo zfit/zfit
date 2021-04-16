@@ -29,6 +29,16 @@ Requirement changes
 Thanks
 ------
 
+0.6.4 (16.4.2021)
+==================
+
+
+Bug fixes and small changes
+---------------------------
+- remove requirement of Ipyopt on MacOS as no wheels are available. This rendered zfit
+  basically non-installable.
+
+
 0.6.3 (15.4.2021)
 ==================
 
