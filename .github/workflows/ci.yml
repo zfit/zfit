@@ -24,8 +24,8 @@ jobs:
         python-version: [ 3.7, 3.8 ]
         include:
           - os: macos-latest
-          - use-graph: [ 0, 1 ]
-          - python-version: [ 3.8 ]
+            use-graph: [ 0, 1 ]
+            python-version: [ 3.8 ]
     name: tests for Python ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v2
@@ -69,7 +69,6 @@ jobs:
 
       - name: Clone Tutorials
         run: |
-          mkdir -p ~/test_zfit_tutorials && cd ~/test_zfit_tutorials
           git clone https://github.com/zfit/zfit-tutorials.git
 
       - name: Install dependencies
