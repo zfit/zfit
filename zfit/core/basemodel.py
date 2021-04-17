@@ -18,6 +18,8 @@ import tensorflow as tf
 from dotmap import DotMap
 from tensorflow_probability.python import mcmc as mc
 
+import zfit.z.numpy as znp
+
 from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
@@ -350,7 +352,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_integrate(limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)  # TODO: remove stack?
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)  # TODO: remove stack?
         return integral
 
     def _call_integrate(self, limits, norm_range):
@@ -477,7 +479,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_analytic_integrate(limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
         return integral
 
     def _call_analytic_integrate(self, limits, norm_range):
@@ -534,7 +536,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_numeric_integrate(limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
 
         return integral
 
@@ -595,7 +597,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limit in limits:
                 integrals.append(self._call_partial_integrate(x=x, limits=sub_limit, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
 
         return integral
 
@@ -690,7 +692,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_partial_analytic_integrate(x=x, limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
 
         return integral
 
@@ -754,7 +756,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_partial_numeric_integrate(x=x, limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
         return integral
 
     def _call_partial_numeric_integrate(self, x, limits, norm_range):

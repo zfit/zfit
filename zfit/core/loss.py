@@ -627,8 +627,8 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
             nevents = tf.cast(nevents, tf.float64)
             nevents_collected.append(nevents)
             yields.append(mod.get_yield())
-        yields = tf.stack(yields, axis=0)
-        nevents_collected = tf.stack(nevents_collected, axis=0)
+        yields = znp.stack(yields, axis=0)
+        nevents_collected = znp.stack(nevents_collected, axis=0)
 
         term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yields))
         if log_offset is not None:

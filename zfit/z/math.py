@@ -55,7 +55,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
             value = value.numpy()
         return value
 
-    param_vals = tf.stack(params)
+    param_vals = znp.stack(params)
     original_vals = [param.value() for param in params]
     grad_func = numdifftools.Gradient(wrapped_func, order=2, base_step=1e-4)
     if tf.executing_eagerly():
@@ -116,7 +116,7 @@ def numerical_hessian(func: Optional[Callable],
             value = value.numpy()
         return value
 
-    param_vals = tf.stack(params)
+    param_vals = znp.stack(params)
     original_vals = [param.value() for param in params]
 
     if hessian == 'diag':
@@ -270,11 +270,9 @@ def automatic_value_gradient_hessian(func: Callable = None, params: Iterable["zf
         else:
             loss, gradients = autodiff_value_gradients(func=func, params=params)
         if hessian != 'diag':
-            gradients_tf = tf.stack(gradients)
+            gradients_tf = znp.stack(gradients)
     if hessian == 'diag':
-        computed_hessian = tf.stack(
-            # tape.gradient(gradients_tf, sources=params)
-            # computed_hessian = tf.stack(tf.vectorized_map(lambda grad: tape.gradient(grad, sources=params), gradients))
+        computed_hessian = znp.stack(
             [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)]
         )
     else:
