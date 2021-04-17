@@ -214,11 +214,6 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
                                              dtype=dtype,
                                              space=space, x=x, shape_after=shape_after)
 
-            # normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(ys=func(x), xs=variables)),
-            #                                    n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
-            #                                    dtype=dtype,
-            #                                    space=space,
-            #                                    x=x, shape_after=(len(variables),))
 
             return dy, tape.gradient(value, variables)
 
