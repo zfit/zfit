@@ -101,7 +101,7 @@ def legendre_recurrence(p1, p2, n, x):
     .. math::
          (n+1) P_{n+1}(x) = (2n + 1) x P_{n}(x) - n P_{n-1}(x)
     """
-    return ((2 * n + 1) * tf.multiply(x, p1) - n * p2) / (n + 1)
+    return ((2 * n + 1) * znp.multiply(x, p1) - n * p2) / (n + 1)
 
 
 def legendre_shape(x, coeffs):
@@ -194,7 +194,7 @@ def chebyshev_recurrence(p1, p2, _, x):
 
     T_{n+1}(x) = 2 x T_{n}(x) - T_{n-1}(x)
     """
-    return 2 * tf.multiply(x, p1) - p2
+    return 2 * znp.multiply(x, p1) - p2
 
 
 def chebyshev_shape(x, coeffs):
@@ -370,7 +370,7 @@ def generalized_laguerre_recurrence_factory(alpha=0.):
 
         :math:`(n+1) L_{n+1}(x) = (2n + 1 + \alpha - x) L_{n}(x) - (n + \alpha) L_{n-1}(x)`
         """
-        return (tf.multiply(2 * n + 1 + alpha - x, p1) - (n + alpha) * p2) / (n + 1)
+        return (znp.multiply(2 * n + 1 + alpha - x, p1) - (n + alpha) * p2) / (n + 1)
 
     return generalized_laguerre_recurrence
 
@@ -478,7 +478,7 @@ def hermite_recurrence(p1, p2, n, x):
 
     :math:`H_{n+1}(x) = 2x H_{n}(x) - 2n H_{n-1}(x)`
     """
-    return 2 * (tf.multiply(x, p1) - n * p2)
+    return 2 * (znp.multiply(x, p1) - n * p2)
 
 
 def hermite_shape(x, coeffs):
