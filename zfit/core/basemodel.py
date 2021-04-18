@@ -925,7 +925,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         except MultipleLimitsNotImplemented as error:
             try:
                 total_integral = self.analytic_integrate(limits, norm_range=False)
-                sub_integrals = tf.concat([self.analytic_integrate(limit, norm_range=False) for limit in limits],
+                sub_integrals = znp.concatenate([self.analytic_integrate(limit, norm_range=False) for limit in limits],
                                           axis=0)
             except AnalyticIntegralNotImplemented:
                 raise MultipleLimitsNotImplemented("Cannot autohandle multiple limits as the analytic"
@@ -939,7 +939,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 if isinstance(sub_sample, ZfitData):
                     sub_sample = sub_sample.value()
                 samples.append(sub_sample)
-            sample = tf.concat(samples, axis=0)
+            sample = znp.concatenate(samples, axis=0)
 
         return sample
 

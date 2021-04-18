@@ -271,7 +271,7 @@ class SumPDF(BaseFunctor):
             if isinstance(sub_sample, ZfitData):
                 sub_sample = sub_sample.value()
             samples.append(sub_sample)
-        sample = tf.concat(samples, axis=0)
+        sample = znp.concatenate(samples, axis=0)
         sample = tf.random.shuffle(sample)
         return sample
 

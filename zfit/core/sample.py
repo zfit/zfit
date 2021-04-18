@@ -48,8 +48,8 @@ class UniformSampleAndWeights:
             thresholds_unscaled_list.append(thresholds_unscaled)
             n_produced += n_partial_to_produce
 
-        rnd_sample = tf.concat(rnd_samples, axis=0)
-        thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
+        rnd_sample = znp.concatenate(rnd_samples, axis=0)
+        thresholds_unscaled = znp.concatenate(thresholds_unscaled_list, axis=0)
 
         n_drawn = n_to_produce
         return rnd_sample, thresholds_unscaled, weights, weights, n_drawn
@@ -456,5 +456,5 @@ def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) ->
         # sample.set_shape((n, limits.n_obs))
         samples.append(sample)
 
-    samples = tf.concat(samples, axis=0)
+    samples = znp.concatenate(samples, axis=0)
     return samples

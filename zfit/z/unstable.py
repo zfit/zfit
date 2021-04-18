@@ -131,7 +131,7 @@ def gather(x, indices=None, axis=None):
 
 def concat(values, axis, name=None):
     if not SWITCH_ON or has_tensor(values):
-        return tf.concat(values=values, axis=axis, name=name)
+        return znp.concatenate(values, axis=axis)
     else:
         return np.concatenate(values, axis=axis)
 

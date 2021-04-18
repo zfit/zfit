@@ -4,6 +4,8 @@ from typing import Mapping, Optional, Set
 
 import tensorflow as tf
 
+import zfit.z.numpy as znp
+
 from .. import z
 from ..core.interfaces import ZfitIndependentParameter, ZfitPDF, ZfitSpace
 from ..core.parameter import set_values
@@ -136,7 +138,7 @@ class ConditionalPDFV1(BaseFunctor):
             return pdf.sample(n=1, limits=limits).value()
 
         sample_rnd = tf_map(eval_sample, x_values)[..., 0]
-        sample = tf.concat([sample_rnd, x_values], axis=-1)
+        sample = znp.concatenate([sample_rnd, x_values], axis=-1)
         return sample
 
     def copy(self, **override_parameters) -> 'BasePDF':
