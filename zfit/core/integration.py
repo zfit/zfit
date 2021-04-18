@@ -247,7 +247,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
                 sample = mc_sampler(shape=(batch_size, space.n_obs), dtype=ztypes.float)
             sample = tf.guarantee_const(sample)
             sample = (np.array(upper[0]) - np.array(lower[0])) * sample + lower[0]
-            sample = tf.transpose(a=sample)
+            sample = znp.transpose(a=sample)
             sample = func(sample)
             sample = tf.guarantee_const(sample)
 
