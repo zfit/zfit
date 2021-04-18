@@ -285,8 +285,8 @@ class FFTConvPDFV1(BaseFunctor):
         #     y_kernel_rect,
         #     mode='same'
         # )[None, ..., None]
-        train_points = tf.expand_dims(x_func, axis=0)
-        query_points = tf.expand_dims(x.value(), axis=0)
+        train_points = znp.expand_dims(x_func, axis=0)
+        query_points = znp.expand_dims(x.value(), axis=0)
         if self.conv_interpolation == 'spline':
             conv_points = tf.reshape(conv, (1, -1, 1))
             prob = tfa.image.interpolate_spline(train_points=train_points,

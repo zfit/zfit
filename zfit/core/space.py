@@ -188,7 +188,7 @@ def _sanitize_x_input(x, n_obs):
         if x.shape.ndims == 0:
             x = tf.broadcast_to(x, (1, 1))
         else:
-            x = tf.expand_dims(x, axis=-1)
+            x = znp.expand_dims(x, axis=-1)
     if tf.get_static_value(x.shape[-1]) != n_obs:
         raise ShapeIncompatibleError("n_obs and the last dim of x do not agree. Assuming x has shape (..., n_obs)")
     return x

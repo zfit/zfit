@@ -58,7 +58,7 @@ def broadcast_to(input, shape):
 
 def expand_dims(input, axis):
     if not SWITCH_ON or has_tensor(input):
-        return tf.expand_dims(input, axis)
+        return znp.expand_dims(input, axis)
     else:
         return np.expand_dims(input, axis)
 

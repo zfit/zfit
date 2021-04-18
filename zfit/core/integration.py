@@ -120,7 +120,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 index_samples = 0
                 index_values = 0
                 if len(x.shape) == 1:
-                    x = tf.expand_dims(x, axis=1)
+                    x = znp.expand_dims(x, axis=1)
                 for i in range(n_axes + x.shape[-1]):
                     if i in axes:
                         new_obs.append(space.obs[index_samples])
@@ -128,7 +128,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                         index_samples += 1
                     else:
                         new_obs.append(data_obs[index_values])
-                        value_list.append(tf.expand_dims(x[:, index_values], axis=1))
+                        value_list.append(znp.expand_dims(x[:, index_values], axis=1))
                         index_values += 1
                 value_list = [tf.cast(val, dtype=dtype) for val in value_list]
                 x = PartialIntegralSampleData(sample=value_list,
@@ -166,7 +166,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
                                                          randomized=False)
         # halton_sample = tf.random_uniform(shape=(n_axes, batch_size), dtype=dtype)
         samples_normed.set_shape((batch_size, n_axes))
-        samples_normed = tf.expand_dims(samples_normed, axis=0)
+        samples_normed = znp.expand_dims(samples_normed, axis=0)
         samples = samples_normed * (upper - lower) + lower
         func_vals = func(samples)
         if shape_after == ():
@@ -174,7 +174,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
         else:
             reduce_axis = 1
             if len(func_vals.shape) == 1:
-                func_vals = tf.expand_dims(func_vals, -1)
+                func_vals = znp.expand_dims(func_vals, -1)
         batch_mean = znp.mean(func_vals, axis=reduce_axis)  # if there are gradients
         err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
 

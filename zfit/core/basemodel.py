@@ -213,9 +213,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _add_dim_to_x(self, x):  # TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?
         if self.n_obs == 1:
             if len(x.shape.as_list()) == 0:
-                x = tf.expand_dims(x, -1)
+                x = znp.expand_dims(x, -1)
             if len(x.shape.as_list()) == 1:
-                x = tf.expand_dims(x, -1)
+                x = znp.expand_dims(x, -1)
         return x
 
     def update_integration_options(self, draws_per_dim=None, mc_sampler=None):
