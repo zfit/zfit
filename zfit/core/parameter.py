@@ -840,27 +840,23 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
                                           dtype=self.dtype)
         return self._conj
 
-    # Todo: Fix return values of the properties real/imag/mod/arg.
-    # Since update to tf 2.5.0rc0 the tensorflow.experimental.numpy operations tend to return
-    # tf.Tensor instead of ndarray<tf.Tensor>. Correct behaviour seems to be up for debate.
-    # See issue on github https://github.com/tensorflow/tensorflow/issues/48376
     @property
-    def real(self) -> znp.ndarray:
+    def real(self) -> tf.Tensor:
         """Real part of the complex parameter."""
         return znp.real(self)
 
     @property
-    def imag(self) -> znp.ndarray:
+    def imag(self) -> tf.Tensor:
         """Imaginary part of the complex parameter."""
         return znp.imag(self)
 
     @property
-    def mod(self) -> znp.ndarray:
+    def mod(self) -> tf.Tensor:
         """Modulus (r) of the complex parameter."""
         return znp.abs(self)
 
     @property
-    def arg(self) -> znp.ndarray:
+    def arg(self) -> tf.Tensor:
         """Argument (phi) of the complex parameter."""
         return znp.angle(self)
 
