@@ -65,7 +65,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
         gradient = tf.numpy_function(grad_func, inp=[param_vals],
                                      Tout=tf.float64)
     if gradient.shape == ():
-        gradient = tf.reshape(gradient, shape=(1,))
+        gradient = znp.reshape(gradient, newshape=(1,))
     gradient.set_shape(param_vals.shape)
     assign_values(params, original_vals)
     return gradient

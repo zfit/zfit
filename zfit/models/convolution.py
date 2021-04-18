@@ -230,12 +230,12 @@ class FFTConvPDFV1(BaseFunctor):
 
         x_func = tf.meshgrid(*tf.unstack(x_funcs, axis=-1), indexing='ij')
         x_func = znp.transpose(x_func)
-        x_func_flatish = tf.reshape(x_func, (-1, self.n_obs))
+        x_func_flatish = znp.reshape(x_func, (-1, self.n_obs))
         data_func = Data.from_tensor(tensor=x_func_flatish, obs=self.obs)
 
         x_kernel = tf.meshgrid(*tf.unstack(x_kernels, axis=-1), indexing='ij')
         x_kernel = znp.transpose(x_kernel)
-        x_kernel_flatish = tf.reshape(x_kernel, (-1, self.n_obs))
+        x_kernel_flatish = znp.reshape(x_kernel, (-1, self.n_obs))
         data_kernel = Data.from_tensor(tensor=x_kernel_flatish, obs=self.obs)
 
         y_func = self.pdfs[0].pdf(data_func, norm_range=False)
@@ -244,8 +244,8 @@ class FFTConvPDFV1(BaseFunctor):
         func_dims = [nbins_func] * self.n_obs
         kernel_dims = [nbins_kernel] * self.n_obs
 
-        y_func = tf.reshape(y_func, func_dims)
-        y_kernel = tf.reshape(y_kernel, kernel_dims)
+        y_func = znp.reshape(y_func, func_dims)
+        y_kernel = znp.reshape(y_kernel, kernel_dims)
 
         # flip the kernel to use the cross-correlation called `convolution function from TF
         # convolution = cross-correlation with flipped kernel
@@ -259,16 +259,16 @@ class FFTConvPDFV1(BaseFunctor):
         upper_func += kernel_shift
 
         # make rectangular grid
-        y_func_rect = tf.reshape(y_func, func_dims)
-        y_kernel_rect = tf.reshape(y_kernel, kernel_dims)
+        y_func_rect = znp.reshape(y_func, func_dims)
+        y_kernel_rect = znp.reshape(y_kernel, kernel_dims)
 
         # needed for multi dims?
         # if self.n_obs == 2:
         #     y_kernel_rect = tf.linalg.adjoint(y_kernel_rect)
 
         # get correct shape for tf.nn.convolution
-        y_func_rect_conv = tf.reshape(y_func_rect, (1, *func_dims, 1))
-        y_kernel_rect_conv = tf.reshape(y_kernel_rect, (*kernel_dims, 1, 1))
+        y_func_rect_conv = znp.reshape(y_func_rect, (1, *func_dims, 1))
+        y_kernel_rect_conv = znp.reshape(y_kernel_rect, (*kernel_dims, 1, 1))
 
         conv = tf.nn.convolution(
             input=y_func_rect_conv,
@@ -288,7 +288,7 @@ class FFTConvPDFV1(BaseFunctor):
         train_points = znp.expand_dims(x_func, axis=0)
         query_points = znp.expand_dims(x.value(), axis=0)
         if self.conv_interpolation == 'spline':
-            conv_points = tf.reshape(conv, (1, -1, 1))
+            conv_points = znp.reshape(conv, (1, -1, 1))
             prob = tfa.image.interpolate_spline(train_points=train_points,
                                                 train_values=conv_points,
                                                 query_points=query_points,

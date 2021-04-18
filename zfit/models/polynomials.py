@@ -137,7 +137,7 @@ def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
             return z.reduce_sum(one_limit_integrals, axis=0)
 
         integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
-        integral = tf.reshape(integral, shape=())
+        integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
 
     return integral
@@ -268,7 +268,7 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
             return z.reduce_sum(one_limit_integrals, axis=0)
 
         integral += indefinite_integral(upper) - indefinite_integral(lower)
-        integral = tf.reshape(integral, shape=())
+        integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
     integral = tf.gather(integral, indices=0, axis=-1)
     return integral
@@ -346,7 +346,7 @@ def func_integral_chebyshev2(limits, norm_range, params, model):
         return chebyshev_shape(x=limits, coeffs=coeffs_cheby1)
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
-    integral = tf.reshape(integral, shape=())
+    integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
 
     return integral
@@ -461,7 +461,7 @@ def func_integral_laguerre(limits, norm_range, params: Dict, model):
         return -1 * laguerre_shape_alpha_minusone(x=limits, coeffs=coeffs_laguerre_nup)
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
-    integral = tf.reshape(integral, shape=())
+    integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
     return integral
 
@@ -543,7 +543,7 @@ def func_integral_hermite(limits, norm_range, params, model):
         return hermite_shape(x=limits, coeffs=coeffs)
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
-    integral = tf.reshape(integral, shape=())
+    integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
 
     return integral
