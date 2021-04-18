@@ -51,6 +51,34 @@ jobs:
 
           bash utils/ci/testbuild_docs.sh
 
+  MacOS_unittests:
+    runs-on: macos-latest
+    timeout-minutes: 150
+    strategy:
+      max-parallel: 8
+      fail-fast: False
+      matrix:
+        python-version: [ 3.8 ]
+        use-graph: [ 0, 1 ]
+
+    name: tests on MacOS with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        name: Set up Python ${{ matrix.python-version }}
+
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+      - name: Test with pytest
+        run: |
+          pip install .[dev]
+          ZFIT_DO_JIT=${{ matrix.use-graph }}
+          coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
+          coverage report
+
 
   notebooks:
     runs-on: ubuntu-latest
