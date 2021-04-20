@@ -1,11 +1,10 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
-#  Copyright (c) 2019 zfit
 import numpy as np
 import pytest
 
 import zfit
-from zfit import ztf
+from zfit import z
 from zfit.core.binning import histogramdd
 
 data1 = np.random.normal(size=(1000, 3))
@@ -47,7 +46,7 @@ def test_midpoints():
                           [0, 3, 0],
                           [0, 0, 0]])
 
-    edges = ztf.convert_to_tensor(edges)
+    edges = z.convert_to_tensor(edges)
     midpoints_true = np.array([[-0.5, 2.5],
                                [1.5, 0.5],
                                [1.5, 2.5],

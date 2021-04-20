@@ -10,7 +10,7 @@ from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
                               SpaceIncompatibleError,
-                              SpecificFunctionNotImplementedError,
+                              SpecificFunctionNotImplemented,
                               WorkInProgressError)
 from .baseobject import BaseNumeric
 from .dimension import BaseDimensional
@@ -42,13 +42,13 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
         return super()._get_dependencies()
 
     def _pdf(self, x, norm_range):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         return self._call_pdf(x, norm_range=norm_range)
 
     def _call_pdf(self, x, norm_range):
-        with suppress(SpecificFunctionNotImplementedError):
+        with suppress(SpecificFunctionNotImplemented):
             return self._pdf(x, norm_range)
         return self._fallback_pdf(x, norm_range=norm_range)
 
@@ -59,13 +59,13 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
         return values
 
     def _unnormalized_pdf(self, x):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def _call_unnormalized_pdf(self, x):
         return self._unnormalized_pdf(x)
 
     def _ext_pdf(self, x, norm_range):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def ext_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         if not self.is_extended:
@@ -73,7 +73,7 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
         return self._call_ext_pdf(x, norm_range=norm_range)
 
     def _call_ext_pdf(self, x, norm_range):
-        with suppress(SpecificFunctionNotImplementedError):
+        with suppress(SpecificFunctionNotImplemented):
             return self._ext_pdf(x, norm_range)
         return self._fallback_ext_pdf(x, norm_range=norm_range)
 
@@ -150,13 +150,13 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
         raise WorkInProgressError
 
     def _sample(self, n, limits):
-        raise SpecificFunctionNotImplementedError
+        raise SpecificFunctionNotImplemented
 
     def sample(self, n: int, limits: ztyping.LimitsType = None) -> ztyping.XType:
         return self._call_sample(n, limits)
 
     def _call_sample(self, n, limits):
-        with suppress(SpecificFunctionNotImplementedError):
+        with suppress(SpecificFunctionNotImplemented):
             self._sample(n, limits)
         return self._fallback_sample(n, limits)
 

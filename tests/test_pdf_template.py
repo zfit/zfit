@@ -98,7 +98,7 @@ def test_binned_template_pdf_bbfull():
     for i in progressbar.progressbar(range(1000000)):
         loss.value()
         loss.gradients()
-    minimizer = zfit.minimize.Minuit(verbosity=8, use_minuit_grad=False)
+    minimizer = zfit.minimize.Minuit(verbosity=8, gradient=True)
     minimizer.minimize(loss)
 
     probs = pdf_sum.ext_pdf(None)
