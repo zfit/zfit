@@ -1,6 +1,6 @@
-=======
+========
 Authors
-=======
+========
 
 | Jonas Eschle <Jonas.Eschle@cern.ch>
 | Albert Puig <apuignav@gmail.com>

@@ -228,7 +228,7 @@ Contributions are always welcome, please have a look at the `Contributing guide`
 
 
 Contact
-=======
+========
 
 You can contact us directly:
  - via e-mail: zfit@physik.uzh.ch

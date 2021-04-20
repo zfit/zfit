@@ -1,6 +1,6 @@
-=======
+========
 Project
-=======
+========
 
 .. toctree::
     :titlesonly:
