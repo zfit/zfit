@@ -1,12 +1,12 @@
 #  Copyright (c) 2021 zfit
 from typing import Iterable
 
+import tensorflow as tf
+
 from .. import z
-from ..core.interfaces import ZfitBinnedPDF, ZfitBinnedData
+from ..core.interfaces import ZfitBinnedData, ZfitBinnedPDF
 from ..core.loss import BaseLoss
 from ..util import ztyping
-
-import tensorflow as tf
 
 
 class ExtendedBinnedNLL(BaseLoss):

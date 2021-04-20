@@ -1,27 +1,20 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import pytest
 import tensorflow as tf
 
 import zfit
 from zfit import z
 from zfit.core.coordinates import Coordinates
-from zfit.core.space import Space, Limit, ANY
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
-from zfit.util.exception import CoordinatesUnderdefinedError, LimitsIncompatibleError
-
-setup_func_general = setup_function
-teardown_func_general = teardown_function
+from zfit.core.space import ANY, Limit, Space
+from zfit.util.exception import (CoordinatesUnderdefinedError,
+                                 LimitsIncompatibleError)
 
 
-def setup_function():
+@pytest.fixture(autouse=True, scope="module")
+def setup_teardown_vectors():
     Limit._experimental_allow_vectors = True
-    setup_func_general()
-
-
-def teardown_function():
+    yield
     Limit._experimental_allow_vectors = False
-    teardown_func_general()
 
 
 obs1 = ('a', 'b', 'c', 'd', 'e')

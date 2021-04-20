@@ -1,14 +1,14 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from typing import Callable, Union
 
 import tensorflow as tf
 
-from .interfaces import ZfitModel, ZfitFunc, ZfitPDF, ZfitParameter
-from .parameter import convert_to_parameter
 from ..util import ztyping
-from ..util.exception import (IntentionAmbiguousError,
-                              ModelIncompatibleError, BreakingAPIChangeError)
+from ..util.exception import (BreakingAPIChangeError, IntentionAmbiguousError,
+                              ModelIncompatibleError)
+from .interfaces import ZfitFunc, ZfitModel, ZfitParameter, ZfitPDF
+from .parameter import convert_to_parameter
 
 
 def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> ztyping.BaseObjectType:
@@ -59,7 +59,7 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -
 
 def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "multiply_pdf_pdf") -> "ProductPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
-        raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
+        raise TypeError(f"`pdf1` and `pdf2` need to be `ZfitPDF` and not {pdf1}, {pdf2}")
     from ..models.functor import ProductPDF
     if not pdf1.is_extended and pdf2.is_extended:
         raise IntentionAmbiguousError("Cannot multiply this way a non-extendended PDF with an extended PDF."
@@ -71,7 +71,7 @@ def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "multiply_pdf_pdf
 
 def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_func_func") -> "ProdFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
-        raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
+        raise TypeError(f"`func1` and `func2` need to be `ZfitFunc` and not {func1}, {func2}")
     from ..models.functions import ProdFunc
 
     return ProdFunc(funcs=[func1, func2], name=name)
@@ -110,7 +110,7 @@ def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
 
 def multiply_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParameter:
     if not (isinstance(param1, ZfitParameter) and isinstance(param2, ZfitParameter)):
-        raise TypeError("`param1` and `param2` need to be `ZfitParameter` and not {}, {}".format(param1, param2))
+        raise TypeError(f"`param1` and `param2` need to be `ZfitParameter` and not {param1}, {param2}")
     param = tf.multiply(param1, param2)
     return param
 
@@ -173,7 +173,7 @@ def _convert_to_known(object1, object2):
 
 def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> "SumPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
-        raise TypeError("`pdf1` and `pdf2` need to be `ZfitPDF` and not {}, {}".format(pdf1, pdf2))
+        raise TypeError(f"`pdf1` and `pdf2` need to be `ZfitPDF` and not {pdf1}, {pdf2}")
     if not (pdf1.is_extended and pdf2.is_extended):
         raise BreakingAPIChangeError("Adding (non-extended) pdfs is not allowed anymore due to disambiguity."
                                      "Use the `zfit.pdf.SumPDF([pdf, other_pdf], frac)` syntax instead.")
@@ -184,7 +184,7 @@ def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> "Sum
 
 def add_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "add_func_func") -> "SumFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
-        raise TypeError("`func1` and `func2` need to be `ZfitFunc` and not {}, {}".format(func1, func2))
+        raise TypeError(f"`func1` and `func2` need to be `ZfitFunc` and not {func1}, {func2}")
     from ..models.functions import SumFunc
 
     return SumFunc(funcs=[func1, func2], name=name)
@@ -199,7 +199,7 @@ def add_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
 
 def add_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParameter:
     if not (isinstance(param1, ZfitParameter) and isinstance(param2, ZfitParameter)):
-        raise TypeError("`param1` and `param2` need to be `ZfitParameter` and not {}, {}".format(param1, param2))
+        raise TypeError(f"`param1` and `param2` need to be `ZfitParameter` and not {param1}, {param2}")
     # use the default behavior of variables
     return tf.add(param1, param2)
 

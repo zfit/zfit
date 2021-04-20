@@ -1,13 +1,13 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import functools
 from typing import Any
 
 import tensorflow as tf
 
-from .tools import _auto_upcast
 from ..settings import ztypes
-from ..util.legacy import deprecated
+from ..util.deprecation import deprecated
+from .tools import _auto_upcast
 
 
 def exp(x, name=None):
@@ -62,9 +62,8 @@ def check_numerics(tensor: Any, message: Any, name: Any = None):
         name:
 
     Returns:
-
     """
-    if tensor.dtype in (tf.complex64, tf.complex128):
+    if tf.as_dtype(tensor.dtype).is_complex:
         real_check = tf.debugging.check_numerics(tensor=tf.math.real(tensor), message=message, name=name)
         imag_check = tf.debugging.check_numerics(tensor=tf.math.imag(tensor), message=message, name=name)
         check_op = tf.group(real_check, imag_check)

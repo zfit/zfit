@@ -8,7 +8,7 @@ Use Constraint to constrain your models parameters.
     Include more built-in Constraints.
 
 .. autosummary::
-    :toctree: constraint
+    :toctree: _generated/constraint
 
     zfit.constraint.SimpleConstraint
     zfit.constraint.GaussianConstraint

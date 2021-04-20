@@ -1,32 +1,33 @@
 """Baseclass for most objects appearing in zfit."""
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Optional, Iterable, Set
+from typing import Iterable, Optional, Set
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-from .dependents import BaseDependentsMixin
-from .interfaces import ZfitObject, ZfitNumericParametrized, ZfitParameter, ZfitParametrized, ZfitIndependentParameter
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
-from ..util.container import DotDict, convert_to_container
+from ..util.container import convert_to_container
+from .dependents import BaseDependentsMixin
+from .interfaces import (ZfitIndependentParameter, ZfitNumericParametrized,
+                         ZfitObject, ZfitParameter, ZfitParametrized)
 
 
 class BaseObject(ZfitObject):
 
     def __init__(self, name, **kwargs):
-        assert not kwargs, "kwargs not empty, the following arguments are not captured: {}".format(kwargs)
+        assert not kwargs, f"kwargs not empty, the following arguments are not captured: {kwargs}"
         super().__init__()
 
         self._name = name  # TODO: uniquify name?
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        cls._repr = DotDict()  # TODO: make repr more sophisticated
+        cls._repr = {}  # TODO: make repr more sophisticated
 
     @property
     def name(self) -> str:
@@ -67,7 +68,7 @@ class BaseParametrized(ZfitParametrized):
 
         # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
         self._params = params
-        self._repr.params = self.params
+        self._repr['params'] = self.params
 
     def get_params(self,
                    floating: Optional[bool] = True,
@@ -95,7 +96,7 @@ class BaseParametrized(ZfitParametrized):
         if only_floating is not NotSpecified:
             floating = only_floating
             warnings.warn("`only_floating` is deprecated and will be removed in the future, use `floating` instead.",
-                          DeprecationWarning)
+                          DeprecationWarning, stacklevel=2)
         return self._get_params(floating=floating, is_yield=is_yield, extract_independent=extract_independent)
 
     def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
@@ -109,7 +110,7 @@ class BaseParametrized(ZfitParametrized):
         return params
 
     @property
-    def params(self) -> ztyping.ParametersType:
+    def params(self) -> ztyping.ParameterType:
         return self._params
 
 
@@ -123,7 +124,7 @@ class BaseNumeric(GraphCachable, BaseDependentsMixin, BaseParametrized, ZfitNume
 
     @property
     def dtype(self) -> tf.DType:
-        """The dtype of the object"""
+        """The dtype of the object."""
         return self._dtype
 
     @staticmethod
@@ -147,5 +148,5 @@ def extract_filter_params(params: Iterable[ZfitParametrized],
         if not extract_independent and not all(param.independent for param in params):
             raise ValueError("Since `extract_dependent` is not set to True, there are maybe dependent parameters for "
                              "which `floating` is an ill-defined attribute.")
-        params = OrderedSet((p for p in params if p.floating == floating))
+        params = OrderedSet(p for p in params if p.floating == floating)
     return params

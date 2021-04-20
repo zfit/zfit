@@ -1,5 +1,5 @@
-**Questions**: feel free to [ask on StackOverflow](https://stackoverflow.com/questions/ask) with 
-the **zfit** tag (so we also get notified).
+**Questions**: feel free to [ask on StackOverflow](https://stackoverflow.com/questions/ask) with the **zfit** tag (so we
+also get notified).
 
 **Bugs or Feature Requests** Please fill the below form _if possible_.
 
@@ -16,17 +16,21 @@ If there was a crash, please include the traceback here.
 ```
 
 ## Expected Behaviour
+
 <!--- Tell us what should happen. -->
 
 ## Context (Environment)
+
 <!--- How has this issue affected you? What are you trying to accomplish? -->
 <!--- Providing context helps us come up with a solution that is most useful in the real world -->
-* zfit version:
-* Python version:
-* Are you using conda, pipenv, etc? :
-* Operating System:
-* Tensorflow version:
+
+- zfit version:
+- Python version:
+- Are you using conda, pipenv, etc? :
+- Operating System:
+- Tensorflow version:
 
 ## Possible Solution/Implementation
+
 <!--- Not obligatory, but suggest a fix/reason for the bug, -->
 <!--- and maybe suggest an idea for implementing addition or change -->

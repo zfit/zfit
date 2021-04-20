@@ -1,9 +1,11 @@
 #  Copyright (c) 2021 zfit
+import tensorflow as tf
+
 import zfit
+
 from .. import convert_to_parameter
 from ..core.binnedpdf import BaseBinnedPDF
 from ..util.exception import WorkInProgressError
-import tensorflow as tf
 
 
 class BinnedTemplatePDF(BaseBinnedPDF):

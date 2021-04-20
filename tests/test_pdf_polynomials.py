@@ -1,16 +1,12 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import copy
 
 import numpy as np
 import pytest
 import tensorflow as tf
-import tensorflow_probability as tfp
 
 import zfit
-# noinspection PyUnresolvedReferences
-from zfit import z
 
-# obs1_random = zfit.Space(obs="obs1", limits=(-1.05, 1.05))
 obs1_random = zfit.Space(obs="obs1", limits=(-1.5, 1.2))
 obs1 = zfit.Space(obs="obs1", limits=(-1, 1))
 

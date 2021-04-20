@@ -2,4 +2,3 @@
 
 .. autoclass:: {{ fullname }}
     :members:
-

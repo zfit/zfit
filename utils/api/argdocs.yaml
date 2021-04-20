@@ -1,0 +1,274 @@
+model.init.name: |1+
+    Name of the PDF for a better visibility.
+                Has no programmatical functional purpose.
+
+
+minimizer.verbosity: |1+
+ Verbosity of the minimizer. Has to be between 0 and 10.
+               The verbosity has the meaning:
+
+                - a value of 0 means quiet and no output
+                - above 0 up to 5, information that is good to know but without
+                  flooding the user, corresponding to a "INFO" level.
+                - A value above 5 starts printing out considerably more and
+                  is used more for debugging purposes.
+                - Setting the verbosity to 10 will print out every
+                  evaluation of the loss function and gradient.
+
+                Some minimizer offer additional output which is also
+                distributed as above but may duplicate certain printed values.
+
+minimizer.tol: |1+
+    Termination value for the
+                    convergence/stopping criterion of the algorithm
+                    in order to determine if the minimum has
+                    been found. Defaults to 1e-3.
+minimizer.criterion: |1+
+    Criterion of the minimum. This is an
+                    estimated measure for the distance to the
+                    minimum and can include the relative
+                    or absolute changes of the parameters,
+                    function value, gradients and more.
+                    If the value of the criterion is smaller
+                    than ``loss.errordef * tol``, the algorithm
+                    stopps and it is assumed that the minimum
+                    has been found.
+minimizer.strategy: |1+
+    A class of type `ZfitStrategy` that takes no
+                    input arguments in the init. Determines the behavior of the minimizer in
+                    certain situations, most notably when encountering
+                    NaNs. It can also implement a callback function.
+minimizer.maxiter: |1+
+    Approximate number of iterations.
+                    This corresponds to roughly the maximum number of
+                    evaluations of the `value`, 'gradient` or `hessian`.
+minimizer.name: |1+
+    Human readable name of the minimizer.
+minimizer.maxcor: |1+
+    Maximum number of memory history to keep
+                    when using a quasi-Newton update formula such as BFGS.
+                    It is the number of gradients
+                    to “remember” from previous optimization
+                    steps: increasing it increases
+                    the memory requirements but may speed up the convergence.
+minimizer.init.maxls: |1+
+    Maximum number of linesearch points.
+
+minimizer.scipy.gradient: |1+
+    Define the method to use for the gradient computation
+                    that the minimizer should use. This can be the
+                    gradient provided by the loss itself or
+                    method from the minimizer.
+                    In general, using the zfit provided automatic gradient is
+                    more precise and needs less computation time for the
+                    evaluation compared to a numerical method but it may not always be
+                    possible. In this case, zfit switches to a generic, numerical gradient
+                    which in general performs worse than if the minimizer has its own
+                    numerical gradient.
+                    The following are possible choices:
+
+                    If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                    gradient of the loss (usually the automatic gradient) will be used;
+                    the minimizer won't use an internal algorithm.
+
+
+minimizer.scipy.gradient.internal: |1+
+    ``True`` tells the minimizer to use its default internal
+                    gradient estimation. This can be specified more clearly using the
+                    arguments ``'2-point'`` and ``'3-point'``, which specify the
+                    numerical algorithm the minimizer should use in order to
+                     estimate the gradient.
+minimizer.scipy.hessian: |1+
+    Define the method to use for the hessian computation
+                    that the minimizer should use. This can be the
+                    hessian provided by the loss itself or
+                    method from the minimizer.
+
+                    While the exact gradient can speed up the convergence and is
+                    often beneficial, this ain't true for the computation of the
+                    (inverse) Hessian matrix.
+                    Due to the $n^2$ number of entries (compared to $n$ in the
+                    gradient) from the $n$ parameters, this can grow quite
+                    large and become computationally expensive.
+
+                    Therefore, many algorithms use an approximated (inverse)
+                    Hessian matrix making use of the gradient updates instead
+                    of calculating the exact matrix. This turns out to be
+                    precise enough and usually considerably speeds up the
+                    convergence.
+
+                    The following are possible choices:
+
+                    If set to ``False`` or ``'zfit'``, the
+                    hessian defined in the loss (usually using automatic differentiation)
+                    will be used;
+                    the minimizer won't use an internal algorithm.
+minimizer.scipy.hessian.internal: |1+
+    A :class:`~scipy.optimize.HessianUpdateStrategy` that holds
+                    an approximation of the hessian. For example
+                    :class:`~scipy.optimize.BFGS` (which performs usually best)
+                    or :class:`~scipy.optimize.SR1`
+                    (sometimes unstable updates).
+                    ``True``  (or ``None``; default) tells the minimizer
+                    to use its default internal
+                    hessian approximation.
+                    Arguments ``'2-point'`` and ``'3-point'`` specify which
+                    numerical algorithm the minimizer should use in order to
+                    estimate the hessian. This is only possible if the
+                    gradient is provided by zfit and not an internal numerical
+                    method is already used to determine it.
+
+minimizer.scipy.info: |1+
+    This implenemtation wraps the minimizers in
+         `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_.
+minimizer.trust.eta: |1+
+    Trust region related acceptance
+                    stringency for proposed steps.
+minimizer.trust.init_trust_radius: |1+
+    Initial trust-region radius.
+minimizer.trust.max_trust_radius: |1+
+    Maximum value of the trust-region radius.
+                    No steps that are longer than this value will be proposed.
+
+minimizer.nlopt.population: |1+
+    The population size for the evolutionary algorithm.
+
+minimizer.nlopt.info: |1+
+    More information on the algorithm can be found
+         `here <https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/>`_.
+
+         This implenemtation uses internally the
+         `NLopt library <https://nlopt.readthedocs.io/en/latest/>`_.
+         It is a
+         free/open-source library for nonlinear optimization,
+         providing a common interface for a number of
+         different free optimization routines available online as well as
+         original implementations of various other algorithms.
+
+
+
+
+loss.init.model: |1+
+   PDFs that return the normalized probability for
+                *data* under the given parameters.
+                If multiple model and data are given, they will be used
+                in the same order to do a simultaneous fit.
+
+loss.init.data: |1+
+   Dataset that will be given to the *model*.
+                If multiple model and data are given, they will be used
+                in the same order to do a simultaneous fit.
+
+loss.init.constraints: |1+
+   Auxiliary measurements that add a term to the loss
+                or terms that restrict the loss in an other way such as penalties.
+loss.init.options: |1+
+   Additional options (as a dict) for the loss.
+                Current possibilities include:
+
+                - 'subtr_const' (default True): subtract from each points
+                  log probability density a constant that
+                  is approximately equal to the average log probability
+                  density in the very first evaluation before
+                  the summation. This brings the initial loss value closer to 0 and increases,
+                  especially for large datasets, the numerical stability.
+
+                  The value will be stored ith 'subtr_const_value' and can also be given
+                  directly.
+
+                  The subtraction should not affect the minimum as the absolute
+                  value of the NLL is meaningless. However,
+                  with this switch on, one cannot directly compare
+                  different likelihoods ablolute value as the constant
+                  may differs! Use `create_new` in order to have a comparable likelihood
+                  between different losses
+
+
+                These settings may extend over time. In order to make sure that a loss is the
+                same under the same data, make sure to use `create_new` instead of instantiating
+                a new loss as the former will automatically overtake any relevant constants
+                and behavior.
+
+
+
+
+result.init.loss: |1+
+    The loss function that was minimized.
+                Usually, but not necessary, contains
+                also the pdf, data and constraints.
+result.init.params: |1+
+    Result of the fit where each
+                :py:class:`~zfit.Parameter` key has the
+                value from the minimum found by the minimizer.
+
+result.init.minimizer: |1+
+    Minimizer that was used to obtain this `FitResult` and will be used to
+                    calculate certain errors. If the minimizer
+                    is state-based (like "iminuit"), then this is a copy
+                    and the state of other `FitResults` or of the *actual*
+                    minimizer that performed the minimization
+                    won't be altered.
+result.init.valid: |1+
+    Indicating whether the result is valid or not. This is the strongest
+                    indication and serves as
+                    the global flag. The reasons why a result may be
+                    invalid can be arbitrary, including but not exclusive:
+
+                    - parameter(s) at the limit
+                    - maxiter reached without proper convergence
+                    - the minimizer may even converged but it is known that this is only a local minimum
+
+                    To indicate the reason for the invalidity, pass a message.
+result.init.edm: |1+
+    The estimated distance to minimum
+                    which is the criterion value at the minimum.
+result.init.fmin: |1+
+    Value of the function at the minimum.
+result.init.criterion: |1+
+    Criterion that was used during the minimization.
+                    This determines the estimated distance to the
+                    minimum (edm)
+result.init.status: |1+
+    A status code (if available) that describes
+                    the minimization termination. 0 means a valid
+                    termination.
+result.init.converged: |1+
+    Whether the fit has successfully converged or not.
+                    The result itself can still be an invalid minimum
+                    such as if the parameters are at or close
+                    to the limits or in case another minimum is found.
+result.init.message: |1+
+    Human readable message to indicate the reason
+                    if the fitresult is not valid.
+                    If the fit is valid, the message (should)
+                    be an empty string (or None),
+                    otherwise it should denote the reason for the invalidity.
+result.init.info: |1+
+    Additional information (if available)
+                    such as *number of gradient function calls* or the
+                    original minimizer return message.
+                    This is a relatively free field and _no single field_
+                    in it is guaranteed to be stable.
+                    Some recommended fields:
+
+                    - *original*: contains the original returned object
+                      by the minimizer used internally.
+                    - *optimizer*: the actual instance of the wrapped
+                      optimizer (if available)
+result.init.approx: |1+
+    Collection of approximations found during
+                    the minimization process such as gradient and hessian.
+result.init.niter: |1+
+    Approximate number of iterations ~= number
+                    of function evaluations ~= number of gradient evaluations.
+                    This is an approximated value and the exact meaning
+                    can differ between different minimizers.
+result.init.evaluator: |1+
+    Loss evaluator that was used during the
+                    minimization and that may contains information
+                    about the last evaluations of the gradient
+                    etc which can serve as approximations.
+
+result.init.values: |1+
+    Values of the parameters at the
+                    found minimum.

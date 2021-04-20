@@ -4,7 +4,9 @@
 Data
 ====
 
-An easy and fast data manipulation are among the crucial aspects in High Energy Particle physics data analysis. With the increasing data availability (e.g. with the advent of LHC), this challenge has been pursued in different manners. Common strategies vary from multidimensional arrays with attached row/column labels (e.g. ``DataFrame`` in *pandas*) or compressed binary formats (e.g. ROOT). While each of these data structure designs has their own advantages in terms of speed and acessibility, the data concept inplemented in ``zfit`` follows closely the features of ``DataFrame`` in *pandas*.
+An easy and fast data manipulation are among the crucial aspects in High Energy Particle physics data analysis.
+With the increasing data availability (e.g. with the advent of LHC), this challenge has been pursued in different
+manners. Common strategies vary from multidimensional arrays with attached row/column labels (e.g. ``DataFrame`` in *pandas*) or compressed binary formats (e.g. ROOT). While each of these data structure designs has their own advantages in terms of speed and acessibility, the data concept inplemented in ``zfit`` follows closely the features of ``DataFrame`` in *pandas*.
 
 The :py:class:`~zfit.Data` class provides a simple and structured access/manipulation of *data* -- similarly to concept of multidimensional arrays approach from *pandas*. The key feature of :py:class:`~zfit.Data` is its relation to the :py:class:`~zfit.Space` or more explicitly its axis or name. A more equally convention is to name the role of the :py:class:`~zfit.Space` in this context as the *observable* under investigation. Note that no explicit range for the :py:class:`~zfit.Space` is required at the moment of the data definition, since this is only required at the moment some calculation is needed (e.g. integrals, fits, etc).
 
@@ -13,11 +15,9 @@ Import dataset from a ROOT file
 
 With the proliferation of the ROOT framework in the context of particle physics, it is often the case that the user will have access to a ROOT file in their analysis. A simple method has been used to handle this conversion:
 
-.. code-block:: pycon
+.. code-block::
 
-    >>> data = zfit.Data.from_root(root_file,
-    ...                                root_tree,
-    ...                                branches)
+    data = zfit.Data.from_root(root_file, root_tree, branches)
 
 where ``root_file`` is the path to the ROOT file, ``root_tree`` is the tree name and branches are the list (or a single) of branches that the user wants to import from the ROOT file.
 
@@ -48,14 +48,14 @@ A very simple manipulation of the dataset is provided via the pandas DataFrame. 
 
 .. code-block:: pycon
 
-    >>> data = zfit.Data.from_pandas(pandas_DataFrame,
-    ...                                   obs=None,
-    ...                                   weights=None)
+    >>> data = zfit.Data.from_pandas(pandas.DataFrame,
+    ...                              obs=None,
+    ...                              weights=None)
 
 In the case of Numpy, the only difference is that as input is required a numpy ndarray and the :py:class:`~zfit.Space` (obs) is mandatory:
 
 .. code-block:: pycon
 
-    >>> data = zfit.Data.from_numpy(numpy_ndarray,
-    ...                                  obs,
-    ...                                  weights=None)
+    >>> data = zfit.Data.from_numpy(numpy.ndarray,
+    ...                             obs,
+    ...                             weights=None)

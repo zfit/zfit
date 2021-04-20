@@ -1,13 +1,12 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import scipy.stats
 
 import zfit
 from zfit import z
-from zfit.core.constraint import BaseConstraint, SimpleConstraint, GaussianConstraint
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.core.constraint import (BaseConstraint, GaussianConstraint,
+                                  SimpleConstraint)
 from zfit.util.container import convert_to_container
 from zfit.util.exception import ShapeIncompatibleError
 

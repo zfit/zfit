@@ -1,9 +1,9 @@
-"""
-Basic PDFs are provided here. Gauss, exponential... that can be used together with Functors to
-build larger models.
+"""Basic PDFs are provided here.
+
+Gauss, exponential... that can be used together with Functors to build larger models.
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import contextlib
 import math as mt
 
@@ -12,10 +12,12 @@ import tensorflow as tf
 
 import zfit.z.math
 from zfit import z
+
 from ..core.basepdf import BasePDF
-from ..core.space import Space, ANY_LOWER, ANY_UPPER
+from ..core.space import ANY_LOWER, ANY_UPPER, Space
 from ..util import ztyping
-from ..util.exception import AnalyticIntegralNotImplementedError, BreakingAPIChangeError
+from ..util.exception import (AnalyticIntegralNotImplemented,
+                              BreakingAPIChangeError)
 from ..util.warnings import warn_advanced_feature
 
 infinity = mt.inf
@@ -120,7 +122,7 @@ class Exponential(BasePDF):
     # All hooks are needed to set the right shift when "entering" the pdf. The norm range is taken where both are
     # available. No special need needs to be taken for sampling (it samples from the correct region, the limits, and
     # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
-    def _single_hook_integrate(self, limits, norm_range):
+    def _single_hook_integrate(self, limits, norm_range, x):
         with self._set_numerics_data_shift(norm_range):
             return super()._single_hook_integrate(limits, norm_range)
 
@@ -169,16 +171,16 @@ class Exponential(BasePDF):
         with self._set_numerics_data_shift(limits=norm_range):
             return super()._single_hook_log_pdf(x, norm_range)
 
-    def _single_hook_sample(self, n, limits):
+    def _single_hook_sample(self, n, limits, x=None):
         with self._set_numerics_data_shift(limits=limits):
-            return super()._single_hook_sample(n, limits)
+            return super()._single_hook_sample(n, limits, x)
 
 
 def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params['lambda']
     lower, upper = limits.rect_limits_np
     if any(np.isinf([lower, upper])):
-        raise AnalyticIntegralNotImplementedError
+        raise AnalyticIntegralNotImplemented
 
     integral = _exp_integral_func_shifting(lambd=lambda_, lower=lower, upper=upper, model=model)
     return integral[0]

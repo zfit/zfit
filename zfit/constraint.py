@@ -1,8 +1,9 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import tensorflow as tf
 
-from .core.constraint import SimpleConstraint, GaussianConstraint, PoissonConstraint
+from .core.constraint import (GaussianConstraint, PoissonConstraint,
+                              SimpleConstraint)
 from .util import ztyping
 
 __all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint", "PoissonConstraint"]

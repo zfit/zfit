@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from collections import OrderedDict
 from typing import Mapping
 
@@ -6,21 +6,24 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .baseminimizer import BaseMinimizer, print_gradients, ZfitStrategy, print_params
-from .fitresult import FitResult
 from .. import z
+from ..core.parameter import set_values
+from .baseminimizer import BaseMinimizer, minimize_supports
+from .evaluation import print_gradient, print_params
+from .fitresult import FitResult
+from .strategy import ZfitStrategy
 
 
 class BFGS(BaseMinimizer):
 
-    def __init__(self, strategy: ZfitStrategy = None, tolerance: float = 1e-5, verbosity: int = 5,
+    def __init__(self, strategy: ZfitStrategy = None, tol: float = 1e-5, verbosity: int = 5,
                  max_calls: int = 3000,
                  name: str = "BFGS_TFP", options: Mapping = None) -> None:
         """# Todo write description for api.
 
         Args:
             strategy: Strategy that handles NaN and more (to come, experimental)
-            tolerance: Difference between the function value that suffices to stop minimization
+            tol: Difference between the function value that suffices to stop minimization
             verbosity: The higher, the more is printed. Between 1 and 10 typically
             max_calls: Maximum number of calls, approximate
             name: Name of the Minimizer
@@ -28,9 +31,10 @@ class BFGS(BaseMinimizer):
         """
         self.options = {} if options is None else options
         self.max_calls = max_calls
-        super().__init__(strategy=strategy, tolerance=tolerance, verbosity=verbosity, name=name,
-                         minimizer_options={})
+        super().__init__(strategy=strategy, tol=tol, verbosity=verbosity, name=name,
+                         minimizer_options={}, criterion=None, maxiter=None)
 
+    @minimize_supports()
     def _minimize(self, loss, params):
         from .. import run
         minimizer_fn = tfp.optimizer.bfgs_minimize
@@ -44,7 +48,7 @@ class BFGS(BaseMinimizer):
         def update_params_value_grad(loss, params, values):
             for param, value in zip(params, tf.unstack(values, axis=0)):
                 param.set_value(value)
-            value, gradients = loss.value_gradients(params=params)
+            value, gradients = loss.value_gradient(params=params)
             return gradients, value
 
         def to_minimize_func(values):
@@ -52,10 +56,10 @@ class BFGS(BaseMinimizer):
             do_print = self.verbosity > 8
 
             is_nan = False
-            gradients = None
+            gradient = None
             value = None
             try:
-                gradients, value = update_params_value_grad(loss, params, values)
+                gradient, value = update_params_value_grad(loss, params, values)
 
             except tf.errors.InvalidArgumentError:
                 err = 'NaNs'
@@ -66,10 +70,10 @@ class BFGS(BaseMinimizer):
             finally:
                 if value is None:
                     value = f"invalid, {err}"
-                if gradients is None:
-                    gradients = [f"invalid, {err}"] * len(params)
+                if gradient is None:
+                    gradient = [f"invalid, {err}"] * len(params)
                 if do_print:
-                    print_gradients(params, run(values), [float(run(g)) for g in gradients], loss=run(value))
+                    print_gradient(params, run(values), [float(run(g)) for g in gradient], loss=run(value))
             loss_evaluated = run(value)
             is_nan = is_nan or np.isnan(loss_evaluated)
             if is_nan:
@@ -84,14 +88,14 @@ class BFGS(BaseMinimizer):
                 nan_counter = 0
                 current_loss = value
 
-            gradients = tf.stack(gradients)
-            return value, gradients
+            gradient = tf.stack(gradient)
+            return value, gradient
 
         initial_inv_hessian_est = tf.linalg.tensor_diag([p.step_size for p in params])
 
         minimizer_kwargs = dict(
             initial_position=tf.stack(params),
-            x_tolerance=self.tolerance,
+            x_tol=self.tol,
             # f_relative_tolerance=self.tolerance * 1e-5,  # TODO: use edm for stopping criteria
             initial_inverse_hessian_estimate=initial_inv_hessian_est,
             parallel_iterations=1,
@@ -103,7 +107,7 @@ class BFGS(BaseMinimizer):
 
         # save result
         params_result = run(result.position)
-        self._update_params(params, values=params_result)
+        assign_values(params, values=params_result)
 
         info = {'n_eval'  : run(result.num_objective_evaluations),
                 'n_iter'  : run(result.num_iterations),

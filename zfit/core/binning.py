@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from typing import List
 
 import boost_histogram as bh
@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from zfit import z
-from zfit.core.interfaces import ZfitRectBinning, ZfitData
+from zfit.core.interfaces import ZfitData, ZfitRectBinning
 from zfit.util.ztyping import XTypeInput
 
 

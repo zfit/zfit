@@ -1,8 +1,8 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import warnings
 
 from ._loss.binnedloss import ExtendedBinnedNLL
-from .core.loss import ExtendedUnbinnedNLL, UnbinnedNLL, BaseLoss, SimpleLoss
+from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
 __all__ = ["ExtendedUnbinnedNLL",
            "UnbinnedNLL",

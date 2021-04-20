@@ -1,11 +1,9 @@
-"""
-This module contains functions for the numeric as well as the analytic (partial) integration.
-"""
+"""This module contains functions for the numeric as well as the analytic (partial) integration."""
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import collections
-from typing import Callable, Optional, Union, Type, Tuple, List
+from typing import Callable, List, Optional, Tuple, Type, Union
 
 import numpy as np
 import tensorflow as tf
@@ -14,13 +12,15 @@ import tensorflow_probability as tfp
 import zfit
 from zfit import z
 from zfit.core.dimension import BaseDimensional
-from zfit.core.interfaces import ZfitData, ZfitSpace, ZfitModel
+from zfit.core.interfaces import ZfitData, ZfitModel, ZfitSpace
 from zfit.util.container import convert_to_container
 from zfit.util.temporary import TemporarilySet
-from .space import convert_to_space, Space, supports
+
 from ..settings import ztypes
 from ..util import ztyping
-from ..util.exception import WorkInProgressError, AnalyticIntegralNotImplementedError
+from ..util.exception import (AnalyticIntegralNotImplemented,
+                              WorkInProgressError)
+from .space import Space, convert_to_space, supports
 
 
 @supports()
@@ -207,13 +207,19 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
         def grad_fn(dy, variables=None):
             if variables is None:
                 return dy, None
-            normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(ys=func(x), xs=variables)),
-                                               n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
-                                               dtype=dtype,
-                                               space=space,
-                                               x=x, shape_after=(len(variables),))
+            with tf.GradientTape() as tape:
+                value = normalization_nograd(func=func, n_axes=n_axes,
+                                             batch_size=batch_size, num_batches=num_batches,
+                                             dtype=dtype,
+                                             space=space, x=x, shape_after=shape_after)
 
-            return dy, tf.unstack(normed_grad)
+            # normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(ys=func(x), xs=variables)),
+            #                                    n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
+            #                                    dtype=dtype,
+            #                                    space=space,
+            #                                    x=x, shape_after=(len(variables),))
+
+            return dy, tape.gradient(value, variables)
 
         return value, grad_fn
 
@@ -221,8 +227,6 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
     return normalization_func(fake_x)
 
 
-def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
-    avg = normalization_nograd()
 
 
 # @z.function
@@ -366,11 +370,11 @@ class PartialIntegralSampleData(BaseDimensional, ZfitData):
 class AnalyticIntegral:
     def __init__(self, *args, **kwargs):
         """Hold analytic integrals and manage their dimensions, limits etc."""
-        super(AnalyticIntegral, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._integrals = collections.defaultdict(dict)
 
     def get_max_axes(self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None) -> Tuple[int]:
-        """Return the maximal available axes to integrate over analytically for given limits
+        """Return the maximal available axes to integrate over analytically for given limits.
 
         Args:
             limits: The integral function will be able to integrate over this limits
@@ -460,7 +464,6 @@ class AnalyticIntegral:
                   norm_range: ztyping.LimitsType = None, model: ZfitModel = None, params: dict = None) -> ztyping.XType:
         """Integrate analytically over the axes if available.
 
-
         Args:
             x: If a partial integration is made, x are the value to be evaluated for the partial
                 integrated function. If a full integration is performed, this should be `None`.
@@ -482,10 +485,10 @@ class AnalyticIntegral:
         integral_holder = self._integrals.get(axes)
         # limits = convert_to_space(axes=self.axes, limits=limits)
         if integral_holder is None:
-            raise AnalyticIntegralNotImplementedError(f"Analytic integral is not available for axes {axes}")
+            raise AnalyticIntegralNotImplemented(f"Analytic integral is not available for axes {axes}")
         integral_fn = self.get_max_integral(limits=limits)
         if integral_fn is None:
-            raise AnalyticIntegralNotImplementedError(
+            raise AnalyticIntegralNotImplemented(
                 f"Integral is available for axes {axes}, but not for limits {limits}")
 
         try:

@@ -3,7 +3,7 @@ engines:
     enabled: true
     config:
       languages:
-      - python
+        - python
   fixme:
     enabled: true
   radon:
@@ -12,7 +12,7 @@ engines:
       python_version: 3
 ratings:
   paths:
-  - "**.py"
+    - "**.py"
 exclude_paths:
   - tests/
   - docs/
@@ -21,4 +21,4 @@ exclude_paths:
   - legacy/
 checks:
   argument-count:
-      enabled: false
+    enabled: false

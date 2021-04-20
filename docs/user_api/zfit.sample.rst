@@ -1,9 +1,9 @@
 Sample
 ------
 
-.. warning:: Page not correctly filled yet.
+.. todo:: Fill overview page
 
-.. automodule:: zfit.sample
+.. autosummary::
+    :toctree: _generated/sample
 
-
-
+    zfit.sample.poisson

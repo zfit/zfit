@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from typing import Type
 
@@ -7,8 +7,9 @@ import tensorflow as tf
 
 import zfit
 from zfit import z
+
 from ..core.basepdf import BasePDF
-from ..core.space import ANY_UPPER, ANY_LOWER, Space
+from ..core.space import ANY_LOWER, ANY_UPPER, Space
 from ..settings import ztypes
 from ..util import ztyping
 

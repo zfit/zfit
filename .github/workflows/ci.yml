@@ -1,0 +1,107 @@
+name: tests
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+    branches:
+      - master
+      - develop
+      - "release/*"
+  pull_request:
+
+jobs:
+  unittests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      max-parallel: 8
+      fail-fast: False
+      matrix:
+        use-graph: [ 0, 1 ]
+        python-version: [ 3.7, 3.8 ]
+    name: tests on ubuntu with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        name: Set up Python ${{ matrix.python-version }}
+
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+      - name: Test with pytest
+        run: |
+          pip install .[dev]
+          ZFIT_DO_JIT=${{ matrix.use-graph }}
+          coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
+          coverage report
+
+          bash utils/ci/install_test_examples.sh
+
+          bash utils/ci/testbuild_docs.sh
+
+  MacOS_unittests:
+    runs-on: macos-latest
+    timeout-minutes: 150
+    strategy:
+      max-parallel: 8
+      fail-fast: False
+      matrix:
+        python-version: [ 3.8 ]
+        use-graph: [ 0, 1 ]
+
+    name: tests on MacOS with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        name: Set up Python ${{ matrix.python-version }}
+
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+      - name: Test with pytest
+        run: |
+          pip install .[dev]
+          ZFIT_DO_JIT=${{ matrix.use-graph }}
+          coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
+          coverage report
+
+
+  notebooks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      max-parallel: 8
+      fail-fast: False
+      matrix:
+        use-graph: [ 0, 1 ]
+        python-version: [ 3.7, 3.8 ]
+    name: Run notebooks, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        name: Set up Python ${{ matrix.python-version }}
+
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Clone Tutorials
+        run: |
+          git clone https://github.com/zfit/zfit-tutorials.git
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install nbval
+          pip install -r zfit-tutorials/requirements.txt
+
+
+      - name: Run notebooks
+        run: |
+          ZFIT_DO_JIT=${{ matrix.use-graph }}
+          pytest --nbval-lax zfit-tutorials --ignore=zfit-tutorials/experimental

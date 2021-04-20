@@ -1,6 +1,5 @@
 """Module for caching.
 
-
 The basic concept of caching in Zfit builds on a "cacher", that caches a certain value and that
 is dependent of "cache_dependents". By implementing `ZfitCachable`, an object will be able to play both
 roles. And most importantly, it has a `_cache` dict, that contains all the cache.
@@ -45,16 +44,14 @@ Example with a pdf that caches the normalization:
             else:
                 result = self._cache['my_name']
             return result
-
-
 """
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import functools
 import weakref
 from abc import abstractmethod
-from typing import Iterable, Union, Mapping
+from typing import Iterable, Mapping, Union
 
 import numpy as np
 import tensorflow as tf
@@ -124,7 +121,7 @@ class GraphCachable(ZfitGraphCachable):
             cacher:
         """
         if not isinstance(cacher, ZfitGraphCachable):
-            raise TypeError("`cacher` is not a `ZfitCachable` but {}".format(type(cacher)))
+            raise TypeError(f"`cacher` is not a `ZfitCachable` but {type(cacher)}")
         if not cacher in self._cachers:
             self._cachers[cacher] = None  # could we have a more useful value?
 
@@ -243,7 +240,6 @@ class FunctionCacheHolder(GraphCachable):
             kwargs: dict-like
 
         Returns:
-
         """
         # is initialized before the core
         from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
@@ -310,3 +306,4 @@ def clear_graph_cache():
     for instance in GraphCachable.instances:
         instance.reset_cache('global')
     # Cachable.graph_caching_methods.clear()
+    tf.compat.v1.reset_default_graph()

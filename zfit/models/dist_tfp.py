@@ -1,11 +1,11 @@
-"""
-A rich selection of analytically implemented Distributions (models) are available in
-`TensorFlow Probability <https://github.com/tensorflow/probability>`_. While their API is slightly
-different from the zfit models, it is similar enough to be easily wrapped.
+"""A rich selection of analytically implemented Distributions (models) are available in `TensorFlow Probability.
+
+<https://github.com/tensorflow/probability>`_. While their API is slightly different from the zfit models, it is similar
+enough to be easily wrapped.
 
 Therefore a convenient wrapper as well as a lot of implementations are provided.
 """
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from collections import OrderedDict
 
@@ -14,12 +14,15 @@ import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 
 from zfit import z
-from zfit.util.exception import AnalyticIntegralNotImplementedError, AnalyticSamplingNotImplementedError
+from zfit.util.exception import (AnalyticIntegralNotImplemented,
+                                 AnalyticSamplingNotImplemented)
+
 from ..core.basepdf import BasePDF
 from ..core.parameter import convert_to_parameter
-from ..core.space import supports, Space
+from ..core.space import Space, supports
 from ..settings import ztypes
 from ..util import ztyping
+
 
 # TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
 @supports()
@@ -45,15 +48,13 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     try:
         sample = dist.quantile(prob_sample)
     except NotImplementedError:
-        raise AnalyticSamplingNotImplementedError
+        raise AnalyticSamplingNotImplemented
     sample.set_shape((None, limits.n_obs))
     return sample
 
 
 class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like icdf
-    """Baseclass to wrap tensorflow-probability distributions automatically.
-
-    """
+    """Baseclass to wrap tensorflow-probability distributions automatically."""
 
     def __init__(self, distribution, dist_params, obs, params=None, dist_kwargs=None, dtype=ztypes.float, name=None,
                  **kwargs):
@@ -175,12 +176,12 @@ class Gauss(WrapDistribution):
         The gaussian shape is defined as
 
         .. math::
-            f(x \mid \mu, \\sigma^2) = e^{ -\\frac{(x - \\mu)^{2}}{2\\sigma^2} }
+            f(x \\mid \\mu, \\sigma^2) = e^{ -\\frac{(x - \\mu)^{2}}{2\\sigma^2} }
 
         with the normalization over [-inf, inf] of
 
         .. math::
-            \\frac{1}{\\sqrt{2\pi\sigma^2} }
+            \\frac{1}{\\sqrt{2\\pi\\sigma^2} }
 
         The normalization changes for different normalization ranges
 
@@ -192,7 +193,7 @@ class Gauss(WrapDistribution):
         """
         mu, sigma = self._check_input_params(mu, sigma)
         params = OrderedDict((('mu', mu), ('sigma', sigma)))
-        dist_params = dict(loc=mu, scale=sigma)
+        dist_params = lambda: dict(loc=mu.value(), scale=sigma.value())
         distribution = tfp.distributions.Normal
         super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name)
 
@@ -223,7 +224,7 @@ class Uniform(WrapDistribution):
         """
         low, high = self._check_input_params(low, high)
         params = OrderedDict((("low", low), ("high", high)))
-        dist_params = dict(low=low, high=high)
+        dist_params = lambda: dict(low=low.value(), high=high.value())
         distribution = tfp.distributions.Uniform
         super().__init__(distribution=distribution, dist_params=dist_params, obs=obs, params=params, name=name)
 
@@ -246,7 +247,7 @@ class TruncatedGauss(WrapDistribution):
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
         params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
         distribution = tfp.distributions.TruncatedNormal
-        dist_params = dict(loc=mu, scale=sigma, low=low, high=high)
+        dist_params = lambda: dict(loc=mu.value(), scale=sigma.value(), low=low.value(), high=high.value())
         super().__init__(distribution=distribution, dist_params=dist_params,
                          obs=obs, params=params, name=name)
 
@@ -278,7 +279,7 @@ class Cauchy(WrapDistribution):
         m, gamma = self._check_input_params(m, gamma)
         params = OrderedDict((('m', m), ('gamma', gamma)))
         distribution = tfp.distributions.Cauchy
-        dist_params = dict(loc=m, scale=gamma)
+        dist_params = lambda: dict(loc=m.value(), scale=gamma.value())
         super().__init__(distribution=distribution, dist_params=dist_params,
                          obs=obs, params=params, name=name)
 
@@ -290,8 +291,7 @@ class Poisson(WrapDistribution):
                  lamb: ztyping.ParamTypeInput,
                  obs: ztyping.ObsTypeInput,
                  name: str = "Poisson"):
-        """
-        Poisson distribution, parametrized with an event rate parameter (lamb).
+        """Poisson distribution, parametrized with an event rate parameter (lamb).
 
         The probability mass function of the Poisson distribution is given by
 
@@ -305,7 +305,7 @@ class Poisson(WrapDistribution):
         """
         (lamb,) = self._check_input_params(lamb)
         params = OrderedDict((('lamb', lamb),))
-        dist_params = dict(rate=lamb)
+        dist_params = lambda: dict(rate=lamb.value())
         distribution = tfp.distributions.Poisson
         super().__init__(distribution=distribution, dist_params=dist_params,
                          obs=obs, params=params, name=name)

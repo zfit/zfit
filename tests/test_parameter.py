@@ -1,15 +1,14 @@
-#  Copyright (c) 2020 zfit
-from math import pi, cos
+#  Copyright (c) 2021 zfit
+from math import cos, pi
 
+import numpy as np
 import pytest
 import tensorflow as tf
 from ordered_set import OrderedSet
 
 import zfit
 from zfit import Parameter, z
-from zfit.core.parameter import ComposedParameter, ComplexParameter
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
+from zfit.core.parameter import ComplexParameter, ComposedParameter
 from zfit.util.exception import NameAlreadyTakenError
 
 
@@ -112,7 +111,8 @@ def test_composed_param():
     assert param_a.get_cache_deps(only_floating=False) == {param1, param2, param3}
     a_unchanged = value_fn(param1, param2, param3).numpy()
     assert a_unchanged == param_a.numpy()
-    assert param2.assign(3.5).numpy()
+    param2.assign(3.5)
+    assert param2.numpy()
     a_changed = value_fn(param1, param2, param3).numpy()
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
@@ -144,7 +144,7 @@ def test_shape_composed_parameter():
     def compose():
         return tf.square(a) - b
 
-    c = ComposedParameter(name='c', value_fn=compose, dependents=[a, b])
+    c = ComposedParameter(name='c', value_fn=compose, params=[a, b])
     assert c.shape.rank == 0
 
 
@@ -163,23 +163,27 @@ def test_floating_behavior():
 
 def test_param_limits():
     lower, upper = -4., 3.
-    param1 = Parameter('param1', 1., lower_limit=lower, upper_limit=upper)
+    param1 = Parameter('param1', 1., lower=lower, upper=upper)
     param2 = Parameter('param2', 2.)
 
     assert param1.has_limits
     assert not param2.has_limits
 
-    param1.set_value(upper + 0.5)
+    with pytest.raises(ValueError):
+        param1.set_value(upper + 0.5)
+    param1.assign(upper + 0.5)
     assert upper == param1.value().numpy()
     assert param1.at_limit
-    param1.set_value(lower - 1.1)
+    with pytest.raises(ValueError):
+        param1.set_value(lower - 1.1)
+    param1.assign(lower - 1.1)
     assert lower == param1.value().numpy()
     assert param1.at_limit
     param1.set_value(upper - 0.1)
     assert not param1.at_limit
 
     param2.lower = lower
-    param2.set_value(lower - 1.1)
+    param2.assign(lower - 1.1)
     assert lower == param2.value().numpy()
 
 
@@ -232,11 +236,141 @@ def test_fixed_param():
     assert sigma.get_cache_deps() == set()
 
 
+def test_convert_to_parameters():
+    import zfit
+
+    conv_param1 = zfit.param.convert_to_parameters([23, 10., 34, 23], prefer_constant=True)
+    assert len(conv_param1) == 4
+    assert not any(p.floating for p in conv_param1)
+
+    conv_param2 = zfit.param.convert_to_parameters([23, 10., 34, 12, 23], prefer_constant=False)
+    assert all(p.floating for p in conv_param2)
+
+    trueval3 = [23, 10., 12, 34, 23]
+    truelower3 = list(range(5))
+    conv_param3 = zfit.param.convert_to_parameters(trueval3,
+                                                   lower=truelower3, prefer_constant=False)
+    np.testing.assert_allclose(zfit.run(conv_param3), trueval3)
+    np.testing.assert_allclose(zfit.run([p.lower for p in conv_param3]), truelower3)
+
+    truename4 = ['oe', 'myname1', 'ue', 'eu', 'eue']
+    stepsize4 = [23, 1.5, 10., 34, 23]
+    trueupper4 = [213, 14., 1110., 314, 213]
+    values4 = [23, 12, 121, 34, 23]
+
+    conv_param4dict = zfit.param.convert_to_parameters({'value': values4,
+                                                        'name': truename4,
+                                                        'step_size': stepsize4,
+                                                        'upper': trueupper4},
+                                                       prefer_constant=False, )
+    assert [p.name for p in conv_param4dict] == truename4
+
+    np.testing.assert_allclose(zfit.run([p.upper for p in conv_param4dict]), trueupper4)
+    np.testing.assert_allclose(zfit.run([p.step_size for p in conv_param4dict]), stepsize4)
+
+    truename5 = [name + "_five" for name in truename4]
+    conv_param4dict = zfit.param.convert_to_parameters(values4, name=truename5,
+                                                       upper=trueupper4,
+                                                       prefer_constant=False,
+                                                       step_size=stepsize4)
+    assert [p.name for p in conv_param4dict] == truename5
+
+    np.testing.assert_allclose(zfit.run([p.upper for p in conv_param4dict]), trueupper4)
+    np.testing.assert_allclose(zfit.run([p.step_size for p in conv_param4dict]), stepsize4)
+
+
+def test_convert_to_parameters_equivalence_to_single_multi():
+    import zfit
+
+    conv_param1 = zfit.param.convert_to_parameters([23, 10., 34, 23])[1]
+    assert pytest.approx(zfit.run(conv_param1.value())) == 10
+    assert not conv_param1.floating
+
+    conv_param2 = zfit.param.convert_to_parameters([23, 10., 34, 12, 23], prefer_constant=False)[-2]
+    assert pytest.approx(zfit.run(conv_param2.value())) == 12.
+    assert conv_param2.floating
+    assert not conv_param2.has_limits
+
+    conv_param3 = zfit.param.convert_to_parameters([23, 10., 12, 34, 23],
+                                                   lower=list(range(5)), prefer_constant=False)[2]
+    assert pytest.approx(zfit.run(conv_param3.lower)) == 2
+    assert conv_param3.has_limits
+
+    truename4 = ['oe', 'myname1', 'ue', 'eu', 'eue']
+    stepsize4 = [23, 1.5, 10., 34, 23]
+    conv_param4 = zfit.param.convert_to_parameters([23, 12, 121, 34, 23], name=truename4,
+                                                   upper=[213, 14., 1110., 314, 213],
+                                                   prefer_constant=False,
+                                                   step_size=stepsize4)[1]
+    assert conv_param4.floating
+    assert conv_param4.name == 'myname1'
+    assert conv_param4.has_limits
+    assert conv_param4.floating
+    assert pytest.approx(zfit.run(conv_param4.step_size)) == 1.5
+
+
+def test_convert_to_parameters_equivalence_to_single():
+    import zfit
+
+    conv_param1 = zfit.param.convert_to_parameters(10.)[0]
+    assert pytest.approx(zfit.run(conv_param1.value())) == 10
+    assert not conv_param1.floating
+
+    conv_param2 = zfit.param.convert_to_parameters(12., prefer_constant=False)[0]
+    assert pytest.approx(zfit.run(conv_param2.value())) == 12.
+    assert conv_param2.floating
+    assert not conv_param2.has_limits
+
+    conv_param3 = zfit.param.convert_to_parameters(12., lower=5., prefer_constant=False)[0]
+    assert pytest.approx(zfit.run(conv_param3.lower)) == 5.
+    assert conv_param3.has_limits
+
+    truename4 = 'myname1'
+    stepsize4 = 1.5
+    conv_param4 = zfit.param.convert_to_parameters(12., name=truename4,
+                                                   upper=14., prefer_constant=False, step_size=stepsize4)[0]
+    assert conv_param4.floating
+    assert conv_param4.name == truename4
+    assert conv_param4.has_limits
+    assert conv_param4.floating
+    assert pytest.approx(zfit.run(conv_param4.step_size)) == stepsize4
+
+
 def test_convert_to_parameter():
-    pass  # TODO(Mayou36): add tests
+    import zfit
+
+    conv_param1 = zfit.param.convert_to_parameter(10.)
+    assert pytest.approx(zfit.run(conv_param1.value())) == 10
+    assert not conv_param1.floating
+
+    conv_param2 = zfit.param.convert_to_parameter(12., prefer_constant=False)
+    assert pytest.approx(zfit.run(conv_param2.value())) == 12.
+    assert conv_param2.floating
+    assert not conv_param2.has_limits
+
+    conv_param3 = zfit.param.convert_to_parameter(12., lower=5., prefer_constant=False)
+    assert pytest.approx(zfit.run(conv_param3.lower)) == 5.
+    assert conv_param3.has_limits
+
+    with pytest.raises(ValueError):
+        _ = zfit.param.convert_to_parameter(5., lower=15., prefer_constant=False)
+
+    with pytest.raises(ValueError):
+        _ = zfit.param.convert_to_parameter(5., upper=1., prefer_constant=False)
+
+    truename4 = 'myname1'
+    stepsize4 = 1.5
+    conv_param4 = zfit.param.convert_to_parameter(12., name=truename4,
+                                                  upper=14., prefer_constant=False, step_size=stepsize4)
+    assert conv_param4.floating
+    assert conv_param4.name == truename4
+    assert conv_param4.has_limits
+    assert conv_param4.floating
+    assert pytest.approx(zfit.run(conv_param4.step_size)) == stepsize4
 
 
 def test_set_values():
+    import zfit
     init_values = [1, 2, 3]
     second_values = [5, 6, 7]
     params = [zfit.Parameter(f'param_{i}', val) for i, val in enumerate(init_values)]

@@ -3,12 +3,11 @@ from typing import List
 
 import tensorflow as tf
 
-from .basefunctor import FunctorMixin
 from .. import z
 from ..core.binnedpdf import BaseBinnedPDF
 from ..core.interfaces import ZfitModel
 from ..util.container import convert_to_container
-
+from .basefunctor import FunctorMixin
 
 # class FunctorMixin:
 #

@@ -4,8 +4,7 @@ checks:
         duplicate_code: true
 build:
     environment:
-        #        python: '3.7.1'
-        python: '3.6.3'
+        python: '3.7.1'
     dependencies:
         # Runs before inferred commands
         before:
@@ -14,7 +13,7 @@ build:
         analysis:
             project_setup:
                 override:
-                    - 'true'
+                    - "true"
             tests:
                 override:
                     - py-scrutinizer-run
@@ -26,6 +25,6 @@ build:
         tests: true
 filter:
     excluded_paths:
-        - '/tests/*'
+        - "/tests/*"
     dependency_paths:
-        - 'lib/*'
+        - "lib/*"

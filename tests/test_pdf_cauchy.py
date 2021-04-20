@@ -1,11 +1,7 @@
-#  Copyright (c) 2020 zfit
-import numpy as np
-import pytest
+#  Copyright (c) 2021 zfit
 import tensorflow as tf
 
 import zfit
-# noinspection PyUnresolvedReferences
-from zfit.core.testing import setup_function, teardown_function, tester
 
 mean1_true = 1.
 width1_true = 1.4

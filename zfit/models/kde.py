@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from typing import Union
 
 import numpy as np
@@ -6,11 +6,12 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd
 
-from .dist_tfp import WrapDistribution
-from .. import z, ztypes
+from .. import z
 from ..core.interfaces import ZfitData, ZfitSpace
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
+from .dist_tfp import WrapDistribution
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):
@@ -64,7 +65,7 @@ class GaussianKDE1DimV1(WrapDistribution):
     }
 
     def __init__(self, obs: ztyping.ObsTypeInput, data: ztyping.ParamTypeInput,
-                 bandwidth: ztyping.ParamTypeInput = None,
+                 bandwidth: Union[ztyping.ParamTypeInput, str] = None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None, truncate: bool = False,
                  name: str = "GaussianKDE1DimV1"):
         r"""EXPERIMENTAL, `FEEDBACK WELCOME <https://github.com/zfit/zfit/issues/new?assignees=&labels=&template=other.md&title=>`_
@@ -83,13 +84,39 @@ class GaussianKDE1DimV1(WrapDistribution):
 
 
         The bandwidth of the kernel can be estimated in different ways. It can either be a global bandwidth,
-        corresponding to a single value, or a local bandwidth, each corresponding to one data point
+        corresponding to a single value, or a local bandwidth, each corresponding to one data point.
+
+        **Usage**
+
+        The KDE can be instantiated by using a numpy-like data sample, preferably a `zfit.Data` object. This
+        will be used as the mu of the kernels. The bandwidth can either be given as a parameter (with length
+        1 for a global one or length equal to the data size) - a rather advanced concept for methods such as
+        cross validation - or determined from the data automatically, either through a simple method like
+        scott or silverman rule of thumbs or through an iterative, adaptive method.
+
+        Examples
+        --------
+
+        .. code-block:: python
+
+            # generate some example kernels
+            size = 150
+            data = np.random.normal(size=size, loc=2, scale=3)
+
+            limits = (-15, 5)
+            obs = zfit.Space("obs1", limits=limits)
+            kde_silverman = zfit.pdf.GaussianKDE1DimV1(data=data, obs=obs)
+
+            # for a better smoothing of the kernels, use an adaptive approach
+            kde = zfit.pdf.GaussianKDE1DimV1(data=data, obs=obs, bandwidth='adaptive')
+
 
         Args:
             data: 1-D Tensor-like. The positions of the `kernel`, the :math:`x_i`. Determines how many kernels will be created.
             bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptive'} or a numerical.
                 If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
                 A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
+
             obs: Observables
             weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
             truncate: If a truncated Gaussian kernel should be used with the limits given by the `obs` lower and

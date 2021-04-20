@@ -1,10 +1,10 @@
-#  Copyright (c) 2020 zfit
-from .baseobject import BaseObject
-from .dimension import BaseDimensional
-from .interfaces import ZfitBinnedData
+#  Copyright (c) 2021 zfit
 from .. import z
 from ..util.exception import WorkInProgressError
 from ..util.ztyping import NumericalTypeReturn
+from .baseobject import BaseObject
+from .dimension import BaseDimensional
+from .interfaces import ZfitBinnedData
 
 
 class BinnedData(BaseDimensional, ZfitBinnedData, BaseObject):  # TODO: add dtype

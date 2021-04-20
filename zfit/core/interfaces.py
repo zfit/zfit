@@ -1,12 +1,12 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import abc
 from abc import ABCMeta, abstractmethod
-from typing import Union, List, Dict, Callable, Tuple, Optional, Set
+from typing import Callable, Dict, List, Optional, Set, Tuple, Union
 
+import boost_histogram as bh
 import numpy as np
 import tensorflow as tf
-import boost_histogram as bh
 
 from ..util import ztyping
 from ..util.deprecation import deprecated
@@ -36,7 +36,10 @@ class ZfitDimensional(ZfitObject):
     @property
     @abstractmethod
     def n_obs(self) -> int:
-        """Return the number of observables, the dimensionality. Corresponds to the last dimension."""
+        """Return the number of observables, the dimensionality.
+
+        Corresponds to the last dimension.
+        """
         raise NotImplementedError
     # TODO: activate?
     # @property
@@ -94,36 +97,36 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
                   allow_subset: bool = True) -> "ZfitOrderableDimensional":
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
-            The behavior is as follows:
+        The behavior is as follows:
 
-             * axes are already set:
-               * input axes are None: the axes will be dropped. If no observables are set, an error
-                 will be raised, as no coordinates will be assigned to this instance anymore.
-               * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
-                 objects have an associated order (e.g. data, limits,...), they will be reordered as well.
-                 If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
-                 be used to retrieve a subspace of limits, data etc.
-                 If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
-                 if the axes not contained in the instances axes were not present in the input axes.
-             * axes are not set:
-               * if the input axes are None, the same object is returned.
-               * if the input axes are not None, they will be set as-is and now correspond to the already
-                 existing obs in the object.
+         * axes are already set:
+           * input axes are None: the axes will be dropped. If no observables are set, an error
+             will be raised, as no coordinates will be assigned to this instance anymore.
+           * input axes are not None: the instance will be sorted by the incoming axes. If obs or other
+             objects have an associated order (e.g. data, limits,...), they will be reordered as well.
+             If a strict subset is given (and allow_subset is True), only a subset will be returned. This can
+             be used to retrieve a subspace of limits, data etc.
+             If a strict superset is given (and allow_superset is True), the axes will be sorted accordingly as
+             if the axes not contained in the instances axes were not present in the input axes.
+         * axes are not set:
+           * if the input axes are None, the same object is returned.
+           * if the input axes are not None, they will be set as-is and now correspond to the already
+             existing obs in the object.
 
-            Args:
-                axes: Axes to sort/associate this instance with
-                allow_superset: if False and a strict superset of the own axeservables is given, an error
-                is raised.
-                allow_subset:if False and a strict subset of the own axeservables is given, an error
-                is raised.
+        Args:
+            axes: Axes to sort/associate this instance with
+            allow_superset: if False and a strict superset of the own axeservables is given, an error
+            is raised.
+            allow_subset:if False and a strict subset of the own axeservables is given, an error
+            is raised.
 
-            Returns:
-                A copy of the object with the new ordering/axes
+        Returns:
+            A copy of the object with the new ordering/axes
 
-            Raises:
-                CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
-                AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
-                    allow_allow_subset is False
+        Raises:
+            CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
+            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+                allow_allow_subset is False
         """
 
         raise NotImplementedError
@@ -305,7 +308,10 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     @abstractmethod
     def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
-        """Calculate the total rectangular area of all the limits and axes. Useful, for example, for MC integration."""
+        """Calculate the total rectangular area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -426,6 +432,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @abstractmethod
     def __eq__(self, other: object) -> bool:
         """Compares two Limits for equality without graph mode allowed.
+
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
@@ -451,7 +458,6 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
             Result of the comparison
         Raises:
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
-
         """
         raise NotImplementedError
 
@@ -499,24 +505,23 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
     @property
     @abstractmethod
     def lower(self) -> ztyping.LowerTypeReturn:
-        """Return the lower limits.
-
-        """
+        """Return the lower limits."""
         raise NotImplementedError
 
     # TODO: legacy?
     @property
     @abstractmethod
     def upper(self) -> ztyping.UpperTypeReturn:
-        """Return the upper limits.
-
-        """
+        """Return the upper limits."""
         raise NotImplementedError
 
     # TODO: legacy?
     @abstractmethod
     def area(self) -> float:
-        """Return the total area of all the limits and axes. Useful, for example, for MC integration."""
+        """Return the total area of all the limits and axes.
+
+        Useful, for example, for MC integration.
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -548,7 +553,6 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
             name:
 
         Returns:
-
         """
         raise NotImplementedError
 
@@ -632,7 +636,7 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
 
     @property
     @abstractmethod
-    def params(self) -> ztyping.ParametersType:
+    def params(self) -> ztyping.ParameterType:
         raise NotImplementedError
 
 
@@ -687,7 +691,6 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
     def randomize(self, minval, maxval, sampler):
         """Update the parameter with a randomised value between minval and maxval and return it.
 
-
         Args:
             minval: The lower bound of the sampler. If not given, `lower_limit` is used.
             maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
@@ -723,7 +726,6 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
 
         Returns:
             Boolean `tf.Tensor` that tells whether the value is at the limits.
-
         """
         raise NotImplementedError
 
@@ -745,16 +747,11 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
 class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @abstractmethod
-    def gradients(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
+    def gradient(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
         raise NotImplementedError
 
     @abstractmethod
     def value(self) -> ztyping.NumericalTypeReturn:
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def errordef(self) -> Union[float, int]:
         raise NotImplementedError
 
     @property
@@ -781,12 +778,19 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
     def errordef(self) -> float:
         raise NotImplementedError
 
-    @abstractmethod
-    def value_gradients(self, params):
+    def hessian(self, params):
         pass
 
     @abstractmethod
-    def value_gradients_hessian(self, params, hessian=None):
+    def value_gradient(self, params):
+        pass
+
+    @abstractmethod
+    def value_gradient_hessian(self, params, hessian=None):
+        pass
+
+    @abstractmethod
+    def create_new(self, **kwargs):
         pass
 
 
@@ -828,7 +832,6 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
             supports_norm_range:
 
         Returns:
-
         """
         raise NotImplementedError
 
@@ -958,7 +961,7 @@ class ZfitBinning(abc.ABC):
 
     @abstractmethod
     def get_binnings(self) -> List[bh.axis.Axis]:
-        """Return the binning of the axes
+        """Return the binning of the axes.
 
         Returns:
             binnings:

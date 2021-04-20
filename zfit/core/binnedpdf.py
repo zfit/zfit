@@ -1,18 +1,20 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from contextlib import suppress
-from typing import Union, Callable
+from typing import Callable, Union
 
 import numpy as np
 import tensorflow as tf
 
-from .baseobject import BaseNumeric
-from .dimension import BaseDimensional
-from .interfaces import ZfitBinnedPDF, ZfitSpace, ZfitParameter
 from .. import convert_to_parameter, convert_to_space
 from ..util import ztyping
 from ..util.cache import GraphCachable
-from ..util.exception import SpecificFunctionNotImplementedError, WorkInProgressError, NotExtendedPDFError, \
-    AlreadyExtendedPDFError, SpaceIncompatibleError
+from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
+                              SpaceIncompatibleError,
+                              SpecificFunctionNotImplementedError,
+                              WorkInProgressError)
+from .baseobject import BaseNumeric
+from .dimension import BaseDimensional
+from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace
 
 
 class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
@@ -37,7 +39,7 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
         self._yield = value
 
     def _get_dependencies(self) -> ztyping.DependentsType:
-        return super(BaseBinnedPDF, self)._get_dependencies()
+        return super()._get_dependencies()
 
     def _pdf(self, x, norm_range):
         raise SpecificFunctionNotImplementedError
@@ -182,7 +184,6 @@ class BaseBinnedPDF(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF):
             limits:
 
         Returns:
-
         """
         if obs is None:  # for simple limits to convert them
             obs = self.obs
