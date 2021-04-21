@@ -61,9 +61,7 @@ class ConvergenceCriterion(abc.ABC):
         return f"<ConvergenceCriterion {self.name}>"
 
 
-# @numba.njit(numba.float64(numba.float64[:], numba.float64[:, :]))
 def calculate_edm(grad, inv_hesse):
-    # grad = np.array(grad)
     return grad @ inv_hesse @ grad / 2
 
 
@@ -74,7 +72,24 @@ class EDM(ConvergenceCriterion):
                  loss: ZfitLoss,
                  params: ztyping.ParamTypeInput,
                  name: Optional[str] = "edm"):
+        """Estimated distance to minimum.
 
+        This criterion estimates the distance to the minimum by using
+
+        .. math::
+            EDM = g^T \\cdot H^{-1} \\cdot g
+
+        with H the hessian matrix (approximation) and g the gradient.
+
+        This is the same criterion as
+        `iminuit uses internally as well. <https://iminuit.readthedocs.io/en/stable/reference.html#iminuit.Minuit.tol>`_
+
+        Args:
+            tol: Tolerance for the criterion. If the criterion value is below the tol (usually), it is converged.
+            loss: loss that will we minimized.
+            params: Parameters that will be minimized.
+            name: Human readable name or description.
+        """
         super().__init__(tol=tol, loss=loss, params=params,
                          name=name)
 
