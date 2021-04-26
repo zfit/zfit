@@ -11,7 +11,7 @@ ordered-set
 pandas
 scipy>=1.2
 tabulate
-tensorflow~=2.4
+tensorflow~=2.5.0rc0
 tensorflow-addons
 tensorflow_probability~=0.12
 texttable

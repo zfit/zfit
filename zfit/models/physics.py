@@ -5,7 +5,7 @@ from typing import Type
 import numpy as np
 import tensorflow as tf
 
-import zfit
+import zfit.z.numpy as znp
 from zfit import z
 
 from ..core.basepdf import BasePDF
@@ -15,21 +15,21 @@ from ..util import ztyping
 
 
 def _powerlaw(x, a, k):
-    return a * tf.pow(x, k)
+    return a * znp.power(x, k)
 
 
 @z.function(wraps='zfit_tensor')
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
-    abs_alpha = tf.abs(alpha)
-    a = tf.pow((n / abs_alpha), n) * tf.exp(-0.5 * tf.square(alpha))
+    abs_alpha = znp.abs(alpha)
+    a = znp.power((n / abs_alpha), n) * znp.exp(-0.5 * tf.square(alpha))
     b = (n / abs_alpha) - abs_alpha
     cond = tf.less(t, -abs_alpha)
     func = z.safe_where(cond,
                         lambda t: _powerlaw(b - t, a, -n),
-                        lambda t: tf.exp(-0.5 * tf.square(t)),
+                        lambda t: znp.exp(-0.5 * tf.square(t)),
                         values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
-    func = tf.maximum(func, tf.zeros_like(func))
+    func = znp.maximum(func, tf.zeros_like(func))
     return func
 
 
@@ -62,9 +62,9 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
     sqrt2 = np.sqrt(2)
 
-    use_log = tf.less(tf.abs(n - 1.0), 1e-05)
-    abs_sigma = tf.abs(sigma)
-    abs_alpha = tf.abs(alpha)
+    use_log = tf.less(znp.abs(n - 1.0), 1e-05)
+    abs_sigma = znp.abs(sigma)
+    abs_alpha = znp.abs(alpha)
     tmin = (lower - mu) / abs_sigma
     tmax = (upper - mu) / abs_sigma
 
@@ -84,18 +84,18 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
         def if_true_3():
             result_3 = result_6
-            a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
+            a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
             b = n / abs_alpha - abs_alpha
 
             def if_true_1():
                 result_1, = result_3,
-                result_1 += a * abs_sigma * (tf.math.log(b - tmin) - tf.math.log(b - tmax))
+                result_1 += a * abs_sigma * (znp.log(b - tmin) - znp.log(b - tmax))
                 return result_1
 
             def if_false_1():
                 result_2, = result_3,
                 result_2 += a * abs_sigma / (1.0 - n) * (
-                    1.0 / tf.pow(b - tmin, n - 1.0) - 1.0 / tf.pow(b - tmax, n - 1.0))
+                    1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(b - tmax, n - 1.0))
                 return result_2
 
             result_3 = tf.cond(pred=use_log, true_fn=if_true_1, false_fn=if_false_1)
@@ -103,16 +103,16 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
         def if_false_3():
             result_4, = result_6,
-            a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
+            a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
             b = n / abs_alpha - abs_alpha
 
             def if_true_2():
-                term1 = a * abs_sigma * (tf.math.log(b - tmin) - tf.math.log(n / abs_alpha))
+                term1 = a * abs_sigma * (znp.log(b - tmin) - znp.log(n / abs_alpha))
                 return term1
 
             def if_false_2():
                 term1 = a * abs_sigma / (1.0 - n) * (
-                    1.0 / tf.pow(b - tmin, n - 1.0) - 1.0 / tf.pow(n / abs_alpha, n - 1.0))
+                    1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(n / abs_alpha, n - 1.0))
                 return term1
 
             term1 = tf.cond(pred=use_log, true_fn=if_true_2, false_fn=if_false_2)

@@ -6,10 +6,10 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .. import z
-from ..core.parameter import set_values
+import zfit.z.numpy as znp
+
 from .baseminimizer import BaseMinimizer, minimize_supports
-from .evaluation import print_gradient, print_params
+from .evaluation import print_gradient
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 
@@ -88,13 +88,13 @@ class BFGS(BaseMinimizer):
                 nan_counter = 0
                 current_loss = value
 
-            gradient = tf.stack(gradient)
+            gradient = znp.stack(gradient)
             return value, gradient
 
         initial_inv_hessian_est = tf.linalg.tensor_diag([p.step_size for p in params])
 
         minimizer_kwargs = dict(
-            initial_position=tf.stack(params),
+            initial_position=znp.stack(params),
             x_tol=self.tol,
             # f_relative_tolerance=self.tolerance * 1e-5,  # TODO: use edm for stopping criteria
             initial_inverse_hessian_estimate=initial_inv_hessian_est,
