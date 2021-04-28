@@ -59,7 +59,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     def value(self):
         return self.variable.value()
 
-    def read_valu(self):
+    def read_value(self):
         return self.variable.read_value()
 
     @property
@@ -122,22 +122,22 @@ class WrappedVariable(metaclass=MetaBaseParameter):
 register_tensor_conversion(WrappedVariable, "WrappedVariable", overload_operators=True)
 
 
-# class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParameter):
-#     def __init__(self, *args, **kwargs):
-#         try:
-#             super().__init__(*args, **kwargs)
-#         except NotImplementedError:
-#             tmp_val = kwargs.pop('name', None)  # remove if name is in there, needs to be passed through
-#             if args or kwargs:
-#                 kwargs['name'] = tmp_val
-#                 raise RuntimeError(f"The following arguments reached the top of the inheritance tree, the super "
-#                                    f"init is not implemented (most probably abstract tf.Variable): {args, kwargs}. "
-#                                    f"If you see this error, please post it as an bug at: "
-#                                    f"https://github.com/zfit/zfit/issues/new/choose")
+class BaseParameter(tf.Variable, ZfitParameter, metaclass=MetaBaseParameter):
+    def __init__(self, *args, **kwargs):
+        try:
+            super().__init__(*args, **kwargs)
+        except NotImplementedError:
+            tmp_val = kwargs.pop('name', None)  # remove if name is in there, needs to be passed through
+            if args or kwargs:
+                kwargs['name'] = tmp_val
+                raise RuntimeError(f"The following arguments reached the top of the inheritance tree, the super "
+                                   f"init is not implemented (most probably abstract tf.Variable): {args, kwargs}. "
+                                   f"If you see this error, please post it as an bug at: "
+                                   f"https://github.com/zfit/zfit/issues/new/choose")
 #
 
 
-class BaseParameter(ZfitParameter, BaseNumericParameterized, OverloadableMixin):
+class ZfitParameterMixin(ZfitParameter, BaseNumericParameterized, OverloadableMixin):
     _existing_params = OrderedDict()
 
     def __init__(self, name, value, constraint=None, value_holder=tf.Variable, *args, **kwargs):
@@ -148,33 +148,33 @@ class BaseParameter(ZfitParameter, BaseNumericParameterized, OverloadableMixin):
         self._name = name
         super().__init__(name=name, **kwargs)
         value_holder = value_holder
-        self.variable = value_holder(value, constraint=constraint, name=self.name,
-                                     dtype=self.dtype)
+        self._variable = value_holder(value, constraint=constraint, name=self.name,
+                                      dtype=self.dtype)
 
     @property
     def name(self):
         return self._name
 
-    @property
-    def constraint(self):
-        return self.variable.constraint
-
-    def value(self):
-        return self.variable.value()
-
-    def read_value(self):
-        return self.variable.read_value()
-
-    @property
-    def _shape(self):
-        return self.variable.shape
-
-    def numpy(self):
-        return self.variable.numpy()
-
-    def assign(self, value, use_locking=False, name=None, read_value=True):
-        return self.variable.assign(value=value, use_locking=use_locking,
-                                    name=name, read_value=read_value)
+    # @property
+    # def constraint(self):
+    #     return self._variable.constraint
+    #
+    # def value(self):
+    #     return self._variable.value()
+    #
+    # def read_value(self):
+    #     return self._variable.read_value()
+    #
+    # @property
+    # def _shape(self):
+    #     return self._variable.shape
+    #
+    # def numpy(self):
+    #     return self._variable.numpy()
+    #
+    # def assign(self, value, use_locking=False, name=None, read_value=True):
+    #     return self._variable.assign(value=value, use_locking=use_locking,
+    #                                  name=name, read_value=read_value)
 
     # class BaseParameter(WrappedVariable, BaseNumericParameterized):
 
@@ -228,7 +228,7 @@ class BaseParameter(ZfitParameter, BaseNumericParameterized, OverloadableMixin):
         return 1
 
 
-# class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
+# class TFBaseVariable(tf.Variable, metaclass=MetaBaseParameter):
 #     # class TFBaseVariable(WrappedVariable, metaclass=MetaBaseParameter):
 #
 #     # Needed, otherwise tf variable complains about the name not having a ':' in there
@@ -237,7 +237,7 @@ class BaseParameter(ZfitParameter, BaseNumericParameterized, OverloadableMixin):
 #         return self.name
 
 
-class Parameter(BaseParameter, ZfitIndependentParameter):
+class Parameter(ZfitParameterMixin, BaseParameter, ZfitIndependentParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
     _independent = True
@@ -491,7 +491,7 @@ class Parameter(BaseParameter, ZfitIndependentParameter):
         self.upper = value
 
 
-class BaseComposedParameter(BaseParameter):
+class BaseComposedParameter(ZfitParameterMixin):
 
     def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
         # 0.4 breaking
@@ -552,26 +552,7 @@ class BaseComposedParameter(BaseParameter):
         return False
 
 
-class ConstantVariable:
-    def __init__(self, value, dtype, name, **kwargs):  # TODO: control better what gets inside?
-        del name
-        static_value = tf.get_static_value(value, partial=True)
-        self._value_np = static_value
-        if static_value is None:
-            raise RuntimeError("Cannot convert input to static value. If you encounter this, please open a bug report"
-                               " on Github: https://github.com/zfit/zfit")
-
-        self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
-
-    @property
-    def shape(self):
-        return self.value().shape
-
-    def value(self) -> tf.Tensor:
-        return self._value
-
-
-class ConstantParameter(BaseParameter):
+class ConstantParameter(ZfitParameterMixin):
     """Constant parameter. Value cannot change."""
 
     def __init__(self, name, value, dtype=ztypes.float):
@@ -582,8 +563,13 @@ class ConstantParameter(BaseParameter):
             value:
             dtype:
         """
-        super().__init__(name=name, params={}, value=value, dtype=dtype, value_holder=ConstantVariable)
-
+        super().__init__(name=name, params={}, dtype=dtype)
+        static_value = tf.get_static_value(value, partial=True)
+        self._value_np = static_value
+        if static_value is None:
+            raise RuntimeError("Cannot convert input to static value. If you encounter this, please open a bug report"
+                               " on Github: https://github.com/zfit/zfit")
+        self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
     # def read_value(self) -> tf.Tensor:
     #     return self.value()
 
@@ -602,9 +588,15 @@ class ConstantParameter(BaseParameter):
     def _get_dependencies(self) -> ztyping.DependentsType:
         return OrderedSet()
 
-    @property
-    def static_value(self):
-        return self.variable._value_np
+    # @property
+    # def static_value(self):
+    #     return self._variable._value_np
+
+    def value(self) -> tf.Tensor:
+        return self._value
+
+    def read_value(self) -> tf.Tensor:
+        return self.value()
 
     def __repr__(self):
         value = self._value_np

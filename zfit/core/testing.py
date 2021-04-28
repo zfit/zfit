@@ -2,7 +2,7 @@
 Module for testing of the zfit components. Contains a singleton instance to register new PDFs and let
 them be tested.
 """
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 from collections import OrderedDict
 from typing import Callable, Tuple, List, Union, Iterable
@@ -10,7 +10,7 @@ from typing import Callable, Tuple, List, Union, Iterable
 import scipy.stats
 
 from .interfaces import ZfitPDF
-from .parameter import BaseParameter
+from .parameter import ZfitParameterMixin
 from ..util.cache import clear_graph_cache
 from ..util.container import convert_to_container
 
@@ -26,7 +26,7 @@ def setup_function():
 
 
 def teardown_function():
-    BaseParameter._existing_params.clear()
+    ZfitParameterMixin._existing_params.clear()
 
     clear_graph_cache()
     import zfit
