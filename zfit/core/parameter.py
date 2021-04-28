@@ -35,6 +35,99 @@ from ..util.temporary import TemporarilySet
 register_tensor_conversion(OverloadableMixin, overload_operators=True)
 
 
+class WrappedLargeVariable(metaclass=MetaBaseParameter):
+    _variable = None
+    _next_index = 0
+
+    @classmethod
+    def _initialize_class(cls):
+        if cls._variable is None:
+            cls._variable = tf.Variable(dtype=tf.float64, shape=tf.TensorShape(None), validate_shape=False)
+
+    def __init__(self, initial_value, constraint, *args, **kwargs):
+        self._initialize_class()
+        super().__init__(*args, **kwargs)
+        self._index = self._get_index()
+
+    @property
+    @abc.abstractmethod
+    def name(self):
+        raise NotImplementedError
+
+    @property
+    def constraint(self):
+        return self.variable.constraint
+
+    @property
+    def dtype(self):
+        return self.variable.dtype
+
+    def value(self):
+        return self.variable.value()
+
+    def read_value(self):
+        return self.variable.read_value()
+
+    @property
+    def shape(self):
+        return self.variable.shape
+
+    def numpy(self):
+        return self.variable.numpy()
+
+    def assign(self, value, use_locking=False, name=None, read_value=False):
+        return self.variable.assign(value=value, use_locking=use_locking,
+                                    name=name, read_value=read_value)
+
+    def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
+        del name
+        if dtype is not None and dtype != self.dtype:
+            return NotImplemented
+        if as_ref:
+            return self.variable.read_value().op.inputs[0]
+        else:
+            return self.variable.value()
+
+    def _AsTensor(self):
+        return self.variable.value()
+
+    @staticmethod
+    def _OverloadAllOperators():  # pylint: disable=invalid-name
+        """Register overloads for all operators."""
+        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
+            WrappedVariable._OverloadOperator(operator)
+        # For slicing, bind getitem differently than a tensor (use SliceHelperVar
+        # instead)
+        # pylint: disable=protected-access
+        setattr(WrappedVariable, "__getitem__", array_ops._SliceHelperVar)
+
+    @staticmethod
+    def _OverloadOperator(operator):  # pylint: disable=invalid-name
+        """Defer an operator overload to `ops.Tensor`.
+        We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
+        Args:
+          operator: string. The operator name.
+        """
+
+        tensor_oper = getattr(tf.Tensor, operator)
+
+        def _run_op(a, *args):
+            # pylint: disable=protected-access
+            value = a._AsTensor()
+            return tensor_oper(value, *args)
+
+        # Propagate __doc__ to wrapper
+        try:
+            _run_op.__doc__ = tensor_oper.__doc__
+        except AttributeError:
+            pass
+
+        setattr(WrappedVariable, operator, _run_op)
+
+
+register_tensor_conversion(WrappedLargeVariable, "WrappedLargeVariable", overload_operators=True)
+
+
 class WrappedVariable(metaclass=MetaBaseParameter):
 
     def __init__(self, initial_value, constraint, *args, **kwargs):
