@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Top-level package for zfit."""
 
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import warnings
 
 from pkg_resources import get_distribution
@@ -101,5 +101,18 @@ def _maybe_disable_jit():
 
 
 _maybe_disable_jit()
+
+
+def _maybe_disable_vectorized_param():
+    import os
+    vectorize = os.environ.get('ZFIT_VECTORIZED_PARAMETER')
+    settings.use_vectorized_parameter(vectorize)
+
+
+_maybe_disable_vectorized_param()
+
+from tensorflow.experimental import numpy as _tnp
+
+_tnp.experimental_enable_numpy_behavior()
 
 # EOF

@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import numpy as np
 import tensorflow as tf
@@ -27,6 +27,17 @@ def set_verbosity(verbosity):
 
 def get_verbosity():
     return _verbosity
+
+
+def use_vectorized_parameter(vectorized=None):
+    from zfit import Parameter
+    from zfit.core.parameter import WrappedVariable, WrappedLargeVariable
+    if vectorized is None:
+        vectorized = True  # default
+    if vectorized:
+        Parameter._set_base_variable(WrappedLargeVariable)
+    else:
+        Parameter._set_base_variable(WrappedVariable)
 
 
 ztypes = DotDict({'float': tf.float64,

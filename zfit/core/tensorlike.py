@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import functools
 
 import tensorflow as tf
@@ -20,7 +20,7 @@ def register_tensor_conversion(convertable, name=None, overload_operators=True,
         # _pywrap_utils.RegisterType(name, convertable)
 
     if overload_operators:
-        convertable._OverloadAllOperators()
+        convertable._OverloadAllOperators(cls=convertable)
 
 
 class OverloadableMixin:
@@ -56,17 +56,17 @@ class OverloadableMixin:
     def _AsTensor(self):
         return self.value()
 
-    @classmethod
+    @staticmethod
     def _OverloadAllOperators(cls):  # pylint: disable=invalid-name
         """Register overloads for all operators."""
         for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
-            cls._OverloadOperator(operator)
+            cls._OverloadOperator(cls, operator)
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
         # pylint: disable=protected-access
         setattr(cls, "__getitem__", array_ops._SliceHelperVar)
 
-    @classmethod
+    @staticmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
         """Defer an operator overload to `ops.Tensor`.
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.

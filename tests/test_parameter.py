@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 from math import pi, cos
 
 import pytest
@@ -112,7 +112,8 @@ def test_composed_param():
     assert param_a.get_cache_deps(only_floating=False) == {param1, param2, param3}
     a_unchanged = value_fn(param1, param2, param3).numpy()
     assert a_unchanged == param_a.numpy()
-    assert param2.assign(3.5).numpy()
+    param2.assign(3.5)
+    assert pytest.approx(param2.numpy(), 3.5)
     a_changed = value_fn(param1, param2, param3).numpy()
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged

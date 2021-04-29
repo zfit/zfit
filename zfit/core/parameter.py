@@ -1,6 +1,5 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2021 zfit
-import abc
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
@@ -12,11 +11,11 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 # TF backwards compatibility
 from ordered_set import OrderedSet
-from tensorflow.python.ops import array_ops
+from tensorflow.python.types.core import Tensor as TensorType
 
 from .dependents import _extract_dependencies
 from .interfaces import ZfitModel, ZfitParameter, ZfitIndependentParameter
-from .tensorlike import register_tensor_conversion, OverloadableMixin, MetaBaseParameter
+from .tensorlike import register_tensor_conversion, OverloadableMixin
 from .. import z
 from ..core.baseobject import extract_filter_params, BaseNumericParameterized
 from ..minimizers.interface import ZfitResult
@@ -35,218 +34,165 @@ from ..util.temporary import TemporarilySet
 register_tensor_conversion(OverloadableMixin, overload_operators=True)
 
 
-class WrappedLargeVariable(metaclass=MetaBaseParameter):
+class WrappedLargeVariable(OverloadableMixin):
     _variable = None
     _next_index = 0
+    _has_vectorized_tfvar = True
 
     @classmethod
-    def _initialize_class(cls):
+    def _create_single_var(cls, value, dtype=None):
         if cls._variable is None:
-            cls._variable = tf.Variable(dtype=tf.float64, shape=tf.TensorShape(None), validate_shape=False)
+            cls._variable = tf.Variable(initial_value=[value],
+                                        shape=tf.TensorShape(None), validate_shape=False, dtype=dtype)
+        else:
+            cur_val = cls._variable.value()
+            newvar = tf.concat([cur_val, [value]], axis=0)
+            cls._variable.assign(newvar, use_locking=False, read_value=False)
 
-    def __init__(self, initial_value, constraint, *args, **kwargs):
-        self._initialize_class()
+        index = cls._next_index
+        cls._next_index += 1
+
+        return index
+
+    def __init__(self, value=None, constraint=None, initial_value=None, dtype=None, name=None, *args, **kwargs):
+        del name  # cannot use a single name with the array, also not necessary.
+        if initial_value is not None:
+            assert value is None, "value has to be None if initial value is not None"
+            value = initial_value
+        elif value is not None:
+            assert initial_value is None, "initial_value has to be None if value is not None"
+
+        self._constraint = constraint
+        self._shape = tf.TensorShape([])
         super().__init__(*args, **kwargs)
-        self._index = self._get_index()
+        self._index = self._create_single_var(value=value, dtype=dtype)
 
-    @property
-    @abc.abstractmethod
-    def name(self):
-        raise NotImplementedError
+    def _get_variable_and_index(self):
+        return self._variable, self._index
+
+    # @property
+    # @abc.abstractmethod
+    # def name(self):
+    #     raise NotImplementedError
 
     @property
     def constraint(self):
-        return self.variable.constraint
+        return self._constraint
 
     @property
     def dtype(self):
-        return self.variable.dtype
+        return self._variable.dtype
 
     def value(self):
-        return self.variable.value()
+        value = self._variable[self._index]
+        value.set_shape(self.shape)
+        return value
 
     def read_value(self):
-        return self.variable.read_value()
+        return self.value()
 
     @property
     def shape(self):
-        return self.variable.shape
+        return self._shape
 
     def numpy(self):
-        return self.variable.numpy()
+        return self.value().numpy()
 
-    def assign(self, value, use_locking=False, name=None, read_value=False):
-        return self.variable.assign(value=value, use_locking=use_locking,
-                                    name=name, read_value=read_value)
-
-    def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
-        del name
-        if dtype is not None and dtype != self.dtype:
-            return NotImplemented
-        if as_ref:
-            return self.variable.read_value().op.inputs[0]
-        else:
-            return self.variable.value()
-
-    def _AsTensor(self):
-        return self.variable.value()
-
-    @staticmethod
-    def _OverloadAllOperators():  # pylint: disable=invalid-name
-        """Register overloads for all operators."""
-        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
-            WrappedVariable._OverloadOperator(operator)
-        # For slicing, bind getitem differently than a tensor (use SliceHelperVar
-        # instead)
-        # pylint: disable=protected-access
-        setattr(WrappedVariable, "__getitem__", array_ops._SliceHelperVar)
-
-    @staticmethod
-    def _OverloadOperator(operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
-        We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
-        Args:
-          operator: string. The operator name.
-        """
-
-        tensor_oper = getattr(tf.Tensor, operator)
-
-        def _run_op(a, *args):
-            # pylint: disable=protected-access
-            value = a._AsTensor()
-            return tensor_oper(value, *args)
-
-        # Propagate __doc__ to wrapper
-        try:
-            _run_op.__doc__ = tensor_oper.__doc__
-        except AttributeError:
-            pass
-
-        setattr(WrappedVariable, operator, _run_op)
+    def assign(self, value, use_locking=False, name=None):
+        sparse_delta = tf.IndexedSlices(value,
+                                        indices=self._index,
+                                        # next is is fine as we start at 0: the nth index is n+1 long (= next_index
+                                        dense_shape=tf.TensorShape([self._next_index])
+                                        )
+        return self._variable.scatter_update(sparse_delta=sparse_delta, use_locking=use_locking, name=name)
 
 
 register_tensor_conversion(WrappedLargeVariable, "WrappedLargeVariable", overload_operators=True)
 
 
-class WrappedVariable(metaclass=MetaBaseParameter):
+class WrappedVariable(OverloadableMixin):
+    _has_vectorized_tfvar = False
 
-    def __init__(self, initial_value, constraint, *args, **kwargs):
+    def __init__(self, value=None, initial_value=None, constraint=None, dtype=None, name=None, *args, **kwargs):
+        if initial_value is not None:
+            assert value is None, "value has to be None if initial value is not None"
+            value = initial_value
+        elif value is not None:
+            assert initial_value is None, "initial_value has to be None if value is not None"
 
         super().__init__(*args, **kwargs)
-        self.variable = tf.Variable(initial_value=initial_value, constraint=constraint, name=self.name,
-                                    dtype=self.dtype)
+        self._variable = tf.Variable(initial_value=value, constraint=constraint,
+                                     dtype=dtype, name=name)
 
-    @property
-    @abc.abstractmethod
-    def name(self):
-        raise NotImplementedError
+    def _get_variable_and_index(self):
+        return self._variable, None
 
-    @property
-    def constraint(self):
-        return self.variable.constraint
+    # @property
+    # @abc.abstractmethod
+    # def name(self):
+    #     raise NotImplementedError
 
     @property
     def dtype(self):
-        return self.variable.dtype
+        return self._variable.dtype
+
+    @property
+    def constraint(self):
+        return self._variable.constraint
 
     def value(self):
-        return self.variable.value()
+        return self._variable.value()
 
     def read_value(self):
-        return self.variable.read_value()
+        return self._variable.read_value()
 
     @property
     def shape(self):
-        return self.variable.shape
+        return self._variable.shape
 
     def numpy(self):
-        return self.variable.numpy()
+        return self._variable.numpy()
 
     def assign(self, value, use_locking=False, name=None, read_value=False):
-        return self.variable.assign(value=value, use_locking=use_locking,
-                                    name=name, read_value=read_value)
-
-    def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
-        del name
-        if dtype is not None and dtype != self.dtype:
-            return NotImplemented
-        if as_ref:
-            return self.variable.read_value().op.inputs[0]
-        else:
-            return self.variable.value()
-
-    def _AsTensor(self):
-        return self.variable.value()
-
-    @staticmethod
-    def _OverloadAllOperators():  # pylint: disable=invalid-name
-        """Register overloads for all operators."""
-        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
-            WrappedVariable._OverloadOperator(operator)
-        # For slicing, bind getitem differently than a tensor (use SliceHelperVar
-        # instead)
-        # pylint: disable=protected-access
-        setattr(WrappedVariable, "__getitem__", array_ops._SliceHelperVar)
-
-    @staticmethod
-    def _OverloadOperator(operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
-        We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
-        Args:
-          operator: string. The operator name.
-        """
-
-        tensor_oper = getattr(tf.Tensor, operator)
-
-        def _run_op(a, *args):
-            # pylint: disable=protected-access
-            value = a._AsTensor()
-            return tensor_oper(value, *args)
-
-        # Propagate __doc__ to wrapper
-        try:
-            _run_op.__doc__ = tensor_oper.__doc__
-        except AttributeError:
-            pass
-
-        setattr(WrappedVariable, operator, _run_op)
+        return self._variable.assign(value=value, use_locking=use_locking,
+                                     name=name, read_value=read_value)
 
 
 register_tensor_conversion(WrappedVariable, "WrappedVariable", overload_operators=True)
 
 
-class BaseParameter(tf.Variable, ZfitParameter, metaclass=MetaBaseParameter):
-    def __init__(self, *args, **kwargs):
-        try:
-            super().__init__(*args, **kwargs)
-        except NotImplementedError:
-            tmp_val = kwargs.pop('name', None)  # remove if name is in there, needs to be passed through
-            if args or kwargs:
-                kwargs['name'] = tmp_val
-                raise RuntimeError(f"The following arguments reached the top of the inheritance tree, the super "
-                                   f"init is not implemented (most probably abstract tf.Variable): {args, kwargs}. "
-                                   f"If you see this error, please post it as an bug at: "
-                                   f"https://github.com/zfit/zfit/issues/new/choose")
+# class BaseParameter(ZfitParameter):
+#     def __init__(self, *args, **kwargs):
+#         try:
+#             super().__init__(*args, **kwargs)
+#         except NotImplementedError:
+#             tmp_val = kwargs.pop('name', None)  # remove if name is in there, needs to be passed through
+#             if args or kwargs:
+#                 kwargs['name'] = tmp_val
+#                 raise RuntimeError(f"The following arguments reached the top of the inheritance tree, the super "
+#                                    f"init is not implemented (most probably abstract tf.Variable): {args, kwargs}. "
+#                                    f"If you see this error, please post it as an bug at: "
+#                                    f"https://github.com/zfit/zfit/issues/new/choose")
 #
 
 
-class ZfitParameterMixin(ZfitParameter, BaseNumericParameterized, OverloadableMixin):
+class ZfitParameterMixin(ZfitParameter, BaseNumericParameterized, TensorType, OverloadableMixin):
     _existing_params = OrderedDict()
 
-    def __init__(self, name, value, constraint=None, value_holder=tf.Variable, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
         if name in self._existing_params:
             raise NameAlreadyTakenError("Another parameter is already named {}. "
                                         "Use a different, unique one.".format(name))
         self._existing_params.update({name: self})
         self._name = name
         super().__init__(name=name, **kwargs)
-        value_holder = value_holder
-        self._variable = value_holder(value, constraint=constraint, name=self.name,
-                                      dtype=self.dtype)
 
     @property
     def name(self):
         return self._name
+
+    def __len__(self):
+        return 0
 
     # @property
     # def constraint(self):
@@ -269,7 +215,10 @@ class ZfitParameterMixin(ZfitParameter, BaseNumericParameterized, OverloadableMi
     #     return self._variable.assign(value=value, use_locking=use_locking,
     #                                  name=name, read_value=read_value)
 
-    # class BaseParameter(WrappedVariable, BaseNumericParameterized):
+
+# class BaseParameter(WrappedVariable):
+# class BaseParameter(WrappedLargeVariable):
+class BaseParameter:
 
     # property needed here to overwrite the name of tf.Variable
     # @property
@@ -317,9 +266,6 @@ class ZfitParameterMixin(ZfitParameter, BaseNumericParameterized, OverloadableMi
     def __hash__(self):
         return id(self)
 
-    def __len__(self):
-        return 1
-
 
 # class TFBaseVariable(tf.Variable, metaclass=MetaBaseParameter):
 #     # class TFBaseVariable(WrappedVariable, metaclass=MetaBaseParameter):
@@ -333,6 +279,7 @@ class ZfitParameterMixin(ZfitParameter, BaseNumericParameterized, OverloadableMi
 class Parameter(ZfitParameterMixin, BaseParameter, ZfitIndependentParameter):
     """Class for fit parameters, derived from TF Variable class.
     """
+    _variable_class = None
     _independent = True
     _independent_params = []
     DEFAULT_STEP_SIZE = 0.001
@@ -353,6 +300,8 @@ class Parameter(ZfitParameterMixin, BaseParameter, ZfitIndependentParameter):
             upper_limit : upper limit
             step_size : step size
         """
+        super().__init__(dtype=dtype, name=name,
+                         params={}, **kwargs)
         self._independent_params.append(self)
         # TODO: sanitize input for TF2
         self._lower_limit_neg_inf = None
@@ -367,17 +316,34 @@ class Parameter(ZfitParameterMixin, BaseParameter, ZfitIndependentParameter):
             return tfp.math.clip_by_value_preserve_gradient(x, clip_value_min=self.lower,
                                                             clip_value_max=self.upper)
 
-        super().__init__(value=value, dtype=dtype, name=name, constraint=constraint,
-                         params={}, **kwargs)
+        self._variable = self._variable_class(value=value, constraint=constraint, name=name)
+        self._shape = self._variable.shape
 
         self.lower = tf.cast(lower_limit, dtype=ztypes.float) if lower_limit is not None else lower_limit
         self.upper = tf.cast(upper_limit, dtype=ztypes.float) if upper_limit is not None else upper_limit
         self.floating = floating
         self.step_size = step_size
 
+    @classmethod
+    def _set_base_variable(cls, variable_class):
+        if not cls._independent_params:
+            cls._variable_class = variable_class
+        else:
+            raise RuntimeError('Cannot set the parameter class after at least one parameter'
+                               ' has already been created (currently, if this should be changed, please report'
+                               ' on GitHub as a feature request).'
+                               f' The following parameters already exist: {cls._independent_params}')
+
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._independent = True  # overwriting independent only for subclass/instance
+
+    def _get_variable_and_index(self):
+        return self._variable._get_variable_and_index()
+
+    @property
+    def _has_vectorized_tfvar(self):
+        return self._variable._has_vectorized_tfvar
 
     @property
     def lower(self):
@@ -432,16 +398,19 @@ class Parameter(ZfitParameterMixin, BaseParameter, ZfitIndependentParameter):
         return z.unstable.logical_or(at_lower, at_upper)
 
     def value(self):
-        value = super().value()
+        value = self._variable.value()
         if self.has_limits:
-            value = self.constraint(value)  # TODO: move constraint up to BaseClass?
+            value = self._variable.constraint(value)  # TODO: move constraint up to BaseClass?
         return value
 
     def read_value(self):
-        value = super().read_value()
+        value = self._variable.read_value()
         if self.has_limits:
-            value = self.constraint(value)
+            value = self._variable.constraint(value)
         return value
+
+    def numpy(self):
+        return self._variable.numpy()
 
     @property
     def floating(self):
@@ -509,15 +478,17 @@ class Parameter(ZfitParameterMixin, BaseParameter, ZfitIndependentParameter):
         Args:
             value: The value the parameter will take on.
         """
-        super_assign = super().assign
 
         def getter():
             return self.value()
 
         def setter(value):
-            super_assign(value=value, read_value=False)
+            self.assign(value=value)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
+
+    def assign(self, value, use_locking=False):
+        return self._variable.assign(value, use_locking=use_locking)
 
     def randomize(self, minval: Optional[ztyping.NumericalScalarType] = None,
                   maxval: Optional[ztyping.NumericalScalarType] = None,
@@ -582,6 +553,9 @@ class Parameter(ZfitParameterMixin, BaseParameter, ZfitIndependentParameter):
     @upper_limit.setter
     def upper_limit(self, value):
         self.upper = value
+
+
+Parameter._set_base_variable(WrappedVariable)
 
 
 class BaseComposedParameter(ZfitParameterMixin):
@@ -663,6 +637,7 @@ class ConstantParameter(ZfitParameterMixin):
             raise RuntimeError("Cannot convert input to static value. If you encounter this, please open a bug report"
                                " on Github: https://github.com/zfit/zfit")
         self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
+
     # def read_value(self) -> tf.Tensor:
     #     return self.value()
 
@@ -736,7 +711,7 @@ class ComposedParameter(BaseComposedParameter):
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
 
     def __repr__(self):
-        if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
+        if tf.executing_eagerly():
             value = f'{self.numpy():.4g}'
         else:
             value = "graph-node"

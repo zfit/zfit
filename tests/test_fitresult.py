@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 
@@ -21,18 +21,15 @@ def create_loss(n=15000):
     c_param = zfit.Parameter("variable_c15151", -0.04, -1, 0.)
     obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
 
-    # load params for sampling
-    a_param.set_value(true_a)
-    b_param.set_value(true_b)
-    c_param.set_value(true_c)
-
     gauss1 = zfit.pdf.Gauss(mu=a_param, sigma=b_param, obs=obs1)
     exp1 = zfit.pdf.Exponential(lam=c_param, obs=obs1)
 
     sum_pdf1 = zfit.pdf.SumPDF((gauss1, exp1), 0.7)
 
-    sampled_data = sum_pdf1.create_sampler(n=n)
-    sampled_data.resample()
+    # load params for sampling
+    with zfit.param.set_values([a_param, b_param, c_param], [true_a, true_b, true_c]):
+        sampled_data = sum_pdf1.create_sampler(n=n)
+        sampled_data.resample()
 
     loss = zfit.loss.UnbinnedNLL(model=sum_pdf1, data=sampled_data)
 
@@ -43,9 +40,6 @@ def create_fitresult(minimizer_class_and_kwargs):
     loss, (a_param, b_param, c_param) = create_loss()
 
     true_minimum = loss.value().numpy()
-
-    for param in [a_param, b_param, c_param]:
-        param.assign(param.initialized_value())  # reset the value
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)

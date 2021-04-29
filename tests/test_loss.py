@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -270,8 +270,8 @@ def test_simple_loss():
     loss_tensor = loss_func()
     loss_value_np = loss_tensor.numpy()
 
-    assert loss.value().numpy() == loss_value_np
-    assert loss_deps.value().numpy() == loss_value_np
+    assert pytest.approx(loss.value().numpy(), loss_value_np)
+    assert pytest.approx(loss_deps.value().numpy(), loss_value_np)
 
     with pytest.raises(IntentionAmbiguousError):
         _ = loss + loss_deps
