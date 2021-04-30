@@ -195,7 +195,8 @@ def autodiff_value_gradients(func: Callable, params: Iterable["zfit.Parameter"])
         Returns:
             Value and gradient
     """
-    var, indices, is_vectorized = extract_tf_vars(params=params)
+    from zfit.core.parameter import extract_backend_vars
+    var, indices, is_vectorized = extract_backend_vars(params=params)
     if is_vectorized:
         value, gradients = _autodiff_value_gradients_vectorized(func, var, indices=indices)
     else:
@@ -241,38 +242,6 @@ def autodiff_hessian(func: Callable, params: Iterable["zfit.Parameter"], hessian
     return automatic_value_gradients_hessian(func, params, hessian=hessian)[2]
 
 
-def extract_tf_vars(params):
-    from zfit import z
-
-    if isinstance(params, dict):
-        return params, params.values()[0] is not None
-
-    if not any(p._has_vectorized_tfvar for p in params):
-        is_vectorized = False
-    elif all(p._has_vectorized_tfvar for p in params):
-        is_vectorized = True
-    else:
-        raise RuntimeError(f"TF variables are mixed vectorized and not, should  not be the case. Parameters: {params}")
-    indices = []
-    tfvars = []
-    for param in params:
-        tfvar, index = param._get_variable_and_index()
-        tfvars.append(tfvar)
-        indices.append(index)
-    if is_vectorized:
-        tfvars_ref = {tfvar.ref() for tfvar in tfvars}
-        if len(tfvars_ref) > 1:
-            raise ValueError("Multiple, different array variables to build parameters not supported."
-                             f" Variables: {[ref.deref() for ref in tfvars_ref]}")
-        tfvars = tfvars.pop()
-        indices = z.convert_to_tensor(indices, dtype=tf.int32)
-    else:
-        assert all(index is None for index in indices), 'index has to be None if it is not vectorized'
-        indices = None
-
-    return tfvars, indices, is_vectorized
-
-
 def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["zfit.Parameter"] = None,
                                       value_grad_func=None,
                                       hessian=None) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
@@ -294,7 +263,8 @@ def automatic_value_gradients_hessian(func: Callable = None, params: Iterable["z
         raise ValueError("Parameters have to be specified, are currently None.")
     if func is None and value_grad_func is None:
         ValueError("Either `func` or `value_grad_func` has to be specified.")
-    tfvars, indices, is_vectorized = extract_tf_vars(params)
+    from zfit.core.parameter import extract_backend_vars
+    tfvars, indices, is_vectorized = extract_backend_vars(params)
     if is_vectorized:
         loss, gradients, computed_hessian = _value_gradient_hessian_vectorized(func, hessian, params=tfvars,
                                                                                indices=indices,

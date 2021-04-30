@@ -257,7 +257,7 @@ def test_set_values():
     for param, val in zip(params, init_values):
         assert param.value().numpy() == val
 
-
+@pytest.mark.order(0)
 def test_swap_vectorized_params():
     import zfit
 

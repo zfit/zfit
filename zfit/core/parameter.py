@@ -4,7 +4,7 @@ import warnings
 from collections import OrderedDict
 from contextlib import suppress
 from inspect import signature
-from typing import Callable, Iterable, Union, Optional, Dict, Set
+from typing import Callable, Iterable, Union, Optional, Dict, Set, List, Tuple
 
 import numpy as np
 import tensorflow as tf
@@ -919,3 +919,60 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
         return [param.read_value() for param in params]
 
     return TemporarilySet(values, setter=setter, getter=getter)
+
+
+def extract_backend_vars(params: Iterable[Parameter]) -> Tuple[Union[List[tf.Variable], tf.Variable],
+                                                               Union[None, tf.Tensor],
+                                                               bool]:
+    """Extract the backend variables (currently :class:`tf.Variable`(s)) that *params* depend on.
+
+    A :class:`zfit.Parameter` is technically a wrapper around a Variable object from a specific backend
+    (currently TensorFlow) and provides a view on the value of it. This can however be implemented in different ways,
+    such as using one large variable and having slices or using a single Variable for each Parameter.
+
+    This things are however implementation details and should not be fully relied on.
+
+    There are two possibilities:
+
+    - if it is in vectorized mode, a single variable will be returned with indices indicating which indices are
+      the actual parameters.
+    - if it is in single variable mode, a list of variables will be returned and `None` for the indices.
+
+    Args:
+        params: A collection of parameters
+
+    Returns:
+        variables: a list of all the actual variables this parameters depend on. Is a single parameter if the vectorized
+          implementation is used.
+        indices: for the vectorized version, this is not `None` but the indices that the *params* are in the *variables*
+        is_vectorized: if it is a vectorized implementation
+    """
+    from zfit import z
+
+    if isinstance(params, dict):
+        return params, params.values()[0] is not None
+
+    if not any(p._has_vectorized_tfvar for p in params):
+        is_vectorized = False
+    elif all(p._has_vectorized_tfvar for p in params):
+        is_vectorized = True
+    else:
+        raise RuntimeError(f"TF variables are mixed vectorized and not, should  not be the case. Parameters: {params}")
+    indices = []
+    tfvars = []
+    for param in params:
+        tfvar, index = param._get_variable_and_index()
+        tfvars.append(tfvar)
+        indices.append(index)
+    if is_vectorized:
+        tfvars_ref = {tfvar.ref() for tfvar in tfvars}
+        if len(tfvars_ref) > 1:
+            raise ValueError("Multiple, different array variables to build parameters not supported."
+                             f" Variables: {[ref.deref() for ref in tfvars_ref]}")
+        tfvars = tfvars.pop()
+        indices = z.convert_to_tensor(indices, dtype=tf.int32)
+    else:
+        assert all(index is None for index in indices), 'index has to be None if it is not vectorized'
+        indices = None
+
+    return tfvars, indices, is_vectorized
