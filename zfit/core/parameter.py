@@ -34,7 +34,7 @@ from ..util.temporary import TemporarilySet
 register_tensor_conversion(OverloadableMixin, overload_operators=True)
 
 
-class WrappedLargeVariable(OverloadableMixin):
+class WrappedVectorizedVariable(OverloadableMixin):
     _variable = None
     _next_index = 0
     _has_vectorized_tfvar = True
@@ -107,7 +107,7 @@ class WrappedLargeVariable(OverloadableMixin):
         return self._variable.scatter_update(sparse_delta=sparse_delta, use_locking=use_locking, name=name)
 
 
-register_tensor_conversion(WrappedLargeVariable, "WrappedLargeVariable", overload_operators=True)
+register_tensor_conversion(WrappedVectorizedVariable, "WrappedVectorizedVariable", overload_operators=True)
 
 
 class WrappedVariable(OverloadableMixin):

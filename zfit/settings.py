@@ -31,13 +31,20 @@ def get_verbosity():
 
 def use_vectorized_parameter(vectorized=None):
     from zfit import Parameter
-    from zfit.core.parameter import WrappedVariable, WrappedLargeVariable
+    from zfit.core.parameter import WrappedVariable, WrappedVectorizedVariable
     if vectorized is None:
         vectorized = True  # default
     if vectorized:
-        Parameter._set_base_variable(WrappedLargeVariable)
+        Parameter._set_base_variable(WrappedVectorizedVariable)
     else:
         Parameter._set_base_variable(WrappedVariable)
+
+
+def parameters_are_vectorized():
+    from zfit import Parameter
+    from zfit.core.parameter import WrappedVectorizedVariable
+
+    return Parameter._variable_class is WrappedVectorizedVariable
 
 
 ztypes = DotDict({'float': tf.float64,

@@ -256,3 +256,14 @@ def test_set_values():
     zfit.param.set_values(params, init_values)
     for param, val in zip(params, init_values):
         assert param.value().numpy() == val
+
+
+def test_swap_vectorized_params():
+    import zfit
+
+    vectorized = zfit.settings.parameters_are_vectorized()
+    zfit.settings.use_vectorized_parameter(not vectorized)
+    param1 = zfit.Parameter('param1', 1)
+    assert param1._has_vectorized_tfvar != vectorized
+    with pytest.raises(RuntimeError):
+        zfit.settings.use_vectorized_parameter(vectorized)
