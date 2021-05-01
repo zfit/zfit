@@ -26,12 +26,12 @@ from .baseobject import BaseObject
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
 from .interfaces import ZfitData, ZfitSpace
-from .parameter import register_tensor_conversion
+from .tensorlike import register_tensor_conversion, OverloadableMixin
 from .space import Space, convert_to_space
 
 
 # TODO: make cut only once, then remember
-class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
+class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject, OverloadableMixin):
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], obs: ztyping.ObsTypeInput = None,
@@ -424,53 +424,53 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
 
         return TemporarilySet(value=space, setter=setter, getter=getter)
 
-    def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
-        del name
-        if dtype is not None:
-            if dtype != self.dtype:
-                return NotImplemented
-        if as_ref:
-            # return "NEVER READ THIS"
-            raise LogicalUndefinedOperationError("There is no ref for the `Data`")
-        else:
-            return self.value()
+    # def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
+    #     del name
+    #     if dtype is not None:
+    #         if dtype != self.dtype:
+    #             return NotImplemented
+    #     if as_ref:
+    #         # return "NEVER READ THIS"
+    #         raise LogicalUndefinedOperationError("There is no ref for the `Data`")
+    #     else:
+    #         return self.value()
+    #
+    # def _AsTensor(self):
+    #     return self.value()
+    #
+    # @staticmethod
+    # def _OverloadAllOperators():  # pylint: disable=invalid-name
+    #     """Register overloads for all operators."""
+    #     for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
+    #         Data._OverloadOperator(operator)
+    #     # For slicing, bind getitem differently than a tensor (use SliceHelperVar
+    #     # instead)
+    #     # pylint: disable=protected-access
+    #     setattr(Data, "__getitem__", array_ops._SliceHelperVar)
+    #
+    # @staticmethod
+    # def _OverloadOperator(operator):  # pylint: disable=invalid-name
+    #    """Defer an operator overload to `ops.Tensor`.
 
-    def _AsTensor(self):
-        return self.value()
-
-    @staticmethod
-    def _OverloadAllOperators():  # pylint: disable=invalid-name
-        """Register overloads for all operators."""
-        for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
-            Data._OverloadOperator(operator)
-        # For slicing, bind getitem differently than a tensor (use SliceHelperVar
-        # instead)
-        # pylint: disable=protected-access
-        setattr(Data, "__getitem__", array_ops._SliceHelperVar)
-
-    @staticmethod
-    def _OverloadOperator(operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
-
-        We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
-        Args:
-          operator: string. The operator name.
-        """
-
-        tensor_oper = getattr(tf.Tensor, operator)
-
-        def _run_op(a, *args):
-            # pylint: disable=protected-access
-            value = a._AsTensor()
-            return tensor_oper(value, *args)
-
-        # Propagate __doc__ to wrapper
-        try:
-            _run_op.__doc__ = tensor_oper.__doc__
-        except AttributeError:
-            pass
-
-        setattr(Data, operator, _run_op)
+    #     We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
+    #     Args:
+    #       operator: string. The operator name.
+    #     """
+    #
+    #     tensor_oper = getattr(tf.Tensor, operator)
+    #
+    #     def _run_op(a, *args):
+    #         # pylint: disable=protected-access
+    #         value = a._AsTensor()
+    #         return tensor_oper(value, *args)
+    #
+    #     # Propagate __doc__ to wrapper
+    #     try:
+    #         _run_op.__doc__ = tensor_oper.__doc__
+    #     except AttributeError:
+    #         pass
+    #
+    #     setattr(Data, operator, _run_op)
 
     def _check_input_data_range(self, data_range):
         data_range = self.convert_sort_space(limits=data_range)

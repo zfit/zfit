@@ -10,7 +10,7 @@ import tensorflow as tf
 from ordered_set import OrderedSet
 
 from .. import settings, z
-from .interfaces import ZfitPDF
+from .interfaces import ZfitPDF, ZfitBinnedData
 
 znp = z.numpy
 from ..util import ztyping
@@ -252,7 +252,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         model_checked = []
         data_checked = []
         for mod, dat in zip(model, data):
-            if not isinstance(dat, ZfitData):
+            if not isinstance(dat, (ZfitData, ZfitBinnedData)):
                 if fit_range is not None:
                     raise TypeError("Fit range should not be used if data is not ZfitData.")
 

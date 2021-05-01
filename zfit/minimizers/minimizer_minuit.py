@@ -5,6 +5,7 @@ from typing import List, Mapping, Optional
 import iminuit
 import numpy as np
 
+from .. import z
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, assign_values, set_values
 from ..settings import run
@@ -207,7 +208,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                                           internal_tol=internal_tol)
 
             if converged or maxiter_reached:
-                assign_values(params, minimizer.values)  # make sure it's at the right value
+                assign_values(params, z.convert_to_tensor(minimizer.values))  # make sure it's at the right value
                 break
 
         fitresult = FitResult.from_minuit(loss=loss,

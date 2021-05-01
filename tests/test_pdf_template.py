@@ -47,7 +47,7 @@ def test_binned_template_pdf():
 
 
 def test_binned_template_pdf_bbfull():
-    bins1 = 100
+    bins1 = 15
     bins2 = 10
 
     counts1 = np.random.uniform(high=150, size=(bins1, bins2))  # generate counts
@@ -95,10 +95,10 @@ def test_binned_template_pdf_bbfull():
         constraints2,
         constraints3
     ])
-    for i in progressbar.progressbar(range(1000000)):
-        loss.value()
-        loss.gradients()
-    minimizer = zfit.minimize.Minuit(verbosity=8, gradient=True)
+    # for i in progressbar.progressbar(range(1000000)):
+    #     loss.value()
+    #     loss.gradients()
+    minimizer = zfit.minimize.Minuit(verbosity=8, gradient=False)
     minimizer.minimize(loss)
 
     probs = pdf_sum.ext_pdf(None)

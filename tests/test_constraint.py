@@ -91,7 +91,7 @@ def test_gaussian_constraint_matrix():
 
 def test_gaussian_constraint():
     param_vals = [5, 6, 3]
-    observed = [3, 6.1, 4.3]
+    observed = [zfit.Parameter(f'observed {val}', val) for val in [3, 6.1, 4.3]]
     sigma = [1, 0.3, 0.7]
     true_val = true_gauss_constr_value(x=observed, mu=param_vals, sigma=sigma)
     assert true_val == true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)

@@ -1,13 +1,14 @@
 #  Copyright (c) 2021 zfit
-from .. import z
-from ..util.exception import WorkInProgressError
-from ..util.ztyping import NumericalTypeReturn
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitBinnedData
+from .tensorlike import register_tensor_conversion, OverloadableMixin
+from .. import z
+from ..util.exception import WorkInProgressError
+from ..util.ztyping import NumericalTypeReturn
 
 
-class BinnedData(BaseDimensional, ZfitBinnedData, BaseObject):  # TODO: add dtype
+class BinnedData(BaseDimensional, ZfitBinnedData, BaseObject, OverloadableMixin):  # TODO: add dtype
 
     def __init__(self, obs, counts, w2error, name: str = "BinnedData"):
         if name is None:
@@ -42,3 +43,17 @@ class BinnedData(BaseDimensional, ZfitBinnedData, BaseObject):  # TODO: add dtyp
     @property
     def data_range(self):
         return self.space
+
+    def value(self):
+        return self.get_counts()
+
+    @property
+    def nevents(self):
+        return 42  # TODO: add sensible number
+
+    @property
+    def _approx_nevents(self):
+        return 42  # TODO: add sensible number
+
+
+register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)

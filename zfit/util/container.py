@@ -19,7 +19,7 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
 
     Returns:
     """
-    from ..core.interfaces import ZfitData  # here due to dependency
+    from ..core.interfaces import ZfitData, ZfitBinnedData  # here due to dependency
     from ..core.interfaces import ZfitLoss, ZfitModel, ZfitParameter, ZfitSpace
     if non_containers is None:
         non_containers = []
@@ -29,7 +29,8 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
         return value
     if not isinstance(value, container):
         try:
-            non_containers.extend([str, tf.Tensor, ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter])
+            non_containers.extend([str, tf.Tensor, ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter,
+                                   ZfitBinnedData])
             if isinstance(value, tuple(non_containers)):
                 raise TypeError
             value = container(value)

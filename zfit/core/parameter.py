@@ -21,10 +21,10 @@ from tensorflow.python.ops.resource_variable_ops import \
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
-from .. import z
 from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies
 from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+from .. import z
 
 znp = z.numpy
 from ..core.baseobject import BaseNumeric, extract_filter_params
@@ -1000,6 +1000,7 @@ def convert_to_parameter(value,
     return value
 
 
+@tf.function(autograph=False)
 def assign_values(params: Union[Parameter, Iterable[Parameter]],
                   values: Union[ztyping.NumericalScalarType,
                                 Iterable[ztyping.NumericalScalarType]],
