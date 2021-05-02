@@ -1000,7 +1000,7 @@ def convert_to_parameter(value,
     return value
 
 
-@tf.function(autograph=False)
+@tf.function(autograph=False)  # TODO: have non-compiled as well?
 def assign_values(params: Union[Parameter, Iterable[Parameter]],
                   values: Union[ztyping.NumericalScalarType,
                                 Iterable[ztyping.NumericalScalarType]],
