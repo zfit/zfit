@@ -9,6 +9,7 @@ on:
       - master
       - develop
       - "release/*"
+      - "hotfix/*"
   pull_request:
 
 jobs:
@@ -34,7 +35,7 @@ jobs:
           python -m pip install --upgrade pip
       - name: Test with pytest
         run: |
-          pip install .[dev]
+          pip install .[alldev]
           ZFIT_DO_JIT=${{ matrix.use-graph }}
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
           coverage report
@@ -66,7 +67,7 @@ jobs:
           python -m pip install --upgrade pip
       - name: Test with pytest
         run: |
-          pip install .[dev]
+          pip install .[alldev]
           ZFIT_DO_JIT=${{ matrix.use-graph }}
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
           coverage report

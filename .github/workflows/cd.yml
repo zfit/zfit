@@ -9,6 +9,7 @@ on:
       - master
       - develop
       - "release/*"
+      - "hotfix/*"
   pull_request:
 
 jobs:

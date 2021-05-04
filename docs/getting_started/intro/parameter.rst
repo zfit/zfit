@@ -149,7 +149,7 @@ This wrapper can then be used instead of :class:`~zfit.Parameter` as
 
 .. jupyter-execute::
 
-    param1 = get_param('param1', 5, 3, 10, step_size=5)
+    param1 = get_param('param1', 5., 3., 10., step_size=5)
     # Do something with it
-    param2 = get_param('param1', 3, 1, 10)  # will have step_size 5 as we don't change that
+    param2 = get_param('param1', 3., 1., 10.)  # will have step_size 5 as we don't change that
     assert param2 is param1

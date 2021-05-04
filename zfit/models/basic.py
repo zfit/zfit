@@ -100,13 +100,12 @@ class Exponential(BasePDF):
     # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
     def _single_hook_integrate(self, limits, norm_range, x):
         with self._set_numerics_data_shift(norm_range):
-            return super()._single_hook_integrate(limits, norm_range)
+            return super()._single_hook_integrate(limits, norm_range, x=x)
 
     def _single_hook_analytic_integrate(self, limits, norm_range):
         with self._set_numerics_data_shift(limits=norm_range):
             return super()._single_hook_analytic_integrate(limits, norm_range)
 
-    #
     def _single_hook_numeric_integrate(self, limits, norm_range):
         with self._set_numerics_data_shift(limits=norm_range):
             return super()._single_hook_numeric_integrate(limits, norm_range)
