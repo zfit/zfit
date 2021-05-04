@@ -7,7 +7,6 @@ ipyopt
 jupyter-sphinx
 matplotlib  # docs
 mplhep  # docs
-mplhep
 myst-nb
 pip>=9.0.1
 pre-commit
