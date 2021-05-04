@@ -50,9 +50,10 @@ extensions = [
 ]
 jupyter_execute_notebooks = "force"  # use if needed and cache should be ignored
 # jupyter_execute_notebooks = "cache"
-jupyter_cache_path = project_dir.joinpath('docs', '.cache', 'myst-nb')
-jupyter_cache_path.mkdir(parents=True, exist_ok=True)
-jupyter_cache = jupyter_cache_path
+if jupyter_execute_notebooks == "cache":
+    jupyter_cache_path = project_dir.joinpath('docs', '.cache', 'myst-nb')
+    jupyter_cache_path.mkdir(parents=True, exist_ok=True)
+    jupyter_cache = jupyter_cache_path
 
 source_suffix = {
     '.ipynb': 'myst-nb',
