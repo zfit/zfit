@@ -356,8 +356,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         super().__init__(initial_value=value, dtype=dtype, name=name, constraint=constraint,
                          params={})
 
-        self.lower = tf.cast(lower, dtype=ztypes.float) if lower is not None else lower
-        self.upper = tf.cast(upper, dtype=ztypes.float) if upper is not None else upper
+        self.lower = lower
+        self.upper = upper
         self.floating = floating
         self.step_size = step_size
         self.set_value(value)  # to check that it is in the limits
@@ -378,6 +378,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
     def lower(self, value):
         if value is None and self._lower_limit_neg_inf is None:
             self._lower_limit_neg_inf = tf.cast(-np.infty, dtype=ztypes.float)
+        elif value is not None:
+            value = tf.cast(value, dtype=ztypes.float)
         self._lower = value
 
     @property
@@ -392,6 +394,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
     def upper(self, value):
         if value is None and self._upper_limit_neg_inf is None:
             self._upper_limit_neg_inf = tf.cast(np.infty, dtype=ztypes.float)
+        elif value is not None:
+            value = tf.cast(value, dtype=ztypes.float)
         self._upper = value
 
     @property
