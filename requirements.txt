@@ -3,7 +3,6 @@ colored
 colorlog
 dotmap
 iminuit>=2.3
-ipyopt
 nlopt
 numdifftools
 numpy>=1.16
