@@ -56,6 +56,7 @@ Source code can be found in `our github page <https://github.com/zfit/zfit/>`_.
 
     whats_new/index
     getting_started/index
+    tutorials/index
     user_api/index
     project/index
     ask_a_question

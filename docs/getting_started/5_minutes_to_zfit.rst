@@ -1,3 +1,4 @@
+.. _5 minutes to zfit:
 =================
 5 minutes to zfit
 =================
@@ -26,7 +27,8 @@ The first step is to import ``zfit`` and to verify that the installation has bee
 .. thebe-button:: Run this interactively
 
 
-Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by an *observable space*. This can be created using the :py:class:`~zfit.Space` class
+Since we want to generate/fit a Gaussian within a given range, the domain of the PDF is defined by
+an *observable space*. This can be created using the :py:class:`~zfit.Space` class
 
 .. jupyter-execute::
 
@@ -52,7 +54,8 @@ With these parameters we can instantiate the Gaussian PDF from the library
 It is recommended to pass the arguments of the PDF as keyword arguments.
 
 The next stage is to create a dataset to be fitted. There are several ways of producing this within the
-zfit framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we simply produce it using numpy and the :func:`Data.from_numpy <zfit.Data.from_numpy>` method:
+zfit framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we simply produce
+it using numpy and the :func:`Data.from_numpy <zfit.Data.from_numpy>` method:
 
 .. jupyter-execute::
 
