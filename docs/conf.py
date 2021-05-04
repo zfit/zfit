@@ -70,8 +70,8 @@ zfit_tutorials_path = project_dir.joinpath('docs', '_tmp', 'zfit-tutorials')
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
 pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
 
-execution_excludepatterns = ['Summary', 'kstmumu_tutorial', 'B2KstLL',
-                             'API', '00 - Lazy Evaluation, Graphs and TensorFlow']
+execution_excludepatterns = ['*Summary*', '*kstmumu_tutorial*', '*B2KstLL*',
+                             '*API*', '*00 - Lazy Evaluation, Graphs and TensorFlow*']
 execution_in_temp = True
 
 # Add any paths that contain templates here, relative to this directory.
