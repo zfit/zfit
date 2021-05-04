@@ -7,7 +7,6 @@
 # zfit documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
 import atexit
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -71,7 +70,8 @@ zfit_tutorials_path = project_dir.joinpath('docs', '_tmp', 'zfit-tutorials')
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
 pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
 
-execution_excludepatterns = ['*/experimental/*.ipynb']
+execution_excludepatterns = ['_unused_*']
+execution_in_temp = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
