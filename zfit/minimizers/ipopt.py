@@ -1,11 +1,10 @@
 #  Copyright (c) 2021 zfit
 import math
-import platform
-from typing import Callable, Dict, Optional, Union
+from typing import Dict, Optional, Union
 
 import numpy as np
 
-from ..core.parameter import assign_values, set_values
+from ..core.parameter import assign_values
 from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (BaseMinimizer, minimize_supports,
@@ -217,14 +216,12 @@ class IpyoptV1(BaseMinimizer):
         try:
             import ipyopt
         except ImportError as error:
-            if platform.system() == 'Darwin':
-                raise ImportError("This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
-                                  " to be installed. As there are no wheels on MacOS available"
-                                  " (https://gitlab.com/g-braeunlich/ipyopt/-/issues/4), this is not in the"
-                                  " requirements for MacOS. Please install ipyopt manually to use this minimizer"
-                                  " or install zfit on a 'Linux' environment.") from error
-            else:
-                raise
+            raise ImportError("This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
+                              " to be installed. On a 'Linux' environment, you can install zfit with"
+                              " `pip install zfit[ipyopt]` (or install ipyopt with pip). For MacOS, there are currently"
+                              " no wheels (but will come in the future). In this case, please install ipyopt manually "
+                              "to use this minimizer"
+                              " or install zfit on a 'Linux' environment.") from error
 
         if init:
             assign_values(params=params, values=init)

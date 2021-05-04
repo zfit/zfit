@@ -9,6 +9,7 @@ on:
       - master
       - develop
       - "release/*"
+      - "hotfix/*"
   pull_request:
 
 jobs:
@@ -33,7 +34,7 @@ jobs:
           python -m pip install --upgrade pip
       - name: Test with pytest
         run: |
-          pip install --use-feature=2020-resolver .[dev]
+          pip install --use-feature=2020-resolver .[alldev]
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
           coverage report
 
@@ -63,7 +64,7 @@ jobs:
           python -m pip install --upgrade pip
       - name: Test with pytest
         run: |
-          pip install --use-feature=2020-resolver .[dev]
+          pip install --use-feature=2020-resolver .[alldev]
           ZFIT_DO_JIT=0
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
           coverage report
