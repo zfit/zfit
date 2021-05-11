@@ -6,7 +6,7 @@ Data
 
 An easy and fast data manipulation are among the crucial aspects in High Energy Particle physics data analysis.
 With the increasing data availability (e.g. with the advent of LHC), this challenge has been pursued in different
-manners. Common strategies vary from multidimensional arrays with attached row/column labels (e.g. ``DataFrame`` in *pandas*) or compressed binary formats (e.g. ROOT). While each of these data structure designs has their own advantages in terms of speed and acessibility, the data concept inplemented in ``zfit`` follows closely the features of ``DataFrame`` in *pandas*.
+manners. Common strategies vary from multidimensional arrays with attached row/column labels (e.g. ``DataFrame`` in *pandas*) or compressed binary formats (e.g. ROOT). While each of these data structure designs have their own advantages in terms of speed and acessibility, the data concept inplemented in ``zfit`` follows closely the features of ``DataFrame`` in *pandas*.
 
 The :py:class:`~zfit.Data` class provides a simple and structured access/manipulation of *data* -- similarly to concept of multidimensional arrays approach from *pandas*. The key feature of :py:class:`~zfit.Data` is its relation to the :py:class:`~zfit.Space` or more explicitly its axis or name. A more equally convention is to name the role of the :py:class:`~zfit.Space` in this context as the *observable* under investigation. Note that no explicit range for the :py:class:`~zfit.Space` is required at the moment of the data definition, since this is only required at the moment some calculation is needed (e.g. integrals, fits, etc).
 
@@ -36,7 +36,7 @@ The ``branches_alias`` can be seen as a list of strings that renames the origina
 .. note::
 
     The implementation of the ``from_root`` method makes uses of the uproot packages,
-    which uses Numpy to cast bocks of data from the ROOT file as Numpy arrays in time optimised manner.
+    which uses Numpy to cast blocks of data from the ROOT file as Numpy arrays in time optimised manner.
     This also means that the *goodies* from uproot can also be used by specifying the root_dir_options,
     such as cuts in the dataset. However, this can be applied later when examining the produced dataset
     and it is the advised implementation of this.
