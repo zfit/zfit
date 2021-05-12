@@ -167,7 +167,7 @@ An extended PDF can be easily implemented in zfit in two ways:
 
 This will leave ``gauss1`` unextended while the ``extended_gauss`` is now extended. However, there are cases where
 :meth:`~zfit.pdf.BasePDF.create_extended` may fails, such as if it can't copy the original PDF. A PDF can also be
-extenden in-place
+extended in-place
 
 .. jupyter-execute::
 
