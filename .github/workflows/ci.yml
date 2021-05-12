@@ -25,7 +25,7 @@ jobs:
     name: tests on ubuntu with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v2.2.2
         name: Set up Python ${{ matrix.python-version }}
 
         with:
@@ -57,7 +57,7 @@ jobs:
     name: tests on MacOS with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v2.2.2
         name: Set up Python ${{ matrix.python-version }}
 
         with:
@@ -85,7 +85,7 @@ jobs:
     name: Run notebooks, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v2.2.2
         name: Set up Python ${{ matrix.python-version }}
 
         with:
