@@ -3,7 +3,7 @@ check-manifest
 coverage>=4.5.1
 docformatter
 flake8>=3.5.0
-ipyopt
+ipyopt<0.12
 jupyter-sphinx
 matplotlib  # docs
 mplhep  # docs
