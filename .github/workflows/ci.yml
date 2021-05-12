@@ -32,9 +32,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install --use-feature=2020-resolver --use-feature=in-tree-build .[alldev]
       - name: Test with pytest
         run: |
-          pip install --use-feature=2020-resolver .[alldev]
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
           coverage report
 
@@ -62,9 +62,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install --use-feature=2020-resolver --use-feature=in-tree-build .[alldev]
       - name: Test with pytest
         run: |
-          pip install --use-feature=2020-resolver .[alldev]
           ZFIT_DO_JIT=0
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
           coverage report
