@@ -52,7 +52,7 @@ extensions = [
 jupyter_execute_notebooks = "cache"
 jupyter_cache_path = project_dir.joinpath('docs', '.cache', 'myst-nb')
 jupyter_cache_path.mkdir(parents=True, exist_ok=True)
-jupyter_cache = jupyter_cache_path
+jupyter_cache = str(jupyter_cache_path)
 
 source_suffix = {
     '.ipynb': 'myst-nb',
