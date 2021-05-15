@@ -3,10 +3,10 @@ check-manifest
 coverage>=4.5.1
 docformatter
 flake8>=3.5.0
+ipyopt<0.12
 jupyter-sphinx
 matplotlib  # docs
 mplhep  # docs
-mplhep
 myst-nb
 pip>=9.0.1
 pre-commit

@@ -29,6 +29,21 @@ Requirement changes
 Thanks
 ------
 
+
+0.6.6 (12.05.2021)
+==================
+
+Update ipyopt requirement < 0.12 to allow numpy compatible with TensorFlow
+
+0.6.5 (04.05.2021)
+==================
+
+- hotfix for wrong argument in exponential PDF
+- removed requirement ipyopt, can be installed with `pip install zfit[ipyopt]`
+  or by manually installing `pip install ipyopt`
+
+
+
 0.6.4 (16.4.2021)
 ==================
 

@@ -28,7 +28,7 @@ via ``fixed_params``, on :py:meth:`~zfit.core.data.Sampler.resample` by specifyi
 will take which value via ``param_values`` or by changing the attribute of :py:class:`~zfit.core.data.Sampler`.
 
 Reusing the model, obs and parameters from :ref:`basic-model`,
-this is how typically toys look like:
+this is typically how toys look like:
 
 
 .. jupyter-execute::

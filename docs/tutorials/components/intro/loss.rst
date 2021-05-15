@@ -62,7 +62,7 @@ driving it away from the minimum.
 Simultaneous fits
 -----------------
 
-There are currently two loss functions implementations in the ``zfit`` library, the :py:class:`~zfit.loss.UnbinnedNLL` and :py:class:`~zfit.loss.ExtendedUnbinnedNLL` classes, which cover non-extended and extended negative log-likelihoods.
+There are currently two loss function implementations in the ``zfit`` library, the :py:class:`~zfit.loss.UnbinnedNLL` and :py:class:`~zfit.loss.ExtendedUnbinnedNLL` classes, which cover non-extended and extended negative log-likelihoods.
 
 A very common use case of likelihood fits in HEP is the possibility to examine simultaneously different datasets (that can be independent or somehow correlated).
 To build loss functions for simultaneous fits, the addition operator can be used (the particular combination that is performed depends on the type of loss function):
