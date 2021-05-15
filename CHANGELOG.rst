@@ -5,8 +5,12 @@ Changelog
 Develop
 ========
 
+
+
 Major Features and Improvements
 -------------------------------
+- add Python 3.9 support
+- upgrade to TensorFlow 2.5
 
 Breaking changes
 ------------------
