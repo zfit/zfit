@@ -50,6 +50,7 @@ and well integrated into `Scikit-HEP <https://scikit-hep.org/>`_, the HEP Python
   related content
 
 
+
 If you use zfit in **research**, please consider `citing <https://www.sciencedirect.com/science/article/pii/S2352711019303851>`_.
 
 *N.B.*: zfit is currently in *beta stage*, so while most core parts are established, some may still be missing and bugs may be encountered.
@@ -104,11 +105,11 @@ Example in short
     result = minimizer.minimize(nll)
 
     # calculate errors
-    param_errors = result.error()
+    param_errors = result.hesse()
 
 This follows the zfit workflow
 
-.. image:: docs/images/zfit_workflow_v1.png
+.. image:: docs/images/zfit_workflow_v2.png
     :alt: zfit workflow
 
 
@@ -164,7 +165,7 @@ Errors are calculated with a further function call to avoid running potentially 
 
 .. code-block:: python
 
-    param_errors = result.error()
+    param_errors = result.hesse()
 
 Once we've performed the fit and obtained the corresponding uncertainties, we can examine the fit results:
 
@@ -172,7 +173,7 @@ Once we've performed the fit and obtained the corresponding uncertainties, we ca
 
     print("Function minimum:", result.fmin)
     print("Converged:", result.converged)
-    print("Full minimizer information:", result.info)
+    print("Full minimizer information:", result)
 
     # Information on all the parameters in the fit
     params = result.params
@@ -187,27 +188,21 @@ For more details and information of what you can do with zfit, checkout the `lat
 Prerequisites
 =============
 
-``zfit`` works with Python versions 3.6 and 3.7.
+``zfit`` works with Python versions 3.7 and 3.8.
 The following packages (amongst others) are required:
 
-- `tensorflow <https://www.tensorflow.org/>`_ >= 2.x
+- `tensorflow <https://www.tensorflow.org/>`_ >= 2.4
 - `tensorflow_probability <https://www.tensorflow.org/probability>`_
 - `scipy <https://www.scipy.org/>`_ >=1.2
 - `uproot <https://github.com/scikit-hep/uproot>`_
 - `iminuit <https://github.com/scikit-hep/iminuit>`_
 
-... and some minor packages. For a full list, check the `requirements <requirements.txt>`_.
+... and some other packages. For a full list, check the `requirements <requirements.txt>`_.
 
 Installing
 ==========
 
-zfit is available on conda-forge and pip. If possible, use a conda or virtual environment and do:
-
-For conda:
-
-.. code-block:: console
-
-    $ conda install zfit -c conda-forge
+zfit is currently only available on pip. If possible, use a conda or virtual environment and do:
 
 For pip (if you don't use conda):
 

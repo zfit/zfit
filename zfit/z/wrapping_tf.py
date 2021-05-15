@@ -5,13 +5,15 @@ from typing import Any
 
 import tensorflow as tf
 
+import zfit.z.numpy as znp
+
 from ..settings import ztypes
 from ..util.deprecation import deprecated
 from .tools import _auto_upcast
 
 
-def exp(x, name=None):
-    return _auto_upcast(tf.exp(x=x, name=name))
+def exp(x):
+    return _auto_upcast(znp.exp(x=x))
 
 
 @functools.wraps(tf.convert_to_tensor)
@@ -64,14 +66,14 @@ def check_numerics(tensor: Any, message: Any, name: Any = None):
     Returns:
     """
     if tf.as_dtype(tensor.dtype).is_complex:
-        real_check = tf.debugging.check_numerics(tensor=tf.math.real(tensor), message=message, name=name)
-        imag_check = tf.debugging.check_numerics(tensor=tf.math.imag(tensor), message=message, name=name)
+        real_check = tf.debugging.check_numerics(tensor=znp.real(tensor), message=message, name=name)
+        imag_check = tf.debugging.check_numerics(tensor=znp.imag(tensor), message=message, name=name)
         check_op = tf.group(real_check, imag_check)
     else:
         check_op = tf.debugging.check_numerics(tensor=tensor, message=message, name=name)
     return check_op
 
 
-reduce_sum = tf.reduce_sum
+reduce_sum = znp.sum
 
-reduce_prod = tf.reduce_prod
+reduce_prod = znp.prod

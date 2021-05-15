@@ -1,11 +1,11 @@
 #  Copyright (c) 2021 zfit
 import math
-from typing import Callable, Dict, Optional, Union
+import platform
+from typing import Dict, Optional, Union
 
-import ipyopt
 import numpy as np
 
-from ..core.parameter import assign_values, set_values
+from ..core.parameter import assign_values
 from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (BaseMinimizer, minimize_supports,
@@ -214,6 +214,16 @@ class IpyoptV1(BaseMinimizer):
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
+        try:
+            import ipyopt
+        except ImportError as error:
+            raise ImportError("This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
+                              " to be installed. On a 'Linux' environment, you can install zfit with"
+                              " `pip install zfit[ipyopt]` (or install ipyopt with pip). For MacOS, there are currently"
+                              " no wheels (but will come in the future). In this case, please install ipyopt manually "
+                              "to use this minimizer"
+                              " or install zfit on a 'Linux' environment.") from error
+
         if init:
             assign_values(params=params, values=init)
         evaluator = self.create_evaluator()

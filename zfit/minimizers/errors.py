@@ -9,6 +9,8 @@ import scipy.stats
 import tensorflow as tf
 from scipy import optimize
 
+import zfit.z.numpy as znp
+
 from .. import settings, z
 from ..core.interfaces import ZfitIndependentParameter
 from ..core.parameter import assign_values
@@ -220,7 +222,7 @@ def covariance_with_weights(method, result, params):
             if d.weights is not None:
                 v *= d.weights
             values.append(v)
-        return tf.concat(values, axis=0)
+        return znp.concatenate(values, axis=0)
 
     if settings.options['numerical_grad']:
         def wrapped_func(values):

@@ -2,8 +2,6 @@
 Changelog
 *********
 
-
-
 Develop
 ========
 
@@ -25,12 +23,77 @@ Experimental
 Requirement changes
 -------------------
 
+- remove Python 3.6 support
+
 
 Thanks
 ------
 
 
-0.6.0 (30.3.2021
+0.6.6 (12.05.2021)
+==================
+
+Update ipyopt requirement < 0.12 to allow numpy compatible with TensorFlow
+
+0.6.5 (04.05.2021)
+==================
+
+- hotfix for wrong argument in exponential PDF
+- removed requirement ipyopt, can be installed with `pip install zfit[ipyopt]`
+  or by manually installing `pip install ipyopt`
+
+
+
+0.6.4 (16.4.2021)
+==================
+
+
+Bug fixes and small changes
+---------------------------
+- remove requirement of Ipyopt on MacOS as no wheels are available. This rendered zfit
+  basically non-installable.
+
+
+0.6.3 (15.4.2021)
+==================
+
+
+Bug fixes and small changes
+---------------------------
+- fix loss failed for large datasets
+- catch hesse failing for iminuit
+
+
+0.6.2
+========
+
+Minor small fixes.
+
+
+Bug fixes and small changes
+---------------------------
+
+- add ``loss`` to callback signature that gives full access to the model
+- add :meth:`~zfit.loss.UnbinnedNLL.create_new` to losses in order to re-instantiate
+  them with new models and data
+  preserving their current (and future) options and other arguments
+
+
+0.6.1 (31.03.2021)
+===================
+Release for fix of minimizers that performed too bad
+
+Breaking changes
+------------------
+- remove badly performing Scipy minimizers :class:`~zfit.minimize.ScipyTrustKrylovV1` and
+  :class:`~zfit.minimize.ScipyTrustNCGV1`
+
+Bug fixes and small changes
+---------------------------
+- fix auto conversion to complex parameter using constructor
+
+
+0.6.0 (30.3.2021)
 ===================
 
 Added many new minimizers from different libraries, all with uncertainty estimation available.
@@ -42,8 +105,8 @@ Major Features and Improvements
 - Added many new minimizers. A full list can be found in :ref:`minimize_user_api`.
 
   - :class:`~zfit.minimize.IpyoptV1` that wraps the powerful Ipopt large scale minimization library
-  - Scipy minimizers now have their own, dedicated wrapper for each instance such as `~zfit.minimize.ScipyLBFGSBV1`,
-    :class:`~zfit.minimize.ScipyTrustKrylovV1` or :class:`~zfit.minimize.ScipySLSQPV1`
+  - Scipy minimizers now have their own, dedicated wrapper for each instance such as
+    :class:`~zfit.minimize.ScipyLBFGSBV1`, or :class:`~zfit.minimize.ScipySLSQPV1`
   - NLopt library wrapper that contains many algorithms for local searches such as
     :class:`~zfit.minimize.NLoptLBFGSV1`, :class:`~zfit.minimize.NLoptTruncNewtonV1` or
     :class:`~zfit.minimize.NLoptMMAV1` but also includes more global minimizers such as

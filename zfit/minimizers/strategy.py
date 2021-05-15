@@ -27,7 +27,8 @@ class ZfitStrategy(abc.ABC):
                  value: Optional[float],
                  gradient: Optional[np.ndarray],
                  hessian: Optional[np.ndarray],
-                 params: List[ZfitParameter]
+                 params: List[ZfitParameter],
+                 loss: ZfitLoss,
                  ) -> Tuple[float, np.ndarray, np.ndarray]:
         raise NotImplementedError
 
@@ -51,7 +52,7 @@ class BaseStrategy(ZfitStrategy):
               " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
         raise FailMinimizeNaN()
 
-    def callback(self, value, gradient, hessian, params):
+    def callback(self, value, gradient, hessian, params, loss):
         del params
         return value, gradient, hessian
 

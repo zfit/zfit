@@ -186,11 +186,16 @@ def test_exp():
     sample_np = sample.numpy()
     assert not any(np.isnan(sample_np))
 
-    exp1 = zfit.pdf.Exponential(lam=lambda_, obs=zfit.Space('obs1', (5250, 5750)))
-    probs2 = exp1.pdf(x=np.linspace(5300, 5700, num=1100))
+    exp2 = zfit.pdf.Exponential(lam=lambda_, obs=zfit.Space('obs1', (5250, 5750)))
+    probs2 = exp2.pdf(x=np.linspace(5300, 5700, num=1100))
     probs2_np = probs2.numpy()
     assert not any(np.isnan(probs2_np))
-    normalization_testing(exp1, limits=(5400, 5800))
+    normalization_testing(exp2, limits=(5400, 5800))
+
+    intlim = [5400, 5500]
+    integral2 = zfit.run(exp2.integrate(intlim))
+    numintegral2 = zfit.run(exp2.numeric_integrate(intlim))
+    assert integral2 == pytest.approx(numintegral2, rel=0.03)
 
 
 def normalization_testing(pdf, limits=None):

@@ -4,6 +4,8 @@ from typing import Callable, Dict, Iterable, Union
 
 import tensorflow as tf
 
+import zfit.z.numpy as znp
+
 from ..core.basefunc import BaseFunc
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.dependents import _extract_dependencies
@@ -79,7 +81,7 @@ class ProdFunc(BaseFunctorFunc):
 
     def _func(self, x):
         funcs = [func.func(x) for func in self.funcs]
-        product = tf.reduce_prod(funcs, axis=0)
+        product = znp.prod(funcs, axis=0)
         return product
 
 

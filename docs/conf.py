@@ -6,10 +6,12 @@
 #
 # zfit documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
-
+import atexit
+import shutil
 import sys
 from pathlib import Path
 
+import pygit2 as pygit2
 import yaml
 
 import zfit
@@ -41,7 +43,34 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx_copybutton',
     'seed_intersphinx_mapping',
+    "myst_nb",
+    "sphinx_togglebutton",
+
 ]
+jupyter_execute_notebooks = "force"  # use if needed and cache should be ignored
+# jupyter_execute_notebooks = "cache"
+if jupyter_execute_notebooks == "cache":
+    jupyter_cache_path = project_dir.joinpath('docs', '.cache', 'myst-nb')
+    jupyter_cache_path.mkdir(parents=True, exist_ok=True)
+    jupyter_cache = jupyter_cache_path
+
+source_suffix = {
+    '.ipynb': 'myst-nb',
+    '.myst': 'myst-nb',
+}
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "html_image",
+]
+
+zfit_tutorials_path = project_dir.joinpath('docs', '_tmp', 'zfit-tutorials')
+atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
+pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
+
+execution_in_temp = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

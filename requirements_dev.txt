@@ -3,11 +3,15 @@ check-manifest
 coverage>=4.5.1
 docformatter
 flake8>=3.5.0
+ipyopt<0.12
 jupyter-sphinx
-mplhep
+matplotlib  # docs
+mplhep  # docs
+myst-nb
 pip>=9.0.1
 pre-commit
 pydata-sphinx-theme~=0.5.2
+pygit2
 pyyaml
 seed_intersphinx_mapping
 setupext-janitor

@@ -1,5 +1,4 @@
 #  Copyright (c) 2021 zfit
-import math as mt
 from contextlib import suppress
 
 import numpy as np
@@ -8,15 +7,14 @@ import tensorflow as tf
 
 import zfit
 import zfit.core.integration as zintegrate
+import zfit.z.numpy as znp
 from zfit import z
-from zfit.core import basepdf as zbasepdf
+from zfit.core.basepdf import BasePDF
 from zfit.core.parameter import Parameter
 from zfit.core.space import Space
-from zfit.models.basic import CustomGaussOLD
 from zfit.models.dist_tfp import Gauss
 
 limits1_5deps = [((1., -1., 2., 4., 3.),), ((5., 4., 5., 8., 9.),)]
-# limits_simple_5deps = (0.9, 4.7)
 limits_simple_5deps = [((1., -1., -5., 3.4, 2.1),), ((5., 5.4, -1.1, 7.6, 3.5),)]
 
 obs1 = 'obs1'
@@ -259,21 +257,34 @@ def test_mc_partial_integration():
 
 
 def test_analytic_integral():
-    class DistFunc3(zbasepdf.BasePDF):
+    class DistFunc3(BasePDF):
         def _unnormalized_pdf(self, x):
             return func3_2deps(x)
 
+    class CustomGaussOLD(BasePDF):
+        def __init__(self, mu, sigma, obs, name="Gauss"):
+            super().__init__(name=name, obs=obs, params=dict(mu=mu, sigma=sigma))
+
+        def _unnormalized_pdf(self, x):
+            x = x.unstack_x()
+            mu = self.params['mu']
+            sigma = self.params['sigma']
+            gauss = znp.exp(- 0.5*tf.square((x - mu)/sigma))
+
+            return gauss
+
+    def _gauss_integral_from_inf_to_inf(limits, params, model):
+        return tf.sqrt(2*znp.pi)*params['sigma']
+
+    CustomGaussOLD.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
+                                              limits=Space(limits=(-np.inf, np.inf), axes=(0,)))
+
     mu_true = 1.4
     sigma_true = 1.8
-    limits = -4.3, 1.9
     mu = Parameter("mu_1414", mu_true, mu_true - 2., mu_true + 7.)
     sigma = Parameter("sigma_1414", sigma_true, sigma_true - 10., sigma_true + 5.)
     gauss_params1 = CustomGaussOLD(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
     normal_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
-    try:
-        infinity = mt.inf
-    except AttributeError:  # py34
-        infinity = float('inf')
     gauss_integral_infs = gauss_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm_range=False)
     normal_integral_infs = normal_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm_range=False)
 
@@ -291,7 +302,7 @@ def test_analytic_integral():
 
 
 def test_analytic_integral_selection():
-    class DistFuncInts(zbasepdf.BasePDF):
+    class DistFuncInts(BasePDF):
         def _unnormalized_pdf(self, x):
             return x ** 2
 
