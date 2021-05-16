@@ -20,7 +20,7 @@ For a simple introduction to zfit, see also the section :ref:`5 minutes to zfit`
     statistics/index
     guides/index
 
-To start out, have a look at the large selection of scripts
+To start out, there is a of scripts
 
 .. toctree::
     :maxdepth: 2

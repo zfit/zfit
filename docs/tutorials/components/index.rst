@@ -13,6 +13,7 @@ Variables
 
 .. toctree::
     :maxdepth: 1
+
     intro/space
     intro/parameter
 
@@ -21,6 +22,7 @@ Data
 
 .. toctree::
     :maxdepth: 1
+
     intro/data
 
 Model
@@ -28,6 +30,7 @@ Model
 
 .. toctree::
     :maxdepth: 1
+
     intro/model
 
     The following tutorials can also be found in
@@ -47,6 +50,7 @@ Loss
 
 .. toctree::
     :maxdepth: 1
+
     intro/loss
 
 Minimizer
@@ -54,6 +58,7 @@ Minimizer
 
 .. toctree::
     :maxdepth: 1
+
     intro/minimizer
 
 Result
@@ -61,6 +66,7 @@ Result
 
 .. toctree::
     :maxdepth: 1
+
     intro/result
 
 Statistical Inference
@@ -68,4 +74,5 @@ Statistical Inference
 
 .. toctree::
     :maxdepth: 1
+
     intro/toy_studies
