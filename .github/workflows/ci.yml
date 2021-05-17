@@ -21,7 +21,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 0, 1 ]
-        python-version: [ 3.7, 3.8 ]
+        python-version: [ 3.7, 3.8, 3.9 ]
     name: tests on ubuntu with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v2.3.4
