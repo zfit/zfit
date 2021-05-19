@@ -4,27 +4,21 @@ Getting started
 
 Welcome to zfit!
 
-How to set it up:
+How to set it up: :ref:`Installing zfit <zfit_installation>`
+
+
+:ref:`Quickstart: 5 minutes to zfit <5_minutes_to_zfit>`
+
+
+A more extensive introduction: 20 minutes to zfit.
 
 .. toctree::
     :maxdepth: 1
 
-    installation
+    ../_tmp/zfit-tutorials/Introduction.ipynb
 
 
+:ref:`Getting started with the individual components of zfit <components_introduction>`
 
-Getting started with zfit is easiest to do with the
-
-.. toctree::
-    :maxdepth: 1
-
-    5_minutes_to_zfit
-
-For a more extensive introduction, the `20 minutes introduction <../../../_tmp/zfit-tutorials/Introduction.ipynb>`_
-gives a good insight.
-
-If you want to go throug the individual components and get started with that, follow the
-`components of zfit <../tutorials/components/intro/index>`_
-
-A more througout explanation can be found in the :ref:`tutorial section`_, some of them are also available in the
+A more throughout explanation can be found in the :ref:`tutorial_section`, some of them are also available in the
 `zfit youtube channel <https://www.youtube.com/channel/UC_IOWLYdQSkWr54K-o8BTCA>`_
