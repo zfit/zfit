@@ -249,7 +249,7 @@ def test_gradients(chunksize):
     param1.set_value(initial1)
     param2.set_value(initial2)
     gradient3 = nll.gradient()
-    assert frozenset([g.numpy() for g in gradient3]) == pytest.approx(frozenset(both_gradients_true))
+    assert frozenset(g.numpy() for g in gradient3) == pytest.approx(frozenset(both_gradients_true))
 
 
 def test_simple_loss():
