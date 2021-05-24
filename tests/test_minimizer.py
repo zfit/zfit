@@ -357,8 +357,8 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
     if not isinstance(minimizer, zfit.minimize.IpyoptV1):
         assert result_lowtol2.info['n_eval'] < 1.2 * result.info['n_eval']  # should not be more, surely not a lot
 
-    aval, bval, cval = [zfit.run(v) for v in
-                        (mu_param, sigma_param, lambda_param)]
+    aval, bval, cval = (zfit.run(v) for v in
+                        (mu_param, sigma_param, lambda_param))
 
     assert true_mu == pytest.approx(aval, abs=parameter_tol)
     assert true_sigma == pytest.approx(bval, abs=parameter_tol)

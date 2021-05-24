@@ -63,7 +63,7 @@ def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
 
     result = minimizer.minimize(loss=loss)
     cur_val = loss.value().numpy()
-    aval, bval, cval = [v.numpy() for v in (a_param, b_param, c_param)]
+    aval, bval, cval = (v.numpy() for v in (a_param, b_param, c_param))
 
     ret = {'result': result, 'true_min': true_minimum, 'cur_val': cur_val, 'a': aval, 'b': bval, 'c': cval,
            'a_param': a_param, 'b_param': b_param, 'c_param': c_param}
