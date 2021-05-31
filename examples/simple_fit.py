@@ -20,6 +20,3 @@ result = minimizer.minimize(nll)
 
 param_errors = result.hesse()
 param_errors_asymetric = result.errors()
-
-a = param_errors
-x = param_errors_asymetric
