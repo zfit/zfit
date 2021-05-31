@@ -2048,8 +2048,8 @@ def combine_spaces(*spaces: Iterable[Space]):
                     unique_coords.remove(coord)
             elif coord in non_unique_coords:
                 non_unique_spaces = [space for space in spaces if coord in get_coord(space, using_obs)]
-                common_coords_non_unique = list(set.intersection(*[set(get_coord(space, using_obs))
-                                                                   for space in non_unique_spaces]))
+                common_coords_non_unique = list(set.intersection(*(set(get_coord(space, using_obs))
+                                                                   for space in non_unique_spaces)))
                 # do the below to check if we can take the subspace
                 non_unique_subspaces = [space.get_subspace(obs=common_coords_non_unique if using_obs else None,
                                                            axes=None if using_obs else common_coords_non_unique)
