@@ -2,8 +2,8 @@ import numpy as np
 import tensorflow as tf
 from tf_quant_finance.math import root_search
 
-from zfit import ztypes
-from zfit.util import binning as binning_util
+from ..settings import ztypes
+from .util import binning as binning_util
 
 
 def _fixed_point(t, N, squared_integers, grid_data_dct2):
