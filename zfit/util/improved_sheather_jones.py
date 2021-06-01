@@ -3,7 +3,7 @@ import tensorflow as tf
 from tf_quant_finance.math import root_search
 
 from ..settings import ztypes
-from .util import binning as binning_util
+from . import binning as binning_util
 
 
 def _fixed_point(t, N, squared_integers, grid_data_dct2):
