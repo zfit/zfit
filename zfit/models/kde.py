@@ -10,6 +10,7 @@ import zfit.z.numpy as znp
 
 from .. import z
 from ..core.interfaces import ZfitData, ZfitSpace
+from ..core.basepdf import BasePDF
 from ..settings import ztypes
 from ..util import binning as binning_util
 from ..util import convolution as convolution_util
