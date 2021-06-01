@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from zfit import ztypes
+from ..settings import ztypes
 
 
 def generate_1d_grid(data, num_grid_points, absolute_boundary=0.0, relative_boundary=0.05):
