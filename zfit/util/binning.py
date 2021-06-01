@@ -1,8 +1,9 @@
 import tensorflow as tf
+
 from zfit import ztypes
 
 
-def generate_1d_grid(data, num_grid_points, absolute_boundary=0.0, relative_boundary=0.05): 
+def generate_1d_grid(data, num_grid_points, absolute_boundary=0.0, relative_boundary=0.05):
 
     minimum = tf.math.reduce_min(data)
     maximum = tf.math.reduce_max(data)
@@ -37,7 +38,7 @@ def bin_1d_linear(data, grid, weights = None):
 def _bin_1d_weighted(data, grid, weights, method='linear'):
 
     if weights is None:
-        weights = tf.ones_like(data, ztypes.float)            
+        weights = tf.ones_like(data, ztypes.float)
 
     weights = weights / tf.reduce_sum(weights)
 

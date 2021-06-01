@@ -1,8 +1,8 @@
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 from tf_quant_finance.math import root_search
-from zfit import ztypes
 
+from zfit import ztypes
 from zfit.util import binning as binning_util
 
 
@@ -77,8 +77,8 @@ def _fixed_point(t, N, squared_integers, grid_data_dct2):
 
 
 def _find_root(function, N, squared_integers, grid_data_dct2):
-    """
-    Root finding algorithm. Based on MATLAB implementation by Botev et al.
+    """Root finding algorithm. Based on MATLAB implementation by Botev et al.
+
     >>> # From the matlab code
     >>> ints = np.arange(1, 51)
     >>> ans = _root(_fixed_point, N=50, args=(50, ints, ints))

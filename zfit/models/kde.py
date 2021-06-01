@@ -11,11 +11,11 @@ import zfit.z.numpy as znp
 from .. import z
 from ..core.interfaces import ZfitData, ZfitSpace
 from ..settings import ztypes
-from ..util import ztyping
-from ..util.exception import OverdefinedError, ShapeIncompatibleError
-from ..util import improved_sheather_jones as isj_util
 from ..util import binning as binning_util
 from ..util import convolution as convolution_util
+from ..util import improved_sheather_jones as isj_util
+from ..util import ztyping
+from ..util.exception import OverdefinedError, ShapeIncompatibleError
 from .dist_tfp import WrapDistribution
 
 
@@ -320,7 +320,7 @@ class KDE1DimFFTV1(BasePDF):
         .. math::
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
-        It is computed by using a convolution of the data with the kernels evaluated at fixed grid points and then 
+        It is computed by using a convolution of the data with the kernels evaluated at fixed grid points and then
         interpolating between this points to get an estimate for x.
 
         Args:

@@ -1,20 +1,21 @@
 import tensorflow as tf
-from zfit import ztypes
 from tf_quant_finance.math import root_search
+
+from zfit import ztypes
 
 
 def find_practical_support_bandwidth(kernel, bandwidth, absolute_tolerance=10e-5):
-    """
-    Return the kernel support for practical purposes. Used to find a support value
-    for computations for kernel functions without finite (bounded) support.
+    """Return the kernel support for practical purposes.
+
+    Used to find a support value for computations for kernel functions without finite (bounded) support.
     """
     absolute_root_tolerance = 1e-3
     relative_root_tolerance = root_search.default_relative_root_tolerance(ztypes.float)
     function_tolerance = 0
-    
+
     kernel_instance = kernel(loc=0, scale=bandwidth)
 
-    def objective_fn(x): 
+    def objective_fn(x):
         return kernel_instance.prob(x) - tf.constant(absolute_tolerance, ztypes.float)
 
     roots, value_at_roots, num_iterations, converged = root_search.brentq(
@@ -38,7 +39,7 @@ def convolve_1d_data_with_kernel(kernel, bandwidth, data, grid, support = None, 
         num_intervals = num_grid_points - tf.constant(1, ztypes.int)
         space_width = kernel_grid_max - kernel_grid_min
         dx = space_width / tf.cast(num_intervals, ztypes.float)
-            
+
         L = tf.cast(num_grid_points, ztypes.float)
 
         if support is not None:
@@ -59,13 +60,13 @@ def convolve_1d_data_with_kernel(kernel, bandwidth, data, grid, support = None, 
         if fft_method  == 'conv1d':
             c_size = tf.size(c, ztypes.int)
             c = tf.reshape(c, [1, c_size, 1], name='c')
-            
+
             k_size = tf.size(k, ztypes.int)
             k = tf.reshape(k, [k_size, 1, 1], name='k')
 
-            return tf.squeeze(tf.nn.conv1d(c, k, 1, 'SAME')) 
-        
-        else:     
+            return tf.squeeze(tf.nn.conv1d(c, k, 1, 'SAME'))
+
+        else:
 
             P = tf.math.pow(tf.constant(2, ztypes.int), tf.cast(tf.math.ceil(tf.math.log(tf.constant(3.0, ztypes.float) * tf.cast(num_grid_points, ztypes.float) - tf.constant(1.0, ztypes.float)) / tf.math.log(tf.constant(2.0, ztypes.float))), ztypes.int))
 
