@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tf_quant_finance.math import root_search
 
-from zfit import ztypes
+from ..settings import ztypes
 
 
 def find_practical_support_bandwidth(kernel, bandwidth, absolute_tolerance=10e-5):
