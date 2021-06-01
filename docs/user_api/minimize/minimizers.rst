@@ -47,8 +47,6 @@ Scipy
     :toctree: _generated/minimizers
 
     zfit.minimize.ScipyLBFGSBV1
-    zfit.minimize.ScipyTrustNCGV1
-    zfit.minimize.ScipyTrustKrylovV1
     zfit.minimize.ScipyTrustConstrV1
     zfit.minimize.ScipyPowellV1
     zfit.minimize.ScipySLSQPV1

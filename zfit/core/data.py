@@ -12,6 +12,7 @@ from tensorflow.python.ops import array_ops
 
 # from ..settings import types as ztypes
 import zfit
+import zfit.z.numpy as znp
 
 from .. import z
 from ..settings import ztypes
@@ -262,7 +263,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
         """
 
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, 'numpy')):
-            raise TypeError("`array` has to be a `np.ndarray`. Is currently {}".format(type(array)))
+            raise TypeError(f"`array` has to be a `np.ndarray`. Is currently {type(array)}")
         if dtype is None:
             dtype = ztypes.float
         tensor = tf.cast(array, dtype=dtype)
@@ -285,9 +286,9 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
             dtype = ztypes.float
         tensor = tf.cast(tensor, dtype=dtype)
         if len(tensor.shape) == 0:
-            tensor = tf.expand_dims(tensor, -1)
+            tensor = znp.expand_dims(tensor, -1)
         if len(tensor.shape) == 1:
-            tensor = tf.expand_dims(tensor, -1)
+            tensor = znp.expand_dims(tensor, -1)
         # dataset = tf.data.Dataset.from_tensor_slices(tensor)
         dataset = LightDataset.from_tensor(tensor)
 
@@ -359,9 +360,9 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject):
     def _check_convert_value(self, value):
         # TODO(Mayou36): add conversion to right dimension? (n_events, n_obs)? # check if 1-D?
         if len(value.shape.as_list()) == 0:
-            value = tf.expand_dims(value, -1)
+            value = znp.expand_dims(value, -1)
         if len(value.shape.as_list()) == 1:
-            value = tf.expand_dims(value, -1)
+            value = znp.expand_dims(value, -1)
 
         # cast data to right type
         if value.dtype != self.dtype:

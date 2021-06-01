@@ -10,6 +10,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 import zfit
+import zfit.z.numpy as znp
 from zfit import z
 from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitData, ZfitModel, ZfitSpace
@@ -119,7 +120,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 index_samples = 0
                 index_values = 0
                 if len(x.shape) == 1:
-                    x = tf.expand_dims(x, axis=1)
+                    x = znp.expand_dims(x, axis=1)
                 for i in range(n_axes + x.shape[-1]):
                     if i in axes:
                         new_obs.append(space.obs[index_samples])
@@ -127,7 +128,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                         index_samples += 1
                     else:
                         new_obs.append(data_obs[index_values])
-                        value_list.append(tf.expand_dims(x[:, index_values], axis=1))
+                        value_list.append(znp.expand_dims(x[:, index_values], axis=1))
                         index_values += 1
                 value_list = [tf.cast(val, dtype=dtype) for val in value_list]
                 x = PartialIntegralSampleData(sample=value_list,
@@ -137,7 +138,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
             # convert rnd samples with value to feedable vector
             reduce_axis = 1 if partial else None
-            avg = tf.reduce_mean(input_tensor=func(x), axis=reduce_axis)
+            avg = znp.mean(func(x), axis=reduce_axis)
             # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
             # TODO: importance sampling?
             # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
@@ -165,7 +166,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
                                                          randomized=False)
         # halton_sample = tf.random_uniform(shape=(n_axes, batch_size), dtype=dtype)
         samples_normed.set_shape((batch_size, n_axes))
-        samples_normed = tf.expand_dims(samples_normed, axis=0)
+        samples_normed = znp.expand_dims(samples_normed, axis=0)
         samples = samples_normed * (upper - lower) + lower
         func_vals = func(samples)
         if shape_after == ():
@@ -173,8 +174,8 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
         else:
             reduce_axis = 1
             if len(func_vals.shape) == 1:
-                func_vals = tf.expand_dims(func_vals, -1)
-        batch_mean = tf.reduce_mean(input_tensor=func_vals, axis=reduce_axis)  # if there are gradients
+                func_vals = znp.expand_dims(func_vals, -1)
+        batch_mean = znp.mean(func_vals, axis=reduce_axis)  # if there are gradients
         err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
 
         do_print = False
@@ -213,11 +214,6 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
                                              dtype=dtype,
                                              space=space, x=x, shape_after=shape_after)
 
-            # normed_grad = normalization_nograd(func=lambda x: tf.stack(tf.gradients(ys=func(x), xs=variables)),
-            #                                    n_axes=n_axes, batch_size=batch_size, num_batches=num_batches,
-            #                                    dtype=dtype,
-            #                                    space=space,
-            #                                    x=x, shape_after=(len(variables),))
 
             return dy, tape.gradient(value, variables)
 
@@ -225,8 +221,6 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
 
     fake_x = 1 if x_is_none else x
     return normalization_func(fake_x)
-
-
 
 
 # @z.function
@@ -253,11 +247,11 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
                 sample = mc_sampler(shape=(batch_size, space.n_obs), dtype=ztypes.float)
             sample = tf.guarantee_const(sample)
             sample = (np.array(upper[0]) - np.array(lower[0])) * sample + lower[0]
-            sample = tf.transpose(a=sample)
+            sample = znp.transpose(a=sample)
             sample = func(sample)
             sample = tf.guarantee_const(sample)
 
-            batch_mean = tf.reduce_mean(input_tensor=sample)
+            batch_mean = znp.mean(sample)
             batch_mean = tf.guarantee_const(batch_mean)
             err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
             # err_weight /= err_weight + 1

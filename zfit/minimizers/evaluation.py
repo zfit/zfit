@@ -142,7 +142,8 @@ class LossEval:
             loss_value, gradient_values, _ = self.strategy.callback(value=loss_value,
                                                                     gradient=gradient_values,
                                                                     hessian=None,
-                                                                    params=self.params)
+                                                                    params=self.params,
+                                                                    loss=self.loss)
         except Exception as error:
             loss_value = "invalid, error occured"
             gradient_values = ["invalid"] * len(self.params)
@@ -201,7 +202,8 @@ class LossEval:
             loss_value, _, _ = self.strategy.callback(value=loss_value,
                                                       gradient=None,
                                                       hessian=None,
-                                                      params=self.params)
+                                                      params=self.params,
+                                                      loss=self.loss)
         except Exception as error:
             loss_value = "invalid, error occured"
             if isinstance(error, tf.errors.InvalidArgumentError):
@@ -255,7 +257,8 @@ class LossEval:
             _, gradient_values, _ = self.strategy.callback(value=None,
                                                            gradient=gradient_values,
                                                            hessian=None,
-                                                           params=self.params)
+                                                           params=self.params,
+                                                           loss=self.loss)
         except Exception as error:
             gradient_values = ["invalid"] * len(self.params)
             if isinstance(error, tf.errors.InvalidArgumentError):
@@ -311,7 +314,8 @@ class LossEval:
             _, _, hessian = self.strategy.callback(value=None,
                                                    gradient=None,
                                                    hessian=hessian,
-                                                   params=self.params)
+                                                   params=self.params,
+                                                   loss=self.loss)
         except Exception as error:
             hessian_values = ["invalid"] * len(self.params)
             if isinstance(error, tf.errors.InvalidArgumentError):

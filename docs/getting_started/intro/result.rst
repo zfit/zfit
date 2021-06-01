@@ -46,7 +46,7 @@ The :py:func:`~zfit.minimizers.fitresult.FitResult.errors` method can be used to
 error calculation.
 It returns two objects, the first are the parameter errors and the second is a new ``FitResult`` *in case a new
 minimum was found during the profiling*; this will also render the original result invalid as can
-be check with ``result.valid``.
+be checked with ``result.valid``.
 
 .. code-block:: pycon
 

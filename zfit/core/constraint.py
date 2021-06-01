@@ -8,6 +8,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
+import zfit.z.numpy as znp
 from zfit import z
 
 from ..settings import ztypes
@@ -212,7 +213,7 @@ class GaussianConstraint(TFProbabilityConstraint):
             elif sigma.shape.ndims == 1:
                 covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
             else:
-                sigma = tf.reshape(sigma, [1])
+                sigma = znp.reshape(sigma, [1])
                 covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
 
             if not params_tensor.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:

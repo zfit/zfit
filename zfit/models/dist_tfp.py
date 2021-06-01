@@ -144,11 +144,11 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 #                          name=name)
 #
 #     def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
-#         value = tf.expand_dims(x.value(), -2)
-#         new_shape = tf.concat([tf.shape(value)[:2], [tf.shape(self._latent_loc)[0], 4]], axis=0)
+#         value = znp.expand_dims(x.value(), -2)
+#         new_shape = znp.concatenate([tf.shape(value)[:2], [tf.shape(self._latent_loc)[0], 4]], axis=0)
 #         value = tf.broadcast_to(value, new_shape)
 #         probs = self.distribution.prob(value=value, name="unnormalized_pdf")
-#         # weights = tf.expand_dims(self._weights_loc, axis=-1)
+#         # weights = znp.expand_dims(self._weights_loc, axis=-1)
 #         weights = self._weights_loc
 #         probs = z.reduce_sum(probs * weights, axis=-1) / self._weights_sum
 #         return probs

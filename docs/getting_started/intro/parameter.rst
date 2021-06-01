@@ -5,7 +5,7 @@ Several objects in zfit, most importantly models, have one or more parameter whi
 parametrise a function or distribution. There are two different kinds of parameters in zfit:
 
 * Independent: can be changed in a fit (or explicitly be set to ``fixed``).
-* Dependent: **cannot** be directly changed but _may_ depend on independent parameters.
+* Dependent: **cannot** be directly changed but *may* depend on independent parameters.
 
 Unique names
 -------------
@@ -14,12 +14,13 @@ Parameters in zfit are global, unique objects. No Parameters with the same name 
 be ambiguous. If a new parameter with the same name will be created, a :class:`~zfit.exception.NameAlreadyTakenError`
 will be raised.
 
-*For Jupyter notebooks, see also :ref:`Parameters in Jupyter <parameters_in_jupyter>`*
+For Jupyter notebooks, see also :ref:`about parameters in Jupyter <params-in-jupyter>` for
+additional information
 
 Independent Parameter
 ---------------------
 
-To create a parameter that can be changed, *e.g.*, to fit a model, a :py:class~zfit.Parameter` has to
+To create a parameter that can be changed, *e.g.*, to fit a model, a :py:class:`~zfit.Parameter` has to
 be instantiated.
 
 The syntax is as follows:
@@ -87,21 +88,21 @@ methods can be used to initialize polar parameters from floats, avoiding the nee
 :py:class:`tf.Tensor` objects.
 
 
-.. _parameters_in_jupyter::
+.. _params-in-jupyter:
 
 Parameters in Jupyter
 ----------------------
 
 Parameters are unique, global objects. This can conflict with the typical workflow in a jupyter notebook as cells are
 often executed multiple times. If a cell that creates a parameter is executed again (meaning a parameter with the same
-name as already existing should be created), it raises a :class:~`zfit.exception.NameAlreadyTakenError`
-*(there is `an extensive discussion of the why <https://github.com/zfit/zfit/issues/186>`_)*
+name as already existing should be created), it raises a :class:`~zfit.exception.NameAlreadyTakenError`
+(there is `an extensive discussion of the why <https://github.com/zfit/zfit/issues/186>`_)
 
 To circumvent this, which comes from the fact that Jupyter is stateful, there are a few ways:
 
 - if possible, simply rerun everything.
 - move the creation of the variables into a separate cell at the beginning. Remember that you can set a value on a
-  variable anytime using `set_value` which can be called as often as desired.
+  variable anytime using :meth:`~zfit.Parameter.set_value` which can be called as often as desired.
 - create a wrapper that returns the same parameter again if it exists. With this way it is clear what is done
   and it is convenient to use as a de-facto drop-in replacement for :class:~`zfit.Parameter` (using it in
   other places except for exploratory work may has unintended side-consequences)
@@ -112,19 +113,43 @@ Example wrapper:
 
     all_params = {}
 
-    def get_param(name, *args, **kwargs):
+    def get_param(name, value=None, lower=None, upper=None, step_size=None, **kwargs):
         """Either create a parameter or return existing if a parameter with this name already exists.
+
+        If anything else than *name* is given, this will be used to change the existing parameter.
 
         Args:
             name: Name of the Parameter
-            *args:
-            **kwargs:
+            value : starting value
+            lower : lower limit
+            upper : upper limit
+            step_size : step size
 
         Returns:
             ``zfit.Parameter``
         """
         if name in all_params:
-            return all_params[name]
-        parameter = zfit.Parameter(name=name, *args, **kwargs)
+            parameter = all_params[name]
+            if lower is not None:
+                parameter.lower = lower
+            if upper is not None:
+                parameter.upper = upper
+            if step_size is not None:
+                parameter.step_size = step_size
+            if value is not None:
+                parameter.set_value(value)
+            return parameter
+
+        # otherwise create new one
+        parameter = zfit.Parameter(name, value, lower, upper, step_size)
         all_params[name] = parameter
         return parameter
+
+This wrapper can then be used instead of :class:`~zfit.Parameter` as
+
+.. jupyter-execute::
+
+    param1 = get_param('param1', 5., 3., 10., step_size=5)
+    # Do something with it
+    param2 = get_param('param1', 3., 1., 10.)  # will have step_size 5 as we don't change that
+    assert param2 is param1

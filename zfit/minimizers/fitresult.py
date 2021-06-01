@@ -139,9 +139,6 @@ def _minos_minuit(result, params, cl=None):
 
 
 def _covariance_minuit(result, params):
-    if any(data.weights is not None for data in result.loss.data):
-        warnings.warn("The computation of the covariance matrix with weights is still experimental.",
-                      ExperimentalFeatureWarning)
 
     minuit = result._create_minuit_instance()
 
@@ -150,10 +147,16 @@ def _covariance_minuit(result, params):
     covariance = minuit.covariance
 
     covariance_dict = {}
-    for p1 in params:
-        for p2 in params:
-            key = (p1, p2)
-            covariance_dict[key] = covariance[tuple(k.name for k in key)]
+    if covariance is None:
+        warnings.warn('minuit failed to calculate the covariance matrix or similar when calling `hesse`.'
+                      'Try to use `hesse_np` as the method instead and try again.'
+                      'This is unexpected and may has to do with iminuitV2. Either way, please fill an issue if'
+                      ' this is not expected to fail for you.')
+    else:
+        for p1 in params:
+            for p2 in params:
+                key = (p1, p2)
+                covariance_dict[key] = covariance[tuple(k.name for k in key)]
 
     return covariance_dict
 

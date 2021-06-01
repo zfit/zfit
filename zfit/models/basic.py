@@ -5,12 +5,12 @@ Gauss, exponential... that can be used together with Functors to build larger mo
 
 #  Copyright (c) 2021 zfit
 import contextlib
-import math as mt
 
 import numpy as np
 import tensorflow as tf
 
 import zfit.z.math
+import zfit.z.numpy as znp
 from zfit import z
 
 from ..core.basepdf import BasePDF
@@ -19,30 +19,6 @@ from ..util import ztyping
 from ..util.exception import (AnalyticIntegralNotImplemented,
                               BreakingAPIChangeError)
 from ..util.warnings import warn_advanced_feature
-
-infinity = mt.inf
-
-
-class CustomGaussOLD(BasePDF):
-
-    def __init__(self, mu, sigma, obs, name="Gauss"):
-        super().__init__(name=name, obs=obs, params=dict(mu=mu, sigma=sigma))
-
-    def _unnormalized_pdf(self, x):
-        x = x.unstack_x()
-        mu = self.params['mu']
-        sigma = self.params['sigma']
-        gauss = tf.exp(- 0.5 * tf.square((x - mu) / sigma))
-
-        return gauss
-
-
-def _gauss_integral_from_inf_to_inf(limits, params, model):
-    return tf.sqrt(2 * z.pi) * params['sigma']
-
-
-CustomGaussOLD.register_analytic_integral(func=_gauss_integral_from_inf_to_inf,
-                                          limits=Space(limits=(-infinity, infinity), axes=(0,)))
 
 
 class Exponential(BasePDF):
@@ -106,8 +82,8 @@ class Exponential(BasePDF):
                     upper.append(z.convert_to_tensor(up[:, 0]))
                 lower = z.convert_to_tensor(lower)
                 upper = z.convert_to_tensor(upper)
-                lower_val = tf.math.reduce_min(lower, axis=0)
-                upper_val = tf.math.reduce_max(upper, axis=0)
+                lower_val = znp.min(lower, axis=0)
+                upper_val = znp.max(upper, axis=0)
 
                 return (upper_val + lower_val) / 2
 
@@ -124,13 +100,12 @@ class Exponential(BasePDF):
     # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
     def _single_hook_integrate(self, limits, norm_range, x):
         with self._set_numerics_data_shift(norm_range):
-            return super()._single_hook_integrate(limits, norm_range)
+            return super()._single_hook_integrate(limits, norm_range, x=x)
 
     def _single_hook_analytic_integrate(self, limits, norm_range):
         with self._set_numerics_data_shift(limits=norm_range):
             return super()._single_hook_analytic_integrate(limits, norm_range)
 
-    #
     def _single_hook_numeric_integrate(self, limits, norm_range):
         with self._set_numerics_data_shift(limits=norm_range):
             return super()._single_hook_numeric_integrate(limits, norm_range)

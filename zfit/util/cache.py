@@ -121,7 +121,7 @@ class GraphCachable(ZfitGraphCachable):
             cacher:
         """
         if not isinstance(cacher, ZfitGraphCachable):
-            raise TypeError("`cacher` is not a `ZfitCachable` but {}".format(type(cacher)))
+            raise TypeError(f"`cacher` is not a `ZfitCachable` but {type(cacher)}")
         if not cacher in self._cachers:
             self._cachers[cacher] = None  # could we have a more useful value?
 
@@ -275,8 +275,10 @@ class FunctionCacheHolder(GraphCachable):
         if not isinstance(other, FunctionCacheHolder):
             return False
         # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
+        array_repr_self = np.array(self.immutable_representation, dtype=object)
+        array_repr_other = np.array(other.immutable_representation, dtype=object)
         try:
-            return all(np.equal(self.immutable_representation, other.immutable_representation))
+            return all(np.equal(array_repr_self, array_repr_other))
         except ValueError:  # broadcasting does not work
             return False
         except TypeError:  # OperatorNotAllowedError inherits from this

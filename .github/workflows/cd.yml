@@ -1,44 +1,47 @@
 name: build
 
 on:
-    workflow_dispatch:
-    push:
-        tags:
-            - "*"
-        branches:
-            - master
-            - develop
-            - "release/*"
-    pull_request:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+    branches:
+      - master
+      - develop
+      - "release/*"
+      - "hotfix/*"
+  pull_request:
 
 jobs:
-    dist:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-python@v2
+  dist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
 
-            - name: Build SDist and wheel
-              run: pipx run --spec build pyproject-build
+      - name: Build SDist and wheel
+        run: pipx run --spec build pyproject-build
 
-            - name: Check metadata
-              run: pipx run twine check dist/*
+      - name: Check metadata
+        run: pipx run twine check dist/*
 
-            - uses: actions/upload-artifact@v2
-              with:
-                  path: dist/*
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*
 
-    publish:
-        needs: [dist]
-        runs-on: ubuntu-latest
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+  publish:
+    needs: [ dist ]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
 
-        steps:
-            - uses: actions/download-artifact@v2
-              with:
-                  name: artifact
-                  path: dist
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
 
-            - uses: pypa/gh-action-pypi-publish@v1.4.1
-              with:
-                  password: ${{ secrets.PYPI_ZFIT_TOKEN }}
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          password: ${{ secrets.PYPI_ZFIT_TOKEN }}

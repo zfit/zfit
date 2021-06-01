@@ -1,7 +1,7 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2021 zfit
 import abc
-import collections
+import collections.abc
 import functools
 import warnings
 from collections import OrderedDict
@@ -21,12 +21,9 @@ from tensorflow.python.ops.resource_variable_ops import \
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
-from .. import z
-from . import interfaces as zinterfaces
-from .dependents import _extract_dependencies
-from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+import zfit.z.numpy as znp
 
-znp = z.numpy
+from .. import z
 from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
 from ..settings import run, ztypes
@@ -41,6 +38,9 @@ from ..util.exception import (BreakingAPIChangeError, FunctionNotImplemented,
                               NameAlreadyTakenError,
                               ParameterNotIndependentError)
 from ..util.temporary import TemporarilySet
+from . import interfaces as zinterfaces
+from .dependents import _extract_dependencies
+from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 
 # todo add type hints in this module for api
 
@@ -257,9 +257,6 @@ class ZfitParameterMixin(BaseNumeric):
         return self._name
 
     def __del__(self):
-        with suppress(NotImplementedError):  # PY36 bug, gets stuck
-            if self.name in self._existing_params:  # bug, creates segmentation fault in unittests
-                del self._existing_params[self.name]
         with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
             super().__del__(self)
 
@@ -415,14 +412,16 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         """
         return self._check_at_limit(self.value())
 
-    def _check_at_limit(self, value):
+    def _check_at_limit(self, value, exact=False):
         if not self.has_limits:
             return tf.constant(False)
         # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
         diff = znp.abs(self.upper - self.lower)  # catch if it is minus inf
-        tol = znp.minimum(diff * 1e-8, 1e-8)  # if one limit is inf we would get inf
-        at_lower = z.unstable.less_equal(value, self.lower + tol)
-        at_upper = z.unstable.greater_equal(value, self.upper - tol)
+        tol = znp.minimum(diff * 1e-5, 1e-3)  # if one limit is inf we would get inf
+        if not exact:
+            tol = - tol
+        at_lower = z.unstable.less_equal(value, self.lower - tol)
+        at_upper = z.unstable.greater_equal(value, self.upper + tol)
         return z.unstable.logical_or(at_lower, at_upper)
 
     def value(self):
@@ -521,7 +520,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
                            f" In order to silence this and clip the value, you can use (with caution,"
                            f" advanced) `Parameter.assign`")
                 if run.executing_eagerly():
-                    if self._check_at_limit(value):
+                    if self._check_at_limit(value, exact=True):
                         raise ValueError(message)
                 else:
                     tf.debugging.assert_greater(tf.cast(value, tf.float64),
@@ -795,7 +794,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
 
     @classmethod
     def from_cartesian(cls, name, real, imag, dtype=ztypes.complex,
-                       floating=True):  # TODO: correct dtype handling, also below
+                       floating=True) -> 'ComplexParameter':  # TODO: correct dtype handling, also below
         """Create a complex parameter from cartesian coordinates.
 
         Args:
@@ -806,26 +805,26 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
         param = cls(name=name,
-                    value_fn=lambda: tf.cast(tf.complex(real, imag), dtype=dtype),
+                    value_fn=lambda _real, _imag: tf.cast(tf.complex(_real, _imag), dtype=dtype),
                     params=[real, imag])
         param._real = real
         param._imag = imag
         return param
 
     @classmethod
-    def from_polar(cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs):
+    def from_polar(cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs) -> 'ComplexParameter':
         """Create a complex parameter from polar coordinates.
 
         Args:
             name: Name of the parameter.
-            real: Modulus (r) the complex number.
-            imag: Argument (phi) of the complex number.
+            mod: Modulus (r) the complex number.
+            arg: Argument (phi) of the complex number.
         """
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(name=name,
-                    value_fn=lambda: tf.cast(
-                        tf.complex(mod * tf.math.cos(arg), mod * tf.math.sin(arg)),
+                    value_fn=lambda _mod, _arg: tf.cast(
+                        tf.complex(_mod * znp.cos(_arg), _mod * znp.sin(_arg)),
                         dtype=dtype),
                     params=[mod, arg])
         param._mod = mod
@@ -836,42 +835,30 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
     def conj(self):
         """Returns a complex conjugated copy of the complex parameter."""
         if self._conj is None:
-            self._conj = ComplexParameter(name=f'{self.name}_conj', value_fn=lambda: tf.math.conj(self),
+            self._conj = ComplexParameter(name=f'{self.name}_conj', value_fn=lambda: znp.conj(self),
                                           params=self.get_cache_deps(),
                                           dtype=self.dtype)
         return self._conj
 
     @property
-    def real(self):
+    def real(self) -> tf.Tensor:
         """Real part of the complex parameter."""
-        real = self._real
-        if real is None:
-            real = z.to_real(self)
-        return real
+        return znp.real(self)
 
     @property
-    def imag(self):
+    def imag(self) -> tf.Tensor:
         """Imaginary part of the complex parameter."""
-        imag = self._imag
-        if imag is None:
-            imag = tf.math.imag(tf.convert_to_tensor(value=self, dtype_hint=self.dtype))  # HACK tf bug #30029
-        return imag
+        return znp.imag(self)
 
     @property
-    def mod(self):
+    def mod(self) -> tf.Tensor:
         """Modulus (r) of the complex parameter."""
-        mod = self._mod
-        if mod is None:
-            mod = tf.math.abs(self)
-        return mod
+        return znp.abs(self)
 
     @property
-    def arg(self):
+    def arg(self) -> tf.Tensor:
         """Argument (phi) of the complex parameter."""
-        arg = self._arg
-        if arg is None:
-            arg = tf.math.atan(self.imag / self.real)
-        return arg
+        return znp.angle(self)
 
 
 # register_tensor_conversion(ConstantParameter, "ConstantParameter", True)
@@ -895,7 +882,7 @@ def convert_to_parameters(value,
                           step_size=None):
     if prefer_constant is None:
         prefer_constant = True
-    if isinstance(value, collections.Mapping):
+    if isinstance(value, collections.abc.Mapping):
         return convert_to_parameters(**value, prefer_constant=False)
     value = convert_to_container(value)
     is_param_already = [isinstance(val, ZfitIndependentParameter) for val in value]

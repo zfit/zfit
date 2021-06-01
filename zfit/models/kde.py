@@ -6,6 +6,8 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd
 
+import zfit.z.numpy as znp
+
 from .. import z
 from ..core.interfaces import ZfitData, ZfitSpace
 from ..settings import ztypes
@@ -62,7 +64,7 @@ def _bandwidth_isj_KDEV1(data, *_, **__):
 
 @z.function(wraps='tensor')
 def min_std_or_iqr(x):
-    return tf.minimum(tf.math.reduce_std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25)))
+    return znp.minimum(znp.std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25)))
 
 
 class GaussianKDE1DimV1(WrapDistribution):
@@ -156,7 +158,7 @@ class GaussianKDE1DimV1(WrapDistribution):
         shape_data = tf.shape(data)
         size = tf.cast(shape_data[0], dtype=ztypes.float)
         if weights is not None:
-            probs = weights / tf.reduce_sum(weights)
+            probs = weights / znp.sum(weights)
         else:
             probs = tf.broadcast_to(1 / size, shape=(tf.cast(size, tf.int32),))
         categorical = tfd.Categorical(probs=probs)  # no grad -> no need to recreate
@@ -181,7 +183,7 @@ class GaussianKDE1DimV1(WrapDistribution):
             if not isinstance(obs, ZfitSpace):
                 raise ValueError(f"`obs` has to be a `ZfitSpace` if `truncated` is True.")
             inside = obs.inside(data)
-            all_inside = tf.reduce_all(inside)
+            all_inside = znp.all(inside)
             tf.debugging.assert_equal(all_inside, True, message="Not all data points are inside the limits but"
                                                                 " a truncate kernel was chosen.")
 

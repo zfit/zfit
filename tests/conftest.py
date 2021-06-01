@@ -21,6 +21,8 @@ def setup_teardown():
     import zfit
     old_chunksize = zfit.run.chunking.max_n_points
     old_active = zfit.run.chunking.active
+    old_graph_mode = zfit.run.get_graph_mode()
+    old_autograd_mode = zfit.run.get_autograd_mode()
 
     for m in sys.modules.keys():
         if m not in init_modules:
@@ -35,8 +37,8 @@ def setup_teardown():
     import zfit
     zfit.run.chunking.active = old_active
     zfit.run.chunking.max_n_points = old_chunksize
-    zfit.run.set_graph_mode()
-    zfit.run.set_autograd_mode()
+    zfit.run.set_graph_mode(old_graph_mode)
+    zfit.run.set_autograd_mode(old_autograd_mode)
     for m in sys.modules.keys():
         if m not in init_modules:
             del (sys.modules[m])

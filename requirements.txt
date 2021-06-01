@@ -4,7 +4,6 @@ colored
 colorlog
 dotmap
 iminuit>=2.3
-ipyopt
 nlopt
 numdifftools
 numpy>=1.16
@@ -12,7 +11,7 @@ ordered-set
 pandas
 scipy>=1.2
 tabulate
-tensorflow~=2.4
+tensorflow~=2.5
 tensorflow-addons
 tensorflow_probability~=0.12
 texttable

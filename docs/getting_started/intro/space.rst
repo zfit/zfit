@@ -27,7 +27,8 @@ Definitions
 **Space**: an *n*-dimensional definition of a domain (either by using one or more observables or axes),
 with or without limits.
 
-.. note::
+.. note:: Difference to RooFit
+    :class: dropdown
 
     *compared to ``RooFit``, a space is **not** the equivalent of an observable but rather corresponds
     to an object combining **a set** of observables (which of course can be of size 1). Furthermore,

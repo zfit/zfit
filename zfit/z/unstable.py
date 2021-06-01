@@ -2,6 +2,8 @@
 import numpy as np
 import tensorflow as tf
 
+import zfit.z.numpy as znp
+
 SWITCH_ON = True
 
 
@@ -28,7 +30,7 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
     Returns:
     """
     if not SWITCH_ON or has_tensor([x, y]):
-        return tf.reduce_all(tf.less_equal(tf.abs(x - y), tf.abs(y) * rtol + atol))
+        return znp.all(tf.less_equal(znp.abs(x - y), znp.abs(y) * rtol + atol))
     else:
         x = np.array(x)
         y = np.array(y)
@@ -56,14 +58,14 @@ def broadcast_to(input, shape):
 
 def expand_dims(input, axis):
     if not SWITCH_ON or has_tensor(input):
-        return tf.expand_dims(input, axis)
+        return znp.expand_dims(input, axis)
     else:
         return np.expand_dims(input, axis)
 
 
 def reduce_prod(input_tensor, axis=None, keepdims=None):
     if not SWITCH_ON or has_tensor(input_tensor):
-        return tf.reduce_prod(input_tensor, axis, keepdims=keepdims)
+        return znp.prod(input_tensor, axis, keepdims=keepdims)
     else:
         if keepdims is None:
             return np.prod(input_tensor, axis)
@@ -80,14 +82,14 @@ def equal(x, y):
 
 def reduce_all(input_tensor, axis=None):
     if not SWITCH_ON or has_tensor(input_tensor):
-        return tf.reduce_all(input_tensor, axis)
+        return znp.all(input_tensor, axis)
     else:
         return np.all(input_tensor, axis)
 
 
 def reduce_any(input_tensor, axis=None):
     if not SWITCH_ON or has_tensor(input_tensor):
-        return tf.reduce_any(input_tensor, axis)
+        return znp.any(input_tensor, axis)
     else:
         return np.any(input_tensor, axis)
 
@@ -129,7 +131,7 @@ def gather(x, indices=None, axis=None):
 
 def concat(values, axis, name=None):
     if not SWITCH_ON or has_tensor(values):
-        return tf.concat(values=values, axis=axis, name=name)
+        return znp.concatenate(values, axis=axis)
     else:
         return np.concatenate(values, axis=axis)
 
