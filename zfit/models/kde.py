@@ -9,8 +9,8 @@ from tensorflow_probability.python import distributions as tfd
 import zfit.z.numpy as znp
 
 from .. import z
-from ..core.interfaces import ZfitData, ZfitSpace
 from ..core.basepdf import BasePDF
+from ..core.interfaces import ZfitData, ZfitSpace
 from ..settings import ztypes
 from ..util import binning as binning_util
 from ..util import convolution as convolution_util
