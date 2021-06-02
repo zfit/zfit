@@ -20,6 +20,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- Scipy minimizers with hessian arguments use now `BFGS` as default
 
 Experimental
 ------------
