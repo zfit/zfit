@@ -11,7 +11,7 @@ Some of the tutorials are also available in the
 Tutorials on zfit
 =====================
 
-For a simple introduction to zfit, see also the section :ref:`5_minutes_to_zfit`
+For a simple introduction to zfit, see also the section :ref:`5-minutes-to-zfit`
 
 
 .. toctree::
@@ -22,9 +22,4 @@ For a simple introduction to zfit, see also the section :ref:`5_minutes_to_zfit`
     statistics/index
     guides/index
 
-To start out, there are example scripts
-
-.. toctree::
-    :maxdepth: 2
-
-    examples
+To start out, there are :ref:`example-scripts`

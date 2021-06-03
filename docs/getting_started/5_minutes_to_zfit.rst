@@ -1,4 +1,5 @@
-.. _5_minutes_to_zfit:
+.. _5-minutes-to-zfit:
+
 =================
 5 minutes to zfit
 =================

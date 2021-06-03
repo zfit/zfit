@@ -5,7 +5,7 @@ Introduction tutorial
 =========================
 
 
-:ref:`Quickstart: 5 minutes to zfit <5_minutes_to_zfit>`
+:ref:`Quickstart: 5 minutes to zfit <5-minutes-to-zfit>`
 
 
 A more extensive introduction: 20 minutes to zfit.
