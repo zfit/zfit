@@ -2,6 +2,8 @@
 Changelog
 *********
 
+.. _newest-changelog:
+
 Develop
 ========
 
