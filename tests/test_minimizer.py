@@ -76,7 +76,7 @@ def not_allowed(gradient, hessian):
     from scipy.optimize import HessianUpdateStrategy
     return (gradient in (True, '2-point', '3-point')
             and not isinstance(hessian, HessianUpdateStrategy)
-            and hessian is not NOT_SUPPORTED)
+            and hessian is not None)
 
 
 @pytest.mark.parametrize('minimizer_gradient_hessian', make_min_grad_hesse())
