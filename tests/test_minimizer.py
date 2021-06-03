@@ -1,5 +1,6 @@
 #  Copyright (c) 2021 zfit
 import itertools
+import platform
 from collections import OrderedDict
 
 import numpy as np
@@ -70,13 +71,8 @@ def make_min_grad_hesse():
     return min_options
 
 
-def not_allowed(gradient, hessian):
-    from scipy.optimize import HessianUpdateStrategy
-    return (gradient in (True, '2-point', '3-point') and not isinstance(hessian, HessianUpdateStrategy))
-
-
 @pytest.mark.parametrize('minimizer_gradient_hessian', make_min_grad_hesse())
-# @pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=3)
 def test_scipy_derivative_options(minimizer_gradient_hessian):
     minimizer_cls, gradient, hessian = minimizer_gradient_hessian
     loss, true_min, params = create_loss(obs1=obs1)
@@ -87,11 +83,14 @@ def test_scipy_derivative_options(minimizer_gradient_hessian):
         kwargs['gradient'] = gradient
     if hessian is not None:
         kwargs['hessian'] = hessian
-    if not_allowed(gradient=gradient, hessian=hessian):
-        with pytest.raises(ValueError, match='Whenever the gradient is estimated via finite-differences'):
-            _ = minimizer_cls(**kwargs)
-        return  # end here
-    minimizer = minimizer_cls(**kwargs)
+
+    try:
+        minimizer = minimizer_cls(**kwargs)
+    except ValueError as error:  # we test a not allowed combination
+        if 'Whenever the gradient is estimated via finite-differences' in error.args[0]:
+            return
+        else:
+            raise
 
     result = minimizer.minimize(loss=loss)
     assert result.valid
@@ -118,7 +117,6 @@ minimizers = [
     (zfit.minimize.Minuit, {"verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
 
     # Ipyopt minimizer
-    (zfit.minimize.IpyoptV1, {"verbosity": verbosity}, {'error': True, 'longtests': True}),  # works
 
     # TensorFlow Probability minimizer
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
@@ -186,7 +184,8 @@ minimizers = [
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
 # minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
 
-
+if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
+    minimizers.append((zfit.minimize.IpyoptV1, {"verbosity": verbosity}, {'error': True, 'longtests': True}))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
@@ -194,8 +193,9 @@ minimizers_small = [
     (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
-    (zfit.minimize.IpyoptV1, {}, False),
 ]
+if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
+    minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers_small = sorted(minimizers_small, key=lambda val: repr(val))
 
@@ -355,8 +355,8 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
     if not isinstance(minimizer, zfit.minimize.IpyoptV1):
         assert result_lowtol2.info['n_eval'] < 1.2 * result.info['n_eval']  # should not be more, surely not a lot
 
-    aval, bval, cval = [zfit.run(v) for v in
-                        (mu_param, sigma_param, lambda_param)]
+    aval, bval, cval = (zfit.run(v) for v in
+                        (mu_param, sigma_param, lambda_param))
 
     assert true_mu == pytest.approx(aval, abs=parameter_tol)
     assert true_sigma == pytest.approx(bval, abs=parameter_tol)

@@ -4,6 +4,8 @@ from typing import Callable, Union
 
 import tensorflow as tf
 
+import zfit.z.numpy as znp
+
 from ..util import ztyping
 from ..util.exception import (BreakingAPIChangeError, IntentionAmbiguousError,
                               ModelIncompatibleError)
@@ -111,7 +113,7 @@ def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
 def multiply_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParameter:
     if not (isinstance(param1, ZfitParameter) and isinstance(param2, ZfitParameter)):
         raise TypeError(f"`param1` and `param2` need to be `ZfitParameter` and not {param1}, {param2}")
-    param = tf.multiply(param1, param2)
+    param = znp.multiply(param1, param2)
     return param
 
 
@@ -201,7 +203,7 @@ def add_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParamet
     if not (isinstance(param1, ZfitParameter) and isinstance(param2, ZfitParameter)):
         raise TypeError(f"`param1` and `param2` need to be `ZfitParameter` and not {param1}, {param2}")
     # use the default behavior of variables
-    return tf.add(param1, param2)
+    return znp.add(param1, param2)
 
 
 # Conversions

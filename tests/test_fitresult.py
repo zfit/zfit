@@ -1,4 +1,6 @@
 #  Copyright (c) 2021 zfit
+import platform
+
 import numpy as np
 import pytest
 
@@ -61,7 +63,7 @@ def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
 
     result = minimizer.minimize(loss=loss)
     cur_val = loss.value().numpy()
-    aval, bval, cval = [v.numpy() for v in (a_param, b_param, c_param)]
+    aval, bval, cval = (v.numpy() for v in (a_param, b_param, c_param))
 
     ret = {'result': result, 'true_min': true_minimum, 'cur_val': cur_val, 'a': aval, 'b': bval, 'c': cval,
            'a_param': a_param, 'b_param': b_param, 'c_param': c_param}
@@ -109,8 +111,9 @@ minimizers = [
     (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
-    (zfit.minimize.IpyoptV1, {}, False),
 ]
+if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
+    minimizers.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 

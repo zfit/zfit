@@ -18,6 +18,8 @@ import tensorflow as tf
 from dotmap import DotMap
 from tensorflow_probability.python import mcmc as mc
 
+import zfit.z.numpy as znp
+
 from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
@@ -211,9 +213,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _add_dim_to_x(self, x):  # TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?
         if self.n_obs == 1:
             if len(x.shape.as_list()) == 0:
-                x = tf.expand_dims(x, -1)
+                x = znp.expand_dims(x, -1)
             if len(x.shape.as_list()) == 1:
-                x = tf.expand_dims(x, -1)
+                x = znp.expand_dims(x, -1)
         return x
 
     def update_integration_options(self, draws_per_dim=None, mc_sampler=None):
@@ -350,7 +352,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_integrate(limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)  # TODO: remove stack?
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)  # TODO: remove stack?
         return integral
 
     def _call_integrate(self, limits, norm_range):
@@ -477,7 +479,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_analytic_integrate(limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
         return integral
 
     def _call_analytic_integrate(self, limits, norm_range):
@@ -534,7 +536,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_numeric_integrate(limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
 
         return integral
 
@@ -595,7 +597,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limit in limits:
                 integrals.append(self._call_partial_integrate(x=x, limits=sub_limit, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
 
         return integral
 
@@ -690,7 +692,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_partial_analytic_integrate(x=x, limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
 
         return integral
 
@@ -754,7 +756,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_partial_numeric_integrate(x=x, limits=sub_limits, norm_range=norm_range))
-            integral = z.reduce_sum(tf.stack(integrals), axis=0)
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
         return integral
 
     def _call_partial_numeric_integrate(self, x, limits, norm_range):
@@ -923,7 +925,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         except MultipleLimitsNotImplemented as error:
             try:
                 total_integral = self.analytic_integrate(limits, norm_range=False)
-                sub_integrals = tf.concat([self.analytic_integrate(limit, norm_range=False) for limit in limits],
+                sub_integrals = znp.concatenate([self.analytic_integrate(limit, norm_range=False) for limit in limits],
                                           axis=0)
             except AnalyticIntegralNotImplemented:
                 raise MultipleLimitsNotImplemented("Cannot autohandle multiple limits as the analytic"
@@ -937,7 +939,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 if isinstance(sub_sample, ZfitData):
                     sub_sample = sub_sample.value()
                 samples.append(sub_sample)
-            sample = tf.concat(samples, axis=0)
+            sample = znp.concatenate(samples, axis=0)
 
         return sample
 

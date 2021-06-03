@@ -5,6 +5,7 @@ from typing import Dict, List, Mapping, Optional
 
 import tensorflow as tf
 
+import zfit.z.numpy as znp
 from zfit import z
 
 from ..core.basepdf import BasePDF
@@ -79,7 +80,7 @@ class RecursivePolynomial(BasePDF):
 def create_poly(x, polys, coeffs, recurrence):
     degree = len(coeffs) - 1
     polys = do_recurrence(x, polys=polys, degree=degree, recurrence=recurrence)
-    sum_polys = tf.reduce_sum(input_tensor=[coeff * poly for coeff, poly in zip(coeffs, polys)], axis=0)
+    sum_polys = znp.sum([coeff * poly for coeff, poly in zip(coeffs, polys)], axis=0)
     return sum_polys
 
 
@@ -100,7 +101,7 @@ def legendre_recurrence(p1, p2, n, x):
     .. math::
          (n+1) P_{n+1}(x) = (2n + 1) x P_{n}(x) - n P_{n-1}(x)
     """
-    return ((2 * n + 1) * tf.multiply(x, p1) - n * p2) / (n + 1)
+    return ((2 * n + 1) * znp.multiply(x, p1) - n * p2) / (n + 1)
 
 
 def legendre_shape(x, coeffs):
@@ -136,7 +137,7 @@ def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
             return z.reduce_sum(one_limit_integrals, axis=0)
 
         integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
-        integral = tf.reshape(integral, shape=())
+        integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
 
     return integral
@@ -193,7 +194,7 @@ def chebyshev_recurrence(p1, p2, _, x):
 
     T_{n+1}(x) = 2 x T_{n}(x) - T_{n-1}(x)
     """
-    return 2 * tf.multiply(x, p1) - p2
+    return 2 * znp.multiply(x, p1) - p2
 
 
 def chebyshev_shape(x, coeffs):
@@ -267,7 +268,7 @@ def func_integral_chebyshev1(limits, norm_range, params, model):
             return z.reduce_sum(one_limit_integrals, axis=0)
 
         integral += indefinite_integral(upper) - indefinite_integral(lower)
-        integral = tf.reshape(integral, shape=())
+        integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
     integral = tf.gather(integral, indices=0, axis=-1)
     return integral
@@ -345,7 +346,7 @@ def func_integral_chebyshev2(limits, norm_range, params, model):
         return chebyshev_shape(x=limits, coeffs=coeffs_cheby1)
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
-    integral = tf.reshape(integral, shape=())
+    integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
 
     return integral
@@ -369,7 +370,7 @@ def generalized_laguerre_recurrence_factory(alpha=0.):
 
         :math:`(n+1) L_{n+1}(x) = (2n + 1 + \alpha - x) L_{n}(x) - (n + \alpha) L_{n-1}(x)`
         """
-        return (tf.multiply(2 * n + 1 + alpha - x, p1) - (n + alpha) * p2) / (n + 1)
+        return (znp.multiply(2 * n + 1 + alpha - x, p1) - (n + alpha) * p2) / (n + 1)
 
     return generalized_laguerre_recurrence
 
@@ -460,7 +461,7 @@ def func_integral_laguerre(limits, norm_range, params: Dict, model):
         return -1 * laguerre_shape_alpha_minusone(x=limits, coeffs=coeffs_laguerre_nup)
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
-    integral = tf.reshape(integral, shape=())
+    integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
     return integral
 
@@ -477,7 +478,7 @@ def hermite_recurrence(p1, p2, n, x):
 
     :math:`H_{n+1}(x) = 2x H_{n}(x) - 2n H_{n-1}(x)`
     """
-    return 2 * (tf.multiply(x, p1) - n * p2)
+    return 2 * (znp.multiply(x, p1) - n * p2)
 
 
 def hermite_shape(x, coeffs):
@@ -542,7 +543,7 @@ def func_integral_hermite(limits, norm_range, params, model):
         return hermite_shape(x=limits, coeffs=coeffs)
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
-    integral = tf.reshape(integral, shape=())
+    integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.area()  # rescale back to whole width
 
     return integral

@@ -1,5 +1,6 @@
 #  Copyright (c) 2021 zfit
 import math
+import platform
 from typing import Dict, Optional, Union
 
 import numpy as np

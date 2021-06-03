@@ -4,6 +4,7 @@ coverage>=4.5.1
 docformatter
 flake8>=3.5.0
 ipyopt<0.12
+Jinja2<3  # temp fix for failing, meta not known
 jupyter-sphinx
 matplotlib  # docs
 mplhep  # docs

@@ -110,7 +110,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         if 'options' not in minimizer_options:
             minimizer_options['options'] = {}
 
-        if gradient in (True, '2-point', '3-point') and not isinstance(hessian, HessianUpdateStrategy):
+        if gradient in (True, '2-point', '3-point') and not (
+                isinstance(hessian, HessianUpdateStrategy) or hessian is NOT_SUPPORTED):
             raise ValueError("Whenever the gradient is estimated via finite-differences, "
                              "the Hessian has to be estimated using one of the quasi-Newton strategies.")
 
@@ -703,6 +704,9 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                 options['initial_trust_radius'] = trust_radius
             return options
 
+        if hessian is None:
+            hessian = BFGS
+
         minimizer_options = {}
         if options:
             minimizer_options['options'] = options
@@ -1017,6 +1021,8 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
             minimizer_options['options'] = options
 
         scipy_tols = {'xtol': None}
+        if hessian is None:
+            hessian = BFGS
 
         method = "Newton-CG"
         super().__init__(method=method, internal_tol=scipy_tols, gradient=gradient, hessian=hessian,

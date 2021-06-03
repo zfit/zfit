@@ -33,7 +33,7 @@ def test_simple_kde():
     data_truncated = obs.filter(data)
     kde = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth=h, obs=obs,
                                             truncate=False)
-    kde_adaptive = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='adaptiveV1',
+    kde_adaptive = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='adaptive',
                                                      obs=obs,
                                                      truncate=False)
     kde_silverman = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='silverman',
@@ -55,6 +55,9 @@ def test_simple_kde():
     assert zfit.run(integral_silverman) == pytest.approx(expected_integral, rel=rel_tol)
 
     sample = kde_adaptive.sample(1000)
-    sample2 = kde_adaptive_trunc.sample(1000)
+    sample2 = kde_adaptive_trunc.sample(1500)
+    prob = kde_adaptive.pdf(sample2)
+    kde_adaptive_trunc.pdf(sample)
+    assert prob.shape.rank == 1
     assert sample.nevents == 1000
-    assert sample2.nevents == 1000
+    assert sample2.nevents == 1500

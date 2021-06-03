@@ -275,8 +275,10 @@ class FunctionCacheHolder(GraphCachable):
         if not isinstance(other, FunctionCacheHolder):
             return False
         # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
+        array_repr_self = np.array(self.immutable_representation, dtype=object)
+        array_repr_other = np.array(other.immutable_representation, dtype=object)
         try:
-            return all(np.equal(self.immutable_representation, other.immutable_representation))
+            return all(np.equal(array_repr_self, array_repr_other))
         except ValueError:  # broadcasting does not work
             return False
         except TypeError:  # OperatorNotAllowedError inherits from this

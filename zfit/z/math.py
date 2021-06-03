@@ -5,6 +5,8 @@ from typing import Callable, Iterable, Optional
 import numdifftools
 import tensorflow as tf
 
+import zfit.z.numpy as znp
+
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated
 from .tools import _auto_upcast
@@ -25,7 +27,7 @@ def poly_complex(*args, real_x=False):
     args = list(args)
     x = args.pop()
     if real_x is not None:
-        pow_func = tf.pow
+        pow_func = znp.power
     else:
         pow_func = z.nth_pow
     return tf.add_n([coef * z.to_complex(pow_func(x, p)) for p, coef in enumerate(args)])
@@ -53,7 +55,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
             value = value.numpy()
         return value
 
-    param_vals = tf.stack(params)
+    param_vals = znp.stack(params)
     original_vals = [param.value() for param in params]
     grad_func = numdifftools.Gradient(wrapped_func, order=2, base_step=1e-4)
     if tf.executing_eagerly():
@@ -63,7 +65,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
         gradient = tf.numpy_function(grad_func, inp=[param_vals],
                                      Tout=tf.float64)
     if gradient.shape == ():
-        gradient = tf.reshape(gradient, shape=(1,))
+        gradient = znp.reshape(gradient, newshape=(1,))
     gradient.set_shape(param_vals.shape)
     assign_values(params, original_vals)
     return gradient
@@ -114,7 +116,7 @@ def numerical_hessian(func: Optional[Callable],
             value = value.numpy()
         return value
 
-    param_vals = tf.stack(params)
+    param_vals = znp.stack(params)
     original_vals = [param.value() for param in params]
 
     if hessian == 'diag':
@@ -268,11 +270,9 @@ def automatic_value_gradient_hessian(func: Callable = None, params: Iterable["zf
         else:
             loss, gradients = autodiff_value_gradients(func=func, params=params)
         if hessian != 'diag':
-            gradients_tf = tf.stack(gradients)
+            gradients_tf = znp.stack(gradients)
     if hessian == 'diag':
-        computed_hessian = tf.stack(
-            # tape.gradient(gradients_tf, sources=params)
-            # computed_hessian = tf.stack(tf.vectorized_map(lambda grad: tape.gradient(grad, sources=params), gradients))
+        computed_hessian = znp.stack(
             [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)]
         )
     else:
@@ -289,10 +289,10 @@ def automatic_value_gradients_hessian(*args, **kwargs):
 
 @tf.function(autograph=False)
 def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):
-    log_mean = tf.reduce_mean(tf.math.log(input_tensor), axis=axis, keepdims=keepdims)
-    return tf.math.exp(log_mean)
+    log_mean = znp.mean(znp.log(input_tensor), axis=axis, keepdims=keepdims)
+    return znp.exp(log_mean)
 
 
-def log(x, name=None):
+def log(x):
     x = _auto_upcast(x)
-    return _auto_upcast(tf.math.log(x=x, name=name))
+    return _auto_upcast(znp.log(x=x))

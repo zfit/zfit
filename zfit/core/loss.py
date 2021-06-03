@@ -9,10 +9,9 @@ from typing import (Callable, Iterable, List, Mapping, Optional, Set, Tuple,
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-from .. import settings, z
-from .interfaces import ZfitPDF
+import zfit.z.numpy as znp
 
-znp = z.numpy
+from .. import settings, z
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
@@ -27,7 +26,7 @@ from ..z.math import (autodiff_gradient, autodiff_value_gradients,
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
 from .dependents import _extract_dependencies
-from .interfaces import ZfitData, ZfitLoss, ZfitSpace
+from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
 from .parameter import convert_to_parameters
 
 
@@ -52,10 +51,10 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
                 for p, d, r in zip(model, data, fit_range)]
         # nlls_total = [nll.total for nll in nlls]
         # nlls_correction = [nll.correction for nll in nlls]
-        # nlls_total_summed = tf.reduce_sum(input_tensor=nlls_total, axis=0)
-        nlls_summed = tf.reduce_sum(input_tensor=nlls, axis=0)
+        # nlls_total_summed = znp.sum(input_tensor=nlls_total, axis=0)
+        nlls_summed = znp.sum(nlls, axis=0)
 
-        # nlls_correction_summed = tf.reduce_sum(input_tensor=nlls_correction, axis=0)
+        # nlls_correction_summed = znp.sum(input_tensor=nlls_correction, axis=0)
         # nll_finished = (nlls_total_summed, nlls_correction_summed)
         nll_finished = nlls_summed
     else:
@@ -64,7 +63,7 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
                 probs = model.pdf(data, norm_range=fit_range)
         else:
             probs = model.pdf(data)
-        log_probs = tf.math.log(probs)
+        log_probs = znp.log(probs)
         nll = _nll_calc_unbinned_tf(log_probs=log_probs,
                                     weights=data.weights if data.weights is not None else None,
                                     log_offset=log_offset)
@@ -78,7 +77,7 @@ def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
         log_probs *= weights  # because it's prob ** weights
     if log_offset is not None:
         log_probs -= log_offset
-    nll = -tf.reduce_sum(input_tensor=log_probs, axis=0)
+    nll = -znp.sum(log_probs, axis=0)
     # nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
     return nll
 
@@ -628,13 +627,13 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
             nevents = tf.cast(nevents, tf.float64)
             nevents_collected.append(nevents)
             yields.append(mod.get_yield())
-        yields = tf.stack(yields, axis=0)
-        nevents_collected = tf.stack(nevents_collected, axis=0)
+        yields = znp.stack(yields, axis=0)
+        nevents_collected = znp.stack(nevents_collected, axis=0)
 
-        term_new = tf.nn.log_poisson_loss(nevents_collected, tf.math.log(yields))
+        term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yields))
         if log_offset is not None:
             term_new += log_offset
-        nll += tf.reduce_sum(term_new, axis=0)
+        nll += znp.sum(term_new, axis=0)
         return nll
 
     @property
@@ -671,20 +670,26 @@ class SimpleLoss(BaseLoss):
         .. code:: python
 
             import zfit
-            from zfit import z
+            import zfit.z.numpy as znp
+
+            import tensorflow as tf
 
             param1 = zfit.Parameter('param1', 5, 1, 10)
             # we can build a model here if we want, but in principle, it's not necessary
 
-            x = z.random.uniform(shape=(100,))
-            y = x * z.random.normal(mean=4, stddev=0.1, shape=x.shape)
+            x = znp.random.uniform(size=(100,))
+            # Todo: change to znp.random.normal when introduced into tensorflow.experimental.numpy.
+            y = x*tf.random.normal(mean=4, stddev=0.1, shape=x.shape, dtype=tf.double)
+
 
             def squared_loss():
-                y_pred = x * param1  # this is very simple, but we can of course use any
-                                     # zfit PDF or Func inside
-                squared = (y_pred - y) ** 2
-                mse = tf.reduce_mean(squared)
+                y_pred = x*param1  # this is very simple, but we can of course use any
+                # zfit PDF or Func inside
+                squared = (y_pred - y)**2
+                mse = znp.mean(squared)
                 return mse
+
+            squared_loss.errordef = 1
 
             loss = zfit.loss.SimpleLoss(squared_loss, param1)
 
@@ -692,7 +697,7 @@ class SimpleLoss(BaseLoss):
 
         .. code:: python
 
-            minimizer = zfit.minize.Minuit()
+            minimizer = zfit.minimize.Minuit()
             result = minimizer.minimize(loss)
         """
         super().__init__(model=[], data=[], options={'subtr_const': False})
