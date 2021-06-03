@@ -72,7 +72,7 @@ def make_min_grad_hesse():
 
 
 @pytest.mark.parametrize('minimizer_gradient_hessian', make_min_grad_hesse())
-# @pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=3)
 def test_scipy_derivative_options(minimizer_gradient_hessian):
     minimizer_cls, gradient, hessian = minimizer_gradient_hessian
     loss, true_min, params = create_loss(obs1=obs1)
