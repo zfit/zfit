@@ -2,37 +2,26 @@
 Changelog
 *********
 
-Develop
-========
 
 
+0.7.0 (03 Jun 2021)
+=====================
 
 Major Features and Improvements
 -------------------------------
 - add Python 3.9 support
 - upgrade to TensorFlow 2.5
 
-Breaking changes
-------------------
-
-Depreceations
--------------
-
 Bug fixes and small changes
 ---------------------------
 - Scipy minimizers with hessian arguments use now `BFGS` as default
 
-Experimental
-------------
 
 Requirement changes
 -------------------
 
 - remove Python 3.6 support
 
-
-Thanks
-------
 
 
 0.6.6 (12.05.2021)
