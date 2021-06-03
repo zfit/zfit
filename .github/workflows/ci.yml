@@ -105,4 +105,4 @@ jobs:
       - name: Run notebooks
         run: |
           ZFIT_DO_JIT=${{ matrix.use-graph }}
-          pytest --nbval-lax zfit-tutorials --ignore=zfit-tutorials/experimental
+          pytest --nbval-lax zfit-tutorials --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused
