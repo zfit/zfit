@@ -10,6 +10,7 @@ from ordered_set import OrderedSet
 
 import zfit.minimizers.optimizers_tf
 from zfit.minimizers.base_tf import WrapOptimizer
+from zfit.minimizers.baseminimizer import NOT_SUPPORTED
 from zfit.util.exception import OperationNotAllowedError
 
 true_mu = 4.5
@@ -73,7 +74,9 @@ def make_min_grad_hesse():
 
 def not_allowed(gradient, hessian):
     from scipy.optimize import HessianUpdateStrategy
-    return (gradient in (True, '2-point', '3-point') and not isinstance(hessian, HessianUpdateStrategy))
+    return (gradient in (True, '2-point', '3-point')
+            and not isinstance(hessian, HessianUpdateStrategy)
+            and hessian is not NOT_SUPPORTED)
 
 
 @pytest.mark.parametrize('minimizer_gradient_hessian', make_min_grad_hesse())
