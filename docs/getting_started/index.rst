@@ -2,6 +2,15 @@
 Getting started
 ===============
 
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+
+    installation
+    5_minutes_to_zfit
+    ../tutorials/introduction
+
+
 Welcome to zfit!
 
 How to set it up: :ref:`Installing zfit <zfit_installation>`

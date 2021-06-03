@@ -33,8 +33,8 @@ Model
 
     intro/model
 
-    The following tutorials can also be found in
-    `zfit tutorials as Jupyter Notebooks. <https://github.com/zfit/zfit-tutorials>`_
+The following tutorials can also be found in
+`zfit tutorials as Jupyter Notebooks. <https://github.com/zfit/zfit-tutorials>`_
 
 .. toctree::
     :maxdepth: 1

@@ -1,4 +1,3 @@
-:notoc:
 
 .. |zfit_logo| image:: images/zfit-logo_400x168.png
    :target: https://github.com/zfit/zfit/
@@ -11,6 +10,17 @@
 
 
 |zfit_logo|
+
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+
+    whats_new/index
+    getting_started/index
+    tutorials/index
+    user_api/index
+    project/index
+    ask_a_question
 
 =========================
 Scalable pythonic fitting
@@ -34,15 +44,7 @@ This challenging task is tackled by following two basic design pillars:
 The zfit package is Free software, using an Open Source license. Both the software and this document are works in progress.
 Source code can be found in `our github page <https://github.com/zfit/zfit/>`_.
 
-.. toctree::
-    :maxdepth: 0
 
-    whats_new/index
-    getting_started/index
-    tutorials/index
-    user_api/index
-    project/index
-    ask_a_question
 
 
 .. hint::

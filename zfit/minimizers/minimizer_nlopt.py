@@ -1566,17 +1566,17 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
 
          The NLopt implementation is based on the method described in:
 
-         -   Thomas Philip Runarsson and Xin Yao,
-         `"Search biases in constrained evolutionary optimization <http://www3.hi.is/~tpr/papers/RuYa05.pdf>"`_,
+         - Thomas Philip Runarsson and Xin Yao,
+          `"Search biases in constrained evolutionary optimization <http://www3.hi.is/~tpr/papers/RuYa05.pdf>"`_,
           *IEEE Trans. on Systems, Man, and Cybernetics Part C: Applications and Reviews*,
            vol. 35 (no. 2), pp. 233-243 (2005).
 
          It is a refinement of an earlier method described in:
 
-         -   Thomas P. Runarsson and Xin Yao,
-         `"Stochastic ranking for constrained evolutionary optimization
-          <http://www3.hi.is/~tpr/software/sres/Tec311r.pdf>"`_,
-          *IEEE Trans. Evolutionary Computation*, vol. 4 (no. 3), pp. 284-294 (2000).
+         - Thomas P. Runarsson and Xin Yao,
+           `"Stochastic ranking for constrained evolutionary optimization
+           <http://www3.hi.is/~tpr/software/sres/Tec311r.pdf>"`_, *IEEE Trans. Evolutionary Computation*,
+           vol. 4 (no. 3), pp. 284-294 (2000).
 
          The actual implementation is independent provided by S. G. Johnson (2009) based on the papers above.
          Runarsson also has his own Matlab implemention available from `his web page <http://www3.hi.is/~tpr>`_.
