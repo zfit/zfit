@@ -20,7 +20,7 @@ A more extensive introduction: 20 minutes to zfit.
 .. toctree::
     :maxdepth: 1
 
-    ../_tmp/zfit-tutorials/Introduction.ipynb
+    ../_tmp/zfit-tutorials/introduction/Introduction.ipynb
 
 
 :ref:`Getting started with the individual components of zfit <components_introduction>`
