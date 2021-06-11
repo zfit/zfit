@@ -77,7 +77,7 @@ minimizer.scipy.gradient.internal: |1+
                     gradient estimation. This can be specified more clearly using the
                     arguments ``'2-point'`` and ``'3-point'``, which specify the
                     numerical algorithm the minimizer should use in order to
-                     estimate the gradient.
+                    estimate the gradient.
 minimizer.scipy.hessian: |1+
     Define the method to use for the hessian computation
                     that the minimizer should use. This can be the
