@@ -71,13 +71,8 @@ def make_min_grad_hesse():
     return min_options
 
 
-def not_allowed(gradient, hessian):
-    from scipy.optimize import HessianUpdateStrategy
-    return (gradient in (True, '2-point', '3-point') and not isinstance(hessian, HessianUpdateStrategy))
-
-
 @pytest.mark.parametrize('minimizer_gradient_hessian', make_min_grad_hesse())
-# @pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=3)
 def test_scipy_derivative_options(minimizer_gradient_hessian):
     minimizer_cls, gradient, hessian = minimizer_gradient_hessian
     loss, true_min, params = create_loss(obs1=obs1)
@@ -88,11 +83,14 @@ def test_scipy_derivative_options(minimizer_gradient_hessian):
         kwargs['gradient'] = gradient
     if hessian is not None:
         kwargs['hessian'] = hessian
-    if not_allowed(gradient=gradient, hessian=hessian):
-        with pytest.raises(ValueError, match='Whenever the gradient is estimated via finite-differences'):
-            _ = minimizer_cls(**kwargs)
-        return  # end here
-    minimizer = minimizer_cls(**kwargs)
+
+    try:
+        minimizer = minimizer_cls(**kwargs)
+    except ValueError as error:  # we test a not allowed combination
+        if 'Whenever the gradient is estimated via finite-differences' in error.args[0]:
+            return
+        else:
+            raise
 
     result = minimizer.minimize(loss=loss)
     assert result.valid

@@ -14,7 +14,7 @@ __copyright__ = "Copyright 2018, zfit"
 __status__ = "Beta"
 
 __author__ = ("Jonas Eschle <Jonas.Eschle@cern.ch>,"
-              "Albert Puig <apuignav@gmail.com>, "
+              "Albert Puig <albert@protonmail.com>, "
               "Rafael Silva Coutinho <rsilvaco@cern.ch>, "
               "Matthieu Marinangeli <matthieu.marinangeli@cern.ch>")
 __maintainer__ = "zfit"
