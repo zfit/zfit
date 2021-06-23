@@ -388,19 +388,18 @@ class KDE1DimISJV1(BasePDF):
                  binning_method='linear',
                  weights: Union[None, np.ndarray, tf.Tensor] = None,
                  name: str = "KDE1DimISJV1"):
-        r"""
-        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+
         .. math::
+
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
-        It is computed by using a trick described in a paper by Botev et al. that uses the fact, that the Kernel Density Estimation
-        with a Gaussian Kernel is a solution to the Heat Euqation.
+        It is computed by using a trick described in a paper by Botev et al. that uses the fact,
+        that the Kernel Density Estimation
+        with a Gaussian Kernel is a solution to the Heat Equation.
 
         Args:
             data: 1-D Tensor-like.
-            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
-                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
-                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
             obs: Observables
             weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
             name: Name of the PDF

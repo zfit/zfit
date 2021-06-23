@@ -13,7 +13,7 @@ def test_copy_kde():
 
     limits = (-15, 5)
     obs = zfit.Space("obs1", limits=limits)
-    kde_adaptive = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='adaptiveV1',
+    kde_adaptive = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='adaptive',
                                               obs=obs,
                                               truncate=False)
     kde_adaptive.copy()
@@ -22,10 +22,12 @@ def test_copy_kde():
 def create_kde(kdetype, npoints=5000):
     import zfit
 
-    limits = (-10, 14)
+    limits = (-13, 11)
     obs = zfit.Space("obs1", limits=limits)
     cb = zfit.pdf.CrystalBall(mu=2, sigma=3, alpha=1, n=25, obs=obs)
-    data = cb.sample(n=npoints)
+    gauss = zfit.pdf.Gauss(mu=-3, sigma=1.2, obs=obs)
+    pdf = zfit.pdf.SumPDF([cb, gauss], fracs=0.9)
+    data = pdf.sample(n=npoints)
     if kdetype == 0:
         h = zfit.Parameter("h", 0.9)
         kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth=h, obs=obs,
@@ -52,14 +54,15 @@ def create_kde(kdetype, npoints=5000):
 
         kde = zfit.pdf.KDE1DimV1(data=data, obs=obs, bandwidth=h, use_grid=True)
     elif kdetype == 6:
-        kde = zfit.pdf.KDE1DimFFTV1(data=data, obs=obs, bandwidth=0.9)
+        kde = zfit.pdf.KDE1DimFFTV1(data=data, obs=obs, bandwidth=0.9, num_grid_points=10000)
     elif kdetype == 7:
         kde = zfit.pdf.KDE1DimISJV1(data=data, obs=obs)
     else:
         raise ValueError(f'KDE type {kdetype} invalid.')
-    return kde, cb
+    return kde, pdf
 
 
+@pytest.mark.flaky(3)
 @pytest.mark.parametrize('kdetype', [(i, 5000) for i in range(7)] + [(i, 5_000_000) for i in range(6, 7)])
 def test_simple_kde(kdetype):
     import zfit
@@ -88,6 +91,7 @@ def test_simple_kde(kdetype):
     plt.legend()
     plt.show()
     rtol = 0.05
-    if kdetype[1] > 50_000:
-        rtol = 0.005
+    assert np.mean(prob - prob_true) < 0.07
+    # make sure that on average, most values are close
+    assert np.mean((prob / prob_true)[prob_true > np.mean(prob_true)] ** 2) == pytest.approx(1, abs=0.05)
     np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.01)
