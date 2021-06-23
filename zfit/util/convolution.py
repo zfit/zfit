@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tf_quant_finance.math import root_search
-from tf_quant_finance.math.root_search.utils import default_relative_root_tolerance
+from tf_quant_finance.math.root_search.utils import \
+    default_relative_root_tolerance
 
 from ..settings import ztypes
 
