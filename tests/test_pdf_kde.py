@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 
 import zfit
-import zfit.models.dist_tfp
-import zfit.models.kde
 
 
 @pytest.mark.skip()  # copy not yet implemented
@@ -15,54 +13,81 @@ def test_copy_kde():
 
     limits = (-15, 5)
     obs = zfit.Space("obs1", limits=limits)
-    kde_adaptive = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='adaptiveV1',
-                                                     obs=obs,
-                                                     truncate=False)
+    kde_adaptive = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='adaptiveV1',
+                                              obs=obs,
+                                              truncate=False)
     kde_adaptive.copy()
 
 
-def test_simple_kde():
-    expected_integral = 5 / 6
-    h = zfit.Parameter("h", 0.9)
+def create_kde(kdetype, npoints=5000):
+    import zfit
 
-    size = 5000
-    data = np.random.normal(size=size, loc=2, scale=3)
-
-    limits = (-15, 5)
+    limits = (-10, 14)
     obs = zfit.Space("obs1", limits=limits)
-    data_truncated = obs.filter(data)
-    kde = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth=h, obs=obs,
-                                            truncate=False)
-    kde_adaptive = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='adaptive',
-                                                     obs=obs,
-                                                     truncate=False)
-    kde_silverman = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='silverman',
-                                                      obs=obs,
-                                                      truncate=False)
-    kde_adaptive_trunc = zfit.models.kde.GaussianKDE1DimV1(data=data_truncated, bandwidth='adaptiveV1',
-                                                           obs=obs,
-                                                           truncate=True)
-    kde_isj = zfit.models.kde.GaussianKDE1DimV1(data=data, bandwidth='isj',
-                                                obs=obs,
-                                                truncate=False)
+    cb = zfit.pdf.CrystalBall(mu=2, sigma=3, alpha=1, n=25, obs=obs)
+    data = cb.sample(n=npoints)
+    if kdetype == 0:
+        h = zfit.Parameter("h", 0.9)
+        kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth=h, obs=obs,
+                                         truncate=False)
+    elif kdetype == 1:
+        kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='adaptive',
+                                         obs=obs,
+                                         truncate=False)
+    elif kdetype == 2:
+        kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='silverman',
+                                         obs=obs,
+                                         truncate=False)
+    elif kdetype == 3:
+        data_truncated = obs.filter(data)[:, 0]  # TODO: fails if shape (n, 1)
+        kde = zfit.pdf.GaussianKDE1DimV1(data=data_truncated, bandwidth='adaptive',
+                                         obs=obs,
+                                         truncate=False)
+    elif kdetype == 4:
+        kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='isj',
+                                         obs=obs,
+                                         truncate=False)
+    elif kdetype == 5:
+        h = zfit.Parameter("h", 0.9)
 
-    integral = kde.integrate(limits=limits, norm_range=False)
-    integral_trunc = kde_adaptive_trunc.integrate(limits=limits, norm_range=False)
-    integral_adaptive = kde_adaptive.integrate(limits=limits, norm_range=False)
-    integral_silverman = kde_silverman.integrate(limits=limits, norm_range=False)
-    integral_isj = kde_isj.integrate(limits=limits, norm_range=False)
+        kde = zfit.pdf.KDE1DimV1(data=data, obs=obs, bandwidth=h, use_grid=True)
+    elif kdetype == 6:
+        kde = zfit.pdf.KDE1DimFFTV1(data=data, obs=obs, bandwidth=0.9)
+    elif kdetype == 7:
+        kde = zfit.pdf.KDE1DimISJV1(data=data, obs=obs)
+    else:
+        raise ValueError(f'KDE type {kdetype} invalid.')
+    return kde, cb
 
+
+@pytest.mark.parametrize('kdetype', [(i, 5000) for i in range(7)] + [(i, 5_000_000) for i in range(6, 7)])
+def test_simple_kde(kdetype):
+    import zfit
+    from zfit.z import numpy as znp
+    kde, pdf = create_kde(*kdetype)
+
+    integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
+    expected_integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
+    expected_integral = zfit.run(expected_integral)
     rel_tol = 0.04
-    assert zfit.run(integral_trunc) == pytest.approx(1., rel=rel_tol)
     assert zfit.run(integral) == pytest.approx(expected_integral, rel=rel_tol)
-    assert zfit.run(integral_adaptive) == pytest.approx(expected_integral, rel=rel_tol)
-    assert zfit.run(integral_silverman) == pytest.approx(expected_integral, rel=rel_tol)
-    assert zfit.run(integral_isj) == pytest.approx(expected_integral, rel=rel_tol)
 
-    sample = kde_adaptive.sample(1000)
-    sample2 = kde_adaptive_trunc.sample(1500)
-    prob = kde_adaptive.pdf(sample2)
-    kde_adaptive_trunc.pdf(sample)
-    assert prob.shape.rank == 1
-    assert sample.nevents == 1000
+    sample = kde.sample(1)
+    assert sample.nevents == 1
+    sample2 = kde.sample(1500)
     assert sample2.nevents == 1500
+
+    x = znp.linspace(*kde.space.limit1d, 30000)
+    prob = kde.pdf(x)
+    assert prob.shape.rank == 1
+    prob_true = pdf.pdf(x)
+
+    import matplotlib.pyplot as plt
+    plt.plot(x, prob, label=f'kde: {kde.name} {kdetype}')
+    plt.plot(x, prob_true, label='pdf')
+    plt.legend()
+    plt.show()
+    rtol = 0.05
+    if kdetype[1] > 50_000:
+        rtol = 0.005
+    np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.01)
