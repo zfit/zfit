@@ -59,7 +59,6 @@ class LossEval:
             grad_fn = self.loss.gradient
         self.gradients_fn = grad_fn
         self.value_gradients_fn = value_gradients_fn
-        self.maxiter_reached = False
         self.loss = loss
         self.last_value = None
         self.last_gradient = None
@@ -73,8 +72,12 @@ class LossEval:
     def niter(self):
         return max([self.nfunc_eval, self.ngrad_eval, self.nhess_eval])
 
-    def _check_maxiter(self):
-        if not self.ignoring_maxiter and self.niter > self.maxiter:
+    @property
+    def maxiter_reached(self):
+        return not self.ignoring_maxiter and self.niter > self.maxiter
+
+    def _check_maxiter_reached(self):
+        if self.maxiter_reached:
             raise MaximumIterationReached
 
     @contextlib.contextmanager
@@ -96,7 +99,7 @@ class LossEval:
     @nfunc_eval.setter
     def nfunc_eval(self, value):
         self._nfunc_eval = value
-        self._check_maxiter()
+        self._check_maxiter_reached()
 
     @property
     def ngrad_eval(self):
@@ -105,7 +108,7 @@ class LossEval:
     @ngrad_eval.setter
     def ngrad_eval(self, value):
         self._ngrad_eval = value
-        self._check_maxiter()
+        self._check_maxiter_reached()
 
     @property
     def nhess_eval(self):
@@ -114,7 +117,7 @@ class LossEval:
     @nhess_eval.setter
     def nhess_eval(self, value):
         self._nhess_eval = value
-        self._check_maxiter()
+        self._check_maxiter_reached()
 
     def value_gradient(self, values: np.ndarray) -> Tuple[np.float64, np.ndarray]:
         """Calculate the value and gradient like :py:meth:`~ZfitLoss.value_gradients`.
