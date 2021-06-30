@@ -719,9 +719,6 @@ class FitResult(ZfitResult):
         fitresult = cls(params=params, edm=edm, fmin=fmin, info=info, approx=approx,
                         converged=converged, status=status, message=message, valid=valid, niter=niter,
                         loss=loss, minimizer=minimizer, criterion=criterion, evaluator=evaluator)
-        # if isinstance(valid, str):
-        #     fitresult._valid = False
-        #     fitresult.info['invalid_message'] = message
         return fitresult
 
     @classmethod
