@@ -19,6 +19,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- fix a bug that allowed FitResults to be validthat are actually invalid.
 
 Experimental
 ------------
