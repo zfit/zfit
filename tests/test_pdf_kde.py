@@ -22,6 +22,7 @@ def test_copy_kde():
 
 def create_kde(kdetype, npoints=5000):
     import tensorflow as tf
+
     import zfit
 
     limits = (-13, 11)
