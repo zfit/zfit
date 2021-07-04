@@ -4,20 +4,17 @@ from typing import Union
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+import zfit.z.numpy as znp
 from tensorflow_probability.python import distributions as tfd
 
-import zfit.z.numpy as znp
-
+from .dist_tfp import WrapDistribution
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitSpace
 from ..settings import ztypes
-from ..util import binning as binning_util
-from ..util import convolution as convolution_util
-from ..util import improved_sheather_jones as isj_util
-from ..util import ztyping
+from ..util import binning as binning_util, convolution as convolution_util, improved_sheather_jones as isj_util, \
+    ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
-from .dist_tfp import WrapDistribution
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):
@@ -37,8 +34,6 @@ def bandwidth_isj(data):
 
 
 def bandwidth_adaptiveV1(data, func):
-    from .. import run
-    run.assert_executing_eagerly()
     data = z.convert_to_tensor(data)
     bandwidth = z.sqrt(min_std_or_iqr(data) / func(data))
     bandwidth *= tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.) * 1.059
@@ -196,8 +191,10 @@ class GaussianKDE1DimV1(WrapDistribution):
             def kernel_factory():
                 return tfp.distributions.Normal(loc=self._data, scale=self._bandwidth)
 
-        def dist_kwargs(): return dict(mixture_distribution=categorical,
-                                       components_distribution=kernel_factory())
+        def dist_kwargs():
+            return dict(mixture_distribution=categorical,
+                        components_distribution=kernel_factory())
+
         distribution = tfd.MixtureSameFamily
 
         super().__init__(obs=obs,
@@ -259,7 +256,8 @@ class KDE1DimV1(WrapDistribution):
         size = tf.cast(shape_data[0], ztypes.float)
 
         def components_distribution_generator(
-            loc, scale): return tfd.Independent(kernel(loc=loc, scale=scale))
+                loc, scale):
+            return tfd.Independent(kernel(loc=loc, scale=scale))
 
         self._num_grid_points = tf.minimum(tf.cast(size, ztypes.int),
                                            tf.constant(num_grid_points, ztypes.int))
@@ -288,8 +286,10 @@ class KDE1DimV1(WrapDistribution):
             mixture_distribution = tfd.Categorical(probs=probs)
             components_distribution = components_distribution_generator(loc=self._data, scale=self._bandwidth)
 
-        def dist_kwargs(): return dict(mixture_distribution=mixture_distribution,
-                                       components_distribution=components_distribution)
+        def dist_kwargs():
+            return dict(mixture_distribution=mixture_distribution,
+                        components_distribution=components_distribution)
+
         distribution = tfd.MixtureSameFamily
 
         params = {'bandwidth': self._bandwidth}
@@ -375,7 +375,9 @@ class KDE1DimFFTV1(BasePDF):
         x_min = tf.reduce_min(self._grid)
         x_max = tf.reduce_max(self._grid)
 
-        return tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
+        value = tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
+        value.set_shape(x.shape)
+        return value
 
 
 class KDE1DimISJV1(BasePDF):

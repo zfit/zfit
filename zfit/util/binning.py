@@ -4,7 +4,6 @@ from ..settings import ztypes
 
 
 def generate_1d_grid(data, num_grid_points, absolute_boundary=0.0, relative_boundary=0.05):
-
     minimum = tf.math.reduce_min(data)
     maximum = tf.math.reduce_max(data)
     space_width = maximum - minimum
@@ -13,30 +12,31 @@ def generate_1d_grid(data, num_grid_points, absolute_boundary=0.0, relative_boun
     return tf.linspace(minimum - outside_borders, maximum + outside_borders, num=num_grid_points)
 
 
-def bin_1d(binning_method, data, grid, weights = None):
-
+def bin_1d(binning_method, data, grid, weights=None):
     if binning_method == 'simple':
         return bin_1d_simple(data, grid, weights)
-    else:
+    elif binning_method == 'linear':
         return bin_1d_linear(data, grid, weights)
+    else:
+        raise ValueError(f"Binning method '{binning_method}' not supported, only 'simple' or 'linear'.")
 
 
-def bin_1d_simple(data, grid, weights = None):
-
+def bin_1d_simple(data, grid, weights=None):
     if weights is None:
-        bincount = tf.cast(tf.histogram_fixed_width(data, [tf.math.reduce_min(grid), tf.math.reduce_max(grid)], tf.size(grid)), ztypes.float)
+        bincount = tf.cast(
+            tf.histogram_fixed_width(data, [tf.math.reduce_min(grid), tf.math.reduce_max(grid)], tf.size(grid)),
+            ztypes.float)
     else:
         bincount = _bin_1d_weighted(data, grid, weights, 'simple')
 
     return bincount
 
 
-def bin_1d_linear(data, grid, weights = None):
+def bin_1d_linear(data, grid, weights=None):
     return _bin_1d_weighted(data, grid, weights)
 
 
 def _bin_1d_weighted(data, grid, weights, method='linear'):
-
     if weights is None:
         weights = tf.ones_like(data, ztypes.float)
 
@@ -63,9 +63,12 @@ def _bin_1d_weighted(data, grid, weights, method='linear'):
     frac_weights = tf.math.multiply(fractional, weights)
     neg_frac_weights = tf.math.subtract(weights, frac_weights)
 
-    #tf.math.bincount only works with tf.int32
-    bincount_left = tf.roll(tf.concat(tf.math.bincount(tf.cast(integral, tf.int32), weights=frac_weights, minlength=grid_size, maxlength=grid_size), tf.constant(0)), shift=1, axis=0)
-    bincount_right = tf.math.bincount(tf.cast(integral, tf.int32), weights=neg_frac_weights, minlength=grid_size, maxlength=grid_size)
+    # tf.math.bincount only works with tf.int32
+    bincount_left = tf.roll(tf.concat(
+        tf.math.bincount(tf.cast(integral, tf.int32), weights=frac_weights, minlength=grid_size, maxlength=grid_size),
+        tf.constant(0)), shift=1, axis=0)
+    bincount_right = tf.math.bincount(tf.cast(integral, tf.int32), weights=neg_frac_weights, minlength=grid_size,
+                                      maxlength=grid_size)
 
     bincount = tf.cast(tf.add(bincount_left, bincount_right), ztypes.float)
 
