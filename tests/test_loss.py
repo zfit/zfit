@@ -11,7 +11,8 @@ from zfit.core.loss import UnbinnedNLL
 from zfit.core.space import Space
 from zfit.minimize import Minuit
 from zfit.pdf import Gauss
-from zfit.util.exception import IntentionAmbiguousError
+from zfit.util.exception import (BehaviorUnderDiscussion,
+                                 IntentionAmbiguousError)
 
 mu_true = 1.2
 sigma_true = 4.1
@@ -365,3 +366,25 @@ def test_create_new_simple():
     loss1 = loss.create_new()
     assert loss1._simple_func is loss._simple_func
     assert loss1.errordef == loss.errordef
+
+
+def test_callable_loss():
+    _, mu1, sigma1 = create_gauss1()
+
+    loss = zfit.loss.SimpleLoss(lambda x: x[0] * x[1] ** 2,
+                                params=[mu1, sigma1],
+                                errordef=0.5)
+
+    x = [1., 2.5]
+    value_loss = loss(x)
+    params = loss.get_params()
+    with zfit.param.set_values(params, x):
+        true_val = zfit.run(loss.value())
+        assert true_val == pytest.approx(zfit.run(value_loss))
+        with pytest.raises(BehaviorUnderDiscussion):
+            assert true_val == pytest.approx(zfit.run(loss()))
+
+    with pytest.raises(ValueError):
+        loss([1])
+    with pytest.raises(ValueError):
+        loss([1, 2.4, 3])
