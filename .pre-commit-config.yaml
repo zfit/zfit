@@ -60,12 +60,12 @@ repos:
   #          - id: pydocstyle
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.8.0
+    rev: 5.9.1
     hooks:
       - id: isort
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.19.4
+    rev: v2.20.0
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]
@@ -77,7 +77,7 @@ repos:
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 0.12.0
+    rev: 0.13.1
     hooks:
       - id: nbqa-isort
         additional_dependencies: [ isort==5.6.4 ]
