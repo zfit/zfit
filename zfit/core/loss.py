@@ -317,7 +317,18 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def errordef(self) -> Union[float, int]:
         return self._errordef
 
-    def __call__(self, _x=None):
+    def __call__(self, _x: ztyping.DataInputType = None) -> tf.Tensor:
+        """Calculate the loss value with the given input for the free parameters.
+
+        Args:
+            *positional*: Array-like argument to set the parameters. The order of the values correspond to
+                the position of the parameters in :py:meth:`~BaseLoss.get_params()` (called without any arguments).
+                For more detailed control, it is always possible to wrap :py:meth:`~BaseLoss.value()` and set the
+                desired parameters manually.
+
+        Returns:
+            Calculated loss value as a scalar.
+        """
         if _x is None:
             raise BehaviorUnderDiscussion("Currently, calling a loss requires to give the arguments explicitly."
                                           " If you think this behavior should be changed, please open an issue"

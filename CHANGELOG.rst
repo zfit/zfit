@@ -10,6 +10,8 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- make loss callable with array arguments and therefore combatible with iminuit cost functions.
+
 
 Breaking changes
 ------------------
