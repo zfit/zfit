@@ -405,6 +405,7 @@ def test_iminuit_compatibility(create_loss):
 
     params = list(loss.get_params())
     x = np.array(zfit.run(params)) + 0.1
+    zfit.param.set_values(params, x)
 
     with pytest.raises(ValueError):
         loss(x[:-1])
@@ -416,3 +417,8 @@ def test_iminuit_compatibility(create_loss):
     result = minimizer.migrad()
     assert result.valid
     minimizer.hesse()
+
+    zfit.param.set_values(params, x)
+    minimizer_zfit = zfit.minimize.Minuit()
+    result_zfit = minimizer_zfit.minimize(loss)
+    assert result_zfit.fmin == pytest.approx(result.fmin.fval, abs=0.03)
