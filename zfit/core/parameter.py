@@ -520,7 +520,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
 
         def setter(value):
             if self.has_limits:
-                message = (f"Value {value} over limits {self.lower} - {self.upper}. This is changed."
+                message = (f"Setting value {value} invalid for parameter {self.name} with limits "
+                           f"{self.lower} - {self.upper}. This is changed."
                            f" In order to silence this and clip the value, you can use (with caution,"
                            f" advanced) `Parameter.assign`")
                 if run.executing_eagerly():

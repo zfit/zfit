@@ -16,8 +16,8 @@ from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
 from ..util.deprecation import deprecated, deprecated_args
-from ..util.exception import (BreakingAPIChangeError, IntentionAmbiguousError,
-                              NotExtendedPDFError)
+from ..util.exception import (BehaviorUnderDiscussion, BreakingAPIChangeError,
+                              IntentionAmbiguousError, NotExtendedPDFError)
 from ..util.warnings import warn_advanced_feature
 from ..z.math import (autodiff_gradient, autodiff_value_gradients,
                       automatic_value_gradients_hessian, numerical_gradient,
@@ -27,7 +27,7 @@ from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
 from .dependents import _extract_dependencies
 from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
-from .parameter import convert_to_parameters
+from .parameter import convert_to_parameters, set_values
 
 
 # @z.function
@@ -316,6 +316,31 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     @property
     def errordef(self) -> Union[float, int]:
         return self._errordef
+
+    def __call__(self, _x: ztyping.DataInputType = None) -> tf.Tensor:
+        """Calculate the loss value with the given input for the free parameters.
+
+        Args:
+            *positional*: Array-like argument to set the parameters. The order of the values correspond to
+                the position of the parameters in :py:meth:`~BaseLoss.get_params()` (called without any arguments).
+                For more detailed control, it is always possible to wrap :py:meth:`~BaseLoss.value()` and set the
+                desired parameters manually.
+
+        Returns:
+            Calculated loss value as a scalar.
+        """
+        if _x is None:
+            raise BehaviorUnderDiscussion("Currently, calling a loss requires to give the arguments explicitly."
+                                          " If you think this behavior should be changed, please open an issue"
+                                          " https://github.com/zfit/zfit/issues/new/choose")
+        if isinstance(_x, dict):
+            raise TypeError("Dicts are not supported when calling a loss, only array-like values.")
+        if _x is None:
+            return self.value()
+        else:
+            params = self.get_params()
+            with set_values(params, _x):
+                return self.value()
 
     def value(self):
         log_offset = self._options.get('subtr_const_value')
