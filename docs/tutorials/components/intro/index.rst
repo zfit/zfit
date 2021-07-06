@@ -1,3 +1,5 @@
+.. _components_introduction:
+
 ============
 Introduction
 ============

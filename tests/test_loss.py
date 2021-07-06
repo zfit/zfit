@@ -11,7 +11,8 @@ from zfit.core.loss import UnbinnedNLL
 from zfit.core.space import Space
 from zfit.minimize import Minuit
 from zfit.pdf import Gauss
-from zfit.util.exception import IntentionAmbiguousError
+from zfit.util.exception import (BehaviorUnderDiscussion,
+                                 IntentionAmbiguousError)
 
 mu_true = 1.2
 sigma_true = 4.1
@@ -78,6 +79,27 @@ def create_gauss3ext():
     return gaussian3, mu, sigma, yield3
 
 
+def create_simpel_loss():
+    _, mu1, sigma1 = create_gauss1()
+    return zfit.loss.SimpleLoss(lambda x: (x[0] - 0.37) ** 4 * (x[1] - 2.34) ** 4,
+                                params=[mu1, sigma1],
+                                errordef=0.5)
+
+
+def create_simultaneous_loss():
+    test_values = tf.constant(test_values_np)
+    test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
+    test_values2 = tf.constant(test_values_np2)
+    test_values2 = zfit.Data.from_tensor(obs=obs1, tensor=test_values2)
+    gaussian1, mu1, sigma1 = create_gauss1()
+    gaussian2, mu2, sigma2 = create_gauss2()
+    gaussian2 = gaussian2.create_extended(zfit.Parameter('yield_gauss2', 5))
+    nll = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
+                                data=[test_values, test_values2],
+                                )
+    return mu1, mu2, nll, sigma1, sigma2
+
+
 @pytest.mark.parametrize('size', [None, 5000, 50000, 300000, 3_000_000])
 @pytest.mark.flaky(3)  # minimization can fail
 def test_extended_unbinned_nll(size):
@@ -101,16 +123,7 @@ def test_extended_unbinned_nll(size):
 
 
 def test_unbinned_simultaneous_nll():
-    test_values = tf.constant(test_values_np)
-    test_values = zfit.Data.from_tensor(obs=obs1, tensor=test_values)
-    test_values2 = tf.constant(test_values_np2)
-    test_values2 = zfit.Data.from_tensor(obs=obs1, tensor=test_values2)
-    gaussian1, mu1, sigma1 = create_gauss1()
-    gaussian2, mu2, sigma2 = create_gauss2()
-    gaussian2 = gaussian2.create_extended(zfit.Parameter('yield_gauss2', 5))
-    nll = zfit.loss.UnbinnedNLL(model=[gaussian1, gaussian2],
-                                data=[test_values, test_values2],
-                                )
+    mu1, mu2, nll, sigma1, sigma2 = create_simultaneous_loss()
     minimizer = Minuit(tol=1e-5)
     status = minimizer.minimize(loss=nll, params=[mu1, sigma1, mu2, sigma2])
     params = status.params
@@ -365,3 +378,47 @@ def test_create_new_simple():
     loss1 = loss.create_new()
     assert loss1._simple_func is loss._simple_func
     assert loss1.errordef == loss.errordef
+
+
+@pytest.mark.parametrize('create_loss', [lambda: create_simultaneous_loss()[2], create_simpel_loss])
+def test_callable_loss(create_loss):
+    loss = create_loss()
+
+    params = list(loss.get_params())
+    x = np.array(zfit.run(params)) + 0.1
+    value_loss = loss(x)
+    with zfit.param.set_values(params, x):
+        true_val = zfit.run(loss.value())
+        assert true_val == pytest.approx(zfit.run(value_loss))
+        with pytest.raises(BehaviorUnderDiscussion):
+            assert true_val == pytest.approx(zfit.run(loss()))
+
+    with pytest.raises(ValueError):
+        loss(x[:-1])
+    with pytest.raises(ValueError):
+        loss(list(x) + [1])
+
+
+@pytest.mark.parametrize('create_loss', [lambda: create_simultaneous_loss()[2], create_simpel_loss])
+def test_iminuit_compatibility(create_loss):
+    loss = create_loss()
+
+    params = list(loss.get_params())
+    x = np.array(zfit.run(params)) + 0.1
+    zfit.param.set_values(params, x)
+
+    with pytest.raises(ValueError):
+        loss(x[:-1])
+    with pytest.raises(ValueError):
+        loss(list(x) + [1])
+
+    import iminuit
+    minimizer = iminuit.Minuit(loss, x)
+    result = minimizer.migrad()
+    assert result.valid
+    minimizer.hesse()
+
+    zfit.param.set_values(params, x)
+    minimizer_zfit = zfit.minimize.Minuit()
+    result_zfit = minimizer_zfit.minimize(loss)
+    assert result_zfit.fmin == pytest.approx(result.fmin.fval, abs=0.03)

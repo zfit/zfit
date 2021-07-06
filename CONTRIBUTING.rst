@@ -26,7 +26,7 @@ Ready to contribute? Here's how to set up *zfit* for local development.
 
     $ mkvirtualenv zfit
     $ cd zfit/
-    $ python setup.py develop
+    $ pip install -e .[alldev]  # (or [dev] if this fails)
 
 4. Create a branch for local development::
 
@@ -35,9 +35,9 @@ Ready to contribute? Here's how to set up *zfit* for local development.
    Now you can make your changes locally.
 
 5. When you're done making changes, check that your changes pass the
-   tests::
+   tests (this can take a while ~30 mins)::
 
-    $ py.test
+    $ pytest
 
 
 6. Commit your changes and push your branch to GitHub::
@@ -56,11 +56,11 @@ Pull Request Guidelines
 Before you submit a pull request, check that it meets these guidelines:
 
 1. The pull request should include tests.
-2. If the pull request adds functionality, the docs should be updated. Put
-   your new functionality into a function with a docstring, and add the
-   necessary explanations in the corresponding rst file in the docs.
+2. If the pull request adds functionality, the docs may need to be updated. Put
+   your new functionality into a function with a docstring (and add the
+   necessary explanations in the corresponding rst file in the docs).
    If any math is involved, please document the exact formulae implemented
    in the docstring/docs.
-3. The pull request should work for Python 3.6 and 3.7. Check
+3. The pull request should work for all Python versions. Check
    https://travis-ci.org/zfit/zfit/pull_requests
    and make sure that the tests pass for all supported Python versions.

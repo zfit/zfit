@@ -2,6 +2,16 @@
 Changelog
 *********
 
+.. _newest-changelog:
+
+0.7.1 (6. July 2021)
+======================
+
+
+Bug fixes and small changes
+---------------------------
+- make loss callable with array arguments and therefore combatible with iminuit cost functions.
+- fix a bug that allowed FitResults to be valid that are actually invalid (reported by Maxime Schubiger).
 
 
 0.7.0 (03 Jun 2021)

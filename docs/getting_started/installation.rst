@@ -1,5 +1,7 @@
 .. highlight:: shell
 
+.. _zfit_installation:
+
 ============
 Installation
 ============
@@ -8,7 +10,9 @@ Installation
 Stable release
 --------------
 
-To install zfit, run this command in your terminal:
+To install the newest stable version of zfit, use pip and run this command in your terminal (recommended to do inside a
+`conda <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_ or
+`virtualenv <https://virtualenv.pypa.io/en/latest/>`_ virtual environment):
 
 .. code-block:: console
 
@@ -16,17 +20,19 @@ To install zfit, run this command in your terminal:
 
 This is the preferred method to install zfit, as it will always install the most recent stable release.
 
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
-
-.. _pip: https://pip.pypa.io
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
 
 
-From sources
-------------
 
-The sources for zfit can be downloaded from the `Github repo`_.
+Cutting edge version
+-----------------------
+
+The cutting edge development version (unstable) can be installed from the `Github repo`_ with
+
+.. code-block:: console
+
+    $ pip install git+https://github.com/zfit/zfit
+
+
 
 You can either clone the public repository:
 
@@ -34,17 +40,6 @@ You can either clone the public repository:
 
     $ git clone git://github.com/zfit/zfit
 
-Or download the `tarball`_:
-
-.. code-block:: console
-
-    $ curl  -OL https://github.com/zfit/zfit/tarball/master
-
-Once you have a copy of the source, you can install it with:
-
-.. code-block:: console
-
-    $ python setup.py install
 
 
 .. _Github repo: https://github.com/zfit/zfit

@@ -382,7 +382,7 @@ class BaseMinimizer(ZfitMinimizer):
                     - ``upper``: array-like upper limits of the parameters,
                     - ``step_size``: array-like initial step size of the parameters (approximately the expected
                       uncertainty)
-                    ,
+
                 This will create internally a single parameter for each value that can be accessed in the `FitResult`
                 via params. Repeated calls can therefore (in the current implement) cause a memory increase.
                 The recommended way is to re-use parameters (just taken from the `FitResult` attribute `params`).
