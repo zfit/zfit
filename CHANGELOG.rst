@@ -8,7 +8,6 @@ Changelog
 0.7.2 (7. July 2021)
 ======================
 
-
 Bug fixes and small changes
 ---------------------------
 - fix wrong arguments to `minimize`
