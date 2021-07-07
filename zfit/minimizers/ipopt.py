@@ -227,6 +227,7 @@ class IpyoptV1(BaseMinimizer):
         if init:
             assign_values(params=params, values=init)
         evaluator = self.create_evaluator()
+        criterion = self.create_criterion()
 
         # initial values as array
         xvalues = np.array(run(params))
@@ -290,7 +291,6 @@ class IpyoptV1(BaseMinimizer):
 
         minimizer.set(**{k: v for k, v in ipopt_options.items() if v is not None})
 
-        criterion = self.create_criterion()
 
         init_tol = min([math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e2])
         # init_tol **= 0.5

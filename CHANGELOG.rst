@@ -4,6 +4,15 @@ Changelog
 
 .. _newest-changelog:
 
+
+0.7.2 (7. July 2021)
+======================
+
+Bug fixes and small changes
+---------------------------
+- fix wrong arguments to `minimize`
+- make BaseMinimizer arguments optional
+
 0.7.1 (6. July 2021)
 ======================
 
