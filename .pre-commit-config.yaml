@@ -1,5 +1,5 @@
 ci:
-    autoupdate_schedule: monthly
+  autoupdate_schedule: monthly
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -91,6 +91,13 @@ repos:
     hooks:
       - id: check-manifest
         stages: [ manual ]
+
+
+  - repo: https://github.com/roy-ht/pre-commit-jupyter
+    rev: v1.2.1
+    hooks:
+      - id: jupyter-notebook-cleanup
+
   # TODO(py37): add the following once 3.6 is gone. Changes the Type hints.
 #  - repo: https://github.com/sondrelg/pep585-upgrade
 #    rev: '5f7033a0d0174c65105b041500060b993c1bc211'  # Use the sha / tag you want to point at

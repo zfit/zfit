@@ -4,6 +4,30 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
 
 0.7.2 (7. July 2021)
 ======================
