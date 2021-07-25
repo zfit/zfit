@@ -189,4 +189,4 @@ to do the job:
 The specific call to :func:`zfit.run` simply converts the Eager Tensor (that is already array-like) to a Numpy array.
 Often, this conversion is however not necessary and a Tensor can directly be used.
 
-The full script :jupyter-download:script:`can be downloaded here <5 minutes to zfit>`_.
+The full script :jupyter-download:script:`can be downloaded here <5 minutes to zfit>`.
