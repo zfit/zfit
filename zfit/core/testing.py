@@ -13,9 +13,14 @@ from .interfaces import ZfitPDF
 
 __all__ = ["tester"]
 
+import scipy.integrate
 
-class BaseTester:
-    pass
+
+def check_integrate(func, limits, norm_range):
+    if norm_range is not False:
+        return check_integrate(func, limits, False) / check_integrate(func, norm_range, False)
+    lower, upper = limits.limid1d
+    return scipy.integrate.quad(func, lower, upper)
 
 
 class AutoTester:
