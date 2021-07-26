@@ -18,6 +18,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- Double crystallball: move a minus sign down, vectorize the integral
 
 Experimental
 ------------
