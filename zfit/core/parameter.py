@@ -996,7 +996,7 @@ def convert_to_parameter(value,
     return value
 
 
-@z.function
+@z.function(wraps='assign')
 def assign_values_jit(params: Union[Parameter, Iterable[Parameter]],
                       values: Union[ztyping.NumericalScalarType,
                                     Iterable[ztyping.NumericalScalarType]],

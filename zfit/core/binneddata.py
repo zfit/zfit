@@ -61,7 +61,7 @@ register_tensor_conversion(BinnedDataV1, name='BinnedData', overload_operators=T
 
 class BinnedData():
 
-    def __init__(self):
+    def __init__(self, obs, ):
         pass
 
     def values(self):
