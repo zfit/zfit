@@ -98,9 +98,9 @@ def test_set_values():
     param_c.assign(9999)
     zfit.param.set_values([param_c, param_b], values=result)
 
-    assert param_a.value() == val_a
-    assert param_b.value() == val_b
-    assert param_c.value() == val_c
+    assert zfit.run(param_a.value()) == val_a
+    assert zfit.run(param_b.value()) == val_b
+    assert zfit.run(param_c.value()) == val_c
 
     param_d = zfit.Parameter("param_d", 12)
     with pytest.raises(ValueError):

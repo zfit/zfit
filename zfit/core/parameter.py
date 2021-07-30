@@ -21,9 +21,6 @@ from tensorflow.python.ops.resource_variable_ops import \
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
-from . import interfaces as zinterfaces
-from .dependents import _extract_dependencies
-from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 from .. import z
 
 znp = z.numpy
@@ -999,14 +996,22 @@ def convert_to_parameter(value,
     return value
 
 
-@tf.function(autograph=False)  # TODO: have non-compiled as well?
+@z.function
+def assign_values_jit(params: Union[Parameter, Iterable[Parameter]],
+                      values: Union[ztyping.NumericalScalarType,
+                                    Iterable[ztyping.NumericalScalarType]],
+                      use_locking=False):
+    for i, param in enumerate(params):
+        param.assign(values[i], read_value=False, use_locking=use_locking)
+
+
 def assign_values(params: Union[Parameter, Iterable[Parameter]],
                   values: Union[ztyping.NumericalScalarType,
                                 Iterable[ztyping.NumericalScalarType]],
                   use_locking=False):
     params, values = _check_convert_param_values(params, values)
-    for i, param in enumerate(params):
-        param.assign(values[i], read_value=False, use_locking=use_locking)
+    params = tuple(params)
+    assign_values_jit(params=params, values=values, use_locking=use_locking)
 
 
 def set_values(params: Union[Parameter, Iterable[Parameter]],
