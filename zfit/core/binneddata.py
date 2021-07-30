@@ -1,9 +1,18 @@
 #  Copyright (c) 2021 zfit
+
+from __future__ import annotations
+
+import boost_histogram as bh
+import hist
+import numpy as np
+import tensorflow_probability as tfp
+
 from .baseobject import BaseObject
 from .dimension import BaseDimensional
 from .interfaces import ZfitBinnedData
 from .tensorlike import register_tensor_conversion, OverloadableMixin
-from .. import z
+from .. import z, Space
+from zfit.z import numpy as znp
 from ..util.exception import WorkInProgressError
 from ..util.ztyping import NumericalTypeReturn
 
@@ -59,16 +68,44 @@ class BinnedDataV1(BaseDimensional, ZfitBinnedData, BaseObject, OverloadableMixi
 register_tensor_conversion(BinnedDataV1, name='BinnedData', overload_operators=True)
 
 
-class BinnedData():
+@tfp.experimental.auto_composite_tensor()
+class BinnedHolder(tfp.experimental.AutoCompositeTensor):
+    def __init__(self, space, values, variances):
+        self.space = space
+        self.values = values
+        self.variances = variances
 
-    def __init__(self, obs, ):
-        pass
+
+@tfp.experimental.auto_composite_tensor()
+class BinnedData(tfp.experimental.AutoCompositeTensor):
+
+    def __init__(self, holder):
+        self.holder: BinnedHolder = holder
+
+    @classmethod
+    def from_hist(cls, hist: hist.NamedHist) -> BinnedData:
+        space = Space(binning=hist.axes)
+        values = znp.array(hist.values(flow=True))
+        variances = znp.array(hist.variances(flow=True))
+        holder = BinnedHolder(space=space, values=values, variances=variances)
+        return cls(holder)
+
+    def to_hist(self) -> hist.NamedHist:
+        return self._to_boost_histogram_()
+
+    def _to_boost_histogram_(self):
+        h = hist.NamedHist(*self.holder.space.binning, storage=bh.storage.Weight)
+        h.view(flow=True).value = self.values()
+        h.view(flow=True).variance = self.variances()
+
+        # h[...] = np.stack([self.values(), self.variances()], axis=-1)
+        return h
 
     def values(self):
-        pass
+        return self.holder.values
 
-    def variance(self):
-        pass
+    def variances(self):
+        return self.holder.variances
 
     def counts(self):
-        pass
+        return self.values()

@@ -13,11 +13,17 @@ from typing import Callable, Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
+from hist.axestuple import NamedAxesTuple
 from tensorflow.python.util.deprecation import deprecated
 
 import zfit
 import zfit.z.numpy as znp
-
+from .baseobject import BaseObject
+from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
+                          convert_to_obs_str)
+from .dimension import common_axes, common_obs, limits_overlap
+from .interfaces import (ZfitLimit, ZfitOrderableDimensional,
+                         ZfitSpace)
 from .. import z
 from ..settings import ztypes
 from ..util import ztyping
@@ -37,12 +43,6 @@ from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
                               ObsIncompatibleError, ObsNotSpecifiedError,
                               OverdefinedError, ShapeIncompatibleError,
                               SpaceIncompatibleError)
-from .baseobject import BaseObject
-from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
-                          convert_to_obs_str)
-from .dimension import common_axes, common_obs, limits_overlap
-from .interfaces import (ZfitBinning, ZfitLimit, ZfitOrderableDimensional,
-                         ZfitSpace)
 
 
 class LimitRangeDefinition:
@@ -1056,15 +1056,18 @@ class BaseSpace(ZfitSpace, BaseObject):
         return self.has_limits
 
 
+# @tfp.experimental.auto_composite_tensor()
+# class Space(BaseSpace, tfp.experimental.AutoCompositeTensor):
 class Space(BaseSpace):
     AUTO_FILL = object()
     ANY = ANY
     ANY_LOWER = ANY_LOWER  # TODO: needed? or move everything inside?
     ANY_UPPER = ANY_UPPER
 
-    def __init__(self, obs: Optional[ztyping.ObsTypeInput] = None,
+    def __init__(self,
+                 obs: Optional[ztyping.ObsTypeInput] = None,
                  limits: Optional[ztyping.LimitsTypeInput] = None,
-                 binning: ZfitBinning = None,
+                 binning: NamedAxesTuple = None,
                  axes=None, rect_limits=None,
                  name: Optional[str] = "Space"):
         """Define a space with the name (`obs`) of the axes (and it's number) and possibly it's limits.
@@ -1110,7 +1113,20 @@ class Space(BaseSpace):
         """
         if name is None:
             name = "Space"
+        if binning is not None:
+            if limits is not None or rect_limits is not None:
+                raise ValueError("If binning is provided, limits can not be given but will be taken from the binning.")
+            if obs is not None:
+                binning = [[axis for axis in binning if axis.name == ob][0] for ob in obs]
+            else:
+                obs = [axis.name for axis in binning]
+            limits = [[], []]
+            for axis in binning:
+                limits[0].append(axis.edges[0])
+                limits[1].append(axis.edges[-1])
+
         super().__init__(obs=obs, axes=axes, name=name)
+
         limits_dict = self._check_convert_input_limits(limit=limits, rect_limits=rect_limits, obs=self.obs,
                                                        axes=self.axes, n_obs=self.n_obs)
         self._binning = binning
@@ -1832,10 +1848,10 @@ class Space(BaseSpace):
         Returns:
             :py:class:`~zfit.Space`
         """
-        kwargs = {'name'  : self.name,
+        kwargs = {'name': self.name,
                   'limits': self._limits_dict,
-                  'axes'  : self.axes,
-                  'obs'   : self.obs}
+                  'axes': self.axes,
+                  'obs': self.obs}
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
             raise KeyError(f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}")
