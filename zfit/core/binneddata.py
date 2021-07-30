@@ -8,7 +8,7 @@ from ..util.exception import WorkInProgressError
 from ..util.ztyping import NumericalTypeReturn
 
 
-class BinnedData(BaseDimensional, ZfitBinnedData, BaseObject, OverloadableMixin):  # TODO: add dtype
+class BinnedDataV1(BaseDimensional, ZfitBinnedData, BaseObject, OverloadableMixin):  # TODO: add dtype
 
     def __init__(self, obs, counts, w2error, name: str = "BinnedData"):
         if name is None:
@@ -56,4 +56,19 @@ class BinnedData(BaseDimensional, ZfitBinnedData, BaseObject, OverloadableMixin)
         return 42  # TODO: add sensible number
 
 
-register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)
+register_tensor_conversion(BinnedDataV1, name='BinnedData', overload_operators=True)
+
+
+class BinnedData():
+
+    def __init__(self):
+        pass
+
+    def values(self):
+        pass
+
+    def variance(self):
+        pass
+
+    def counts(self):
+        pass

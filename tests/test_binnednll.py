@@ -1,10 +1,10 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import boost_histogram as bh
 import numpy as np
 
 import zfit
-from zfit.core.binneddata import BinnedData
+from zfit.core.binneddata import BinnedDataV1
 from zfit.core.binning import RectBinning
 from zfit.models.binned_functor import BinnedSumPDF
 from zfit.models.template import BinnedTemplatePDF
@@ -18,11 +18,11 @@ def test_binned_nll_simple():
     binning = RectBinning(binnings=binnings)
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 
-    mc1 = BinnedData.from_numpy(obs=obs, counts=counts, w2error=10)
-    mc2 = BinnedData.from_numpy(obs=obs, counts=counts2, w2error=10)
-    mc3 = BinnedData.from_numpy(obs=obs, counts=counts3, w2error=10)
+    mc1 = BinnedDataV1.from_numpy(obs=obs, counts=counts, w2error=10)
+    mc2 = BinnedDataV1.from_numpy(obs=obs, counts=counts2, w2error=10)
+    mc3 = BinnedDataV1.from_numpy(obs=obs, counts=counts3, w2error=10)
 
-    observed_data = BinnedData.from_numpy(obs=obs, counts=counts + counts2 + counts3, w2error=10)
+    observed_data = BinnedDataV1.from_numpy(obs=obs, counts=counts + counts2 + counts3, w2error=10)
 
     pdf = BinnedTemplatePDF(data=mc1)
     pdf2 = BinnedTemplatePDF(data=mc2)

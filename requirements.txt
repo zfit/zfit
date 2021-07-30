@@ -3,6 +3,7 @@ colorama
 colored
 colorlog
 dotmap
+hist
 iminuit>=2.3
 ipyopt
 nlopt
