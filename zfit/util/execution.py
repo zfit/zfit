@@ -9,6 +9,7 @@ from typing import List, Optional, Union
 
 import tensorflow as tf
 from dotmap import DotMap
+from ordered_set import OrderedSet
 
 from .deprecation import deprecated
 from .exception import IllegalInGraphModeError
@@ -116,6 +117,8 @@ class RunManager:
             self._cpu.extend(cpu)
 
     def __call__(self, *args, **kwargs):
+        # TODO: catch maybe sets, as they change the number of elements if we have identical ones
+        # and convert them. Before it's fine, e.g. Parameters are unique, but after it's a value.
         if kwargs:
             raise RuntimeError("Why kwargs provided?")
 

@@ -5,10 +5,8 @@ import numpy as np
 
 import zfit
 
-mplhep.set_style('LHCb2')
+mplhep.style.use('LHCb2')
 import matplotlib.pyplot as plt
-
-plt.rcParams["font.serif"] = "cmr10"
 
 # create space
 obs = zfit.Space("x", limits=(-10, 10))
@@ -49,23 +47,23 @@ plot_scaling = n_sample / n_bins * obs.area()
 
 x = np.linspace(-10, 10, 1000)
 
+
+def plot_pdf(title):
+    plt.figure()
+    plt.title(title)
+    y = model.pdf(x).numpy()
+    y_gauss = (gauss.pdf(x) * frac).numpy()
+    y_exp = (exponential.pdf(x) * (1 - frac)).numpy()
+    plt.plot(x, y * plot_scaling, label="Sum - Model")
+    plt.plot(x, y_gauss * plot_scaling, label="Gauss - Signal")
+    plt.plot(x, y_exp * plot_scaling, label="Exp - Background")
+    mplhep.histplot(np.histogram(data_np, bins=n_bins), yerr=True, color='black', histtype='errorbar')
+    plt.ylabel("Counts")
+    plt.xlabel("obs: $B_{mass}$")
+
+
 # plot the pdf BEFORE fitting
-plt.figure()
-plt.title("Before fitting")
-# plot the data
-plt.hist(data_np, color=color, bins=n_bins, histtype="stepfilled", alpha=0.1)
-plt.hist(data_np, color=color, bins=n_bins, histtype="step")
-# plot the pdfs
-y = model.pdf(x).numpy()
-y_gauss = (gauss.pdf(x) * frac).numpy()  # notice the frac!
-y_exp = (exponential.pdf(x) * (1 - frac)).numpy()  # notice the frac!
-
-plt.plot(x, y * plot_scaling, label="Sum - Model", linewidth=linewidth * 2)
-plt.plot(x, y_gauss * plot_scaling, '--', label="Gauss - Signal", linewidth=linewidth)
-plt.plot(x, y_exp * plot_scaling, '--', label="Exponential - Background", linewidth=linewidth)
-plt.xlabel("Physical observable")
-plt.legend()
-
+plot_pdf("Before fitting")
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=model, data=data)
 
@@ -76,27 +74,7 @@ result = minimizer.minimize(nll)
 # do the error calculations, here with minos
 param_errors, _ = result.errors()
 
-plt.figure()
-plt.title("After fitting")
-# plot the data
-# plt.hist(data_np, color=color, bins=n_bins, histtype="stepfilled", alpha=0.1)
-# plt.hist(data_np, color=color, bins=n_bins, histtype="step")
-
-
-y = model.pdf(x).numpy()  # rerun now after the fitting
-y_gauss = (gauss.pdf(x) * frac).numpy()
-y_exp = (exponential.pdf(x) * (1 - frac)).numpy()
-
-plt.plot(x, y * plot_scaling, label="Sum - Model")
-plt.plot(x, y_gauss * plot_scaling, label="Gauss - Signal")
-plt.plot(x, y_exp * plot_scaling, label="Exp - Background")
-mplhep.histplot(np.histogram(data_np, bins=n_bins), yerr=True, color='black', histtype='errorbar',
-                markersize=17, capsize=2.5,
-                markeredgewidth=1.5, zorder=1,
-                elinewidth=1.5,
-                )
-plt.ylabel("Counts")
-plt.xlabel("Physical observable")
+plot_pdf(title="After fitting")
 plt.legend()
 
 plt.show()

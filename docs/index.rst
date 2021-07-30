@@ -1,4 +1,3 @@
-:notoc:
 
 .. |zfit_logo| image:: images/zfit-logo_400x168.png
    :target: https://github.com/zfit/zfit/
@@ -8,26 +7,20 @@
    :target: https://scikit-hep.org/affiliated
    :alt: scikit-hep logo
 
-.. hint::
-    Yay, the new website design is here!
 
-    We are proud to present the new look and feel of our website. While most of the
-    things are where they used to be, here's a short explanation of the sections:
-
-    * **What's new?**: Changelog and other new features of zfit.
-    * **Getting started**: Installation guide, quickstart and examples.
-    * **API reference**: Dive deep into the API.
-    * **Project**: Learn who wrote zfit, how to contribute and other information about the project.
-    * **Ask a question**: Does exactly what it says on the tin.
-
-    If you have suggestions, contact us on our `Gitter channel`_ or open an issue on `GitHub`_.
-
-    Thanks to pandas for open sourcing `pydata-sphinx-theme <https://pydata-sphinx-theme.readthedocs.io/en/latest/>`_.
-
-
-|
 
 |zfit_logo|
+
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+
+    whats_new/index
+    getting_started/index
+    tutorials/index
+    user_api/index
+    project/index
+    ask_a_question
 
 =========================
 Scalable pythonic fitting
@@ -51,11 +44,24 @@ This challenging task is tackled by following two basic design pillars:
 The zfit package is Free software, using an Open Source license. Both the software and this document are works in progress.
 Source code can be found in `our github page <https://github.com/zfit/zfit/>`_.
 
-.. toctree::
-    :maxdepth: 0
 
-    whats_new/index
-    getting_started/index
-    user_api/index
-    project/index
-    ask_a_question
+
+
+.. hint::
+    Yay, the new website design is here!
+
+    We are proud to present the new look and feel of our website. While most of the
+    things are where they used to be, here's a short explanation of the sections:
+
+    * **What's new?**: Changelog and other new features of zfit.
+    * **Getting started**: Installation guide, quickstart and examples.
+    * **API reference**: Dive deep into the API.
+    * **Project**: Learn who wrote zfit, how to contribute and other information about the project.
+    * **Ask a question**: Does exactly what it says on the tin.
+
+    If you have suggestions, contact us on our `Gitter channel`_ or open an issue on `GitHub`_.
+
+    Thanks to pandas for open sourcing `pydata-sphinx-theme <https://pydata-sphinx-theme.readthedocs.io/en/latest/>`_.
+
+
+|

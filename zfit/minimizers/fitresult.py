@@ -321,7 +321,7 @@ class FitResult(ZfitResult):
             if valid:
                 message = ''
             else:
-                message = "Invalid, unknown reason (not specified in init)"
+                message = "Invalid, unknown reason (not specified)"
 
         info = {} if info is None else info
         approx = self._input_convert_approx(approx, evaluator, info, params)
@@ -509,6 +509,9 @@ class FitResult(ZfitResult):
         """
         info = {'problem': problem}
         params = dict(zip(params, values))
+        valid = valid if converged is None else valid and converged
+        if evaluator is not None:
+            valid = valid and not evaluator.maxiter_reached
         return cls(params=params, loss=loss, fmin=fmin, edm=edm, message=message,
                    criterion=criterion, info=info, valid=valid, converged=converged,
                    niter=niter, status=status, minimizer=minimizer, evaluator=evaluator)
@@ -595,7 +598,8 @@ class FitResult(ZfitResult):
         params_result = [p_dict for p_dict in minuit.params]
 
         fmin_object = minuit.fmin
-        converged = not fmin_object.is_above_max_edm if converged is None else converged
+        minuit_converged = not fmin_object.is_above_max_edm
+        converged = minuit_converged if converged is None else (converged and minuit_converged)
         niter = fmin_object.nfcn if niter is None else niter
         info = {'n_eval': niter,
                 # 'grad': result['jac'],
@@ -610,7 +614,10 @@ class FitResult(ZfitResult):
             criterion = EDM(tol=minimizer.tol, loss=loss, params=params)
             criterion.last_value = edm
         fmin = fmin_object.fval if fmin is None else fmin
-        valid = fmin_object.is_valid if valid is None else valid
+        minuit_valid = fmin_object.is_valid
+        valid = minuit_valid if valid is None else minuit_valid and valid
+        if evaluator is not None:
+            valid = valid and not evaluator.maxiter_reached
         if values is None:
             values = (res.value for res in params_result)
         params = dict(zip(params, values))
@@ -706,13 +713,12 @@ class FitResult(ZfitResult):
 
         fmin = result['fun']
         params = dict(zip(params, result_values))
+        if evaluator is not None:
+            valid = valid and not evaluator.maxiter_reached
 
         fitresult = cls(params=params, edm=edm, fmin=fmin, info=info, approx=approx,
                         converged=converged, status=status, message=message, valid=valid, niter=niter,
                         loss=loss, minimizer=minimizer, criterion=criterion, evaluator=evaluator)
-        if isinstance(valid, str):
-            fitresult._valid = False
-            fitresult.info['invalid_message'] = valid
         return fitresult
 
     @classmethod
@@ -794,11 +800,16 @@ class FitResult(ZfitResult):
         Returns:
             zfit.minimizers.fitresult.FitResult:
         """
+        converged = converged if converged is None else bool(converged)
         param_dict = {p: v for p, v in zip(params, values)}
-        fmin = opt.last_optimum_value()
-        status = opt.last_optimize_result()
+        if fmin is None:
+            fmin = opt.last_optimum_value()
+        status_nlopt = opt.last_optimize_result()
+        if status is None:
+            status = status_nlopt
         niter = opt.get_numevals() if niter is None else niter
-        converged = 1 <= status <= 4
+        converged = 1 <= status_nlopt <= 4 and converged is not False
+
         messages = {
             1: "NLOPT_SUCCESS",
             2: "NLOPT_STOPVAL_REACHED",
@@ -812,7 +823,7 @@ class FitResult(ZfitResult):
             -4: "NLOPT_ROUNDOFF_LIMITED",
             -5: "NLOPT_FORCED_STOP",
         }
-        message_nlopt = messages[status]
+        message_nlopt = messages[status_nlopt]
         info = {'n_eval': niter,
                 'niter': niter,
                 'message': message_nlopt,
@@ -821,6 +832,10 @@ class FitResult(ZfitResult):
                 'status': status}
         if message is None:
             message = message_nlopt
+
+        valid = valid and converged
+        if evaluator is not None:
+            valid = valid and not evaluator.maxiter_reached
 
         approx = {}
         if inv_hessian is None:

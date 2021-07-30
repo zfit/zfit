@@ -110,7 +110,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         if 'options' not in minimizer_options:
             minimizer_options['options'] = {}
 
-        if gradient in (True, '2-point', '3-point') and not isinstance(hessian, HessianUpdateStrategy):
+        if gradient in (True, '2-point', '3-point') and not (
+                isinstance(hessian, HessianUpdateStrategy) or hessian is NOT_SUPPORTED):
             raise ValueError("Whenever the gradient is estimated via finite-differences, "
                              "the Hessian has to be estimated using one of the quasi-Newton strategies.")
 
@@ -403,7 +404,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                    gradient estimation. This can be specified more clearly using the
                    arguments ``'2-point'`` and ``'3-point'``, which specify the
                    numerical algorithm the minimizer should use in order to
-                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+                   estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
@@ -497,7 +498,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                    gradient estimation. This can be specified more clearly using the
                    arguments ``'2-point'`` and ``'3-point'``, which specify the
                    numerical algorithm the minimizer should use in order to
-                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+                   estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
 
             hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
                    that the minimizer should use. This can be the
@@ -703,6 +704,9 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                 options['initial_trust_radius'] = trust_radius
             return options
 
+        if hessian is None:
+            hessian = BFGS
+
         minimizer_options = {}
         if options:
             minimizer_options['options'] = options
@@ -775,7 +779,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                    gradient estimation. This can be specified more clearly using the
                    arguments ``'2-point'`` and ``'3-point'``, which specify the
                    numerical algorithm the minimizer should use in order to
-                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+                   estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
             hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
                    that the minimizer should use. This can be the
                    hessian provided by the loss itself or
@@ -940,7 +944,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                    gradient estimation. This can be specified more clearly using the
                    arguments ``'2-point'`` and ``'3-point'``, which specify the
                    numerical algorithm the minimizer should use in order to
-                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+                   estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
 
             hessian: |@doc:minimizer.scipy.hessian| Define the method to use for the hessian computation
                    that the minimizer should use. This can be the
@@ -1017,6 +1021,8 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
             minimizer_options['options'] = options
 
         scipy_tols = {'xtol': None}
+        if hessian is None:
+            hessian = BFGS
 
         method = "Newton-CG"
         super().__init__(method=method, internal_tol=scipy_tols, gradient=gradient, hessian=hessian,
@@ -1088,7 +1094,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                    gradient estimation. This can be specified more clearly using the
                    arguments ``'2-point'`` and ``'3-point'``, which specify the
                    numerical algorithm the minimizer should use in order to
-                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+                   estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
 
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
@@ -1349,7 +1355,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                    gradient estimation. This can be specified more clearly using the
                    arguments ``'2-point'`` and ``'3-point'``, which specify the
                    numerical algorithm the minimizer should use in order to
-                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+                   estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
 
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:

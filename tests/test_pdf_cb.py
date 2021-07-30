@@ -90,8 +90,9 @@ def test_cb_dcb():
     assert not any(np.isnan(probsr))
 
     probsl_scipy = crystalball.pdf(x, beta=alphal, m=nl, loc=mu, scale=sigma)
-    probsr_scipy = crystalball.pdf(-x + 2 * mu, beta=alphar, m=nr, loc=mu, scale=sigma)
+    probsr_scipy = crystalball.pdf(-x + 2 * mu, beta=alphar, m=nr, loc=mu, scale=sigma)  # mirrored PDF
 
+    # We take the ration as the normalization is not fixed
     ratio_l = probsl_scipy / probsl
     ratio_r = probsr_scipy / probsr
 
@@ -104,8 +105,10 @@ def test_cb_dcb():
     intl = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
     assert pytest.approx(intl.numpy(), abs=1e-3) != 0
 
+    # TODO: update test to fixed DCB integral
     kwargs = dict(limits=(mu, 2.0), norm_range=rbounds)
-    intr = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
+    dcb_integr1 = dcb.integrate(**kwargs)
+    intr = cbr.integrate(**kwargs) - dcb_integr1
     assert pytest.approx(intr.numpy(), abs=1e-3) == 0.
     intr = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
     assert pytest.approx(intr.numpy(), abs=1e-3) != 0.

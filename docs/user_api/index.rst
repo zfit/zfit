@@ -14,15 +14,16 @@ insufficient!
 .. toctree::
     :maxdepth: 3
 
-    zfit.constraint
-    zfit.data
     zfit.dimension
-    zfit.exception
-    zfit.func
-    zfit.loss
-    zfit.minimize
+    zfit.data
     zfit.param
+    zfit.func
     zfit.pdf
-    zfit.util.typing
     zfit.sample
+    zfit.loss
+    zfit.constraint
+    zfit.minimize
+    zfit.result
     zfit.settings
+    zfit.exception
+    zfit.util.typing

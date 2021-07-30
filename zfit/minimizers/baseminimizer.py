@@ -135,13 +135,13 @@ class BaseMinimizer(ZfitMinimizer):
     }
 
     def __init__(self,
-                 tol: Optional[float],
-                 verbosity: Optional[int],
-                 criterion: Optional[ConvergenceCriterion],
-                 strategy: Optional[ZfitStrategy],
-                 minimizer_options: Optional[Dict],
-                 maxiter: Optional[Union[str, int]],
-                 name: Optional[str]) -> None:
+                 tol: Optional[float] = None,
+                 verbosity: Optional[int] = None,
+                 criterion: Optional[ConvergenceCriterion] = None,
+                 strategy: Optional[ZfitStrategy] = None,
+                 minimizer_options: Optional[Dict] = None,
+                 maxiter: Optional[Union[str, int]] = None,
+                 name: Optional[str] = None) -> None:
         """Base Minimizer to minimize loss functions and return a result.
 
         This class acts as a base class to implement a minimizer. The method `minimize` has to be overridden.
@@ -263,16 +263,27 @@ class BaseMinimizer(ZfitMinimizer):
         Returns:
             loss, params, init:
         """
+        # TODO: cleanup logic of setting parameter values
+        to_set_param_values = {}
+
         if isinstance(loss, ZfitResult):
             init = loss  # make the names correct
             loss = init.loss
             if params is None:
                 params = list(init.params)
-        to_set_param_values = {}
+            elif not any(isinstance(p, ZfitParameter) for p in params):
+                params_init = init.loss.get_params()
+                to_set_param_values = {p: val for p, val in zip(params_init, params)}
 
-        if isinstance(params, collections.Mapping) and all(isinstance(p, ZfitParameter) for p in params):
-            to_set_param_values = {p: val for p, val in params.items() if val is not None}
-            params = list(params.keys())
+        if isinstance(params, collections.Mapping):
+            if all(isinstance(p, ZfitParameter) for p in params):
+                to_set_param_values = {p: val for p, val in params.items() if val is not None}
+                params = list(params.keys())
+            elif all(isinstance(p, str) for p in params):
+                params = convert_to_parameters(params, prefer_constant=False)
+            else:
+                raise ValueError("if `params` argument is a dict, it must either contain parameters or fields"
+                                 " such as value, name etc.")
 
         # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
@@ -282,8 +293,17 @@ class BaseMinimizer(ZfitMinimizer):
                 raise ValueError("If the loss is a callable, the params cannot be None.")
 
             from zfit.core.loss import SimpleLoss
-            params = convert_to_parameters(params, prefer_constant=False)
+            convert_to_parameters(params, prefer_constant=False)
             loss = SimpleLoss(func=loss, params=params)
+
+        if isinstance(params, (tuple, list)) and not any(isinstance(p, ZfitParameter) for p in params):
+            loss_params = loss.get_params()
+            if len(params) != len(loss_params):
+                raise ValueError(
+                    "params initial values have to have the same length as the free parameters of the loss:"
+                    f" {len(params)} and {len(loss_params)} respectively.")
+            to_set_param_values = {p: val for p, val in zip(loss_params, params) if val is not None}
+            params = loss_params
 
         if params is None:
             params = loss.get_params(floating=floating)
@@ -382,7 +402,7 @@ class BaseMinimizer(ZfitMinimizer):
                     - ``upper``: array-like upper limits of the parameters,
                     - ``step_size``: array-like initial step size of the parameters (approximately the expected
                       uncertainty)
-                    ,
+
                 This will create internally a single parameter for each value that can be accessed in the `FitResult`
                 via params. Repeated calls can therefore (in the current implement) cause a memory increase.
                 The recommended way is to re-use parameters (just taken from the `FitResult` attribute `params`).
@@ -619,6 +639,9 @@ class BaseMinimizer(ZfitMinimizer):
     def _recover_result(self, prelim_result):
         warnings.warn("recovering result, yet no special functionality implemented yet.")
         return prelim_result
+
+
+BaseMinimizerV1 = BaseMinimizer
 
 
 class BaseStepMinimizer(BaseMinimizer):

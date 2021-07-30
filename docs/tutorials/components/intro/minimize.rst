@@ -18,7 +18,7 @@ zfit minimizers are stateless and have two main components:
 This makes minimizers interchangeable as they all are invoked in the same way and return a
 :class:`~zfit.result.FitResult`, which has the same structure for all minimizers.
 
-The zfit library is designed such that it is simpel to introduce new sets of minimizers.
+The zfit library is designed such that it is simple to introduce new sets of minimizers.
 
 Minimization
 -------------------
@@ -48,7 +48,7 @@ to the different nature of problem that they usually intend to solve, their perf
 
 
 Any of these minimizers can then be used to minimize the loss function we created
-in :ref:`previous section <loss-section>`, or a pure Python function
+in the :ref:`previous section <loss-section>`, or a pure Python function
 
 .. code-block:: pycon
 
@@ -74,7 +74,7 @@ refine with a local minimizer.
     >>> result_refined = minimizer_ipyopt.minimize(loss=my_loss, params=[mu, sigma], init=result)
 
 
-The result of the fit is return as a :py:class:`~zfit.minimizers.fitresult.FitResult` object,
+The result of the fit is returned as a :py:class:`~zfit.minimizers.fitresult.FitResult` object,
 which provides access the minimiser state.
 zfit separates the minimisation of the loss function with respect to the error calculation
 in order to give the freedom of calculating this error whenever needed.
@@ -103,7 +103,7 @@ The ``result`` object contains all the information about the minimization result
     mu=0.012464509810750313
 
 More on the result and how to get an estimate of the uncertainty is described in
-the :ref:`nexi section <result-section>`.
+the :ref:`next section <result-section>`.
 
 
 Creating your own minimizer

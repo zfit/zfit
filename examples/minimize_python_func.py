@@ -20,7 +20,7 @@ minimizer = zfit.minimize.IpyoptV1()
 
 
 # minimizer = zfit.minimize.Minuit()
-# minimizer = zfit.minimize.ScipyTrustKrylovV1()
+# minimizer = zfit.minimize.ScipyTrustConstrV1()
 # minimizer = zfit.minimize.NLoptLBFGSV1()
 
 

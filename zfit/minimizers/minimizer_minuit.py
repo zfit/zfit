@@ -170,7 +170,7 @@ class Minuit(BaseMinimizer, GraphCachable):
 
         self._minuit_minimizer = minimizer
 
-        valid = True
+        valid = False
         message = ""
         maxiter_reached = False
         for i in range(self._internal_maxiter):
@@ -209,6 +209,8 @@ class Minuit(BaseMinimizer, GraphCachable):
 
             if converged or maxiter_reached:
                 assign_values(params, z.convert_to_tensor(minimizer.values))  # make sure it's at the right value
+                if not maxiter_reached:
+                    valid = True
                 break
 
         fitresult = FitResult.from_minuit(loss=loss,

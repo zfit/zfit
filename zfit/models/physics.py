@@ -5,7 +5,7 @@ from typing import Type
 import numpy as np
 import tensorflow as tf
 
-import zfit
+import zfit.z.numpy as znp
 from zfit import z
 
 from ..core.basepdf import BasePDF
@@ -15,27 +15,28 @@ from ..util import ztyping
 
 
 def _powerlaw(x, a, k):
-    return a * tf.pow(x, k)
+    return a * znp.power(x, k)
 
 
 @z.function(wraps='zfit_tensor')
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
-    abs_alpha = tf.abs(alpha)
-    a = tf.pow((n / abs_alpha), n) * tf.exp(-0.5 * tf.square(alpha))
+    abs_alpha = znp.abs(alpha)
+    a = znp.power((n / abs_alpha), n) * znp.exp(-0.5 * znp.square(alpha))
     b = (n / abs_alpha) - abs_alpha
     cond = tf.less(t, -abs_alpha)
     func = z.safe_where(cond,
                         lambda t: _powerlaw(b - t, a, -n),
-                        lambda t: tf.exp(-0.5 * tf.square(t)),
+                        lambda t: znp.exp(-0.5 * tf.square(t)),
                         values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
-    func = tf.maximum(func, tf.zeros_like(func))
+    func = znp.maximum(func, tf.zeros_like(func))
     return func
 
 
 @z.function(wraps='zfit_tensor')
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
+
     func = tf.where(cond,
                     crystalball_func(x, mu, sigma, alphal, nl),
                     crystalball_func(x, mu, sigma, -alphar, nr))
@@ -62,70 +63,56 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
     sqrt2 = np.sqrt(2)
 
-    use_log = tf.less(tf.abs(n - 1.0), 1e-05)
-    abs_sigma = tf.abs(sigma)
-    abs_alpha = tf.abs(alpha)
+    use_log = tf.less(znp.abs(n - 1.0), 1e-05)
+    abs_sigma = znp.abs(sigma)
+    abs_alpha = znp.abs(alpha)
     tmin = (lower - mu) / abs_sigma
     tmax = (upper - mu) / abs_sigma
 
-    def if_true():
-        return tf.negative(tmin), tf.negative(tmax)
+    alpha_negative = tf.less(alpha, 0)
+    tmax, tmin = znp.where(alpha_negative, -tmin, tmax), znp.where(alpha_negative, -tmax, tmin)
 
-    def if_false():
-        return tmax, tmin
+    if_true_4 = abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
 
-    tmax, tmin = tf.cond(pred=tf.less(alpha, 0), true_fn=if_true, false_fn=if_false)
+    result_6 = 0.0
 
-    def if_true_4():
-        return abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
+    result_3 = result_6
+    a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
+    b = n / abs_alpha - abs_alpha
 
-    def if_false_4():
-        result_6 = 0.0
+    result_1, = result_3,
+    result_1 += a * abs_sigma * (znp.log(b - tmin) - znp.log(b - tmax))
+    if_true_1 = result_1
 
-        def if_true_3():
-            result_3 = result_6
-            a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
-            b = n / abs_alpha - abs_alpha
+    result_2, = result_3,
+    result_2 += a * abs_sigma / (1.0 - n) * (
+            1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(b - tmax, n - 1.0))
+    if_false_1 = result_2
 
-            def if_true_1():
-                result_1, = result_3,
-                result_1 += a * abs_sigma * (tf.math.log(b - tmin) - tf.math.log(b - tmax))
-                return result_1
+    result_3 = tf.where(use_log, if_true_1, if_false_1)
+    if_true_3 = result_3
 
-            def if_false_1():
-                result_2, = result_3,
-                result_2 += a * abs_sigma / (1.0 - n) * (
-                    1.0 / tf.pow(b - tmin, n - 1.0) - 1.0 / tf.pow(b - tmax, n - 1.0))
-                return result_2
+    result_4, = result_6,
+    a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
+    b = n / abs_alpha - abs_alpha
 
-            result_3 = tf.cond(pred=use_log, true_fn=if_true_1, false_fn=if_false_1)
-            return result_3
+    if_true_2 = a * abs_sigma * (znp.log(b - tmin) - znp.log(n / abs_alpha))
 
-        def if_false_3():
-            result_4, = result_6,
-            a = tf.pow(n / abs_alpha, n) * tf.exp(-0.5 * tf.square(abs_alpha))
-            b = n / abs_alpha - abs_alpha
+    term1 = a * abs_sigma / (1.0 - n) * (
+            1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(n / abs_alpha, n - 1.0))
+    if_false_2 = term1
 
-            def if_true_2():
-                term1 = a * abs_sigma * (tf.math.log(b - tmin) - tf.math.log(n / abs_alpha))
-                return term1
+    term1 = tf.where(use_log, if_true_2, if_false_2)
+    term2 = abs_sigma * sqrt_pi_over_two * (
+            tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
+    result_4 += term1 + term2
+    if_false_3 = result_4
 
-            def if_false_2():
-                term1 = a * abs_sigma / (1.0 - n) * (
-                    1.0 / tf.pow(b - tmin, n - 1.0) - 1.0 / tf.pow(n / abs_alpha, n - 1.0))
-                return term1
-
-            term1 = tf.cond(pred=use_log, true_fn=if_true_2, false_fn=if_false_2)
-            term2 = abs_sigma * sqrt_pi_over_two * (
-                tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
-            result_4 += term1 + term2
-            return result_4
-
-        result_6 = tf.cond(pred=tf.less_equal(tmax, -abs_alpha), true_fn=if_true_3, false_fn=if_false_3)
-        return result_6
+    result_6 = tf.where(tf.less_equal(tmax, -abs_alpha), if_true_3, if_false_3)
+    if_false_4 = result_6
 
     # if_false_4()
-    result = tf.cond(pred=tf.greater_equal(tmin, -abs_alpha), true_fn=if_true_4, false_fn=if_false_4)
+    result = tf.where(tf.greater_equal(tmin, -abs_alpha), if_true_4, if_false_4)
     if not result.shape.rank == 0:
         result = tf.gather(result, 0, axis=-1)  # remove last dim, should vanish
     return result
@@ -136,7 +123,7 @@ def double_crystalball_mu_integral(limits, params, model):
     sigma = params['sigma']
     alphal = params["alphal"]
     nl = params["nl"]
-    alphar = -params["alphar"]
+    alphar = params["alphar"]
     nr = params["nr"]
 
     lower, upper = limits._rect_limits_tf
@@ -147,12 +134,12 @@ def double_crystalball_mu_integral(limits, params, model):
 
 @z.function(wraps='zfit_tensor')
 def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower, upper):
-    left = tf.cond(pred=tf.less(mu, lower), true_fn=lambda: z.constant(0.),
-                   false_fn=lambda: crystalball_integral_func(mu=mu, sigma=sigma, alpha=alphal, n=nl,
-                                                              lower=lower, upper=mu))
-    right = tf.cond(pred=tf.greater(mu, upper), true_fn=lambda: z.constant(0.),
-                    false_fn=lambda: crystalball_integral_func(mu=mu, sigma=sigma, alpha=alphar, n=nr,
-                                                               lower=mu, upper=upper))
+    integral_left = crystalball_integral_func(mu=mu, sigma=sigma, alpha=alphal, n=nl, lower=lower, upper=mu)
+    left = tf.where(tf.less(mu, lower), znp.zeros_like(integral_left), integral_left)
+
+    integral_right = crystalball_integral_func(mu=mu, sigma=sigma, alpha=-alphar, n=nr, lower=mu, upper=upper)
+    right = tf.where(tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right)
+
     integral = left + right
     return integral
 

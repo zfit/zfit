@@ -5,6 +5,8 @@ from typing import Callable, Iterable, List, Optional, Tuple, Union
 import tensorflow as tf
 from tensorflow_probability import distributions as tfd
 
+import zfit.z.numpy as znp
+
 from .. import settings, z
 from ..settings import run, ztypes
 from ..util import ztyping
@@ -46,8 +48,8 @@ class UniformSampleAndWeights:
             thresholds_unscaled_list.append(thresholds_unscaled)
             n_produced += n_partial_to_produce
 
-        rnd_sample = tf.concat(rnd_samples, axis=0)
-        thresholds_unscaled = tf.concat(thresholds_unscaled_list, axis=0)
+        rnd_sample = znp.concatenate(rnd_samples, axis=0)
+        thresholds_unscaled = znp.concatenate(thresholds_unscaled_list, axis=0)
 
         n_drawn = n_to_produce
         return rnd_sample, thresholds_unscaled, weights, weights, n_drawn
@@ -207,7 +209,7 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
     @z.function(wraps='tensor')
     def sample_body(n, sample, n_produced=0, n_total_drawn=0, eff=1.0, is_sampled=None, weights_scaling=0.,
                     weights_maximum=0., prob_maximum=0., n_min_to_produce=10000):
-        eff = tf.reduce_max(input_tensor=[eff, z.to_real(1e-6)])
+        eff = znp.max([eff, z.to_real(1e-6)])
         n_to_produce = n - n_produced
 
         if isinstance(limits, EventSpace):  # EXPERIMENTAL(Mayou36): added to test EventSpace
@@ -228,16 +230,16 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
             eff_precision: int = 100
             one_over_eff_int = tf.cast(1 / eff * 1.01 * eff_precision, dtype=tf.int64)
             n_to_produce *= one_over_eff_int
-            n_to_produce = tf.math.floordiv(n_to_produce, eff_precision)
+            n_to_produce = znp.floor_divide(n_to_produce, eff_precision)
             # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
             # n_to_produce = tf.cast(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
-            n_to_produce = tf.maximum(n_to_produce, n_min_to_produce)
+            n_to_produce = znp.maximum(n_to_produce, n_min_to_produce)
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.constant(800000, dtype=tf.int64)
             tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
             # TODO: remove below? was there due to overflow in tf?
-            # n_to_produce = tf.maximum(5, n_to_produce)  # protect against overflow, n_to_prod -> neg.
-            n_to_produce = tf.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
+            # n_to_produce = znp.maximum(5, n_to_produce)  # protect against overflow, n_to_prod -> neg.
+            n_to_produce = znp.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
             new_limits = limits  # because limits in the vector space case can change
         else:
             # TODO(Mayou36): add cap for n_to_produce here as well
@@ -267,24 +269,24 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
         if prob_max_init is None or weights_max is None:  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
 
             # safety margin, predicting future, improve for small samples?
-            weights_maximum_new = tf.reduce_max(input_tensor=weights)
-            weights_maximum = tf.maximum(weights_maximum, weights_maximum_new)
+            weights_maximum_new = znp.max(weights)
+            weights_maximum = znp.maximum(weights_maximum, weights_maximum_new)
             # if run.numeric_checks:
             #     tf.debugging.assert_greater_equal(weights, weights_maximum * 1e-5, message="The ")
-            weights_clipped = tf.maximum(weights, weights_maximum * 1e-5)
+            weights_clipped = znp.maximum(weights, weights_maximum * 1e-5)
             # prob_weights_ratio = probabilities / weights
-            prob_maximum_new = tf.reduce_max(probabilities)
-            prob_maximum = tf.maximum(prob_maximum, prob_maximum_new)
+            prob_maximum_new = znp.max(probabilities)
+            prob_maximum = znp.maximum(prob_maximum, prob_maximum_new)
             # prob_weights_ratio = probabilities / weights_clipped
-            prob_weights_ratio_max = tf.reduce_max(probabilities / weights_clipped)
-            max_prob_weights_ratio = tf.maximum(prob_maximum / weights_maximum, prob_weights_ratio_max)
+            prob_weights_ratio_max = znp.max(probabilities / weights_clipped)
+            max_prob_weights_ratio = znp.maximum(prob_maximum / weights_maximum, prob_weights_ratio_max)
             # clipping means that we don't scale more for a certain threshold
             # to properly account for very small numbers, the thresholds should be scaled to match the ratio
             # but if a weight of a sample is very low (compared to the other weights), this would force the acceptance
             # of other samples to decrease strongly. We introduce a cut here, meaning that any event with an acceptance
             # chance of less then 1 in ratio_threshold will be underestimated.
             # TODO(Mayou36): make ratio_threshold a global setting
-            # max_prob_weights_ratio_clipped = tf.minimum(max_prob_weights_ratio,
+            # max_prob_weights_ratio_clipped = znp.minimum(max_prob_weights_ratio,
             #                                             min_prob_weights_ratio * ratio_threshold)
             # max_prob_weights_ratio_clipped = max_prob_weights_ratio
             new_scaling_needed = max_prob_weights_ratio > weights_scaling
@@ -302,9 +304,9 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
                                  calc_new_n_produced,
                                  lambda: n_produced)
             # TODO: for fixed array shape?
-            # weights_scaling = tf.maximum(max_prob_weights_ratio, weights_scaling)
+            # weights_scaling = znp.maximum(max_prob_weights_ratio, weights_scaling)
 
-            # weights_scaling = tf.maximum(weights_scaling, max_prob_weights_ratio_clipped * (1 + 1e-2))
+            # weights_scaling = znp.maximum(weights_scaling, max_prob_weights_ratio_clipped * (1 + 1e-2))
         else:
             weights_scaling = prob_max / weights_max
 
@@ -365,8 +367,8 @@ def accept_reject_sample(prob: Callable, n: int, limits: ZfitSpace,
         sample_new = sample.scatter(indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get
-        eff = tf.reduce_max(input_tensor=[z.to_real(n_produced_new), z.to_real(1.)]) / tf.reduce_max(
-            input_tensor=[z.to_real(n_total_drawn), z.to_real(1.)])
+        eff = znp.max([z.to_real(n_produced_new), z.to_real(1.)]) / znp.max(
+            [z.to_real(n_total_drawn), z.to_real(1.)])
         return (
             n, sample_new, n_produced_new, n_total_drawn, eff, is_sampled, weights_scaling, weights_maximum,
             prob_maximum, n_min_to_produce
@@ -454,5 +456,5 @@ def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) ->
         # sample.set_shape((n, limits.n_obs))
         samples.append(sample)
 
-    samples = tf.concat(samples, axis=0)
+    samples = znp.concatenate(samples, axis=0)
     return samples

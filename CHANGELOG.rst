@@ -2,6 +2,8 @@
 Changelog
 *********
 
+.. _newest-changelog:
+
 Develop
 ========
 
@@ -19,9 +21,48 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- Double crystallball: move a minus sign down, vectorize the integral
 
 Experimental
 ------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
+0.7.2 (7. July 2021)
+======================
+
+Bug fixes and small changes
+---------------------------
+- fix wrong arguments to `minimize`
+- make BaseMinimizer arguments optional
+
+0.7.1 (6. July 2021)
+======================
+
+
+Bug fixes and small changes
+---------------------------
+- make loss callable with array arguments and therefore combatible with iminuit cost functions.
+- fix a bug that allowed FitResults to be valid that are actually invalid (reported by Maxime Schubiger).
+
+
+0.7.0 (03 Jun 2021)
+=====================
+
+Major Features and Improvements
+-------------------------------
+- add Python 3.9 support
+- upgrade to TensorFlow 2.5
+
+Bug fixes and small changes
+---------------------------
+- Scipy minimizers with hessian arguments use now `BFGS` as default
+
 
 Requirement changes
 -------------------
@@ -30,8 +71,20 @@ Requirement changes
 - boost-histogram
 
 
-Thanks
-------
+
+0.6.6 (12.05.2021)
+==================
+
+Update ipyopt requirement < 0.12 to allow numpy compatible with TensorFlow
+
+0.6.5 (04.05.2021)
+==================
+
+- hotfix for wrong argument in exponential PDF
+- removed requirement ipyopt, can be installed with `pip install zfit[ipyopt]`
+  or by manually installing `pip install ipyopt`
+
+
 
 0.6.4 (16.4.2021)
 ==================

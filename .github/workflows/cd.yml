@@ -9,13 +9,14 @@ on:
       - master
       - develop
       - "release/*"
+      - "hotfix/*"
   pull_request:
 
 jobs:
   dist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v2
@@ -41,6 +42,6 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.1
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           password: ${{ secrets.PYPI_ZFIT_TOKEN }}

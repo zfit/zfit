@@ -186,7 +186,7 @@ def test_normalization(obs1, pdf_factory):
         probs = dist.pdf(samples)
         probs_small = dist.pdf(small_samples)
         log_probs = dist.log_pdf(small_samples)
-        probs, log_probs = probs.numpy(), log_probs.numpy()
+        probs, log_probs = zfit.run(probs, log_probs)
         probs = np.average(probs) * (high - low)
         assert probs == pytest.approx(1., rel=0.05)
         assert log_probs == pytest.approx(tf.math.log(probs_small).numpy(), rel=0.05)

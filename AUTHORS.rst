@@ -3,7 +3,7 @@ Authors
 ========
 
 | Jonas Eschle <Jonas.Eschle@cern.ch>
-| Albert Puig <apuignav@gmail.com>
+| Albert Puig <albert@protonmail.com>
 | Rafael Silva Coutinho <rsilvaco@cern.ch>
 | Nicola Serra <nserra@cern.ch>
 | Matthieu Marinangeli <matthieu.marinangeli@cern.ch>
