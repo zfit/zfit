@@ -1,6 +1,10 @@
+from __future__ import annotations
+
+from collections.abc import Iterable
+from collections.abc import Callable
 #  Copyright (c) 2021 zfit
 from contextlib import suppress
-from typing import Callable, Union, Iterable, List, Tuple
+from typing import Union, Optional
 
 import numpy as np
 import tensorflow as tf
@@ -165,10 +169,10 @@ class BaseBinnedPDF(
     def set_norm_range(self, norm_range):
         return self._norm
 
-    def create_extended(self, yield_: ztyping.ParamTypeInput) -> "ZfitPDF":
+    def create_extended(self, yield_: ztyping.ParamTypeInput) -> ZfitPDF:
         raise WorkInProgressError
 
-    def get_yield(self) -> Union[ZfitParameter, None]:
+    def get_yield(self) -> ZfitParameter | None:
         # TODO: catch
         return self._yield
 
@@ -197,9 +201,9 @@ class BaseBinnedPDF(
         return self._norm
 
     # TODO: factor out with unbinned pdf
-    def convert_sort_space(self, obs: Union[ztyping.ObsTypeInput, ztyping.LimitsTypeInput] = None,
+    def convert_sort_space(self, obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
                            axes: ztyping.AxesTypeInput = None,
-                           limits: ztyping.LimitsTypeInput = None) -> Union[ZfitSpace, None]:
+                           limits: ztyping.LimitsTypeInput = None) -> ZfitSpace | None:
         """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
         own `obs`.
 
@@ -223,6 +227,17 @@ class BaseBinnedPDF(
 
 
 register_tensor_conversion(BaseBinnedPDF)
+
+
+class BinnedFromUnbinned(BaseBinnedPDF):
+
+    def __init__(self, pdf, space, extended=None, norm=None):
+        super().__init__(obs=space, extended=extended, norm=norm, params={})
+        self.pdfs = pdf
+
+    def _get_params(self, floating: bool | None = True, is_yield: bool | None = None,
+                    extract_independent: bool | None = True) -> set[ZfitParameter]:
+        return self.pdfs[0].get_params(floating=floating, is_yield=is_yield, extract_independent=extract_independent)
 
 
 # TODO: extend with partial integration. Axis parameter?
@@ -255,8 +270,8 @@ def binned_rect_integration(values: znp.array, edges: Iterable[znp.array], limit
 
 
 @z.function(wraps='tensor')
-def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace) -> Tuple[
-    List[znp.array], Tuple[znp.array, znp.array]]:
+def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace) -> tuple[
+    list[znp.array], tuple[znp.array, znp.array]]:
     """Cut the *edges* according to *limits* and calculate the bins inside.
 
     The edges within limits are calculated and returned together with the corresponding bin indices. The indices
@@ -447,10 +462,10 @@ class BaseBinnedPDFV1(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF
     def set_norm_range(self, norm_range):
         return self._norm_range
 
-    def create_extended(self, yield_: ztyping.ParamTypeInput) -> "ZfitPDF":
+    def create_extended(self, yield_: ztyping.ParamTypeInput) -> ZfitPDF:
         raise WorkInProgressError
 
-    def get_yield(self) -> Union[ZfitParameter, None]:
+    def get_yield(self) -> ZfitParameter | None:
         # TODO: catch
         return self._yield
 
@@ -490,9 +505,9 @@ class BaseBinnedPDFV1(BaseNumeric, GraphCachable, BaseDimensional, ZfitBinnedPDF
         return self._norm_range
 
     # TODO: factor out with unbinned pdf
-    def convert_sort_space(self, obs: Union[ztyping.ObsTypeInput, ztyping.LimitsTypeInput] = None,
+    def convert_sort_space(self, obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
                            axes: ztyping.AxesTypeInput = None,
-                           limits: ztyping.LimitsTypeInput = None) -> Union[ZfitSpace, None]:
+                           limits: ztyping.LimitsTypeInput = None) -> ZfitSpace | None:
         """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
         own `obs`.
 
