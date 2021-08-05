@@ -1120,6 +1120,7 @@ class Space(BaseSpace):
                 binning = [[axis for axis in binning if axis.name == ob][0] for ob in obs]
             else:
                 obs = [axis.name for axis in binning]
+            binning = NamedAxesTuple(binning)
             limits = [[], []]
             for axis in binning:
                 limits[0].append(axis.edges[0])

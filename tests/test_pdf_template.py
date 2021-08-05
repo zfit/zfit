@@ -1,13 +1,17 @@
 #  Copyright (c) 2021 zfit
 
 import boost_histogram as bh
+import hist
 import numpy as np
 import progressbar
+from boost_histogram._internal.axestuple import AxesTuple
+
+import zfit.z.numpy as znp
 import pytest
 
 import zfit
 from zfit._loss.binnedloss import ExtendedBinnedNLL
-from zfit.core.binneddata import BinnedDataV1
+from zfit.core.binneddata import BinnedDataV1, BinnedData
 from zfit.core.binning import RectBinning
 from zfit.models.binned_functor import BinnedSumPDF
 from zfit.models.template import BinnedTemplatePDF
@@ -19,25 +23,37 @@ def test_binned_template_pdf():
     counts = np.random.uniform(high=1, size=(bins1, bins2))  # generate counts
     counts2 = np.random.normal(loc=5, size=(bins1, bins2))
     counts3 = np.linspace(0, 10, num=bins1)[:, None] * np.linspace(0, 5, num=bins2)[None, :]
-    binnings = [bh.axis.Regular(bins1, 0, 10), bh.axis.Regular(7, -10, bins2)]
-    binning = RectBinning(binnings=binnings)
+    binnings = [hist.axis.Regular(bins1, 0, 10, name='obs1'), hist.axis.Regular(7, -10, bins2, name='obs2')]
+    binning = binnings
+    axes = AxesTuple(binning)
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 
-    data = BinnedDataV1.from_numpy(obs=obs, counts=counts, w2error=10)
-    data2 = BinnedDataV1.from_numpy(obs=obs, counts=counts2, w2error=10)
-    data3 = BinnedDataV1.from_numpy(obs=obs, counts=counts3, w2error=10)
+    data = BinnedData.from_tensor(space=obs, values=counts, variances=znp.ones_like(counts) * 1.3)
+    data2 = BinnedData.from_tensor(obs, counts2)
+    data3 = BinnedData.from_tensor(obs, counts3)
 
     pdf = BinnedTemplatePDF(data=data)
     pdf2 = BinnedTemplatePDF(data=data2)
     pdf3 = BinnedTemplatePDF(data=data3)
-    pdf.set_yield(np.sum(counts))
-    pdf2.set_yield(np.sum(counts2))
-    pdf3.set_yield(np.sum(counts3))
+    pdf._set_yield(np.sum(counts))
+    pdf2._set_yield(np.sum(counts2))
+    pdf3._set_yield(np.sum(counts3))
     assert len(pdf.ext_pdf(None)) > 0
     pdf_sum = BinnedSumPDF(pdfs=[pdf, pdf2, pdf3], obs=obs)
 
     probs = pdf_sum.ext_pdf(None)
-    np.testing.assert_allclose(counts + counts2 + counts3, probs)
+    true_sum_counts = counts + counts2 + counts3
+    np.testing.assert_allclose(true_sum_counts, probs)
+    hist_sum = pdf + pdf2 + pdf3
+    np.testing.assert_allclose(true_sum_counts, hist_sum)
+    nsamples = 100_000_000
+    sample = pdf_sum.sample(n=nsamples)
+    np.testing.assert_allclose(true_sum_counts, sample / nsamples * pdf_sum.get_yield(), rtol=0.03)
+
+    # integrate
+    true_integral = znp.sum(true_sum_counts * np.prod(axes.widths, axis=0))
+    integral = pdf_sum.ext_integrate(limits=obs)
+    assert pytest.approx(float(true_integral)) == float(integral)
 
     # import matplotlib.pyplot as plt
     # plt.imshow(probs)
@@ -53,8 +69,8 @@ def test_binned_template_pdf_bbfull():
     counts1 = np.random.uniform(high=150, size=(bins1, bins2))  # generate counts
     counts2 = np.random.normal(loc=50, size=(bins1, bins2))
     counts3 = np.linspace(10, 100, num=bins1)[:, None] * np.linspace(10, 500, num=bins2)[None, :]
-    binnings = [bh.axis.Regular(bins1, 0, 10), bh.axis.Regular(7, -10, bins2)]
-    binning = RectBinning(binnings=binnings)
+    binnings = [hist.axis.Regular(bins1, 0, 10, name='obs1'), hist.axis.Regular(7, -10, bins2, name='obs2')]
+    binning = binnings
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
     mc1 = BinnedDataV1.from_numpy(obs=obs, counts=counts1, w2error=1)
     mc2 = BinnedDataV1.from_numpy(obs=obs, counts=counts2, w2error=1)
@@ -71,9 +87,9 @@ def test_binned_template_pdf_bbfull():
     pdf1 = BinnedTemplatePDF(data=mc1)
     pdf2 = BinnedTemplatePDF(data=mc2)
     pdf3 = BinnedTemplatePDF(data=mc3)
-    pdf1.set_yield(np.sum(counts1))
-    pdf2.set_yield(np.sum(counts2))
-    pdf3.set_yield(np.sum(counts3))
+    pdf1._set_yield(np.sum(counts1))
+    pdf2._set_yield(np.sum(counts2))
+    pdf3._set_yield(np.sum(counts3))
     assert len(pdf1.ext_pdf(None)) > 0
     pdf_sum = BinnedSumPDF(pdfs=[pdf1, pdf2, pdf3], obs=obs)
     counts1_flat = np.reshape(counts1, -1)

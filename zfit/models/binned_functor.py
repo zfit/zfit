@@ -28,7 +28,7 @@ class BinnedSumPDF(FunctorMixin, BaseBinnedPDF):
 
         if not all(model.is_extended for model in self.models):
             raise RuntimeError
-        self.set_yield(tf.reduce_sum([m.get_yield() for m in self.models]))
+        self._set_yield(tf.reduce_sum([m.get_yield() for m in self.models]))
 
     @property
     def _models(self) -> List[ZfitModel]:

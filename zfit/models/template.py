@@ -14,7 +14,7 @@ class BinnedTemplatePDF(BaseBinnedPDF):
         obs = data.space
         if sysshape is None:
             sysshape = {f'sysshape_{i}': zfit.Parameter(f'auto_sysshape_{self}_{i}', 1.) for i in
-                        range(data.get_counts().shape.num_elements())}
+                        range(data.values().shape.num_elements())}
         params = {}
         params.update(sysshape)
         super().__init__(obs=obs, name=name, params=params)
@@ -23,6 +23,6 @@ class BinnedTemplatePDF(BaseBinnedPDF):
 
     def _ext_pdf(self, x, norm_range):
         sysshape_flat = tf.stack([p for name, p in self.params.items() if name.startswith('sysshape')])
-        counts = self._data.get_counts()
+        counts = self._data.values()
         sysshape = tf.reshape(sysshape_flat, counts.shape)
         return counts * sysshape

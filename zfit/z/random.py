@@ -10,6 +10,7 @@ from .zextension import function as function
 __all__ = ["counts_multinomial", "sample_with_replacement"]
 
 from ..settings import ztypes
+from ..z import numpy as znp
 
 
 def sample_with_replacement(a: tf.Tensor, axis: int, sample_shape: Tuple[int]) -> tf.Tensor:
@@ -75,12 +76,13 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
     # needed since otherwise shape of sample will be (1, n_probs)
     # total_count = tf.broadcast_to(total_count, shape=probs_logits_shape)
 
-    @function
+    # @function
     def wrapped_func(dtype, logits, probs, total_count):
-
-        dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
-        counts = dist.sample()
-        counts = tf.cast(counts, dtype=dtype)
+        probs_flat = znp.reshape(probs, -1)
+        dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs_flat, logits=logits)
+        counts_flat = dist.sample()
+        counts_flat = tf.cast(counts_flat, dtype=dtype)
+        counts = znp.reshape(counts_flat, probs.shape)
         return counts
 
     return wrapped_func(dtype, logits, probs, total_count)

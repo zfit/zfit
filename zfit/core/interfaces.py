@@ -801,8 +801,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         raise NotImplementedError
 
     @abstractmethod
-    def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
-                  name: str = "integrate") -> ztyping.XType:
+    def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
@@ -935,6 +934,15 @@ class ZfitFunctorMixin:
 class ZfitConstraint(abc.ABC):
     @abstractmethod
     def value(self):
+        raise NotImplementedError
+
+
+class ZfitMinimalHist():
+
+    def values(self):
+        raise NotImplementedError
+
+    def axes(self):
         raise NotImplementedError
 
 
