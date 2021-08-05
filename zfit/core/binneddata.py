@@ -98,14 +98,14 @@ class BinnedData(tfp.experimental.AutoCompositeTensor, OverloadableMixinValues):
 
     def to_hist(self) -> hist.NamedHist:
         h = hist.NamedHist(*self.holder.space.binning, storage=bh.storage.Weight)
-        h.view(flow=True).value = self.values()
-        h.view(flow=True).variance = self.variances()
+        h.view(flow=False).value = self.values()
+        h.view(flow=False).variance = self.variances()
         return h
 
     def _to_boost_histogram_(self):
         h = bh.Histogram(*self.holder.space.binning, storage=bh.storage.Weight)
-        h.view(flow=True).value = self.values()
-        h.view(flow=True).variance = self.variances()
+        h.view(flow=False).value = self.values()
+        h.view(flow=False).variance = self.variances()
 
         # h[...] = np.stack([self.values(), self.variances()], axis=-1)
         return h
