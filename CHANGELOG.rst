@@ -22,6 +22,7 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 - Double crystallball: move a minus sign down, vectorize the integral
+- add a minimal value in the loss to avoid NaNs when taking the log of 0
 
 Experimental
 ------------
