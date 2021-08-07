@@ -34,7 +34,7 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
             if isinstance(value, tuple(non_containers)):
                 raise TypeError
             value = container(value)
-        except TypeError:
+        except (TypeError, AttributeError):  # by tf, it can't convert
             value = container((value,))
     return value
 

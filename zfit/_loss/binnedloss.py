@@ -4,11 +4,17 @@ from typing import Iterable, Optional, Union
 import tensorflow as tf
 
 from .. import z
+from ..z import numpy as znp
 from ..core.interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitPDF, ZfitData
 from ..core.loss import BaseLoss
 from ..util import ztyping
 from ..util.checks import NONE
 
+
+def _spd_transform(values, probs, variances):
+    # Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
+    scale = values * tf.math.reciprocal_no_nan(variances)
+    return values * scale, probs * scale
 
 class ExtendedBinnedNLL(BaseLoss):
 
@@ -22,9 +28,17 @@ class ExtendedBinnedNLL(BaseLoss):
                    fit_range, constraints, log_offset):
         poisson_terms = []
         for mod, dat in zip(model, data):
-            poisson_terms.append(tf.nn.log_poisson_loss(dat.get_counts(obs=mod.obs),  # TODO: correct offset
-                                                        tf.math.log(
-                                                            mod.ext_pdf(None))) + log_offset)  # TODO: change None
+            values = dat.values(  # TODO: right order of model and data?
+                # obs=mod.obs
+            )
+            variances = dat.variances()
+            probs = mod.values()
+            if variances is not None:
+                values, probs = _spd_transform(values, probs, variances=variances)
+
+            poisson_terms.append(tf.nn.log_poisson_loss(values,  # TODO: correct offset
+                                                        znp.log(
+                                                            probs)) + log_offset)  # TODO: change None
         nll = tf.reduce_sum(poisson_terms)
 
         if constraints:

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
-from collections.abc import Callable
+from collections.abc import Iterable, Callable
 #  Copyright (c) 2021 zfit
 from contextlib import suppress
 
@@ -9,6 +8,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
+import zfit
 import zfit.z.numpy as znp
 from zfit import z
 from zfit.core.binneddata import BinnedData
@@ -143,6 +143,7 @@ class BaseBinnedPDF(
                                       " https://github.com/zfit/zfit/issues/new/choose")
         probs = self.ext_pdf(None, norm=False)  # TODO: why did this not fully work out? Why probs are normed to 10?
         values = z.random.counts_multinomial(n, probs=probs / znp.sum(probs))
+
         data = BinnedData.from_tensor(space=limits, values=values, variances=None)
         return data
 
@@ -241,19 +242,29 @@ class BinnedFromUnbinned(BaseBinnedPDF):
     # @z.function
     def _unnormalized_pdf(self, x):
         pdf = self.pdfs[0]
-        edge = self.axes.edges[0]  # HACK 1D only
+        # edge = self.axes.edges[0]  # HACK 1D only
+        edges = [znp.array(edge) for edge in self.axes.edges]
+        edges_flat = [znp.reshape(edge, [-1]) for edge in edges]
+        lowers = [edge[:-1] for edge in edges_flat]
+        uppers = [edge[1:] for edge in edges_flat]
+        lowers_meshed = znp.meshgrid(*lowers, indexing='ij')
+        uppers_meshed = znp.meshgrid(*uppers, indexing='ij')
+        shape = tf.shape(lowers_meshed[0])
+        lowers_meshed_flat = [znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed]
+        uppers_meshed_flat = [znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed]
+        lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
+        upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
 
         # @z.function
         def integrate_one(limits):
             l, u = tf.unstack(limits)
-            limits = [[l], [u]]
-            return pdf.integrate(limits, norm_range=False)
+            limits_space = zfit.Space(obs=self.obs, limits=[l, u])
+            return pdf.integrate(limits_space, norm_range=False)
 
-        lower = edge[:-1]
-        upper = edge[1:]
-        limits = znp.stack([lower, upper], axis=-1)
+        limits = znp.stack([lower_flat, upper_flat], axis=1)
         # values = tf.map_fn(integrate_one, limits)
         values = tf.vectorized_map(integrate_one, limits)[:, 0]
+        values = znp.reshape(values, shape)
         return values
 
 

@@ -946,15 +946,15 @@ class ZfitMinimalHist():
         raise NotImplementedError
 
 
-class ZfitBinnedData(ZfitDimensional):
+class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist):
 
     @abstractmethod
-    def get_counts(self, bins, obs):
+    def variances(self):
         raise NotImplementedError
 
-    @abstractmethod
-    def weights_error_squared(self):  # TODO: name?
-        raise NotImplementedError
+    # @abstractmethod
+    # def counts(self):  # TODO: name?
+    #     raise NotImplementedError
 
     # @abstractmethod
     # def binning(self):

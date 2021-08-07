@@ -78,11 +78,16 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
 
     # @function
     def wrapped_func(dtype, logits, probs, total_count):
-        probs_flat = znp.reshape(probs, -1)
-        dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs_flat, logits=logits)
+        if probs is not None:
+            shape = probs.shape
+            probs = znp.reshape(probs, [-1])
+        else:
+            shape = logits.shape
+            logits = znp.reshape(logits, [-1])
+        dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
         counts_flat = dist.sample()
         counts_flat = tf.cast(counts_flat, dtype=dtype)
-        counts = znp.reshape(counts_flat, probs.shape)
+        counts = znp.reshape(counts_flat, shape)
         return counts
 
     return wrapped_func(dtype, logits, probs, total_count)

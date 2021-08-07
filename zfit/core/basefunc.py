@@ -7,7 +7,6 @@ TODO(Mayou36): subclassing?
 import abc
 import typing
 
-import tensorflow as tf
 
 import zfit
 from zfit.util.exception import (ShapeIncompatibleError,
@@ -19,7 +18,7 @@ from .basemodel import BaseModel
 from .interfaces import ZfitFunc
 
 
-class BaseFunc(BaseModel, ZfitFunc):
+class BaseFuncV1(BaseModel, ZfitFunc):
 
     def __init__(self, obs=None, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
                  params: typing.Any = None):

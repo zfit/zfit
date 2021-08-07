@@ -99,14 +99,14 @@ def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
     if not (isinstance(param, ZfitParameter) and isinstance(func, ZfitFunc)):
         raise TypeError("`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not "
                         "{}, {}".format(param, func))
-    from ..models.functions import SimpleFunc
+    from ..models.functions import SimpleFuncV1
 
     def combined_func(x):
         return param * func.func(x=x)
 
     params = {param.name: param}
     params.update(func.params)
-    new_func = SimpleFunc(func=combined_func, obs=func.obs, **params)  # TODO: implement with new parameters
+    new_func = SimpleFuncV1(func=combined_func, obs=func.obs, **params)  # TODO: implement with new parameters
     return new_func
 
 
@@ -212,9 +212,9 @@ def convert_pdf_to_func(pdf: ZfitPDF, norm_range: ztyping.LimitsType) -> ZfitFun
     def value_func(x):
         return pdf.pdf(x, norm_range=norm_range)
 
-    from ..models.functions import SimpleFunc
+    from ..models.functions import SimpleFuncV1
 
-    func = SimpleFunc(func=value_func, obs=pdf.obs, name=pdf.name + "_as_func", **pdf.params)
+    func = SimpleFuncV1(func=value_func, obs=pdf.obs, name=pdf.name + "_as_func", **pdf.params)
     return func
 
 
@@ -223,8 +223,8 @@ def convert_func_to_pdf(func: Union[ZfitFunc, Callable], obs=None, name=None) ->
     if not isinstance(func, ZfitFunc) and callable(func):
         if obs is None:
             raise ValueError("If `func` is a function, `obs` has to be specified.")
-        from ..models.functions import SimpleFunc
-        func = SimpleFunc(func=func, obs=obs, name=func_name)
+        from ..models.functions import SimpleFuncV1
+        func = SimpleFuncV1(func=func, obs=obs, name=func_name)
     from ..models.special import SimplePDF
 
     name = func.name if name is None else func_name

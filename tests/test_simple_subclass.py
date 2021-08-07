@@ -36,7 +36,7 @@ def test_pdf_simple_subclass():
 
 
 def test_func_simple_subclass():
-    class SimpleGaussFunc(zfit.func.ZFunc):
+    class SimpleGaussFunc(zfit.func.ZFuncV1):
         _PARAMS = ['mu', 'sigma']
 
         def _func(self, x):
@@ -52,7 +52,7 @@ def test_func_simple_subclass():
     with pytest.raises(ValueError):
         gauss2 = SimpleGaussFunc('obs1', 1., sigma=5.)
     with pytest.raises(SubclassingError):
-        class SimpleGauss2(zfit.func.ZFunc):
+        class SimpleGauss2(zfit.func.ZFuncV1):
 
             def _func(self, x):
                 mu = self.params['mu']

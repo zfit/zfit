@@ -5,6 +5,7 @@ from __future__ import annotations
 import boost_histogram as bh
 import hist
 import tensorflow_probability as tfp
+import tensorflow as tf
 
 from zfit.z import numpy as znp
 from .baseobject import BaseObject
@@ -75,14 +76,17 @@ class BinnedHolder(tfp.experimental.AutoCompositeTensor):
         self.variances = variances
 
 
+flow = False  # TODO: track the flow or not?
+
+
 @tfp.experimental.auto_composite_tensor()
-class BinnedData(tfp.experimental.AutoCompositeTensor, OverloadableMixinValues):
+class BinnedData(tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, ZfitBinnedData):
 
     def __init__(self, holder):
         self.holder: BinnedHolder = holder
 
     @classmethod
-    def from_tensor(cls, space, values, variances=None):
+    def from_tensor(cls, space, values, variances=None):  # TODO: add overflow bins if needed
         values = znp.asarray(values)
         if variances is not None:
             variances = znp.asarray(variances)
@@ -91,21 +95,29 @@ class BinnedData(tfp.experimental.AutoCompositeTensor, OverloadableMixinValues):
     @classmethod
     def from_hist(cls, hist: hist.NamedHist) -> BinnedData:
         space = Space(binning=hist.axes)
-        values = znp.asarray(hist.values(flow=True))
-        variances = znp.asarray(hist.variances(flow=True))
+        values = znp.asarray(hist.values(flow=flow))
+        variances = znp.asarray(hist.variances(flow=flow))
         holder = BinnedHolder(space=space, values=values, variances=variances)
         return cls(holder)
 
+    @property
+    def n_obs(self) -> int:
+        return self.space.n_obs
+
+    @property
+    def obs(self):
+        return self.space.obs
+
     def to_hist(self) -> hist.NamedHist:
-        h = hist.NamedHist(*self.holder.space.binning, storage=bh.storage.Weight)
-        h.view(flow=False).value = self.values()
-        h.view(flow=False).variance = self.variances()
+        h = hist.NamedHist(*self.holder.space.binning, storage=bh.storage.Weight())
+        h.view(flow=flow).value = self.values(flow=flow)
+        h.view(flow=flow).variance = self.variances(flow=flow)
         return h
 
     def _to_boost_histogram_(self):
-        h = bh.Histogram(*self.holder.space.binning, storage=bh.storage.Weight)
-        h.view(flow=False).value = self.values()
-        h.view(flow=False).variance = self.variances()
+        h = bh.Histogram(*self.holder.space.binning, storage=bh.storage.Weight())
+        h.view(flow=flow).value = self.values(flow=flow)
+        h.view(flow=flow).variance = self.variances(flow=flow)
 
         # h[...] = np.stack([self.values(), self.variances()], axis=-1)
         return h
@@ -118,14 +130,35 @@ class BinnedData(tfp.experimental.AutoCompositeTensor, OverloadableMixinValues):
     def axes(self):
         return self.space.binning
 
-    def values(self):
-        return self.holder.values
+    def values(self, flow=False):
+        vals = self.holder.values
+        # if not flow:
+        #     shape = tf.shape(vals)
+        #     vals = tf.slice(vals, znp.ones_like(shape), shape - 2)
+        return vals
 
-    def variances(self):
-        return self.holder.variances
+    def variances(self, flow=False):
+        vals = self.holder.variances
+        # if not flow:
+        #     shape = tf.shape(vals)
+        #     vals = tf.slice(vals, znp.ones_like(shape), shape - 2)
+        return vals
 
     def counts(self):
         return self.values()
+
+    # dummy
+    @property
+    def data_range(self):
+        return self.space
+
+    @property
+    def nevents(self):
+        return znp.sum(self.values())
+
+    @property
+    def _approx_nevents(self):
+        return znp.sum(self.values())
 
 
 register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)

@@ -72,9 +72,11 @@ def test_binned_template_pdf_bbfull():
     binnings = [hist.axis.Regular(bins1, 0, 10, name='obs1'), hist.axis.Regular(7, -10, bins2, name='obs2')]
     binning = binnings
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
-    mc1 = BinnedDataV1.from_numpy(obs=obs, counts=counts1, w2error=1)
-    mc2 = BinnedDataV1.from_numpy(obs=obs, counts=counts2, w2error=1)
-    mc3 = BinnedDataV1.from_numpy(obs=obs, counts=counts3, w2error=1)
+
+    mc1 = BinnedData.from_tensor(space=obs, values=counts1, variances=znp.ones_like(counts1) * 1.3)
+    mc2 = BinnedData.from_tensor(obs, counts2)
+    mc3 = BinnedData.from_tensor(obs, counts3)
+
     counts_mc = counts1 + counts2 + counts3
 
     counts1_data = np.random.uniform(high=150, size=(bins1, bins2))  # generate counts
@@ -82,7 +84,7 @@ def test_binned_template_pdf_bbfull():
     counts3_data = np.linspace(10, 100, num=bins1)[:, None] * np.linspace(20, 490, num=bins2)[None, :]
     counts_data = counts1_data + counts2_data + counts3_data
     counts_data *= 1.1
-    data = BinnedDataV1.from_numpy(obs=obs, counts=counts_data, w2error=1)
+    data = BinnedData.from_tensor(space=obs, values=counts_data)
 
     pdf1 = BinnedTemplatePDF(data=mc1)
     pdf2 = BinnedTemplatePDF(data=mc2)

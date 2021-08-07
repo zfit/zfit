@@ -6,7 +6,7 @@ import tensorflow as tf
 
 import zfit.z.numpy as znp
 
-from ..core.basefunc import BaseFunc
+from ..core.basefunc import BaseFuncV1
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.dependents import _extract_dependencies
 from ..core.interfaces import ZfitFunc, ZfitModel
@@ -16,7 +16,7 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 
 
-class SimpleFunc(BaseFunc):
+class SimpleFuncV1(BaseFuncV1):
 
     def __init__(self, obs: ztyping.ObsTypeInput, func: Callable, name: str = "Function", **params):
         """Create a simple function out of of `func` with the observables `obs` depending on `parameters`.
@@ -37,7 +37,7 @@ class SimpleFunc(BaseFunc):
             return self._value_func(self, x)
 
 
-class BaseFunctorFunc(FunctorMixin, BaseFunc):
+class BaseFunctorFuncV1(FunctorMixin, BaseFuncV1):
     def __init__(self, funcs, name="BaseFunctorFunc", params=None, **kwargs):
         funcs = convert_to_container(funcs)
         if params is None:
@@ -58,7 +58,7 @@ class BaseFunctorFunc(FunctorMixin, BaseFunc):
         return self.funcs
 
 
-class SumFunc(BaseFunctorFunc):
+class SumFunc(BaseFunctorFuncV1):
     def __init__(self, funcs: Iterable[ZfitFunc], obs: ztyping.ObsTypeInput = None, name: str = "SumFunc", **kwargs):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
@@ -75,7 +75,7 @@ class SumFunc(BaseFunctorFunc):
         return tf.math.accumulate_n(integrals)
 
 
-class ProdFunc(BaseFunctorFunc):
+class ProdFunc(BaseFunctorFuncV1):
     def __init__(self, funcs: Iterable[ZfitFunc], obs: ztyping.ObsTypeInput = None, name: str = "SumFunc", **kwargs):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
@@ -85,7 +85,7 @@ class ProdFunc(BaseFunctorFunc):
         return product
 
 
-class ZFunc(SimpleModelSubclassMixin, BaseFunc):
+class ZFuncV1(SimpleModelSubclassMixin, BaseFuncV1):
     def __init__(self, obs: ztyping.ObsTypeInput, name: str = "ZFunc", **params):
         super().__init__(obs=obs, name=name, **params)
 
