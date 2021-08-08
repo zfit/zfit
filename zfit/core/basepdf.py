@@ -61,7 +61,12 @@ import tensorflow as tf
 
 import zfit.z.numpy as znp
 from zfit import z
-
+from .basemodel import BaseModel
+from .baseobject import extract_filter_params
+from .interfaces import ZfitParameter, ZfitPDF
+from .parameter import Parameter, convert_to_parameter
+from .sample import extended_sampling
+from .space import Space
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
@@ -70,12 +75,6 @@ from ..util.exception import (AlreadyExtendedPDFError, BreakingAPIChangeError,
                               FunctionNotImplemented, NotExtendedPDFError,
                               SpecificFunctionNotImplemented)
 from ..util.temporary import TemporarilySet
-from .basemodel import BaseModel
-from .baseobject import extract_filter_params
-from .interfaces import ZfitParameter, ZfitPDF
-from .parameter import Parameter, convert_to_parameter
-from .sample import extended_sampling
-from .space import Space
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -322,6 +321,10 @@ class BasePDF(ZfitPDF, BaseModel):
             return self._pdf(x, norm_range=norm_range)
         with suppress(FunctionNotImplemented):
             return znp.exp(self._log_pdf(x=x, norm_range=norm_range))
+        if self.is_extended:
+            with suppress(FunctionNotImplemented):
+                return self._ext_pdf(x=x) / self.get_yield()  # TODO: extend/refactor the calling
+
         return self._fallback_pdf(x=x, norm_range=norm_range)
 
     def _fallback_pdf(self, x, norm_range):

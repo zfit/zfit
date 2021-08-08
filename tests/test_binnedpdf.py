@@ -6,7 +6,9 @@ import mplhep
 from matplotlib import pyplot as plt
 
 import zfit.pdf
+import zfit.z.numpy as znp
 from zfit.core.binnedpdf import BinnedFromUnbinned
+from zfit.core.unbinnedpdf import SplinePDF
 
 
 def test_binned_from_unbinned():
@@ -15,6 +17,7 @@ def test_binned_from_unbinned():
     mu = zfit.Parameter('mu', 1, 0, 19)
     sigma = zfit.Parameter('sigma', 1, 0, 19)
     obs = zfit.Space('x', (-5, 10))
+    x = znp.linspace(-5, 10, 100)
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 
     axis = hist.axis.Regular(150, -5, 10, name='x')
@@ -24,10 +27,20 @@ def test_binned_from_unbinned():
     start = time.time()
     values = gauss_binned.pdf(None, norm=False)
     print(f"Time needed: {time.time() - start}")
-    n = 10000
+    n = 100000
     sample = gauss_binned.sample(n, limits=obs_binned)
     mplhep.histplot(sample.to_hist())
     plt.plot(axis.centers, values * n)
+    plt.show()
+
+    spline_gauss = SplinePDF(gauss_binned, obs=obs)
+    spline_gauss.set_yield(n)  # HACK
+    y = spline_gauss.ext_pdf(x)
+    plt.figure()
+    mplhep.histplot(sample.to_hist())
+    plt.plot(axis.centers, values * n, label='original')
+    plt.plot(x, y * 100, '.', label='interpolated')
+    plt.legend()
     plt.show()
 
 
