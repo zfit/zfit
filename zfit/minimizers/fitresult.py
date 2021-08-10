@@ -1254,7 +1254,6 @@ class FitResult(ZfitResult):
 
         self.info.pop('minuit', None)
         self._cache_minuit = None
-        return
 
     def __str__(self):
         string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
