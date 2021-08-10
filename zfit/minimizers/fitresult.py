@@ -524,8 +524,8 @@ class FitResult(ZfitResult):
     def from_minuit(cls,
                     loss: ZfitLoss,
                     params: Iterable[ZfitParameter],
-                    minuit: iminuit.Minuit,
-                    minimizer: Union[ZfitMinimizer, iminuit.Minuit],
+                    minuit: "iminuit.Minuit",
+                    minimizer: Union[ZfitMinimizer, "iminuit.Minuit"],
                     valid: Optional[bool],
                     values: Optional[np.ndarray] = None,
                     message: Optional[str] = None,
@@ -1282,11 +1282,7 @@ def covariance_to_correlation(covariance):
 
 
 def format_value(value, highprec=True):
-    try:
-        import iminuit
-        m_error_class = iminuit.util.MError
-    except ImportError:
-        m_error_class = dict
+    m_error_class = iminuit.util.MError  # if iminuit is not available (maybe in the future?), use dict instead
 
     if isinstance(value, dict) and 'error' in value:
         value = value['error']
