@@ -114,6 +114,9 @@ class Approximations:
                 self._inv_hessian = inv_hess
         return inv_hess
 
+    def freeze(self):
+        self._params = [p.name for p in self.params]
+
 
 def _minos_minuit(result, params, cl=None):
     minuit_minimizer = result._create_minuit_instance()
@@ -214,10 +217,11 @@ class NameToParamGetitem:
     def __getitem__(self, item):
         if isinstance(item, str):
             for param in self.keys():
-                if param.name == item:
+                name = param.name if isinstance(param, ZfitParameter) else param
+                if name == item:
                     item = param
                     break
-        return super().__getitem__(item)
+        return super().__getitem__(item)  # raises key error if not there, which is good
 
 
 class FitResult(ZfitResult):
@@ -520,8 +524,8 @@ class FitResult(ZfitResult):
     def from_minuit(cls,
                     loss: ZfitLoss,
                     params: Iterable[ZfitParameter],
-                    minuit: iminuit.Minuit,
-                    minimizer: Union[ZfitMinimizer, iminuit.Minuit],
+                    minuit: "iminuit.Minuit",
+                    minimizer: Union[ZfitMinimizer, "iminuit.Minuit"],
                     valid: Optional[bool],
                     values: Optional[np.ndarray] = None,
                     message: Optional[str] = None,
@@ -1230,6 +1234,27 @@ class FitResult(ZfitResult):
         else:
             return correlation
 
+    def freeze(self):
+        """Freeze the result to make it pickleable and convert all TensorFlow elements to names (parameters) or arrays.
+
+        After this, no more uncertainties or covariances can be calculated. The already calculated ones
+        remain however.
+
+        Parameters can be accessed by their string name.
+        """
+        self._loss = self.loss.name
+        self._minimizer = self.minimizer.name
+        self._criterion = self.criterion.name
+        self._evaluator = None
+        self.approx.freeze()
+        self._covariance_dict = {k: {(p[0].name, p[1].name): v for p, v in d.items()}
+                                 for k, d in self._covariance_dict.items()}
+        self._values = ValuesHolder({p.name: self.values[p] for p in self.params})
+        self._params = ParamHolder({k.name: v for k, v in self.params.items()})
+
+        self.info.pop('minuit', None)
+        self._cache_minuit = None
+
     def __str__(self):
         string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
         string += tabulate(
@@ -1257,11 +1282,7 @@ def covariance_to_correlation(covariance):
 
 
 def format_value(value, highprec=True):
-    try:
-        import iminuit
-        m_error_class = iminuit.util.MError
-    except ImportError:
-        m_error_class = dict
+    m_error_class = iminuit.util.MError  # if iminuit is not available (maybe in the future?), use dict instead
 
     if isinstance(value, dict) and 'error' in value:
         value = value['error']
