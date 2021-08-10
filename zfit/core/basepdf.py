@@ -30,7 +30,7 @@ Let's create an instance and some example data
 >>> gauss = MyGauss(mean=mean, stddev=stddev)
 >>> example_data = np.random.random(10)
 Now we can get the probability
->>> probs = gauss.pdf(x=example_data,norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
+>>> probs = gauss.pdf(var=example_data,norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
 Or the integral
 >>> integral = gauss.integrate(limits=(-5, 3.1),norm=False)  # norm_range is False -> return unnormalized
 integral
@@ -269,6 +269,9 @@ class BasePDF(ZfitPDF, BaseModel):
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
         return self.pdf(x=x, norm_range=norm_range) * self.get_yield()
+
+    def _ext_pdf(self, x, norm_range=None):
+        raise SpecificFunctionNotImplemented  # TODO: implement properly
 
     @z.function(wraps='model')
     def ext_log_pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:

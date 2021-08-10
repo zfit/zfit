@@ -1,19 +1,19 @@
 #  Copyright (c) 2021 zfit
 
-import boost_histogram as bh
 import hist
+import mplhep
 import numpy as np
-import progressbar
-from boost_histogram._internal.axestuple import AxesTuple
-
-import zfit.z.numpy as znp
 import pytest
+from boost_histogram._internal.axestuple import AxesTuple
+from hist.axestuple import NamedAxesTuple
+from matplotlib import pyplot as plt
 
 import zfit
+import zfit.z.numpy as znp
 from zfit._loss.binnedloss import ExtendedBinnedNLL
-from zfit.core.binneddata import BinnedDataV1, BinnedData
-from zfit.core.binning import RectBinning
+from zfit.core.binneddata import BinnedData
 from zfit.models.binned_functor import BinnedSumPDF
+from zfit.models.morphing import LinearMorphing
 from zfit.models.template import BinnedTemplatePDF
 
 
@@ -32,12 +32,9 @@ def test_binned_template_pdf():
     data2 = BinnedData.from_tensor(obs, counts2)
     data3 = BinnedData.from_tensor(obs, counts3)
 
-    pdf = BinnedTemplatePDF(data=data)
-    pdf2 = BinnedTemplatePDF(data=data2)
-    pdf3 = BinnedTemplatePDF(data=data3)
-    pdf._set_yield(np.sum(counts))
-    pdf2._set_yield(np.sum(counts2))
-    pdf3._set_yield(np.sum(counts3))
+    pdf = BinnedTemplatePDF(data=data, extended=np.sum(counts))
+    pdf2 = BinnedTemplatePDF(data=data2, extended=np.sum(counts2))
+    pdf3 = BinnedTemplatePDF(data=data3, extended=np.sum(counts3))
     assert len(pdf.ext_pdf(None)) > 0
     pdf_sum = BinnedSumPDF(pdfs=[pdf, pdf2, pdf3], obs=obs)
 
@@ -60,6 +57,68 @@ def test_binned_template_pdf():
     # plt.imshow(counts2)
     # plt.show()
     # assert len(pdf.pdf(None, obs)) > 0
+
+
+def test_morphing_templates():
+    bins1 = 10
+    counts1 = np.random.uniform(70, high=100, size=bins1)  # generate counts
+    counts = [counts1 - np.random.uniform(high=20, size=bins1), counts1,
+              counts1 + np.random.uniform(high=20, size=bins1)]
+    binning = hist.axis.Regular(bins1, 0, 10, name='obs1')
+    obs = zfit.Space(obs=['obs1'], binning=NamedAxesTuple([binning]))
+    datasets = [BinnedData.from_tensor(obs, count) for count in counts]
+    pdfs = [BinnedTemplatePDF(data=data, extended=np.sum(data.values())) for data in datasets]
+    alpha = zfit.Parameter('alpha', 0, -5, 5)
+    morph = LinearMorphing(alpha=alpha, hists=pdfs, extended=np.sum(datasets[1].values()))
+    np.testing.assert_allclose(morph.ext_pdf(None), counts[1])
+    alpha.set_value(1)
+    np.testing.assert_allclose(morph.ext_pdf(None), counts[2])
+    alpha.set_value(-1)
+    np.testing.assert_allclose(morph.ext_pdf(None), counts[0])
+
+    hists = []
+    import matplotlib.cm as cm
+
+    amin, amax = -2, 2
+    n = 5
+    for a in znp.linspace(amin, amax, n * 4 - 1):
+        normed_a = (a - amin) / (amax - amin)
+        color = cm.get_cmap('cool')(normed_a)
+        alpha.set_value(a)
+        histo = morph.ext_pdf(None)
+        histo = BinnedData.from_tensor(obs, histo).to_hist()
+        if np.min((a - znp.linspace(amin, amax, n)) ** 2) < 0.001:
+            mplhep.histplot(histo, label=f'alpha={a}', color=color)
+        else:
+            mplhep.histplot(histo, color=color)
+        plt.legend()
+    plt.show()
+
+
+def test_morphing_templates2D():
+    zfit.run.set_graph_mode(True)
+    bins1 = 10
+    bins2 = 7
+    shape = (bins1, bins2)
+    counts1 = np.random.uniform(70, high=100, size=shape)  # generate counts
+    # counts1 = np.random.uniform(70, high=100, size=bins1)  # generate counts
+    counts = [counts1 - np.random.uniform(high=20, size=shape), counts1,
+              counts1 + np.random.uniform(high=20, size=shape)]
+    binning1 = hist.axis.Regular(bins1, 0, 10, name='obs1')
+    binning2 = hist.axis.Regular(bins2, 0, 10, name='obs2')
+    obs1 = zfit.Space(obs=['obs1'], binning=[binning1])
+    obs2 = zfit.Space(obs=['obs2'], binning=[binning2])
+    obs = obs1 * obs2
+    obs._binning = NamedAxesTuple([binning1, binning2])
+    datasets = [BinnedData.from_tensor(obs, count) for count in counts]
+    pdfs = [BinnedTemplatePDF(data=data, extended=np.sum(data.values())) for data in datasets]
+    alpha = zfit.Parameter('alpha', 0, -5, 5)
+    morph = LinearMorphing(alpha=alpha, hists=pdfs, extended=np.sum(datasets[1].values()))
+    np.testing.assert_allclose(morph.ext_pdf(None), counts[1])
+    alpha.set_value(1)
+    np.testing.assert_allclose(morph.ext_pdf(None), counts[2])
+    alpha.set_value(-1)
+    np.testing.assert_allclose(morph.ext_pdf(None), counts[0])
 
 
 def test_binned_template_pdf_bbfull():

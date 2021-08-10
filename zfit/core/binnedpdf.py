@@ -239,7 +239,7 @@ class BinnedFromUnbinned(BaseBinnedPDF):
                     extract_independent: bool | None = True) -> set[ZfitParameter]:
         return self.pdfs[0].get_params(floating=floating, is_yield=is_yield, extract_independent=extract_independent)
 
-    # @z.function
+    @z.function
     def _unnormalized_pdf(self, x):
         pdf = self.pdfs[0]
         # edge = self.axes.edges[0]  # HACK 1D only
@@ -255,10 +255,11 @@ class BinnedFromUnbinned(BaseBinnedPDF):
         lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
 
-        # @z.function
+        @z.function
         def integrate_one(limits):
             l, u = tf.unstack(limits)
             limits_space = zfit.Space(obs=self.obs, limits=[l, u])
+            # limits_space = [l, u]
             return pdf.integrate(limits_space, norm_range=False)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)

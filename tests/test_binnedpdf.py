@@ -25,11 +25,12 @@ def test_binned_from_unbinned():
     gauss_binned = BinnedFromUnbinned(pdf=gauss, space=obs_binned, extended=100)
     values = gauss_binned.pdf(None, norm=False)
     start = time.time()
-    values = gauss_binned.pdf(None, norm=False)
+    for _ in range(5):
+        values = gauss_binned.pdf(None, norm=False)
     print(f"Time needed: {time.time() - start}")
     n = 100000
     sample = gauss_binned.sample(n, limits=obs_binned)
-    mplhep.histplot(sample.to_hist())
+    mplhep.histplot(sample.to_hist(), label='sampled binned')
     plt.plot(axis.centers, values * n)
     plt.show()
 
@@ -37,7 +38,7 @@ def test_binned_from_unbinned():
     spline_gauss.set_yield(n)  # HACK
     y = spline_gauss.ext_pdf(x)
     plt.figure()
-    mplhep.histplot(sample.to_hist())
+    mplhep.histplot(sample.to_hist(), label='sampled binned')
     plt.plot(axis.centers, values * n, label='original')
     plt.plot(x, y * 100, '.', label='interpolated')
     plt.legend()
@@ -64,8 +65,10 @@ def test_binned_from_unbinned_2D():
 
     gauss_binned = BinnedFromUnbinned(pdf=gauss2D, space=obs_binned, extended=100)
     values = gauss_binned.pdf(None, norm=False)
+    values = gauss_binned.pdf(None, norm=False)
+    values = gauss_binned.pdf(None, norm=False)
     start = time.time()
-    for _ in range(1):
+    for _ in range(2):
         values = gauss_binned.pdf(None, norm=False)
     print(f"Time needed: {time.time() - start}")
 

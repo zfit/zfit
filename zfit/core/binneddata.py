@@ -76,6 +76,10 @@ class BinnedHolder(tfp.experimental.AutoCompositeTensor):
         self.variances = variances
 
 
+# class ZfitMixedData:
+#     def values(self):
+
+
 flow = False  # TODO: track the flow or not?
 
 
