@@ -9,7 +9,8 @@ Develop
 
 Major Features and Improvements
 -------------------------------
-
+- allow `FitResult` to `freeze()`, making it pickleable. The parameters
+  are replaced by their name, the objects such as loss and minimizer as well.
 Breaking changes
 ------------------
 
