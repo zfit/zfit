@@ -27,6 +27,8 @@ Experimental
 Requirement changes
 -------------------
 
+- add TensorFlow 2.6 support (now 2.5 and 2.6 are supported)
+
 Thanks
 ------
 
