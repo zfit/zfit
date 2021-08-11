@@ -8,7 +8,7 @@ import zfit
 import zfit.z.numpy as znp
 from zfit.core.binneddata import BinnedData
 from zfit.models.binned_functor import BinnedSumPDF
-from zfit.models.template import BinnedTemplatePDF
+from zfit.models.template import BinnedTemplatePDFV1
 
 
 def test_binned_nll_simple():
@@ -25,9 +25,9 @@ def test_binned_nll_simple():
     sum_counts = counts + counts2 + counts3
     observed_data = BinnedData.from_tensor(space=obs, values=sum_counts, variances=(sum_counts + 0.5) ** 2)
 
-    pdf = BinnedTemplatePDF(data=mc1)
-    pdf2 = BinnedTemplatePDF(data=mc2)
-    pdf3 = BinnedTemplatePDF(data=mc3)
+    pdf = BinnedTemplatePDFV1(data=mc1)
+    pdf2 = BinnedTemplatePDFV1(data=mc2)
+    pdf3 = BinnedTemplatePDFV1(data=mc3)
     pdf._set_yield(np.sum(counts))
     pdf2._set_yield(np.sum(counts2))
     pdf3._set_yield(np.sum(counts3))

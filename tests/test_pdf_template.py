@@ -14,7 +14,7 @@ from zfit._loss.binnedloss import ExtendedBinnedNLL
 from zfit.core.binneddata import BinnedData
 from zfit.models.binned_functor import BinnedSumPDF
 from zfit.models.morphing import LinearMorphing
-from zfit.models.template import BinnedTemplatePDF
+from zfit.models.template import BinnedTemplatePDFV1, BinnedTemplatePDF
 
 
 def test_binned_template_pdf():
@@ -67,7 +67,7 @@ def test_morphing_templates():
     binning = hist.axis.Regular(bins1, 0, 10, name='obs1')
     obs = zfit.Space(obs=['obs1'], binning=NamedAxesTuple([binning]))
     datasets = [BinnedData.from_tensor(obs, count) for count in counts]
-    pdfs = [BinnedTemplatePDF(data=data, extended=np.sum(data.values())) for data in datasets]
+    pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
     alpha = zfit.Parameter('alpha', 0, -5, 5)
     morph = LinearMorphing(alpha=alpha, hists=pdfs, extended=np.sum(datasets[1].values()))
     np.testing.assert_allclose(morph.ext_pdf(None), counts[1])
@@ -111,7 +111,7 @@ def test_morphing_templates2D():
     obs = obs1 * obs2
     obs._binning = NamedAxesTuple([binning1, binning2])
     datasets = [BinnedData.from_tensor(obs, count) for count in counts]
-    pdfs = [BinnedTemplatePDF(data=data, extended=np.sum(data.values())) for data in datasets]
+    pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
     alpha = zfit.Parameter('alpha', 0, -5, 5)
     morph = LinearMorphing(alpha=alpha, hists=pdfs, extended=np.sum(datasets[1].values()))
     np.testing.assert_allclose(morph.ext_pdf(None), counts[1])
@@ -145,9 +145,9 @@ def test_binned_template_pdf_bbfull():
     counts_data *= 1.1
     data = BinnedData.from_tensor(space=obs, values=counts_data)
 
-    pdf1 = BinnedTemplatePDF(data=mc1)
-    pdf2 = BinnedTemplatePDF(data=mc2)
-    pdf3 = BinnedTemplatePDF(data=mc3)
+    pdf1 = BinnedTemplatePDFV1(data=mc1)
+    pdf2 = BinnedTemplatePDFV1(data=mc2)
+    pdf3 = BinnedTemplatePDFV1(data=mc3)
     pdf1._set_yield(np.sum(counts1))
     pdf2._set_yield(np.sum(counts2))
     pdf3._set_yield(np.sum(counts3))
