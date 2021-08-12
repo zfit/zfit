@@ -8,6 +8,7 @@ from typing import Callable, List, Optional, Tuple, Type, Union
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+import tf_quant_finance.math.integration as tf_integration
 
 import zfit
 import zfit.z.numpy as znp
@@ -27,9 +28,16 @@ from .space import Space, convert_to_space, supports
 @supports()
 def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztypes.float,
                    mc_sampler=tfp.mcmc.sample_halton_sequence, max_draws=None, tol=None,
-                   mc_options=None):
+                   mc_options=None, simpsons_options=None):
+    limits = convert_to_space(limits)
+
+    if n_axes is None:
+        n_axes = limits.n_obs
     if method == "AUTO":  # TODO unfinished, other methods?
-        method = "mc"
+        if n_axes == 1 and x is None:
+            method = "simpson"
+        else:
+            method = "mc"
     # TODO method
     if method.lower() == "mc":
         mc_options = mc_options or {}
@@ -38,6 +46,10 @@ def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztype
         integral = mc_integrate(x=x, func=func, limits=limits, n_axes=n_axes, method=method, dtype=dtype,
                                 mc_sampler=mc_sampler, draws_per_dim=draws_per_dim, max_draws=max_draws, tol=tol,
                                 importance_sampling=None)
+    elif method.lower() == 'simpson':
+        mc_options = mc_options or {}
+        num_points = simpsons_options['draws_simpson']
+        integral = simpson_integrate(func=func, limits=limits, num_points=num_points)
     return integral
 
 
@@ -46,6 +58,24 @@ def numeric_integrate():
     """Integrate `func` using numerical methods."""
     integral = None
     return integral
+
+
+@supports(multiple_limits=True)
+def simpson_integrate(func, limits, num_points):  # currently not vectorized
+    integrals = []
+    for space in limits:
+        lower, upper = space.rect_limits
+        if lower.shape[0] > 1:
+            raise ValueError("Vectorized spaces in integration currently not supported.")
+        lower = znp.array(lower)[0, 0]
+        upper = znp.array(upper)[0, 0]
+        tf.debugging.assert_all_finite((lower, upper),
+                                       "MC integration does (currently) not support unbound limits (np.infty) as given here:"
+                                       "\nlower: {}, upper: {}".format(lower, upper)
+                                       )
+        integrals.append(
+            tf_integration.simpson(func=func, lower=lower, upper=upper, num_points=num_points, dtype=znp.float64))
+    return znp.sum(integrals, axis=0)
 
 
 # @z.function
@@ -77,7 +107,6 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     tol = znp.array(tol, dtype=znp.float64)
     if axes is not None and n_axes is not None:
         raise ValueError("Either specify axes or n_axes")
-    limits = convert_to_space(limits)
 
     axes = limits.axes
     partial = (axes is not None) and (x is not None)  # axes, value can be tensors
@@ -578,8 +607,9 @@ class Integral:  # TODO analytic integral
 # to be "the" future integral class
 class Integration:
 
-    def __init__(self, mc_sampler, draws_per_dim, tol, max_draws):
+    def __init__(self, mc_sampler, draws_per_dim, tol, max_draws, draws_simpson):
         self.tol = tol
         self.max_draws = max_draws
         self.mc_sampler = mc_sampler
         self.draws_per_dim = draws_per_dim
+        self.draws_simpson = draws_simpson

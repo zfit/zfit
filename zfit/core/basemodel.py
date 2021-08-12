@@ -88,6 +88,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)
     DEFAULTS_integration.draws_per_dim = 'auto'
+    DEFAULTS_integration.draws_simpson = 'auto'
     DEFAULTS_integration.max_draws = 800_000
     DEFAULTS_integration.tol = 7e-5
     DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
@@ -116,8 +117,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                                        draws_per_dim=self.DEFAULTS_integration.draws_per_dim,
                                        max_draws=self.DEFAULTS_integration.max_draws,
                                        tol=self.DEFAULTS_integration.tol,
+                                       draws_simpson=None
                                        )
-        self.update_integration_options(draws_per_dim=self.DEFAULTS_integration.draws_per_dim)
+        self.update_integration_options(draws_per_dim=self.DEFAULTS_integration.draws_per_dim,
+                                        draws_simpson=self.DEFAULTS_integration.draws_simpson)
 
         self._sample_and_weights = UniformSampleAndWeights
 
@@ -225,7 +228,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 x = znp.expand_dims(x, -1)
         return x
 
-    def update_integration_options(self, draws_per_dim=None, mc_sampler=None, tol=None, max_draws=None):
+    def update_integration_options(self, draws_per_dim=None, mc_sampler=None, tol=None, max_draws=None,
+                                   draws_simpson=None):
         """Set the integration options.
 
         Args:
@@ -253,6 +257,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             high_draws = 2 ** logtol * 10 ** logtol
             draws = min({0: 10, 1: 15, 2: 150, 3: 500, 4: 5000}.get(logtolonly, 1e30), high_draws)
             self.integration.draws_per_dim = int(min(draws, self.integration.max_draws))
+        if draws_simpson == 'auto':
+            npoints = int(abs(math.log10(self.integration.tol)) ** 0.8)
+            npoints = 3 + int(10 ** npoints / 5)
+            self.integration.draws_simpson = npoints
 
     # TODO: remove below? or add "analytic gradients"?
     def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
@@ -797,6 +805,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                                        "max_draws": self.integration.max_draws,
                                    },
                                    tol=self.integration.tol,
+                                   simpsons_options={'draws_simpson': self.integration.draws_simpson},
                                    **overwrite_options)
         return self._integration.auto_numeric_integrator(**integration_options)
 
