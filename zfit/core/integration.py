@@ -26,7 +26,7 @@ from .space import Space, convert_to_space, supports
 
 @supports()
 def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztypes.float,
-                   mc_sampler=tfp.mcmc.sample_halton_sequence,
+                   mc_sampler=tfp.mcmc.sample_halton_sequence, max_draws=None, tol=None,
                    mc_options=None):
     if method == "AUTO":  # TODO unfinished, other methods?
         method = "mc"
@@ -35,7 +35,7 @@ def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztype
         mc_options = mc_options or {}
         draws_per_dim = mc_options['draws_per_dim']
         integral = mc_integrate(x=x, func=func, limits=limits, n_axes=n_axes, method=method, dtype=dtype,
-                                mc_sampler=mc_sampler, draws_per_dim=draws_per_dim,
+                                mc_sampler=mc_sampler, draws_per_dim=draws_per_dim, max_draws=max_draws, tol=tol,
                                 importance_sampling=None)
     return integral
 
@@ -50,6 +50,7 @@ def numeric_integrate():
 # @z.function
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
                  x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000,
+                 max_draws=400_000, tol: float = 1e-6,
                  method: str = None,
                  dtype: Type = ztypes.float,
                  mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
@@ -72,6 +73,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     Returns:
         The integral
     """
+    tol = znp.array(tol, dtype=znp.float64)
     if axes is not None and n_axes is not None:
         raise ValueError("Either specify axes or n_axes")
     limits = convert_to_space(limits)
@@ -107,41 +109,85 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
 
         else:
             # TODO: deal with n_obs properly?
+            @z.function(wraps='tensor')
+            def cond(avg, error, std, ntot, i):
+                # return i < 3
+                return znp.logical_and(error > tol, ntot < max_draws)
 
-            samples_normed = mc_sampler(dim=n_axes, num_results=n_samples / 2,  # to decrease integration size
-                                        dtype=dtype)
-            samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
+            def body_integrate(avg, error, std, ntot, i):
+                ntot_old = ntot
+                ntot += n_samples
+                samples_normed = tfp.mcmc.sample_halton_sequence(dim=n_axes,
+                                                                 sequence_indices=tf.range(ntot_old, ntot),
+                                                                 # num_results=n_samples,  # to decrease integration size
+                                                                 dtype=dtype)
+                samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
+                if partial:  # TODO(Mayou36): shape of partial integral?
+                    data_obs = x.obs
+                    new_obs = []
+                    xval = x.value()
+                    value_list = []
+                    index_samples = 0
+                    index_values = 0
+                    if len(xval.shape) == 1:
+                        xval = znp.expand_dims(xval, axis=1)
+                    for i in range(n_axes + xval.shape[-1]):
+                        if i in axes:
+                            new_obs.append(space.obs[index_samples])
+                            value_list.append(samples[:, index_samples])
+                            index_samples += 1
+                        else:
+                            new_obs.append(data_obs[index_values])
+                            value_list.append(znp.expand_dims(xval[:, index_values], axis=1))
+                            index_values += 1
+                    value_list = [tf.cast(val, dtype=dtype) for val in value_list]
+                    xval = PartialIntegralSampleData(sample=value_list,
+                                                     space=Space(obs=new_obs))
+                else:
+                    xval = samples
+                # convert rnd samples with value to feedable vector
+                reduce_axis = 1 if partial else None
+                y = func(xval)
+                # avg = znp.mean(y)
+                ifloat = tf.cast(i, dtype=tf.float64)
+                if partial:
+                    avg = znp.mean(y, axis=reduce_axis)
+                else:
+                    avg = avg / (ifloat + 1.) * ifloat + znp.mean(y, axis=reduce_axis) / (ifloat + 1.)
+                std = std / (ifloat + 1.) * ifloat + znp.std(y) / (ifloat + 1.)
+                ntot_float = znp.asarray(ntot, dtype=znp.float64)
 
-            if partial:  # TODO(Mayou36): shape of partial integral?
-                data_obs = x.obs
-                new_obs = []
-                x = x.value()
-                value_list = []
-                index_samples = 0
-                index_values = 0
-                if len(x.shape) == 1:
-                    x = znp.expand_dims(x, axis=1)
-                for i in range(n_axes + x.shape[-1]):
-                    if i in axes:
-                        new_obs.append(space.obs[index_samples])
-                        value_list.append(samples[:, index_samples])
-                        index_samples += 1
-                    else:
-                        new_obs.append(data_obs[index_values])
-                        value_list.append(znp.expand_dims(x[:, index_values], axis=1))
-                        index_values += 1
-                value_list = [tf.cast(val, dtype=dtype) for val in value_list]
-                x = PartialIntegralSampleData(sample=value_list,
-                                              space=Space(obs=new_obs))
+                error_sobol = std * znp.log(ntot_float) ** n_axes / ntot_float
+                error_random = std / znp.sqrt(ntot_float)
+                error = znp.minimum(error_sobol, error_random)
+                return avg, error, std, ntot, i + 1
+
+            avg, error, std, ntot, i = [znp.array(0., dtype=znp.float64),
+                                        znp.array(9999., dtype=znp.float64),
+                                        znp.array(0., dtype=znp.float64),
+                                        0,
+                                        0]
+            if partial:
+                avg, error, std, ntot, i = body_integrate(avg, error, std, ntot, i)
             else:
-                x = samples
+                avg, error, std, ntot, i = tf.while_loop(cond=cond, body=body_integrate,
+                                                         loop_vars=[avg, error, std, ntot, i])
 
-            # convert rnd samples with value to feedable vector
-            reduce_axis = 1 if partial else None
-            avg = znp.mean(func(x), axis=reduce_axis)
             # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
             # TODO: importance sampling?
             # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
+
+            def print_none_return():
+                tf.print("Estimated integral error (", error,
+                         ") larger than tolerance (", tol,
+                         "), which is maybe not enough."
+                         "Manually set a higher number on the PDF with 'update_integration_options'"
+                         " and increase the 'max_draws' (or adjust 'tol'). "
+                         "If partial integration is chosen, this does currently"
+                         " not automatically increase the number for the integration.")
+                return
+
+            tf.cond(error > 3e-7, print_none_return, lambda: None)
         integral = avg * tf.cast(z.convert_to_tensor(space.rect_area()), dtype=avg.dtype)
         integrals.append(integral)
     return z.reduce_sum(integrals, axis=0)
@@ -213,7 +259,6 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
                                              batch_size=batch_size, num_batches=num_batches,
                                              dtype=dtype,
                                              space=space, x=x, shape_after=shape_after)
-
 
             return dy, tape.gradient(value, variables)
 
@@ -507,6 +552,8 @@ class Integral:  # TODO analytic integral
 # to be "the" future integral class
 class Integration:
 
-    def __init__(self, mc_sampler, draws_per_dim):
+    def __init__(self, mc_sampler, draws_per_dim, tol, max_draws):
+        self.tol = tol
+        self.max_draws = max_draws
         self.mc_sampler = mc_sampler
         self.draws_per_dim = draws_per_dim

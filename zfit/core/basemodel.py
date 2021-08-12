@@ -87,6 +87,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)
     _DEFAULTS_integration.draws_per_dim = 40000
+    _DEFAULTS_integration.max_draws = 400000
+    _DEFAULTS_integration.tol = 1e-6
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = None
@@ -110,7 +112,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self._integration = DotMap()
         self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
         self.integration = Integration(mc_sampler=self._DEFAULTS_integration.mc_sampler,
-                                       draws_per_dim=self._DEFAULTS_integration.draws_per_dim)
+                                       draws_per_dim=self._DEFAULTS_integration.draws_per_dim,
+                                       max_draws=self._DEFAULTS_integration.max_draws,
+                                       tol=self._DEFAULTS_integration.tol,
+                                       )
 
         self._sample_and_weights = UniformSampleAndWeights
 
@@ -218,23 +223,22 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 x = znp.expand_dims(x, -1)
         return x
 
-    def update_integration_options(self, draws_per_dim=None, mc_sampler=None):
+    def update_integration_options(self, draws_per_dim=None, mc_sampler=None, tol=None, max_draws=None):
         """Set the integration options.
 
         Args:
+            max_draws: Maximum number of draws when integrating . Typically 500'000
+            tol: Tolerance on the error of the integral. typically 1e-4 to 1e-8
             draws_per_dim: The draws for MC integration to do
             mc_sampler:
         """
-        # mc_options = {} if mc_options is None else mc_options
-        # numeric_options = {} if numeric_options is None else numeric_options
-        # general_options = {} if general_options is None else general_options
-        # analytic_options = {} if analytic_options is None else analytic_options
-        # if analytic_options:
-        #     raise NotImplementedError("analytic_options cannot be updated currently.")
+
         if draws_per_dim is not None:
             self.integration.draws_per_dim = draws_per_dim
         if mc_sampler is not None:
             self.integration.mc_sampler = mc_sampler
+        if max_draws is not None:
+            self.integration.max_draws = max_draws
 
     # TODO: remove below? or add "analytic gradients"?
     def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
@@ -775,7 +779,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                                    dtype=self.dtype,
                                    mc_sampler=self.integration.mc_sampler,
                                    mc_options={
-                                       "draws_per_dim": self.integration.draws_per_dim},
+                                       "draws_per_dim": self.integration.draws_per_dim,
+                                       "max_draws": self.integration.max_draws,
+                                       "tol": self.integration.tol
+                                   },
                                    **overwrite_options)
         return self._integration.auto_numeric_integrator(**integration_options)
 
