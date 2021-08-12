@@ -121,7 +121,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 if partial:
                     samples_normed = tfp.mcmc.sample_halton_sequence(dim=n_axes,
                                                                      # sequence_indices=tf.range(ntot_old, ntot),
-                                                                     num_results=20_000 * n_axes,
+                                                                     num_results=5000,
                                                                      # to decrease integration size
                                                                      dtype=dtype,
                                                                      randomized=False)
@@ -174,7 +174,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 # we use the MC error as an upper bound as QMC is better/equal to MC (for our cases).
                 error_sobol = std * znp.log(ntot_float) ** n_axes / ntot_float
                 error_random = std / znp.sqrt(ntot_float)
-                error = znp.minimum(error_sobol, error_random)
+                error = znp.minimum(error_sobol, error_random) * 0.1  # heuristic factor from using QMC
                 return avg, error, std, ntot, i + 1
 
             avg, error, std, ntot, i = [znp.array(0., dtype=znp.float64),

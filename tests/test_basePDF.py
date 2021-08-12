@@ -370,4 +370,4 @@ def test_projection_pdf(test_values):
     true_probs = correlated_func_integrate_y(test_values, y) / gauss_xy.integrate(limits=obs, norm_range=False)
     probs = proj_pdf.pdf(x=test_values)
     probs = probs.numpy()
-    np.testing.assert_allclose(probs, true_probs, rtol=1e-3)  # MC normalization
+    np.testing.assert_allclose(probs, true_probs, rtol=1e-2)  # MC normalization
