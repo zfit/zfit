@@ -81,16 +81,16 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     # TODO instructions on how to use
     """
-    _DEFAULTS_integration = DotMap()
-    _DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
-                                                                                         **kwargs)
+    DEFAULTS_integration = DotMap()
+    DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
+                                                                                        **kwargs)
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)
-    _DEFAULTS_integration.draws_per_dim = 'auto'
-    _DEFAULTS_integration.max_draws = 1_000_000
-    _DEFAULTS_integration.tol = 1e-6
-    _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
+    DEFAULTS_integration.draws_per_dim = 'auto'
+    DEFAULTS_integration.max_draws = 1_000_000
+    DEFAULTS_integration.tol = 1e-6
+    DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = None
     _inverse_analytic_integral = None
@@ -111,13 +111,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self._check_set_space(obs)
 
         self._integration = DotMap()
-        self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
-        self.integration = Integration(mc_sampler=self._DEFAULTS_integration.mc_sampler,
-                                       draws_per_dim=self._DEFAULTS_integration.draws_per_dim,
-                                       max_draws=self._DEFAULTS_integration.max_draws,
-                                       tol=self._DEFAULTS_integration.tol,
+        self._integration.auto_numeric_integrator = self.DEFAULTS_integration.auto_numeric_integrator
+        self.integration = Integration(mc_sampler=self.DEFAULTS_integration.mc_sampler,
+                                       draws_per_dim=self.DEFAULTS_integration.draws_per_dim,
+                                       max_draws=self.DEFAULTS_integration.max_draws,
+                                       tol=self.DEFAULTS_integration.tol,
                                        )
-        self.update_integration_options(draws_per_dim=self._DEFAULTS_integration.draws_per_dim)
+        self.update_integration_options(draws_per_dim=self.DEFAULTS_integration.draws_per_dim)
 
         self._sample_and_weights = UniformSampleAndWeights
 

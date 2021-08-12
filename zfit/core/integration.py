@@ -118,10 +118,19 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
             def body_integrate(avg, error, std, ntot, i):
                 ntot_old = ntot
                 ntot += n_samples
-                samples_normed = tfp.mcmc.sample_halton_sequence(dim=n_axes,
-                                                                 sequence_indices=tf.range(ntot_old, ntot),
-                                                                 # num_results=n_samples,  # to decrease integration size
-                                                                 dtype=dtype)
+                if partial:
+                    samples_normed = tfp.mcmc.sample_halton_sequence(dim=n_axes,
+                                                                     # sequence_indices=tf.range(ntot_old, ntot),
+                                                                     num_results=n_samples,
+                                                                     # to decrease integration size
+                                                                     dtype=dtype,
+                                                                     randomized=False)
+                else:
+                    samples_normed = tfp.mcmc.sample_halton_sequence(dim=n_axes,
+                                                                     sequence_indices=tf.range(ntot_old, ntot),
+                                                                     # num_results=n_samples,  # to decrease integration size
+                                                                     dtype=dtype,
+                                                                     randomized=False)
                 samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
                 if partial:  # TODO(Mayou36): shape of partial integral?
                     data_obs = x.obs
@@ -178,7 +187,9 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
             else:
                 avg, error, std, ntot, i = tf.while_loop(cond=cond, body=body_integrate,
                                                          loop_vars=[avg, error, std, ntot, i])
-                tf.print("i:", i, "   ntot:", ntot)
+                from zfit import settings
+                if settings.get_verbosity() > 9:
+                    tf.print("i:", i, "   ntot:", ntot)
 
             # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
             # TODO: importance sampling?
@@ -187,13 +198,19 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
             def print_none_return():
                 from zfit import settings
                 if settings.get_verbosity() >= 0:
-                    tf.print("Estimated integral error (", error,
-                             ") larger than tolerance (", tol,
-                             "), which is maybe not enough."
-                             "Manually set a higher number on the PDF with 'update_integration_options'"
-                             " and increase the 'max_draws' (or adjust 'tol'). "
-                             "If partial integration is chosen, this does currently"
-                             " not automatically increase the number for the integration.")
+                    tf.print(
+                        "Estimated integral error (", error,
+                        ") larger than tolerance (", tol,
+                        "), which is maybe not enough."
+                        "Manually set a higher number on the PDF with 'update_integration_options'"
+                        " and increase the 'max_draws' (or adjust 'tol'). "
+                        "If partial integration is chosen, this does currently"
+                        " not automatically increase the number for the integration."
+                        " "
+                        "This is a new warning checking the integral accuracy. It may warns too often as it is"
+                        " Work In Progress. If you have any observation on it, please tell us about it:"
+                        " https://github.com/zfit/zfit/issues/new/choose"
+                    )
                 return
 
             tf.cond(error > tol, print_none_return, lambda: None)
