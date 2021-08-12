@@ -157,6 +157,11 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 std = std / (ifloat + 1.) * ifloat + znp.std(y) / (ifloat + 1.)
                 ntot_float = znp.asarray(ntot, dtype=znp.float64)
 
+                # estimating the error of QMC is non-trivial
+                # (https://www.degruyter.com/document/doi/10.1515/mcma-2020-2067/html or
+                # https://stats.stackexchange.com/questions/533725/how-to-calculate-quasi-monte-carlo-integration-error-when-sampling-with-sobols)
+                # However, we use here just something that is in the right direction for the moment being. Therefore,
+                # we use the MC error as an upper bound as QMC is better/equal to MC (for our cases).
                 error_sobol = std * znp.log(ntot_float) ** n_axes / ntot_float
                 error_random = std / znp.sqrt(ntot_float)
                 error = znp.minimum(error_sobol, error_random)
