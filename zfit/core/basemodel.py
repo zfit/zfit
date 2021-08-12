@@ -235,8 +235,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         Args:
             max_draws (default ~1'000'000): Maximum number of draws when integrating . Typically 500'000 - 5'000'000.
             tol: Tolerance on the error of the integral. typically 1e-4 to 1e-8
-            draws_per_dim: The draws for MC integration to do
-            mc_sampler:
+            draws_per_dim: The draws for MC integration to do per iteration. Can be set to `'auto`'.
+            draws_simpson: Number of points in one dimensional Simpson integration. Can be set to `'auto'`.
         """
 
         if draws_per_dim is not None:
@@ -258,8 +258,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             draws = min({0: 10, 1: 15, 2: 150, 3: 500, 4: 5000}.get(logtolonly, 1e30), high_draws)
             self.integration.draws_per_dim = int(min(draws, self.integration.max_draws))
         if draws_simpson == 'auto':
-            npoints = int(abs(math.log10(self.integration.tol)) ** 0.8)
-            npoints = 3 + int(10 ** npoints / 5)
+            logtol = abs(math.log10(self.integration.tol * 0.005))
+            npoints = 25 + 15 * logtol + 2.6 ** logtol
+            npoints = int(npoints)
+            # npoints = int(abs(math.log10( * 0.1)) ** 0.8)
+            # npoints = 3 + int(10 ** npoints / 5)
             self.integration.draws_simpson = npoints
 
     # TODO: remove below? or add "analytic gradients"?
