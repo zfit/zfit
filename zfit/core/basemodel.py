@@ -9,6 +9,7 @@ import abc
 import builtins
 import contextlib
 import inspect
+import math
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
@@ -86,8 +87,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)
-    _DEFAULTS_integration.draws_per_dim = 40000
-    _DEFAULTS_integration.max_draws = 400000
+    _DEFAULTS_integration.draws_per_dim = 'auto'
+    _DEFAULTS_integration.max_draws = 1_000_000
     _DEFAULTS_integration.tol = 1e-6
     _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
@@ -116,6 +117,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                                        max_draws=self._DEFAULTS_integration.max_draws,
                                        tol=self._DEFAULTS_integration.tol,
                                        )
+        self.update_integration_options(draws_per_dim=self._DEFAULTS_integration.draws_per_dim)
 
         self._sample_and_weights = UniformSampleAndWeights
 
@@ -227,7 +229,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Set the integration options.
 
         Args:
-            max_draws: Maximum number of draws when integrating . Typically 500'000
+            max_draws (default ~1'000'000): Maximum number of draws when integrating . Typically 500'000 - 5'000'000.
             tol: Tolerance on the error of the integral. typically 1e-4 to 1e-8
             draws_per_dim: The draws for MC integration to do
             mc_sampler:
@@ -239,6 +241,18 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             self.integration.mc_sampler = mc_sampler
         if max_draws is not None:
             self.integration.max_draws = max_draws
+        if tol is not None:
+            if tol > 1 or tol < 0:
+                raise ValueError("tol has to be between 0 and 1 (larger does not make sense)")
+            self.integration.tol = tol
+
+        if draws_per_dim == 'auto':
+            logtolonly = max(int(abs(math.log10(self.integration.tol))), 0)
+            logexp = max(int(abs(math.log(self.integration.tol))), 2)
+            logtol = int((logexp) ** 0.6)
+            high_draws = 2 ** logtol * 10 ** logtol
+            draws = min({0: 10, 1: 15, 2: 150, 3: 500, 4: 5000}.get(logtolonly, 1e30), high_draws)
+            self.integration.draws_per_dim = int(min(draws, self.integration.max_draws))
 
     # TODO: remove below? or add "analytic gradients"?
     def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
@@ -781,8 +795,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                                    mc_options={
                                        "draws_per_dim": self.integration.draws_per_dim,
                                        "max_draws": self.integration.max_draws,
-                                       "tol": self.integration.tol
                                    },
+                                   tol=self.integration.tol,
                                    **overwrite_options)
         return self._integration.auto_numeric_integrator(**integration_options)
 

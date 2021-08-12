@@ -34,6 +34,7 @@ def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztype
     if method.lower() == "mc":
         mc_options = mc_options or {}
         draws_per_dim = mc_options['draws_per_dim']
+        max_draws = mc_options.get('max_draws')
         integral = mc_integrate(x=x, func=func, limits=limits, n_axes=n_axes, method=method, dtype=dtype,
                                 mc_sampler=mc_sampler, draws_per_dim=draws_per_dim, max_draws=max_draws, tol=tol,
                                 importance_sampling=None)
@@ -177,22 +178,25 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
             else:
                 avg, error, std, ntot, i = tf.while_loop(cond=cond, body=body_integrate,
                                                          loop_vars=[avg, error, std, ntot, i])
+                tf.print("i:", i, "   ntot:", ntot)
 
             # avg = tfp.monte_carlo.expectation(f=func, samples=x, axis=reduce_axis)
             # TODO: importance sampling?
             # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
 
             def print_none_return():
-                tf.print("Estimated integral error (", error,
-                         ") larger than tolerance (", tol,
-                         "), which is maybe not enough."
-                         "Manually set a higher number on the PDF with 'update_integration_options'"
-                         " and increase the 'max_draws' (or adjust 'tol'). "
-                         "If partial integration is chosen, this does currently"
-                         " not automatically increase the number for the integration.")
+                from zfit import settings
+                if settings.get_verbosity() >= 0:
+                    tf.print("Estimated integral error (", error,
+                             ") larger than tolerance (", tol,
+                             "), which is maybe not enough."
+                             "Manually set a higher number on the PDF with 'update_integration_options'"
+                             " and increase the 'max_draws' (or adjust 'tol'). "
+                             "If partial integration is chosen, this does currently"
+                             " not automatically increase the number for the integration.")
                 return
 
-            tf.cond(error > 3e-7, print_none_return, lambda: None)
+            tf.cond(error > tol, print_none_return, lambda: None)
         integral = avg * tf.cast(z.convert_to_tensor(space.rect_area()), dtype=avg.dtype)
         integrals.append(integral)
     return z.reduce_sum(integrals, axis=0)
