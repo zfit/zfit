@@ -89,7 +89,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     #                                                                                      dtype=dtype)
     DEFAULTS_integration.draws_per_dim = 'auto'
     DEFAULTS_integration.max_draws = 1_000_000
-    DEFAULTS_integration.tol = 1e-6
+    DEFAULTS_integration.tol = 1e-5
     DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = None

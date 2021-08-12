@@ -13,6 +13,15 @@ Major Features and Improvements
   are replaced by their name, the objects such as loss and minimizer as well.
 Breaking changes
 ------------------
+- the numerical integration improved with more sensible values for tolerance. This means however that some fits will
+  greatly increase the runtime. To restore the old behavior globally, do
+  `zfit.pdf.BasePDF.DEFAULTS_integration.draws_per_dim = 40_000`
+  `zfit.pdf.BasePDF.DEFAULTS_integration.max_draws = 40_000`
+  `zfit.pdf.BasePDF.DEFAULTS_integration.tol = 1`
+  or if you want to change it only for one instance `pdf.update_integration_options(...)`
+  This will integrate regardless of the chosen precision and it may be non-optimal.
+  However, the precision estimate in the integrator is also not perfect and maybe overestimates the error, so that
+  the integration by default takes longer than necessary. Feel free to play around with the parameters and report back.
 
 Depreceations
 -------------

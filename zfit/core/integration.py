@@ -121,7 +121,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 if partial:
                     samples_normed = tfp.mcmc.sample_halton_sequence(dim=n_axes,
                                                                      # sequence_indices=tf.range(ntot_old, ntot),
-                                                                     num_results=n_samples,
+                                                                     num_results=20_000 * n_axes,
                                                                      # to decrease integration size
                                                                      dtype=dtype,
                                                                      randomized=False)
@@ -178,7 +178,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 return avg, error, std, ntot, i + 1
 
             avg, error, std, ntot, i = [znp.array(0., dtype=znp.float64),
-                                        znp.array(9999., dtype=znp.float64),
+                                        znp.array(9999., dtype=znp.float64),  # init value large, irrelevant
                                         znp.array(0., dtype=znp.float64),
                                         0,
                                         0]
