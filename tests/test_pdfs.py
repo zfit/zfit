@@ -27,6 +27,7 @@ fracs = [0.3, 0.15]
 obs1 = zfit.Space('obs1', (-3, 6))
 obs2 = zfit.Space('obs2', (-2, 5))
 obs3 = zfit.Space('obs3', (-3.5, 4))
+obs4 = zfit.Space('obs4', (-2.6, 4.1))
 
 
 def true_gaussian_sum(x):
@@ -85,6 +86,31 @@ def product_gauss_3d(name=""):
     # prod_gauss_3d.update_integration_options(draws_per_dim=33)
 
 
+def test_product_separation():
+    mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params()
+    gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1asum")
+    gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs2, name="gauss2asum")
+    gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3asum")
+    gauss4 = Gauss(mu=mu3, sigma=sigma3, obs=obs3, name="gauss3asum")
+    gauss5 = Gauss(mu=mu3, sigma=sigma3, obs=obs4, name="gauss3asum")
+
+    prod12 = ProductPDF(pdfs=[gauss1, gauss2, gauss3])
+    assert not prod12._prod_is_same_obs_pdf
+    prod13 = ProductPDF(pdfs=[gauss3, gauss4])
+    assert not prod13._prod_is_same_obs_pdf
+    prod123 = ProductPDF([prod12, prod13])
+    assert prod123._prod_is_same_obs_pdf
+    npoints = 20000
+    data3 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs3)
+    data2 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs2)
+    integral13 = prod13.partial_integrate(x=data3, limits=obs1, norm_range=False)
+    assert integral13.shape[0] == npoints
+    trueint3 = gauss4.pdf(data3, norm_range=False) * gauss3.integrate(obs1, norm_range=False)
+    np.testing.assert_allclose(integral13, trueint3)
+    assert prod12.partial_integrate(x=data2, limits=obs1).shape[0] == npoints
+    assert prod123.partial_integrate(x=data3, limits=obs1 * obs2).shape[0] == npoints
+
+
 def product_gauss_4d():
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params("4d")
 
@@ -104,6 +130,8 @@ def test_prod_gauss_nd():
     test_values = np.random.random(size=(10, 3))
     test_values_data = Data.from_tensor(obs=obs1 * obs2 * obs3, tensor=test_values)
     product_pdf = product_gauss_3d()
+    assert len(product_pdf._prod_disjoint_obs_pdfs) == 3
+    assert product_pdf._prod_is_same_obs_pdf is False
     assert product_pdf.n_obs == 3
     probs = product_pdf.pdf(x=test_values_data)
     gaussians = create_gaussians()
@@ -123,7 +151,6 @@ def test_prod_gauss_nd_mixed():
 
     obs4d = ['obs1', 'obs2', 'obs3', 'obs4']
     test_values_data = Data.from_tensor(obs=obs4d, tensor=test_values)
-    # prod_gauss_4d.update_integration_options(draws_per_dim=10)
     limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
     prod_gauss_4d = product_gauss_4d()
     prod_gauss_4d.set_norm_range(limits_4d)
