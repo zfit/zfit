@@ -16,7 +16,7 @@ with open(os.path.join(here, 'requirements_dev.txt'), encoding='utf-8') as requi
 
 extras_require = {}
 if platform.system() == 'Darwin':  # OSX has no wheels for ipyopt, build fails
-    del requirements[
+    del requirements_dev[
         requirements_dev.index('ipyopt<0.12')]  # TODO: osx wheels? https://gitlab.com/g-braeunlich/ipyopt/-/issues/4
 
 allreq = sum(extras_require.values(), [])
@@ -38,10 +38,7 @@ extras_require['dev'] = requirements_dev + extras_require['tests']
 extras_require['alldev'] = list(set(extras_require['all'] + extras_require['dev']))
 
 setup(
-    author=("Jonas Eschle, "
-            "Albert Puig, "
-            "Rafael Silva Coutinho, "
-            "Matthieu Marinangeli"),
+
     install_requires=requirements,
     tests_require=tests_require,
     extras_require=extras_require,
