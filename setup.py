@@ -32,7 +32,7 @@ tests_require = [
     'matplotlib'  # for plots in examples
 ]
 extras_require['all'] = allreq
-extras_require['tests'] = tests_require + extras_require['ipyopt']
+extras_require['tests'] = tests_require + extras_require.get('ipyopt', [])
 extras_require['dev'] = requirements_dev + extras_require['tests']
 extras_require['alldev'] = list(set(extras_require['all'] + extras_require['dev']))
 
