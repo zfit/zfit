@@ -2,6 +2,7 @@
 
 #  Copyright (c) 2021 zfit
 import os
+import platform
 
 from setuptools import setup
 
@@ -13,7 +14,8 @@ with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as requireme
 with open(os.path.join(here, 'requirements_dev.txt'), encoding='utf-8') as requirements_dev_file:
     requirements_dev = requirements_dev_file.read().splitlines()
 
-extras_require = {'ipyopt': ['ipyopt<0.12']}  # TODO: osx wheels? https://gitlab.com/g-braeunlich/ipyopt/-/issues/4
+if platform.system() != 'Darwin':  # OSX has no wheels for ipyopt, build fails
+    extras_require = {'ipyopt': ['ipyopt<0.12']}  # TODO: osx wheels? https://gitlab.com/g-braeunlich/ipyopt/-/issues/4
 
 allreq = sum(extras_require.values(), [])
 
