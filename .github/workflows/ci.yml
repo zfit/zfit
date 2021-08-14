@@ -37,7 +37,7 @@ jobs:
           pip install --use-feature=in-tree-build .[alldev]
       - name: Test with pytest
         run: |
-          echo ${{ ZFIT_DO_JIT }}
+          echo $ZFIT_DO_JIT
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
