@@ -1,12 +1,11 @@
 #  Copyright (c) 2021 zfit
 
-import boost_histogram as bh
 import hist
 import numpy as np
 
 import zfit
 import zfit.z.numpy as znp
-from zfit.core.binneddata import BinnedData
+from zfit._data.binneddata import BinnedData
 from zfit.models.binned_functor import BinnedSumPDF
 from zfit.models.template import BinnedTemplatePDFV1
 

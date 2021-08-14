@@ -5,16 +5,16 @@ from __future__ import annotations
 import boost_histogram as bh
 import hist
 import tensorflow_probability as tfp
-import tensorflow as tf
+import zfit.core.tensorlike as tensorlike
 
 from zfit.z import numpy as znp
-from .baseobject import BaseObject
-from .dimension import BaseDimensional
-from .interfaces import ZfitBinnedData
-from .tensorlike import register_tensor_conversion, OverloadableMixin, OverloadableMixinValues
-from .. import z, Space
-from ..util.exception import WorkInProgressError
-from ..util.ztyping import NumericalTypeReturn
+from zfit.core.baseobject import BaseObject
+from zfit.core.dimension import BaseDimensional
+from zfit.core.interfaces import ZfitBinnedData
+from zfit.core.tensorlike import register_tensor_conversion, OverloadableMixin, OverloadableMixinValues
+from zfit import z, Space
+from zfit.util.exception import WorkInProgressError
+from zfit.util.ztyping import NumericalTypeReturn
 
 
 class BinnedDataV1(BaseDimensional, ZfitBinnedData, BaseObject, OverloadableMixin):  # TODO: add dtype
@@ -165,4 +165,4 @@ class BinnedData(tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, 
         return znp.sum(self.values())
 
 
-register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)
+tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)

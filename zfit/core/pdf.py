@@ -158,8 +158,10 @@ class PDF(Func, ZfitPDF):
             return self._auto_ext_integrate(var, norm, options=options) / self.get_yield()
         return self._fallback_integrate(var, norm, options=options)
 
-    def _auto_integrate(self,var, norm, options):
-        return self._integrate(var, norm, options=options)
+    def _auto_integrate(self, var, norm, options):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._integrate(var, norm, options=options)
+        return self._fallback_integrate(var=var, norm=norm, options=options)
 
     def _fallback_integrate(self, var, norm, options):
         pass

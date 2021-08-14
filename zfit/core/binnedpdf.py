@@ -11,7 +11,7 @@ import tensorflow_probability as tfp
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from zfit.core.binneddata import BinnedData
+from zfit._data.binneddata import BinnedData
 from .baseobject import BaseNumeric
 from .dimension import BaseDimensional
 from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace, ZfitMinimalHist

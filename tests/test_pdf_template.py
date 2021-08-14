@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 import zfit
 import zfit.z.numpy as znp
 from zfit._loss.binnedloss import ExtendedBinnedNLL
-from zfit.core.binneddata import BinnedData
+from zfit._data.binneddata import BinnedData
 from zfit.models.binned_functor import BinnedSumPDF
 from zfit.models.morphing import LinearMorphing
 from zfit.models.template import BinnedTemplatePDFV1, BinnedTemplatePDF

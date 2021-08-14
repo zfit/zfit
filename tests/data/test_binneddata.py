@@ -1,5 +1,4 @@
 #  Copyright (c) 2021 zfit
-import boost_histogram
 import hist
 import boost_histogram as bh
 import numpy as np
@@ -9,21 +8,21 @@ import tensorflow as tf
 
 @pytest.fixture
 def hist1():
-    from zfit.core.binneddata import BinnedData
+    from zfit._data.binneddata import BinnedData
     return BinnedData
 
 
 @pytest.fixture
 def holder1():
     from zfit.z import numpy as znp
-    from zfit.core.binneddata import BinnedHolder
+    from zfit._data.binneddata import BinnedHolder
     return BinnedHolder(tf.constant('asdf'), znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
 
 
 @pytest.fixture
 def holder2():
     from zfit.z import numpy as znp
-    from zfit.core.binneddata import BinnedHolder
+    from zfit._data.binneddata import BinnedHolder
     return BinnedHolder(tf.constant('asdf'), znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
 
 
@@ -57,7 +56,7 @@ def test_from_and_to_hist():
 
     h3.fill(x=x2, y=y2)
 
-    from zfit.core.binneddata import BinnedData
+    from zfit._data.binneddata import BinnedData
     for _ in range(100):  # make sure this works many times
         h1 = BinnedData.from_hist(h3)
         np.testing.assert_allclose(h1.variances(), h3.variances())
