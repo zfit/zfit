@@ -16,6 +16,7 @@ with open(os.path.join(here, 'requirements_dev.txt'), encoding='utf-8') as requi
 
 extras_require = {}
 if platform.system() != 'Darwin':  # OSX has no wheels for ipyopt, build fails
+    raise RuntimeError('DEBUGGING, this should not on OSX')
     extras_require['ipyopt'] = ['ipyopt<0.12']  # TODO: osx wheels? https://gitlab.com/g-braeunlich/ipyopt/-/issues/4
 
 allreq = sum(extras_require.values(), [])
