@@ -23,8 +23,8 @@ jobs:
         use-graph: [ 0, 1 ]
         python-version: [ 3.7, 3.8, 3.9 ]
     name: tests on ubuntu with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
-    env:
-      ZFIT_DO_JIT: ${{ matrix.use-graph }}
+    #    env:
+    #      ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v2.3.4
       - uses: actions/setup-python@v2
@@ -37,19 +37,22 @@ jobs:
           pip install --use-feature=in-tree-build .[alldev]
       - name: Test with pytest
         run: |
+          ZFIT_DO_JIT=${{ matrix.use-graph }}
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
-          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}
+          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
           parallel: true
 
       - name: Run examples
         run: |
+          ZFIT_DO_JIT=${{ matrix.use-graph }}
           bash utils/ci/install_test_examples.sh
       - name: Build the docs, check for failure
         run: |
+          ZFIT_DO_JIT=${{ matrix.use-graph }}
           bash utils/ci/testbuild_docs.sh
 
   MacOS_unittests:
@@ -83,7 +86,7 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
-          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}
+          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-macos
           parallel: true
 
       - name: Run examples
