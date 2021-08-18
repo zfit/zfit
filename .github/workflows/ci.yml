@@ -59,7 +59,7 @@ jobs:
       max-parallel: 8
       fail-fast: False
       matrix:
-        python-version: [ 3.8 ]
+        python-version: [ 3.9 ]
         use-graph: [ 0, 1 ]
 
     name: tests on MacOS with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
