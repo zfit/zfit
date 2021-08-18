@@ -1,6 +1,7 @@
 bumpversion>=0.5.3
 check-manifest
 coverage>=4.5.1
+coveragepy-lcov
 docformatter
 flake8>=3.5.0
 ipyopt<0.12

@@ -39,6 +39,7 @@ jobs:
         run: |
           ZFIT_DO_JIT=${{ matrix.use-graph }}
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
+          mkdir coverage && coveragepy-lcov --output_file_path ./coverage/lcov.info
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
         with:
@@ -82,6 +83,7 @@ jobs:
       - name: Test with pytest
         run: |
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
+          mkdir coverage && coveragepy-lcov --output_file_path ./coverage/lcov.info
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
         with:
