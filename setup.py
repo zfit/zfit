@@ -15,7 +15,7 @@ with open(os.path.join(here, 'requirements_dev.txt'), encoding='utf-8') as requi
     requirements_dev = requirements_dev_file.read().splitlines()
 
 extras_require = {}
-if platform.system() == 'Darwin':  # OSX has no wheels for ipyopt, build fails
+if platform.system() in ('Darwin', 'Windows'):  # OSX, Windows has no wheels for ipyopt, build fails
     del requirements_dev[
         requirements_dev.index('ipyopt<0.12')]  # TODO: osx wheels? https://gitlab.com/g-braeunlich/ipyopt/-/issues/4
 
