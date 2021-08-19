@@ -15,12 +15,15 @@ on:
 jobs:
   unittests:
     runs-on: ${{ matrix.os }}
+    env:
+      ZFIT_DO_JIT: ${{ matrix.use-graph }}
+
     timeout-minutes: 150
     strategy:
       max-parallel: 12
       fail-fast: False
       matrix:
-        use-graph: [ 0, 1 ]
+        use-graph: [ 1 ]  # HACK: just do with graph, eager too slow?
         python-version: [ 3.7, 3.8, 3.9 ]
         os: [ ubuntu-latest ]
         include:
@@ -53,7 +56,6 @@ jobs:
           # because of https://github.com/chaychoong/coveragepy-lcov/pull/1
       - name: Test with pytest
         run: |
-          ZFIT_DO_JIT=${{ matrix.use-graph }}
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
           mkdir coverage && coveragepy-lcov --output_file_path ./coverage/lcov.info
       - name: Coveralls Parallel
