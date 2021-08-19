@@ -34,7 +34,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --use-feature=in-tree-build .[alldev]
+          pip install --use-feature=in-tree-build --ignore-requires-python .[alldev]  # ignore python version
+          # because of https://github.com/chaychoong/coveragepy-lcov/pull/1
       - name: Test with pytest
         run: |
           ZFIT_DO_JIT=${{ matrix.use-graph }}
@@ -79,7 +80,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --use-feature=in-tree-build .[alldev]
+          pip install --use-feature=in-tree-build --ignore-requires-python .[alldev]  # ignore python version
+          # because of https://github.com/chaychoong/coveragepy-lcov/pull/1
       - name: Test with pytest
         run: |
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
