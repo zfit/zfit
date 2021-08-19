@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 150
     strategy:
-      max-parallel: 8
+      max-parallel: 12
       fail-fast: False
       matrix:
         use-graph: [ 0, 1 ]
