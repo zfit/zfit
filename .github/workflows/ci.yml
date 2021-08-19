@@ -26,10 +26,16 @@ jobs:
         include:
           - os: macos-latest
             python-version: 3.9
-            use-graph: [ 0, 1 ]
+            use-graph: 0
+          - os: macos-latest
+            python-version: 3.9
+            use-graph: 1
           - os: windows-latest
             python-version: 3.9
-            use-graph: [ 0, 1 ]
+            use-graph: 0
+          - os: windows-latest
+            python-version: 3.9
+            use-graph: 1
 
     name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     #    env:
