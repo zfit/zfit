@@ -129,6 +129,7 @@ def test_freeze():
     result.errors()
     result.hesse()
     result.freeze()
+    print(result.__dict__)  # DEBUG
     dumped = pickle.dumps(result)
     loaded = pickle.loads(dumped)
     test = loaded
