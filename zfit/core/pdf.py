@@ -276,6 +276,14 @@ class HistPDF(PDF):
             norm: typing.Mapping[str, ZfitSpace] = None,
             label: str | None = None,
     ):
+        if obs is not None:
+            obs = {
+                axis: VarSupports(var=ob.name, binned=True)
+                for axis, ob in obs.items()
+                if not isinstance(ob, VarSupports)
+            }
+        else:
+            obs = {}
         super().__init__(
             obs=obs, params=params, var=var, extended=extended, norm=norm, label=label
         )

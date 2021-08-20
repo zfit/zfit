@@ -19,11 +19,17 @@ class VarSupports(tfp.experimental.AutoCompositeTensor):
                 raise ValueError
         elif not (space or scalar or vectorspace or binned or data):
             raise ValueError("Need to support at least something.")
+        if data:
+            scalar = True
+        if vectorspace:
+            space = True
 
         if not isinstance(var, zfit_interface.variables.ZfitVar):
             raise TypeError(f"var has to be a ZfitVar, not {var}.")
         self.var = var
         self.full = full or False
+        self.scalar = scalar or False
+        self.vectorspace = vectorspace or False
         self.space = space or False
         self.binned = binned or False
         self.data = data or False
