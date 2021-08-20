@@ -23,7 +23,7 @@ jobs:
       max-parallel: 12
       fail-fast: False
       matrix:
-        use-graph: [ 0, 1 ]  # HACK: just do with graph, eager too slow?
+        use-graph: [ 1 ]  # TODO: reactivate eager, this was weirdly slow
         python-version: [ 3.7, 3.8, 3.9 ]
         os: [ ubuntu-latest ]
         include:
@@ -67,11 +67,9 @@ jobs:
 
       - name: Run examples
         run: |
-          ZFIT_DO_JIT=${{ matrix.use-graph }}
           bash utils/ci/install_test_examples.sh
       - name: Build the docs, check for failure
         run: |
-          ZFIT_DO_JIT=${{ matrix.use-graph }}
           bash utils/ci/testbuild_docs.sh
 
   notebooks:
