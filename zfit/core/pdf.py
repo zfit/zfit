@@ -1,12 +1,15 @@
 #  Copyright (c) 2021 zfit
+import typing
 from contextlib import suppress
 from typing import Callable
 
 import tensorflow_probability as tfp
 import zfit_interface.typing as ztyping
 from zfit_interface.pdf import ZfitPDF
+from zfit_interface.variables import ZfitVar, ZfitSpace, ZfitParam
 
 from zfit import convert_to_parameter, z
+from zfit._variables.varsupport import VarSupports
 from zfit.core.func import Func
 from zfit.core.values import ValueHolder
 from zfit.util.container import convert_to_container
@@ -52,7 +55,28 @@ class Integration:
 
 class PDF(Func, ZfitPDF):
 
-    def __init__(self, var, extended, norm, label=None):
+    def __init__(self, obs: typing.Mapping[str, ZfitSpace] = None, params: typing.Mapping[str, ZfitParam] = None,
+                 var: typing.Mapping[str, ZfitVar] = None, extended: bool = None,
+                 norm: typing.Mapping[str, ZfitSpace] = None,
+                 label: typing.Optional[str] = None):
+        if obs is not None:
+            obs = {axis: VarSupports(var=ob.name, data=True)
+                   for axis, ob in obs.items()
+                   if not isinstance(ob, VarSupports)}
+        else:
+            obs = {}
+        if params is None:
+            params = {}
+        else:
+            params = {axis: VarSupports(var=p.name, scalar=True) for axis, p in params.items()}
+        if var is None:
+            var = {}
+        else:
+            var = var.copy()
+            if not all(isinstance(v, VarSupports) for v in var.values()):
+                raise TypeError(f"All var need to be VarSupports.")
+        var.update(obs)
+        var.update(params)
         super().__init__(var=var, label=label)
         if norm is None:
             norm = self.space
@@ -201,3 +225,11 @@ class PDF(Func, ZfitPDF):
         if norm is None:
             norm = self.norm
         # return var  # TODO
+
+
+class HistPDF(PDF):
+
+    def __init__(self, obs: typing.Mapping[str, ZfitSpace] = None, params: typing.Mapping[str, ZfitParam] = None,
+                 var: typing.Mapping[str, ZfitVar] = None, extended: bool = None,
+                 norm: typing.Mapping[str, ZfitSpace] = None, label: typing.Optional[str] = None):
+        super().__init__(obs=obs, params=params, var=var, extended=extended, norm=norm, label=label)
