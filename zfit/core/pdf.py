@@ -1,7 +1,10 @@
+from __future__ import annotations
+
+from collections.abc import Callable
+
 #  Copyright (c) 2021 zfit
 import typing
 from contextlib import suppress
-from typing import Callable
 
 import tensorflow_probability as tfp
 import zfit_interface.typing as ztyping
@@ -13,34 +16,46 @@ from zfit._variables.varsupport import VarSupports
 from zfit.core.func import Func
 from zfit.core.values import ValueHolder
 from zfit.util.container import convert_to_container
-from zfit.util.exception import AlreadyExtendedPDFError, SpecificFunctionNotImplemented, NotExtendedPDFError
+from zfit.util.exception import (
+    AlreadyExtendedPDFError,
+    SpecificFunctionNotImplemented,
+    NotExtendedPDFError,
+)
 
 
 class Integration:
     _analytic_integrals = {}
+
     def __init__(self, mc_sampler=None, draws_per_dim=None, numeric_integrator=None):
         self._analytic_integrals = self._analytic_integrals.copy()
         if mc_sampler is None:
-            mc_sampler = lambda *args, **kwargs: tfp.mcmc.sample_halton_sequence(*args, randomized=False,
-                                                                                 **kwargs)
+            mc_sampler = lambda *args, **kwargs: tfp.mcmc.sample_halton_sequence(
+                *args, randomized=False, **kwargs
+            )
         if numeric_integrator is None:
-            numeric_integrator = False #  TODO
+            numeric_integrator = False  # TODO
         if draws_per_dim is None:
             draws_per_dim = 40_000
         self.numeric_integrator = numeric_integrator
         self.mc_sampler = mc_sampler
         self.draws_per_dim = draws_per_dim
 
-    def register_on_object(self, var: ztyping.Variable, func: Callable, overwrite: bool = False):
+    def register_on_object(
+            self, var: ztyping.Variable, func: Callable, overwrite: bool = False
+    ):
         var = convert_to_container(var, frozenset)
         if var in self._analytic_integrals and not overwrite:
-            raise ValueError(f"An analytic integral for {var} is already registered and 'overwrite' is "
-                             f"set to False.")
+            raise ValueError(
+                f"An analytic integral for {var} is already registered and 'overwrite' is "
+                f"set to False."
+            )
         self._analytic_integrals[var] = func
 
     def get_available(self, var):
         var = convert_to_container(var, frozenset)
-        candidates = sorted((v for v in self._analytic_integrals if var.issubset(v)), key=len)
+        candidates = sorted(
+            (v for v in self._analytic_integrals if var.issubset(v)), key=len
+        )
         return {v: self._analytic_integrals[v] for v in candidates}
 
     @property
@@ -54,21 +69,29 @@ class Integration:
 
 
 class PDF(Func, ZfitPDF):
-
-    def __init__(self, obs: typing.Mapping[str, ZfitSpace] = None, params: typing.Mapping[str, ZfitParam] = None,
-                 var: typing.Mapping[str, ZfitVar] = None, extended: bool = None,
-                 norm: typing.Mapping[str, ZfitSpace] = None,
-                 label: typing.Optional[str] = None):
+    def __init__(
+            self,
+            obs: typing.Mapping[str, ZfitSpace] = None,
+            params: typing.Mapping[str, ZfitParam] = None,
+            var: typing.Mapping[str, ZfitVar] = None,
+            extended: bool = None,
+            norm: typing.Mapping[str, ZfitSpace] = None,
+            label: str | None = None,
+    ):
         if obs is not None:
-            obs = {axis: VarSupports(var=ob.name, data=True)
-                   for axis, ob in obs.items()
-                   if not isinstance(ob, VarSupports)}
+            obs = {
+                axis: VarSupports(var=ob.name, data=True)
+                for axis, ob in obs.items()
+                if not isinstance(ob, VarSupports)
+            }
         else:
             obs = {}
         if params is None:
             params = {}
         else:
-            params = {axis: VarSupports(var=p.name, scalar=True) for axis, p in params.items()}
+            params = {
+                axis: VarSupports(var=p.name, scalar=True) for axis, p in params.items()
+            }
         if var is None:
             var = {}
         else:
@@ -111,8 +134,13 @@ class PDF(Func, ZfitPDF):
     def _pdf(self, var, norm):
         raise SpecificFunctionNotImplemented
 
-    def pdf(self, var: ztyping.VarInputType, norm: ztyping.NormInputType = None, *,
-            options=None) -> ztyping.PDFReturnType:
+    def pdf(
+            self,
+            var: ztyping.VarInputType,
+            norm: ztyping.NormInputType = None,
+            *,
+            options=None,
+    ) -> ztyping.PDFReturnType:
         """Probability density function, normalized over `norm`.
 
         Args:
@@ -134,15 +162,20 @@ class PDF(Func, ZfitPDF):
         #         z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
         #     return z.to_real(value)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_pdf(self, var, norm, *, options=None):
         return self._pdf(var, norm)  # TODO
 
     def _ext_pdf(self, var, norm):
         raise SpecificFunctionNotImplemented
 
-    def ext_pdf(self, var: ztyping.VarInputType, norm: ztyping.NormInputType = None, *,
-            options=None) -> ztyping.PDFReturnType:
+    def ext_pdf(
+            self,
+            var: ztyping.VarInputType,
+            norm: ztyping.NormInputType = None,
+            *,
+            options=None,
+    ) -> ztyping.PDFReturnType:
         """Probability density function, normalized over `norm`.
 
         Args:
@@ -160,26 +193,30 @@ class PDF(Func, ZfitPDF):
             return self.integrate(limits=var, norm=norm, options=options)
         return self._call_ext_pdf(var=var, norm=norm, options=options)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_ext_pdf(self, var, norm, *, options=None):
         return self._ext_pdf(var, norm)  # TODO
 
-    def _integrate(self,var, norm, options):
+    def _integrate(self, var, norm, options):
         raise SpecificFunctionNotImplemented
 
     def integrate(self, limits, norm=None, *, var=None, options=None):
         var = self._convert_check_input_var(limits, var)
         if var.space is None:
-            raise ValueError(f"No space is given to integrate of {self}, needs at least one.")
+            raise ValueError(
+                f"No space is given to integrate of {self}, needs at least one."
+            )
         norm = self._convert_check_input_norm(norm, var=var)
         return self._call_integrate(var=var, norm=norm, options=options)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_integrate(self, var, norm, options):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_integrate(var, norm, options=options)
         if self.is_extended:
-            return self._auto_ext_integrate(var, norm, options=options) / self.get_yield()
+            return (
+                    self._auto_ext_integrate(var, norm, options=options) / self.get_yield()
+            )
         return self._fallback_integrate(var, norm, options=options)
 
     def _auto_integrate(self, var, norm, options):
@@ -198,11 +235,13 @@ class PDF(Func, ZfitPDF):
             raise NotExtendedPDFError
         var = self._convert_check_input_var(limits, var)
         if var.space is None:
-            raise ValueError(f"No space is given to integrate of {self}, needs at least one.")
+            raise ValueError(
+                f"No space is given to integrate of {self}, needs at least one."
+            )
         norm = self._convert_check_input_norm(norm, var=var)
         return self._call_ext_integrate(var=var, norm=norm, options=options)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_ext_integrate(self, var, norm, options):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_integrate(var, norm, options=options)
@@ -228,8 +267,15 @@ class PDF(Func, ZfitPDF):
 
 
 class HistPDF(PDF):
-
-    def __init__(self, obs: typing.Mapping[str, ZfitSpace] = None, params: typing.Mapping[str, ZfitParam] = None,
-                 var: typing.Mapping[str, ZfitVar] = None, extended: bool = None,
-                 norm: typing.Mapping[str, ZfitSpace] = None, label: typing.Optional[str] = None):
-        super().__init__(obs=obs, params=params, var=var, extended=extended, norm=norm, label=label)
+    def __init__(
+            self,
+            obs: typing.Mapping[str, ZfitSpace] = None,
+            params: typing.Mapping[str, ZfitParam] = None,
+            var: typing.Mapping[str, ZfitVar] = None,
+            extended: bool = None,
+            norm: typing.Mapping[str, ZfitSpace] = None,
+            label: str | None = None,
+    ):
+        super().__init__(
+            obs=obs, params=params, var=var, extended=extended, norm=norm, label=label
+        )
