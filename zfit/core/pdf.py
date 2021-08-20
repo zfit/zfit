@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Callable
-
 #  Copyright (c) 2021 zfit
 import typing
+from collections.abc import Callable
 from contextlib import suppress
 
 import tensorflow_probability as tfp
@@ -17,7 +16,6 @@ from zfit.core.func import Func
 from zfit.core.values import ValueHolder
 from zfit.util.container import convert_to_container
 from zfit.util.exception import (
-    AlreadyExtendedPDFError,
     SpecificFunctionNotImplemented,
     NotExtendedPDFError,
 )
@@ -100,6 +98,8 @@ class PDF(Func, ZfitPDF):
                 raise TypeError(f"All var need to be VarSupports.")
         var.update(obs)
         var.update(params)
+        if norm is None:
+            norm = obs.values()  # TODO: preprocess
         super().__init__(var=var, label=label)
         if norm is None:
             norm = self.space
@@ -241,6 +241,17 @@ class PDF(Func, ZfitPDF):
         norm = self._convert_check_input_norm(norm, var=var)
         return self._call_ext_integrate(var=var, norm=norm, options=options)
 
+    def values(self, *, var, norm=None, options=None):
+        return self._call_values(var=var, norm=norm, options=options)
+
+    def _call_values(self, var=None, norm=None, options=None):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._values(var, norm, options=options)  # TODO: auto_value?
+        return self._call_ext_pdf(var=var, norm=norm, options=options)
+
+    def _values(self, var=None, norm=None, options=None):
+        raise SpecificFunctionNotImplemented
+
     @z.function(wraps="model")
     def _call_ext_integrate(self, var, norm, options):
         with suppress(SpecificFunctionNotImplemented):
@@ -287,3 +298,7 @@ class HistPDF(PDF):
         super().__init__(
             obs=obs, params=params, var=var, extended=extended, norm=norm, label=label
         )
+
+    def _ext_pdf(self, var, norm):
+        values = self._call_values(var=var, norm=norm)
+        return values
