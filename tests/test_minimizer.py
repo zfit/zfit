@@ -294,7 +294,7 @@ error_scales = {
 # @pytest.mark.parametrize("errordef", [0.5, 1.0, 2.25, 4.])
 # @pytest.mark.parametrize("cl_scale", [(0.683, 1), (0.9548, 2), (0.99747, 3)])  # cl and expected scale of error
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-# @pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
                     pytestconfig):
     long_clarg = pytestconfig.getoption("longtests")
