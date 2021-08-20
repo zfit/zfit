@@ -72,32 +72,39 @@ class PDF(Func, ZfitPDF):
             obs: typing.Mapping[str, ZfitSpace] = None,
             params: typing.Mapping[str, ZfitParam] = None,
             var: typing.Mapping[str, ZfitVar] = None,
+            supports: typing.Mapping[str, typing.Mapping[str, VarSupports]] = None,
             extended: bool = None,
             norm: typing.Mapping[str, ZfitSpace] = None,
             label: str | None = None,
     ):
-        if obs is not None:
-            obs = {
+        supports_default = 'ext_pdf' if extended else 'pdf'
+        if supports is None:
+            supports = {}
+        if supports_default not in supports:
+            supports[supports_default] = {}
+
+        if obs is None:
+            obs_supports = {}
+        else:
+            obs_supports = {
                 axis: VarSupports(var=ob.name, data=True)
                 for axis, ob in obs.items()
                 if not isinstance(ob, VarSupports)
             }
-        else:
-            obs = {}
         if params is None:
-            params = {}
+            params_supports = {}
         else:
-            params = {
+            params_supports = {
                 axis: VarSupports(var=p.name, scalar=True) for axis, p in params.items()
             }
         if var is None:
-            var = {}
+            var_supports = {}
         else:
-            var = var.copy()
-            if not all(isinstance(v, VarSupports) for v in var.values()):
-                raise TypeError(f"All var need to be VarSupports.")
-        var.update(obs)
-        var.update(params)
+            var_supports = var.copy()
+        var_supports.update(obs_supports)
+        var_supports.update(params_supports)
+        if supports_default not in supports:
+            supports[supports_default] = var_supports
         if norm is None:
             norm = obs.values()  # TODO: preprocess
         super().__init__(var=var, label=label)
@@ -283,20 +290,46 @@ class HistPDF(PDF):
             obs: typing.Mapping[str, ZfitSpace] = None,
             params: typing.Mapping[str, ZfitParam] = None,
             var: typing.Mapping[str, ZfitVar] = None,
+            supports: typing.Mapping[str, typing.Mapping[str, VarSupports]] = None,
             extended: bool = None,
             norm: typing.Mapping[str, ZfitSpace] = None,
             label: str | None = None,
     ):
-        if obs is not None:
-            obs = {
+        supports_default = 'values' if extended else 'rel_values'
+        if supports is None:
+            supports = {}
+        if supports_default not in supports:
+            supports[supports_default] = {}
+
+        if obs is None:
+            obs_supports = {}
+        else:
+            obs_supports = {
                 axis: VarSupports(var=ob.name, binned=True)
                 for axis, ob in obs.items()
                 if not isinstance(ob, VarSupports)
             }
+        if params is None:
+            params_supports = {}
         else:
-            obs = {}
+            params_supports = {
+                axis: VarSupports(var=p.name, scalar=True) for axis, p in params.items()
+            }
+        if var is None:
+            var_supports = {}
+        else:
+            var_supports = var.copy()
+        var_supports.update(obs_supports)
+        var_supports.update(params_supports)
+        supports[supports_default] = var_supports
+        if 'pdf' not in supports:
+            supports['pdf'] = {axis: VarSupports(var=v.var, full=True)
+                               for axis, v in supports[supports_default].items()}
+        if 'ext_pdf' not in supports:
+            supports['ext_pdf'] = {axis: VarSupports(var=v.var, full=True)
+                                   for axis, v in supports[supports_default].items()}
         super().__init__(
-            obs=obs, params=params, var=var, extended=extended, norm=norm, label=label
+            obs=obs, params=params, var=var, extended=extended, norm=norm, label=label, supports=supports,
         )
 
     def _ext_pdf(self, var, norm):
