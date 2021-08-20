@@ -330,6 +330,23 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
         else:
             raise SpecificFunctionNotImplemented
 
+    @supports(norm_range=False)
+    def _analytic_integrate(self, limits, norm_range):
+        if self._prod_is_same_obs_pdf:
+            raise AnalyticIntegralNotImplemented(f"Cannot integrate analytically as PDFs have overlapping obs:"
+                                                 f" {[pdf.obs for pdf in self.pdfs]}")
+        integrals = []
+        for pdf in self._prod_disjoint_obs_pdfs:
+            limit = limits.with_obs(pdf.obs)
+            try:
+                integral = pdf.analytic_integrate(limits=limit, norm_range=norm_range)
+            except AnalyticIntegralNotImplemented:
+                raise AnalyticIntegralNotImplemented(f"At least one pdf ({pdf} does not support analytic integration.")
+            else:
+                integrals.append(integral)
+        integral = functools.reduce(operator.mul, integrals)
+        return z.convert_to_tensor(integral)
+
     @supports(multiple_limits=True, norm_range=True)
     def _partial_integrate(self, x, limits, norm_range):
         if self._prod_is_same_obs_pdf:

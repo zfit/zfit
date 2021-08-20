@@ -110,6 +110,11 @@ def test_product_separation():
     assert prod12.partial_integrate(x=data2, limits=obs1).shape[0] == npoints
     assert prod123.partial_integrate(x=data3, limits=obs1 * obs2).shape[0] == npoints
 
+    obs13 = obs1 * obs3
+    analytic_int = zfit.run(prod13.analytic_integrate(limits=obs13, norm_range=False))
+    numeric_int = zfit.run(prod13.numeric_integrate(limits=obs13, norm_range=False))
+    assert pytest.approx(analytic_int, rel=1e-3) == numeric_int
+
 
 def product_gauss_4d():
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params("4d")
