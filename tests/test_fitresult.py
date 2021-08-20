@@ -130,6 +130,12 @@ def test_freeze():
     result.hesse()
     result.freeze()
     print(result.__dict__)  # DEBUG
+    for key, val in result.__dict__.items():
+        try:
+            pickle.dumps(val)
+        except:
+            print(f"Could not pickle {key}: {val}")
+
     dumped = pickle.dumps(result)
     loaded = pickle.loads(dumped)
     test = loaded

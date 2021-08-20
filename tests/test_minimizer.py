@@ -124,11 +124,12 @@ minimizers = [
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
 
     # SciPy Minimizer
-    (zfit.minimize.ScipyLBFGSBV1, {'tol': 1e-5, "verbosity": verbosity}, {'error': True,
-                                                                          'numgrad': False, 'approx': True}),
+    (zfit.minimize.ScipyLBFGSBV1, {"verbosity": verbosity}, {'error': True,
+                                                             'numgrad': False, 'approx': True}),
     # (zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-5, "verbosity": verbosity}, True),
     # (zfit.minimize.ScipyTrustKrylovV1, {"verbosity": verbosity}, True),  # Too unstable
-    (zfit.minimize.ScipyTrustConstrV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
+    (zfit.minimize.ScipyTrustConstrV1, {"verbosity": verbosity, },
+     {'error': True, 'longtests': bool(zfit.run.get_graph_mode())}),
     (zfit.minimize.ScipyPowellV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
     (zfit.minimize.ScipySLSQPV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
     # (zfit.minimize.ScipyCOBYLAV1, {"verbosity": verbosity, }, {'error': do_errors_most}),  # Too bad
@@ -137,7 +138,8 @@ minimizers = [
     (zfit.minimize.ScipyTruncNCV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
 
     # NLopt minimizer
-    (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
+    (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, },
+     {'error': True, 'longtests': bool(zfit.run.get_graph_mode())}),
     (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
     (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
     (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
@@ -297,7 +299,6 @@ error_scales = {
 @pytest.mark.flaky(reruns=3)
 def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
                     pytestconfig):
-    import tensorflow as tf
     long_clarg = pytestconfig.getoption("longtests")
     # long_clarg = True
     # zfit.run.chunking.active = True
@@ -321,6 +322,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
                   and not (chunksize == chunksizes[0]
                            and numgrad == numgrads[0]
                            and spaces is spaces_all[0]))
+
     if skip_tests:
         return
     if not long_clarg and not do_long:
