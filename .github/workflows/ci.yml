@@ -63,15 +63,30 @@ jobs:
           github-token: ${{ secrets.github_token }}
           flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
           parallel: true
-
-      - name: Run examples
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python-version: [ 3.9 ]
+    name: Testbuild docs
+    #    env:
+    #      ZFIT_DO_JIT: ${{ matrix.use-graph }}
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: actions/setup-python@v2
+        name: Set up Python ${{ matrix.python-version }}
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
         run: |
-          bash utils/ci/install_test_examples.sh
+          python -m pip install --upgrade pip
+          pip install --use-feature=in-tree-build --ignore-requires-python .[docs]
       - name: Build the docs, check for failure
         run: |
           bash utils/ci/testbuild_docs.sh
 
-  notebooks:
+  examples:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -80,7 +95,7 @@ jobs:
       matrix:
         use-graph: [ 0, 1 ]
         python-version: [ 3.7, 3.8, 3.9 ]
-    name: Run notebooks, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
+    name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
@@ -105,6 +120,10 @@ jobs:
       - name: Run notebooks
         run: |
           pytest --nbval-lax zfit-tutorials --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused
+
+      - name: Run examples
+        run: |
+          bash utils/ci/install_test_examples.sh
 
   finish:
     needs: unittests
