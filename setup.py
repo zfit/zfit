@@ -36,7 +36,6 @@ extras_require['all'] = allreq
 extras_require['tests'] = tests_require + extras_require.get('ipyopt', [])
 extras_require['dev'] = requirements_dev + extras_require['tests']
 extras_require['alldev'] = list(set(extras_require['all'] + extras_require['dev']))
-extras_require['ci'] = ['coveragepy-lcov']
 
 setup(
 
