@@ -355,13 +355,14 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
 
         values = []
         for pdf in pdfs:
-            intersection = set(pdf.obs).intersection(limits.obs)
-            if set(pdf.obs) == set(limits.obs):
+            intersection_limits = set(pdf.obs).intersection(limits.obs)
+            intersection_data = set(pdf.obs).intersection(x.obs)
+            if intersection_limits and not intersection_data:
                 values.append(pdf.integrate(limits=limits, norm_range=norm_range))
-            elif intersection:
+            elif intersection_limits:  # implicitly "and intersection_data"
                 values.append(pdf.partial_integrate(x=x, limits=limits, norm_range=norm_range))
             else:
-                assert set(pdf.obs).issuperset(x.obs)
+                assert not intersection_limits and intersection_data, "Something slipped, the logic is flawed."
                 values.append(pdf.pdf(x, norm_range=norm_range))
         values = functools.reduce(operator.mul, values)
         return z.convert_to_tensor(values)

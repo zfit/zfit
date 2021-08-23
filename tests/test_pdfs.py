@@ -103,12 +103,19 @@ def test_product_separation():
     npoints = 20000
     data3 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs3)
     data2 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs2)
+    data1 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs1)
+    data4 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs4)
     integral13 = prod13.partial_integrate(x=data3, limits=obs1, norm_range=False)
     assert integral13.shape[0] == npoints
     trueint3 = gauss4.pdf(data3, norm_range=False) * gauss3.integrate(obs1, norm_range=False)
     np.testing.assert_allclose(integral13, trueint3)
     assert prod12.partial_integrate(x=data2, limits=obs1).shape[0] == npoints
     assert prod123.partial_integrate(x=data3, limits=obs1 * obs2).shape[0] == npoints
+    assert prod123.partial_integrate(x=data2, limits=obs1 * obs3).shape[0] == npoints
+
+    prod1234 = ProductPDF(pdfs=[gauss1, gauss2, gauss4, gauss5])
+    integ = prod1234.partial_integrate(data1, limits=obs2 * obs3 * obs4, norm_range=False)
+    assert integ.shape[0] == npoints
 
     obs13 = obs1 * obs3
     analytic_int = zfit.run(prod13.analytic_integrate(limits=obs13, norm_range=False))
