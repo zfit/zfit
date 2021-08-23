@@ -117,7 +117,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 0, 1 ]
-        python-version: [ 3.7, 3.8, 3.9 ]
+        python-version: [ 3.8, 3.9 ]  # no 3.7 because cannot install correct numpy version... pep517 problems https://github.com/pypa/pip/issues/9542
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
