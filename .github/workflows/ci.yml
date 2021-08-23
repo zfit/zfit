@@ -112,9 +112,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install nbval
-          pip install --use-feature=in-tree-build -r zfit-tutorials/requirements.txt
-          pip install --force-reinstall -U -e .[all]
+          pip install numpy==1.19
+          pip install nbval numpy==1.19
+          pip install --no-use-pep517 -r zfit-tutorials/requirements.txt numpy==1.19
+          pip install --no-use-pep517 --force-reinstall -U -e .[all] numpy==1.19
 
       - name: Run notebooks
         run: |
