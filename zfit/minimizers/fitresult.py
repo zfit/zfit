@@ -1252,7 +1252,10 @@ class FitResult(ZfitResult):
         self._values = ValuesHolder({p.name: self.values[p] for p in self.params})
         self._params = ParamHolder({k.name: v for k, v in self.params.items()})
 
-        self.info.pop('minuit', None)
+        if 'minuit' in self.info:
+            self.info['minuit'] = "Minuit_frozen"
+        if 'evaluator' in self.info:
+            self.info['evaluator'] = "evaluator_frozen"
         self._cache_minuit = None
 
     def __str__(self):
