@@ -47,7 +47,6 @@ def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztype
                                 mc_sampler=mc_sampler, draws_per_dim=draws_per_dim, max_draws=max_draws, tol=tol,
                                 importance_sampling=None)
     elif method.lower() == 'simpson':
-        mc_options = mc_options or {}
         num_points = simpsons_options['draws_simpson']
         integral = simpson_integrate(func=func, limits=limits, num_points=num_points)
     return integral
