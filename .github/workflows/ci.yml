@@ -89,6 +89,18 @@ jobs:
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+      - name: pip cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -121,13 +133,24 @@ jobs:
         run: |
           git clone https://github.com/zfit/zfit-tutorials.git
 
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+      - name: pip cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install numpy==1.19
           pip install nbval numpy==1.19
-          pip install --no-use-pep517 -r zfit-tutorials/requirements.txt numpy==1.19
-          pip install --no-use-pep517 --force-reinstall -U -e .[all] numpy==1.19
+          pip install -r zfit-tutorials/requirements.txt numpy==1.19
+          pip install --force-reinstall -U -e .[all] numpy==1.19
 
       - name: Run notebooks
         run: |
