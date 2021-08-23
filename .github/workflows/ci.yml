@@ -19,7 +19,7 @@ jobs:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     timeout-minutes: 240
     strategy:
-      max-parallel: 12
+      max-parallel: 15
       fail-fast: False
       matrix:
         use-graph: [ 1 ]  # TODO: reactivate eager, this was weirdly slow
