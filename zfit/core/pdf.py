@@ -105,6 +105,8 @@ class PDF(Func, ZfitPDF):
         var_supports.update(params_supports)
         if supports_default not in supports:
             supports[supports_default] = var_supports
+
+        self.supports = supports
         if norm is None:
             norm = obs.values()  # TODO: preprocess
         super().__init__(var=var, label=label)
