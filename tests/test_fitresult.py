@@ -113,7 +113,7 @@ minimizers = [
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
 ]
-if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
+if not platform.system() in ('Darwin', 'Windows'):  # TODO: Ipyopt installation on macosx not working
     minimizers.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
@@ -129,6 +129,7 @@ def test_freeze():
     result.errors()
     result.hesse()
     result.freeze()
+
     dumped = pickle.dumps(result)
     loaded = pickle.loads(dumped)
     test = loaded

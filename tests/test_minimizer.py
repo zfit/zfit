@@ -106,6 +106,8 @@ def test_scipy_derivative_options(minimizer_gradient_hessian):
     assert result.converged
 
 
+do_errors_most = False
+
 minimizers = [
     # minimizers, minimizer_kwargs, do error estimation
     # TensorFlow minimizers
@@ -122,32 +124,34 @@ minimizers = [
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
 
     # SciPy Minimizer
-    (zfit.minimize.ScipyLBFGSBV1, {'tol': 1e-5, "verbosity": verbosity}, {'error': True,
-                                                                          'numgrad': False, 'approx': True}),
+    (zfit.minimize.ScipyLBFGSBV1, {"verbosity": verbosity}, {'error': True,
+                                                             'numgrad': False, 'approx': True}),
     # (zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-5, "verbosity": verbosity}, True),
     # (zfit.minimize.ScipyTrustKrylovV1, {"verbosity": verbosity}, True),  # Too unstable
-    (zfit.minimize.ScipyTrustConstrV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
-    (zfit.minimize.ScipyPowellV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.ScipySLSQPV1, {"verbosity": verbosity, }, {'error': True}),
-    # (zfit.minimize.ScipyCOBYLAV1, {"verbosity": verbosity, }, {'error': True}),  # Too bad
-    # (zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, "verbosity": verbosity}, True),  # works badly
-    # (zfit.minimize.ScipyNewtonCGV1, {"verbosity":verbosity,}, {'error': True}),  # Too sensitive? Fails in line-search?
-    (zfit.minimize.ScipyTruncNCV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.ScipyTrustConstrV1, {"verbosity": verbosity, },
+     {'error': True, 'longtests': bool(zfit.run.get_graph_mode())}),
+    (zfit.minimize.ScipyPowellV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.ScipySLSQPV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    # (zfit.minimize.ScipyCOBYLAV1, {"verbosity": verbosity, }, {'error': do_errors_most}),  # Too bad
+    # (zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, "verbosity": verbosity}, do_errors_most),  # works badly
+    # (zfit.minimize.ScipyNewtonCGV1, {"verbosity":verbosity,}, {'error': do_errors_most}),  # Too sensitive? Fails in line-search?
+    (zfit.minimize.ScipyTruncNCV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
 
     # NLopt minimizer
-    (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, }, {'error': True, 'longtests': True}),
-    (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptCOBYLAV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptMLSLV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptStoGOV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptBOBYQAV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptISRESV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptESCHV1, {"verbosity": verbosity, }, {'error': True}),
-    (zfit.minimize.NLoptShiftVarV1, {"verbosity": verbosity, }, {'error': True}),
+    (zfit.minimize.NLoptLBFGSV1, {"verbosity": verbosity, },
+     {'error': True, 'longtests': bool(zfit.run.get_graph_mode())}),
+    (zfit.minimize.NLoptTruncNewtonV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptSLSQPV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptMMAV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptCCSAQV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptSubplexV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptCOBYLAV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptMLSLV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptStoGOV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptBOBYQAV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptISRESV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptESCHV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
+    (zfit.minimize.NLoptShiftVarV1, {"verbosity": verbosity, }, {'error': do_errors_most}),
 
     # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'CG'}, False),
     # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
@@ -184,19 +188,17 @@ minimizers = [
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
 # minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
 
-if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
-    minimizers.append((zfit.minimize.IpyoptV1, {"verbosity": verbosity}, {'error': True, 'longtests': True}))
-# sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
-minimizers = sorted(minimizers, key=lambda val: repr(val))
 
 minimizers_small = [
     (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
 ]
-if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
+if platform.system() not in ('Darwin', 'Windows'):  # TODO: Ipyopt installation on macosx not working
     minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
+    minimizers.append((zfit.minimize.IpyoptV1, {"verbosity": verbosity}, {'error': True, 'longtests': True}))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
+minimizers = sorted(minimizers, key=lambda val: repr(val))
 minimizers_small = sorted(minimizers_small, key=lambda val: repr(val))
 
 obs1 = zfit.Space(obs='obs1', limits=(-2.4, 9.1))
@@ -320,6 +322,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
                   and not (chunksize == chunksizes[0]
                            and numgrad == numgrads[0]
                            and spaces is spaces_all[0]))
+
     if skip_tests:
         return
     if not long_clarg and not do_long:
