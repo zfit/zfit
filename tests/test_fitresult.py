@@ -1,4 +1,5 @@
 #  Copyright (c) 2021 zfit
+import pickle
 import platform
 
 import numpy as np
@@ -110,10 +111,35 @@ minimizers = [
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
 ]
-if not platform.system() == 'Darwin':  # TODO: Ipyopt installation on macosx not working
+if not platform.system() in ('Darwin', 'Windows'):  # TODO: Ipyopt installation on macosx not working
     minimizers.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
+
+
+def test_freeze():
+    result = create_fitresult(minimizers[1])['result']
+    try:
+        pickle.dumps(result)
+    except Exception:
+        pass
+    result.covariance()
+    result.errors()
+    result.hesse()
+    result.freeze()
+
+    dumped = pickle.dumps(result)
+    loaded = pickle.loads(dumped)
+    test = loaded
+    true = result
+    assert test.fmin == true.fmin
+    assert test.edm == true.edm
+    assert [val for val in test.params.values()] == [val for val in true.params.values()]
+    assert test.valid == true.valid
+    assert test.status == true.status
+    assert test.message == true.message
+    assert test.converged == true.converged
+    assert test.params_at_limit == true.params_at_limit
 
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)

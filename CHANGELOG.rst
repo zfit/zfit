@@ -13,6 +13,9 @@ Major Features and Improvements
 - new Poisson PDF
 - Poisson constraint
 
+- allow `FitResult` to `freeze()`, making it pickleable. The parameters
+  are replaced by their name, the objects such as loss and minimizer as well.
+- add windows in CI
 Breaking changes
 ------------------
 
@@ -29,6 +32,8 @@ Experimental
 
 Requirement changes
 -------------------
+
+- add TensorFlow 2.6 support (now 2.5 and 2.6 are supported)
 
 Thanks
 ------

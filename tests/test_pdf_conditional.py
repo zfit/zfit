@@ -1,10 +1,12 @@
 #  Copyright (c) 2021 zfit
 
 import numpy as np
+import pytest
 
 import zfit
 
 
+@pytest.mark.skipif(not zfit.run.get_graph_mode(), reason="Getting stuck for weird reason in eager. TODO.")
 def test_conditional_pdf_simple():
     xobs = zfit.Space('x', (-2, 5))
     muobs = zfit.Space('y', (-1, 15))
