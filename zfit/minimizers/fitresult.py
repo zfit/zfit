@@ -114,6 +114,9 @@ class Approximations:
                 self._inv_hessian = inv_hess
         return inv_hess
 
+    def freeze(self):
+        self._params = [p.name for p in self.params]
+
 
 def _minos_minuit(result, params, cl=None):
     minuit_minimizer = result._create_minuit_instance()
@@ -139,7 +142,6 @@ def _minos_minuit(result, params, cl=None):
 
 
 def _covariance_minuit(result, params):
-
     minuit = result._create_minuit_instance()
 
     _ = minuit.hesse()  # make sure to have an accurate covariance
@@ -215,10 +217,11 @@ class NameToParamGetitem:
     def __getitem__(self, item):
         if isinstance(item, str):
             for param in self.keys():
-                if param.name == item:
+                name = param.name if isinstance(param, ZfitParameter) else param
+                if name == item:
                     item = param
                     break
-        return super().__getitem__(item)
+        return super().__getitem__(item)  # raises key error if not there, which is good
 
 
 class FitResult(ZfitResult):
@@ -322,7 +325,7 @@ class FitResult(ZfitResult):
             if valid:
                 message = ''
             else:
-                message = "Invalid, unknown reason (not specified in init)"
+                message = "Invalid, unknown reason (not specified)"
 
         info = {} if info is None else info
         approx = self._input_convert_approx(approx, evaluator, info, params)
@@ -510,6 +513,9 @@ class FitResult(ZfitResult):
         """
         info = {'problem': problem}
         params = dict(zip(params, values))
+        valid = valid if converged is None else valid and converged
+        if evaluator is not None:
+            valid = valid and not evaluator.maxiter_reached
         return cls(params=params, loss=loss, fmin=fmin, edm=edm, message=message,
                    criterion=criterion, info=info, valid=valid, converged=converged,
                    niter=niter, status=status, minimizer=minimizer, evaluator=evaluator)
@@ -518,8 +524,8 @@ class FitResult(ZfitResult):
     def from_minuit(cls,
                     loss: ZfitLoss,
                     params: Iterable[ZfitParameter],
-                    minuit: iminuit.Minuit,
-                    minimizer: Union[ZfitMinimizer, iminuit.Minuit],
+                    minuit: "iminuit.Minuit",
+                    minimizer: Union[ZfitMinimizer, "iminuit.Minuit"],
                     valid: Optional[bool],
                     values: Optional[np.ndarray] = None,
                     message: Optional[str] = None,
@@ -596,7 +602,8 @@ class FitResult(ZfitResult):
         params_result = [p_dict for p_dict in minuit.params]
 
         fmin_object = minuit.fmin
-        converged = not fmin_object.is_above_max_edm if converged is None else converged
+        minuit_converged = not fmin_object.is_above_max_edm
+        converged = minuit_converged if converged is None else (converged and minuit_converged)
         niter = fmin_object.nfcn if niter is None else niter
         info = {'n_eval': niter,
                 # 'grad': result['jac'],
@@ -611,7 +618,10 @@ class FitResult(ZfitResult):
             criterion = EDM(tol=minimizer.tol, loss=loss, params=params)
             criterion.last_value = edm
         fmin = fmin_object.fval if fmin is None else fmin
-        valid = fmin_object.is_valid if valid is None else valid
+        minuit_valid = fmin_object.is_valid
+        valid = minuit_valid if valid is None else minuit_valid and valid
+        if evaluator is not None:
+            valid = valid and not evaluator.maxiter_reached
         if values is None:
             values = (res.value for res in params_result)
         params = dict(zip(params, values))
@@ -707,13 +717,12 @@ class FitResult(ZfitResult):
 
         fmin = result['fun']
         params = dict(zip(params, result_values))
+        if evaluator is not None:
+            valid = valid and not evaluator.maxiter_reached
 
         fitresult = cls(params=params, edm=edm, fmin=fmin, info=info, approx=approx,
                         converged=converged, status=status, message=message, valid=valid, niter=niter,
                         loss=loss, minimizer=minimizer, criterion=criterion, evaluator=evaluator)
-        if isinstance(valid, str):
-            fitresult._valid = False
-            fitresult.info['invalid_message'] = valid
         return fitresult
 
     @classmethod
@@ -795,11 +804,16 @@ class FitResult(ZfitResult):
         Returns:
             zfit.minimizers.fitresult.FitResult:
         """
+        converged = converged if converged is None else bool(converged)
         param_dict = {p: v for p, v in zip(params, values)}
-        fmin = opt.last_optimum_value()
-        status = opt.last_optimize_result()
+        if fmin is None:
+            fmin = opt.last_optimum_value()
+        status_nlopt = opt.last_optimize_result()
+        if status is None:
+            status = status_nlopt
         niter = opt.get_numevals() if niter is None else niter
-        converged = 1 <= status <= 4
+        converged = 1 <= status_nlopt <= 4 and converged is not False
+
         messages = {
             1: "NLOPT_SUCCESS",
             2: "NLOPT_STOPVAL_REACHED",
@@ -813,7 +827,7 @@ class FitResult(ZfitResult):
             -4: "NLOPT_ROUNDOFF_LIMITED",
             -5: "NLOPT_FORCED_STOP",
         }
-        message_nlopt = messages[status]
+        message_nlopt = messages[status_nlopt]
         info = {'n_eval': niter,
                 'niter': niter,
                 'message': message_nlopt,
@@ -822,6 +836,10 @@ class FitResult(ZfitResult):
                 'status': status}
         if message is None:
             message = message_nlopt
+
+        valid = valid and converged
+        if evaluator is not None:
+            valid = valid and not evaluator.maxiter_reached
 
         approx = {}
         if inv_hessian is None:
@@ -1216,6 +1234,30 @@ class FitResult(ZfitResult):
         else:
             return correlation
 
+    def freeze(self):
+        """Freeze the result to make it pickleable and convert all TensorFlow elements to names (parameters) or arrays.
+
+        After this, no more uncertainties or covariances can be calculated. The already calculated ones
+        remain however.
+
+        Parameters can be accessed by their string name.
+        """
+        self._loss = self.loss.name
+        self._minimizer = self.minimizer.name
+        self._criterion = self.criterion.name
+        self._evaluator = None
+        self.approx.freeze()
+        self._covariance_dict = {k: {(p[0].name, p[1].name): v for p, v in d.items()}
+                                 for k, d in self._covariance_dict.items()}
+        self._values = ValuesHolder({p.name: self.values[p] for p in self.params})
+        self._params = ParamHolder({k.name: v for k, v in self.params.items()})
+
+        if 'minuit' in self.info:
+            self.info['minuit'] = "Minuit_frozen"
+        if 'evaluator' in self.info:
+            self.info['evaluator'] = "evaluator_frozen"
+        self._cache_minuit = None
+
     def __str__(self):
         string = Style.BRIGHT + f'FitResult' + Style.NORMAL + f' of\n{self.loss} \nwith\n{self.minimizer}\n\n'
         string += tabulate(
@@ -1243,11 +1285,7 @@ def covariance_to_correlation(covariance):
 
 
 def format_value(value, highprec=True):
-    try:
-        import iminuit
-        m_error_class = iminuit.util.MError
-    except ImportError:
-        m_error_class = dict
+    m_error_class = iminuit.util.MError  # if iminuit is not available (maybe in the future?), use dict instead
 
     if isinstance(value, dict) and 'error' in value:
         value = value['error']

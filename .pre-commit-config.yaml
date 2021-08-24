@@ -1,3 +1,6 @@
+ci:
+  autoupdate_schedule: monthly
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
@@ -43,7 +46,7 @@ repos:
     hooks:
       - id: sign-commit
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.8.0 # Use the ref you want to point at
+    rev: v1.9.0 # Use the ref you want to point at
     hooks:
       - id: python-use-type-annotations
       - id: python-check-mock-methods
@@ -57,12 +60,12 @@ repos:
   #          - id: pydocstyle
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.8.0
+    rev: 5.9.3
     hooks:
       - id: isort
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.19.1
+    rev: v2.23.1
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]
@@ -74,7 +77,7 @@ repos:
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 0.11.1
+    rev: 1.1.0
     hooks:
       - id: nbqa-isort
         additional_dependencies: [ isort==5.6.4 ]
@@ -88,6 +91,13 @@ repos:
     hooks:
       - id: check-manifest
         stages: [ manual ]
+
+
+  - repo: https://github.com/roy-ht/pre-commit-jupyter
+    rev: v1.2.1
+    hooks:
+      - id: jupyter-notebook-cleanup
+
   # TODO(py37): add the following once 3.6 is gone. Changes the Type hints.
 #  - repo: https://github.com/sondrelg/pep585-upgrade
 #    rev: '5f7033a0d0174c65105b041500060b993c1bc211'  # Use the sha / tag you want to point at

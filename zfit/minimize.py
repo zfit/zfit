@@ -1,7 +1,8 @@
 #  Copyright (c) 2021 zfit
 
 
-from .minimizers.baseminimizer import BaseMinimizer, DefaultStrategy
+from .minimizers.baseminimizer import (BaseMinimizer, BaseMinimizerV1,
+                                       DefaultStrategy, minimize_supports)
 from .minimizers.ipopt import IpyoptV1
 from .minimizers.minimizer_minuit import Minuit
 from .minimizers.minimizer_nlopt import (NLoptBaseMinimizerV1, NLoptBOBYQAV1,
@@ -70,6 +71,6 @@ __all__ = ["WrapOptimizer",
            "NLoptMLSLV1", 'NLoptStoGOV1', 'NLoptESCHV1', 'NLoptISRESV1', "NLoptSubplexV1", "NLoptBOBYQAV1",
            'NLoptCOBYLAV1',
            "IpyoptV1",
-           "BaseMinimizer",
+           "BaseMinimizer", "BaseMinimizerV1", "minimize_supports",
            "DefaultStrategy", "DefaultToyStrategy", "PushbackStrategy",
            "EDM"]

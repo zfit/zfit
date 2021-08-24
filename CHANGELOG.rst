@@ -9,8 +9,9 @@ Develop
 
 Major Features and Improvements
 -------------------------------
-
-
+- allow `FitResult` to `freeze()`, making it pickleable. The parameters
+  are replaced by their name, the objects such as loss and minimizer as well.
+- add windows in CI
 Breaking changes
 ------------------
 
@@ -19,6 +20,8 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- Double crystallball: move a minus sign down, vectorize the integral
+- add a minimal value in the loss to avoid NaNs when taking the log of 0
 
 Experimental
 ------------
@@ -26,8 +29,28 @@ Experimental
 Requirement changes
 -------------------
 
+- add TensorFlow 2.6 support (now 2.5 and 2.6 are supported)
+
 Thanks
 ------
+
+
+0.7.2 (7. July 2021)
+======================
+
+Bug fixes and small changes
+---------------------------
+- fix wrong arguments to `minimize`
+- make BaseMinimizer arguments optional
+
+0.7.1 (6. July 2021)
+======================
+
+
+Bug fixes and small changes
+---------------------------
+- make loss callable with array arguments and therefore combatible with iminuit cost functions.
+- fix a bug that allowed FitResults to be valid that are actually invalid (reported by Maxime Schubiger).
 
 
 0.7.0 (03 Jun 2021)
