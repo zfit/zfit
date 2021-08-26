@@ -4,7 +4,6 @@ colored
 colorlog
 deprecated
 dotmap
-git+git://github.com/zfit/zfit-interface@master  # TODO: for development, change to release
 hist
 iminuit>=2.3
 ipyopt<0.12
@@ -20,3 +19,4 @@ tensorflow-addons
 tensorflow_probability>=0.12,<0.14
 texttable
 uproot>=4,<5
+zfit_interface @ git+https://github.com/zfit/zfit-interface # TODO: for development, change to release

@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
-import hist
 import boost_histogram as bh
+import hist
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -24,6 +24,7 @@ def holder2():
     from zfit.z import numpy as znp
     from zfit._data.binneddatav1 import BinnedHolder
     return BinnedHolder(tf.constant('asdf'), znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
+
 
 @pytest.mark.skip('Currently not a composite tensor')
 def test_composite(holder1, holder2):
@@ -97,6 +98,7 @@ def test_from_and_to_hist():
 
 
 def test_with_obs():
+    from zfit._data.binneddatav1 import BinnedDataV1
     h1 = hist.NamedHist(
         hist.axis.Regular(25, -3.5, 3, name="x", flow=False),
         hist.axis.Regular(21, -4, 5, name="y", flow=False),
@@ -109,7 +111,14 @@ def test_with_obs():
     z2 = 0.3 * np.random.randn(1_000)
 
     h1.fill(x=x2, y=y2, z=z2)
-    h = BinnedDataV1.from_hist(h3)
+    h = BinnedDataV1.from_hist(h1)
+    obs = ('x', 'y', 'z')
+    obs2 = ('y', 'x', 'z')
+    assert obs == h.obs
+    h2 = h.with_obs(obs2)
+    assert h2.obs == obs2
+    np.testing.assert_allclose(h.values()[:, 3, 5], h2.values()[3, :, 5])
+    np.testing.assert_allclose(h.variances()[:, 3, 5], h2.variances()[3, :, 5])
 
 
 def test_values():
