@@ -2,6 +2,7 @@ boost-histogram
 colorama
 colored
 colorlog
+deprecated
 dotmap
 hist
 iminuit>=2.3

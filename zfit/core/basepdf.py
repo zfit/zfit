@@ -30,7 +30,7 @@ Let's create an instance and some example data
 >>> gauss = MyGauss(mean=mean, stddev=stddev)
 >>> example_data = np.random.random(10)
 Now we can get the probability
->>> probs = gauss.pdf(var=example_data,norm_range=(-30., 30))  # `norm_range` specifies over which range to normalize
+>>> probs = gauss.pdf()  # `norm_range` specifies over which range to normalize
 Or the integral
 >>> integral = gauss.integrate(limits=(-5, 3.1),norm=False)  # norm_range is False -> return unnormalized
 integral
@@ -70,7 +70,7 @@ from .space import Space
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
-from ..util.deprecation import deprecated
+from ..util.deprecation import deprecated, deprecated_args
 from ..util.exception import (AlreadyExtendedPDFError, BreakingAPIChangeError,
                               FunctionNotImplemented, NotExtendedPDFError,
                               SpecificFunctionNotImplemented)
@@ -114,7 +114,7 @@ class BasePDF(ZfitPDF, BaseModel):
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
         self._yield = None
-        self._norm_range = None
+        self._norm = None
         self._normalization_value = None
 
     def __init_subclass__(cls, **kwargs):
@@ -131,31 +131,42 @@ class BasePDF(ZfitPDF, BaseModel):
     #
     #     return space
 
-    def _check_input_norm_range(self, norm_range, none_is_error=False):
-        if norm_range is None:
-            norm_range = self.norm_range
-        return super()._check_input_norm_range(norm_range=norm_range, none_is_error=none_is_error)
+    def _check_input_norm(self, norm, none_is_error=False):
+        if norm is None:
+            norm = self.norm
+        return super()._check_input_norm(norm=norm, none_is_error=none_is_error)
 
     def _check_input_params(self, *params):
         return tuple(convert_to_parameter(p) for p in params)
 
     def _func_to_integrate(self, x: ztyping.XType):
-        return self.pdf(x, norm_range=False)
+        return self.pdf(x)
 
     def _func_to_sample_from(self, x):
-        return self.pdf(x, norm_range=False)
+        return self.pdf(x)
 
     @property
+    @deprecated(None, "Use the `norm` attribute instead.")
     def norm_range(self) -> Union[Space, None, bool]:
         """Return the current normalization range. If None and the `obs` have limits, they are returned.
 
         Returns:
             The current normalization range.
         """
-        norm_range = self._norm_range
-        if norm_range is None:
-            norm_range = self.space
-        return norm_range
+        return self.norm
+
+    @property
+    @deprecated(None, "Use the `norm` attribute instead.")
+    def norm(self) -> Union[Space, None, bool]:
+        """Return the current normalization range. If None and the `obs` have limits, they are returned.
+
+        Returns:
+            The current normalization range.
+        """
+        norm = self._norm
+        if norm is None:
+            norm = self.space
+        return norm
 
     @invalidate_graph
     def set_norm_range(self, norm_range: ztyping.LimitsTypeInput):
@@ -164,13 +175,14 @@ class BasePDF(ZfitPDF, BaseModel):
         Args:
             norm_range:
         """
-        norm_range = self._check_input_norm_range(norm_range=norm_range)
+
+        norm_range = self._check_input_norm(norm_range)
 
         def setter(value):
-            self._norm_range = value
+            self._norm = value
 
         def getter():
-            return self._norm_range
+            return self._norm
 
         return TemporarilySet(value=norm_range, setter=setter, getter=getter)
 
@@ -223,7 +235,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _unnormalized_pdf(self, x):
         raise SpecificFunctionNotImplemented
 
-    @deprecated(None, "Use `pdf(norm_range=False)` instead")
+    @deprecated(None, "Use `pdf(norm=False)` instead")
     def unnormalized_pdf(self, x: ztyping.XType, component_norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
         """PDF "unnormalized". Use `functions` for unnormalized pdfs. this is only for performance in special cases.
 
@@ -254,58 +266,68 @@ class BasePDF(ZfitPDF, BaseModel):
     #                                  "does not coincide with the `n_obs` from the `space`/`obs`"
     #                                  "it received on initialization."
     #                                  "Original Error: {}".format(error))
-
     @z.function(wraps='model')
-    def ext_pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    def ext_pdf(self, x: ztyping.XTypeInput, norm: ztyping.LimitsTypeInput = None, *, norm_range=None) -> ztyping.XType:
         """Probability density function scaled by yield, normalized over `norm_range`.
 
         Args:
           x: `float` or `double` `Tensor`.
-          norm_range: :py:class:`~zfit.Space` to normalize over
+          norm: :py:class:`~zfit.Space` to normalize over
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
+        if norm_range is not None:
+            norm = norm_range
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
-        return self.pdf(x=x, norm_range=norm_range) * self.get_yield()
+        return self.pdf(x=x) * self.get_yield()
 
     def _ext_pdf(self, x, norm_range=None):
         raise SpecificFunctionNotImplemented  # TODO: implement properly
 
     @z.function(wraps='model')
-    def ext_log_pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    def ext_log_pdf(self, x: ztyping.XTypeInput, norm: ztyping.LimitsTypeInput = None, *,
+                    norm_range=None) -> ztyping.XType:
         """Log of probability density function scaled by yield, normalized over `norm_range`.
 
         Args:
           x: `float` or `double` `Tensor`.
-          norm_range: :py:class:`~zfit.Space` to normalize over
+          norm: :py:class:`~zfit.Space` to normalize over
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
+        if norm_range is not None:
+            norm = norm_range
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
-        return self.log_pdf(x=x, norm_range=norm_range) + znp.log(self.get_yield())
+        return self.log_pdf(x=x, norm=norm) + znp.log(self.get_yield())
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):
         raise SpecificFunctionNotImplemented
 
     @z.function(wraps='model')
-    def pdf(self, x: ztyping.XTypeInput, norm_range: ztyping.LimitsTypeInput = None) -> ztyping.XType:
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    def pdf(self, x: ztyping.XTypeInput, norm: ztyping.LimitsTypeInput = None, *, norm_range=None) -> ztyping.XType:
         """Probability density function, normalized over `norm_range`.
 
         Args:
+          norm_range ():
           x: `float` or `double` `Tensor`.
-          norm_range: :py:class:`~zfit.Space` to normalize over
+          norm: :py:class:`~zfit.Space` to normalize over
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range(norm_range, none_is_error=True)
+        if norm_range is not None:
+            norm = norm_range
+        norm = self._check_input_norm(norm, none_is_error=True)
         with self._convert_sort_x(x) as x:
-            value = self._single_hook_pdf(x=x, norm_range=norm_range)
+            value = self._single_hook_pdf(x=x, norm_range=norm)
             if run.numeric_checks:
                 z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
             return z.to_real(value)
@@ -340,19 +362,22 @@ class BasePDF(ZfitPDF, BaseModel):
     def _log_pdf(self, x, norm_range):
         raise SpecificFunctionNotImplemented
 
-    def log_pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    def log_pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
         """Log probability density function normalized over `norm_range`.
 
         Args:
           x: `float` or `double` `Tensor`.
-          norm_range: :py:class:`~zfit.Space` to normalize over
+          norm: :py:class:`~zfit.Space` to normalize over
 
         Returns:
           A `Tensor` of type `self.dtype`.
         """
-        norm_range = self._check_input_norm_range(norm_range)
+        if norm_range is not None:
+            norm = norm_range
+        norm = self._check_input_norm(norm)
         with self._convert_sort_x(x) as x:
-            return self._single_hook_log_pdf(x=x, norm_range=norm_range)
+            return self._single_hook_log_pdf(x=x, norm_range=norm)
 
     def _single_hook_log_pdf(self, x, norm_range):
         return self._hook_log_pdf(x=x, norm_range=norm_range)
@@ -378,22 +403,26 @@ class BasePDF(ZfitPDF, BaseModel):
         raise BreakingAPIChangeError("Removed with 0.5.x: is this needed?")
 
     @z.function(wraps='model')
-    def ext_integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    def ext_integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *,
+                      norm_range=None) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
             limits: the limits to integrate over
-            norm_range: the limits to normalize over or False to integrate the
+            norm: the limits to normalize over or False to integrate the
                 unnormalized probability
 
         Returns:
             The integral value as a scalar with shape ()
         """
-        norm_range = self._check_input_norm_range(norm_range)
+        if norm_range is not None:
+            norm = norm_range
+        norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
-        return self.integrate(limits=limits, norm_range=norm_range) * self.get_yield()
+        return self.integrate(limits=limits, norm=norm) * self.get_yield()
 
     def _apply_yield(self, value: float, norm_range: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
         if self.is_extended and not norm_range.limits_are_false:
@@ -415,7 +444,7 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             Numerical
         """
-        norm_range = self._check_input_norm_range(norm_range=norm_range)
+        norm_range = self._check_input_norm()
         return self._apply_yield(value=value, norm_range=norm_range, log=log)
 
     @deprecated(None, "Use the public `set_yield` instead.")
@@ -545,7 +574,7 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.special import SimpleFunctorPDF
 
         def partial_integrate_wrapped(self_simple, x):
-            return self.partial_integrate(x, limits=limits_to_integrate, norm_range=False)
+            return self.partial_integrate(x, limits=limits_to_integrate, norm=False)
 
         new_pdf = SimpleFunctorPDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs
                                                                     if obs not in limits_to_integrate.obs]),
@@ -568,7 +597,7 @@ class BasePDF(ZfitPDF, BaseModel):
             of self.parameters and override_parameters, i.e.,
             `dict(self.parameters, **override_parameters)`.
         """
-        obs = self.norm_range
+        obs = self.norm
 
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution
@@ -628,15 +657,18 @@ class BasePDF(ZfitPDF, BaseModel):
             new_instance.set_yield(yield_)
         return new_instance
 
-    def as_func(self, norm_range: ztyping.LimitsType = False):
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    def as_func(self, norm: ztyping.LimitsType = False, *, norm_range=None):
         """Return a `Function` with the function `model(x, norm_range=norm_range)`.
 
         Args:
-            norm_range:
+            norm:
         """
+        if norm_range is not None:
+            norm = norm_range
         from .operations import convert_pdf_to_func  # prevent circular import
 
-        return convert_pdf_to_func(pdf=self, norm_range=norm_range)
+        return convert_pdf_to_func(pdf=self, norm_range=norm)
 
     def __str__(self):
         return ("zfit.model.{type_name}("

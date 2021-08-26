@@ -127,8 +127,7 @@ def test_prod_gauss_nd_mixed():
     limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
     prod_gauss_4d = product_gauss_4d()
     prod_gauss_4d.set_norm_range(limits_4d)
-    probs = prod_gauss_4d.pdf(x=test_values_data,
-                              norm_range=limits_4d)
+    probs = prod_gauss_4d.pdf(x=test_values_data)
     gausses = create_gaussians()
 
     for gauss in gausses:
@@ -140,8 +139,7 @@ def test_prod_gauss_nd_mixed():
         true_prob = [gauss1.pdf(values[:, 3])]
         true_prob += [gauss2.pdf(values[:, 0])]
         true_prob += [gauss3.pdf(values[:, 2])]
-        true_prob += [prod_gauss_3d.pdf(values[:, 0:3], norm_range=Space(limits=(((-5,) * 3,), ((4,) * 3,)),
-                                                                         obs=['obs1', 'obs2', 'obs3']))]
+        true_prob += [prod_gauss_3d.pdf(values[:, 0:3])]
         return tf.math.reduce_prod(true_prob, axis=0)
 
     true_unnormalized_probs = probs_4d(values=test_values)
@@ -157,7 +155,7 @@ def test_prod_gauss_nd_mixed():
 def test_func_sum():
     sum_gauss = sum_gaussians()
     test_values = np.random.uniform(low=-3, high=4, size=10)
-    sum_gauss_as_func = sum_gauss.as_func(norm_range=(-10, 10))
+    sum_gauss_as_func = sum_gauss.as_func(norm=(-10, 10))
     vals = sum_gauss_as_func.func(x=test_values)
     vals = zfit.run(vals)
     # test_sum = sum([g.func(test_values) for g in gauss_dists])

@@ -285,8 +285,8 @@ def test_analytic_integral():
     sigma = Parameter("sigma_1414", sigma_true, sigma_true - 10., sigma_true + 5.)
     gauss_params1 = CustomGaussOLD(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
     normal_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
-    gauss_integral_infs = gauss_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm_range=False)
-    normal_integral_infs = normal_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm_range=False)
+    gauss_integral_infs = gauss_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm=False)
+    normal_integral_infs = normal_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm=False)
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
                                          limits=Space(limits=limits3, axes=(0, 1)))
@@ -294,7 +294,7 @@ def test_analytic_integral():
     dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
     normal_integral_infs = normal_integral_infs
     func3_integrated = dist_func3.integrate(limits=Space(limits=limits3, axes=(0, 1)),
-                                            norm_range=False).numpy()
+                                            norm=False).numpy()
     assert func3_integrated == pytest.approx(
         func3_2deps_fully_integrated(limits=Space(limits=limits3, axes=(0, 1))).numpy())
     assert gauss_integral_infs.numpy() == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)

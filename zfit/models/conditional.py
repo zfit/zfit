@@ -78,7 +78,7 @@ class ConditionalPDFV1(BaseFunctor):
             x_pdf = cond_and_data[None, ..., :pdf.n_obs]
             for param, index in param_x_indices.items():
                 param.assign(cond_and_data[..., index])
-            return pdf.pdf(x_pdf, norm_range=norm_range)
+            return pdf.pdf(x_pdf)
 
         params = tuple(param_x_indices.keys())
         with set_values(params, params):
@@ -113,7 +113,7 @@ class ConditionalPDFV1(BaseFunctor):
             for param, index in param_x_indices.items():
                 param.assign(values[..., index])
 
-            return pdf.integrate(limits=limits, norm_range=norm_range, x=x)
+            return pdf.integrate(limits=limits, norm=norm_range, x=x)
 
         integrals = tf_map(eval_int, x_values)
         integrals = integrals[:, 0]  # removing stack dimension, implicitly in map_fn

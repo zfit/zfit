@@ -7,12 +7,13 @@ import hist
 import tensorflow_probability as tfp
 import zfit.core.tensorlike as tensorlike
 
+
 from zfit.z import numpy as znp
 from zfit.core.baseobject import BaseObject
 from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitBinnedData
 from zfit.core.tensorlike import register_tensor_conversion, OverloadableMixin, OverloadableMixinValues
-from zfit import z, Space
+
 from zfit.util.exception import WorkInProgressError
 from zfit.util.ztyping import NumericalTypeReturn
 
@@ -102,6 +103,7 @@ class BinnedDataV1(ZfitBinnedData,
 
     @classmethod
     def from_hist(cls, hist: hist.NamedHist) -> BinnedDataV1:
+        from zfit import Space
         space = Space(binning=hist.axes)
         values = znp.asarray(hist.values(flow=flow))
         variances = znp.asarray(hist.variances(flow=flow))
@@ -173,5 +175,14 @@ class BinnedDataV1(ZfitBinnedData,
 
     def __hash__(self):
         return hash(id(self))
+
+    def to_unbinned(self):
+        meshed_center = znp.meshgrid(*self.axes.centers, indexing='ij')
+        flat_centers = [znp.reshape(center, (-1,)) for center in meshed_center]
+        centers = znp.stack(flat_centers, axis=-1)
+        flat_weights = znp.reshape(self.values(flow=False), (-1,))
+        space = self.space.copy(binning=None)
+        from zfit import Data
+        return Data.from_tensor(obs=space, tensor=centers, weights=flat_weights)
 
 # tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)

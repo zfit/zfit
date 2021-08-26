@@ -20,7 +20,7 @@ def test_pdf_simple_subclass():
 
     gauss1 = SimpleGauss(obs='obs1', mu=3, sigma=5)
 
-    prob = gauss1.pdf(np.random.random(size=(10, 1)), norm_range=(-4, 5))
+    prob = gauss1.pdf(np.random.random(size=(10, 1)))
     prob.numpy()
 
     with pytest.raises(ValueError):

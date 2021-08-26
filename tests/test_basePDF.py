@@ -159,9 +159,9 @@ def test_func(obs1, test_values):
 
     limits = (-15, 5)
 
-    gauss_func = gauss_params1.as_func(norm_range=limits)
+    gauss_func = gauss_params1.as_func(norm=limits)
     vals = gauss_func.func(test_values)
-    vals_pdf = gauss_params1.pdf(x=test_values, norm_range=limits)
+    vals_pdf = gauss_params1.pdf(x=test_values)
     vals, vals_pdf = [vals.numpy(), vals_pdf.numpy()]
     np.testing.assert_allclose(vals_pdf, vals, rtol=1e-3)  # better assertion?
 
@@ -295,10 +295,10 @@ def test_multiple_limits(obs1):
 
     multiple_limits_range = MultiSpace(
         [zfit.Space(limits=(low, up), axes=dims) for low, up in zip(multiple_limits_lower, multiple_limits_upper)])
-    integral_simp = gauss_params1.integrate(limits=simple_limits, norm_range=False)
-    integral_mult = gauss_params1.integrate(limits=multiple_limits_range, norm_range=False)
-    integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits, norm_range=False)
-    integral_mult_num = gauss_params1.numeric_integrate(limits=multiple_limits_range, norm_range=False)
+    integral_simp = gauss_params1.integrate(limits=simple_limits, norm=False)
+    integral_mult = gauss_params1.integrate(limits=multiple_limits_range, norm=False)
+    integral_simp_num = gauss_params1.numeric_integrate(limits=simple_limits, norm=False)
+    integral_mult_num = gauss_params1.numeric_integrate(limits=multiple_limits_range, norm=False)
 
     integral_simp, integral_mult = [integral_simp.numpy(), integral_mult.numpy()]
     integral_simp_num, integral_mult_num = [integral_simp_num.numpy(), integral_mult_num.numpy()]
@@ -367,7 +367,7 @@ def test_projection_pdf(test_values):
                             -0.99631608, -1.22185623, 0.83838586, 2.77894762, -2.48259488,
                             1.5440374, 0.1109899, 0.20873491, -2.45271623, 2.04510553,
                             0.31566277, -1.55696965, 0.36304538, 0.77765786, 3.92630088])
-    true_probs = correlated_func_integrate_y(test_values, y) / gauss_xy.integrate(limits=obs, norm_range=False)
+    true_probs = correlated_func_integrate_y(test_values, y) / gauss_xy.integrate(limits=obs, norm=False)
     probs = proj_pdf.pdf(x=test_values)
     probs = probs.numpy()
     np.testing.assert_allclose(probs, true_probs, rtol=1e-3)  # MC normalization

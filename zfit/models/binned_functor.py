@@ -44,6 +44,8 @@ class BinnedSumPDFV1(FunctorMixin, BaseBinnedPDFV1):
         return prob
 
     def _ext_pdf(self, x, norm, *, norm_range=None):
+        if norm_range is not None:
+            norm = norm_range
         prob = tf.reduce_sum([model.ext_pdf(x) for model in self.models], axis=0)
         prob /= np.prod(self.space.binning.width, axis=0)
         return prob

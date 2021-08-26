@@ -40,7 +40,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
         self._set_norm_range_from_daugthers()
 
     def _set_norm_range_from_daugthers(self):
-        norm_range = super().norm_range
+        norm_range = super().norm
         if not norm_range.limits_are_set:
             norm_range = extract_daughter_input_obs(obs=norm_range,
                                                     spaces=[model.space for model in self.models])
@@ -196,8 +196,8 @@ class SumPDF(BaseFunctor):
         prob = sum(probs)
         return z.convert_to_tensor(prob)
 
-    def _pdf(self, x, norm_range):  # NOT _pdf, as the normalization range can differ
-        equal_norm_ranges = len(set([pdf.norm_range for pdf in self.pdfs] + [norm_range])) == 1
+    def _pdf(self, x, norm_range):
+        equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm_range])) == 1
         if not equal_norm_ranges:
             raise SpecificFunctionNotImplemented
         pdfs = self.pdfs
@@ -281,15 +281,15 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
     def _unnormalized_pdf(self, x: ztyping.XType):
-        probs = [pdf.pdf(x, norm_range=False) for pdf in self.pdfs]
+        probs = [pdf.pdf(x) for pdf in self.pdfs]
         prob = functools.reduce(operator.mul, probs)
         return z.convert_to_tensor(prob)
 
     def _pdf(self, x, norm_range):
-        equal_norm_ranges = len(set([pdf.norm_range for pdf in self.pdfs] + [norm_range])) == 1  # all equal
+        equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm_range])) == 1  # all equal
         if not any(self._model_same_obs) and equal_norm_ranges:
 
-            probs = [pdf.pdf(var=x) for pdf in self.pdfs]
+            probs = [pdf.pdf() for pdf in self.pdfs]
             prob = functools.reduce(operator.mul, probs)
             return z.convert_to_tensor(prob)
         else:

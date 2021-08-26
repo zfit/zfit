@@ -25,7 +25,7 @@ def holder2():
     from zfit._data.binneddatav1 import BinnedHolder
     return BinnedHolder(tf.constant('asdf'), znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
 
-
+@pytest.mark.skip('Currently not a composite tensor')
 def test_composite(holder1, holder2):
     from zfit.z import numpy as znp
 
@@ -45,9 +45,9 @@ def test_composite(holder1, holder2):
     assert count == actual_count
 
 
-def test_from_and_to_hist():
+def test_from_and_to_binned():
     h3 = hist.NamedHist(
-        hist.axis.Regular(20, -3, 3, name="x", flow=False), hist.axis.Regular(20, -3, 3, name="y", flow=False),
+        hist.axis.Regular(3, -3, 3, name="x", flow=False), hist.axis.Regular(2, -5, 5, name="y", flow=False),
         storage=hist.storage.Weight()
     )
 
@@ -57,10 +57,36 @@ def test_from_and_to_hist():
     h3.fill(x=x2, y=y2)
 
     from zfit._data.binneddatav1 import BinnedDataV1
-    for _ in range(100):  # make sure this works many times
+    h1 = BinnedDataV1.from_hist(h3)
+    for _ in range(10):  # make sure this works many times
+        unbinned = h1.to_unbinned()
+        binned = unbinned.to_binned(space=h1.space)
+        np.testing.assert_allclose(binned.values(), h1.values())
+        # we can't test the variances, this info is lost
+        h1 = binned
+    bh3 = bh.Histogram(h1)
+    np.testing.assert_allclose(h1.values(), bh3.values())
+
+
+def test_from_and_to_hist():
+    h3 = hist.NamedHist(
+        hist.axis.Regular(25, -3.5, 3, name="x", flow=False), hist.axis.Regular(21, -4, 5, name="y", flow=False),
+        storage=hist.storage.Weight()
+    )
+
+    x2 = np.random.randn(1_000)
+    y2 = 0.5 * np.random.randn(1_000)
+
+    h3.fill(x=x2, y=y2)
+
+    from zfit._data.binneddatav1 import BinnedDataV1
+    for _ in range(10):  # make sure this works many times
         h1 = BinnedDataV1.from_hist(h3)
         np.testing.assert_allclose(h1.variances(), h3.variances())
         np.testing.assert_allclose(h1.values(), h3.values())
+        unbinned = h1.to_unbinned()
+        assert unbinned.value().shape[1] == 2
+        assert unbinned.value().shape[0] == unbinned.weights.shape[0]
 
         h3recreated = h1.to_hist()
         assert h3recreated == h3

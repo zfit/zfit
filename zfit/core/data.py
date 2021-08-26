@@ -507,6 +507,10 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject, OverloadableMix
     def __str__(self) -> str:
         return f'<zfit.Data: {self.name} obs={self.obs}>'
 
+    def to_binned(self, space):
+        from zfit.core.binning import unbinned_to_binned
+        return unbinned_to_binned(self, space)
+
 
 class SampleData(Data):
     _cache_counting = 0

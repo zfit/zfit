@@ -199,7 +199,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             fit_range = []
             non_consistent = {'data': [], 'model': [], 'range': []}
             for p, d in zip(pdf, data):
-                if p.norm_range != d.data_range:
+                if p.norm != d.data_range:
                     non_consistent['data'].append(d)
                     non_consistent['model'].append(p)
                     non_consistent['range'].append((p.space, d.data_range))

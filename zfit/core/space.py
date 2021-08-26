@@ -13,7 +13,6 @@ from typing import Callable, Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
-from hist.axestuple import NamedAxesTuple
 from tensorflow.python.util.deprecation import deprecated
 
 import zfit
@@ -23,7 +22,7 @@ from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
                           convert_to_obs_str)
 from .dimension import common_axes, common_obs, limits_overlap
 from .interfaces import (ZfitLimit, ZfitOrderableDimensional,
-                         ZfitSpace, ZfitBinning)
+                         ZfitSpace)
 from .. import z
 from .._variables.axis import Binnings
 from ..settings import ztypes
@@ -75,7 +74,6 @@ class Any(LimitRangeDefinition):
     def __le__(self, other):
         return True
 
-
     def __ge__(self, other):
         return True
 
@@ -88,12 +86,9 @@ class AnyLower(Any):
         return '<Any Lower Limit>'
 
 
-
-
 class AnyUpper(Any):
     def __repr__(self):
         return '<Any Upper Limit>'
-
 
 
 ANY = Any()
@@ -2806,12 +2801,19 @@ def no_norm_range(func):
     keys = list(parameters.keys())
     if 'norm_range' in keys:
         norm_range_index = keys.index('norm_range')
+    elif 'norm' in keys:
+        norm_range_index = keys.index('norm')
     else:
         norm_range_index = None
 
     @functools.wraps(func)
     def new_func(*args, **kwargs):
+        norm_range_old_used = False
         norm_range = kwargs.get('norm_range')
+        if norm_range is None:
+            norm_range = kwargs.get('norm')
+        else:
+            norm_range_old_used = True
         if isinstance(norm_range, ZfitSpace):
             norm_range_not_false = not norm_range.limits_are_false
         else:
@@ -2820,7 +2822,8 @@ def no_norm_range(func):
             norm_range_is_arg = len(args) > norm_range_index
         else:
             norm_range_is_arg = False
-            kwargs.pop('norm_range', None)  # remove if in signature (= norm_range_index not None)
+            kwargs.pop('norm_range' if norm_range_old_used else 'norm',
+                       None)  # remove if in signature (= norm_range_index not None)
         if norm_range_not_false or norm_range_is_arg:
             raise NormRangeNotImplemented()
         else:

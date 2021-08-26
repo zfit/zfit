@@ -285,7 +285,7 @@ def test_importance_sampling():
             thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)
             return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
-    sample = accept_reject_sample(prob=lambda x: gauss_pdf.pdf(x, norm_range=False), n=30000, limits=obs_pdf)
+    sample = accept_reject_sample(prob=lambda x: gauss_pdf.pdf(x), n=30000, limits=obs_pdf)
     gauss_pdf._sample_and_weights = GaussianSampleAndWeights
     sample2 = gauss_pdf.sample(n=30000, limits=obs_pdf)
     assert importance_sampling_called[0]

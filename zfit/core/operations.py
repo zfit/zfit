@@ -210,7 +210,7 @@ def add_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitParamet
 
 def convert_pdf_to_func(pdf: ZfitPDF, norm_range: ztyping.LimitsType) -> ZfitFunc:
     def value_func(x):
-        return pdf.pdf(x, norm_range=norm_range)
+        return pdf.pdf(x, norm=norm_range)
 
     from ..models.functions import SimpleFuncV1
 

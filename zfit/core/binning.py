@@ -2,9 +2,11 @@
 from typing import List
 
 import boost_histogram as bh
+import hist
 import numpy as np
 import tensorflow as tf
 
+import zfit.z.numpy as znp
 from zfit import z
 from zfit.core.interfaces import ZfitData, ZfitRectBinning
 from zfit.util.ztyping import XTypeInput
@@ -46,9 +48,9 @@ def histogramdd(sample, bins=10, range=None, weights=None,
     inputs_cleaned = [inp if inp is not None else none_tensor for inp in inputs]
 
     def histdd(sample, bins, range, weights):
-        kwargs = {"sample" : sample,
-                  "bins"   : bins,
-                  "range"  : range,
+        kwargs = {"sample": sample,
+                  "bins": bins,
+                  "range": range,
                   "weights": weights}
         new_kwargs = {}
         for key, value in kwargs.items():
@@ -59,7 +61,28 @@ def histogramdd(sample, bins=10, range=None, weights=None,
             new_kwargs[key] = value
         return np.histogramdd(**new_kwargs, density=density)
 
-    bincounts, edges = tf.py_function(func=histdd, inp=inputs_cleaned, Tout=out_dtype)
+    bincounts, edges = tf.numpy_function(func=histdd, inp=inputs_cleaned, Tout=out_dtype)
     bincounts.set_shape(shape=(None,) * n_obs)
     edges.set_shape(shape=(n_obs, None))
     return bincounts, edges
+
+
+def unbinned_to_hist_eager(values, edges, weights=None):
+    binning = [hist.axis.Variable(np.reshape(edge, (-1,)), flow=False) for edge in edges]
+    h = hist.Hist(*binning,
+                  storage=hist.storage.Weight()
+                  )
+    h.fill(*(values[:, i] for i in range(values.shape[1])), weight=weights)
+
+    return znp.array(h.values(flow=False), znp.float64), znp.array(h.variances(flow=False), znp.float64)
+
+
+def unbinned_to_binned(data, space):
+    values = data.value()
+    weights = znp.array(data.weights)
+    edges = tuple(space.binning.edges)
+    values, variances = tf.numpy_function(unbinned_to_hist_eager, inp=[values, edges, weights],
+                                          Tout=[tf.float64, tf.float64])
+    from zfit._data.binneddatav1 import BinnedDataV1
+    binned = BinnedDataV1.from_tensor(space=space, values=values, variances=variances)
+    return binned

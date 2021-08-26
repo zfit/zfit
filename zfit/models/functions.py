@@ -71,7 +71,7 @@ class SumFunc(BaseFunctorFuncV1):
     @supports()
     def _analytic_integrate(self, limits, norm_range):
         # below may raises AnalyticIntegralNotImplementedError, that's fine. We don't wanna catch that.
-        integrals = [func.analytic_integrate(limits=limits, norm_range=norm_range) for func in self.funcs]
+        integrals = [func.analytic_integrate(limits=limits, norm=norm_range) for func in self.funcs]
         return tf.math.accumulate_n(integrals)
 
 

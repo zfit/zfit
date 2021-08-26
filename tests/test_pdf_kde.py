@@ -43,10 +43,10 @@ def test_simple_kde():
                                                            obs=obs,
                                                            truncate=True)
 
-    integral = kde.integrate(limits=limits, norm_range=False)
-    integral_trunc = kde_adaptive_trunc.integrate(limits=limits, norm_range=False)
-    integral_adaptive = kde_adaptive.integrate(limits=limits, norm_range=False)
-    integral_silverman = kde_silverman.integrate(limits=limits, norm_range=False)
+    integral = kde.integrate(limits=limits, norm=False)
+    integral_trunc = kde_adaptive_trunc.integrate(limits=limits, norm=False)
+    integral_adaptive = kde_adaptive.integrate(limits=limits, norm=False)
+    integral_silverman = kde_silverman.integrate(limits=limits, norm=False)
 
     rel_tol = 0.04
     assert zfit.run(integral_trunc) == pytest.approx(1., rel=rel_tol)

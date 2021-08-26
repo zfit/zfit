@@ -11,6 +11,7 @@ import tensorflow_probability as tfp
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
+from ..util.deprecation import deprecated_args
 from zfit._data.binneddatav1 import BinnedDataV1
 from .baseobject import BaseNumeric
 from .dimension import BaseDimensional
@@ -60,10 +61,11 @@ class BaseBinnedPDFV1(
     def _get_dependencies(self) -> ztyping.DependentsType:
         return super()._get_dependencies()
 
-    def _pdf(self, x, norm_range):
-        raise SpecificFunctionNotImplemented
+    def _pdf(self, x, norm, *, norm_range=None):
+        return self._call_rel_counts(x, norm=norm) / np.prod(self.space.binning.width, axis=0)
 
-    def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None) -> ztyping.XType:
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, norm_range=None) -> ztyping.XType:
         return self._call_pdf(x, norm=norm)
 
     def _call_pdf(self, x, norm):
@@ -83,10 +85,13 @@ class BaseBinnedPDFV1(
     def _call_unnormalized_pdf(self, x):
         return self._unnormalized_pdf(x)
 
-    def _ext_pdf(self, x, norm_range):
-        raise SpecificFunctionNotImplemented
+    def _ext_pdf(self, x, norm, *, norm_range=None):
+        self._call_counts(x, norm=norm) / np.prod(self.space.binning.width, axis=0)
 
-    def ext_pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None) -> ztyping.XType:
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    def ext_pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
+        if norm_range is not None:
+            norm = norm_range
         if not self.is_extended:
             raise NotExtendedPDFError
         return self._call_ext_pdf(x, norm=norm)
@@ -108,20 +113,25 @@ class BaseBinnedPDFV1(
     def _normalization(self, limits):
         raise SpecificFunctionNotImplemented
 
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def integrate(self,
                   limits: ztyping.LimitsType,
                   norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
         # TODO HACK
-
+        if norm_range is not None:
+            norm = norm_range
         bincounts = self.rel_counts(limits, norm=False)
         edges = limits.binning.edges
         return binned_rect_integration(values=bincounts, edges=edges, limits=limits)
 
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def ext_integrate(self,
                       limits: ztyping.LimitsType,
-                      norm: ztyping.LimitsType = None) -> ztyping.XType:
+                      norm: ztyping.LimitsType = None,
+                      *, norm_range=None) -> ztyping.XType:
         # TODO HACK
-
+        if norm_range is not None:
+            norm = norm_range
         bincounts = self.counts(limits, norm=False)
         edges = limits.binning.edges
         return binned_rect_integration(values=bincounts, edges=edges, limits=limits)
@@ -288,7 +298,7 @@ class BinnedFromUnbinned(BaseBinnedPDFV1):
             l, u = tf.unstack(limits)
             limits_space = zfit.Space(obs=self.obs, limits=[l, u])
             # limits_space = [l, u]
-            return pdf.integrate(limits_space, norm_range=False)
+            return pdf.integrate(limits_space, norm=False)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
         # values = tf.map_fn(integrate_one, limits)

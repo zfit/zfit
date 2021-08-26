@@ -85,4 +85,4 @@ class BaseFuncV1(BaseModel, ZfitFunc):
 
     def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):  # TODO(Mayou36): default
 
-        return self._check_input_norm_range(norm_range=norm_range, none_is_error=none_is_error)
+        return self._check_input_norm(norm=norm_range, none_is_error=none_is_error)
