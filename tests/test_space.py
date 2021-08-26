@@ -4,6 +4,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import z
+from zfit._variables.axis import Regular
 from zfit.core.coordinates import Coordinates
 from zfit.core.space import ANY, Limit, Space
 from zfit.util.exception import (CoordinatesUnderdefinedError,
@@ -18,7 +19,9 @@ def setup_teardown_vectors():
 
 
 obs1 = ('a', 'b', 'c', 'd', 'e')
+binning1 = [Regular(10 + i, 0 + i, 10 + 2 * i, name=ob) for i, ob in enumerate(obs1)]
 obs2 = ('c', 'b', 'd', 'e', 'a')
+binning2 = [binning1[obs1.index(ob)] for ob in obs2]
 axes1 = (0, 1, 2, 3, 4)
 axes2 = (2, 1, 3, 4, 0)
 coords1obs = Coordinates(obs1)
@@ -225,28 +228,34 @@ def test_with_coords(limits):
     assert space == space2axes
 
 
+@pytest.mark.parametrize('binning', [None, [binning1, binning2]])
 @pytest.mark.parametrize('limits', limits_to_test)
-def test_with_obs(limits):
+def test_with_obs(limits, binning):
     """
     Args:
         limits:
     """
     limits1, limits2 = limits
+    if binning is not None:
+        binning1, binning2 = binning
+    else:
+        binning1 = None
+        binning2 = None
 
-    space1obs = space_factory(obs1, limits=limits1)
-    space1 = space_factory(obs1, limits=limits1, axes=axes1)
+    space1obs = space_factory(obs1, limits=limits1, binning=binning1)
+    space1 = space_factory(obs1, limits=limits1, axes=axes1, binning=binning1)
     space1axes = space_factory(limits=limits1, axes=axes1)
     using_space_as_lim = isinstance(limits1, Space)
     if isinstance(limits1, Space):
         limits1 = limits1.rect_limits
-    space1mixed = space_factory(obs1, limits=limits1, axes=axes2)
+    space1mixed = space_factory(obs1, limits=limits1, axes=axes2, binning=binning1)
 
-    space2obs = space_factory(obs2, limits=limits2)
-    space2 = space_factory(obs2, limits=limits2, axes=axes2)
+    space2obs = space_factory(obs2, limits=limits2, binning=binning2)
+    space2 = space_factory(obs2, limits=limits2, axes=axes2, binning=binning2)
     if isinstance(limits2, Space):
         limits2 = limits2.rect_limits
     space2axes = space_factory(limits=limits2, axes=axes2)
-    space2mixed = space_factory(obs2, limits=limits1, axes=axes1)
+    space2mixed = space_factory(obs2, limits=limits1, axes=axes1, binning=binning2)
 
     # define which space to use in this tests
     space_used = space1obs
@@ -267,10 +276,11 @@ def test_with_obs(limits):
     assert space == space2
 
     # define which space to use in this tests
-    space_used = space1axes
+    if binning is None:
+        space_used = space1axes
 
-    space = space_used.with_obs(obs1)
-    assert space == space1
+        space = space_used.with_obs(obs1)
+        assert space == space1
 
     space = space_used.with_obs(obs2)
     if using_space_as_lim:

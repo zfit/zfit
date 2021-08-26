@@ -8,21 +8,21 @@ import tensorflow as tf
 
 @pytest.fixture
 def hist1():
-    from zfit._data.binneddata import BinnedData
-    return BinnedData
+    from zfit._data.binneddatav1 import BinnedDataV1
+    return BinnedDataV1
 
 
 @pytest.fixture
 def holder1():
     from zfit.z import numpy as znp
-    from zfit._data.binneddata import BinnedHolder
+    from zfit._data.binneddatav1 import BinnedHolder
     return BinnedHolder(tf.constant('asdf'), znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
 
 
 @pytest.fixture
 def holder2():
     from zfit.z import numpy as znp
-    from zfit._data.binneddata import BinnedHolder
+    from zfit._data.binneddatav1 import BinnedHolder
     return BinnedHolder(tf.constant('asdf'), znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
 
 
@@ -56,9 +56,9 @@ def test_from_and_to_hist():
 
     h3.fill(x=x2, y=y2)
 
-    from zfit._data.binneddata import BinnedData
+    from zfit._data.binneddatav1 import BinnedDataV1
     for _ in range(100):  # make sure this works many times
-        h1 = BinnedData.from_hist(h3)
+        h1 = BinnedDataV1.from_hist(h3)
         np.testing.assert_allclose(h1.variances(), h3.variances())
         np.testing.assert_allclose(h1.values(), h3.values())
 

@@ -11,10 +11,10 @@ import tensorflow_probability as tfp
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from zfit._data.binneddata import BinnedData
+from zfit._data.binneddatav1 import BinnedDataV1
 from .baseobject import BaseNumeric
 from .dimension import BaseDimensional
-from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace, ZfitMinimalHist
+from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace, ZfitMinimalHist, ZfitPDF
 from .tensorlike import OverloadableMixinValues, register_tensor_conversion
 from .. import convert_to_parameter, convert_to_space
 from ..util import ztyping
@@ -25,7 +25,7 @@ from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
                               WorkInProgressError)
 
 
-class BaseBinnedPDF(
+class BaseBinnedPDFV1(
     BaseNumeric,
     GraphCachable,
     BaseDimensional,
@@ -110,10 +110,10 @@ class BaseBinnedPDF(
 
     def integrate(self,
                   limits: ztyping.LimitsType,
-                  norm: ztyping.LimitsType = None) -> ztyping.XType:
+                  norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
         # TODO HACK
 
-        bincounts = self.pdf(limits, norm=False)
+        bincounts = self.rel_counts(limits, norm=False)
         edges = limits.binning.edges
         return binned_rect_integration(values=bincounts, edges=edges, limits=limits)
 
@@ -122,7 +122,7 @@ class BaseBinnedPDF(
                       norm: ztyping.LimitsType = None) -> ztyping.XType:
         # TODO HACK
 
-        bincounts = self.ext_pdf(limits, norm=False)
+        bincounts = self.counts(limits, norm=False)
         edges = limits.binning.edges
         return binned_rect_integration(values=bincounts, edges=edges, limits=limits)
 
@@ -144,15 +144,27 @@ class BaseBinnedPDF(
         probs = self.ext_pdf(None, norm=False)  # TODO: why did this not fully work out? Why probs are normed to 10?
         values = z.random.counts_multinomial(n, probs=probs / znp.sum(probs))
 
-        data = BinnedData.from_tensor(space=limits, values=values, variances=None)
+        data = BinnedDataV1.from_tensor(space=limits, values=values, variances=None)
         return data
 
     # ZfitMinimalHist implementation
-    def values(self):
+    def values(self, *, var=None):
+        if var is not None:
+            raise RuntimeError("var argument for `values` is not supported in V1")
         if self.is_extended:
-            return self.ext_pdf(None)
+            return self.counts(var)
         else:
-            return self.pdf(None)
+            return self.rel_counts(var)
+
+    def counts(self, x, norm=None):
+        if norm not in (None, False):
+            raise RuntimeError("norm range different than None or False currently not supported.")
+        return self._call_counts(x, norm)
+
+    def rel_counts(self, x, norm=None):
+        if norm not in (None, False):
+            raise RuntimeError("norm range different than None or False currently not supported.")
+        return self._call_rel_counts(x, norm)
 
     # WIPWIPWIP
 
@@ -225,11 +237,27 @@ class BaseBinnedPDF(
             space = space.with_coords(self.space, allow_superset=True, allow_subset=True)
         return space
 
+    def _call_counts(self, x, norm):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._counts(x, norm=norm)
+        return self._rel_counts(x, norm=norm)
 
-register_tensor_conversion(BaseBinnedPDF)
+    def _counts(self, x, norm):
+        raise SpecificFunctionNotImplemented
+
+    def _call_rel_counts(self, x, norm):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._rel_counts(x, norm=norm)
+        return self._counts(x, norm=norm)
+
+    def _rel_counts(self, x, norm):
+        raise SpecificFunctionNotImplemented
 
 
-class BinnedFromUnbinned(BaseBinnedPDF):
+register_tensor_conversion(BaseBinnedPDFV1)
+
+
+class BinnedFromUnbinned(BaseBinnedPDFV1):
 
     def __init__(self, pdf, space, extended=None, norm=None):
         super().__init__(obs=space, extended=extended, norm=norm, params={}, name="BinnedFromUnbinned")

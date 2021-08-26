@@ -17,7 +17,7 @@ from zfit.core.values import ValueHolder
 from zfit.util.container import convert_to_container
 from zfit.util.exception import (
     SpecificFunctionNotImplemented,
-    NotExtendedPDFError,
+    NotExtendedPDFError, WorkInProgressError,
 )
 
 
@@ -77,34 +77,6 @@ class PDF(Func, ZfitPDF):
             norm: typing.Mapping[str, ZfitSpace] = None,
             label: str | None = None,
     ):
-        supports_default = 'ext_pdf' if extended else 'pdf'
-        if supports is None:
-            supports = {}
-        if supports_default not in supports:
-            supports[supports_default] = {}
-
-        if obs is None:
-            obs_supports = {}
-        else:
-            obs_supports = {
-                axis: VarSupports(var=ob.name, data=True)
-                for axis, ob in obs.items()
-                if not isinstance(ob, VarSupports)
-            }
-        if params is None:
-            params_supports = {}
-        else:
-            params_supports = {
-                axis: VarSupports(var=p.name, scalar=True) for axis, p in params.items()
-            }
-        if var is None:
-            var_supports = {}
-        else:
-            var_supports = var.copy()
-        var_supports.update(obs_supports)
-        var_supports.update(params_supports)
-        if supports_default not in supports:
-            supports[supports_default] = var_supports
 
         self.supports = supports
         if norm is None:
@@ -185,7 +157,7 @@ class PDF(Func, ZfitPDF):
             *,
             options=None,
     ) -> ztyping.PDFReturnType:
-        """Probability density function, normalized over `norm`.
+        """Probability density function, normalized over `norm`.OneDim.
 
         Args:
           var: `float` or `double` `Tensor`.
@@ -239,6 +211,37 @@ class PDF(Func, ZfitPDF):
     def _ext_integrate(self, var, norm, options):
         raise SpecificFunctionNotImplemented
 
+    def _values(self, var=None, options=None):
+        if self.is_extended:
+            return self.rel_counts(var=var, options=options)
+        else:
+            return self.counts(var=var, options=options)
+
+    def counts(self, *, var=None, norm=None, options=None):
+        return self._call_counts(var=var, norm=norm, options=options)
+
+    def _call_counts(self, var=None, norm=None, options=None):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._counts(var, norm, options=options)  # TODO: auto_value?
+        return self._call_ext_pdf(var=var, norm=norm, options=options)
+
+    def _counts(self, var=None, norm=None, options=None):
+        raise SpecificFunctionNotImplemented
+
+    def rel_counts(self, *, var=None, norm=None, options=None):
+        return self._call_rel_counts(var=var, norm=norm, options=options)
+
+    def _call_rel_counts(self, var=None, norm=None, options=None):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._rel_counts(var, norm, options=options)  # TODO: auto_value?
+        return self._fallback_rel_counts(var=var, norm=norm, options=options)
+
+    def _rel_counts(self, var=None, norm=None, options=None):
+        raise SpecificFunctionNotImplemented
+
+    def _fallback_rel_counts(self, var, norm, options):
+        raise WorkInProgressError
+
     def ext_integrate(self, limits, norm=None, *, var=None, options=None):
         if not self.is_extended:
             raise NotExtendedPDFError
@@ -249,17 +252,6 @@ class PDF(Func, ZfitPDF):
             )
         norm = self._convert_check_input_norm(norm, var=var)
         return self._call_ext_integrate(var=var, norm=norm, options=options)
-
-    def values(self, *, var, norm=None, options=None):
-        return self._call_values(var=var, norm=norm, options=options)
-
-    def _call_values(self, var=None, norm=None, options=None):
-        with suppress(SpecificFunctionNotImplemented):
-            return self._values(var, norm, options=options)  # TODO: auto_value?
-        return self._call_ext_pdf(var=var, norm=norm, options=options)
-
-    def _values(self, var=None, norm=None, options=None):
-        raise SpecificFunctionNotImplemented
 
     @z.function(wraps="model")
     def _call_ext_integrate(self, var, norm, options):
@@ -286,6 +278,40 @@ class PDF(Func, ZfitPDF):
         # return var  # TODO
 
 
+class UnbinnedPDF(PDF):
+
+    def __init__(self, obs, params=None, var=None, supports=None, extended=None, norm=None):
+        supports_default = 'ext_pdf' if extended else 'pdf'
+        if supports is None:
+            supports = {}
+        if supports_default not in supports:
+            supports[supports_default] = {}
+
+        if obs is None:
+            obs_supports = {}
+        else:
+            obs_supports = {
+                axis: VarSupports(var=ob.name, data=True)
+                for axis, ob in obs.items()
+                if not isinstance(ob, VarSupports)
+            }
+        if params is None:
+            params_supports = {}
+        else:
+            params_supports = {
+                axis: VarSupports(var=p.name, scalar=True) for axis, p in params.items()
+            }
+        if var is None:
+            var_supports = {}
+        else:
+            var_supports = var.copy()
+        var_supports.update(obs_supports)
+        var_supports.update(params_supports)
+        if supports_default not in supports:
+            supports[supports_default] = var_supports
+        super().__init__(obs=obs, params=params, var=var, supports=supports, extended=extended, norm=norm)
+
+
 class HistPDF(PDF):
     def __init__(
             self,
@@ -297,7 +323,7 @@ class HistPDF(PDF):
             norm: typing.Mapping[str, ZfitSpace] = None,
             label: str | None = None,
     ):
-        supports_default = 'values' if extended else 'rel_values'
+        supports_default = 'counts' if extended else 'rel_counts'
         if supports is None:
             supports = {}
         if supports_default not in supports:
@@ -334,6 +360,14 @@ class HistPDF(PDF):
             obs=obs, params=params, var=var, extended=extended, norm=norm, label=label, supports=supports,
         )
 
-    def _ext_pdf(self, var, norm):
-        values = self._call_values(var=var, norm=norm)
-        return values
+    def _ext_pdf(self, var, norm):  # TODO: normalization?
+        counts = self._call_counts(var=var, norm=norm)
+        binareas = var.binned.binning.areas
+        densities = counts / binareas
+        return densities
+
+    def _pdf(self, var, norm):  # TODO: normalization?
+        counts = self._call_rel_counts(var=var, norm=norm)
+        binareas = var.binned.binning.areas
+        densities = counts / binareas
+        return densities

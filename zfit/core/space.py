@@ -23,8 +23,9 @@ from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
                           convert_to_obs_str)
 from .dimension import common_axes, common_obs, limits_overlap
 from .interfaces import (ZfitLimit, ZfitOrderableDimensional,
-                         ZfitSpace)
+                         ZfitSpace, ZfitBinning)
 from .. import z
+from .._variables.axis import Binnings
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -74,8 +75,6 @@ class Any(LimitRangeDefinition):
     def __le__(self, other):
         return True
 
-    # def __eq__(self, other):
-    #     return True
 
     def __ge__(self, other):
         return True
@@ -83,36 +82,18 @@ class Any(LimitRangeDefinition):
     def __gt__(self, other):
         return True
 
-    # def __hash__(self):
-    #     return hash(id(self))
-
 
 class AnyLower(Any):
     def __repr__(self):
         return '<Any Lower Limit>'
 
-    # def __eq__(self, other):
-    #     return False
 
-    # def __ge__(self, other):
-    #     return False
-    #
-    # def __gt__(self, other):
-    #     return False
 
 
 class AnyUpper(Any):
     def __repr__(self):
         return '<Any Upper Limit>'
 
-    # def __eq__(self, other):
-    #     return False
-
-    # def __le__(self, other):
-    #     return False
-    #
-    # def __lt__(self, other):
-    #     return False
 
 
 ANY = Any()
@@ -206,7 +187,10 @@ def is_range_definition(limit):
         return False  # not iterable and was not a LimitRangeDefinition in the beginning
 
 
-class Limit(ZfitLimit):
+# @tfp.experimental.auto_composite_tensor()
+class Limit(ZfitLimit,
+            # tfp.experimental.AutoCompositeTensor
+            ):
     _experimental_allow_vectors = False
 
     def __init__(self, limit_fn: ztyping.LimitsFuncTypeInput = None,
@@ -1057,8 +1041,9 @@ class BaseSpace(ZfitSpace, BaseObject):
 
 
 # @tfp.experimental.auto_composite_tensor()
-# class Space(BaseSpace, tfp.experimental.AutoCompositeTensor):
-class Space(BaseSpace):
+class Space(BaseSpace,
+            # tfp.experimental.AutoCompositeTensor
+            ):
     AUTO_FILL = object()
     ANY = ANY
     ANY_LOWER = ANY_LOWER  # TODO: needed? or move everything inside?
@@ -1067,7 +1052,7 @@ class Space(BaseSpace):
     def __init__(self,
                  obs: Optional[ztyping.ObsTypeInput] = None,
                  limits: Optional[ztyping.LimitsTypeInput] = None,
-                 binning: NamedAxesTuple = None,
+                 binning: ztyping.BinningInput = None,
                  axes=None, rect_limits=None,
                  name: Optional[str] = "Space"):
         """Define a space with the name (`obs`) of the axes (and it's number) and possibly it's limits.
@@ -1113,20 +1098,24 @@ class Space(BaseSpace):
         """
         if name is None:
             name = "Space"
+        binning = convert_to_container(binning, non_containers=[Binnings])
+        if binning is not None and obs is None and axes is None:
+            obs = [axis.name for axis in binning]
+
+        super().__init__(obs=obs, axes=axes, name=name)
+
         if binning is not None:
-            if limits is not None or rect_limits is not None:
-                raise ValueError("If binning is provided, limits can not be given but will be taken from the binning.")
+            # if limits is not None or rect_limits is not None:
+            #     raise ValueError("If binning is provided, limits can not be given but will be taken from the binning.")
             if obs is not None:
-                binning = [[axis for axis in binning if axis.name == ob][0] for ob in obs]
+                binning = [[axis for axis in binning if axis.name == ob][0] for ob in self.obs]
             else:
                 obs = [axis.name for axis in binning]
-            binning = NamedAxesTuple(binning)
+            binning = Binnings(binning)
             limits = [[], []]
             for axis in binning:
                 limits[0].append(axis.edges[0])
                 limits[1].append(axis.edges[-1])
-
-        super().__init__(obs=obs, axes=axes, name=name)
 
         limits_dict = self._check_convert_input_limits(limit=limits, rect_limits=rect_limits, obs=self.obs,
                                                        axes=self.axes, n_obs=self.n_obs)
@@ -1136,8 +1125,10 @@ class Space(BaseSpace):
     # TODO(Mayou36): put it everywhere, multilimits
     @property
     def binning(self):
-        # TODO: reorder binning
-        return self._binning
+        binning_out = self._binning
+        if binning_out is not None:
+            binning_out = Binnings([binning_out[ob] for ob in self.obs])
+        return binning_out
 
     @property
     def has_rect_limits(self) -> bool:
@@ -1549,7 +1540,7 @@ class Space(BaseSpace):
         Returns:
             Copy of the current object with the new limits.
         """
-        new_space = type(self)(obs=self.coords, limits=limits, rect_limits=rect_limits,
+        new_space = type(self)(obs=self.coords, limits=limits, rect_limits=rect_limits, binning=self.binning,
                                name=name)
         return new_space
 
@@ -1636,7 +1627,10 @@ class Space(BaseSpace):
         else:
             obs = _convert_obs_to_str(obs)
             coords = self.coords.with_obs(obs, allow_superset=allow_superset, allow_subset=allow_subset)
-            new_space = type(self)(coords, limits=self._limits_dict)
+            binning = self.binning
+            if binning is not None:
+                binning = [binning[ob] for ob in obs]
+            new_space = type(self)(coords, limits=self._limits_dict, binning=binning)
         return new_space
 
     def with_axes(self,
@@ -1693,7 +1687,7 @@ class Space(BaseSpace):
             else:
 
                 coords = self.coords.with_axes(axes=axes, allow_superset=allow_superset, allow_subset=allow_subset)
-                new_space = type(self)(coords, limits=self._limits_dict)
+                new_space = type(self)(coords, limits=self._limits_dict, binning=self.binning)
 
         return new_space
 
@@ -1856,7 +1850,9 @@ class Space(BaseSpace):
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
             raise KeyError(f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}")
-
+        self_binning = self.binning
+        if self_binning is not None and kwargs.get('obs'):
+            kwargs['binning'] = [self_binning[ob] for ob in kwargs['obs']]
         new_space = type(self)(**kwargs)
         return new_space
 
@@ -2210,6 +2206,8 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
     elif axes_not_none:  # axes only matter if there are no obs
         if set(space1.axes) != set(space2.axes):
             return False
+    if not space1.binning == space2.binning:
+        return False
     # check limits
     if not space1.limits_are_set:
         if not space2.limits_are_set:
@@ -2290,9 +2288,9 @@ class MultiSpace(BaseSpace):
     def __new__(cls,
                 spaces: Iterable[ZfitSpace],
                 obs: ztyping.ObsTypeInput = None,
+                binning: ztyping.BinningInput = None,
                 axes: ztyping.AxesTypeInput = None,
-                name: str = None) -> Union[
-        'Space', 'MultiSpace']:
+                name: str = None) -> Union['Space', 'MultiSpace']:
         spaces, obs, axes = cls._check_convert_input_spaces_obs_axes(spaces, obs, axes)
         if len(spaces) == 1:
             return spaces[0]
@@ -2326,8 +2324,11 @@ class MultiSpace(BaseSpace):
         spaces = flatten_spaces(spaces)
         all_have_obs = all(space.obs is not None for space in spaces)
         all_have_axes = all(space.axes is not None for space in spaces)
+        all_binnings_compatible = len({space.binning for space in spaces}) == 1
         n_events = [space.n_events in (spaces[0].n_events, None) for space in spaces]
         all_nevents_compatible = all(n_events)
+        if not all_binnings_compatible:
+            raise ValueError("Binnings not compatible, maybe this needs to be better care taken.")
         if not all_nevents_compatible:
             raise NumberOfEventsIncompatibleError("The number of events of the spaces do not coincide")
         if all_have_axes:
@@ -2338,11 +2339,14 @@ class MultiSpace(BaseSpace):
             spaces = [space.with_obs(obs, allow_subset=False, allow_superset=False) for space in spaces]
             if not (all_have_axes and all(space.axes == axes for space in spaces)):  # obs coincide, axes don't -> drop
                 spaces = [space.with_axes(None) for space in spaces]
+
+
         elif all_have_axes:
             if all(space.obs is None for space in spaces):
                 spaces = [space.with_axes(axes, allow_superset=False, allow_subset=False) for space in spaces]
             if not (all_have_obs and all(space.obs == obs for space in spaces)):  # axes coincide, obs don't -> drop
                 spaces = [space.with_obs(None) for space in spaces]
+
 
         else:
             raise SpaceIncompatibleError("Spaces do not have consistent obs and/or axes.")
@@ -2361,6 +2365,10 @@ class MultiSpace(BaseSpace):
         spaces = tuple(spaces)
 
         return spaces, obs, axes
+
+    @property
+    def binning(self):
+        return self.spaces[0].binning
 
     # noinspection PyPropertyDefinition
     @property

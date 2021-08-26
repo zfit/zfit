@@ -1,5 +1,13 @@
 #  Copyright (c) 2021 zfit
+import hist
+import tensorflow_probability as tfp
 import zfit_interface as zinterface
+from hist.axestuple import NamedAxesTuple
+
+
+@tfp.experimental.auto_composite_tensor()
+class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):
+    pass
 
 
 class Variable(zinterface.variables.ZfitVar):
@@ -52,3 +60,37 @@ class UnbinnedAxis(Axis):
         super().__init__(name)
         self.lower = lower
         self.upper = upper
+
+
+# TODO: fill out below and don't just use the hist objects
+class HashableAxisMixin:
+    def __hash__(self):
+        return hash(tuple(self.edges))
+
+
+class Regular(HashableAxisMixin, hist.axis.Regular, family='zfit'):
+    pass
+
+
+class Variable(HashableAxisMixin, hist.axis.Variable, family='zfit'):
+    pass
+
+
+class Binnings(hist.axestuple.NamedAxesTuple):
+    pass
+
+
+def hist_to_axis(axis):
+    return axis
+
+
+def axis_to_hist(axis):
+    return axis
+
+
+def hist_to_binnings(binnings):
+    return binnings
+
+
+def binnings_to_hist(binnings):
+    return binnings

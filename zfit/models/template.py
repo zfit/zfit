@@ -3,12 +3,12 @@ import numpy as np
 import tensorflow as tf
 
 import zfit
-from ..core.binnedpdf import BaseBinnedPDF
+from ..core.binnedpdf import BaseBinnedPDFV1
 from ..core.interfaces import ZfitData
 from ..core.pdf import PDF
 
 
-class BinnedTemplatePDFV1(BaseBinnedPDF):
+class BinnedTemplatePDFV1(BaseBinnedPDFV1):
 
     def __init__(self, data, sysshape=None, extended=None, norm=None, name="BinnedTemplatePDF"):
         obs = data.space
@@ -22,14 +22,14 @@ class BinnedTemplatePDFV1(BaseBinnedPDF):
         self._data = data
 
     def _ext_pdf(self, x, norm):
-        counts = self._ext_integrate(None, None)
+        counts = self._counts(None, None)
         if not isinstance(x, ZfitData):
             return counts
         areas = np.prod(self._data.axes.widths, axis=0)
         density = counts / areas
         return density
 
-    def _ext_integrate(self, limits, norm):
+    def _counts(self, x, norm=None):
 
         sysshape_flat = tf.stack([p for name, p in self.params.items() if name.startswith('sysshape')])
         counts = self._data.values()

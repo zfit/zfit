@@ -3,10 +3,10 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 
 import zfit.z.numpy as znp
-from zfit.core.binnedpdf import BaseBinnedPDF
+from zfit.core.binnedpdf import BaseBinnedPDFV1
 
 
-class LinearMorphing(BaseBinnedPDF):
+class LinearMorphing(BaseBinnedPDFV1):
     def __init__(self, alpha, hists, extended=None, norm=None):
         obs = hists[0].obs
         if len(hists) != 3:
