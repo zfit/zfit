@@ -96,6 +96,22 @@ def test_from_and_to_hist():
     np.testing.assert_allclose(h1.values(), bh3.values())
 
 
+def test_with_obs():
+    h1 = hist.NamedHist(
+        hist.axis.Regular(25, -3.5, 3, name="x", flow=False),
+        hist.axis.Regular(21, -4, 5, name="y", flow=False),
+        hist.axis.Regular(15, -2, 1, name="z", flow=False),
+        storage=hist.storage.Weight()
+    )
+
+    x2 = np.random.randn(1_000)
+    y2 = 0.5 * np.random.randn(1_000)
+    z2 = 0.3 * np.random.randn(1_000)
+
+    h1.fill(x=x2, y=y2, z=z2)
+    h = BinnedDataV1.from_hist(h3)
+
+
 def test_values():
     assert True
 

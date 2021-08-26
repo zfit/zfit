@@ -4,7 +4,7 @@ colored
 colorlog
 deprecated
 dotmap
-git+https://github.com/zfit/zfit-interface@master  # TODO: for development, change to release
+git+git://github.com/zfit/zfit-interface@master  # TODO: for development, change to release
 hist
 iminuit>=2.3
 ipyopt<0.12
