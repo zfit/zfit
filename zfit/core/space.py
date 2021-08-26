@@ -726,6 +726,10 @@ class BaseSpace(ZfitSpace, BaseObject):
         coords = Coordinates(obs, axes)
         self.coords = coords
 
+    @property
+    def is_binned(self):
+        return self.binning is not None
+
     def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturn:
         """Test if `x` is inside the limits.
 
@@ -1126,6 +1130,10 @@ class Space(BaseSpace,
         return binning_out
 
     @property
+    def is_binned(self):
+        return self.binning is not None
+
+    @property
     def has_rect_limits(self) -> bool:
         """If there are limits and whether they are rectangular."""
         return all(limit.has_rect_limits for limit in list(self._limits_dict.values())[0].values())
@@ -1417,7 +1425,7 @@ class Space(BaseSpace,
     @property
     def limits_are_set(self):
         return all(limit.limits_are_set
-                   for limit in self._limits_dict['obs' if self.obs else 'axes'].values())
+                   for limit in self._limits_dict['obs' if self.obs else 'axes'].values() if not limit is self)
 
     @property
     def n_events(self) -> Union[int, None]:
@@ -2796,35 +2804,43 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
 
 
 def no_norm_range(func):
-    """Decorator: Catch the 'norm_range' kwargs. If not None, raise NormRangeNotImplementedError."""
+    """Decorator: Catch the 'norm' kwargs. If not None, raise NormRangeNotImplementedError."""
     parameters = inspect.signature(func).parameters
     keys = list(parameters.keys())
+    norm_range_index = None
+    norm_index = None
     if 'norm_range' in keys:
         norm_range_index = keys.index('norm_range')
-    elif 'norm' in keys:
-        norm_range_index = keys.index('norm')
-    else:
-        norm_range_index = None
+    if 'norm' in keys:
+        norm_index = keys.index('norm')
 
     @functools.wraps(func)
     def new_func(*args, **kwargs):
         norm_range_old_used = False
         norm_range = kwargs.get('norm_range')
-        if norm_range is None:
-            norm_range = kwargs.get('norm')
+        norm = kwargs.get('norm')
+        if norm_range is not None:
+            anynorm = norm_range
+        elif norm is not None:
+            anynorm = norm
+        if isinstance(anynorm, ZfitSpace):
+            norm_not_false = not anynorm.limits_are_false
         else:
-            norm_range_old_used = True
-        if isinstance(norm_range, ZfitSpace):
-            norm_range_not_false = not norm_range.limits_are_false
-        else:
-            norm_range_not_false = not (norm_range is None or norm_range is False)
+            norm_not_false = not (anynorm is None or anynorm is False)
+        norm_is_arg = False
         if norm_range_index is not None:
-            norm_range_is_arg = len(args) > norm_range_index
-        else:
-            norm_range_is_arg = False
-            kwargs.pop('norm_range' if norm_range_old_used else 'norm',
-                       None)  # remove if in signature (= norm_range_index not None)
-        if norm_range_not_false or norm_range_is_arg:
+            norm_is_arg = len(args) > norm_range_index
+        if norm_index is not None:
+            norm_is_arg = len(args) > norm_range_index
+        if not norm_is_arg:
+            if 'norm_range' in kwargs:
+                kwargs['norm_range'] = False
+            if 'norm' in kwargs:
+                kwargs['norm'] = False
+            # kwargs.pop('norm_range',
+            #            None)  # remove if in signature (= norm_range_index not None)
+            # kwargs.pop('norm', None)
+        if norm_not_false or norm_is_arg:
             raise NormRangeNotImplemented()
         else:
             return func(*args, **kwargs)

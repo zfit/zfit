@@ -4,9 +4,11 @@ from collections.abc import Iterable, Callable
 #  Copyright (c) 2021 zfit
 from contextlib import suppress
 
+import boost_histogram
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+import boost_histogram as bh
 
 import zfit
 import zfit.z.numpy as znp
@@ -15,7 +17,7 @@ from ..util.deprecation import deprecated_args
 from zfit._data.binneddatav1 import BinnedDataV1
 from .baseobject import BaseNumeric
 from .dimension import BaseDimensional
-from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace, ZfitMinimalHist, ZfitPDF
+from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace, ZfitMinimalHist, ZfitPDF, ZfitBinnedData
 from .tensorlike import OverloadableMixinValues, register_tensor_conversion
 from .. import convert_to_parameter, convert_to_space
 from ..util import ztyping
@@ -37,11 +39,22 @@ class BaseBinnedPDFV1(
     def __init__(self, obs, extended=None, norm=None, **kwargs):
         super().__init__(dtype=znp.float64, **kwargs)
 
-        self._space = obs
+        self._space = self._check_convert_obs_init(obs)
         self._yield = None
-        self._norm = norm
+        self._norm = self._check_convert_norm_init(norm)
         if extended is not None:
             self._set_yield(extended)
+
+    def _check_convert_obs_init(self, obs):
+        if not isinstance(obs, ZfitSpace) or not obs.is_binned:
+            raise ValueError(f"`obs` have to be a Space with binning, not {obs}.")
+        return obs
+
+    def _check_convert_norm_init(self, norm):
+        if norm is not None:
+            if not isinstance(norm, ZfitSpace) or not norm.has_limits:
+                raise ValueError(f"`norm` has to be None or a Space with limits, not {norm}.")
+        return norm
 
     @property
     def axes(self):
@@ -61,11 +74,22 @@ class BaseBinnedPDFV1(
     def _get_dependencies(self) -> ztyping.DependentsType:
         return super()._get_dependencies()
 
+    def _convert_sort_input_x(self, x):
+        if isinstance(x, bh.Histogram):
+            x = BinnedDataV1.from_hist(x)
+        if not isinstance(x, ZfitBinnedData):
+            raise TypeError(f"Data to {self} has to be ZfitBinnedData, not {x}.")
+        x = x.with_obs(self.space)
+        return x
+
     def _pdf(self, x, norm, *, norm_range=None):
         return self._call_rel_counts(x, norm=norm) / np.prod(self.space.binning.width, axis=0)
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
-    def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, norm_range=None) -> ztyping.XType:
+    def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
+        if norm_range is not None:
+            norm = norm_range
+        x = self._convert_sort_input_x(x)
         return self._call_pdf(x, norm=norm)
 
     def _call_pdf(self, x, norm):
@@ -219,8 +243,12 @@ class BaseBinnedPDFV1(
 
     # factor out with unbinned pdf
     @property
-    def norm_range(self):
+    def norm(self):
         return self._norm
+
+    @property
+    def norm_range(self):
+        return self.norm
 
     # TODO: factor out with unbinned pdf
     def convert_sort_space(self, obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
@@ -278,7 +306,7 @@ class BinnedFromUnbinned(BaseBinnedPDFV1):
         return self.pdfs[0].get_params(floating=floating, is_yield=is_yield, extract_independent=extract_independent)
 
     @z.function
-    def _unnormalized_pdf(self, x):
+    def _rel_counts(self, x, norm):
         pdf = self.pdfs[0]
         # edge = self.axes.edges[0]  # HACK 1D only
         edges = [znp.array(edge) for edge in self.axes.edges]
@@ -301,9 +329,14 @@ class BinnedFromUnbinned(BaseBinnedPDFV1):
             return pdf.integrate(limits_space, norm=False)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
-        # values = tf.map_fn(integrate_one, limits)
-        values = tf.vectorized_map(integrate_one, limits)[:, 0]
+        values = []
+        for limit in limits:
+            values.append(integrate_one(limit))
+        values = tf.map_fn(integrate_one, limits)
+        # values = tf.vectorized_map(integrate_one, limits)[:, 0]
         values = znp.reshape(values, shape)
+        if norm:
+            values /= pdf.integrate(norm, norm=False)
         return values
 
 

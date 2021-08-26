@@ -27,7 +27,7 @@ from .space import Space, convert_to_space, supports
 @supports()
 def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztypes.float,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
-                   mc_options=None):
+                   mc_options=None, norm_range=None, norm=None):
     if method == "AUTO":  # TODO unfinished, other methods?
         method = "mc"
     # TODO method

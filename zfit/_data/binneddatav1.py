@@ -4,18 +4,9 @@ from __future__ import annotations
 
 import boost_histogram as bh
 import hist
-import tensorflow_probability as tfp
-import zfit.core.tensorlike as tensorlike
 
-
-from zfit.z import numpy as znp
-from zfit.core.baseobject import BaseObject
-from zfit.core.dimension import BaseDimensional
 from zfit.core.interfaces import ZfitBinnedData
-from zfit.core.tensorlike import register_tensor_conversion, OverloadableMixin, OverloadableMixinValues
-
-from zfit.util.exception import WorkInProgressError
-from zfit.util.ztyping import NumericalTypeReturn
+from zfit.z import numpy as znp
 
 
 # class BinnedDataV1(BaseDimensional, ZfitBinnedData, BaseObject, OverloadableMixin):  # TODO: add dtype
@@ -78,9 +69,14 @@ class BinnedHolder(
         self.values = values
         self.variances = variances
 
-
-# class ZfitMixedData:
-#     def values(self):
+    def with_obs(self, obs):
+        space = self.space.with_obs(obs)
+        new_axes = [self.space.obs.index(ob) for ob in space.obs]
+        values = znp.moveaxis(self.values, tuple(range(space.n_obs)), new_axes)
+        variances = self.variances
+        if variances is not None:
+            variances = znp.moveaxis(variances, range(space.n_obs), new_axes)
+        return type(self)(space=space, values=values, variances=variances)
 
 
 flow = False  # TODO: track the flow or not?
@@ -109,6 +105,9 @@ class BinnedDataV1(ZfitBinnedData,
         variances = znp.asarray(hist.variances(flow=flow))
         holder = BinnedHolder(space=space, values=values, variances=variances)
         return cls(holder)
+
+    def with_obs(self, obs) -> BinnedDataV1:
+        return type(self)(self.holder.with_obs(obs))
 
     @property
     def n_obs(self) -> int:

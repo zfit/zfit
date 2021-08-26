@@ -114,11 +114,11 @@ def test_morphing_templates2D():
     pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
     alpha = zfit.Parameter('alpha', 0, -5, 5)
     morph = LinearMorphing(alpha=alpha, hists=pdfs, extended=np.sum(datasets[1].values()))
-    np.testing.assert_allclose(morph.ext_pdf(None), counts[1])
+    np.testing.assert_allclose(morph.counts(), counts[1])
     alpha.set_value(1)
-    np.testing.assert_allclose(morph.ext_pdf(None), counts[2])
+    np.testing.assert_allclose(morph.counts(), counts[2])
     alpha.set_value(-1)
-    np.testing.assert_allclose(morph.ext_pdf(None), counts[0])
+    np.testing.assert_allclose(morph.counts(), counts[0])
 
 
 def test_binned_template_pdf_bbfull():

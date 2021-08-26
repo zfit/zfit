@@ -156,7 +156,6 @@ class BasePDF(ZfitPDF, BaseModel):
         return self.norm
 
     @property
-    @deprecated(None, "Use the `norm` attribute instead.")
     def norm(self) -> Union[Space, None, bool]:
         """Return the current normalization range. If None and the `obs` have limits, they are returned.
 

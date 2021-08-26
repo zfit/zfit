@@ -46,7 +46,7 @@ def test_binned_from_unbinned():
 
 
 def test_binned_from_unbinned_2D():
-    zfit.run.set_graph_mode(True)
+    # zfit.run.set_graph_mode(True)
 
     mu = zfit.Parameter('mu', 1, 0, 19)
     sigma = zfit.Parameter('sigma', 2, 0, 19)
@@ -64,7 +64,7 @@ def test_binned_from_unbinned_2D():
     # obs_binned = obs_binnedx * obs_binnedy
 
     gauss_binned = BinnedFromUnbinned(pdf=gauss2D, space=obs_binned, extended=100)
-    values = gauss_binned.pdf(None)
+    values = gauss_binned.counts(None)
     values = gauss_binned.pdf(None)
     values = gauss_binned.pdf(None)
     start = time.time()
