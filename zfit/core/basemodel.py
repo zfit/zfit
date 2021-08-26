@@ -447,8 +447,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 means that no analytical normalization is available, explicitly: the **analytical**
                 integral over the limits = norm_range is not available.
         """
-        if norm is not None:
-            norm = norm
+        if norm_range is not None:
+            norm = norm_range
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         return self._single_hook_analytic_integrate(limits=limits, norm_range=norm)

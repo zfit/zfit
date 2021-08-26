@@ -42,8 +42,8 @@ def create_gauss():
 def test_gauss1():
     gauss1, gauss2, gauss3, normal1, normal2, normal3 = create_gauss()
 
-    probs1 = gauss1.pdf(x=test_values, norm=limits1)
-    probs1_tfp = normal1.pdf(x=test_values, norm=limits1)
+    probs1 = gauss1.pdf(x=test_values, norm=norm_range1)
+    probs1_tfp = normal1.pdf(x=test_values, norm=norm_range1)
     probs1 = probs1.numpy()
     probs1_tfp = probs1_tfp.numpy()
     np.testing.assert_allclose(probs1, probs1_tfp, rtol=1e-2)

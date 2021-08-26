@@ -140,10 +140,10 @@ class BasePDF(ZfitPDF, BaseModel):
         return tuple(convert_to_parameter(p) for p in params)
 
     def _func_to_integrate(self, x: ztyping.XType):
-        return self.pdf(x)
+        return self.pdf(x, norm=False)
 
     def _func_to_sample_from(self, x):
-        return self.pdf(x)
+        return self.pdf(x, norm=False)
 
     @property
     @deprecated(None, "Use the `norm` attribute instead.")

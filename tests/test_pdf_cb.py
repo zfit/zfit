@@ -89,8 +89,8 @@ def test_cb_dcb():
     assert not any(np.isnan(probsl))
     assert not any(np.isnan(probsr))
 
-    probsl_scipy = crystalball.pdf(x)
-    probsr_scipy = crystalball.pdf(-x + 2 * mu)  # mirrored PDF
+    probsl_scipy = crystalball.pdf(x, beta=alphal, m=nl, loc=mu, scale=sigma)
+    probsr_scipy = crystalball.pdf(-x + 2 * mu, beta=alphar, m=nr, loc=mu, scale=sigma)
 
     # We take the ration as the normalization is not fixed
     ratio_l = probsl_scipy / probsl
@@ -119,8 +119,8 @@ def test_cb_dcb():
     probs_dcb_l = eval_testing(dcb, xl)
     probs_dcb_r = eval_testing(dcb, xr)
 
-    probsl_scipy = crystalball.pdf(xl)
-    probsr_scipy = crystalball.pdf(-xr + 2 * mu)
+    probsl_scipy = crystalball.pdf(xl, beta=alphal, m=nl, loc=mu, scale=sigma)
+    probsr_scipy = crystalball.pdf(-xr + 2 * mu, beta=alphar, m=nr, loc=mu, scale=sigma)
 
     ratio_l = probsl_scipy / probs_dcb_l
     ratio_r = probsr_scipy / probs_dcb_r
