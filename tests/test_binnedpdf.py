@@ -23,10 +23,10 @@ def test_binned_from_unbinned():
     axis = hist.axis.Regular(150, -5, 10, name='x')
     obs_binned = zfit.Space('x', binning=[axis])
     gauss_binned = BinnedFromUnbinned(pdf=gauss, space=obs_binned, extended=100)
-    values = gauss_binned.pdf(None)
+    values = gauss_binned.rel_counts()
     start = time.time()
     for _ in range(5):
-        values = gauss_binned.pdf(None)
+        values = gauss_binned.rel_counts(None)
     print(f"Time needed: {time.time() - start}")
     n = 100000
     sample = gauss_binned.sample(n, limits=obs_binned)
@@ -64,12 +64,11 @@ def test_binned_from_unbinned_2D():
     # obs_binned = obs_binnedx * obs_binnedy
 
     gauss_binned = BinnedFromUnbinned(pdf=gauss2D, space=obs_binned, extended=100)
-    values = gauss_binned.counts(None)
-    values = gauss_binned.pdf(None)
-    values = gauss_binned.pdf(None)
+    values = gauss_binned.rel_counts()
+
     start = time.time()
     for _ in range(2):
-        values = gauss_binned.pdf(None)
+        values = gauss_binned.rel_counts()
     print(f"Time needed: {time.time() - start}")
 
     n = 10000

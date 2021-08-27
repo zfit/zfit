@@ -4,16 +4,14 @@ from collections.abc import Iterable, Callable
 #  Copyright (c) 2021 zfit
 from contextlib import suppress
 
-import boost_histogram
+import boost_histogram as bh
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-import boost_histogram as bh
 
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from ..util.deprecation import deprecated_args
 from zfit._data.binneddatav1 import BinnedDataV1
 from .baseobject import BaseNumeric
 from .dimension import BaseDimensional
@@ -22,10 +20,11 @@ from .tensorlike import OverloadableMixinValues, register_tensor_conversion
 from .. import convert_to_parameter, convert_to_space
 from ..util import ztyping
 from ..util.cache import GraphCachable
+from ..util.deprecation import deprecated_args
 from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
                               SpaceIncompatibleError,
                               SpecificFunctionNotImplemented,
-                              WorkInProgressError)
+                              WorkInProgressError, NormNotImplemented, MultipleLimitsNotImplemented)
 
 
 class BaseBinnedPDFV1(
@@ -74,7 +73,7 @@ class BaseBinnedPDFV1(
     def _get_dependencies(self) -> ztyping.DependentsType:
         return super()._get_dependencies()
 
-    def _convert_sort_input_x(self, x):
+    def _convert_sort_input_x(self, x, allow_none=False):
         if isinstance(x, bh.Histogram):
             x = BinnedDataV1.from_hist(x)
         if not isinstance(x, ZfitBinnedData):
@@ -82,20 +81,47 @@ class BaseBinnedPDFV1(
         x = x.with_obs(self.space)
         return x
 
-    def _pdf(self, x, norm, *, norm_range=None):
+    def _check_convert_norm(self, norm, none_is_error=False):
+        if norm is None:
+            norm = self.norm
+        if norm is None:
+            if none_is_error:
+                raise ValueError(f"norm cannot be None for this function.")
+        elif (norm is not False) and (not isinstance(norm, ZfitSpace)):
+            raise TypeError(f"`norm` needs to be a binned ZfitSpace, not {norm}.")
+        return norm
+
+    def _check_convert_limits(self, limits):
+        if limits is None:
+            limits = self.space
+        if not isinstance(limits, ZfitSpace):
+            limits = convert_to_space(obs=self.obs, limits=limits)
+        return limits
+
+    def _pdf(self, x, norm):
         return self._call_rel_counts(x, norm=norm) / np.prod(self.space.binning.width, axis=0)
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
         if norm_range is not None:
             norm = norm_range
+        norm = self._check_convert_norm(norm, none_is_error=True)
         x = self._convert_sort_input_x(x)
         return self._call_pdf(x, norm=norm)
 
     def _call_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
-            return self._pdf(x, norm)
+            return self._auto_pdf(x, norm)
         return self._fallback_pdf(x, norm=norm)
+
+    def _auto_pdf(self, x, norm):
+        try:
+            pdf = self._pdf(x, norm=norm)
+        except NormNotImplemented:
+            unnormed_pdf = self._pdf(x, norm=False)
+            normalization = self.normalization(norm)
+            pdf = unnormed_pdf / normalization
+        return pdf
 
     def _fallback_pdf(self, x, norm):
         values = self._call_unnormalized_pdf(x)
@@ -110,7 +136,7 @@ class BaseBinnedPDFV1(
         return self._unnormalized_pdf(x)
 
     def _ext_pdf(self, x, norm, *, norm_range=None):
-        self._call_counts(x, norm=norm) / np.prod(self.space.binning.width, axis=0)
+        return self._call_counts(x, norm=norm) / np.prod(self.space.binning.width, axis=0)
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def ext_pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
@@ -118,23 +144,40 @@ class BaseBinnedPDFV1(
             norm = norm_range
         if not self.is_extended:
             raise NotExtendedPDFError
+        norm = self._check_convert_norm(norm, none_is_error=True)
+        x = self._convert_sort_input_x(x)  # TODO: invert sort?
         return self._call_ext_pdf(x, norm=norm)
 
     def _call_ext_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
-            return self._ext_pdf(x, norm)
+            return self._auto_ext_pdf(x, norm)
+        with suppress(SpecificFunctionNotImplemented):
+            return self._call_counts(x, norm=norm) / np.prod(self.space.binning.width, axis=0)
         return self._fallback_ext_pdf(x, norm=norm)
+
+    def _auto_ext_pdf(self, x, norm):
+        try:
+            pdf = self._ext_pdf(x, norm=norm)
+        except NormNotImplemented:
+            unnormed_pdf = self._ext_pdf(x, norm=False)
+            normalization = self.ext_normalization(norm)
+            pdf = unnormed_pdf / normalization
+        return pdf
 
     def _fallback_ext_pdf(self, x, norm):
         values = self._call_pdf(x, norm=norm)
         return values * self.get_yield()
 
     def normalization(self, limits: ztyping.LimitsType) -> ztyping.NumericalTypeReturn:
+        limits = self._check_convert_norm(limits, none_is_error=True)
         with suppress(SpecificFunctionNotImplemented):
             return self._normalization(limits)
-        return self.integrate(limits)
+        return self._call_integrate(limits, norm=False)
 
     def _normalization(self, limits):
+        raise SpecificFunctionNotImplemented
+
+    def _integrate(self, limits, norm):
         raise SpecificFunctionNotImplemented
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
@@ -144,26 +187,83 @@ class BaseBinnedPDFV1(
         # TODO HACK
         if norm_range is not None:
             norm = norm_range
-        bincounts = self.rel_counts(limits, norm=False)
+        norm = self._check_convert_norm(norm)
+        limits = self._check_convert_limits(limits)
+        return self._call_integrate(limits, norm)
+
+    def _call_integrate(self, limits, norm):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._auto_integrate(limits, norm)
+        return self._fallback_integrate(limits, norm)
+
+    def _fallback_integrate(self, limits, norm):
+        bincounts = self._call_rel_counts(limits, norm=norm)  # TODO: fake data? not to integrate limits?
         edges = limits.binning.edges
-        return binned_rect_integration(values=bincounts, edges=edges, limits=limits)
+        return binned_rect_integration(values=bincounts, edges=edges, limits=limits)  # TODO: check integral, correct?
+
+    def _auto_integrate(self, limits, norm):
+        try:
+            integral = self._integrate(limits=limits, norm=norm)
+        except NormNotImplemented:
+            unnormalized_integral = self._auto_integrate(limits=limits, norm=False)
+            normalization = self.normalization(norm)
+            integral = unnormalized_integral / normalization
+        except MultipleLimitsNotImplemented:
+            integrals = []  # TODO: map?
+            for sub_limits in limits:
+                integrals.append(self._auto_integrate(limits=sub_limits, norm=norm))
+            integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
+        return integral
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def ext_integrate(self,
                       limits: ztyping.LimitsType,
                       norm: ztyping.LimitsType = None,
                       *, norm_range=None) -> ztyping.XType:
-        # TODO HACK
         if norm_range is not None:
             norm = norm_range
-        bincounts = self.counts(limits, norm=False)
-        edges = limits.binning.edges
-        return binned_rect_integration(values=bincounts, edges=edges, limits=limits)
+        if not self.is_extended:
+            raise NotExtendedPDFError
+        norm = self._check_convert_norm(norm)
+        limits = self._check_convert_limits(limits)
+        return self._call_ext_integrate(limits, norm)
 
-    def sample(self, n: int, limits: ztyping.LimitsType = None) -> ztyping.XType:
-        if limits is None:
-            limits = self.space
-        return self._call_sample(n, limits)
+    def _call_ext_integrate(self, limits, norm):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._auto_ext_integrate(limits, norm)
+        return self._fallback_ext_integrate(limits, norm)
+
+    def _fallback_ext_integrate(self, limits, norm):  # TODO: rather use pdf?
+        bincounts = self._call_counts(limits, norm=norm)  # TODO: fake data? not to integrate limits?
+        edges = limits.binning.edges
+        return binned_rect_integration(values=bincounts, edges=edges, limits=limits)  # TODO: check integral, correct?
+
+    def _auto_ext_integrate(self, limits, norm):
+        try:
+            integral = self._ext_integrate(limits=limits, norm=norm)
+        except NormNotImplemented:
+            unnormalized_integral = self._auto_ext_integrate(limits=limits, norm=False)
+            normalization = self.ext_normalization(norm)
+            integral = unnormalized_integral / normalization
+        except MultipleLimitsNotImplemented:
+            integrals = []  # TODO: map?
+            for sub_limits in limits:
+                integrals.append(self._auto_integrate(limits=sub_limits, norm=norm))
+            integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
+        return integral
+
+    def sample(self, n: int = None, limits: ztyping.LimitsType = None) -> ztyping.XType:
+        if n is None:
+            if self.is_extended:
+                n = znp.random.poisson(self.get_yield(), size=1)
+            else:
+                raise ValueError(f"n cannot be None for sampling of {self} or needs to be extended.")
+
+        limits = self._check_convert_limits(limits)
+        values = self._call_sample(n, limits)
+        if not isinstance(values, ZfitBinnedData):
+            values = BinnedDataV1.from_tensor(space=limits, values=values, variances=None)
+        return values
 
     def _call_sample(self, n, limits):
         with suppress(SpecificFunctionNotImplemented):
@@ -175,11 +275,10 @@ class BaseBinnedPDFV1(
             raise WorkInProgressError("limits different from the default are not yet available."
                                       " Please open an issue if you need this:"
                                       " https://github.com/zfit/zfit/issues/new/choose")
-        probs = self.ext_pdf(None, norm=False)  # TODO: why did this not fully work out? Why probs are normed to 10?
-        values = z.random.counts_multinomial(n, probs=probs / znp.sum(probs))
-
-        data = BinnedDataV1.from_tensor(space=limits, values=values, variances=None)
-        return data
+        probs = self.rel_counts(limits,
+                                norm=False)  # TODO: why did this not fully work out? Why probs are normed to 10?
+        values = z.random.counts_multinomial(n, probs=probs)
+        return values
 
     # ZfitMinimalHist implementation
     def values(self, *, var=None):
@@ -190,17 +289,6 @@ class BaseBinnedPDFV1(
         else:
             return self.rel_counts(var)
 
-    def counts(self, x, norm=None):
-        if norm not in (None, False):
-            raise RuntimeError("norm range different than None or False currently not supported.")
-        return self._call_counts(x, norm)
-
-    def rel_counts(self, x, norm=None):
-        if norm not in (None, False):
-            raise RuntimeError("norm range different than None or False currently not supported.")
-        return self._call_rel_counts(x, norm)
-
-    # WIPWIPWIP
 
     def update_integration_options(self, *args, **kwargs):
         raise WorkInProgressError
@@ -240,17 +328,20 @@ class BaseBinnedPDFV1(
 
     def _copy(self, deep, name, overwrite_params):
         raise WorkInProgressError
-
     # factor out with unbinned pdf
+
     @property
     def norm(self):
-        return self._norm
+        norm = self._norm
+        if norm is None:
+            norm = self.space
+        return norm
 
     @property
     def norm_range(self):
         return self.norm
-
     # TODO: factor out with unbinned pdf
+
     def convert_sort_space(self, obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
                            axes: ztyping.AxesTypeInput = None,
                            limits: ztyping.LimitsTypeInput = None) -> ZfitSpace | None:
@@ -275,21 +366,69 @@ class BaseBinnedPDFV1(
             space = space.with_coords(self.space, allow_superset=True, allow_subset=True)
         return space
 
+    def counts(self, x=None, norm=None):  # TODO: x preprocessing and sorting
+        if not self.is_extended:
+            raise NotExtendedPDFError
+        norm = self._check_convert_norm(norm)
+        return self._call_counts(x, norm)
+
     def _call_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
-            return self._counts(x, norm=norm)
-        return self._rel_counts(x, norm=norm)
+            return self._auto_counts(x, norm)
+        return self._fallback_counts(x, norm)
+
+    def ext_normalization(self, norm):
+        if not self.is_extended:
+            raise NotExtendedPDFError
+        with suppress(SpecificFunctionNotImplemented):
+            return self._ext_normalization(norm)
+        return self.normalization(norm) / self.get_yield()
+
+    def _ext_normalization(self, norm):
+        raise SpecificFunctionNotImplemented
+
+    def _auto_counts(self, x, norm):
+        try:
+            counts = self._counts(x, norm=norm)
+        except NormNotImplemented:
+            unnormed_counts = self._counts(x, norm=False)
+            normalization = self.ext_normalization(norm)
+            counts = unnormed_counts / normalization
+        return counts
+
+    def _fallback_counts(self, x, norm):
+        return self._auto_rel_counts(x, norm) * self.get_yield()
 
     def _counts(self, x, norm):
         raise SpecificFunctionNotImplemented
 
+    def rel_counts(self, x=None, norm=None):
+        norm = self._check_convert_norm(norm)
+        return self._call_rel_counts(x, norm)
+
     def _call_rel_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
-            return self._rel_counts(x, norm=norm)
-        return self._counts(x, norm=norm)
+            return self._auto_rel_counts(x, norm=norm)
+        with suppress(SpecificFunctionNotImplemented):
+            return self._auto_counts(x, norm=norm) / self.get_yield()
+        return self._fallback_rel_counts(x, norm)
 
     def _rel_counts(self, x, norm):
         raise SpecificFunctionNotImplemented
+
+    def _auto_rel_counts(self, x, norm):
+        try:
+            rel_counts = self._rel_counts(x, norm=norm)
+        except NormNotImplemented:
+            unnormed_rel_counts = self._rel_counts(x, norm=False)
+            normalization = self.normalization(norm)
+            rel_counts = unnormed_rel_counts / normalization
+        return rel_counts
+
+    def _fallback_rel_counts(self, x, norm):
+        density = self._call_pdf(x, norm)
+        rel_counts = density * np.prod(self.space.binning.width, axis=0)
+        return rel_counts
 
 
 register_tensor_conversion(BaseBinnedPDFV1)
@@ -329,9 +468,9 @@ class BinnedFromUnbinned(BaseBinnedPDFV1):
             return pdf.integrate(limits_space, norm=False)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
-        values = []
-        for limit in limits:
-            values.append(integrate_one(limit))
+        # values = []
+        # for limit in limits:
+        #     values.append(integrate_one(limit))
         values = tf.map_fn(integrate_one, limits)
         # values = tf.vectorized_map(integrate_one, limits)[:, 0]
         values = znp.reshape(values, shape)

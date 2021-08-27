@@ -224,9 +224,12 @@ class AnalyticSamplingNotImplemented(AnalyticNotImplemented):
 
 
 # PDF class internal handling errors
-class NormRangeNotImplemented(StandardControlFlow):
+class NormNotImplemented(StandardControlFlow):
     """Indicates that a function does not support the normalization range argument `norm_range`."""
     pass
+
+
+NormRangeNotImplemented = NormNotImplemented  # legacy
 
 
 class MultipleLimitsNotImplemented(StandardControlFlow):

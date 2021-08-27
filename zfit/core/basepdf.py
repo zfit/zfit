@@ -185,20 +185,6 @@ class BasePDF(ZfitPDF, BaseModel):
 
         return TemporarilySet(value=norm_range, setter=setter, getter=getter)
 
-    # TODO: remove below?
-    # @property
-    # def _yield(self):
-    #     """For internal use, the yield or None"""
-    #     return self.params.get('yield')
-    #
-    # @_yield.setter
-    # def _yield(self, value):
-    #     if value is None:
-    #         # unset
-    #         self._params.pop('yield', None)  # safely remove if still there
-    #     else:
-    #         self._params['yield'] = value
-
     @_BasePDF_register_check_support(True)
     def _normalization(self, limits):
         raise SpecificFunctionNotImplemented
@@ -281,7 +267,7 @@ class BasePDF(ZfitPDF, BaseModel):
             norm = norm_range
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
-        return self.pdf(x=x) * self.get_yield()
+        return self.pdf(x=x, norm=norm) * self.get_yield()
 
     def _ext_pdf(self, x, norm_range=None):
         raise SpecificFunctionNotImplemented  # TODO: implement properly
@@ -347,7 +333,7 @@ class BasePDF(ZfitPDF, BaseModel):
             return znp.exp(self._log_pdf(x=x, norm_range=norm_range))
         if self.is_extended:
             with suppress(FunctionNotImplemented):
-                return self._ext_pdf(x=x) / self.get_yield()  # TODO: extend/refactor the calling
+                return self._ext_pdf(x=x, norm=norm_range) / self.get_yield()  # TODO: extend/refactor the calling
 
         return self._fallback_pdf(x=x, norm_range=norm_range)
 

@@ -2819,6 +2819,7 @@ def no_norm_range(func):
         norm_range_old_used = False
         norm_range = kwargs.get('norm_range')
         norm = kwargs.get('norm')
+        anynorm = None
         if norm_range is not None:
             anynorm = norm_range
         elif norm is not None:
@@ -2837,13 +2838,20 @@ def no_norm_range(func):
                 kwargs['norm_range'] = False
             if 'norm' in kwargs:
                 kwargs['norm'] = False
-            # kwargs.pop('norm_range',
-            #            None)  # remove if in signature (= norm_range_index not None)
-            # kwargs.pop('norm', None)
+
         if norm_not_false or norm_is_arg:
             raise NormRangeNotImplemented()
         else:
-            return func(*args, **kwargs)
+            try:
+                return func(*args, **kwargs)
+            except TypeError as error:
+                if "got an unexpected keyword argument 'norm_range'" in str(error):
+                    kwargs.pop('norm_range')
+                elif "got an unexpected keyword argument 'norm'" in str(error):
+                    kwargs.pop('norm')
+                else:
+                    raise
+                return func(*args, **kwargs)
 
     return new_func
 
