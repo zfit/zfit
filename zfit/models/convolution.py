@@ -238,8 +238,8 @@ class FFTConvPDFV1(BaseFunctor):
         x_kernel_flatish = znp.reshape(x_kernel, (-1, self.n_obs))
         data_kernel = Data.from_tensor(tensor=x_kernel_flatish, obs=self.obs)
 
-        y_func = self.pdfs[0].pdf(data_func)
-        y_kernel = self.pdfs[1].pdf(data_kernel)
+        y_func = self.pdfs[0].pdf(data_func, norm=False)
+        y_kernel = self.pdfs[1].pdf(data_kernel, norm=False)
 
         func_dims = [nbins_func] * self.n_obs
         kernel_dims = [nbins_kernel] * self.n_obs

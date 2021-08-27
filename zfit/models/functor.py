@@ -281,7 +281,7 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
     def _unnormalized_pdf(self, x: ztyping.XType):
-        probs = [pdf.pdf(x) for pdf in self.pdfs]
+        probs = [pdf.pdf(x, norm=False) for pdf in self.pdfs]
         prob = functools.reduce(operator.mul, probs)
         return z.convert_to_tensor(prob)
 
@@ -289,7 +289,7 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
         equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm_range])) == 1  # all equal
         if not any(self._model_same_obs) and equal_norm_ranges:
 
-            probs = [pdf.pdf() for pdf in self.pdfs]
+            probs = [pdf.pdf(var=x) for pdf in self.pdfs]
             prob = functools.reduce(operator.mul, probs)
             return z.convert_to_tensor(prob)
         else:

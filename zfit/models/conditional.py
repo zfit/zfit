@@ -78,7 +78,7 @@ class ConditionalPDFV1(BaseFunctor):
             x_pdf = cond_and_data[None, ..., :pdf.n_obs]
             for param, index in param_x_indices.items():
                 param.assign(cond_and_data[..., index])
-            return pdf.pdf(x_pdf)
+            return pdf.pdf(x_pdf, norm=norm_range)
 
         params = tuple(param_x_indices.keys())
         with set_values(params, params):
