@@ -56,4 +56,14 @@ def pytest_addoption(parser):
 def pytest_configure():
     here = os.path.dirname(os.path.abspath(__file__))
     images_dir = pathlib.Path(here).joinpath('..', 'docs', 'images', '_generated_by_tests')
-    pytest.zfit_savefig = lambda: plt.savefig(str(images_dir))
+
+    def savefig(figure=None):
+        if figure is None:
+            figure = plt.gcf()
+        title_sanitized = figure.axes[0].get_title().replace(' ', '_')
+        if not title_sanitized:
+            raise RuntimeError("Title has to be set for plot that should be saved.")
+        savepath = images_dir.joinpath(title_sanitized)
+        plt.savefig(str(savepath))
+
+    pytest.zfit_savefig = savefig

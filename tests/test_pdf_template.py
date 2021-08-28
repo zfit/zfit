@@ -1,18 +1,16 @@
 #  Copyright (c) 2021 zfit
 
-import hist
 import mplhep
 import numpy as np
+import numpy.testing
 import pytest
-from hist.axestuple import NamedAxesTuple
-from matplotlib import pyplot as plt
-
 import zfit
 import zfit.z.numpy as znp
-from zfit._loss.binnedloss import ExtendedBinnedNLL
+from matplotlib import pyplot as plt
 from zfit._data.binneddatav1 import BinnedDataV1
+from zfit._loss.binnedloss import ExtendedBinnedNLL
 from zfit.models.binned_functor import BinnedSumPDFV1
-from zfit.models.morphing import LinearMorphing
+from zfit.models.morphing import SplineMorphing
 from zfit.models.template import BinnedTemplatePDFV1
 
 
@@ -56,39 +54,95 @@ def test_binned_template_pdf():
     # assert len(pdf.pdf(None, obs)) > 0
 
 
-def test_morphing_templates():
-    bins1 = 10
+@pytest.mark.parametrize('alphas', [None, [-0.7, -0.1, 0.5, 1.4]])
+def test_morphing_templates(alphas):
+    bins1 = 15
+    irregular_str = 'irregular templates' if alphas is not None else ''
+
     counts1 = np.random.uniform(70, high=100, size=bins1)  # generate counts
     counts = [counts1 - np.random.uniform(high=20, size=bins1), counts1,
               counts1 + np.random.uniform(high=20, size=bins1)]
+    if alphas is not None:
+        counts.append(counts1 + np.random.uniform(high=5, size=bins1))
     binning = zfit.binned.Regular(bins1, 0, 10, name='obs1')
     obs = zfit.Space(obs='obs1', binning=binning)
     datasets = [BinnedDataV1.from_tensor(obs, count) for count in counts]
     pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
+    if alphas is not None:
+        pdfs = {a: p for a, p in zip(alphas, pdfs)}
     alpha = zfit.Parameter('alpha', 0, -5, 5)
-    morph = LinearMorphing(alpha=alpha, hists=pdfs)
-    np.testing.assert_allclose(morph.counts(), counts[1])
-    alpha.set_value(1)
-    np.testing.assert_allclose(morph.counts(), counts[2])
-    alpha.set_value(-1)
-    np.testing.assert_allclose(morph.counts(), counts[0])
+    morph = SplineMorphing(alpha=alpha, hists=pdfs)
+    if alphas is None:
+        alphas = [-1, 0, 1]
+    for i, a in enumerate(alphas):
+        alpha.set_value(a)
+        np.testing.assert_allclose(morph.counts(), counts[i])
+        if len(alphas) > i + 1:
+            alpha.set_value((a + alphas[i + 1]) / 2)
+            max_dist = (counts[i] - counts[i + 1]) ** 2 + 5  # tolerance
+            max_dist *= 1.1  # not strict, it can be a bit higher
+            numpy.testing.assert_array_less((morph.counts() - counts[i]) ** 2, max_dist)
+            numpy.testing.assert_array_less((morph.counts() - counts[i + 1]) ** 2, max_dist)
 
     hists = []
     import matplotlib.cm as cm
 
     amin, amax = -2, 2
     n = 5
-    for a in znp.linspace(amin, amax, n * 4 - 1):
-        normed_a = (a - amin) / (amax - amin)
-        color = cm.get_cmap('cool')(normed_a)
-        alpha.set_value(a)
-        histo = morph.ext_pdf(None)
-        histo = BinnedDataV1.from_tensor(obs, histo).to_hist()
-        if np.min((a - znp.linspace(amin, amax, n)) ** 2) < 0.001:
-            mplhep.histplot(histo, label=f'alpha={a}', color=color)
+
+    template_alphas = np.array(list(alphas))
+
+    for do_3d in [True, False]:
+        plt.figure()
+        if do_3d:
+            ax = plt.gcf().add_subplot(111, projection='3d')
         else:
-            mplhep.histplot(histo, color=color)
+            ax = plt.gca()
+        plotstyle = '3d plot' if do_3d else 'hist plot'
+        plt.title(f"Morphing with splines {irregular_str} {plotstyle}")
+
+        for a in list(znp.linspace(amin, amax, n * 2)) + list(template_alphas):
+            normed_a = (a - amin) / (amax - amin) / 1.3  # 3 is a scaling factor
+            color = cm.get_cmap('winter')(normed_a)
+            alpha.set_value(a)
+            histo = morph.ext_pdf(None)
+            histo = BinnedDataV1.from_tensor(obs, histo)
+            histo = histo.to_hist()
+            values = histo.values()
+            x = histo.axes.edges[0][:-1]
+            y = np.broadcast_to(a, values.shape)
+            z = values
+            label = None
+            if do_3d:
+                ax.step(x, y, z, color=color, where='pre', label=label)
+            else:
+                if np.min((a - template_alphas) ** 2) < 0.0001:
+                    label = f'alpha={a}'
+                mplhep.histplot(histo, label=label, color=color)
+
+            # ax.add_collection3d(plt.fill_between(x, y, z, step="pre", alpha=0.4), zs=1, zdir='y')
+        ax.set_xlabel('observable')
+        ax.set_ylabel('alpha')
+        if do_3d:
+            ax.set_zlabel('ext_pdf')
         plt.legend()
+        pytest.zfit_savefig()
+
+    # from mpl_toolkits.mplot3d import Axes3D
+    #
+    # fig = plt.figure()
+    #
+    # x = np.linspace(-50, 50, 100)
+    # y = np.arange(25)
+    # X, Y = np.meshgrid(x, y)
+    # Z = np.zeros((len(y), len(x)))
+    #
+    # for i in range(len(y)):
+    #     damp = (i / float(len(y))) ** 2
+    #     Z[i] = 5 * damp * (1 - np.sqrt(np.abs(x / 50)))
+    #     Z[i] += np.random.uniform(0, .1, len(Z[i]))
+    # ax.plot_surface(X, Y, Z, rstride=1, cstride=1000, color='w', shade=False, lw=.5)
+
     plt.show()
 
 
@@ -110,7 +164,7 @@ def test_morphing_templates2D():
     datasets = [BinnedDataV1.from_tensor(obs, count) for count in counts]
     pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
     alpha = zfit.Parameter('alpha', 0, -5, 5)
-    morph = LinearMorphing(alpha=alpha, hists=pdfs)
+    morph = SplineMorphing(alpha=alpha, hists=pdfs)
     np.testing.assert_allclose(morph.counts(), counts[1])
     alpha.set_value(1)
     np.testing.assert_allclose(morph.counts(), counts[2])

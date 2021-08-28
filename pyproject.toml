@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q"
+addopts = "-Wd -ra -q"
 testpaths = [
     "tests",
 ]
@@ -18,3 +18,4 @@ markers = [
     "plots: create and safe plots",
 ]
 console_output_style = "progress"
+collect_ignore = "setup.py"

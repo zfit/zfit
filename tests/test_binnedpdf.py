@@ -16,12 +16,12 @@ from zfit.core.unbinnedpdf import SplinePDF
 @pytest.mark.plots
 def test_binned_from_unbinned():
     # zfit.run.set_graph_mode(False)
-    n = 104
+    n = 1004
     mu = zfit.Parameter('mu', 1, 0, 19)
     sigma = zfit.Parameter('sigma', 1, 0, 19)
     obs = zfit.Space('x', (-5, 10))
     n_testpoints = n
-    x = znp.linspace(-5, 10, n_testpoints)
+    x = znp.linspace(-5, 10, n_testpoints // 10)
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
     gauss.set_yield(n)
 
@@ -33,8 +33,9 @@ def test_binned_from_unbinned():
         values = gauss_binned.counts(obs_binned)
     sample = gauss_binned.sample(n, limits=obs_binned)
 
-    title = 'comparison of binned gaussian and sample'
-    plt.figure(title.replace(' ', '_'))
+    title = 'Comparison of binned gaussian and sample'
+    plt.figure()
+    plt.title(title)
     mplhep.histplot(sample.to_hist(), label='sampled binned')
     plt.plot(axis.centers, gauss_binned.counts(obs_binned), label='counts binned')
     plt.legend()
@@ -47,6 +48,7 @@ def test_binned_from_unbinned():
     y_unbinned = spline_gauss.ext_pdf(sample_unbinned)
     y_true = gauss.ext_pdf(x)
     plt.figure()
+    plt.title("Comparison of unbinned gauss to binned to interpolated")
     plt.plot(axis.centers, gauss_binned.ext_pdf(obs_binned), 'x', label='binned')
     plt.plot(x, y_true, label='original')
     plt.plot(x, y, '.', label='interpolated')
