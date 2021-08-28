@@ -53,7 +53,7 @@ def test_binned_template_pdf():
     # plt.show()
     # assert len(pdf.pdf(None, obs)) > 0
 
-
+@pytest.mark.plots
 @pytest.mark.parametrize('alphas', [None, [-0.7, -0.1, 0.5, 1.4]])
 def test_morphing_templates(alphas):
     bins1 = 15
@@ -119,8 +119,6 @@ def test_morphing_templates(alphas):
                 if np.min((a - template_alphas) ** 2) < 0.0001:
                     label = f'alpha={a}'
                 mplhep.histplot(histo, label=label, color=color)
-
-            # ax.add_collection3d(plt.fill_between(x, y, z, step="pre", alpha=0.4), zs=1, zdir='y')
         ax.set_xlabel('observable')
         ax.set_ylabel('alpha')
         if do_3d:
@@ -128,26 +126,9 @@ def test_morphing_templates(alphas):
         plt.legend()
         pytest.zfit_savefig()
 
-    # from mpl_toolkits.mplot3d import Axes3D
-    #
-    # fig = plt.figure()
-    #
-    # x = np.linspace(-50, 50, 100)
-    # y = np.arange(25)
-    # X, Y = np.meshgrid(x, y)
-    # Z = np.zeros((len(y), len(x)))
-    #
-    # for i in range(len(y)):
-    #     damp = (i / float(len(y))) ** 2
-    #     Z[i] = 5 * damp * (1 - np.sqrt(np.abs(x / 50)))
-    #     Z[i] += np.random.uniform(0, .1, len(Z[i]))
-    # ax.plot_surface(X, Y, Z, rstride=1, cstride=1000, color='w', shade=False, lw=.5)
 
-    plt.show()
-
-
-def test_morphing_templates2D():
-    zfit.run.set_graph_mode(True)
+@pytest.mark.parametrize('alphas', [None, [-0.7, -0.1, 0.5, 1.4]])
+def test_morphing_templates2D(alphas):
     bins1 = 10
     bins2 = 7
     shape = (bins1, bins2)
@@ -155,7 +136,9 @@ def test_morphing_templates2D():
     # counts1 = np.random.uniform(70, high=100, size=bins1)  # generate counts
     counts = [counts1 - np.random.uniform(high=20, size=shape), counts1,
               counts1 + np.random.uniform(high=20, size=shape)]
-    binning1 = zfit.binned.Regular(bins1, 0, 10, name='obs1')
+    if alphas is not None:
+        counts.append(counts1 + np.random.uniform(high=5, size=shape))
+    binning1 = zfit.binned.Variable(sorted(np.random.uniform(0, 10, size=bins1)), name='obs1')
     binning2 = zfit.binned.Regular(bins2, 0, 10, name='obs2')
     obs1 = zfit.Space(obs='obs1', binning=binning1)
     obs2 = zfit.Space(obs='obs2', binning=binning2)
@@ -163,13 +146,22 @@ def test_morphing_templates2D():
     # obs._binning = NamedAxesTuple([binning1, binning2])  # TODO: does it work without this?
     datasets = [BinnedDataV1.from_tensor(obs, count) for count in counts]
     pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
+    if alphas is not None:
+        pdfs = {a: p for a, p in zip(alphas, pdfs)}
     alpha = zfit.Parameter('alpha', 0, -5, 5)
     morph = SplineMorphing(alpha=alpha, hists=pdfs)
-    np.testing.assert_allclose(morph.counts(), counts[1])
-    alpha.set_value(1)
-    np.testing.assert_allclose(morph.counts(), counts[2])
-    alpha.set_value(-1)
-    np.testing.assert_allclose(morph.counts(), counts[0])
+    if alphas is None:
+        alphas = [-1, 0, 1]
+    for i, a in enumerate(alphas):
+        alpha.set_value(a)
+        np.testing.assert_allclose(morph.counts(), counts[i])
+        assert pytest.approx(np.sum(counts[i])) == zfit.run(morph.get_yield())
+        if len(alphas) > i + 1:
+            alpha.set_value((a + alphas[i + 1]) / 2)
+            max_dist = (counts[i] - counts[i + 1]) ** 2 + 5  # tolerance
+            max_dist *= 1.1  # not strict, it can be a bit higher
+            numpy.testing.assert_array_less((morph.counts() - counts[i]) ** 2, max_dist)
+            numpy.testing.assert_array_less((morph.counts() - counts[i + 1]) ** 2, max_dist)
 
 
 def test_binned_template_pdf_bbfull():

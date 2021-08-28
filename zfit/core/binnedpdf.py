@@ -340,6 +340,9 @@ class BaseBinnedPDFV1(
             integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
         return integral
 
+    def _ext_integrate(self, limits, norm):
+        raise SpecificFunctionNotImplemented
+
     def sample(self, n: int = None, limits: ztyping.LimitsType = None) -> ztyping.XType:
         if n is None:
             if self.is_extended:
@@ -366,7 +369,8 @@ class BaseBinnedPDFV1(
                                       " Please open an issue if you need this:"
                                       " https://github.com/zfit/zfit/issues/new/choose")
         probs = self.rel_counts(limits,
-                                norm=False)  # TODO: why did this not fully work out? Why probs are normed to 10?
+                                norm=False)
+        probs /= znp.sum(probs)  # TODO: should we just ask for the normed? or what is better?
         values = z.random.counts_multinomial(n, probs=probs)
         return values
 
@@ -492,7 +496,7 @@ class BaseBinnedPDFV1(
             counts = self._counts(x, norm=norm)
         except NormNotImplemented:
             unnormed_counts = self._counts(x, norm=False)
-            normalization = self.ext_normalization(norm)
+            normalization = self.normalization(norm)
             counts = unnormed_counts / normalization
         return counts
 

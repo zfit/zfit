@@ -58,9 +58,9 @@ from contextlib import suppress
 from typing import Dict, Optional, Set, Type, Union
 
 import tensorflow as tf
-
 import zfit.z.numpy as znp
 from zfit import z
+
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
 from .interfaces import ZfitParameter, ZfitPDF
@@ -73,6 +73,7 @@ from ..util.cache import invalidate_graph
 from ..util.deprecation import deprecated, deprecated_args
 from ..util.exception import (AlreadyExtendedPDFError, BreakingAPIChangeError,
                               FunctionNotImplemented, NotExtendedPDFError,
+                              NormNotImplemented,
                               SpecificFunctionNotImplemented)
 from ..util.temporary import TemporarilySet
 
@@ -268,7 +269,24 @@ class BasePDF(ZfitPDF, BaseModel):
             norm = norm_range
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        with self._convert_sort_x(x) as x:
+            return self._call_ext_pdf(x, norm)
+
+    def _call_ext_pdf(self, x, norm):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._auto_ext_pdf(x, norm)
+
+        # fallback
         return self.pdf(x=x, norm=norm) * self.get_yield()
+
+    def _auto_ext_pdf(self, x, norm):
+        try:
+            probs = self._ext_pdf(x, norm)
+        except NormNotImplemented:
+            unnorm_probs = self._ext_pdf(x, False)
+            normalization = self.normalization(norm)
+            probs = unnorm_probs / normalization
+        return probs
 
     def _ext_pdf(self, x, norm_range=None):
         raise SpecificFunctionNotImplemented  # TODO: implement properly
@@ -290,7 +308,27 @@ class BasePDF(ZfitPDF, BaseModel):
             norm = norm_range
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        with self._convert_sort_x(x) as x:
+            return self._call_ext_log_pdf(x, norm)
+
+    def _call_ext_log_pdf(self, x, norm):
+        with suppress(SpecificFunctionNotImplemented):
+            return self._auto_ext_log_pdf(x, norm)
+
+        # fallback
         return self.log_pdf(x=x, norm=norm) + znp.log(self.get_yield())
+
+    def _auto_ext_log_pdf(x, norm):
+        try:
+            pdf = self._ext_log_pdf(x, norm)
+        except NormNotImplemented:
+            unnormed_pdf = self._ext_log_pdf(x, False)
+            normalization = znp.log(self.normalization(norm))
+            pdf = unnormed_pdf - normalization
+        return pdf
+
+    def _ext_log_pdf(self, x, norm):
+        raise SpecificFunctionNotImplemented
 
     @_BasePDF_register_check_support(False)
     def _pdf(self, x, norm_range):

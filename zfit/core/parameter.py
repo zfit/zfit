@@ -661,8 +661,12 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         return self._params
 
     def value(self):
-
-        value = self._value_fn(*self.params.values())
+        params = self.params
+        if len(signature(self._value_fn).parameters) == 1:
+            if len(params) > 1:
+                value = self._value_fn(params)
+        else:
+            value = self._value_fn(*params.values())
         return tf.convert_to_tensor(value, dtype=self.dtype)
 
     def read_value(self):
@@ -742,7 +746,9 @@ register_tensor_conversion(BaseComposedParameter, 'BaseComposedParameter', overl
 
 
 class ComposedParameter(BaseComposedParameter):
-    def __init__(self, name: str, value_fn: Callable,
+    def __init__(self,
+                 name: str,
+                 value_fn: Callable,
                  params: Union[Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter] = NotSpecified,
                  dtype: tf.dtypes.DType = ztypes.float,
                  dependents: Union[Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter] = NotSpecified):
@@ -781,7 +787,7 @@ class ComposedParameter(BaseComposedParameter):
             value = f'{self.numpy():.4g}'
         else:
             value = "graph-node"
-        return f"<zfit.{self.__class__.__name__} '{self.name}' params={self.params} value={value}>"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' params={[(k, p.name) for k, p in self.params.items()]} value={value}>"
 
 
 class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as input?

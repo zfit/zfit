@@ -24,7 +24,7 @@ class SplinePDF(BaseFunctor):
             order=2
 
         )
-        return y[0, ..., 0]
+        return probs[0, ..., 0]
 
     def _pdf(self, x, norm_range):
         pdf = self.pdfs[0]

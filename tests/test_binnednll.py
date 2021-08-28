@@ -126,7 +126,7 @@ def test_binned_nll(weights):
     # status.errors()
     params = status.params
     # plt.figure()
-    mplhep.histplot(binned_gauss, label="PDF after fit")
+    mplhep.histplot(binned_gauss.to_hist(), label="PDF after fit")
     plt.legend()
     plt.show()
     # mplhep.histplot(test_values_binned.to_hist() /  float(test_values_binned.nevents))
