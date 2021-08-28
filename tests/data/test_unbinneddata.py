@@ -2,15 +2,18 @@
 import io
 import pickle
 
-import asdf
 import numpy as np
+import pytest
 
 import zfit._data.unbinneddata
 import zfit._variables.axis as axis
 import zfit.z.numpy as znp
 
 
+@pytest.mark.skip
 def test_basic():
+    import asdf
+
     n = 1000
     nobs = 3
     axes = axis.SpaceV2([axis.UnbinnedAxis('x'), axis.UnbinnedAxis('y'), axis.UnbinnedAxis('z')])

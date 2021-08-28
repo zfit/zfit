@@ -4,6 +4,8 @@ from typing import Any, Callable, Iterable, Union
 
 import tensorflow as tf
 
+import zfit.binned
+
 
 def convert_to_container(value: Any, container: Callable = list, non_containers=None,
                          convert_none=False) -> Union[None, Iterable]:
@@ -21,6 +23,7 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
     """
     from ..core.interfaces import ZfitData, ZfitBinnedData  # here due to dependency
     from ..core.interfaces import ZfitLoss, ZfitModel, ZfitParameter, ZfitSpace
+    import zfit
     if non_containers is None:
         non_containers = []
     if not isinstance(non_containers, list):
@@ -30,7 +33,7 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
     if not isinstance(value, container):
         try:
             non_containers.extend([str, tf.Tensor, ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter,
-                                   ZfitBinnedData])
+                                   ZfitBinnedData, zfit.binned.Regular, zfit.binned.Variable])
             if isinstance(value, tuple(non_containers)):
                 raise TypeError
             value = container(value)

@@ -2,7 +2,10 @@
 
 #  Copyright (c) 2021 zfit
 import sys
+import os
+import pathlib
 
+import matplotlib.pyplot as plt
 import pytest
 
 try:
@@ -48,3 +51,9 @@ def setup_teardown():
 
 def pytest_addoption(parser):
     parser.addoption("--longtests", action="store", default=False)
+
+
+def pytest_configure():
+    here = os.path.dirname(os.path.abspath(__file__))
+    images_dir = pathlib.Path(here).joinpath('..', 'docs', 'images', '_generated_by_tests')
+    pytest.zfit_savefig = lambda: plt.savefig(str(images_dir))

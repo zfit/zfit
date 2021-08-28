@@ -127,10 +127,10 @@ def test_multiple_limits_sampling(gauss_factory):
     sample2 = gauss.sample(n=n, limits=obs_split)
 
     rel_tol = 1e-2
-    assert np.mean(sample1.value()) == pytest.approx(mu_true, rel_tol)
-    assert np.std(sample1.value()) == pytest.approx(sigma_true, rel_tol)
-    assert np.mean(sample2.value()) == pytest.approx(mu_true, rel_tol)
-    assert np.std(sample2.value()) == pytest.approx(sigma_true, rel_tol)
+    assert float(np.mean(sample1.value())) == pytest.approx(mu_true, rel_tol)
+    assert float(np.std(sample1.value())) == pytest.approx(sigma_true, rel_tol)
+    assert float(np.mean(sample2.value())) == pytest.approx(mu_true, rel_tol)
+    assert float(np.std(sample2.value())) == pytest.approx(sigma_true, rel_tol)
 
 
 @pytest.mark.parametrize('gauss_factory', gaussian_dists + [create_test_pdf_overriden_gauss1])

@@ -109,13 +109,14 @@ def _BasePDF_register_check_support(has_support: bool):
 class BasePDF(ZfitPDF, BaseModel):
 
     def __init__(self, obs: ztyping.ObsTypeInput, params: Dict[str, ZfitParameter] = None, dtype: Type = ztypes.float,
-                 name: str = "BasePDF",
+                 name: str = "BasePDF", extended=None, norm=None,
                  **kwargs):
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
         self._yield = None
-        self._norm = None
-        self._normalization_value = None
+        self._norm = norm
+        if extended not in (False, None):
+            self._set_yield(extended)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -333,7 +334,7 @@ class BasePDF(ZfitPDF, BaseModel):
             return znp.exp(self._log_pdf(x=x, norm_range=norm_range))
         if self.is_extended:
             with suppress(FunctionNotImplemented):
-                return self._ext_pdf(x=x, norm=norm_range) / self.get_yield()  # TODO: extend/refactor the calling
+                return self._ext_pdf(x=x, norm_range=norm_range) / self.get_yield()  # TODO: extend/refactor the calling
 
         return self._fallback_pdf(x=x, norm_range=norm_range)
 

@@ -282,12 +282,12 @@ def test_with_obs(limits, binning):
         space = space_used.with_obs(obs1)
         assert space == space1
 
-    space = space_used.with_obs(obs2)
-    if using_space_as_lim:
+        space = space_used.with_obs(obs2)
+        if using_space_as_lim:
 
-        assert space == space2mixed
-    else:
-        assert space == space2mixed
+            assert space == space2mixed
+        else:
+            assert space == space2mixed
 
 
 @pytest.mark.parametrize('limits', limits_to_test)
@@ -394,7 +394,15 @@ def test_space_add(limits):
     assert space.axes == axes2
 
 
-def test_combine_spaces():
+@pytest.mark.parametrize('binning', [None, {
+    'x': zfit.binned.Variable([1, 5, 7.3, 11.2], name='x'),
+    'y': zfit.binned.Regular(12, 1, 5, name='y'),
+    'z': zfit.binned.Variable([1, 2, 4, 5.2, 6.3, 11.2], name='z'),
+    'a': zfit.binned.Regular(12, 2, 4, name='a')
+
+}
+                                     ])
+def test_combine_spaces(binning):
     shift = 30
 
     lower1, upper1 = [0, 1], [14, 13]
@@ -403,19 +411,37 @@ def test_combine_spaces():
     lower2b, upper2b = [-4 + shift, 1 + shift], [10 + shift, 13 + shift]
     lower3, upper3 = [9, 1, 0], [11, 13, 14]
     obs1 = ['x', 'y']
-    space1a = zfit.Space(obs1, limits=(lower1, upper1))
-    space1b = zfit.Space(obs1, limits=(lower1b, upper1b))
+    if binning is not None:
+        binning1 = [binning[ob] for ob in obs1]
+    else:
+        binning1 = None
+    space1a = zfit.Space(obs1, limits=(lower1, upper1), binning=binning1)
+    space1b = zfit.Space(obs1, limits=(lower1b, upper1b), binning=binning1)
     obs2 = ['z', 'y']
-    space2a = zfit.Space(obs2, limits=(lower2, upper2))
-    space2b = zfit.Space(obs2, limits=(lower2b, upper2b))
+    if binning is not None:
+        binning2 = [binning[ob] for ob in obs2]
+    else:
+        binning2 = None
+    space2a = zfit.Space(obs2, limits=(lower2, upper2), binning=binning2)
+    space2b = zfit.Space(obs2, limits=(lower2b, upper2b), binning=binning2)
     obs3 = ['a', 'y', 'x']
-    space3 = zfit.Space(obs3, limits=(lower3, upper3))
-    space3inc = zfit.Space(obs3, limits=(lower3, upper3[::-1]))
+    if binning is not None:
+        binning3 = [binning[ob] for ob in obs3]
+    else:
+        binning3 = None
+    space3 = zfit.Space(obs3, limits=(lower3, upper3), binning=binning3)
+    space3inc = zfit.Space(obs3, limits=(lower3, upper3[::-1]), binning=binning3)
 
     lower12 = [lower1[0], lower1[1], lower2[0]]
     upper12 = [upper1[0], upper1[1], upper2[0]]
-    space12a = zfit.Space(('x', 'y', 'z'), limits=(lower12, upper12))
-    space12b = zfit.Space(('x', 'y', 'z'), limits=([low + shift for low in lower12], [up + shift for up in upper12]))
+    obs12 = ('x', 'y', 'z')
+    if binning is not None:
+        binning12a = [binning[ob] for ob in obs12]
+    else:
+        binning12a = None
+    space12a = zfit.Space(obs12, limits=(lower12, upper12), binning=binning12a)
+    space12b = zfit.Space(obs12, limits=([low + shift for low in lower12], [up + shift for up in upper12]),
+                          binning=binning12a)
 
     # space3 = zfit.Space(('x', 'y', 'z'), limits=([lower1[0], lower1[1], lower2[0]], [upper1[0], upper1[1], upper2[0]]))
     obs2inv = space2a.with_obs(['y', 'z'])

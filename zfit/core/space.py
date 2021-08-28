@@ -24,7 +24,7 @@ from .dimension import common_axes, common_obs, limits_overlap
 from .interfaces import (ZfitLimit, ZfitOrderableDimensional,
                          ZfitSpace)
 from .. import z
-from .._variables.axis import Binnings
+from .._variables.axis import Binning
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -908,7 +908,7 @@ class BaseSpace(ZfitSpace, BaseObject):
                 limits = 'rectangular'
         else:
             limits = 'functional'
-        return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={limits}>"
+        return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={limits}, binned={self.is_binned}>"
 
     def __add__(self, other):
         if not isinstance(other, ZfitSpace):
@@ -1022,7 +1022,7 @@ class BaseSpace(ZfitSpace, BaseObject):
 
     def __hash__(self):
         limits_frozen = tuple(((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items()))
-        hash_val = hash(tuple((limits_frozen, hash(self.coords))))
+        hash_val = hash(tuple((limits_frozen, hash(self.coords), hash(self.binning))))
         return hash_val
 
     def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
@@ -1097,7 +1097,11 @@ class Space(BaseSpace,
         """
         if name is None:
             name = "Space"
-        binning = convert_to_container(binning, non_containers=[Binnings])
+        binning_debug = binning
+        if not isinstance(binning, Binning):
+            binning = convert_to_container(binning)
+            if binning is not None:
+                binning = Binning(binning)
         if binning is not None and obs is None and axes is None:
             obs = [axis.name for axis in binning]
 
@@ -1110,11 +1114,12 @@ class Space(BaseSpace,
                 binning = [[axis for axis in binning if axis.name == ob][0] for ob in self.obs]
             else:
                 obs = [axis.name for axis in binning]
-            binning = Binnings(binning)
-            limits = [[], []]
-            for axis in binning:
-                limits[0].append(axis.edges[0])
-                limits[1].append(axis.edges[-1])
+            binning = Binning(binning)
+            if limits is None and rect_limits is None:
+                limits = [[], []]
+                for axis in binning:
+                    limits[0].append(axis.edges[0])
+                    limits[1].append(axis.edges[-1])
 
         limits_dict = self._check_convert_input_limits(limit=limits, rect_limits=rect_limits, obs=self.obs,
                                                        axes=self.axes, n_obs=self.n_obs)
@@ -1126,7 +1131,7 @@ class Space(BaseSpace,
     def binning(self):
         binning_out = self._binning
         if binning_out is not None:
-            binning_out = Binnings([binning_out[ob] for ob in self.obs])
+            binning_out = Binning([binning_out[ob] for ob in self.obs])
         return binning_out
 
     @property
@@ -1632,7 +1637,7 @@ class Space(BaseSpace,
             coords = self.coords.with_obs(obs, allow_superset=allow_superset, allow_subset=allow_subset)
             binning = self.binning
             if binning is not None:
-                binning = [binning[ob] for ob in obs]
+                binning = [binning[ob] for ob in obs if ob in self.obs]
             new_space = type(self)(coords, limits=self._limits_dict, binning=binning)
         return new_space
 
@@ -1834,6 +1839,14 @@ class Space(BaseSpace,
         """
         return self.rect_area()
 
+    def with_binning(self, binning):
+        if binning is not None and not isinstance(binning, Binning):
+            binning = convert_to_container(binning)
+            binning = Binning(binning)
+        return self.copy(binning=binning)
+
+    # Operators
+
     def copy(self, **overwrite_kwargs) -> "zfit.Space":
         """Create a new :py:class:`~zfit.Space` using the current attributes and overwriting with
         `overwrite_overwrite_kwargs`.
@@ -1848,18 +1861,17 @@ class Space(BaseSpace,
         """
         kwargs = {'name': self.name,
                   'limits': self._limits_dict,
+                  'binning': self.binning,
                   'axes': self.axes,
                   'obs': self.obs}
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
             raise KeyError(f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}")
-        self_binning = self.binning
-        if self_binning is not None and kwargs.get('obs'):
-            kwargs['binning'] = [self_binning[ob] for ob in kwargs['obs']]
+        binning = kwargs.get('binning')
+        if binning is not None and kwargs.get('obs'):
+            kwargs['binning'] = [binning[ob] for ob in kwargs['obs']]
         new_space = type(self)(**kwargs)
         return new_space
-
-    # Operators
 
     def _inside(self, x, guarantee_limits):
         xs_inside = []
@@ -1917,6 +1929,7 @@ class Space(BaseSpace,
             raise AxesNotSpecifiedError("Axes cannot be `None`")
         new_space = cls(axes=axes, limits=limits, rect_limits=rect_limits, name=name)
         return new_space
+
 
 
 def extract_limits_from_dict(limits_dict, obs=None, axes=None):
@@ -2015,6 +2028,23 @@ def combine_spaces(*spaces: Iterable[Space]):
 
     common_obs_ordered = common_obs(spaces=spaces)
     common_axes_ordered = common_axes(spaces=spaces)
+    all_spaces_binned = all(space.is_binned for space in spaces)
+    all_spaces_unbinned = not any(space.is_binned for space in spaces)
+    if not (all_spaces_binned or all_spaces_unbinned):
+        raise ValueError(f"Some spaces are binned {[s for s in spaces if s.is_binned]}"
+                         f" while others are not {[s for s in spaces if not s.is_binned]}. Cannot mix.")
+    if all_spaces_binned:
+        binnings_ordererd = []
+        for ob in common_obs_ordered:
+            for space in spaces:
+                if ob in space.obs:
+                    binning = space.binning[ob]
+                    if binning not in binnings_ordererd:
+                        binnings_ordererd.append(binning)
+
+        binning = Binning(binnings_ordererd)
+    else:
+        binning = None
     using_obs = bool(common_obs_ordered)
     common_coords_ordered = common_obs_ordered if using_obs else common_axes_ordered
 
@@ -2170,7 +2200,7 @@ def combine_spaces(*spaces: Iterable[Space]):
     # else:
     #     limits = (new_lower, new_upper)
     new_space = Space(obs=common_obs_ordered if using_obs else None, axes=None if using_obs else common_axes_ordered,
-                      limits=limits)
+                      binning=binning, limits=limits)
     # if new_space.n_limits > 1:
     #     new_space = MultiSpace(Space, obs=all_obs)
     return new_space

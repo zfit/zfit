@@ -10,7 +10,7 @@ from ..util import ztyping
 from ..util.checks import NONE
 from ..z import numpy as znp
 
-
+z.function(wraps='tensor')
 def _spd_transform(values, probs, variances):
     # Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
     scale = values * tf.math.reciprocal_no_nan(variances)
@@ -21,6 +21,8 @@ def _spd_transform(values, probs, variances):
 def poisson_loss_calc(probs, values, log_offset, variances=None):
     if variances is not None:
         values, probs = _spd_transform(values, probs, variances=variances)
+    values += znp.asarray(1e-307, dtype=znp.float64)
+    probs += znp.asarray(1e-307, dtype=znp.float64)
     poisson_term = tf.nn.log_poisson_loss(values,  # TODO: correct offset
                                           znp.log(
                                               probs)) + log_offset
@@ -67,7 +69,7 @@ class ExtendedBinnedNLL(BaseBinnedNLL):
             probs = mod.counts(dat)
             poisson_term = poisson_loss_calc(probs, values, log_offset, variances)
             poisson_terms.append(poisson_term)  # TODO: change None
-        nll = tf.reduce_sum(poisson_terms)
+        nll = znp.sum(poisson_terms)
 
         if constraints:
             constraints = z.reduce_sum([c.value() for c in constraints])
@@ -95,7 +97,7 @@ class BinnedNLL(BaseBinnedNLL):
             probs = mod.rel_counts(dat)
             probs *= znp.sum(values)
             poisson_term = poisson_loss_calc(probs, values, log_offset, variances)
-            poisson_terms.append(poisson_term)  # TODO: change None
+            poisson_terms.append(poisson_term)
         nll = znp.sum(poisson_terms)
 
         if constraints:

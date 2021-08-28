@@ -1,6 +1,7 @@
 #  Copyright (c) 2021 zfit
 
 from .core.basepdf import BasePDF
+from .core.binnedpdf import BinnedFromUnbinned
 from .models.basic import Exponential
 from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
@@ -22,5 +23,6 @@ __all__ = ['BasePDF', 'BaseFunctor',
            'GaussianKDE1DimV1',
            'FFTConvPDFV1',
            'ConditionalPDFV1',
-           'ZPDF', 'SimplePDF', 'SimpleFunctorPDF'
+           'ZPDF', 'SimplePDF', 'SimpleFunctorPDF',
+           "BinnedFromUnbinned",
            ]

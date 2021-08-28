@@ -1,8 +1,10 @@
 #  Copyright (c) 2020 zfit
 import time
+import pytest
 
 import hist
 import mplhep
+import numpy as np
 from matplotlib import pyplot as plt
 
 import zfit.pdf
@@ -11,38 +13,46 @@ from zfit.core.binnedpdf import BinnedFromUnbinned
 from zfit.core.unbinnedpdf import SplinePDF
 
 
+@pytest.mark.plots
 def test_binned_from_unbinned():
     # zfit.run.set_graph_mode(False)
-
+    n = 104
     mu = zfit.Parameter('mu', 1, 0, 19)
     sigma = zfit.Parameter('sigma', 1, 0, 19)
     obs = zfit.Space('x', (-5, 10))
-    x = znp.linspace(-5, 10, 100)
+    n_testpoints = n
+    x = znp.linspace(-5, 10, n_testpoints)
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+    gauss.set_yield(n)
 
-    axis = hist.axis.Regular(150, -5, 10, name='x')
+    axis = zfit.binned.Regular(150, -5, 10, name='x')
     obs_binned = zfit.Space('x', binning=[axis])
-    gauss_binned = BinnedFromUnbinned(pdf=gauss, space=obs_binned, extended=100)
-    values = gauss_binned.rel_counts()
-    start = time.time()
+    gauss_binned = BinnedFromUnbinned(pdf=gauss, space=obs_binned, extended=n)
+    values = gauss_binned.rel_counts(obs_binned)
     for _ in range(5):
-        values = gauss_binned.rel_counts(None)
-    print(f"Time needed: {time.time() - start}")
-    n = 100000
+        values = gauss_binned.counts(obs_binned)
     sample = gauss_binned.sample(n, limits=obs_binned)
+
+    title = 'comparison of binned gaussian and sample'
+    plt.figure(title.replace(' ', '_'))
     mplhep.histplot(sample.to_hist(), label='sampled binned')
-    plt.plot(axis.centers, values * n)
-    plt.show()
+    plt.plot(axis.centers, gauss_binned.counts(obs_binned), label='counts binned')
+    plt.legend()
+    pytest.zfit_savefig()
+    sample_unbinned = sample.to_unbinned()
 
     spline_gauss = SplinePDF(gauss_binned, obs=obs)
-    spline_gauss.set_yield(n)  # HACK
+    # spline_gauss.set_yield(n)  # HACK
     y = spline_gauss.ext_pdf(x)
+    y_unbinned = spline_gauss.ext_pdf(sample_unbinned)
+    y_true = gauss.ext_pdf(x)
     plt.figure()
-    mplhep.histplot(sample.to_hist(), label='sampled binned')
-    plt.plot(axis.centers, values * n, label='original')
-    plt.plot(x, y * 100, '.', label='interpolated')
+    plt.plot(axis.centers, gauss_binned.ext_pdf(obs_binned), 'x', label='binned')
+    plt.plot(x, y_true, label='original')
+    plt.plot(x, y, '.', label='interpolated')
     plt.legend()
-    plt.show()
+    pytest.zfit_savefig()
+    np.testing.assert_allclose(y, y_true, atol=50)
 
 
 def test_binned_from_unbinned_2D():
@@ -64,11 +74,11 @@ def test_binned_from_unbinned_2D():
     # obs_binned = obs_binnedx * obs_binnedy
 
     gauss_binned = BinnedFromUnbinned(pdf=gauss2D, space=obs_binned, extended=100)
-    values = gauss_binned.rel_counts()
+    values = gauss_binned.rel_counts(obs_binned)
 
     start = time.time()
     for _ in range(2):
-        values = gauss_binned.rel_counts()
+        values = gauss_binned.rel_counts(obs_binned)
     print(f"Time needed: {time.time() - start}")
 
     n = 10000

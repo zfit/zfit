@@ -8,7 +8,6 @@ Some function are already wrapped, others are not. Best practice is to use `z` w
 """
 
 #  Copyright (c) 2021 zfit
-
 from . import math, random, unstable
 from .wrapping_tf import (check_numerics, complex, convert_to_tensor, exp, pow,
                           random_normal, random_uniform, reduce_prod,

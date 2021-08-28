@@ -53,21 +53,11 @@ class BinnedSumPDFV1(FunctorMixin, BaseBinnedPDFV1):
     def _counts(self, x, norm=None):
         if norm not in (None, False, self.norm):
             raise RuntimeError("norm range different than None or False currently not supported.")
-        prob = tf.reduce_sum([model.counts(x) for model in self.models], axis=0)
+        prob = znp.sum([model.counts(x) for model in self.models], axis=0)
         return prob
 
     def _rel_counts(self, x, norm=None):
         if norm not in (None, False, self.norm):
-            raise RuntimeError("norm range different than None or False currently not supported.")
+            return super()._rel_counts(x, norm)
         counts = self.counts(x, norm)
-        return counts / znp.sum(counts)
-
-# class BinnedVariablePDF(FunctorMixin, BaseBinnedPDF):
-#
-#     def __init__(self, pdf, params):
-#         if not isinstance(params, dict):
-#             params = {i: p for i, p in enumerate(params)}
-#         super().__init__(obs=pdf.space, params=params)
-#
-#     def _ext_pdf(self, x, norm_range):
-#         return z.convert_to_tensor(list(self.params.values()))  # TODO: VectorParam?
+        return counts / znp.sum(counts)  # TODO: needs fracs!

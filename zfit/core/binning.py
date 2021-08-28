@@ -54,20 +54,22 @@ def histogramdd(sample, bins=10, range=None, weights=None,
                   "weights": weights}
         new_kwargs = {}
         for key, value in kwargs.items():
-            value = value.numpy()
+            value = value
             if value == b"NONE_TENSOR":
                 value = None
 
             new_kwargs[key] = value
         return np.histogramdd(**new_kwargs, density=density)
 
-    bincounts, edges = tf.numpy_function(func=histdd, inp=inputs_cleaned, Tout=out_dtype)
+    bincounts, *edges = tf.numpy_function(func=histdd, inp=inputs_cleaned, Tout=out_dtype)
     bincounts.set_shape(shape=(None,) * n_obs)
-    edges.set_shape(shape=(n_obs, None))
+    # edges = [edge.set_shape(shape=(None)) for edge in edges]
     return bincounts, edges
 
 
 def unbinned_to_hist_eager(values, edges, weights=None):
+    if weights is not None and weights.shape == () and None in weights:
+        weights = None
     binning = [hist.axis.Variable(np.reshape(edge, (-1,)), flow=False) for edge in edges]
     h = hist.Hist(*binning,
                   storage=hist.storage.Weight()
@@ -79,10 +81,34 @@ def unbinned_to_hist_eager(values, edges, weights=None):
 
 def unbinned_to_binned(data, space):
     values = data.value()
-    weights = znp.array(data.weights)
+    weights = data.weights
+    if weights is not None:
+        weights = znp.array(weights)
     edges = tuple(space.binning.edges)
     values, variances = tf.numpy_function(unbinned_to_hist_eager, inp=[values, edges, weights],
                                           Tout=[tf.float64, tf.float64])
     from zfit._data.binneddatav1 import BinnedDataV1
     binned = BinnedDataV1.from_tensor(space=space, values=values, variances=variances)
     return binned
+
+
+def midpoints_from_hist(bincounts, edges):  # TODO: implement correctly, old
+    """Calculate the midpoints of a hist and return the non-zero entries, non-zero bincounts and indices.
+
+    Args:
+        bincounts: Tensor with shape (nbins_0, ..., nbins_n) with n being the dimension.
+        edges: Tensor with shape (n_obs, nbins + 1) holding the position of the edges, assuming a rectangular grid.
+    Returns:
+        bincounts: the bincounts that are non-zero in a 1-D array corresponding to the indices and the midpoints
+        midpoints: the coordinates of the midpoint of each bin with shape (nbincounts, n_obs)
+        indices: original position in the bincounts from the input
+    """
+    bincounts = z.convert_to_tensor(bincounts)
+    edges = z.convert_to_tensor(edges)
+
+    midpoints = (edges[:, :-1] + edges[:, 1:]) / 2.
+    midpoints_grid = tf.stack(tf.meshgrid(*tf.unstack(midpoints), indexing='ij'), axis=-1)
+    bincounts_nonzero_index = tf.where(bincounts)
+    bincounts_nonzero = tf.gather_nd(bincounts, indices=bincounts_nonzero_index)
+    midpoints_nonzero = tf.gather_nd(midpoints_grid, indices=bincounts_nonzero_index)
+    return bincounts_nonzero, midpoints_nonzero, bincounts_nonzero_index

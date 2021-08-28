@@ -76,21 +76,21 @@ class Variable(HashableAxisMixin, hist.axis.Variable, family='zfit'):
     pass
 
 
-class Binnings(hist.axestuple.NamedAxesTuple):
+class Binning(hist.axestuple.NamedAxesTuple):
     pass
 
 
-def hist_to_axis(axis):
+def histaxis_to_axis(axis):
     return axis
 
 
-def axis_to_hist(axis):
+def axis_to_histaxis(axis):
     return axis
 
 
-def hist_to_binnings(binnings):
+def histaxes_to_binning(binnings):
     return binnings
 
 
-def binnings_to_hist(binnings):
+def binning_to_histaxes(binnings):
     return binnings

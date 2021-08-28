@@ -1,8 +1,6 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2021 zfit
-import inspect
-import sys
 import warnings
 
 from pkg_resources import get_distribution
@@ -21,11 +19,12 @@ __maintainer__ = "zfit"
 __email__ = 'zfit@physik.uzh.ch'
 __credits__ = "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade"
 
-__all__ = ["z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension", "exception",
-           "sample",
+__all__ = ["z", "constraint", "pdf", "minimize", "loss", "data", "func", "dimension", "exception",
+           "sample", "binned",
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
+
 
 #  Copyright (c) 2019 zfit
 
@@ -58,7 +57,7 @@ if int(tf.__version__[0]) < 2:
     raise RuntimeError(f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
                        f" only with TF >= 2")
 
-from . import (constraint, core, data, dimension, exception, func, loss,
+from . import (constraint, data, dimension, exception, func, loss, binned,
                minimize, param, pdf, sample, z)
 from .core.data import Data
 from .core.parameter import (ComplexParameter, ComposedParameter, Parameter,

@@ -8,6 +8,7 @@ from typing import Callable, Dict, List, Optional, Set, Tuple, Union
 import boost_histogram as bh
 import numpy as np
 import tensorflow as tf
+from uhi.typing.plottable import PlottableHistogram
 
 from ..util import ztyping
 from ..util.deprecation import deprecated
@@ -946,9 +947,16 @@ class ZfitConstraint(abc.ABC):
         raise NotImplementedError
 
 
-class ZfitMinimalHist():
+class ZfitMinimalHist(PlottableHistogram):
+
+    @property
+    def kind(self):
+        raise NotImplementedError
 
     def values(self):
+        raise NotImplementedError
+
+    def variances(self) -> np.ndarray | None:
         raise NotImplementedError
 
     def axes(self):

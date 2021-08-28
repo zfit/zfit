@@ -7,13 +7,11 @@ import zfit.serialization as serialization
 
 
 @tfp.experimental.auto_composite_tensor()
-@serialization.register(uid="UnbinnedData")
-class UnbinnedData(tfp.experimental.AutoCompositeTensor,
-                   serialization.serializer.Serializable, ZfitData):
+class UnbinnedData(tfp.experimental.AutoCompositeTensor, ZfitData):
 
-    def __init__(self, data, axes=None, weights=None):
+    def __init__(self, data, space=None, weights=None):
         self._data = data
-        self._axes = axes
+        self._space = space
         self._weights = weights
 
     @property
@@ -25,8 +23,8 @@ class UnbinnedData(tfp.experimental.AutoCompositeTensor,
         return True
 
     @property
-    def axes(self):
-        return self._axes
+    def space(self):
+        return self._space
 
     @property
     def data(self):
@@ -52,8 +50,5 @@ class UnbinnedData(tfp.experimental.AutoCompositeTensor,
     @property
     def has_weights(self):
         return self._weights is not None
-
-    def _obj_to_repr(self):
-        return {'data': self.data, 'axes': self.axes}
 
 # tensorlike.register_tensor_conversion(UnbinnedData, name='UnbinnedData', overload_operators=True)

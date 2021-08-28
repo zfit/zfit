@@ -161,8 +161,8 @@ def test_func(obs1, test_values):
 
     gauss_func = gauss_params1.as_func(norm=limits)
     vals = gauss_func.func(test_values)
-    vals_pdf = gauss_params1.pdf(x=test_values)
-    vals, vals_pdf = [vals.numpy(), vals_pdf.numpy()]
+    vals_pdf = gauss_params1.pdf(x=test_values, norm=limits)
+    vals, vals_pdf = zfit.run([vals, vals_pdf])
     np.testing.assert_allclose(vals_pdf, vals, rtol=1e-3)  # better assertion?
 
 
