@@ -662,9 +662,8 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
     def value(self):
         params = self.params
-        if len(signature(self._value_fn).parameters) == 1:
-            if len(params) > 1:
-                value = self._value_fn(params)
+        if len(signature(self._value_fn).parameters) == 1 and len(params) > 1:
+            value = self._value_fn(params)
         else:
             value = self._value_fn(*params.values())
         return tf.convert_to_tensor(value, dtype=self.dtype)

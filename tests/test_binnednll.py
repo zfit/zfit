@@ -5,12 +5,10 @@ import mplhep
 import numpy as np
 import progressbar
 import pytest
-from matplotlib import pyplot as plt
-
 import zfit
 import zfit.z.numpy as znp
+from matplotlib import pyplot as plt
 from zfit import z
-
 from zfit._data.binneddatav1 import BinnedDataV1
 from zfit._variables.axis import Regular
 from zfit.models.binned_functor import BinnedSumPDFV1
@@ -91,16 +89,17 @@ def test_binned_nll_simple():
     print(nll.value())
 
 
+@pytest.mark.plots
 @pytest.mark.flaky(3)
-# @pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
-@pytest.mark.parametrize('weights', [None])
+@pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
+# @pytest.mark.parametrize('weights', [None])
 def test_binned_nll(weights):
     zfit.run.set_autograd_mode(False)
     obs = zfit.Space("obs1", limits=(-15, 25))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
     gaussian2, mu2, sigma2 = create_gauss2(obs=obs)
-
-    test_values = znp.array(test_values_np)
+    test_values_np_shifted = test_values_np - 0.8  # shift them a bit
+    test_values = znp.array(test_values_np_shifted)
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
 
     binning = zfit.binned.Regular(22, obs.lower[0], obs.upper[0], name="obs1")
@@ -108,9 +107,9 @@ def test_binned_nll(weights):
     test_values_binned = test_values.to_binned(obs_binned)
     binned_gauss = zfit.pdf.BinnedFromUnbinned(gaussian1, obs_binned)
 
-    figure = "Binned_gaussian_fit"
-    plt.figure(figure)
-    plt.title(figure.replace('_', ' '))
+    title = f"Binned gaussian fit{' with random weights' if weights is not None else ''}"
+    plt.figure()
+    plt.title(title)
     mplhep.histplot(binned_gauss.to_hist(), label="PDF before fit")
     mplhep.histplot(test_values_binned.to_hist() / float(test_values_binned.nevents),
                     label="Data")
@@ -120,7 +119,7 @@ def test_binned_nll(weights):
     for _ in progressbar.progressbar(range(100)):
         nll_object.value()
     print(f"Needed: {time.time() - start}")
-    minimizer = zfit.minimize.Minuit(verbosity=8)
+    minimizer = zfit.minimize.Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     # status.hesse()
     # status.errors()
@@ -128,12 +127,13 @@ def test_binned_nll(weights):
     # plt.figure()
     mplhep.histplot(binned_gauss.to_hist(), label="PDF after fit")
     plt.legend()
-    plt.show()
+    pytest.zfit_savefig()
+    # plt.show()
     # mplhep.histplot(test_values_binned.to_hist() /  float(test_values_binned.nevents))
     rel_error = 0.035 if weights is None else 0.15  # more fluctuating with weights
 
-    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np), rel=rel_error)
-    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np), rel=rel_error)
+    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np_shifted), rel=rel_error)
+    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np_shifted), rel=rel_error)
 
     constraints = zfit.constraint.nll_gaussian(params=[mu2, sigma2],
                                                observation=[mu_constr[0], sigma_constr[0]],
@@ -146,5 +146,5 @@ def test_binned_nll(weights):
     status = minimizer.minimize(loss=nll_object, params=[mu2, sigma2])
     params = status.params
     if weights is None:
-        assert params[mu2]['value'] > np.mean(test_values_np)
-        assert params[sigma2]['value'] < np.std(test_values_np)
+        assert params[mu2]['value'] > np.mean(test_values_np_shifted)
+        assert params[sigma2]['value'] < np.std(test_values_np_shifted)

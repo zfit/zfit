@@ -599,16 +599,29 @@ class BinnedFromUnbinned(BaseBinnedPDFV1):
         lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
 
-        @z.function
-        def integrate_one(limits):
-            l, u = tf.unstack(limits)
-            limits_space = zfit.Space(obs=self.obs, limits=[l, u])
-            return pdf.ext_integrate(limits_space, norm=False)
+        if pdf.is_extended:
+            @z.function
+            def integrate_one(limits):
+                l, u = tf.unstack(limits)
+                limits_space = zfit.Space(obs=self.obs, limits=[l, u])
+                return pdf.ext_integrate(limits_space, norm=False)
+
+            missing_yield = False
+        else:
+            @z.function
+            def integrate_one(limits):
+                l, u = tf.unstack(limits)
+                limits_space = zfit.Space(obs=self.obs, limits=[l, u])
+                return pdf.integrate(limits_space, norm=False)
+
+            missing_yield = True
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
         # values = tf.map_fn(integrate_one, limits)
         values = tf.vectorized_map(integrate_one, limits)[:, 0]
         values = znp.reshape(values, shape)
+        if missing_yield:
+            values *= self.get_yield()
         if norm:
             values /= pdf.normalization(norm)
         return values

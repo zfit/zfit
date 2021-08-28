@@ -82,8 +82,6 @@ def test_repr():
     repr_value = repr(param1)
     repr_value2 = repr(param2)
     assert str(val) in repr_value
-    assert str(val) in repr_value2
-
     @z.function
     def tf_call():
         repr_value = repr(param1)

@@ -68,7 +68,8 @@ def test_binned_from_unbinned_2D():
     gaussy = zfit.pdf.Gauss(mu=mu, sigma=sigma * 20, obs=obsy)
     gauss2D = zfit.pdf.ProductPDF([gaussx, gaussy])
 
-    axisx = zfit.binned.Regular(10, -5, 10, name='x')
+    axisx = zfit.binned.Variable(sorted(np.random.uniform(-5, 10, size=10)), name="x")
+    # axisx = zfit.binned.Regular(10, -5, 10, name='x')
     axisy = zfit.binned.Regular(100, -50, 100, name='y')
     obs_binnedx = zfit.Space(['x', 'y'], binning=[axisx, axisy])
     obs_binnedy = zfit.Space('y', binning=[axisy])
@@ -88,6 +89,6 @@ def test_binned_from_unbinned_2D():
     hist1 = sample.to_hist()
     mplhep.hist2dplot(hist1)
     plt.figure()
-    mplhep.hist2dplot(values)
+    mplhep.hist2dplot(gauss_binned.to_hist())
     # plt.plot(axisx.centers, values * n)
     plt.show()
