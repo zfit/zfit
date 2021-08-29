@@ -57,6 +57,7 @@ def test_binned_from_unbinned():
 
 def test_binned_from_unbinned_2D():
     # zfit.run.set_graph_mode(True)
+    n = 100000
 
     mu = zfit.Parameter('mu', 1, 0, 19)
     sigma = zfit.Parameter('sigma', 4, 0, 120)
@@ -66,27 +67,37 @@ def test_binned_from_unbinned_2D():
     gaussy = zfit.pdf.Gauss(mu=mu, sigma=sigma * 20, obs=obsy)
     gauss2D = zfit.pdf.ProductPDF([gaussx, gaussy])
 
-    axisx = zfit.binned.Variable(sorted(np.random.uniform(-5, 10, size=10)), name="x")
-    # axisx = zfit.binned.Regular(10, -5, 10, name='x')
-    axisy = zfit.binned.Regular(100, -50, 100, name='y')
-    obs_binnedx = zfit.Space(['x', 'y'], binning=[axisx, axisy])
-    obs_binnedy = zfit.Space('y', binning=[axisy])
-    obs_binned = obs_binnedx
-    # obs_binned = obs_binnedx * obs_binnedy
+    normal = np.random.normal(float(mu), float(sigma), size=100)
+    normal = normal[np.logical_and(normal > -5, normal < 10)]
+    axisx = zfit.binned.Variable(sorted(normal), name="x")
+    # axisx = zfit.binned.Regular(50, -5, 10, name='x')
+    axisy = zfit.binned.Regular(15, -50, 100, name='y')
+    # obs_binnedx = zfit.Space(['x', 'y'], binning=[axisx, axisy])
+    obs_binnedx = zfit.Space(['x'], binning=axisx)
+    obs_binnedy = zfit.Space('y', binning=axisy)
+    # obs_binned = obs_binnedx
+    obs_binned = obs_binnedx * obs_binnedy
 
-    gauss_binned = BinnedFromUnbinned(pdf=gauss2D, space=obs_binned, extended=100)
-    values = gauss_binned.rel_counts(obs_binned)
+    gauss_binned = BinnedFromUnbinned(pdf=gauss2D, space=obs_binned, extended=n)
+    values = gauss_binned.rel_counts(obs_binned)  # TODO: good test?
 
-    start = time.time()
-    for _ in range(2):
-        values = gauss_binned.rel_counts(obs_binned)
-    print(f"Time needed: {time.time() - start}")
+    # start = time.time()
+    # for _ in range(2):
+    #     values = gauss_binned.rel_counts(obs_binned)
+    # print(f"Time needed: {time.time() - start}")
 
-    n = 10000
     sample = gauss_binned.sample(n, limits=obs_binned)
-    hist1 = sample.to_hist()
-    mplhep.hist2dplot(hist1)
+    hist_sampled = sample.to_hist()
+    hist_pdf = gauss_binned.to_hist()
+    max_error = hist_sampled.values() * 6 ** 2  # 6 sigma away
+    np.testing.assert_array_less((hist_sampled.values() - hist_pdf.values()) ** 2, max_error)
     plt.figure()
-    mplhep.hist2dplot(gauss_binned.to_hist())
+    plt.title("Gauss 2D binned sampled.")
+    mplhep.hist2dplot(hist_sampled)
+    pytest.zfit_savefig()
+    plt.figure()
+    plt.title("Gauss 2D binned plot, irregular (inv gaussian) binning.")
+    mplhep.hist2dplot(hist_pdf)
+    pytest.zfit_savefig()
     # plt.plot(axisx.centers, values * n)
     plt.show()

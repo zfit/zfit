@@ -748,8 +748,8 @@ register_tensor_conversion(ConstantParameter, 'ConstantParameter', overload_oper
 register_tensor_conversion(BaseComposedParameter, 'BaseComposedParameter', overload_operators=True)
 
 
-@deprecated_args(None, "Use `params` instead.", "dependents")
 class ComposedParameter(BaseComposedParameter):
+    @deprecated_args(None, "Use `params` instead.", "dependents")
     def __init__(self,
                  name: str,
                  value_fn: Callable,
