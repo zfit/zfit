@@ -1,9 +1,9 @@
 """Used to make pytest functions available globally."""
 
-#  Copyright (c) 2021 zfit
-import sys
 import os
 import pathlib
+#  Copyright (c) 2021 zfit
+import sys
 
 import matplotlib.pyplot as plt
 import pytest
@@ -56,6 +56,7 @@ def pytest_addoption(parser):
 def pytest_configure():
     here = os.path.dirname(os.path.abspath(__file__))
     images_dir = pathlib.Path(here).joinpath('..', 'docs', 'images', '_generated_by_tests')
+    images_dir.mkdir(exist_ok=True)
 
     def savefig(figure=None):
         if figure is None:

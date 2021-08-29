@@ -40,12 +40,10 @@ def test_binned_from_unbinned():
     plt.plot(axis.centers, gauss_binned.counts(obs_binned), label='counts binned')
     plt.legend()
     pytest.zfit_savefig()
-    sample_unbinned = sample.to_unbinned()
 
     spline_gauss = SplinePDF(gauss_binned, obs=obs)
     # spline_gauss.set_yield(n)  # HACK
     y = spline_gauss.ext_pdf(x)
-    y_unbinned = spline_gauss.ext_pdf(sample_unbinned)
     y_true = gauss.ext_pdf(x)
     plt.figure()
     plt.title("Comparison of unbinned gauss to binned to interpolated")

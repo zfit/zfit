@@ -115,10 +115,10 @@ def test_binned_nll(weights):
                     label="Data")
     nll_object = zfit.loss.BinnedNLL(model=binned_gauss, data=test_values_binned)
     # nll_object.value_gradient(params=nll_object.get_params())
-    start = time.time()
-    for _ in progressbar.progressbar(range(100)):
-        nll_object.value()
-    print(f"Needed: {time.time() - start}")
+    # start = time.time()
+    # for _ in progressbar.progressbar(range(100)):
+    #     nll_object.value()
+    # print(f"Needed: {time.time() - start}")
     minimizer = zfit.minimize.Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     # status.hesse()
