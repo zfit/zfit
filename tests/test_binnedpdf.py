@@ -1,10 +1,7 @@
 #  Copyright (c) 2020 zfit
-import time
-import pytest
-
-import hist
 import mplhep
 import numpy as np
+import pytest
 from matplotlib import pyplot as plt
 
 import zfit.pdf
@@ -67,9 +64,10 @@ def test_binned_from_unbinned_2D():
     gaussy = zfit.pdf.Gauss(mu=mu, sigma=sigma * 20, obs=obsy)
     gauss2D = zfit.pdf.ProductPDF([gaussx, gaussy])
 
-    normal = np.random.normal(float(mu), float(sigma), size=100)
+    normal = np.random.normal(float(mu), float(sigma), size=500)
     normal = normal[np.logical_and(normal > -5, normal < 10)]
-    axisx = zfit.binned.Variable(sorted(normal), name="x")
+    # axisx = zfit.binned.Variable(sorted(normal), name="x")
+    axisx = zfit.binned.Variable(np.concatenate([np.linspace(-5, 5, 43), np.linspace(5, 10, 30)[1:]], axis=0), name="x")
     # axisx = zfit.binned.Regular(50, -5, 10, name='x')
     axisy = zfit.binned.Regular(15, -50, 100, name='y')
     # obs_binnedx = zfit.Space(['x', 'y'], binning=[axisx, axisy])
