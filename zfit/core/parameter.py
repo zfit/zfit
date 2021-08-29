@@ -662,9 +662,13 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
     def value(self):
         params = self.params
-        if len(signature(self._value_fn).parameters) == 1 and len(params) > 1:
+        parameters = signature(self._value_fn).parameters
+        if len(parameters) == 1 and (len(params) > 1 or 'params' in parameters):
             value = self._value_fn(params)
         else:
+            warnings.warn("The function of composed parameters should take a single argument, a mapping."
+                          " If you see this, the code may be broken and returns wrong values (it should not,"
+                          " but may does).")
             value = self._value_fn(*params.values())
         return tf.convert_to_tensor(value, dtype=self.dtype)
 
@@ -744,12 +748,13 @@ register_tensor_conversion(ConstantParameter, 'ConstantParameter', overload_oper
 register_tensor_conversion(BaseComposedParameter, 'BaseComposedParameter', overload_operators=True)
 
 
+@deprecated_args(None, "Use `params` instead.", "dependents")
 class ComposedParameter(BaseComposedParameter):
     def __init__(self,
                  name: str,
                  value_fn: Callable,
                  params: Union[Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter] = NotSpecified,
-                 dtype: tf.dtypes.DType = ztypes.float,
+                 dtype: tf.dtypes.DType = ztypes.float, *,
                  dependents: Union[Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter] = NotSpecified):
         """Arbitrary composition of parameters.
 
@@ -768,7 +773,6 @@ class ComposedParameter(BaseComposedParameter):
         """
         if dependents is not NotSpecified:
             params = dependents
-            warnings.warn("`dependents` is deprecated, use `params` instead.", stacklevel=2)
         elif params is NotSpecified:
             raise ValueError
         if isinstance(params, dict):

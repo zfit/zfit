@@ -18,6 +18,7 @@ Major Features and Improvements
 - add windows in CI
 Breaking changes
 ------------------
+- params are not sorted anymore. Rely on the name
 
 Depreceations
 -------------

@@ -20,7 +20,7 @@ mu_true2 = 1.01
 sigma_true2 = 3.5
 
 mu_constr = [1.6, 0.2]  # mu, sigma
-sigma_constr = [3.8, 0.2]
+sigma_constr = [3.6, 0.2]
 
 yield_true = 3000
 test_values_np = np.random.normal(loc=mu_true, scale=sigma_true, size=(yield_true, 1))
