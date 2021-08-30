@@ -3,7 +3,6 @@ import time
 
 import mplhep
 import numpy as np
-import progressbar
 import pytest
 import zfit
 import zfit.z.numpy as znp
