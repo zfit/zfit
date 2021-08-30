@@ -18,7 +18,7 @@ sigma_true = 4.1
 mu_true2 = 1.01
 sigma_true2 = 3.5
 
-mu_constr = [1.6, 0.2]  # mu, sigma
+mu_constr = [1.3, 0.2]  # mu, sigma
 sigma_constr = [3.6, 0.2]
 
 yield_true = 3000

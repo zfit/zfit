@@ -11,7 +11,7 @@ from zfit.core.unbinnedpdf import SplinePDF
 
 
 @pytest.mark.plots
-def test_binned_from_unbinned():
+def test_binned_from_unbinned_spline():
     # zfit.run.set_graph_mode(False)
     n = 1004
     mu = zfit.Parameter('mu', 1, 0, 19)
@@ -25,9 +25,8 @@ def test_binned_from_unbinned():
     axis = zfit.binned.Regular(150, -5, 10, name='x')
     obs_binned = zfit.Space('x', binning=[axis])
     gauss_binned = BinnedFromUnbinned(pdf=gauss, space=obs_binned, extended=n)
-    values = gauss_binned.rel_counts(obs_binned)
-    for _ in range(5):
-        values = gauss_binned.counts(obs_binned)
+    # values = gauss_binned.rel_counts(obs_binned)
+
     sample = gauss_binned.sample(n, limits=obs_binned)
 
     title = 'Comparison of binned gaussian and sample'
@@ -65,15 +64,10 @@ def test_binned_from_unbinned_2D():
     gauss2D = zfit.pdf.ProductPDF([gaussx, gaussy])
 
     normal = np.random.normal(float(mu), float(sigma), size=500)
-    normal = normal[np.logical_and(normal > -5, normal < 10)]
-    # axisx = zfit.binned.Variable(sorted(normal), name="x")
     axisx = zfit.binned.Variable(np.concatenate([np.linspace(-5, 5, 43), np.linspace(5, 10, 30)[1:]], axis=0), name="x")
-    # axisx = zfit.binned.Regular(50, -5, 10, name='x')
     axisy = zfit.binned.Regular(15, -50, 100, name='y')
-    # obs_binnedx = zfit.Space(['x', 'y'], binning=[axisx, axisy])
     obs_binnedx = zfit.Space(['x'], binning=axisx)
     obs_binnedy = zfit.Space('y', binning=axisy)
-    # obs_binned = obs_binnedx
     obs_binned = obs_binnedx * obs_binnedy
 
     gauss_binned = BinnedFromUnbinned(pdf=gauss2D, space=obs_binned, extended=n)
@@ -94,8 +88,6 @@ def test_binned_from_unbinned_2D():
     mplhep.hist2dplot(hist_sampled)
     pytest.zfit_savefig()
     plt.figure()
-    plt.title("Gauss 2D binned plot, irregular (inv gaussian) binning.")
+    plt.title("Gauss 2D binned plot, irregular (x<4.5 larger bins than x>4.5) binning.")
     mplhep.hist2dplot(hist_pdf)
     pytest.zfit_savefig()
-    # plt.plot(axisx.centers, values * n)
-    plt.show()
