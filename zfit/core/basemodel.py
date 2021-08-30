@@ -137,14 +137,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     if has_support:
                         continue  # needs support, has been wrapped
                     else:
-                        raise BasePDFSubclassingError("Method {} has been wrapped with supports "
-                                                      "but is not allowed to. Has to handle all "
-                                                      "arguments.".format(method_name))
+                        raise BasePDFSubclassingError(
+                            f"Method {method_name} has been wrapped with supports but"
+                            f" is not allowed to. Has to handle all arguments.")
                 elif has_support:
-                    raise BasePDFSubclassingError("Method {} has been overwritten and *has to* be "
-                                                  "wrapped by `supports` decorator (don't forget () )"
-                                                  "to call the decorator as it takes arguments"
-                                                  "".format(method_name))
+                    raise BasePDFSubclassingError(
+                        f"Method {method_name} has been overwritten and *has to* be"
+                        f" wrapped by `supports` decorator (don't forget () ) to call the decorator"
+                        f" as it takes arguments")
                 elif not has_support:
                     continue  # no support, has not been wrapped with
             else:

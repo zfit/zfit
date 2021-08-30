@@ -24,7 +24,6 @@ from ..util.exception import (AnalyticIntegralNotImplemented,
 from .space import Space, convert_to_space, supports
 
 
-@supports()
 def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztypes.float,
                    mc_sampler=tfp.mcmc.sample_halton_sequence,
                    mc_options=None, norm_range=None, norm=None):
@@ -448,7 +447,7 @@ class AnalyticIntegral:
         axes = frozenset(limits.axes)
 
         # add catching everything unsupported:
-        func = supports(norm_range=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
+        func = supports(norm=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
         limits = limits.with_axes(axes=tuple(sorted(limits.axes)))
         self._integrals[axes][limits] = Integral(func=func, limits=limits,
                                                  priority=priority)  # TODO improve with

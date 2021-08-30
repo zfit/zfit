@@ -10,7 +10,7 @@ import zfit.z.numpy as znp
 from .. import z
 from ..core.interfaces import ZfitIndependentParameter, ZfitPDF, ZfitSpace
 from ..core.parameter import set_values
-from ..core.space import combine_spaces, convert_to_space
+from ..core.space import combine_spaces, convert_to_space, supports
 from ..util.exception import WorkInProgressError
 from ..util.warnings import warn_experimental_feature
 from .functor import BaseFunctor
@@ -60,6 +60,7 @@ class ConditionalPDFV1(BaseFunctor):
             spaces.append(convert_to_space(obs))
         return cond, combine_spaces(*spaces)
 
+    @supports(norm=True, multiple_limits=True)
     @z.function(wraps='conditional_pdf')
     def _pdf(self, x, norm_range):
         pdf = self.pdfs[0]

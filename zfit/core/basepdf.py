@@ -288,6 +288,7 @@ class BasePDF(ZfitPDF, BaseModel):
             probs = unnorm_probs / normalization
         return probs
 
+    @_BasePDF_register_check_support(True)
     def _ext_pdf(self, x, norm_range=None):
         raise SpecificFunctionNotImplemented  # TODO: implement properly
 
@@ -318,7 +319,7 @@ class BasePDF(ZfitPDF, BaseModel):
         # fallback
         return self.log_pdf(x=x, norm=norm) + znp.log(self.get_yield())
 
-    def _auto_ext_log_pdf(x, norm):
+    def _auto_ext_log_pdf(self, x, norm):
         try:
             pdf = self._ext_log_pdf(x, norm)
         except NormNotImplemented:
@@ -327,10 +328,11 @@ class BasePDF(ZfitPDF, BaseModel):
             pdf = unnormed_pdf - normalization
         return pdf
 
+    @_BasePDF_register_check_support(True)
     def _ext_log_pdf(self, x, norm):
         raise SpecificFunctionNotImplemented
 
-    @_BasePDF_register_check_support(False)
+    @_BasePDF_register_check_support(True)
     def _pdf(self, x, norm_range):
         raise SpecificFunctionNotImplemented
 

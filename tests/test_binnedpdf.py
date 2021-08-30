@@ -11,20 +11,13 @@ from zfit.core.unbinnedpdf import SplinePDF
 
 
 @pytest.mark.plots
-def test_binned_from_unbinned_spline():
+def test_spline_from_binned_from_unbinned():
     # zfit.run.set_graph_mode(False)
     n = 1004
-    mu = zfit.Parameter('mu', 1, 0, 19)
-    sigma = zfit.Parameter('sigma', 1, 0, 19)
-    obs = zfit.Space('x', (-5, 10))
-    n_testpoints = n
-    x = znp.linspace(-5, 10, n_testpoints // 10)
-    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
-    gauss.set_yield(n)
+    gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n)
 
-    axis = zfit.binned.Regular(150, -5, 10, name='x')
-    obs_binned = zfit.Space('x', binning=[axis])
-    gauss_binned = BinnedFromUnbinned(pdf=gauss, space=obs_binned, extended=n)
+    x = znp.linspace(-5, 10, n // 5)
+
     # values = gauss_binned.rel_counts(obs_binned)
 
     sample = gauss_binned.sample(n, limits=obs_binned)
@@ -33,7 +26,7 @@ def test_binned_from_unbinned_spline():
     plt.figure()
     plt.title(title)
     mplhep.histplot(sample.to_hist(), label='sampled binned')
-    plt.plot(axis.centers, gauss_binned.counts(obs_binned), label='counts binned')
+    plt.plot(obs_binned.binning.centers[0], gauss_binned.counts(obs_binned), label='counts binned')
     plt.legend()
     pytest.zfit_savefig()
 
@@ -43,7 +36,7 @@ def test_binned_from_unbinned_spline():
     y_true = gauss.ext_pdf(x)
     plt.figure()
     plt.title("Comparison of unbinned gauss to binned to interpolated")
-    plt.plot(axis.centers, gauss_binned.ext_pdf(obs_binned), 'x', label='binned')
+    plt.plot(obs_binned.binning.centers[0], gauss_binned.ext_pdf(obs_binned), 'x', label='binned')
     plt.plot(x, y_true, label='original')
     plt.plot(x, y, '.', label='interpolated')
     plt.legend()
@@ -51,12 +44,107 @@ def test_binned_from_unbinned_spline():
     np.testing.assert_allclose(y, y_true, atol=50)
 
 
+@pytest.mark.plots
+def test_unbinned_data():
+    n = 751
+    gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n, 70)
+    x = znp.linspace(-5, 10, 200)
+    centers = obs_binned.binning.centers[0]
+    y_binned = gauss_binned.pdf(x)
+    y_true = gauss.pdf(x)
+    max_error = np.max(y_true) / 10
+    np.testing.assert_allclose(y_true, y_binned, atol=max_error)
+
+    ycenter_binned = gauss_binned.pdf(centers)
+    ycenter_true = gauss.pdf(centers)
+    np.testing.assert_allclose(ycenter_binned, ycenter_true, atol=max_error / 10)
+
+    x_outside = znp.array([-7., 3., 12])
+    y_outside = gauss_binned.pdf(x_outside)
+    assert y_outside[0] == 0
+    assert y_outside[1] > 0
+    assert y_outside[2] == 0
+
+    plt.figure()
+    plt.title("Binned Gauss evaluated on unbinned edges")
+    plt.plot(centers, ycenter_true, label="unbinned pdf")
+    plt.plot(centers, ycenter_binned, '--', label="binned pdf")
+    plt.legend()
+    pytest.zfit_savefig()
+    plt.show()
+
+    plt.figure()
+    plt.title("Binned Gauss evaluated on unbinned data")
+    plt.plot(x, y_true, label="unbinned pdf")
+    plt.plot(x, y_binned, '--', label="binned pdf")
+    plt.legend()
+    pytest.zfit_savefig()
+    plt.show()
+
+
+def test_unbinned_data2D():
+    n = 751
+    gauss, gauss_binned, obs, obs_binned = create_gauss2d_binned(n, 50)
+    x = znp.linspace(-5, 10, 200)
+    y = znp.linspace(50, 600, 50)
+
+    data = znp.random.uniform([-5, 50], [10, 600], size=(1000, 2))
+    y_binned = gauss_binned.pdf(data)
+    y_true = gauss.pdf(data)
+    max_error = np.max(y_true) / 10
+    np.testing.assert_allclose(y_true, y_binned, atol=max_error)
+
+    centers = obs_binned.binning.centers
+    X, Y = znp.meshgrid(*centers, indexing="ij")
+    centers = znp.stack([znp.reshape(t, (-1,)) for t in (X, Y)], axis=-1)
+    ycenter_binned = gauss_binned.pdf(centers)
+    ycenter_true = gauss.pdf(centers)
+    np.testing.assert_allclose(ycenter_binned, ycenter_true, atol=max_error / 10)
+
+    x_outside = znp.array([[-7., 55], [3., 13], [2, 150], [12, 30], [14, 1000]])
+    y_outside = gauss_binned.pdf(x_outside)
+    assert y_outside[0] == 0
+    assert y_outside[1] == 0
+    assert y_outside[2] > 0
+    assert y_outside[3] == 0
+    assert y_outside[4] == 0
+
+
+def create_gauss_binned(n, nbins=130):
+    mu = zfit.Parameter('mu', 1, 0, 19)
+    sigma = zfit.Parameter('sigma', 1, 0, 19)
+    obs = zfit.Space('x', (-5, 10))
+    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+    gauss.set_yield(n)
+    axis = zfit.binned.Regular(nbins, -5, 10, name='x')
+    obs_binned = zfit.Space('x', binning=[axis])
+    gauss_binned = BinnedFromUnbinned(pdf=gauss, space=obs_binned, extended=n)
+    return gauss, gauss_binned, obs, obs_binned
+
+
+def create_gauss2d_binned(n, nbins=130):
+    mu = zfit.Parameter('mu', 1, 0, 19)
+    sigma = zfit.Parameter('sigma', 1, 0, 19)
+    obsx = zfit.Space('x', (-5, 10))
+    obsy = zfit.Space('y', (50, 600))
+    obs2d = obsx * obsy
+    gaussx = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obsx)
+    gaussy = zfit.pdf.Gauss(mu=250, sigma=200, obs=obsy)
+    prod = zfit.pdf.ProductPDF([gaussx, gaussy])
+    prod.set_yield(n)
+    axisx = zfit.binned.Regular(nbins, -5, 10, name='x')
+    axisy = zfit.binned.Regular(nbins, 50, 600, name='y')
+    obs_binned = zfit.Space(['x', 'y'], binning=[axisx, axisy])
+    gauss_binned = BinnedFromUnbinned(pdf=prod, space=obs_binned, extended=n)
+    return prod, gauss_binned, obs2d, obs_binned
+
+
 def test_binned_from_unbinned_2D():
     # zfit.run.set_graph_mode(True)
     n = 100000
 
     mu = zfit.Parameter('mu', 1, 0, 19)
-    sigma = zfit.Parameter('sigma', 4, 0, 120)
+    sigma = zfit.Parameter('sigma', 6, 0, 120)
     obsx = zfit.Space('x', (-5, 10))
     obsy = zfit.Space('y', (-50, 100))
     gaussx = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obsx)

@@ -28,6 +28,7 @@ from .._variables.axis import Binning
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
+from ..util.deprecation import deprecated_args
 from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
                               BreakingAPIChangeError,
                               CannotConvertToNumpyError,
@@ -42,7 +43,7 @@ from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
                               NumberOfEventsIncompatibleError,
                               ObsIncompatibleError, ObsNotSpecifiedError,
                               OverdefinedError, ShapeIncompatibleError,
-                              SpaceIncompatibleError)
+                              SpaceIncompatibleError, NormNotImplemented)
 
 
 class LimitRangeDefinition:
@@ -1931,7 +1932,6 @@ class Space(BaseSpace,
         return new_space
 
 
-
 def extract_limits_from_dict(limits_dict, obs=None, axes=None):
     if (obs is None) and (axes is None):
         raise ValueError("Need to specify at least one, obs or axes.")
@@ -2833,57 +2833,79 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
     return space
 
 
-def no_norm_range(func):
-    """Decorator: Catch the 'norm' kwargs. If not None, raise NormRangeNotImplementedError."""
-    parameters = inspect.signature(func).parameters
-    keys = list(parameters.keys())
-    norm_range_index = None
-    norm_index = None
-    if 'norm_range' in keys:
-        norm_range_index = keys.index('norm_range')
-    if 'norm' in keys:
-        norm_index = keys.index('norm')
+def check_norm(supports=None):
+    if supports is None:
+        supports = False
+    supports = convert_to_container(supports, convert_none=True)
 
-    @functools.wraps(func)
-    def new_func(*args, **kwargs):
-        norm_range_old_used = False
-        norm_range = kwargs.get('norm_range')
-        norm = kwargs.get('norm')
-        anynorm = None
-        if norm_range is not None:
-            anynorm = norm_range
-        elif norm is not None:
-            anynorm = norm
-        if isinstance(anynorm, ZfitSpace):
-            norm_not_false = not anynorm.limits_are_false
-        else:
-            norm_not_false = not (anynorm is None or anynorm is False)
-        norm_is_arg = False
-        if norm_range_index is not None:
-            norm_is_arg = len(args) > norm_range_index
-        if norm_index is not None:
-            norm_is_arg = len(args) > norm_range_index
-        if not norm_is_arg:
-            if 'norm_range' in kwargs:
-                kwargs['norm_range'] = False
-            if 'norm' in kwargs:
-                kwargs['norm'] = False
+    def no_norm_range(func):
+        """Decorator: Catch the 'norm' kwargs. If not None, raise `NormNotImplemented`."""
+        parameters = inspect.signature(func).parameters
+        keys = list(parameters.keys())
+        norm_range_index = None
+        norm_index = None
+        if 'norm_range' in keys:
+            norm_range_index = keys.index('norm_range')
+        if 'norm' in keys:
+            norm_index = keys.index('norm')
 
-        if norm_not_false or norm_is_arg:
-            raise NormRangeNotImplemented()
-        else:
-            try:
-                return func(*args, **kwargs)
-            except TypeError as error:
-                if "got an unexpected keyword argument 'norm_range'" in str(error):
-                    kwargs.pop('norm_range')
-                elif "got an unexpected keyword argument 'norm'" in str(error):
-                    kwargs.pop('norm')
-                else:
-                    raise
-                return func(*args, **kwargs)
+        @functools.wraps(func)
+        def new_func(*args, **kwargs):
+            self = args[0]
+            norm_range = kwargs.get('norm_range')
+            norm = kwargs.get('norm')
+            if norm_range is not None:
+                norm = norm_range
+            norm = None
+            norm_is_arg = False
+            if norm_range is not None:
+                norm = norm_range
+            elif norm is not None:
+                norm = norm
+            else:
+                if norm_range_index is not None:
+                    norm_is_arg = len(args) > norm_range_index
+                    norm = args[norm_range_index]
+                if norm_index is not None:
+                    norm_is_arg = len(args) > norm_index
+                    norm = args[norm_index]
+            if not norm_is_arg:
+                if 'norm_range' in kwargs:
+                    kwargs['norm_range'] = False
+                if 'norm' in kwargs:
+                    kwargs['norm'] = False
 
-    return new_func
+            # assume it's not supported. Switch if we find that it is supported.
+            norm_not_supported = True
+            if isinstance(norm, ZfitSpace):
+                if 'space' in supports and self.space == norm:
+                    norm_not_supported = False
+                if 'norm' in supports and self.norm == norm:
+                    norm_not_supported = False
+                if norm_not_supported:
+                    norm_not_supported = not norm.limits_are_false
+            else:
+                norm_not_supported = not (norm is None or norm is False)
+            if norm_not_supported:
+                raise NormNotImplemented()
+            else:
+                try:
+                    return func(*args, **kwargs)
+                except TypeError as error:
+                    if "got an unexpected keyword argument 'norm_range'" in str(error):
+                        kwargs.pop('norm_range')
+                    elif "got an unexpected keyword argument 'norm'" in str(error):
+                        kwargs.pop('norm')
+                    else:
+                        raise
+                    return func(*args, **kwargs)
+
+        return new_func
+
+    return no_norm_range
+
+
+no_norm_range = check_norm(False)  # somewhat legacy, or for the simple case
 
 
 def no_multiple_limits(func):
@@ -2911,7 +2933,9 @@ def no_multiple_limits(func):
     return new_func
 
 
-def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Callable:
+@deprecated_args(None, "Use `norm` instead.", 'norm_range')
+def supports(*, norm: Union[bool, str, Iterable[str]] = False, multiple_limits: bool = False,
+             norm_range=None) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
 
     If any of the flags is set to False, it will check the arguments and, in case they match a flag
@@ -2920,14 +2944,17 @@ def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Call
     be catched by an earlier function that knows how to handle things.
 
     Args:
-        norm_range: If False, no norm_range argument will be passed through resp. will be `None`
+        norm: If False, no norm_range argument will be passed through resp. will be `None`
         multiple_limits: If False, only simple limits are to be expected and no iteration is
             therefore required.
     """
+    if norm_range is not None:
+        norm = norm_range
     decorator_stack = []
     if not multiple_limits:
         decorator_stack.append(no_multiple_limits)
-    if not norm_range:
+
+    if norm is not True:  # check True. Could also be a str
         decorator_stack.append(no_norm_range)
 
     def create_deco_stack(func):

@@ -1,18 +1,30 @@
 #  Copyright (c) 2021 zfit
+import pydantic
 import tensorflow_addons as tfa
 
 from zfit.models.functor import BaseFunctor
+from .space import supports
 
 
 class SplinePDF(BaseFunctor):
 
-    def __init__(self, pdf, obs=None, extended=None):  # TODO: obs should not be needed? Or should it?
+    def __init__(self, pdf, order: int = None, obs=None,
+                 extended=None):  # TODO: obs should not be needed? Or should it?
         if pdf.is_extended:
             extended = pdf.get_yield()
         if obs is None:
-            obs = obs.with_binning(None)
+            obs = pdf.space
+        obs = obs.with_binning(None)
         super().__init__(pdfs=pdf, obs=obs, extended=extended)
+        if order is None:
+            order = 3
+        self._order = order
 
+    @property
+    def order(self):
+        return self._order
+
+    @supports(norm=True)
     def _ext_pdf(self, x, norm_range):
         pdf = self.pdfs[0]
         density = pdf.ext_pdf(x.space, norm=norm_range)  # TODO: order? Give obs, pdf makes order and binning herself?
@@ -21,11 +33,12 @@ class SplinePDF(BaseFunctor):
             train_points=centers,
             train_values=density[None, :, None],
             query_points=x.value()[None, ...],
-            order=2
+            order=self.order,
 
         )
         return probs[0, ..., 0]
 
+    @supports(norm=True)
     def _pdf(self, x, norm_range):
         pdf = self.pdfs[0]
         density = pdf.pdf(x.space, norm=norm_range)  # TODO: order? Give obs, pdf makes order and binning herself?
@@ -34,7 +47,11 @@ class SplinePDF(BaseFunctor):
             train_points=centers,
             train_values=density[None, :, None],
             query_points=x.value()[None, ...],
-            order=2
+            order=3
 
         )
         return probs[0, ..., 0]
+
+
+class TypedSplinePDF(pydantic.BaseModel):
+    order: pydantic.conint(ge=0)

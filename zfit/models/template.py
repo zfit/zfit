@@ -6,6 +6,7 @@ import zfit.param
 from ..core.binnedpdf import BaseBinnedPDFV1
 from ..core.interfaces import ZfitData
 from ..core.pdf import PDF
+from ..core.space import supports
 from ..z import numpy as znp
 
 
@@ -37,6 +38,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         density = counts / areas
         return density
 
+    @supports(norm='same')
     def _counts(self, x, norm=None):
         if norm not in (False, None, self.norm):
             return super()._counts(x, norm)

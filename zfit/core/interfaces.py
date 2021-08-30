@@ -240,6 +240,10 @@ class ZfitData(ZfitDimensional):
         raise NotImplementedError
 
 
+class ZfitUnbinnedData(ZfitData):
+    pass
+
+
 class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     @property

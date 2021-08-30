@@ -196,6 +196,7 @@ class SumPDF(BaseFunctor):
         prob = sum(probs)
         return z.convert_to_tensor(prob)
 
+    @supports(norm=True, multiple_limits=True)
     def _pdf(self, x, norm_range):
         equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm_range])) == 1
         if not equal_norm_ranges:
@@ -285,6 +286,7 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
         prob = functools.reduce(operator.mul, probs)
         return z.convert_to_tensor(prob)
 
+    @supports(norm=True, multiple_limits=True)
     def _pdf(self, x, norm_range):
         equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm_range])) == 1  # all equal
         if not any(self._model_same_obs) and equal_norm_ranges:

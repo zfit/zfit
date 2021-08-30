@@ -1,30 +1,15 @@
 #  Copyright (c) 2021 zfit
-from typing import List
+import warnings
 
-import boost_histogram as bh
 import hist
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
 from zfit import z
 from zfit.core.interfaces import ZfitData, ZfitRectBinning
 from zfit.util.ztyping import XTypeInput
-
-
-class RectBinning(ZfitRectBinning):
-
-    def __init__(self, binnings):
-        super().__init__()
-        self._binnings = binnings
-
-    def get_binnings(self) -> List[bh.axis.Axis]:
-        return self._binnings
-
-    def get_edges(self) -> np.array:
-        # edges = np.meshgrid(*[binning.edges for binning in self.get_binnings()], indexing='ij')
-        edges = [binning.edges for binning in self.get_binnings()]
-        return edges
 
 
 def rect_binning_histogramdd(data: XTypeInput, binning: ZfitRectBinning):
@@ -90,6 +75,23 @@ def unbinned_to_binned(data, space):
     from zfit._data.binneddatav1 import BinnedDataV1
     binned = BinnedDataV1.from_tensor(space=space, values=values, variances=variances)
     return binned
+
+
+def unbinned_to_binindex(data, space, flow=False):
+    if flow:
+        warnings.warn("Flow currently not fully supported. Values outside the edges are all 0.")
+    values = [znp.reshape(data.value(ob), (-1,)) for ob in space.obs]
+    edges = [znp.reshape(edge, (-1,)) for edge in space.binning.edges]
+    bins = [tfp.stats.find_bins(x=val, edges=edge)
+            for val, edge in zip(values, edges)]
+    stacked_bins = znp.stack(bins, axis=-1)
+    if flow:
+        stacked_bins += 1
+        bin_is_nan = tf.math.is_nan(stacked_bins)
+        zeros = znp.zeros_like(stacked_bins)
+        binindices = znp.where(bin_is_nan, zeros, stacked_bins)
+    stacked_bins = znp.asarray(binindices, dtype=znp.int32)
+    return stacked_bins
 
 
 def midpoints_from_hist(bincounts, edges):  # TODO: implement correctly, old

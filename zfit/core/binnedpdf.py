@@ -3,23 +3,25 @@ from __future__ import annotations
 from collections.abc import Iterable, Callable
 #  Copyright (c) 2021 zfit
 from contextlib import suppress
-from typing import Optional
 
-import boost_histogram as bh
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+import uhi
 
 import zfit
-from zfit import z
 import zfit.z.numpy as znp
+from zfit import z
 from zfit._data.binneddatav1 import BinnedDataV1, move_axis_obs
-from .space import supports, convert_to_space
 from .baseobject import BaseNumeric
+from .binning import unbinned_to_binindex
+from .data import Data
 from .dimension import BaseDimensional
-from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace, ZfitMinimalHist, ZfitPDF, ZfitBinnedData
-from .tensorlike import OverloadableMixinValues, register_tensor_conversion
+from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace, ZfitMinimalHist, ZfitPDF, ZfitBinnedData, \
+    ZfitUnbinnedData
 from .parameter import convert_to_parameter
+from .space import supports, convert_to_space
+from .tensorlike import OverloadableMixinValues, register_tensor_conversion
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.deprecation import deprecated_args
@@ -32,7 +34,7 @@ from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
 
-def _BaseModel_register_check_support(has_support: bool):
+def _BinnedPDF_register_check_support(has_support: bool):
     """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
 
     Args:
@@ -52,7 +54,7 @@ def _BaseModel_register_check_support(has_support: bool):
         """
         name = func.__name__
         _BaseModel_USER_IMPL_METHODS_TO_CHECK[name] = has_support
-        func.__wrapped__ = _BaseModel_register_check_support
+        func.__wrapped__ = _BinnedPDF_register_check_support
         return func
 
     return register
@@ -144,14 +146,23 @@ class BaseBinnedPDFV1(
     def _get_dependencies(self) -> ztyping.DependentsType:
         return super()._get_dependencies()
 
-    def _convert_input_x(self, x, allow_none=False, none_is_space=None):
+    def _convert_input_binned_x(self, x, none_is_space=None):
         if x is None and none_is_space:
             return self.space
-        if isinstance(x, bh.Histogram):
+        if isinstance(x, uhi.typing.plottable.PlottableHistogram):
             x = BinnedDataV1.from_hist(x)
         if not isinstance(x, ZfitBinnedData):
             if not isinstance(x, ZfitSpace):
-                raise TypeError(f"Data to {self} has to be ZfitBinnedData, not {x}.")
+                if not isinstance(x, ZfitUnbinnedData):
+                    try:
+                        x = Data.from_tensor(obs=self.obs, tensor=x)
+                    except Exception as error:
+
+                        raise TypeError(
+                            f"Data to {self} has to be Binned Data, not {x}. (It can also be unbinned Data)" +
+                            f" but conversion to it failed (see also above) with the following error:" +
+                            f" {error})") from error
+
             # TODO: should we allow spaces? Or what?
         return x
 
@@ -172,6 +183,7 @@ class BaseBinnedPDFV1(
             limits = convert_to_space(obs=self.obs, limits=limits)
         return limits
 
+    @_BinnedPDF_register_check_support(True)
     def _pdf(self, x, norm):
         return self._call_rel_counts(x, norm=norm) / np.prod(self.space.binning.widths, axis=0)
 
@@ -179,13 +191,25 @@ class BaseBinnedPDFV1(
     def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
         if norm_range is not None:
             norm = norm_range
-        x = self._convert_input_x(x, none_is_space=True)
-        space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
+        x = self._convert_input_binned_x(x, none_is_space=True)
+
+        is_unbinned = isinstance(x, ZfitUnbinnedData)
+        original_space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
+        binindices = None
         x = x.with_obs(self.space)
+        if is_unbinned:
+            binindices = unbinned_to_binindex(x, self.space, flow=True)
+
+            x = self.space
 
         norm = self._check_convert_norm(norm, none_is_error=True)
         values = self._call_pdf(x, norm=norm)
-        return move_axis_obs(self.space, space, values)
+        ordered_values = move_axis_obs(self.space, original_space, values)
+
+        if binindices is not None:  # because we have the flow, so we need to make it here with pads
+            padded_values = znp.pad(ordered_values, znp.ones((values.ndim, 2)), mode="constant")  # for overflow
+            ordered_values = tf.gather_nd(padded_values, indices=binindices)
+        return ordered_values
 
     def _call_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
@@ -213,8 +237,9 @@ class BaseBinnedPDFV1(
     def _call_unnormalized_pdf(self, x):
         return self._unnormalized_pdf(x)
 
+    @_BinnedPDF_register_check_support(True)
     def _ext_pdf(self, x, norm, *, norm_range=None):
-        return self._call_counts(x, norm=norm) / np.prod(self.space.binning.widths, axis=0)
+        raise SpecificFunctionNotImplemented
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def ext_pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
@@ -222,7 +247,7 @@ class BaseBinnedPDFV1(
             norm = norm_range
         if not self.is_extended:
             raise NotExtendedPDFError
-        x = self._convert_input_x(x, none_is_space=True)
+        x = self._convert_input_binned_x(x, none_is_space=True)
         space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
         x = x.with_obs(self.space)
 
@@ -263,9 +288,11 @@ class BaseBinnedPDFV1(
         # fallback
         return self._call_integrate(norm, norm=False)
 
+    @_BinnedPDF_register_check_support(True)
     def _normalization(self, limits):
         raise SpecificFunctionNotImplemented
 
+    @_BinnedPDF_register_check_support(True)
     def _integrate(self, limits, norm):
         raise SpecificFunctionNotImplemented
 
@@ -340,6 +367,7 @@ class BaseBinnedPDFV1(
             integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
         return integral
 
+    @_BinnedPDF_register_check_support(True)
     def _ext_integrate(self, limits, norm):
         raise SpecificFunctionNotImplemented
 
@@ -416,6 +444,7 @@ class BaseBinnedPDFV1(
     def register_inverse_analytic_integral(cls, func: Callable):
         raise WorkInProgressError
 
+    @_BinnedPDF_register_check_support(True)
     def _sample(self, n, limits):
         raise SpecificFunctionNotImplemented
 
@@ -464,7 +493,7 @@ class BaseBinnedPDFV1(
     def counts(self, x=None, norm=None):  # TODO: x preprocessing and sorting
         if not self.is_extended:
             raise NotExtendedPDFError
-        x = self._convert_input_x(x, none_is_space=True)
+        x = self._convert_input_binned_x(x, none_is_space=True)
         space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
         x = x.with_obs(self.space)
         norm = self._check_convert_norm(norm)
@@ -503,11 +532,12 @@ class BaseBinnedPDFV1(
     def _fallback_counts(self, x, norm):
         return self._auto_rel_counts(x, norm) * self.get_yield()
 
+    @_BinnedPDF_register_check_support(True)
     def _counts(self, x, norm):
         raise SpecificFunctionNotImplemented
 
     def rel_counts(self, x=None, norm=None):
-        x = self._convert_input_x(x, none_is_space=True)
+        x = self._convert_input_binned_x(x, none_is_space=True)
         space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
         x = x.with_obs(self.space)
         norm = self._check_convert_norm(norm)
@@ -521,6 +551,7 @@ class BaseBinnedPDFV1(
             return self._auto_counts(x, norm=norm) / self.get_yield()
         return self._fallback_rel_counts(x, norm)
 
+    @_BinnedPDF_register_check_support(True)
     def _rel_counts(self, x, norm):
         raise SpecificFunctionNotImplemented
 

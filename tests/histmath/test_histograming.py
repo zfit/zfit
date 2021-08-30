@@ -1,10 +1,13 @@
 #  Copyright (c) 2021 zfit
+import hist
 import numpy as np
+
+import zfit.z.numpy as znp
 
 import zfit
 # TODO: what is needed in this file?
 from zfit import z
-from zfit.core.binning import histogramdd, midpoints_from_hist
+from zfit.core.binning import histogramdd, midpoints_from_hist, unbinned_to_binindex
 
 data1 = np.random.normal(size=(1000, 3))
 obs1 = zfit.Space("obs1", limits=(-100, 300))
@@ -40,3 +43,24 @@ def test_midpoints():
                                                                                         edges=edges)
     np.testing.assert_allclose(np.array([1, 5, 7, 3]), zfit.run(bincounts_nonzero))
     np.testing.assert_allclose(midpoints_true, zfit.run(midpoints_nonzero))
+
+
+def test_unbinned_to_bins():
+    n = 100_000
+    lower = [-5, -50, 10]
+    upper = [5, 13, 100]
+    values = np.random.uniform(lower, upper, size=(n, 3))
+    axes = [
+        hist.axis.Regular(12, lower[0], upper[0], name='x'),
+        hist.axis.Regular(24, lower[1], upper[1], name='y'),
+        hist.axis.Variable([10, 20, 23, 26.5, 30, 35., 50, 60., 75, 78, 90., 100], name='z'), ]
+    h = hist.NamedHist(*axes)
+    name_values = {name: val for name, val in zip(['x', 'y', 'z'], values.transpose())}
+    # h.fill(**name_values)
+    true_bins = h.axes.index(*name_values.values())
+    print(true_bins)
+    space = zfit.Space(binning=axes)
+    data = zfit.Data.from_tensor(space.with_binning(None), values)
+    bins = znp.transpose(unbinned_to_binindex(data, space))
+    print(bins)
+    np.testing.assert_array_equal(bins, true_bins)

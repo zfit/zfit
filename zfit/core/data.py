@@ -26,13 +26,13 @@ from ..util.temporary import TemporarilySet
 from .baseobject import BaseObject
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
-from .interfaces import ZfitData, ZfitSpace
+from .interfaces import ZfitSpace, ZfitUnbinnedData
 from .tensorlike import register_tensor_conversion, OverloadableMixin
 from .space import Space, convert_to_space
 
 
 # TODO: make cut only once, then remember
-class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject, OverloadableMixin):
+class Data(GraphCachable, ZfitUnbinnedData, BaseDimensional, BaseObject, OverloadableMixin):
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(self, dataset: Union[tf.data.Dataset, "LightDataset"], obs: ztyping.ObsTypeInput = None,
@@ -294,6 +294,10 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject, OverloadableMix
 
         return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype)
 
+    def with_obs(self, obs):
+        values = self.value(obs)
+        return type(self).from_tensor(obs=self.space, tensor=values, weights=self.weights, name=self.name)
+
     def to_pandas(self, obs: ztyping.ObsTypeInput = None):
         """Create a `pd.DataFrame` from `obs` as columns and return it.
 
@@ -371,6 +375,7 @@ class Data(GraphCachable, ZfitData, BaseDimensional, BaseObject, OverloadableMix
 
     def _sort_value(self, value, obs: Tuple[str]):
         obs = convert_to_container(value=obs, container=tuple)
+        # TODO CURRENT: deactivated below!
         perm_indices = self.space.axes if self.space.axes != tuple(range(value.shape[-1])) else False
 
         # permutate = perm_indices is not None
@@ -668,7 +673,7 @@ class LightDataset:
         return self.tensor
 
 
-def sum_samples(sample1: ZfitData, sample2: ZfitData, obs: ZfitSpace, shuffle: bool = False):
+def sum_samples(sample1: ZfitUnbinnedData, sample2: ZfitUnbinnedData, obs: ZfitSpace, shuffle: bool = False):
     samples = [sample1, sample2]
     if obs is None:
         raise WorkInProgressError
