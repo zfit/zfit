@@ -85,8 +85,6 @@ def test_unbinned_data():
 def test_unbinned_data2D():
     n = 751
     gauss, gauss_binned, obs, obs_binned = create_gauss2d_binned(n, 50)
-    x = znp.linspace(-5, 10, 200)
-    y = znp.linspace(50, 600, 50)
 
     data = znp.random.uniform([-5, 50], [10, 600], size=(1000, 2))
     y_binned = gauss_binned.pdf(data)
@@ -101,6 +99,16 @@ def test_unbinned_data2D():
     ycenter_true = gauss.pdf(centers)
     np.testing.assert_allclose(ycenter_binned, ycenter_true, atol=max_error / 10)
 
+    # for the extended case
+    y_binned_ext = gauss_binned.ext_pdf(data)
+    y_true_ext = gauss.ext_pdf(data)
+    max_error_ext = np.max(y_true_ext) / 10
+    np.testing.assert_allclose(y_true_ext, y_binned_ext, atol=max_error_ext)
+
+    ycenter_binned_ext = gauss_binned.ext_pdf(centers)
+    ycenter_true_ext = gauss.ext_pdf(centers)
+    np.testing.assert_allclose(ycenter_binned_ext, ycenter_true_ext, atol=max_error_ext / 10)
+
     x_outside = znp.array([[-7., 55], [3., 13], [2, 150], [12, 30], [14, 1000]])
     y_outside = gauss_binned.pdf(x_outside)
     assert y_outside[0] == 0
@@ -108,6 +116,13 @@ def test_unbinned_data2D():
     assert y_outside[2] > 0
     assert y_outside[3] == 0
     assert y_outside[4] == 0
+
+    y_outside_ext = gauss_binned.ext_pdf(x_outside)
+    assert y_outside_ext[0] == 0
+    assert y_outside_ext[1] == 0
+    assert y_outside_ext[2] > 0
+    assert y_outside_ext[3] == 0
+    assert y_outside_ext[4] == 0
 
 
 def create_gauss_binned(n, nbins=130):

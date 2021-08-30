@@ -191,24 +191,29 @@ class BaseBinnedPDFV1(
     def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
         if norm_range is not None:
             norm = norm_range
-        x = self._convert_input_binned_x(x, none_is_space=True)
 
-        is_unbinned = isinstance(x, ZfitUnbinnedData)
-        original_space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
-        binindices = None
+        # convert the input argument to a standardized form
+        x = self._convert_input_binned_x(x, none_is_space=True)
+        norm = self._check_convert_norm(norm, none_is_error=True)
+
+        # sort it and remember the original sorting
+        original_space = x if isinstance(x, ZfitSpace) else x.space
         x = x.with_obs(self.space)
+
+        # if it is unbinned, we get the binned version and gather the corresponding values
+        is_unbinned = isinstance(x, ZfitUnbinnedData)
+        binindices = None
         if is_unbinned:
             binindices = unbinned_to_binindex(x, self.space, flow=True)
-
             x = self.space
 
-        norm = self._check_convert_norm(norm, none_is_error=True)
         values = self._call_pdf(x, norm=norm)
-        ordered_values = move_axis_obs(self.space, original_space, values)
 
         if binindices is not None:  # because we have the flow, so we need to make it here with pads
-            padded_values = znp.pad(ordered_values, znp.ones((values.ndim, 2)), mode="constant")  # for overflow
+            padded_values = znp.pad(values, znp.ones((values.ndim, 2)), mode="constant")  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
+        else:
+            ordered_values = move_axis_obs(self.space, original_space, values)
         return ordered_values
 
     def _call_pdf(self, x, norm):
@@ -247,13 +252,28 @@ class BaseBinnedPDFV1(
             norm = norm_range
         if not self.is_extended:
             raise NotExtendedPDFError
+        # convert the input argument to a standardized form
         x = self._convert_input_binned_x(x, none_is_space=True)
-        space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
+        norm = self._check_convert_norm(norm, none_is_error=True)
+        # sort it and remember the original sorting
+        original_space = x if isinstance(x, ZfitSpace) else x.space
         x = x.with_obs(self.space)
 
-        norm = self._check_convert_norm(norm, none_is_error=True)
+        # if it is unbinned, we get the binned version and gather the corresponding values
+        is_unbinned = isinstance(x, ZfitUnbinnedData)
+        binindices = None
+        if is_unbinned:
+            binindices = unbinned_to_binindex(x, self.space, flow=True)
+            x = self.space
+
         values = self._call_ext_pdf(x, norm=norm)
-        return move_axis_obs(self.space, space, values)
+
+        if binindices is not None:  # because we have the flow, so we need to make it here with pads
+            padded_values = znp.pad(values, znp.ones((values.ndim, 2)), mode="constant")  # for overflow
+            ordered_values = tf.gather_nd(padded_values, indices=binindices)
+        else:
+            ordered_values = move_axis_obs(self.space, original_space, values)
+        return ordered_values
 
     def _call_ext_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
