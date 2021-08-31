@@ -41,6 +41,24 @@ def test_spline_from_binned_from_unbinned():
     plt.plot(x, y, '.', label='interpolated')
     plt.legend()
     pytest.zfit_savefig()
+
+    np.testing.assert_allclose(y, y_true, atol=50)
+
+
+def test_spline2D_from_binned_from_unbinned():
+    # zfit.run.set_graph_mode(False)
+    n = 1204
+    gauss, gauss_binned, obs, obs_binned = create_gauss2d_binned(n, 13)
+
+    x = znp.random.uniform([-5, 50], [10, 600], size=(1000, 2))
+    data = zfit.Data.from_tensor(obs, x)
+
+    # sample = gauss_binned.sample(n, limits=obs_binned)
+
+    spline_gauss = SplinePDF(gauss_binned, obs=obs)
+    y = spline_gauss.ext_pdf(data)
+    y_true = gauss.ext_pdf(data)
+
     np.testing.assert_allclose(y, y_true, atol=50)
 
 
