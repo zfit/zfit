@@ -259,10 +259,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             self.integration.draws_per_dim = int(min(draws, self.integration.max_draws))
         if draws_simpson == 'auto':
             logtol = abs(math.log10(self.integration.tol * 0.005))
-            npoints = 25 + 15 * logtol + 2.6 ** logtol
+            npoints = 10 + 25 * (logtol + 1) + 2.6 ** logtol
             npoints = int(npoints)
-            # npoints = int(abs(math.log10( * 0.1)) ** 0.8)
-            # npoints = 3 + int(10 ** npoints / 5)
             self.integration.draws_simpson = npoints
 
     # TODO: remove below? or add "analytic gradients"?
