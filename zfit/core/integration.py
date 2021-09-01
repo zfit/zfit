@@ -230,8 +230,9 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                     tf.print(
                         "Estimated integral error (", error,
                         ") larger than tolerance (", tol,
-                        "), which is maybe not enough."
-                        "Manually set a higher number on the PDF with 'update_integration_options'"
+                        "), which is maybe not enough (but maybe it's also fine)."
+                        " You can (best solution) implement an anatytical integral (see examples in repo) or"
+                        " manually set a higher number on the PDF with 'update_integration_options'"
                         " and increase the 'max_draws' (or adjust 'tol'). "
                         "If partial integration is chosen, this may does currently"
                         " not automatically increase the number for the integration."
