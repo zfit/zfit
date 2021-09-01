@@ -59,7 +59,7 @@ def numeric_integrate():
     return integral
 
 
-@supports(multiple_limits=True)
+# @supports(multiple_limits=True)
 def simpson_integrate(func, limits, num_points):  # currently not vectorized
     integrals = []
     for space in limits:
@@ -149,7 +149,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 if partial:
                     samples_normed = tfp.mcmc.sample_halton_sequence(dim=n_axes,
                                                                      # sequence_indices=tf.range(ntot_old, ntot),
-                                                                     num_results=5000,
+                                                                     num_results=n_samples * 3,
+                                                                     # as we don't do adaptive now
                                                                      # to decrease integration size
                                                                      dtype=dtype,
                                                                      randomized=False)
