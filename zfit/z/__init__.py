@@ -18,7 +18,12 @@ Recommended way of importing:
 
 #  Copyright (c) 2021 zfit
 
-import tensorflow.experimental.numpy as _tnp  # this way we do get the autocompletion
+# TODO: dymamic imports?
+# import tensorflow.experimental.numpy as _tnp  # this way we do get the autocompletion
+# numpy = _tnp  # for static code analysis
+# import sys
+# sys.modules['zfit.z.numpy'] = _tnp
+
 
 from . import math, random, unstable
 from .wrapping_tf import (check_numerics, complex, convert_to_tensor, exp, pow,
@@ -30,5 +35,4 @@ from .zextension import (function_sampling, function_tf_input, nth_pow, pi,
                          py_function, run_no_nan, safe_where, stack_x,
                          to_complex, to_real, unstack_x)
 
-numpy = _tnp
-del _tnp
+# numpy = _tnp

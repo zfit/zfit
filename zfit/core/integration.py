@@ -233,7 +233,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                         "), which is maybe not enough."
                         "Manually set a higher number on the PDF with 'update_integration_options'"
                         " and increase the 'max_draws' (or adjust 'tol'). "
-                        "If partial integration is chosen, this does currently"
+                        "If partial integration is chosen, this may does currently"
                         " not automatically increase the number for the integration."
                         " "
                         "This is a new warning checking the integral accuracy. It may warns too often as it is"
