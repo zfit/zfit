@@ -150,7 +150,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 if partial:
                     samples_normed = tfp.mcmc.sample_halton_sequence(dim=n_axes,
                                                                      # sequence_indices=tf.range(ntot_old, ntot),
-                                                                     num_results=n_samples * 3,
+                                                                     num_results=n_samples,
+                                                                     # reduce, it explodes otherwise easily
                                                                      # as we don't do adaptive now
                                                                      # to decrease integration size
                                                                      dtype=dtype,
@@ -239,6 +240,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                         "This is a new warning checking the integral accuracy. It may warns too often as it is"
                         " Work In Progress. If you have any observation on it, please tell us about it:"
                         " https://github.com/zfit/zfit/issues/new/choose"
+                        "To suppress this warning, use zfit.settings.set_verbosity(-1)."
                     )
                 return
 
