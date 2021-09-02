@@ -100,7 +100,7 @@ def test_product_separation():
     assert not prod13._prod_is_same_obs_pdf
     prod123 = ProductPDF([prod12, prod13])
     assert prod123._prod_is_same_obs_pdf
-    npoints = 20000
+    npoints = 2000
     data3 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs3)
     data2 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs2)
     data1 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs1)
