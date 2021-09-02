@@ -4,20 +4,17 @@ from typing import Union
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+import zfit.z.numpy as znp
 from tensorflow_probability.python import distributions as tfd
 
-import zfit.z.numpy as znp
-
+from .dist_tfp import WrapDistribution
 from .. import z
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitData, ZfitSpace
+from ..core.interfaces import ZfitData, ZfitSpace, ZfitParameter
 from ..settings import ztypes
-from ..util import binning as binning_util
-from ..util import convolution as convolution_util
-from ..util import improved_sheather_jones as isj_util
-from ..util import ztyping
+from ..util import binning as binning_util, convolution as convolution_util, improved_sheather_jones as isj_util, \
+    ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
-from .dist_tfp import WrapDistribution
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):
@@ -77,7 +74,9 @@ class GaussianKDE1DimV1(WrapDistribution):
         'isj': _bandwidth_isj_KDEV1
     }
 
-    def __init__(self, obs: ztyping.ObsTypeInput, data: ztyping.ParamTypeInput,
+    def __init__(self,
+                 obs: ztyping.ObsTypeInput,
+                 data: ztyping.ParamTypeInput,
                  bandwidth: Union[ztyping.ParamTypeInput, str] = None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None, truncate: bool = False,
                  name: str = "GaussianKDE1DimV1"):
@@ -141,21 +140,8 @@ class GaussianKDE1DimV1(WrapDistribution):
 
         original_data = data
 
-        if isinstance(data, ZfitData):
-            if data.weights is not None:
-                if weights is not None:
-                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
-                else:
-                    weights = data.weights
+        data, size, weights = get_data_weights_size(data, weights)
 
-            if data.n_obs > 1:
-                raise ShapeIncompatibleError(
-                    f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
-            data = z.unstack_x(data)
-
-        # create fraction for the sum
-        shape_data = tf.shape(data)
-        size = tf.cast(shape_data[0], dtype=ztypes.float)
         if weights is not None:
             probs = weights / znp.sum(weights)
         else:
@@ -214,6 +200,23 @@ class GaussianKDE1DimV1(WrapDistribution):
         self._truncate = truncate
 
 
+def get_data_weights_size(data, weights):
+    if isinstance(data, ZfitData):
+        if data.weights is not None:
+            if weights is not None:
+                raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
+            else:
+                weights = data.weights
+
+        if data.n_obs > 1:
+            raise ShapeIncompatibleError(
+                f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
+        data = z.unstack_x(data)
+    shape_data = tf.shape(data)
+    size = tf.cast(shape_data[0], ztypes.float)
+    return data, size, weights
+
+
 class KDE1DimV1(WrapDistribution):
     _N_OBS = 1
 
@@ -222,7 +225,6 @@ class KDE1DimV1(WrapDistribution):
                  data: ztyping.ParamTypeInput,
                  bandwidth: ztyping.ParamTypeInput = None,
                  kernel=tfd.Normal,
-                 support=None,
                  use_grid=False,
                  num_grid_points=1024,
                  binning_method='linear',
@@ -243,20 +245,7 @@ class KDE1DimV1(WrapDistribution):
             name: Name of the PDF
         """
 
-        if isinstance(data, ZfitData):
-            if data.weights is not None:
-                if weights is not None:
-                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
-                else:
-                    weights = data.weights
-
-            if data.n_obs > 1:
-                raise ShapeIncompatibleError(
-                    f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
-            data = z.unstack_x(data)
-
-        shape_data = tf.shape(data)
-        size = tf.cast(shape_data[0], ztypes.float)
+        data, size, weights = get_data_weights_size(data, weights)
 
         def components_distribution_generator(
                 loc, scale):
@@ -337,29 +326,25 @@ class KDE1DimFFTV1(BasePDF):
             name: Name of the PDF
         """
 
-        if isinstance(data, ZfitData):
-            if data.weights is not None:
-                if weights is not None:
-                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
-                else:
-                    weights = data.weights
-
-            if data.n_obs > 1:
-                raise ShapeIncompatibleError(
-                    f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
-            data = z.unstack_x(data)
-
-        shape_data = tf.shape(data)
-        size = tf.cast(shape_data[0], ztypes.float)
+        data, size, weights = get_data_weights_size(data, weights)
 
         self._num_grid_points = tf.minimum(tf.cast(size, ztypes.int),
                                            tf.constant(num_grid_points, ztypes.int))
         self._binning_method = binning_method
         self._fft_method = fft_method
         self._data = tf.convert_to_tensor(data, ztypes.float)
+        if isinstance(bandwidth, ZfitParameter):
+            raise TypeError(f"bandwidth cannot be a Parameter for the FFT KDE.")
         self._bandwidth = tf.convert_to_tensor(bandwidth, ztypes.float)
+
+        params = {'bandwidth': self._bandwidth}
+        super().__init__(obs=obs, name=name, params=params)
         self._kernel = kernel
         self._weights = weights
+        if support is None:
+            area = znp.reshape(self.space.area(), ())
+            if area is not None:
+                support = area
         self._support = support
         self._grid = None
         self._grid_data = None
@@ -369,14 +354,11 @@ class KDE1DimFFTV1(BasePDF):
         self._grid_estimations = convolution_util.convolve_1d_data_with_kernel(
             self._kernel, self._bandwidth, self._grid_data, self._grid, self._support, self._fft_method)
 
-        params = {'bandwidth': self._bandwidth}
-        super().__init__(obs=obs, name=name, params=params)
-
-    def _unnormalized_pdf(self, x, norm_range=False):
+    def _unnormalized_pdf(self, x):
 
         x = z.unstack_x(x)
-        x_min = tf.reduce_min(self._grid)
-        x_max = tf.reduce_max(self._grid)
+        x_min = self._grid[0]
+        x_max = self._grid[-1]
 
         value = tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
         value.set_shape(x.shape)
@@ -410,20 +392,7 @@ class KDE1DimISJV1(BasePDF):
             name: Name of the PDF
         """
 
-        if isinstance(data, ZfitData):
-            if data.weights is not None:
-                if weights is not None:
-                    raise OverdefinedError("Cannot specify weights and use a `ZfitData` with weights.")
-                else:
-                    weights = data.weights
-
-            if data.n_obs > 1:
-                raise ShapeIncompatibleError(
-                    f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
-            data = z.unstack_x(data)
-
-        shape_data = tf.shape(data)
-        size = tf.cast(shape_data[0], ztypes.float)
+        data, size, weights = get_data_weights_size(data, weights)
 
         self._num_grid_points = tf.minimum(tf.cast(size, ztypes.int),
                                            tf.constant(num_grid_points, ztypes.int))
@@ -439,10 +408,9 @@ class KDE1DimISJV1(BasePDF):
         params = {}
         super().__init__(obs=obs, name=name, params=params)
 
-    def _unnormalized_pdf(self, x, norm_range=False):
-
+    def _unnormalized_pdf(self, x):
         x = z.unstack_x(x)
-        x_min = tf.reduce_min(self._grid)
-        x_max = tf.reduce_max(self._grid)
+        x_min = self._grid[0]
+        x_max = self._grid[-1]
 
         return tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
