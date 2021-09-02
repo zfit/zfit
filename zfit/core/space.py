@@ -2865,10 +2865,12 @@ def check_norm(supports=None):
             else:
                 if norm_range_index is not None:
                     norm_is_arg = len(args) > norm_range_index
-                    norm = args[norm_range_index]
+                    if norm_is_arg:
+                        norm = args[norm_range_index]
                 if norm_index is not None:
                     norm_is_arg = len(args) > norm_index
-                    norm = args[norm_index]
+                    if norm_is_arg:
+                        norm = args[norm_index]
             if not norm_is_arg:
                 if 'norm_range' in kwargs:
                     kwargs['norm_range'] = False
