@@ -150,7 +150,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                 if partial:
                     samples_normed = tfp.mcmc.sample_halton_sequence(dim=n_axes,
                                                                      # sequence_indices=tf.range(ntot_old, ntot),
-                                                                     num_results=n_samples,
+                                                                     num_results=n_samples / 10,
                                                                      # reduce, it explodes otherwise easily
                                                                      # as we don't do adaptive now
                                                                      # to decrease integration size
