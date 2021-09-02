@@ -89,8 +89,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     #                                                                                      dtype=dtype)
     DEFAULTS_integration.draws_per_dim = 'auto'
     DEFAULTS_integration.draws_simpson = 'auto'
-    DEFAULTS_integration.max_draws = 800_000
-    DEFAULTS_integration.tol = 7e-5
+    DEFAULTS_integration.max_draws = 1_200_000
+    DEFAULTS_integration.tol = 1e-6
     DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = None
@@ -256,10 +256,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             logtol = int((logexp) ** 0.6)
             high_draws = 2 ** logtol * 10 ** logtol
             draws = min({0: 10, 1: 15, 2: 150, 3: 500, 4: 5000}.get(logtolonly, 1e30), high_draws)
-            self.integration.draws_per_dim = int(min(draws, self.integration.max_draws))
+            draws = int(min(draws, self.integration.max_draws))
+        if draws_per_dim is not None:
+            self.integration.draws_per_dim = draws  # make it odd
+
         if draws_simpson == 'auto':
             logtol = abs(math.log10(self.integration.tol * 0.005))
-            npoints = 10 + 25 * (logtol + 1) + 2.6 ** logtol
+            npoints = 10 + 25 * (logtol + 1) + 2.2 ** logtol
             npoints = int(npoints)
             self.integration.draws_simpson = npoints
 

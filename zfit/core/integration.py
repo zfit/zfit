@@ -62,6 +62,7 @@ def numeric_integrate():
 # @supports(multiple_limits=True)
 def simpson_integrate(func, limits, num_points):  # currently not vectorized
     integrals = []
+    num_points += num_points % 2 + 1  # sanitize number of points
     for space in limits:
         lower, upper = space.rect_limits
         if lower.shape[0] > 1:
@@ -79,8 +80,8 @@ def simpson_integrate(func, limits, num_points):  # currently not vectorized
 
 # @z.function
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
-                 x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 20000,
-                 max_draws=400_000, tol: float = 1e-6,
+                 x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 40000,
+                 max_draws=800_000, tol: float = 1e-6,
                  method: str = None,
                  dtype: Type = ztypes.float,
                  mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
@@ -123,7 +124,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                                        "\nlower: {}, upper: {}".format(lower, upper)
                                        )
 
-        n_samples = draws_per_dim
+        n_samples = draws_per_dim * n_axes
 
         chunked_normalization = zfit.run.chunksize < n_samples
         # chunked_normalization = True
@@ -234,9 +235,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                         " You can (best solution) implement an anatytical integral (see examples in repo) or"
                         " manually set a higher number on the PDF with 'update_integration_options'"
                         " and increase the 'max_draws' (or adjust 'tol'). "
-                        "If partial integration is chosen, this may does currently"
-                        " not automatically increase the number for the integration."
-                        " "
+                        "If partial integration is chosen, this can lead to large memory consumption."
                         "This is a new warning checking the integral accuracy. It may warns too often as it is"
                         " Work In Progress. If you have any observation on it, please tell us about it:"
                         " https://github.com/zfit/zfit/issues/new/choose"
