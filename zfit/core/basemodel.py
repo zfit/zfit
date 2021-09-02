@@ -255,7 +255,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             logexp = max(int(abs(math.log(self.integration.tol))), 2)
             logtol = int((logexp) ** 0.6)
             high_draws = 2 ** logtol * 10 ** logtol
-            draws = min({0: 10, 1: 15, 2: 150, 3: 500, 4: 5000}.get(logtolonly, 1e30), high_draws)
+            draws = min({0: 10, 1: 15, 2: 150, 3: 300, 4: 600}.get(logtolonly, 1e30), high_draws)
             draws = int(min(draws, self.integration.max_draws))
         if draws_per_dim is not None:
             self.integration.draws_per_dim = draws  # make it odd
