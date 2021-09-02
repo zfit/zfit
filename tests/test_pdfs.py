@@ -56,8 +56,7 @@ def create_gaussians() -> List[ZfitPDF]:
     gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1asum")
     gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2asum")
     gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3asum")
-    gauss_dists = [gauss1, gauss2, gauss3]
-    return gauss_dists
+    return [gauss1, gauss2, gauss3]
 
 
 def sum_gaussians():

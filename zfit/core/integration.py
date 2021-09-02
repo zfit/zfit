@@ -49,17 +49,17 @@ def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztype
     elif method.lower() == 'simpson':
         num_points = simpsons_options['draws_simpson']
         integral = simpson_integrate(func=func, limits=limits, num_points=num_points)
+    else:
+        raise ValueError(f"Method {method} not a legal choice for integration method.")
     return integral
 
 
 # TODO implement numerical integration method
 def numeric_integrate():
     """Integrate `func` using numerical methods."""
-    integral = None
-    return integral
+    return None
 
 
-# @supports(multiple_limits=True)
 def simpson_integrate(func, limits, num_points):  # currently not vectorized
     integrals = []
     num_points += num_points % 2 + 1  # sanitize number of points
@@ -493,10 +493,11 @@ class AnalyticIntegral:
             implemented_axes = set(self._integrals.keys())
         implemented_axes = sorted(implemented_axes, key=len, reverse=True)  # iter through biggest first
         for axes in implemented_axes:
-            limits_matched = []
-            for lim, integ in self._integrals[axes].items():
-                if integ.limits >= limits:
-                    limits_matched.append(lim)
+            limits_matched = [
+                lim
+                for lim, integ in self._integrals[axes].items()
+                if integ.limits >= limits
+            ]
 
             if limits_matched:  # one or more integrals available
                 return tuple(sorted(axes)), limits_matched
@@ -518,8 +519,7 @@ class AnalyticIntegral:
         axes, limits = self._get_max_axes_limits(limits=limits, out_of_axes=axes)
         axes = frozenset(axes)
         integrals = [self._integrals[axes][lim] for lim in limits]
-        integral_fn = max(integrals, key=lambda l: l.priority, default=None)
-        return integral_fn
+        return max(integrals, key=lambda l: l.priority, default=None)
 
     def register(self, func: Callable, limits: ztyping.LimitsType,
                  priority: int = 50, *,
