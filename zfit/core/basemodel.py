@@ -820,7 +820,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     @no_norm_range
     @z.function(wraps='model')
     def _auto_numeric_integrate(self, func, limits, x=None, norm_range=False, **overwrite_options):
-        integration_options = dict(func=func, limits=limits, n_axes=limits.n_obs, x=x, norm_range=norm_range,
+        integration_options = dict(func=func, limits=limits, n_axes=limits.n_obs, x=x,
                                    # auto from self
                                    dtype=self.dtype,
                                    mc_sampler=self.integration.mc_sampler,

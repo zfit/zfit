@@ -22,7 +22,7 @@ from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
                           convert_to_obs_str)
 from .dimension import common_axes, common_obs, limits_overlap
 from .interfaces import (ZfitLimit, ZfitOrderableDimensional,
-                         ZfitSpace)
+                         ZfitSpace, ZfitPDF)
 from .. import z
 from .._variables.axis import Binning
 from ..settings import ztypes
@@ -2854,7 +2854,10 @@ def check_norm(supports=None):
 
         @functools.wraps(func)
         def new_func(*args, **kwargs):
-            self = args[0]
+            if len(args) > 0:
+                self = args[0]
+            else:
+                self = None
             norm_range = kwargs.get('norm_range')
             norm = kwargs.get('norm')
             if norm_range is not None:
@@ -2881,15 +2884,15 @@ def check_norm(supports=None):
                     kwargs['norm'] = False
 
             # assume it's not supported. Switch if we find that it is supported.
-            norm_not_supported = True
+            norm_not_supported = not supports[0] is True
             if isinstance(norm, ZfitSpace):
-                if 'space' in supports and self.space == norm:
+                if 'space' in supports and isinstance(self, ZfitPDF) and self.space == norm:
                     norm_not_supported = False
-                if 'norm' in supports and self.norm == norm:
+                if 'norm' in supports and isinstance(self, ZfitPDF) and self.norm == norm:
                     norm_not_supported = False
                 if norm_not_supported:
                     norm_not_supported = not norm.limits_are_false
-            else:
+            elif norm_not_supported:
                 norm_not_supported = not (norm is None or norm is False)
             if norm_not_supported:
                 raise NormNotImplemented()

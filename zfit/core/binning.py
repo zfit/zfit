@@ -90,7 +90,7 @@ def unbinned_to_binindex(data, space, flow=False):
         bin_is_nan = tf.math.is_nan(stacked_bins)
         zeros = znp.zeros_like(stacked_bins)
         binindices = znp.where(bin_is_nan, zeros, stacked_bins)
-    stacked_bins = znp.asarray(binindices, dtype=znp.int32)
+        stacked_bins = znp.asarray(binindices, dtype=znp.int32)
     return stacked_bins
 
 

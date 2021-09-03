@@ -66,6 +66,7 @@ class TmpGaussianPDFNonNormed(zfit.pdf.BasePDF):
         params = {'mu': mu, 'sigma': sigma}
         super().__init__(obs, params, name=name, **kwargs)
 
+    @zfit.supports(norm=True)
     def _pdf(self, x, norm_range=False):
         x = x.unstack_x()
         mu = self.params['mu']
