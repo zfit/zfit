@@ -241,7 +241,7 @@ def test_mc_partial_integration():
     num_integral2 = zintegrate.mc_integrate(x=data2,
                                             func=func4_3deps,
                                             limits=limits2,
-                                            draws_per_dim=100)
+                                            draws_per_dim=1000)
 
     integral = num_integral.numpy()
     integral2 = num_integral2.numpy()

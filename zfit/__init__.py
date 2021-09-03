@@ -57,8 +57,9 @@ if int(tf.__version__[0]) < 2:
     raise RuntimeError(f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
                        f" only with TF >= 2")
 
+from . import z  # initialize first
 from . import (constraint, data, dimension, exception, func, loss, binned,
-               minimize, param, pdf, sample, z)
+               minimize, param, pdf, sample)
 from .core.data import Data
 from .core.parameter import (ComplexParameter, ComposedParameter, Parameter,
                              convert_to_parameter)

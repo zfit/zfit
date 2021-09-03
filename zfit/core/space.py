@@ -1201,6 +1201,7 @@ class Space(BaseSpace,
         if obs:
             if 'obs' in input_limits:
                 obs_limit_dict = input_limits['obs']
+                obs_limit_dict = {ob: lim for ob, lim in obs_limit_dict.items() if ob[0] in obs}
             else:
                 obs_limit_dict = {}
                 for axes_lim, lim in input_limits['axes'].items():
@@ -1213,10 +1214,12 @@ class Space(BaseSpace,
         if axes:
             if 'axes' in input_limits:
                 axes_limit_dict = input_limits['axes']
+                axes_limit_dict = {axis: lim for axis, lim in axes_limit_dict.items() if axis[0] in axes}
             else:
                 axes_limit_dict = {}
                 for obs_lim, lim in input_limits['obs'].items():
                     axes_coords = tuple(axes[obs.index(ob)] for ob in obs_lim)
+
                     if isinstance(lim, ZfitOrderableDimensional):
                         lim = lim.with_coords(self.space)
                     axes_limit_dict[axes_coords] = lim

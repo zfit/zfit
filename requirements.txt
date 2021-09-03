@@ -18,5 +18,6 @@ tensorflow>=2.5,<2.7
 tensorflow-addons
 tensorflow_probability>=0.12,<0.14
 texttable
+tf_quant_finance
 uproot>=4,<5
 zfit_interface @ git+https://github.com/zfit/zfit-interface # TODO: for development, change to release
