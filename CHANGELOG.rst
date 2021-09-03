@@ -11,9 +11,18 @@ Major Features and Improvements
 -------------------------------
 - allow `FitResult` to `freeze()`, making it pickleable. The parameters
   are replaced by their name, the objects such as loss and minimizer as well.
+- improve the numerical integration by adding a one dimensional efficient integrator, testing for the accuracy of
+  multidimensional integrals. If there is a sharp peak, this maybe fails to integrate and the number of points
+  has to be manually raised
 - add windows in CI
 Breaking changes
 ------------------
+- the numerical integration improved with more sensible values for tolerance. This means however that some fits will
+  greatly increase the runtime. To restore the old behavior globally, do
+  for each instance `pdf.update_integration_options(draws_per_dim=40_000, max_draws = 40_000, tol = 1)`
+  This will integrate regardless of the chosen precision and it may be non-optimal.
+  However, the precision estimate in the integrator is also not perfect and maybe overestimates the error, so that
+  the integration by default takes longer than necessary. Feel free to play around with the parameters and report back.
 
 Depreceations
 -------------

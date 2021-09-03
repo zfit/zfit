@@ -68,5 +68,5 @@ def test_partial_integral():
     integral_x_true = integral_x(y=y, lowerx=lowerx[0], upperx=upperx[0]) * ratio
     integral_y_true = integral_y(x=x, lowery=lowery[0], uppery=uppery[0]) * ratio
 
-    np.testing.assert_allclose(integral_x_true, integral_x_np, atol=3.5e-3)
-    np.testing.assert_allclose(integral_y_true, integral_y_np, atol=3.5e-3)
+    np.testing.assert_allclose(integral_x_true, integral_x_np, atol=1e-2)
+    np.testing.assert_allclose(integral_y_true, integral_y_np, atol=1e-2)

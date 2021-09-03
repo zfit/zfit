@@ -9,6 +9,7 @@ import abc
 import builtins
 import contextlib
 import inspect
+import math
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
@@ -80,14 +81,17 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     # TODO instructions on how to use
     """
-    _DEFAULTS_integration = DotMap()
-    _DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
-                                                                                         **kwargs)
+    DEFAULTS_integration = DotMap()
+    DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
+                                                                                        **kwargs)
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)
-    _DEFAULTS_integration.draws_per_dim = 40000
-    _DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
+    DEFAULTS_integration.draws_per_dim = 'auto'
+    DEFAULTS_integration.draws_simpson = 'auto'
+    DEFAULTS_integration.max_draws = 1_200_000
+    DEFAULTS_integration.tol = 3e-6
+    DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
 
     _analytic_integral = None
     _inverse_analytic_integral = None
@@ -108,9 +112,15 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self._check_set_space(obs)
 
         self._integration = DotMap()
-        self._integration.auto_numeric_integrator = self._DEFAULTS_integration.auto_numeric_integrator
-        self.integration = Integration(mc_sampler=self._DEFAULTS_integration.mc_sampler,
-                                       draws_per_dim=self._DEFAULTS_integration.draws_per_dim)
+        self._integration.auto_numeric_integrator = self.DEFAULTS_integration.auto_numeric_integrator
+        self.integration = Integration(mc_sampler=self.DEFAULTS_integration.mc_sampler,
+                                       draws_per_dim=self.DEFAULTS_integration.draws_per_dim,
+                                       max_draws=self.DEFAULTS_integration.max_draws,
+                                       tol=self.DEFAULTS_integration.tol,
+                                       draws_simpson=None
+                                       )
+        self.update_integration_options(draws_per_dim=self.DEFAULTS_integration.draws_per_dim,
+                                        draws_simpson=self.DEFAULTS_integration.draws_simpson)
 
         self._sample_and_weights = UniformSampleAndWeights
 
@@ -218,23 +228,43 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 x = znp.expand_dims(x, -1)
         return x
 
-    def update_integration_options(self, draws_per_dim=None, mc_sampler=None):
+    def update_integration_options(self, draws_per_dim=None, mc_sampler=None, tol=None, max_draws=None,
+                                   draws_simpson=None):
         """Set the integration options.
 
         Args:
-            draws_per_dim: The draws for MC integration to do
-            mc_sampler:
+            max_draws (default ~1'000'000): Maximum number of draws when integrating . Typically 500'000 - 5'000'000.
+            tol: Tolerance on the error of the integral. typically 1e-4 to 1e-8
+            draws_per_dim: The draws for MC integration to do per iteration. Can be set to `'auto`'.
+            draws_simpson: Number of points in one dimensional Simpson integration. Can be set to `'auto'`.
         """
-        # mc_options = {} if mc_options is None else mc_options
-        # numeric_options = {} if numeric_options is None else numeric_options
-        # general_options = {} if general_options is None else general_options
-        # analytic_options = {} if analytic_options is None else analytic_options
-        # if analytic_options:
-        #     raise NotImplementedError("analytic_options cannot be updated currently.")
+
         if draws_per_dim is not None:
             self.integration.draws_per_dim = draws_per_dim
         if mc_sampler is not None:
             self.integration.mc_sampler = mc_sampler
+        if max_draws is not None:
+            self.integration.max_draws = max_draws
+        if tol is not None:
+            if tol > 1 or tol < 0:
+                raise ValueError("tol has to be between 0 and 1 (larger does not make sense)")
+            self.integration.tol = tol
+
+        if draws_per_dim == 'auto':
+            logtolonly = max(int(abs(math.log10(self.integration.tol))), 0)
+            logexp = max(int(abs(math.log(self.integration.tol))), 2)
+            logtol = int((logexp) ** 0.6)
+            high_draws = 2 ** logtol * 10 ** logtol
+            draws = min({0: 10, 1: 15, 2: 150, 3: 300, 4: 600}.get(logtolonly, 1e30), high_draws)
+            draws = int(min(draws, self.integration.max_draws))
+        if draws_per_dim is not None:
+            self.integration.draws_per_dim = draws  # make it odd
+
+        if draws_simpson == 'auto':
+            logtol = abs(math.log10(self.integration.tol * 0.005))
+            npoints = 10 + 25 * (logtol + 1) + 2.2 ** logtol
+            npoints = int(npoints)
+            self.integration.draws_simpson = npoints
 
     # TODO: remove below? or add "analytic gradients"?
     def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
@@ -775,7 +805,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                                    dtype=self.dtype,
                                    mc_sampler=self.integration.mc_sampler,
                                    mc_options={
-                                       "draws_per_dim": self.integration.draws_per_dim},
+                                       "draws_per_dim": self.integration.draws_per_dim,
+                                       "max_draws": self.integration.max_draws,
+                                   },
+                                   tol=self.integration.tol,
+                                   simpsons_options={'draws_simpson': self.integration.draws_simpson},
                                    **overwrite_options)
         return self._integration.auto_numeric_integrator(**integration_options)
 

@@ -9,7 +9,6 @@ import contextlib
 import numpy as np
 import tensorflow as tf
 
-import zfit.z.math
 import zfit.z.numpy as znp
 from zfit import z
 
@@ -58,7 +57,7 @@ class Exponential(BasePDF):
     def _unnormalized_pdf(self, x):
         lambda_ = self.params['lambda']
         x = x.unstack_x()
-        probs = z.exp(lambda_ * (self._shift_x(x)))
+        probs = znp.exp(lambda_ * (self._shift_x(x)))
         tf.debugging.assert_all_finite(probs, f"Exponential PDF {self} has non valid values. This is likely caused"
                                               f" by numerical problems: if the exponential is too steep, this will"
                                               f" yield NaNs or infs. Make sure that your lambda is small enough and/or"
@@ -175,7 +174,7 @@ def exp_icdf(x, params, model):
     lambd = params['lambda']
     x = z.unstack_x(x)
     x = model._shift_x(x)
-    return zfit.z.math.log(lambd * x) / lambd
+    return znp.log(lambd * x) / lambd
 
 
 # Exponential.register_inverse_analytic_integral(exp_icdf)  # TODO: register icdf for exponential
