@@ -7,7 +7,7 @@ Their implementation is often non-trivial.
 #  Copyright (c) 2021 zfit
 import functools
 import operator
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from typing import List, Optional
 
 import tensorflow as tf
@@ -280,6 +280,29 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
     def __init__(self, pdfs: List[ZfitPDF], obs: ztyping.ObsTypeInput = None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 
+        same_obs_pdfs = []
+        disjoint_obs_pdfs = []
+        same_obs = Counter([ob for pdf in self.pdfs for ob in pdf.obs])
+        same_obs = {k for k, v in same_obs.items() if v > 1}
+        for pdf in self.pdfs:
+            if set(pdf.obs).isdisjoint(same_obs):
+                disjoint_obs_pdfs.append(pdf)
+            else:
+                same_obs_pdfs.append(pdf)
+        if same_obs_pdfs and disjoint_obs_pdfs:
+            same_obs_pdf = type(self)(pdfs=same_obs_pdfs)
+            disjoint_obs_pdfs.append(same_obs_pdf)
+            self.add_cache_deps(same_obs_pdfs)
+            self._prod_is_same_obs_pdf = False
+            self._prod_disjoint_obs_pdfs = disjoint_obs_pdfs
+        elif disjoint_obs_pdfs:
+            self._prod_is_same_obs_pdf = False
+            self._prod_disjoint_obs_pdfs = disjoint_obs_pdfs
+            assert set(disjoint_obs_pdfs) == set(self.pdfs)
+        else:
+            self._prod_is_same_obs_pdf = True
+            self._prod_disjoint_obs_pdfs = None
+
     def _unnormalized_pdf(self, x: ztyping.XType):
         probs = [pdf.pdf(x, norm_range=False) for pdf in self.pdfs]
         prob = functools.reduce(operator.mul, probs)
@@ -287,10 +310,59 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
 
     def _pdf(self, x, norm_range):
         equal_norm_ranges = len(set([pdf.norm_range for pdf in self.pdfs] + [norm_range])) == 1  # all equal
-        if not any(self._model_same_obs) and equal_norm_ranges:
+        if not self._prod_is_same_obs_pdf and equal_norm_ranges:
 
-            probs = [pdf.pdf(x=x) for pdf in self.pdfs]
+            probs = [pdf.pdf(x=x, norm_range=norm_range) for pdf in self._prod_disjoint_obs_pdfs]
             prob = functools.reduce(operator.mul, probs)
             return z.convert_to_tensor(prob)
         else:
             raise SpecificFunctionNotImplemented
+
+    @supports(norm_range=False)
+    def _integrate(self, limits, norm_range):
+        if not self._prod_is_same_obs_pdf:
+            integrals = []
+            for pdf in self._prod_disjoint_obs_pdfs:
+                limit = limits.with_obs(pdf.obs)
+                integrals.append(pdf.integrate(limits=limit, norm_range=norm_range))
+            integral = functools.reduce(operator.mul, integrals)
+            return z.convert_to_tensor(integral)
+        else:
+            raise SpecificFunctionNotImplemented
+
+    @supports(norm_range=False)
+    def _analytic_integrate(self, limits, norm_range):
+        if self._prod_is_same_obs_pdf:
+            raise AnalyticIntegralNotImplemented(f"Cannot integrate analytically as PDFs have overlapping obs:"
+                                                 f" {[pdf.obs for pdf in self.pdfs]}")
+        integrals = []
+        for pdf in self._prod_disjoint_obs_pdfs:
+            limit = limits.with_obs(pdf.obs)
+            try:
+                integral = pdf.analytic_integrate(limits=limit, norm_range=norm_range)
+            except AnalyticIntegralNotImplemented:
+                raise AnalyticIntegralNotImplemented(f"At least one pdf ({pdf} does not support analytic integration.")
+            else:
+                integrals.append(integral)
+        integral = functools.reduce(operator.mul, integrals)
+        return z.convert_to_tensor(integral)
+
+    @supports(multiple_limits=True, norm_range=True)
+    def _partial_integrate(self, x, limits, norm_range):
+        if self._prod_is_same_obs_pdf:
+            raise SpecificFunctionNotImplemented
+        pdfs = self._prod_disjoint_obs_pdfs
+
+        values = []
+        for pdf in pdfs:
+            intersection_limits = set(pdf.obs).intersection(limits.obs)
+            intersection_data = set(pdf.obs).intersection(x.obs)
+            if intersection_limits and not intersection_data:
+                values.append(pdf.integrate(limits=limits, norm_range=norm_range))
+            elif intersection_limits:  # implicitly "and intersection_data"
+                values.append(pdf.partial_integrate(x=x, limits=limits, norm_range=norm_range))
+            else:
+                assert not intersection_limits and intersection_data, "Something slipped, the logic is flawed."
+                values.append(pdf.pdf(x, norm_range=norm_range))
+        values = functools.reduce(operator.mul, values)
+        return z.convert_to_tensor(values)

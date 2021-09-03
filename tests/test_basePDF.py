@@ -333,6 +333,7 @@ def test_projection_pdf(test_values):
     import numpy as np
 
     import zfit
+    import zfit.z.numpy as znp
 
     x = zfit.Space("x", limits=(-1, 1))
     y = zfit.Space("y", limits=(-1, 1))
@@ -363,10 +364,10 @@ def test_projection_pdf(test_values):
     gauss_xy = SimplePDF(func=correlated_func, obs=obs)
     assert gauss_xy.create_projection_pdf(limits_to_integrate=y).norm_range == x
     proj_pdf = gauss_xy.create_projection_pdf(limits_to_integrate=y)
-    test_values = np.array([-0.95603563, -0.84636306, -0.83895759, 2.62608006, 1.02336499,
-                            -0.99631608, -1.22185623, 0.83838586, 2.77894762, -2.48259488,
-                            1.5440374, 0.1109899, 0.20873491, -2.45271623, 2.04510553,
-                            0.31566277, -1.55696965, 0.36304538, 0.77765786, 3.92630088])
+    test_values = znp.array([-0.95603563, -0.84636306, -0.83895759, 2.62608006, 1.02336499,
+                             -0.99631608, -1.22185623, 0.83838586, 2.77894762, -2.48259488,
+                             1.5440374, 0.1109899, 0.20873491, -2.45271623, 2.04510553,
+                             0.31566277, -1.55696965, 0.36304538, 0.77765786, 3.92630088])
     true_probs = correlated_func_integrate_y(test_values, y) / gauss_xy.integrate(limits=obs, norm_range=False)
     probs = proj_pdf.pdf(x=test_values)
     probs = probs.numpy()
