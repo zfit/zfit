@@ -1,23 +1,20 @@
 #  Copyright (c) 2021 zfit
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+import zfit.z.numpy as znp
 from tensorflow_probability.python import distributions as tfd
 
-import zfit.z.numpy as znp
-
+from .dist_tfp import WrapDistribution
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 from ..settings import ztypes
-from ..util import binning as binning_util
-from ..util import convolution as convolution_util
-from ..util import improved_sheather_jones as isj_util
-from ..util import ztyping
+from ..util import binning as binning_util, convolution as convolution_util, improved_sheather_jones as isj_util, \
+    ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
-from .dist_tfp import WrapDistribution
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):
@@ -43,9 +40,11 @@ def bandwidth_adaptiveV1(data, func):
     return bandwidth
 
 
-def _adaptive_bandwidth_KDEV1(constructor, obs, data, weights, name, truncate):
-    kde_silverman = constructor(obs=obs, data=data, bandwidth='silverman', weights=weights,
-                                name=f"INTERNAL_{name}", truncate=truncate)
+def _adaptive_bandwidth_KDEV1(constructor, data, **kwargs):
+    kwargs = kwargs.copy()
+    kwargs.pop('name', None)
+    kde_silverman = constructor(bandwidth='silverman', data=data,
+                                name=f"INTERNAL_for_adaptive_kde", **kwargs)
     return bandwidth_adaptiveV1(data=data, func=kde_silverman.pdf)
 
 
@@ -100,7 +99,7 @@ class KDEHelperMixin:
         size = tf.cast(shape_data[0], ztypes.float)
         return data, size, weights
 
-    def _convert_input_bandwidth(self, bandwidth, data, name, obs, truncate, weights):
+    def _convert_input_bandwidth(self, bandwidth, data, **kwargs):
         if bandwidth is None:
             bandwidth = 'silverman'
         # estimate bandwidth
@@ -110,8 +109,7 @@ class KDEHelperMixin:
             if bw_method is None:
                 raise ValueError(f"Cannot use {bandwidth} as a bandwidth method. Use a numerical value or one of"
                                  f" the defined methods: {list(self._bandwidth_methods.keys())}")
-            bandwidth = bw_method(constructor=type(self), obs=obs, data=data, weights=weights,
-                                  name=f"INTERNAL_{name}", truncate=truncate)
+            bandwidth = bw_method(constructor=type(self), data=data, **kwargs)
         bandwidth_param = -999 if bandwidth_param in (
             'adaptiveV1', 'adaptive') else bandwidth  # TODO: multiparam for bandwidth?
         return bandwidth, bandwidth_param
@@ -187,8 +185,8 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
         original_data = data
         data, size, weights = self._convert_init_data_weights_size(data, weights)
 
-        bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth, data, name, obs, truncate, weights)
-
+        bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data, truncate=truncate,
+                                                                   name=name, obs=obs, weights=weights)
         params = {'bandwidth': bandwidth_param}
 
         probs = calc_kernel_probs(size, weights)
@@ -240,8 +238,8 @@ class KDE1DimV1(KDEHelperMixin, WrapDistribution):
                  bandwidth: ztyping.ParamTypeInput = None,
                  kernel=tfd.Normal,
                  use_grid=False,
-                 num_grid_points=1024,
-                 binning_method='linear',
+                 num_grid_points=None,
+                 binning_method=None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None,
                  name: str = "KDE1DimV1"):
         r"""
@@ -258,22 +256,31 @@ class KDE1DimV1(KDEHelperMixin, WrapDistribution):
             weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
             name: Name of the PDF
         """
+        if binning_method is None:
+            if use_grid:
+                binning_method = 'linear'
+        elif not use_grid:
+            raise ValueError(f"use_grid is False but binning_method specified as {binning_method}.")
 
+        if num_grid_points is None:
+            if use_grid:
+                num_grid_points = 1024
+        elif not use_grid:
+            raise ValueError(f"use_grid is False but num_grid_points specified as {num_grid_points}.")
         data, size, weights = self._convert_init_data_weights_size(data, weights)
 
-        bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth, data, name, obs, None, weights)
+        bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
+                                                                   name=name, obs=obs, weights=weights)
 
         original_data = data
         self._original_data = original_data  # for copying
 
-        # data, size, weights = get_data_weights_size(data, weights)
-
         def components_distribution_generator(
                 loc, scale):
             return tfd.Independent(kernel(loc=loc, scale=scale))
-
-        self._num_grid_points = tf.minimum(tf.cast(size, ztypes.int),
-                                           tf.constant(num_grid_points, ztypes.int))
+        if num_grid_points is not None:
+            num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
+        self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._data = data
         self._bandwidth = bandwidth
@@ -321,8 +328,8 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
                  bandwidth: ztyping.ParamTypeInput = None,
                  kernel=tfd.Normal,
                  support=None,
-                 num_grid_points=1024,
-                 binning_method='linear',
+                 num_grid_points: Optional[int] = None,
+                 binning_method=None,
                  fft_method='conv1d',
                  weights: Union[None, np.ndarray, tf.Tensor] = None,
                  name: str = "KDE1DimFFTV1"):
@@ -345,11 +352,15 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
         """
         if isinstance(bandwidth, ZfitParameter):
             raise TypeError(f"bandwidth cannot be a Parameter for the FFT KDE.")
+        if num_grid_points is None:
+            num_grid_points = 1024
+        if binning_method is None:
+            binning_method = 'linear'
         data, size, weights = self._convert_init_data_weights_size(data, weights)
-        bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth, data, name, obs, None, weights)
-
-        self._num_grid_points = tf.minimum(tf.cast(size, ztypes.int),
-                                           tf.constant(num_grid_points, ztypes.int))
+        bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
+                                                                   name=name, obs=obs, weights=weights)
+        num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
+        self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._fft_method = fft_method
         self._data = data
@@ -390,8 +401,8 @@ class KDE1DimISJV1(KDEHelperMixin, BasePDF):
     def __init__(self,
                  obs: ztyping.ObsTypeInput,
                  data: ztyping.ParamTypeInput,
-                 num_grid_points=1024,
-                 binning_method='linear',
+                 num_grid_points: Optional[int] = None,
+                 binning_method=None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None,
                  name: str = "KDE1DimISJV1"):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
@@ -410,11 +421,14 @@ class KDE1DimISJV1(KDEHelperMixin, BasePDF):
             weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
             name: Name of the PDF
         """
+        if num_grid_points is None:
+            num_grid_points = 1024
+        if binning_method is None:
+            binning_method = 'linear'
 
         data, size, weights = self._convert_init_data_weights_size(data, weights)
-
-        self._num_grid_points = tf.minimum(tf.cast(size, ztypes.int),
-                                           tf.constant(num_grid_points, ztypes.int))
+        num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
+        self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._data = tf.convert_to_tensor(data, ztypes.float)
         self._weights = weights

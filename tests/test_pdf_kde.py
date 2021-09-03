@@ -63,10 +63,10 @@ def create_kde(kdetype, npoints=5000):
     elif kdetype == 7:
         kde = zfit.pdf.KDE1DimISJV1(data=data, obs=obs, num_grid_points=1000)
     elif kdetype == 8:
-        kde = zfit.pdf.KDE1DimV1(data=data, obs=obs, bandwidth="adaptive", use_grid=True)
+        kde = zfit.pdf.KDE1DimV1(data=data, obs=obs, bandwidth="adaptive", use_grid=False)
     else:
         raise ValueError(f'KDE type {kdetype} invalid.')
-    return kde, pdf
+    return kde, pdf, data.value()[:, 0]
 
 
 # @pytest.mark.flaky(3)
@@ -74,15 +74,15 @@ def create_kde(kdetype, npoints=5000):
     False,
     True
 ])
-@pytest.mark.parametrize('kdetype', [(i, 5000) for i in range(8)] + [(i, 5_000_000) for i in range(6, 8)])
+@pytest.mark.parametrize('kdetype', [(i, 5000) for i in range(9)] + [(i, 5_000_000) for i in range(6, 8)])
 def test_simple_kde(kdetype, jit):
     import zfit
     if jit:
         run_jit = z.function(run)
-        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name = run_jit(kdetype)
+        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = run_jit(kdetype)
     else:
 
-        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name = run(kdetype)
+        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = run(kdetype)
 
     expected_integral = zfit.run(expected_integral)
 
@@ -102,14 +102,15 @@ def test_simple_kde(kdetype, jit):
         plt.title(f"KDE {name} with {kdetype[1]} points")
         plt.plot(x, prob, label=f'KDE')
         plt.plot(x, prob_true, label='true PDF')
-        plt.hist(x, bins=40, density=True)
+        data_np = zfit.run(data)
+        plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
         plt.legend()
         plt.show()
 
 
 def run(kdetype):
     from zfit.z import numpy as znp
-    kde, pdf = create_kde(*kdetype)
+    kde, pdf, data = create_kde(*kdetype)
     integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
     expected_integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
     rel_tol = 0.04
@@ -118,4 +119,4 @@ def run(kdetype):
     x = znp.linspace(*kde.space.limit1d, 30000)
     prob = kde.pdf(x)
     prob_true = pdf.pdf(x)
-    return expected_integral, integral, kde.name, prob, prob_true, rel_tol, sample, sample2, x, kde.name
+    return expected_integral, integral, kde.name, prob, prob_true, rel_tol, sample, sample2, x, kde.name, data
