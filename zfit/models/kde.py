@@ -1,20 +1,23 @@
 #  Copyright (c) 2021 zfit
-from typing import Union, Optional
+from typing import Optional, Union
 
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-import zfit.z.numpy as znp
 from tensorflow_probability.python import distributions as tfd
 
-from .dist_tfp import WrapDistribution
+import zfit.z.numpy as znp
+
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 from ..settings import ztypes
-from ..util import binning as binning_util, convolution as convolution_util, improved_sheather_jones as isj_util, \
-    ztyping
+from ..util import binning as binning_util
+from ..util import convolution as convolution_util
+from ..util import improved_sheather_jones as isj_util
+from ..util import ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
+from .dist_tfp import WrapDistribution
 
 
 def bandwidth_rule_of_thumb(data, factor=0.9):
