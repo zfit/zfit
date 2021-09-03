@@ -62,6 +62,8 @@ def create_kde(kdetype, npoints=5000):
         kde = zfit.pdf.KDE1DimFFTV1(data=data, obs=obs, bandwidth=0.8, num_grid_points=1000)
     elif kdetype == 7:
         kde = zfit.pdf.KDE1DimISJV1(data=data, obs=obs, num_grid_points=1000)
+    elif kdetype == 8:
+        kde = zfit.pdf.KDE1DimV1(data=data, obs=obs, bandwidth="adaptive", use_grid=True)
     else:
         raise ValueError(f'KDE type {kdetype} invalid.')
     return kde, pdf
@@ -77,10 +79,10 @@ def test_simple_kde(kdetype, jit):
     import zfit
     if jit:
         run_jit = z.function(run)
-        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x = run_jit(kdetype)
+        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name = run_jit(kdetype)
     else:
 
-        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x = run(kdetype)
+        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name = run(kdetype)
 
     expected_integral = zfit.run(expected_integral)
 
@@ -94,11 +96,15 @@ def test_simple_kde(kdetype, jit):
     rtol = 0.05
     np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.01)
 
-    import matplotlib.pyplot as plt
-    plt.plot(x, prob, label=f'kde: {name} {kdetype}')
-    plt.plot(x, prob_true, label='pdf')
-    plt.legend()
-    plt.show()
+    if not jit:
+        import matplotlib.pyplot as plt
+        plt.figure()
+        plt.title(f"KDE {name} with {kdetype[1]} points")
+        plt.plot(x, prob, label=f'KDE')
+        plt.plot(x, prob_true, label='true PDF')
+        plt.hist(x, bins=40, density=True)
+        plt.legend()
+        plt.show()
 
 
 def run(kdetype):
@@ -112,4 +118,4 @@ def run(kdetype):
     x = znp.linspace(*kde.space.limit1d, 30000)
     prob = kde.pdf(x)
     prob_true = pdf.pdf(x)
-    return expected_integral, integral, kde.name, prob, prob_true, rel_tol, sample, sample2, x
+    return expected_integral, integral, kde.name, prob, prob_true, rel_tol, sample, sample2, x, kde.name

@@ -52,8 +52,9 @@ def convolve_1d_data_with_kernel(kernel, bandwidth, data, grid, support = None, 
         L = tf.minimum(tf.math.floor(support_bandwidth / dx),  L)
 
         # Calculate the kernel weights
-        kernel_grid = tf.linspace(tf.constant(0, ztypes.float), dx * L, tf.cast(L, ztypes.int) + tf.constant(1, ztypes.int))
-        kernel_weights = kernel(loc=0, scale=bandwidth).prob(kernel_grid)
+        zero = tf.constant(0, ztypes.float)
+        kernel_grid = tf.linspace(zero, dx * L, tf.cast(L, ztypes.int) + tf.constant(1, ztypes.int))
+        kernel_weights = kernel(loc=zero, scale=bandwidth).prob(kernel_grid)
         kernel_weights = tf.concat(values=[tf.reverse(kernel_weights, axis = [0])[:-1], kernel_weights], axis=0)
 
         c = data
