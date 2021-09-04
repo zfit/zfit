@@ -7,8 +7,8 @@ from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (Cauchy, Gauss, Poisson, TruncatedGauss, Uniform,
                               WrapDistribution)
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
-from .models.kde import (GaussianKDE1DimV1, KDE1DimFFTV1, KDE1DimISJV1,
-                         ExactKDE1Dim, GridKDE1Dim)
+from .models.kde import (ExactKDE1Dim, GaussianKDE1DimV1, GridKDE1Dim,
+                         KDE1DimFFTV1, KDE1DimISJV1)
 from .models.physics import CrystalBall, DoubleCB
 from .models.polynomials import (Chebyshev, Chebyshev2, Hermite, Laguerre,
                                  Legendre, RecursivePolynomial)
