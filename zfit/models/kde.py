@@ -44,7 +44,6 @@ def bandwidth_adaptiveV1(data, func):
 
 
 def _adaptive_bandwidth_KDEV1(constructor, data, **kwargs):
-    kwargs = kwargs.copy()
     kwargs.pop('name', None)
     kde_silverman = constructor(bandwidth='silverman', data=data,
                                 name=f"INTERNAL_for_adaptive_kde", **kwargs)
@@ -80,9 +79,6 @@ class KDEHelperMixin:
     _bandwidth_methods = {
         'scott': _bandwidth_scott_KDEV1,
         'silverman': _bandwidth_silverman_KDEV1,
-        'adaptiveV1': _adaptive_bandwidth_KDEV1,
-        'adaptive': _adaptive_bandwidth_KDEV1,
-        'isj': _bandwidth_isj_KDEV1
     }
 
     def _convert_init_data_weights_size(self, data, weights):
@@ -273,6 +269,8 @@ class KDE1DimV1(KDEHelperMixin, WrapDistribution):
         data, size, weights = self._convert_init_data_weights_size(data, weights)
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
+                                                                   binning_method=binning_method,
+                                                                   use_grid=use_grid, num_grid_points=num_grid_points,
                                                                    name=name, obs=obs, weights=weights)
 
         original_data = data
@@ -281,6 +279,7 @@ class KDE1DimV1(KDEHelperMixin, WrapDistribution):
         def components_distribution_generator(
                 loc, scale):
             return tfd.Independent(kernel(loc=loc, scale=scale))
+
         if num_grid_points is not None:
             num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
         self._num_grid_points = num_grid_points
@@ -322,6 +321,38 @@ class KDE1DimV1(KDEHelperMixin, WrapDistribution):
                          name=name)
 
 
+class ExactKDE1Dim(KDE1DimV1):
+    _bandwidth_methods = KDE1DimV1._bandwidth_methods.copy()
+    _bandwidth_methods.update({
+        'adaptive': _adaptive_bandwidth_KDEV1,
+        'isj': _bandwidth_isj_KDEV1
+    })
+
+    def __init__(self,
+                 obs: ztyping.ObsTypeInput,
+                 data: ztyping.ParamTypeInput,
+                 bandwidth: ztyping.ParamTypeInput = None,
+                 kernel=tfd.Normal,
+                 weights: Union[None, np.ndarray, tf.Tensor] = None,
+                 name: str = "ExactKDE1DimV1"):
+        super().__init__(obs, data=data, bandwidth=bandwidth, kernel=kernel, weights=weights, name=name, use_grid=False)
+
+
+class GridKDE1Dim(KDE1DimV1):
+    def __init__(self,
+                 obs: ztyping.ObsTypeInput,
+                 data: ztyping.ParamTypeInput,
+                 bandwidth: ztyping.ParamTypeInput = None,
+                 kernel=tfd.Normal,
+                 num_grid_points: Optional[int] = None,
+                 binning_method=None,
+                 weights: Union[None, np.ndarray, tf.Tensor] = None,
+                 name: str = "KDE1DimFFTV1"):
+        super().__init__(obs, data=data, bandwidth=bandwidth,
+                         kernel=kernel, weights=weights, name=name, use_grid=True,
+                         num_grid_points=num_grid_points, binning_method=binning_method)
+
+
 class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
     _N_OBS = 1
 
@@ -336,8 +367,8 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
                  fft_method='conv1d',
                  weights: Union[None, np.ndarray, tf.Tensor] = None,
                  name: str = "KDE1DimFFTV1"):
-        r"""
-        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+
         .. math::
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 

@@ -20,6 +20,54 @@ def test_copy_kde():
     kde_adaptive.copy()
 
 
+# def create_kde(kdetype, npoints=5000):
+#     import tensorflow as tf
+#
+#     import zfit
+#
+#     limits = (-13, 11)
+#     obs = zfit.Space("obs1", limits=limits)
+#     cb = zfit.pdf.CrystalBall(mu=2, sigma=3, alpha=1, n=25, obs=obs)
+#     gauss = zfit.pdf.Gauss(mu=-5, sigma=2.5, obs=obs)
+#     pdf = zfit.pdf.SumPDF([cb, gauss], fracs=0.8)
+#     data = pdf.sample(n=npoints)
+#     if kdetype == 0:
+#         with tf.init_scope():
+#             h = zfit.Parameter("h", 0.9)
+#         kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth=h, obs=obs,
+#                                          truncate=False)
+#     elif kdetype == 1:
+#         kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='adaptive',
+#                                          obs=obs,
+#                                          truncate=False)
+#     elif kdetype == 2:
+#         kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='silverman',
+#                                          obs=obs,
+#                                          truncate=False)
+#     elif kdetype == 3:
+#         data_truncated = obs.filter(data)[:, 0]  # TODO: fails if shape (n, 1)
+#         kde = zfit.pdf.GaussianKDE1DimV1(data=data_truncated, bandwidth='adaptive',
+#                                          obs=obs,
+#                                          truncate=True)
+#     elif kdetype == 4:
+#         kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='isj',
+#                                          obs=obs,
+#                                          truncate=False)
+#     elif kdetype == 5:
+#         with tf.init_scope():
+#             h = zfit.Parameter("h", 0.9)
+#
+#         kde = zfit.pdf.KDE1DimV1(data=data, obs=obs, bandwidth=h, use_grid=True)
+#     elif kdetype == 6:
+#         kde = zfit.pdf.KDE1DimFFTV1(data=data, obs=obs, bandwidth=0.8, num_grid_points=1000)
+#     elif kdetype == 7:
+#         kde = zfit.pdf.KDE1DimISJV1(data=data, obs=obs, num_grid_points=1000)
+#     elif kdetype == 8:
+#         kde = zfit.pdf.KDE1DimV1(data=data, obs=obs, bandwidth="adaptive", use_grid=True)
+#     else:
+#         raise ValueError(f'KDE type {kdetype} invalid.')
+#     return kde, pdf, data.value()[:, 0]
+
 def create_kde(kdetype, npoints=5000):
     import tensorflow as tf
 
@@ -50,20 +98,22 @@ def create_kde(kdetype, npoints=5000):
                                          obs=obs,
                                          truncate=True)
     elif kdetype == 4:
-        kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='isj',
+        kde = zfit.pdf.GaussianKDE1DimV1(data=data, bandwidth='silverman',
                                          obs=obs,
                                          truncate=False)
     elif kdetype == 5:
         with tf.init_scope():
             h = zfit.Parameter("h", 0.9)
 
-        kde = zfit.pdf.KDE1DimV1(data=data, obs=obs, bandwidth=h, use_grid=True)
+        kde = zfit.pdf.ExactKDE1DimV1(data=data, obs=obs, bandwidth=h)
     elif kdetype == 6:
-        kde = zfit.pdf.KDE1DimFFTV1(data=data, obs=obs, bandwidth=0.8, num_grid_points=1000)
+        kde = zfit.pdf.KDE1DimFFTV1(data=data, obs=obs, bandwidth=0.8, num_grid_points=1024)
     elif kdetype == 7:
-        kde = zfit.pdf.KDE1DimISJV1(data=data, obs=obs, num_grid_points=1000)
+        kde = zfit.pdf.KDE1DimISJV1(data=data, obs=obs, num_grid_points=1024)
     elif kdetype == 8:
-        kde = zfit.pdf.KDE1DimV1(data=data, obs=obs, bandwidth="adaptive", use_grid=False)
+        kde = zfit.pdf.ExactKDE1Dim(data=data, obs=obs, bandwidth="isj")
+    elif kdetype == 9:
+        kde = zfit.pdf.ExactKDE1Dim(data=data, obs=obs, bandwidth="adaptive", use_grid=True)
     else:
         raise ValueError(f'KDE type {kdetype} invalid.')
     return kde, pdf, data.value()[:, 0]
@@ -74,7 +124,7 @@ def create_kde(kdetype, npoints=5000):
     False,
     True
 ])
-@pytest.mark.parametrize('kdetype', [(i, 5000) for i in range(9)] + [(i, 5_000_000) for i in range(6, 8)])
+@pytest.mark.parametrize('kdetype', [(i, 5000) for i in range(10)] + [(i, 5_000_000) for i in range(6, 10)])
 def test_simple_kde(kdetype, jit):
     import zfit
     if jit:
