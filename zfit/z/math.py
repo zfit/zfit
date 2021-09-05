@@ -288,8 +288,11 @@ def automatic_value_gradients_hessian(*args, **kwargs):
     return automatic_value_gradient_hessian(*args, **kwargs)
 
 @tf.function(autograph=False)
-def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):
-    log_mean = znp.mean(znp.log(input_tensor), axis=axis, keepdims=keepdims)
+def reduce_geometric_mean(input_tensor, axis=None, weights=None, keepdims=False):
+    if weights is not None:
+        log_mean = tf.nn.weighted_moments(log(input_tensor), axes=axis, frequency_weights=weights)[0]
+    else:
+        log_mean = znp.mean(znp.log(input_tensor), axis=axis, keepdims=keepdims)
     return znp.exp(log_mean)
 
 

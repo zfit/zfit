@@ -20,51 +20,149 @@ from ..util.exception import OverdefinedError, ShapeIncompatibleError
 from .dist_tfp import WrapDistribution
 
 
-def bandwidth_rule_of_thumb(data, factor=0.9):
-    return min_std_or_iqr(data) * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.) * factor
+def bandwidth_rule_of_thumb(data, weights, factor=None):
+    if factor is None:
+        factor = tf.constant(0.9)
+    return min_std_or_iqr(data, weights) * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.) * factor
 
 
-def bandwidth_silverman(data):
-    return bandwidth_rule_of_thumb(data=data, factor=0.9)
+def bandwidth_silverman(data, weights):
+    return bandwidth_rule_of_thumb(data=data, weights=weights, factor=0.9)
 
 
-def bandwidth_scott(data):
-    return bandwidth_rule_of_thumb(data=data, factor=1.059)
+def bandwidth_scott(data, weights):
+    return bandwidth_rule_of_thumb(data=data, weights=weights, factor=1.059)
 
 
-def bandwidth_isj(data):
-    return isj_util.calculate_bandwidth(data, num_grid_points=1024, binning_method='linear', weights=None)
+def bandwidth_isj(data, weights):
+    return isj_util.calculate_bandwidth(data, num_grid_points=1024, binning_method='linear', weights=weights)
 
 
-def bandwidth_adaptiveV1(data, func):
+def bandwidth_adaptive_geomV1(data, func, weights):
     data = z.convert_to_tensor(data)
-    bandwidth = z.sqrt(min_std_or_iqr(data) / func(data))
-    bandwidth *= tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.) * 1.059
+    if weights is not None:
+        n = znp.sum(weights)
+    else:
+        n = tf.cast(tf.shape(data)[0], ztypes.float)
+    probs = func(data)
+    lambda_i = 1 / znp.sqrt(probs / z.math.reduce_geometric_mean(probs, weights=weights))
+
+    return lambda_i * n ** (-1. / 5.) * min_std_or_iqr(data, weights)
+
+
+def bandwidth_adaptive_zfitV1(data, func, weights):
+    data = z.convert_to_tensor(data)
+    probs = func(data)
+    estimate = bandwidth_scott(data, weights=weights)
+    factor = znp.sqrt(probs) / znp.mean(znp.sqrt(probs))
+    return estimate / factor
+
+
+def bandwidth_adaptive_stdV1(data, func, weights):
+    data = z.convert_to_tensor(data)
+    if weights is not None:
+        n = znp.sum(weights)
+    else:
+        n = tf.cast(tf.shape(data)[0], ztypes.float)
+    probs = func(data)
+    divisor = min_std_or_iqr(data, weights)
+    bandwidth = z.sqrt(divisor / probs)
+    bandwidth *= tf.cast(n, ztypes.float) ** (-1. / 5.) * 1.059
     return bandwidth
 
 
-def _adaptive_bandwidth_KDEV1(constructor, data, **kwargs):
-    kwargs.pop('name', None)
-    kde_silverman = constructor(bandwidth='silverman', data=data,
-                                name=f"INTERNAL_for_adaptive_kde", **kwargs)
-    return bandwidth_adaptiveV1(data=data, func=kde_silverman.pdf)
+def adaptive_factory(func, grid):
+    if grid:
+        def adaptive(constructor, data, **kwargs):
+            kwargs.pop('name', None)
+            kde_silverman = constructor(bandwidth='silverman', data=data,
+                                        name=f"INTERNAL_for_adaptive_kde", **kwargs)
+            grid = kde_silverman._grid
+            weights = kde_silverman._grid_data
+            return func(data=grid, func=kde_silverman.pdf, weights=weights * tf.cast(tf.shape(data)[0], ztypes.float))
+    else:
+        def adaptive(constructor, data, weights, **kwargs):
+            kwargs.pop('name', None)
+            kde_silverman = constructor(bandwidth='silverman', data=data,
+                                        name=f"INTERNAL_for_adaptive_kde", **kwargs)
+            return func(data=data, func=kde_silverman.pdf, weights=weights)
+    return adaptive
 
 
-def _bandwidth_scott_KDEV1(data, *_, **__):
-    return bandwidth_scott(data)
+_adaptive_geom_bandwidth_grid_KDEV1 = adaptive_factory(bandwidth_adaptive_geomV1, grid=True)
+_adaptive_geom_bandwidth_KDEV1 = adaptive_factory(bandwidth_adaptive_geomV1, grid=False)
+
+_adaptive_std_bandwidth_grid_KDEV1 = adaptive_factory(bandwidth_adaptive_stdV1, grid=True)
+_adaptive_std_bandwidth_KDEV1 = adaptive_factory(bandwidth_adaptive_stdV1, grid=False)
+
+_adaptive_zfit_bandwidth_grid_KDEV1 = adaptive_factory(bandwidth_adaptive_zfitV1, grid=True)
+_adaptive_zfit_bandwidth_KDEV1 = adaptive_factory(bandwidth_adaptive_zfitV1, grid=False)
 
 
-def _bandwidth_silverman_KDEV1(data, *_, **__):
-    return bandwidth_silverman(data)
+def _bandwidth_scott_KDEV1(data, weights, *_, **__):
+    return bandwidth_scott(data, weights=weights, )
 
 
-def _bandwidth_isj_KDEV1(data, *_, **__):
-    return bandwidth_isj(data)
+def _bandwidth_silverman_KDEV1(data, weights, *_, **__):
+    return bandwidth_silverman(data, weights=weights, )
+
+
+def _bandwidth_isj_KDEV1(data, weights, *_, **__):
+    return bandwidth_isj(data, weights=weights)
+
+
+def weighted_quantile(x, quantiles, weights=None, side='middle'):
+    """ Very close to numpy.percentile, but supports weights.
+    NOTE: quantiles should be in [0, 1]!
+    :param x: numpy.array with data
+    :param quantiles: array-like with many quantiles needed
+    :param weights: array-like of the same length as `array`
+    :param values_sorted: bool, if True, then will avoid sorting of
+        initial array
+    :param old_style: if True, will correct output to be consistent
+        with numpy.percentile.
+    :return: numpy.array with computed quantiles.
+    """
+    if weights is None:
+        return tfp.stats.percentile(x, 100 * quantiles)
+    x = znp.array(x)
+    quantiles = znp.array(quantiles)
+    quantiles = znp.reshape(quantiles, (-1,))
+    weights = znp.array(weights)
+    # assert np.all(quantiles >= 0) and np.all(quantiles <= 1), \
+    #     'quantiles should be in [0, 1]'
+
+    sorter = znp.argsort(x)
+    x = tf.gather(x, sorter)
+    weights = tf.gather(weights, sorter)
+
+    weighted_quantiles = znp.cumsum(weights) - 0.5 * weights
+
+    weighted_quantiles /= znp.sum(weights)
+    if side == 'middle':
+        quantile_index_left = tf.searchsorted(weighted_quantiles, quantiles, side='left')
+        quantile_index_right = tf.searchsorted(weighted_quantiles, quantiles, side='right')
+
+        calculated_left = tf.gather(x, quantile_index_left)
+        calculated_right = tf.gather(x, quantile_index_right)
+        calculated = (calculated_left + calculated_right) / 2
+    elif side in ('left', 'right'):
+
+        quantile_index = tf.searchsorted(weighted_quantiles, quantiles, side=side)
+
+        calculated = tf.gather(x, quantile_index)
+    return calculated
 
 
 @z.function(wraps='tensor')
-def min_std_or_iqr(x):
-    return znp.minimum(znp.std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25)))
+def min_std_or_iqr(x, weights):
+    # TODO: use weighted percentile
+    if weights is not None:
+        return znp.minimum(znp.sqrt(tf.nn.weighted_moments(x, axes=[0], frequency_weights=weights)[1]),
+                           weighted_quantile(x, 0.75, weights=weights)[0]
+                           - weighted_quantile(x, 0.25, weights=weights)[0])
+    else:
+        return znp.minimum(znp.std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25)))
 
 
 @z.function(wraps='tensor')
@@ -104,18 +202,27 @@ class KDEHelperMixin:
         # estimate bandwidth
         bandwidth_param = bandwidth
         if isinstance(bandwidth, str):
-            bw_method = self._bandwidth_methods.get(bandwidth)
-            if bw_method is None:
+            bandwidth = self._bandwidth_methods.get(bandwidth)
+            if bandwidth is None:
                 raise ValueError(f"Cannot use {bandwidth} as a bandwidth method. Use a numerical value or one of"
                                  f" the defined methods: {list(self._bandwidth_methods.keys())}")
-            bandwidth = bw_method(constructor=type(self), data=data, **kwargs)
-        bandwidth_param = -999 if bandwidth_param in (
-            'adaptiveV1', 'adaptive') else bandwidth  # TODO: multiparam for bandwidth?
+        if (not isinstance(bandwidth, ZfitParameter)) and callable(bandwidth):
+            bandwidth = bandwidth(constructor=type(self), data=data, **kwargs)
+        if bandwidth_param is None or bandwidth_param in (
+        'adaptiveV1', 'adaptive', 'adaptive_zfit', 'adaptive_std', 'adaptive_geom'):
+            bandwidth_param = -999
+        else:
+            bandwidth_param = bandwidth
         return bandwidth, bandwidth_param
 
 
 class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
     _N_OBS = 1
+    _bandwidth_methods = KDEHelperMixin._bandwidth_methods.copy()
+    _bandwidth_methods.update({
+        'adaptive': _adaptive_std_bandwidth_KDEV1,
+        'isj': _bandwidth_isj_KDEV1
+    })
 
     def __init__(self,
                  obs: ztyping.ObsTypeInput,
@@ -228,19 +335,22 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
         self._truncate = truncate
 
 
-class KDE1DimV1(KDEHelperMixin, WrapDistribution):
-    _N_OBS = 1
+class ExactKDE1Dim(KDEHelperMixin, WrapDistribution):
+    _bandwidth_methods = KDEHelperMixin._bandwidth_methods.copy()
+    _bandwidth_methods.update({
+        'adaptive_geom': _adaptive_geom_bandwidth_KDEV1,
+        'adaptive_std': _adaptive_std_bandwidth_KDEV1,
+        'adaptive_zfit': _adaptive_zfit_bandwidth_KDEV1,
+        'isj': _bandwidth_isj_KDEV1
+    })
 
     def __init__(self,
                  obs: ztyping.ObsTypeInput,
                  data: ztyping.ParamTypeInput,
                  bandwidth: ztyping.ParamTypeInput = None,
                  kernel=tfd.Normal,
-                 use_grid=False,
-                 num_grid_points=None,
-                 binning_method=None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None,
-                 name: str = "KDE1DimV1"):
+                 name: str = "ExactKDE1DimV1"):
         r"""
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
         .. math::
@@ -255,22 +365,12 @@ class KDE1DimV1(KDEHelperMixin, WrapDistribution):
             weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
             name: Name of the PDF
         """
-        if binning_method is None:
-            if use_grid:
-                binning_method = 'linear'
-        elif not use_grid:
-            raise ValueError(f"use_grid is False but binning_method specified as {binning_method}.")
+        if kernel is None:
+            kernel = tfd.Normal
 
-        if num_grid_points is None:
-            if use_grid:
-                num_grid_points = 1024
-        elif not use_grid:
-            raise ValueError(f"use_grid is False but num_grid_points specified as {num_grid_points}.")
         data, size, weights = self._convert_init_data_weights_size(data, weights)
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
-                                                                   binning_method=binning_method,
-                                                                   use_grid=use_grid, num_grid_points=num_grid_points,
                                                                    name=name, obs=obs, weights=weights)
 
         original_data = data
@@ -280,30 +380,15 @@ class KDE1DimV1(KDEHelperMixin, WrapDistribution):
                 loc, scale):
             return tfd.Independent(kernel(loc=loc, scale=scale))
 
-        if num_grid_points is not None:
-            num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
-        self._num_grid_points = num_grid_points
-        self._binning_method = binning_method
         self._data = data
         self._bandwidth = bandwidth
         self._kernel = kernel
         self._weights = weights
-        self._grid = None
-        self._grid_data = None
 
-        if use_grid:
-            self._grid = binning_util.generate_1d_grid(self._data, num_grid_points=self._num_grid_points)
-            self._grid_data = binning_util.bin_1d(self._binning_method, self._data, self._grid, self._weights)
+        probs = calc_kernel_probs(size, weights)
 
-            mixture_distribution = tfd.Categorical(probs=self._grid_data)
-            components_distribution = components_distribution_generator(loc=self._grid, scale=self._bandwidth)
-
-        else:
-
-            probs = calc_kernel_probs(size, weights)
-
-            mixture_distribution = tfd.Categorical(probs=probs)
-            components_distribution = components_distribution_generator(loc=self._data, scale=self._bandwidth)
+        mixture_distribution = tfd.Categorical(probs=probs)
+        components_distribution = components_distribution_generator(loc=self._data, scale=self._bandwidth)
 
         def dist_kwargs():
             return dict(mixture_distribution=mixture_distribution,
@@ -321,36 +406,95 @@ class KDE1DimV1(KDEHelperMixin, WrapDistribution):
                          name=name)
 
 
-class ExactKDE1Dim(KDE1DimV1):
-    _bandwidth_methods = KDE1DimV1._bandwidth_methods.copy()
+class GridKDE1Dim(KDEHelperMixin, WrapDistribution):
+    _N_OBS = 1
+    _bandwidth_methods = KDEHelperMixin._bandwidth_methods.copy()
     _bandwidth_methods.update({
-        'adaptive': _adaptive_bandwidth_KDEV1,
-        'isj': _bandwidth_isj_KDEV1
+        'adaptive_geom': _adaptive_geom_bandwidth_grid_KDEV1,
+        'adaptive_zfit': _adaptive_zfit_bandwidth_grid_KDEV1,
+
+        # 'adaptive_std': _adaptive_std_bandwidth_grid_KDEV1,
     })
 
     def __init__(self,
                  obs: ztyping.ObsTypeInput,
                  data: ztyping.ParamTypeInput,
                  bandwidth: ztyping.ParamTypeInput = None,
-                 kernel=tfd.Normal,
-                 weights: Union[None, np.ndarray, tf.Tensor] = None,
-                 name: str = "ExactKDE1DimV1"):
-        super().__init__(obs, data=data, bandwidth=bandwidth, kernel=kernel, weights=weights, name=name, use_grid=False)
-
-
-class GridKDE1Dim(KDE1DimV1):
-    def __init__(self,
-                 obs: ztyping.ObsTypeInput,
-                 data: ztyping.ParamTypeInput,
-                 bandwidth: ztyping.ParamTypeInput = None,
-                 kernel=tfd.Normal,
-                 num_grid_points: Optional[int] = None,
+                 kernel=None,
+                 num_grid_points=None,
                  binning_method=None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None,
-                 name: str = "KDE1DimFFTV1"):
-        super().__init__(obs, data=data, bandwidth=bandwidth,
-                         kernel=kernel, weights=weights, name=name, use_grid=True,
-                         num_grid_points=num_grid_points, binning_method=binning_method)
+                 name: str = "GridKDE1DimV1"):
+        r"""
+        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        .. math::
+            f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
+
+        Args:
+            data: 1-D Tensor-like.
+            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
+                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
+                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
+            obs: Observables
+            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
+            name: Name of the PDF
+        """
+        if kernel is None:
+            kernel = tfd.Normal
+        if binning_method is None:
+            binning_method = 'linear'
+        if num_grid_points is None:
+            num_grid_points = 1024
+        if bandwidth == 'isj':
+            raise ValueError("isj not supported in GridKDE, use directly 'KDE1DimISJV1'")
+        if bandwidth == 'adaptive_std':
+            raise ValueError("adaptive_std not supported in GridKDE due to very bad results. This is maybe caused"
+                             " by an issue regarding weights of the underlaying implementation.")
+
+        data, size, weights = self._convert_init_data_weights_size(data, weights)
+
+        original_data = data
+        self._original_data = original_data  # for copying
+
+        def components_distribution_generator(
+                loc, scale):
+            return tfd.Independent(kernel(loc=loc, scale=scale))
+
+        if num_grid_points is not None:
+            num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.cast(num_grid_points, ztypes.int))
+        self._num_grid_points = num_grid_points
+        self._binning_method = binning_method
+        self._data = data
+        self._grid = binning_util.generate_1d_grid(self._data, num_grid_points=self._num_grid_points)
+
+        bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
+                                                                   binning_method=binning_method,
+                                                                   num_grid_points=num_grid_points,
+                                                                   name=name, obs=obs, weights=weights)
+
+        self._bandwidth = bandwidth
+        self._kernel = kernel
+        self._weights = weights
+
+        self._grid_data = binning_util.bin_1d(self._binning_method, self._data, self._grid, self._weights)
+
+        mixture_distribution = tfd.Categorical(probs=self._grid_data)
+        components_distribution = components_distribution_generator(loc=self._grid, scale=self._bandwidth)
+
+        def dist_kwargs():
+            return dict(mixture_distribution=mixture_distribution,
+                        components_distribution=components_distribution)
+
+        distribution = tfd.MixtureSameFamily
+
+        params = {'bandwidth': bandwidth_param}
+
+        super().__init__(obs=obs,
+                         params=params,
+                         dist_params={},
+                         dist_kwargs=dist_kwargs,
+                         distribution=distribution,
+                         name=name)
 
 
 class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
@@ -360,11 +504,11 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
                  obs: ztyping.ObsTypeInput,
                  data: ztyping.ParamTypeInput,
                  bandwidth: ztyping.ParamTypeInput = None,
-                 kernel=tfd.Normal,
+                 kernel=None,
                  support=None,
                  num_grid_points: Optional[int] = None,
                  binning_method=None,
-                 fft_method='conv1d',
+                 fft_method=None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None,
                  name: str = "KDE1DimFFTV1"):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
@@ -390,6 +534,10 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
             num_grid_points = 1024
         if binning_method is None:
             binning_method = 'linear'
+        if fft_method is None:
+            fft_method = 'conv1d'
+        if kernel is None:
+            kernel = tfd.Normal
         data, size, weights = self._convert_init_data_weights_size(data, weights)
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
                                                                    name=name, obs=obs, weights=weights)

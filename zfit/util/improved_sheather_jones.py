@@ -39,8 +39,13 @@ def _fixed_point(t, N, squared_integers, grid_data_dct2):
     ell = tf.constant(7, ztypes.float)
 
     # Fast evaluation of |f^l|^2 using the DCT, see Plancherel theorem
-    f = tf.constant(0.5, ztypes.float) * tf.math.pow(tf.constant(np.pi, ztypes.float), (tf.constant(2.0, ztypes.float) * ell)) * tf.math.reduce_sum(tf.math.pow(
-        squared_integers, ell) * grid_data_dct2 * tf.math.exp(-squared_integers * tf.math.pow(tf.constant(np.pi, ztypes.float), tf.constant(2.0, ztypes.float)) * t))
+    f = (tf.constant(0.5, ztypes.float)
+         * tf.math.pow(tf.constant(np.pi, ztypes.float), (tf.constant(2.0, ztypes.float) * ell))
+         * tf.math.reduce_sum(tf.math.pow(squared_integers, ell)
+                              * grid_data_dct2
+                              * tf.math.exp(-squared_integers
+                                            * tf.math.pow(tf.constant(np.pi, ztypes.float),
+                                                          tf.constant(2.0, ztypes.float)) * t)))
 
     def calc_f(s, f):
         s = tf.constant(s, ztypes.float)
@@ -50,13 +55,19 @@ def _fixed_point(t, N, squared_integers, grid_data_dct2):
             2.0, ztypes.float) * s + tf.constant(1, ztypes.float), 2))
         K0 = odd_numbers_prod / tf.math.sqrt(tf.constant(2.0 * np.pi, ztypes.float))
         const = (tf.constant(1.0, ztypes.float) + tf.math.pow(tf.constant(1.0 / 2.0, ztypes.float),
-                                                              s + tf.constant(1.0 / 2.0, ztypes.float))) / tf.constant(3.0, ztypes.float)
-        time = tf.math.pow(tf.constant(2.0, ztypes.float) * const * K0 / (N * f), tf.constant(2.0,
-                                                                                              ztypes.float) / (tf.constant(3.0, ztypes.float) + tf.constant(2.0, ztypes.float) * s))
+                                                              s + tf.constant(1.0 / 2.0, ztypes.float))) / tf.constant(
+            3.0, ztypes.float)
+        time = (tf.math.pow(tf.constant(2.0, ztypes.float)
+                            * const * K0 / (N * f), tf.constant(2.0, ztypes.float)
+                            / (tf.constant(3.0, ztypes.float) + tf.constant(2.0, ztypes.float) * s)))
 
         # Step two: estimate |f^s| from t_s
-        f = tf.constant(0.5, ztypes.float) * tf.math.pow(tf.constant(np.pi, ztypes.float), (tf.constant(2.0, ztypes.float) * s)) * tf.math.reduce_sum(tf.math.pow(
-            squared_integers, s) * grid_data_dct2 * tf.math.exp(-squared_integers * tf.math.pow(tf.constant(np.pi, ztypes.float), tf.constant(2.0, ztypes.float)) * time))
+        f = (tf.constant(0.5, ztypes.float)
+             * tf.math.pow(tf.constant(np.pi, ztypes.float), (tf.constant(2.0, ztypes.float) * s))
+             * tf.math.reduce_sum(tf.math.pow(squared_integers, s)
+                                  * grid_data_dct2 * tf.math.exp(-squared_integers
+                                                                 * tf.math.pow(tf.constant(np.pi, ztypes.float),
+                                                                               tf.constant(2.0, ztypes.float)) * time)))
 
         return f
 
@@ -91,7 +102,7 @@ def _find_root(function, N, squared_integers, grid_data_dct2):
     tol = 10e-12 + 0.01 * (N2 - 50) / 1000
     left_bracket = tf.constant(0.0, dtype=ztypes.float)
     right_bracket = tf.constant(10e-12, ztypes.float) + tf.constant(0.01, ztypes.float) * \
-        (N2 - tf.constant(50, ztypes.float)) / tf.constant(1000, ztypes.float)
+                    (N2 - tf.constant(50, ztypes.float)) / tf.constant(1000, ztypes.float)
 
     converged = tf.constant(False)
     t_star = tf.constant(0.0, dtype=ztypes.float)
@@ -102,7 +113,6 @@ def _find_root(function, N, squared_integers, grid_data_dct2):
     def condition(right_bracket, converged, t_star): return tf.math.logical_not(converged)
 
     def body(right_bracket, converged, t_star):
-
         t_star, value_at_t_star, num_iterations, converged = root_search.brentq(
             fixed_point_function,
             left_bracket,
@@ -125,14 +135,13 @@ def _find_root(function, N, squared_integers, grid_data_dct2):
 
 
 def _calculate_t_star(data, num_grid_points, binning_method, weights):
-
     # Setting `percentile` higher decreases the chance of overflow
     grid = binning_util.generate_1d_grid(data, num_grid_points, 6.0, 0.5)
 
     # Create an equidistant grid
     R = tf.cast(tf.reduce_max(data) - tf.reduce_min(data), ztypes.float)
 
-    #dx = R / tf.constant((num_grid_points - 1), ztypes.float)
+    # dx = R / tf.constant((num_grid_points - 1), ztypes.float)
     data_unique, data_unique_indexes = tf.unique(data)
     N = tf.cast(tf.size(data_unique), ztypes.float)
 
@@ -155,7 +164,6 @@ def _calculate_t_star(data, num_grid_points, binning_method, weights):
 
 
 def _calculate_density(t_star, R, squared_integers, grid_data_dct):
-
     # Prepend zero
     squared_integers = tf.pad(squared_integers, [[1, 0]])
 
@@ -174,7 +182,6 @@ def _calculate_density(t_star, R, squared_integers, grid_data_dct):
 
 
 def calculate_bandwidth(data, num_grid_points=1024, binning_method='linear', weights=None):
-
     data = tf.cast(data, ztypes.float)
 
     t_star, R, squared_integers, grid_data_dct, grid = _calculate_t_star(
@@ -184,7 +191,6 @@ def calculate_bandwidth(data, num_grid_points=1024, binning_method='linear', wei
 
 
 def calculate_bandwidth_and_density(data, num_grid_points=1024, binning_method='linear', weights=None):
-
     data = tf.cast(data, ztypes.float)
 
     t_star, R, squared_integers, grid_data_dct, grid = _calculate_t_star(
