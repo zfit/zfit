@@ -66,7 +66,7 @@ jobs:
           pip install --use-feature=in-tree-build .[alldev]
       - name: Test with pytest
         run: |
-          coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest . -n4
+          coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest . -n2
           mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
@@ -81,8 +81,6 @@ jobs:
       matrix:
         python-version: [ 3.9 ]
     name: Testbuild docs
-    #    env:
-    #      ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v2.3.4
       - uses: actions/setup-python@v2

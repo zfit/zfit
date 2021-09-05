@@ -29,7 +29,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     import zfit
     import zfit.z.numpy as znp
 
-    npoints_lim = min(npoints, 5000)
+    npoints_lim = min(npoints, 2500)
 
     class StudentT(tfp.distributions.StudentT):
 
@@ -50,7 +50,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
         ],
         [
             ('type', zfit.pdf.GaussianKDE1DimV1)
-        ]
+        ], [('npoints', npoints_lim)]
     )
     if not full:
         comb = comb[0]
@@ -72,7 +72,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
             ('kernel', dist) for dist in [None, StudentT]
         ], [
             ('type', zfit.pdf.ExactKDE1Dim)
-        ]
+        ], [('npoints', npoints_lim)]
     )
     if not full:
         comb = comb[0]
@@ -159,6 +159,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     cfg = dict(cfg)
     if cfgonly:
         return cfg
+    _ = cfg.pop('npoints', None)
 
     constructor = cfg.pop('type')
     if constructor in (zfit.pdf.GaussianKDE1DimV1, zfit.pdf.ExactKDE1Dim):
@@ -178,17 +179,18 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
 
     return kde, pdf, data.value()[:, 0]
 
-
+def _get_print_kde(**kwargs):
+    kdes = create_kde(**kwargs)
+    print("Configurations for KDEs:"
+          f"{kdes}")
+    return kdes
 # @pytest.mark.flaky(3)
 @pytest.mark.parametrize('jit', [
     False,
     True
 ])
-@pytest.mark.parametrize('npoints', [1500, 500_000]
-                         # + [(i, 5_000_000) for i in range(10, 15)]
-                         )
+@pytest.mark.parametrize('npoints', [1100, 500_000])
 @pytest.mark.parametrize('kdetype', [i for i in range(create_kde(nonly=True))]
-                         # + [(i, 5_000_000) for i in range(10, 15)]
                          )
 def test_simple_kde(kdetype, npoints, jit):
     import zfit
@@ -235,14 +237,14 @@ def test_simple_kde(kdetype, npoints, jit):
             weights_print = ', weighted'
         else:
             weights_print = ''
-
-        plt.title(f"{name} with {kdetype[1]} points{weights_print}{bandwidth_print}{kernel_print}{grid_print}{binning_print}")
+        npoints_plot = cfg.get('npoints', kdetype[1])
+        plt.title(f"{name} with {npoints_plot} points{weights_print}{bandwidth_print}{kernel_print}{grid_print}{binning_print}", fontsize=10)
         plt.plot(x, prob, label=f'KDE')
         plt.plot(x, prob_true, label='true PDF')
         data_np = zfit.run(data)
         plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
         plt.legend()
-        plt.show()
+        # plt.show()
 
     abs_tol = 0.005 if kdetype[1] > 3000 else 0.03
     tolfac = 6 if not cfg['type'] == tfp.distributions.Normal else 1
