@@ -53,7 +53,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
         ], [('npoints', npoints_lim)]
     )
     if not full:
-        comb = comb[0]
+        comb = [next(comb)]
     configs.extend(comb)
 
     with tf.init_scope():
@@ -75,7 +75,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
         ], [('npoints', npoints_lim)]
     )
     if not full:
-        comb = comb[0]
+        comb = [next(comb)]
     configs.extend(comb)
 
     # Grid PDFs
@@ -101,7 +101,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     )
 
     if not full:
-        comb = comb[0]
+        comb = [next(comb)]
     configs.extend(comb)
 
     # FFT combinations
@@ -127,7 +127,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     )
 
     if not full:
-        comb = comb[0]
+        comb = [next(comb)]
     configs.extend(comb)
 
     # IFJ combinations
@@ -149,7 +149,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     )
 
     if not full:
-        comb = comb[0]
+        comb = [next(comb)]
     configs.extend(comb)
 
     # end config builder
@@ -179,30 +179,38 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
 
     return kde, pdf, data.value()[:, 0]
 
+
 def _get_print_kde(**kwargs):
     kdes = create_kde(**kwargs)
     print("Configurations for KDEs:"
           f"{kdes}")
     return kdes
+
+
+full = False
+
+
 # @pytest.mark.flaky(3)
 @pytest.mark.parametrize('jit', [
     False,
     True
 ])
 @pytest.mark.parametrize('npoints', [1100, 500_000])
-@pytest.mark.parametrize('kdetype', [i for i in range(create_kde(nonly=True))]
+@pytest.mark.parametrize('kdetype', [i for i in range(_get_print_kde(nonly=True, full=full))]
                          )
 def test_simple_kde(kdetype, npoints, jit):
     import zfit
-    cfg = create_kde(kdetype=kdetype, npoints=npoints, cfgonly=True)
+    cfg = create_kde(kdetype=kdetype, npoints=npoints, cfgonly=True, full=full)
     print(cfg)
     kdetype = kdetype, npoints
     if jit:
         run_jit = z.function(run)
-        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = run_jit(kdetype)
+        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = run_jit(kdetype,
+                                                                                                              full=full)
     else:
 
-        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = run(kdetype)
+        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = run(kdetype,
+                                                                                                          full=full)
 
     expected_integral = zfit.run(expected_integral)
 
@@ -238,7 +246,9 @@ def test_simple_kde(kdetype, npoints, jit):
         else:
             weights_print = ''
         npoints_plot = cfg.get('npoints', kdetype[1])
-        plt.title(f"{name} with {npoints_plot} points{weights_print}{bandwidth_print}{kernel_print}{grid_print}{binning_print}", fontsize=10)
+        plt.title(
+            f"{name} with {npoints_plot} points{weights_print}{bandwidth_print}{kernel_print}{grid_print}{binning_print}",
+            fontsize=10)
         plt.plot(x, prob, label=f'KDE')
         plt.plot(x, prob_true, label='true PDF')
         data_np = zfit.run(data)
@@ -261,9 +271,9 @@ def test_simple_kde(kdetype, npoints, jit):
     np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.01 * tolfac)
 
 
-def run(kdetype):
+def run(kdetype, full):
     from zfit.z import numpy as znp
-    kde, pdf, data = create_kde(*kdetype)
+    kde, pdf, data = create_kde(*kdetype, full=full)
     integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
     expected_integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
     rel_tol = 0.04

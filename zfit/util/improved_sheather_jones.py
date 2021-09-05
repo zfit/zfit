@@ -2,15 +2,47 @@ import numpy as np
 import tensorflow as tf
 from tf_quant_finance.math import root_search
 
+from .. import z
 from ..settings import ztypes
 from . import binning as binning_util
 
 
+@z.function(wraps='tensor')
+def calc_f(s, f, squared_integers, grid_data_dct2, N):
+    # Step one: estimate t_s from |f^(s+1)|^2
+    one_half = tf.constant(1.0 / 2.0, ztypes.float)
+    one = tf.constant(1.0, ztypes.float)
+    two = tf.constant(2.0, ztypes.float)
+    three = tf.constant(3.0, ztypes.float)
+    pi = tf.constant(np.pi, ztypes.float)
+
+    odd_numbers_prod = tf.math.reduce_prod(tf.range(one, two * s + one, 2))
+    K0 = odd_numbers_prod / tf.math.sqrt(two * pi)
+    const = (one + tf.math.pow(one_half,
+                               s + one_half)) / three
+    time = (tf.math.pow(two
+                        * const * K0 / (N * f), two
+                        / (three + two * s)))
+
+    # Step two: estimate |f^s| from t_s
+    f = (one_half
+         * tf.math.pow(pi, (two * s))
+         * tf.math.reduce_sum(tf.math.pow(squared_integers, s)
+                              * grid_data_dct2 * tf.math.exp(-squared_integers
+                                                             * tf.math.pow(pi,
+                                                                           two) * time)))
+
+    return f
+
+
+@z.function(wraps='tensor', autograph=True)
 def _fixed_point(t, N, squared_integers, grid_data_dct2):
     r"""
     Compute the fixed point as described in the paper by Botev et al.
+
     .. math:
         t = \xi \gamma^{5}(t)
+
     Parameters
     ----------
     t : float
@@ -47,41 +79,21 @@ def _fixed_point(t, N, squared_integers, grid_data_dct2):
                                             * tf.math.pow(tf.constant(np.pi, ztypes.float),
                                                           tf.constant(2.0, ztypes.float)) * t)))
 
-    def calc_f(s, f):
-        s = tf.constant(s, ztypes.float)
+    i = tf.constant(6., dtype=ztypes.float)
+    while_condition = lambda i, f: i > 1
 
-        # Step one: estimate t_s from |f^(s+1)|^2
-        odd_numbers_prod = tf.math.reduce_prod(tf.range(tf.constant(1.0, ztypes.float), tf.constant(
-            2.0, ztypes.float) * s + tf.constant(1, ztypes.float), 2))
-        K0 = odd_numbers_prod / tf.math.sqrt(tf.constant(2.0 * np.pi, ztypes.float))
-        const = (tf.constant(1.0, ztypes.float) + tf.math.pow(tf.constant(1.0 / 2.0, ztypes.float),
-                                                              s + tf.constant(1.0 / 2.0, ztypes.float))) / tf.constant(
-            3.0, ztypes.float)
-        time = (tf.math.pow(tf.constant(2.0, ztypes.float)
-                            * const * K0 / (N * f), tf.constant(2.0, ztypes.float)
-                            / (tf.constant(3.0, ztypes.float) + tf.constant(2.0, ztypes.float) * s)))
+    def body(i, f):
+        # do something here which you want to do in your loop
+        # increment i
+        f = calc_f(i, f, squared_integers, grid_data_dct2, N)
+        return i - 1., f
 
-        # Step two: estimate |f^s| from t_s
-        f = (tf.constant(0.5, ztypes.float)
-             * tf.math.pow(tf.constant(np.pi, ztypes.float), (tf.constant(2.0, ztypes.float) * s))
-             * tf.math.reduce_sum(tf.math.pow(squared_integers, s)
-                                  * grid_data_dct2 * tf.math.exp(-squared_integers
-                                                                 * tf.math.pow(tf.constant(np.pi, ztypes.float),
-                                                                               tf.constant(2.0, ztypes.float)) * time)))
-
-        return f
-
-    # Maybe we can do this more dynamically without losing performance?!
-    # s = tf.reverse(tf.range(2, ell))
-    f = calc_f(6, f)
-    f = calc_f(5, f)
-    f = calc_f(4, f)
-    f = calc_f(3, f)
-    f = calc_f(2, f)
+    # do the loop:
+    fnew = tf.while_loop(while_condition, body, [i, f], maximum_iterations=5, parallel_iterations=5)[1]
 
     # This is the minimizer of the AMISE
     t_opt = tf.math.pow(tf.constant(2 * np.sqrt(np.pi), ztypes.float)
-                        * N * f, tf.constant(-2.0 / 5.0, ztypes.float))
+                        * N * fnew, tf.constant(-2.0 / 5.0, ztypes.float))
 
     # Return the difference between the original t and the optimal value
     return t - t_opt

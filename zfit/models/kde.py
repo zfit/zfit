@@ -17,21 +17,25 @@ from ..util import convolution as convolution_util
 from ..util import improved_sheather_jones as isj_util
 from ..util import ztyping
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
+from ..z.math import weighted_quantile
 from .dist_tfp import WrapDistribution
 
 
+@z.function(wraps='tensor')
 def bandwidth_rule_of_thumb(data, weights, factor=None):
     if factor is None:
         factor = tf.constant(0.9)
     return min_std_or_iqr(data, weights) * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.) * factor
 
 
+@z.function(wraps='tensor')
 def bandwidth_silverman(data, weights):
-    return bandwidth_rule_of_thumb(data=data, weights=weights, factor=0.9)
+    return bandwidth_rule_of_thumb(data=data, weights=weights, factor=znp.array(0.9, dtype=ztypes.float))
 
 
+@z.function(wraps='tensor')
 def bandwidth_scott(data, weights):
-    return bandwidth_rule_of_thumb(data=data, weights=weights, factor=1.059)
+    return bandwidth_rule_of_thumb(data=data, weights=weights, factor=znp.array(1.059, dtype=ztypes.float))
 
 
 def bandwidth_isj(data, weights):
@@ -111,49 +115,6 @@ def _bandwidth_isj_KDEV1(data, weights, *_, **__):
     return bandwidth_isj(data, weights=weights)
 
 
-def weighted_quantile(x, quantiles, weights=None, side='middle'):
-    """ Very close to numpy.percentile, but supports weights.
-    NOTE: quantiles should be in [0, 1]!
-    :param x: numpy.array with data
-    :param quantiles: array-like with many quantiles needed
-    :param weights: array-like of the same length as `array`
-    :param values_sorted: bool, if True, then will avoid sorting of
-        initial array
-    :param old_style: if True, will correct output to be consistent
-        with numpy.percentile.
-    :return: numpy.array with computed quantiles.
-    """
-    if weights is None:
-        return tfp.stats.percentile(x, 100 * quantiles)
-    x = znp.array(x)
-    quantiles = znp.array(quantiles)
-    quantiles = znp.reshape(quantiles, (-1,))
-    weights = znp.array(weights)
-    # assert np.all(quantiles >= 0) and np.all(quantiles <= 1), \
-    #     'quantiles should be in [0, 1]'
-
-    sorter = znp.argsort(x)
-    x = tf.gather(x, sorter)
-    weights = tf.gather(weights, sorter)
-
-    weighted_quantiles = znp.cumsum(weights) - 0.5 * weights
-
-    weighted_quantiles /= znp.sum(weights)
-    if side == 'middle':
-        quantile_index_left = tf.searchsorted(weighted_quantiles, quantiles, side='left')
-        quantile_index_right = tf.searchsorted(weighted_quantiles, quantiles, side='right')
-
-        calculated_left = tf.gather(x, quantile_index_left)
-        calculated_right = tf.gather(x, quantile_index_right)
-        calculated = (calculated_left + calculated_right) / 2
-    elif side in ('left', 'right'):
-
-        quantile_index = tf.searchsorted(weighted_quantiles, quantiles, side=side)
-
-        calculated = tf.gather(x, quantile_index)
-    return calculated
-
-
 @z.function(wraps='tensor')
 def min_std_or_iqr(x, weights):
     # TODO: use weighted percentile
@@ -209,7 +170,7 @@ class KDEHelperMixin:
         if (not isinstance(bandwidth, ZfitParameter)) and callable(bandwidth):
             bandwidth = bandwidth(constructor=type(self), data=data, **kwargs)
         if bandwidth_param is None or bandwidth_param in (
-        'adaptiveV1', 'adaptive', 'adaptive_zfit', 'adaptive_std', 'adaptive_geom'):
+                'adaptiveV1', 'adaptive', 'adaptive_zfit', 'adaptive_std', 'adaptive_geom'):
             bandwidth_param = -999
         else:
             bandwidth_param = bandwidth
