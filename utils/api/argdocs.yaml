@@ -2,6 +2,13 @@ model.init.name: |1+
     Name of the PDF for a better visibility.
                 Has no programmatical functional purpose.
 
+pdf.kde.bandwidth.weights: |1+
+  Individual event weight of *data*.
+
+
+pdf.kde.bandwidth.data: |1+
+  Data points to determine the bandwidth from.
+
 
 minimizer.verbosity: |1+
  Verbosity of the minimizer. Has to be between 0 and 10.

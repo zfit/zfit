@@ -22,7 +22,22 @@ from .dist_tfp import WrapDistribution
 
 
 @z.function(wraps='tensor')
-def bandwidth_rule_of_thumb(data, weights, factor=None):
+def bandwidth_rule_of_thumb(data: znp.array, weights: Optional[znp.array],
+                            factor: Union[float, int, znp.aray] = None) -> znp.array:
+    r"""Calculate the bandwidth of *data* using a rule of thumb.
+
+    .. math::
+      h = factor * min\left(\hat{\sigma}, \frac{IQR}{1.34}\right)\,n^{-\frac{1}{5}}
+
+    Args:
+        data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth from. |@docend:pdf.kde.bandwidth.data|
+        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+        factor (default: 0.9): Factor that scales the rule of thumb. Ofter used are 0.9 for
+        silvermans rule of thumb or 1.059 for scotts rule of thumb.
+
+    Returns:
+
+    """
     if factor is None:
         factor = tf.constant(0.9)
     return min_std_or_iqr(data, weights) * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.) * factor

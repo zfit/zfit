@@ -23,6 +23,26 @@ def test_copy_kde():
     kde_adaptive.copy()
 
 
+def create_pdf_sample(npoints=500):
+    limits = (-13, 11)
+    obs = zfit.Space("obs1", limits=limits)
+    cb = zfit.pdf.CrystalBall(mu=2, sigma=3, alpha=1, n=25, obs=obs)
+    gauss = zfit.pdf.Gauss(mu=-5, sigma=2.5, obs=obs)
+    pdf = zfit.pdf.SumPDF([cb, gauss], fracs=0.8)
+    data = pdf.sample(n=npoints)
+    return data, obs, pdf
+
+
+def test_grid_kde():
+    data, obs, pdf = create_pdf_sample()
+    with pytest.raises(ValueError):
+        zfit.pdf.GridKDE1Dim(obs=obs, data=data, bandwidth='eoaue')
+
+def test_exact_kde():
+    data, obs, pdf = create_pdf_sample()
+    with pytest.raises(ValueError):
+        zfit.pdf.ExactKDE1Dim(obs=obs, data=data, bandwidth='eoaue')
+
 def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True):
     import tensorflow as tf
 
@@ -165,12 +185,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     if constructor in (zfit.pdf.GaussianKDE1DimV1, zfit.pdf.ExactKDE1Dim):
         npoints = npoints_lim
 
-    limits = (-13, 11)
-    obs = zfit.Space("obs1", limits=limits)
-    cb = zfit.pdf.CrystalBall(mu=2, sigma=3, alpha=1, n=25, obs=obs)
-    gauss = zfit.pdf.Gauss(mu=-5, sigma=2.5, obs=obs)
-    pdf = zfit.pdf.SumPDF([cb, gauss], fracs=0.8)
-    data = pdf.sample(n=npoints)
+    data, obs, pdf = create_pdf_sample(npoints)
 
     cfg['data'] = data
     cfg['obs'] = obs
@@ -187,7 +202,13 @@ def _get_print_kde(**kwargs):
     return kdes
 
 
-full = False
+@pytest.hookimpl
+def pytest_generate_tests(metafunc):
+    if metafunc.function.__name__ == 'test_all_kde':
+        full = metafunc.config.getoption("--longtests")
+        full = full or metafunc.config.getoption("--longtests-kde")
+
+        metafunc.parametrize('kdetype', [i for i in range(_get_print_kde(nonly=True, full=full))])
 
 
 # @pytest.mark.flaky(3)
@@ -196,21 +217,21 @@ full = False
     True
 ])
 @pytest.mark.parametrize('npoints', [1100, 500_000])
-@pytest.mark.parametrize('kdetype', [i for i in range(_get_print_kde(nonly=True, full=full))]
-                         )
-def test_simple_kde(kdetype, npoints, jit):
+def test_all_kde(kdetype, npoints, jit, request):
     import zfit
+    full = request.config.getoption("--longtests")
+    full = full or request.config.getoption("--longtests-kde")
     cfg = create_kde(kdetype=kdetype, npoints=npoints, cfgonly=True, full=full)
     print(cfg)
     kdetype = kdetype, npoints
     if jit:
-        run_jit = z.function(run)
+        run_jit = z.function(_run)
         expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = run_jit(kdetype,
                                                                                                               full=full)
     else:
 
-        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = run(kdetype,
-                                                                                                          full=full)
+        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = _run(kdetype,
+                                                                                                           full=full)
 
     expected_integral = zfit.run(expected_integral)
 
@@ -271,7 +292,7 @@ def test_simple_kde(kdetype, npoints, jit):
     np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.01 * tolfac)
 
 
-def run(kdetype, full):
+def _run(kdetype, full):
     from zfit.z import numpy as znp
     kde, pdf, data = create_kde(*kdetype, full=full)
     integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
