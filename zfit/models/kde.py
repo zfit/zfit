@@ -736,8 +736,24 @@ class KDE1DimExact(KDEHelperMixin, WrapDistribution):
 
             The bandwidth can also be a parameter, which should be used with caution. However,
             it allows to use it in cross-valitadion with a likelihood method.
-            kernel: |@doc:pdf.kde.init.kernel||@docend:pdf.kde.init.kernel|
-            padding: |@doc:pdf.kde.init.padding||@docend:pdf.kde.init.padding|
+            kernel: |@doc:pdf.kde.init.kernel| The kernel is the heart
+             of the Kernel Density Estimation, which consists of the sum of
+             kernels around each sample point. Therefore, a kernel should represent
+             the distribution probability of a single data point as close as
+             possible.
+
+             The most widespread kernel is a Gaussian, or Normal, distribution. Due
+             to the law of large numbers, the sum of many (arbitrary) random variables
+             -- this is the case for most real world observable as they are the result of
+             multiple consecutive random effects -- results in a Gaussian distribution.
+             However, there are many cases where this assumption is not per-se true. In
+             this cases an alternative kernel may offers a better choice.
+
+             Valid choices are callables that return a
+             :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
+             that belong to the loc-scale family. |@docend:pdf.kde.init.kernel|
+            padding: |@doc:pdf.kde.init.padding| KDEs have a peculiar
+             weakness: the boundaries. |@docend:pdf.kde.init.padding|
 
 
             weights: |@doc:pdf.kde.init.weights| Weights of each event
