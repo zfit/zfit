@@ -4,6 +4,7 @@ import itertools
 import numpy as np
 import pytest
 import tensorflow_probability as tfp
+from matplotlib import pyplot as plt
 
 import zfit
 from zfit import z
@@ -23,8 +24,10 @@ def test_copy_kde():
     kde_adaptive.copy()
 
 
-def create_pdf_sample(npoints=500):
-    limits = (-13, 11)
+def create_pdf_sample(npoints=500, upper=None):
+    if upper is None:
+        upper = 11
+    limits = (-13, upper)
     obs = zfit.Space("obs1", limits=limits)
     cb = zfit.pdf.CrystalBall(mu=2, sigma=3, alpha=1, n=25, obs=obs)
     gauss = zfit.pdf.Gauss(mu=-5, sigma=2.5, obs=obs)
@@ -38,12 +41,14 @@ def test_grid_kde():
     with pytest.raises(ValueError):
         zfit.pdf.GridKDE1Dim(obs=obs, data=data, bandwidth='eoaue')
 
+
 def test_exact_kde():
     data, obs, pdf = create_pdf_sample()
     with pytest.raises(ValueError):
         zfit.pdf.ExactKDE1Dim(obs=obs, data=data, bandwidth='eoaue')
 
-def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True):
+
+def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True, upper=None, legacy=True):
     import tensorflow as tf
 
     import zfit
@@ -72,9 +77,10 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
             ('type', zfit.pdf.GaussianKDE1DimV1)
         ], [('npoints', npoints_lim)]
     )
-    if not full:
-        comb = [next(comb)]
-    configs.extend(comb)
+    if full or legacy:
+        if legacy:
+            comb = [next(comb)]
+        configs.extend(comb)
 
     with tf.init_scope():
         if cfgonly or nonly:
@@ -185,7 +191,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     if constructor in (zfit.pdf.GaussianKDE1DimV1, zfit.pdf.ExactKDE1Dim):
         npoints = npoints_lim
 
-    data, obs, pdf = create_pdf_sample(npoints)
+    data, obs, pdf = create_pdf_sample(npoints, upper=upper)
 
     cfg['data'] = data
     cfg['obs'] = obs
@@ -197,8 +203,6 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
 
 def _get_print_kde(**kwargs):
     kdes = create_kde(**kwargs)
-    print("Configurations for KDEs:"
-          f"{kdes}")
     return kdes
 
 
@@ -275,7 +279,7 @@ def test_all_kde(kdetype, npoints, jit, request):
         data_np = zfit.run(data)
         plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
         plt.legend()
-        # plt.show()
+        plt.show()
 
     abs_tol = 0.005 if kdetype[1] > 3000 else 0.03
     tolfac = 6 if not cfg['type'] == tfp.distributions.Normal else 1
@@ -292,9 +296,9 @@ def test_all_kde(kdetype, npoints, jit, request):
     np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.01 * tolfac)
 
 
-def _run(kdetype, full):
+def _run(kdetype, full, upper=None, legacy=True):
     from zfit.z import numpy as znp
-    kde, pdf, data = create_kde(*kdetype, full=full)
+    kde, pdf, data = create_kde(*kdetype, full=full, upper=upper, legacy=legacy)
     integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
     expected_integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
     rel_tol = 0.04
@@ -305,3 +309,84 @@ def _run(kdetype, full):
     prob_true = pdf.pdf(x)
 
     return expected_integral, integral, kde.name, prob, prob_true, rel_tol, sample, sample2, x, kde.name, data
+
+
+@pytest.mark.parametrize('kdetype', [i for i in range(_get_print_kde(nonly=True, full=False, legacy=False))])
+@pytest.mark.parametrize('jit', [
+    False,
+    True
+])
+@pytest.mark.parametrize('npoints', [1100, 500_000])
+@pytest.mark.parametrize('upper', [-4, -1, 3])
+def test_kde_border(kdetype, npoints, jit, upper):
+    import zfit
+    cfg = create_kde(kdetype=kdetype, npoints=npoints, cfgonly=True, full=False, legacy=False)
+    print(cfg)
+    kdetype = kdetype, npoints
+    if jit:
+        run_jit = z.function(_run)
+        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = run_jit(kdetype,
+                                                                                                              full=False,
+                                                                                                              upper=upper,
+                                                                                                              legacy=False)
+    else:
+
+        expected_integral, integral, name, prob, prob_true, rel_tol, sample, sample2, x, name, data = _run(kdetype,
+                                                                                                           full=False,
+                                                                                                           upper=upper,
+                                                                                                           legacy=False)
+
+    if not jit:
+        plt.figure()
+        kernel_used = cfg.get('kernel')
+        if kernel_used is not None:
+            kernel_print = f", kernel={kernel_used.__name__}"
+        else:
+            kernel_print = ''
+        bandwidth_printready = cfg.get('bandwidth')
+        if isinstance(bandwidth_printready, ZfitParameter):
+            bandwidth_printready = f'Param({float(bandwidth_printready.value())}'
+        if bandwidth_printready is None:
+            bandwidth_print = ""
+        else:
+            bandwidth_print = f", h={bandwidth_printready}"
+
+        num_grid_points = cfg.get('num_grid_points')
+        if num_grid_points is not None:
+            grid_print = f', grid={num_grid_points}'
+        else:
+            grid_print = ''
+        binning_method = cfg.get('binning_method')
+        if binning_method is not None:
+            binning_print = f', binning={binning_method}'
+        else:
+            binning_print = ''
+        weights = cfg.get('weights')
+        if weights is not None:
+            weights_print = ', weighted'
+        else:
+            weights_print = ''
+        npoints_plot = cfg.get('npoints', kdetype[1])
+        plt.title(
+            f"{name}, {npoints_plot} points, upper={upper}{weights_print}{bandwidth_print}"
+            f"{kernel_print}{grid_print}{binning_print}",
+            fontsize=10)
+        plt.plot(x, prob, label=f'KDE')
+        plt.plot(x, prob_true, label='true PDF')
+        data_np = zfit.run(data)
+        plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
+        plt.legend()
+        plt.show()
+
+    integral = zfit.run(integral)
+    expected_integral = zfit.run(expected_integral)
+    abs_tol = 0.01
+    assert zfit.run(integral) == pytest.approx(expected_integral, abs=abs_tol)
+    assert tuple(sample.shape) == (1, 1)
+    assert tuple(sample2.shape) == (1500, 1)
+    assert prob.shape.rank == 1
+    assert np.mean(prob - prob_true) < 0.07
+    # make sure that on average, most values are close
+    assert np.mean((prob / prob_true)[prob_true > np.mean(prob_true)] ** 2) == pytest.approx(1, abs=0.1)
+    rtol = 0.05
+    np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.05)

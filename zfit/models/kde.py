@@ -1,5 +1,5 @@
 #  Copyright (c) 2021 zfit
-from typing import Optional, Union
+from typing import Callable, Optional, Union
 
 import numpy as np
 import tensorflow as tf
@@ -23,20 +23,30 @@ from .dist_tfp import WrapDistribution
 
 @z.function(wraps='tensor')
 def bandwidth_rule_of_thumb(data: znp.array, weights: Optional[znp.array],
-                            factor: Union[float, int, znp.aray] = None) -> znp.array:
+                            factor: Union[float, int, znp.array] = None) -> znp.array:
     r"""Calculate the bandwidth of *data* using a rule of thumb.
+
+    This calculates a global, single bandwidth for all kernels using a rule of thumb.
+    |@doc:pdf.kde.bandwidth.explain_global| A global bandwidth
+             is a single parameter that is shared amongst all kernels.
+             While this is a fast and robust method,
+             it is a rule of thumb approximation. Due to its global nature,
+             it cannot take into account the different varying
+             local densities. It uses notably the least amount of memory
+             of all methods. |@docend:pdf.kde.bandwidth.explain_global|
 
     .. math::
       h = factor * min\left(\hat{\sigma}, \frac{IQR}{1.34}\right)\,n^{-\frac{1}{5}}
 
     Args:
-        data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth from. |@docend:pdf.kde.bandwidth.data|
+        data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
+               from. |@docend:pdf.kde.bandwidth.data|
         weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
         factor (default: 0.9): Factor that scales the rule of thumb. Ofter used are 0.9 for
         silvermans rule of thumb or 1.059 for scotts rule of thumb.
 
     Returns:
-
+        Estimated bandwidth
     """
     if factor is None:
         factor = tf.constant(0.9)
@@ -45,19 +55,140 @@ def bandwidth_rule_of_thumb(data: znp.array, weights: Optional[znp.array],
 
 @z.function(wraps='tensor')
 def bandwidth_silverman(data, weights):
+    r"""Calculate the bandwidth of *data* using silvermans rule of thumb.
+
+    |@doc:pdf.kde.bandwidth.explain_global| A global bandwidth
+             is a single parameter that is shared amongst all kernels.
+             While this is a fast and robust method,
+             it is a rule of thumb approximation. Due to its global nature,
+             it cannot take into account the different varying
+             local densities. It uses notably the least amount of memory
+             of all methods. |@docend:pdf.kde.bandwidth.explain_global|
+
+    .. math::
+      h = 0.9 * min\left(\hat{\sigma}, \frac{IQR}{1.34}\right)\,n^{-\frac{1}{5}}
+
+    Args:
+        data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
+               from. |@docend:pdf.kde.bandwidth.data|
+        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+
+    Returns:
+        Estimated bandwidth
+    """
+
     return bandwidth_rule_of_thumb(data=data, weights=weights, factor=znp.array(0.9, dtype=ztypes.float))
 
 
 @z.function(wraps='tensor')
 def bandwidth_scott(data, weights):
+    r"""Calculate the bandwidth of *data* using silvermans rule of thumb.
+
+    |@doc:pdf.kde.bandwidth.explain_global| A global bandwidth
+             is a single parameter that is shared amongst all kernels.
+             While this is a fast and robust method,
+             it is a rule of thumb approximation. Due to its global nature,
+             it cannot take into account the different varying
+             local densities. It uses notably the least amount of memory
+             of all methods. |@docend:pdf.kde.bandwidth.explain_global|
+
+    .. math::
+      h = 1.059 * min\left(\hat{\sigma}, \frac{IQR}{1.34}\right)\,n^{-\frac{1}{5}}
+
+    Args:
+        data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
+               from. |@docend:pdf.kde.bandwidth.data|
+        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+
+    Returns:
+        Estimated bandwidth
+    """
+
     return bandwidth_rule_of_thumb(data=data, weights=weights, factor=znp.array(1.059, dtype=ztypes.float))
 
 
 def bandwidth_isj(data, weights):
+    r"""Calculate the bandwidth of *data* using the improved Sheather-Jones Algorithm.
+
+    The ISJ is an adaptive kernel density estimator based on linear diffusion processes
+     and an estimation for the optimal bandwidth :footcite:t:`Botev_2010`
+
+    |@doc:pdf.kde.bandwidth.explain_global| A global bandwidth
+             is a single parameter that is shared amongst all kernels.
+             While this is a fast and robust method,
+             it is a rule of thumb approximation. Due to its global nature,
+             it cannot take into account the different varying
+             local densities. It uses notably the least amount of memory
+             of all methods. |@docend:pdf.kde.bandwidth.explain_global|
+
+
+    .. footbibliography::
+
+    Args:
+        data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
+               from. |@docend:pdf.kde.bandwidth.data|
+        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+
+    Returns:
+        Estimated bandwidth
+    """
+
     return isj_util.calculate_bandwidth(data, num_grid_points=1024, binning_method='linear', weights=weights)
 
 
 def bandwidth_adaptive_geomV1(data, func, weights):
+    r"""Local, adaptive bandwidth estimation scaling by the geometric mean.
+
+    The implementation follows Eq. 2 and 3 of :footcite:t:`7761150`. However,
+    experimental results hint towards a non-optimal performance, which can be caused
+    by a mistake in the implementation.
+
+    |@doc:pdf.kde.bandwidth.explain_adaptive| Adaptive bandwidths are
+             a way to reduce the dependence on the bandwidth parameter
+             and usually are local bandwidths that take into account
+             the local densities.
+             Adaptive bandwidths are constructed by using an initial estimate
+             of the local density in order to calculate a sensible bandwidth
+             for each kernel. The initial estimator can be a kernel density
+             estimation using a global bandwidth with a rule of thumb.
+             The adaptive bandwidth h is obtained using this estimate, where
+             usually
+
+             .. math::
+               h_{i} \propto f( x_{i} ) ^ {-1/2}
+
+             Estimates can still differ in the overall scaling of this
+             bandwidth. |@docend:pdf.kde.bandwidth.explain_adaptive|
+
+    |@doc:pdf.kde.bandwidth.explain_local| A local bandwidth
+             means that each kernel i has a different bandwidth.
+             In other words, given some data points with size n,
+             we will need n bandwidth parameters.
+             This is often more accurate than a global bandwidth,
+             as it allows to have larger bandwiths in areas of smaller density,
+             where, due to the small local sample size, we have less certainty
+             over the true density while having a smaller bandwidth in denser
+             populated areas.
+
+             The accuracy comes at the cost of a longer pre-calculation to obtain
+             the local bandwidth (there are different methods available), an
+             increased runtime and - most importantly - an peak memory usage.
+
+             This can be especially costly for a large number (> few thousand) of
+             kernels and/or evaluating on large datasets (> 10'000). |@docend:pdf.kde.bandwidth.explain_local|
+
+
+    .. footbibliography::
+
+    Args:
+        data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
+               from. |@docend:pdf.kde.bandwidth.data|
+        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+
+    Returns:
+        Estimated bandwidth of size data
+    """
+
     data = z.convert_to_tensor(data)
     if weights is not None:
         n = znp.sum(weights)
@@ -69,7 +200,56 @@ def bandwidth_adaptive_geomV1(data, func, weights):
     return lambda_i * n ** (-1. / 5.) * min_std_or_iqr(data, weights)
 
 
-def bandwidth_adaptive_zfitV1(data, func, weights):
+def bandwidth_adaptive_zfitV1(data, func, weights) -> znp.array:
+    r"""(Naive) Local, adaptive bandwidth estimation using a normalized scaling.
+
+    This approach is an ad-hoc scaling. It works well but is not found in any paper.
+
+    |@doc:pdf.kde.bandwidth.explain_adaptive| Adaptive bandwidths are
+             a way to reduce the dependence on the bandwidth parameter
+             and usually are local bandwidths that take into account
+             the local densities.
+             Adaptive bandwidths are constructed by using an initial estimate
+             of the local density in order to calculate a sensible bandwidth
+             for each kernel. The initial estimator can be a kernel density
+             estimation using a global bandwidth with a rule of thumb.
+             The adaptive bandwidth h is obtained using this estimate, where
+             usually
+
+             .. math::
+               h_{i} \propto f( x_{i} ) ^ {-1/2}
+
+             Estimates can still differ in the overall scaling of this
+             bandwidth. |@docend:pdf.kde.bandwidth.explain_adaptive|
+
+    |@doc:pdf.kde.bandwidth.explain_local| A local bandwidth
+             means that each kernel i has a different bandwidth.
+             In other words, given some data points with size n,
+             we will need n bandwidth parameters.
+             This is often more accurate than a global bandwidth,
+             as it allows to have larger bandwiths in areas of smaller density,
+             where, due to the small local sample size, we have less certainty
+             over the true density while having a smaller bandwidth in denser
+             populated areas.
+
+             The accuracy comes at the cost of a longer pre-calculation to obtain
+             the local bandwidth (there are different methods available), an
+             increased runtime and - most importantly - an peak memory usage.
+
+             This can be especially costly for a large number (> few thousand) of
+             kernels and/or evaluating on large datasets (> 10'000). |@docend:pdf.kde.bandwidth.explain_local|
+
+
+    .. footbibliography::
+
+    Args:
+        data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
+               from. |@docend:pdf.kde.bandwidth.data|
+        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+
+    Returns:
+        Estimated bandwidth array of same size as data
+    """
     data = z.convert_to_tensor(data)
     probs = func(data)
     estimate = bandwidth_scott(data, weights=weights)
@@ -78,6 +258,57 @@ def bandwidth_adaptive_zfitV1(data, func, weights):
 
 
 def bandwidth_adaptive_stdV1(data, func, weights):
+    r"""Local, adaptive bandwidth estimation scaling by the std of the data.
+
+    The implementation follows Eq. 2 and 3 of :footcite:t:`Cranmer_2001`. However,
+    experimental results hint towards a non-optimal performance, which can be caused
+    by a mistake in the implementation.
+
+    |@doc:pdf.kde.bandwidth.explain_adaptive| Adaptive bandwidths are
+             a way to reduce the dependence on the bandwidth parameter
+             and usually are local bandwidths that take into account
+             the local densities.
+             Adaptive bandwidths are constructed by using an initial estimate
+             of the local density in order to calculate a sensible bandwidth
+             for each kernel. The initial estimator can be a kernel density
+             estimation using a global bandwidth with a rule of thumb.
+             The adaptive bandwidth h is obtained using this estimate, where
+             usually
+
+             .. math::
+               h_{i} \propto f( x_{i} ) ^ {-1/2}
+
+             Estimates can still differ in the overall scaling of this
+             bandwidth. |@docend:pdf.kde.bandwidth.explain_adaptive|
+
+    |@doc:pdf.kde.bandwidth.explain_local| A local bandwidth
+             means that each kernel i has a different bandwidth.
+             In other words, given some data points with size n,
+             we will need n bandwidth parameters.
+             This is often more accurate than a global bandwidth,
+             as it allows to have larger bandwiths in areas of smaller density,
+             where, due to the small local sample size, we have less certainty
+             over the true density while having a smaller bandwidth in denser
+             populated areas.
+
+             The accuracy comes at the cost of a longer pre-calculation to obtain
+             the local bandwidth (there are different methods available), an
+             increased runtime and - most importantly - an peak memory usage.
+
+             This can be especially costly for a large number (> few thousand) of
+             kernels and/or evaluating on large datasets (> 10'000). |@docend:pdf.kde.bandwidth.explain_local|
+
+
+    .. footbibliography::
+
+    Args:
+        data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
+               from. |@docend:pdf.kde.bandwidth.data|
+        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+
+    Returns:
+        Estimated bandwidth array of same size as data
+    """
     data = z.convert_to_tensor(data)
     if weights is not None:
         n = znp.sum(weights)
@@ -132,7 +363,6 @@ def _bandwidth_isj_KDEV1(data, weights, *_, **__):
 
 @z.function(wraps='tensor')
 def min_std_or_iqr(x, weights):
-    # TODO: use weighted percentile
     if weights is not None:
         return znp.minimum(znp.sqrt(tf.nn.weighted_moments(x, axes=[0], frequency_weights=weights)[1]),
                            weighted_quantile(x, 0.75, weights=weights)[0]
@@ -154,8 +384,9 @@ class KDEHelperMixin:
         'scott': _bandwidth_scott_KDEV1,
         'silverman': _bandwidth_silverman_KDEV1,
     }
+    _default_padding = 0.1
 
-    def _convert_init_data_weights_size(self, data, weights):
+    def _convert_init_data_weights_size(self, data, weights, padding):
         self._original_data = data  # for copying
         if isinstance(data, ZfitData):
             if data.weights is not None:
@@ -168,6 +399,11 @@ class KDEHelperMixin:
                 raise ShapeIncompatibleError(
                     f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables.")
             data = z.unstack_x(data)
+
+        if callable(padding):
+            data, weights = padding(data=data, weights=weights)
+        elif padding is not False:
+            data, weights = padreflect_data_weights_1dim(data, weights=weights, mode=padding)
         shape_data = tf.shape(data)
         size = tf.cast(shape_data[0], ztypes.float)
         return data, size, weights
@@ -192,6 +428,50 @@ class KDEHelperMixin:
         return bandwidth, bandwidth_param
 
 
+def padreflect_data_weights_1dim(data, mode, weights=None):
+    if mode is False:
+        return data, weights
+    if mode is True:
+        mode = znp.array(0.1)
+    if not isinstance(mode, dict):
+        mode = {'lower': mode, 'upper': mode}
+    minimum = znp.min(data)
+    maximum = znp.max(data)
+    diff = (maximum - minimum)
+    lower = mode.get('lower')
+    new_data = []
+    new_weights = []
+    if lower is not None:
+        dx_lower = diff * lower
+        lower_area = data < minimum + dx_lower
+        lower_index = znp.where(lower_area)
+        lower_data = tf.gather(data, indices=lower_index)[:, 0]
+        lower_data_mirrored = - lower_data + 2 * minimum
+        new_data.append(lower_data_mirrored)
+        if weights is not None:
+            lower_weights = tf.gather(weights, indices=lower_index)[:, 0]
+            new_weights.append(lower_weights)
+    new_data.append(data)
+    new_weights.append(weights)
+    upper = mode.get('upper')
+    if upper is not None:
+        dx_upper = diff * upper
+        upper_area = data > maximum - dx_upper
+        upper_index = tf.where(upper_area)
+        upper_data = tf.gather(data, indices=upper_index)[:, 0]
+        upper_data_mirrored = - upper_data + 2 * maximum
+        new_data.append(upper_data_mirrored)
+        if weights is not None:
+            upper_weights = tf.gather(weights, indices=upper_index)[:, 0]
+            new_weights.append(upper_weights)
+
+    data = tf.concat(new_data, axis=0)
+
+    if weights is not None:
+        weights = tf.concat(new_weights, axis=0)
+    return data, weights
+
+
 class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
     _N_OBS = 1
     _bandwidth_methods = KDEHelperMixin._bandwidth_methods.copy()
@@ -206,12 +486,13 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
                  bandwidth: Union[ztyping.ParamTypeInput, str] = None,
                  weights: Union[None, np.ndarray, tf.Tensor] = None,
                  truncate: bool = False,
-                 name: str = "GaussianKDE1DimV1"):
+                 name: str = "GaussianKDE1DimV1", ):
         r"""EXPERIMENTAL, `FEEDBACK WELCOME <https://github.com/zfit/zfit/issues/new?assignees=&labels=&template=other.md&title=>`_
         Exact, one dimensional, (truncated) Kernel Density Estimation with a Gaussian Kernel.
 
         This implementation features an exact implementation as is preferably used for smaller (max. ~ a few thousand
-        points) data sets. For larger data sets, methods such as :py:class: that bin the dataset may be more efficient
+        points) data sets. For larger data sets, methods such as :py:class:~``zfit.pdf.GridKDE1Dim``
+        that bin the dataset may be more efficient
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
         .. math::
@@ -230,7 +511,7 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
         **Usage**
 
         The KDE can be instantiated by using a numpy-like data sample, preferably a `zfit.Data` object. This
-        will be used as the mu of the kernels. The bandwidth can either be given as a parameter (with length
+        will be used as the mean of the kernels. The bandwidth can either be given as a parameter (with length
         1 for a global one or length equal to the data size) - a rather advanced concept for methods such as
         cross validation - or determined from the data automatically, either through a simple method like
         scott or silverman rule of thumbs or through an iterative, adaptive method.
@@ -265,10 +546,10 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
             name: Name of the PDF
         """
         original_data = data
-        data, size, weights = self._convert_init_data_weights_size(data, weights)
+        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=False)
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data, truncate=truncate,
-                                                                   name=name, obs=obs, weights=weights)
+                                                                   name=name, obs=obs, weights=weights, padding=False)
         params = {'bandwidth': bandwidth_param}
 
         probs = calc_kernel_probs(size, weights)
@@ -321,16 +602,39 @@ class ExactKDE1Dim(KDEHelperMixin, WrapDistribution):
     })
 
     def __init__(self,
-                 obs: ztyping.ObsTypeInput,
-                 data: ztyping.ParamTypeInput,
-                 bandwidth: ztyping.ParamTypeInput = None,
-                 kernel=tfd.Normal,
-                 weights: Union[None, np.ndarray, tf.Tensor] = None,
-                 name: str = "ExactKDE1DimV1"):
+                 data: ztyping.XTypeInput,
+                 *,
+                 obs: Optional[ztyping.ObsTypeInput] = None,
+                 bandwidth: Optional[Union[ztyping.ParamTypeInput, str, Callable]] = None,
+                 kernel: tfd.Distribution = None,
+                 padding: Optional[Union[callable, str, bool]] = None,
+                 weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
+                 name: Optional[str] = "ExactKDE1DimV1"):
         r"""
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+
+        Given a sample *data* we want to estimate the
+
         .. math::
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
+
+        This PDF features an exact implementation as is preferable for smaller (max. ~ a few thousand
+        points) data sets. For larger data sets, methods such as :py:class:~``zfit.pdf.GridKDE1Dim``
+        that bin the dataset may be more efficient
+        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+
+        .. math::
+
+            f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
+
+        where the kernel in this case is a (truncated) Gaussian
+
+        .. math::
+            K = \exp \Big(\frac{(x - x_i)^2}{\sigma^2}\Big)
+
+
+        The bandwidth of the kernel can be estimated in different ways. It can either be a global bandwidth,
+        corresponding to a single value, or a local bandwidth, each corresponding to one data point.
 
         Args:
             data: 1-D Tensor-like.
@@ -344,13 +648,20 @@ class ExactKDE1Dim(KDEHelperMixin, WrapDistribution):
         if kernel is None:
             kernel = tfd.Normal
 
-        data, size, weights = self._convert_init_data_weights_size(data, weights)
-
+        if padding is None:
+            padding = self._default_padding
+        if obs is None:
+            if not isinstance(data, ZfitData) or not data.space.has_limits:
+                raise ValueError("obs can only be None if data is ZfitData with limits.")
+            else:
+                obs = data.space
+        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding)
+        self._padding = padding
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
-                                                                   name=name, obs=obs, weights=weights)
+                                                                   name=name, obs=obs, weights=weights,
+                                                                   padding=False, kernel=kernel)
 
-        original_data = data
-        self._original_data = original_data  # for copying
+        self._original_data = data  # for copying
 
         def components_distribution_generator(
                 loc, scale):
@@ -393,13 +704,15 @@ class GridKDE1Dim(KDEHelperMixin, WrapDistribution):
     })
 
     def __init__(self,
-                 obs: ztyping.ObsTypeInput,
-                 data: ztyping.ParamTypeInput,
-                 bandwidth: ztyping.ParamTypeInput = None,
-                 kernel=None,
-                 num_grid_points=None,
-                 binning_method=None,
-                 weights: Union[None, np.ndarray, tf.Tensor] = None,
+                 data: ztyping.XTypeInput,
+                 *,
+                 obs: Optional[ztyping.ObsTypeInput] = None,
+                 bandwidth: Optional[Union[ztyping.ParamTypeInput, str, Callable]] = None,
+                 kernel: tfd.Distribution = None,
+                 padding: Optional[Union[callable, str, bool]] = None,
+                 num_grid_points: Optional[int] = None,
+                 binning_method: Optional[str] = None,
+                 weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
                  name: str = "GridKDE1DimV1"):
         r"""
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
@@ -427,10 +740,17 @@ class GridKDE1Dim(KDEHelperMixin, WrapDistribution):
             raise ValueError("adaptive_std not supported in GridKDE due to very bad results. This is maybe caused"
                              " by an issue regarding weights of the underlaying implementation.")
 
-        data, size, weights = self._convert_init_data_weights_size(data, weights)
+        if padding is None:
+            padding = self._default_padding
+        if obs is None:
+            if not isinstance(data, ZfitData) or not data.space.has_limits:
+                raise ValueError("obs can only be None if data is ZfitData with limits.")
+            else:
+                obs = data.space
+        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding)
+        self._padding = padding
 
-        original_data = data
-        self._original_data = original_data  # for copying
+        self._original_data = data  # for copying
 
         def components_distribution_generator(
                 loc, scale):
@@ -446,6 +766,7 @@ class GridKDE1Dim(KDEHelperMixin, WrapDistribution):
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
                                                                    binning_method=binning_method,
                                                                    num_grid_points=num_grid_points,
+                                                                   padding=False, kernel=kernel,
                                                                    name=name, obs=obs, weights=weights)
 
         self._bandwidth = bandwidth
@@ -477,15 +798,17 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
     _N_OBS = 1
 
     def __init__(self,
-                 obs: ztyping.ObsTypeInput,
-                 data: ztyping.ParamTypeInput,
-                 bandwidth: ztyping.ParamTypeInput = None,
-                 kernel=None,
-                 support=None,
+                 data: ztyping.XTypeInput,
+                 *,
+                 obs: Optional[ztyping.ObsTypeInput] = None,
+                 bandwidth: Optional[Union[ztyping.ParamTypeInput, str, Callable]] = None,
+                 kernel: tfd.Distribution = None,
                  num_grid_points: Optional[int] = None,
-                 binning_method=None,
-                 fft_method=None,
-                 weights: Union[None, np.ndarray, tf.Tensor] = None,
+                 binning_method: Optional[str] = None,
+                 support=None,
+                 fft_method: Optional[str] = None,
+                 padding: Optional[Union[callable, str, bool]] = None,
+                 weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
                  name: str = "KDE1DimFFTV1"):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -514,8 +837,20 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
             fft_method = 'conv1d'
         if kernel is None:
             kernel = tfd.Normal
-        data, size, weights = self._convert_init_data_weights_size(data, weights)
+
+        if padding is None:
+            padding = self._default_padding
+        if obs is None:
+            if not isinstance(data, ZfitData) or not data.space.has_limits:
+                raise ValueError("obs can only be None if data is ZfitData with limits.")
+            else:
+                obs = data.space
+        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding)
+        self._padding = padding
+
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
+                                                                   padding=False, kernel=kernel,
+                                                                   support=support, fft_method=fft_method,
                                                                    name=name, obs=obs, weights=weights)
         num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
         self._num_grid_points = num_grid_points
@@ -557,11 +892,13 @@ class KDE1DimISJV1(KDEHelperMixin, BasePDF):
     _N_OBS = 1
 
     def __init__(self,
-                 obs: ztyping.ObsTypeInput,
-                 data: ztyping.ParamTypeInput,
+                 data: ztyping.XTypeInput,
+                 *,
+                 obs: Optional[ztyping.ObsTypeInput] = None,
+                 padding: Optional[Union[callable, str, bool]] = None,
                  num_grid_points: Optional[int] = None,
-                 binning_method=None,
-                 weights: Union[None, np.ndarray, tf.Tensor] = None,
+                 binning_method: Optional[str] = None,
+                 weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
                  name: str = "KDE1DimISJV1"):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -583,8 +920,16 @@ class KDE1DimISJV1(KDEHelperMixin, BasePDF):
             num_grid_points = 1024
         if binning_method is None:
             binning_method = 'linear'
+        if padding is None:
+            padding = self._default_padding
+        if obs is None:
+            if not isinstance(data, ZfitData) or not data.space.has_limits:
+                raise ValueError("obs can only be None if data is ZfitData with limits.")
+            else:
+                obs = data.space
+        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding)
+        self._padding = padding
 
-        data, size, weights = self._convert_init_data_weights_size(data, weights)
         num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method

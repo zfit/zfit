@@ -7,8 +7,53 @@ pdf.kde.bandwidth.weights: |1+
 
 
 pdf.kde.bandwidth.data: |1+
-  Data points to determine the bandwidth from.
+  Data points to determine the bandwidth
+                from.
 
+pdf.kde.bandwidth.explain_global: |1+
+  A global bandwidth
+              is a single parameter that is shared amongst all kernels.
+              While this is a fast and robust method,
+              it is a rule of thumb approximation. Due to its global nature,
+              it cannot take into account the different varying
+              local densities. It uses notably the least amount of memory
+              of all methods.
+
+pdf.kde.bandwidth.explain_local: |1+
+  A local bandwidth
+              means that each kernel i has a different bandwidth.
+              In other words, given some data points with size n,
+              we will need n bandwidth parameters.
+              This is often more accurate than a global bandwidth,
+              as it allows to have larger bandwiths in areas of smaller density,
+              where, due to the small local sample size, we have less certainty
+              over the true density while having a smaller bandwidth in denser
+              populated areas.
+
+              The accuracy comes at the cost of a longer pre-calculation to obtain
+              the local bandwidth (there are different methods available), an
+              increased runtime and - most importantly - an peak memory usage.
+
+              This can be especially costly for a large number (> few thousand) of
+              kernels and/or evaluating on large datasets (> 10'000).
+
+pdf.kde.bandwidth.explain_adaptive: |1+
+  Adaptive bandwidths are
+              a way to reduce the dependence on the bandwidth parameter
+              and usually are local bandwidths that take into account
+              the local densities.
+              Adaptive bandwidths are constructed by using an initial estimate
+              of the local density in order to calculate a sensible bandwidth
+              for each kernel. The initial estimator can be a kernel density
+              estimation using a global bandwidth with a rule of thumb.
+              The adaptive bandwidth h is obtained using this estimate, where
+              usually
+
+              .. math::
+                h_{i} \propto f( x_{i} ) ^ {-1/2}
+
+              Estimates can still differ in the overall scaling of this
+              bandwidth.
 
 minimizer.verbosity: |1+
  Verbosity of the minimizer. Has to be between 0 and 10.

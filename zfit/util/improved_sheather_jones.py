@@ -89,7 +89,7 @@ def _fixed_point(t, N, squared_integers, grid_data_dct2):
         return i - 1., f
 
     # do the loop:
-    fnew = tf.while_loop(while_condition, body, [i, f], maximum_iterations=5, parallel_iterations=5)[1]
+    fnew = tf.while_loop(while_condition, body, (i, f), maximum_iterations=5, parallel_iterations=5)[1]
 
     # This is the minimizer of the AMISE
     t_opt = tf.math.pow(tf.constant(2 * np.sqrt(np.pi), ztypes.float)

@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
+    'sphinx.ext.bibtex',
     'sphinx.ext.githubpages',
     'sphinx.ext.todo',
     'sphinx_copybutton',
@@ -65,6 +66,9 @@ myst_enable_extensions = [
     "dollarmath",
     "html_image",
 ]
+
+
+bibtex_bibfiles = [str(project_dir.joinpath('docs', 'refs.bib'))]
 
 zfit_tutorials_path = project_dir.joinpath('docs', '_tmp', 'zfit-tutorials')
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
