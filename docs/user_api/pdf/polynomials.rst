@@ -1,5 +1,4 @@
-Polynomials
-------------
+
 
 While polynomials are also basic PDFs, they convey mathematically
 a more special class of functions.

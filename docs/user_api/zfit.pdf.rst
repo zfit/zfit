@@ -9,7 +9,7 @@ Basic PDFs
 Basic shapes are fundamendal PDFs, with often well-known functional form.
 They are usually fully analytically implemented and often a thin
 wrapper around :py:class:`~tensorflow_probability.distribution.Distribution`.
-Any missing shape can be easily wrapped using :py:class:``~zfit.pdf.WrapDistribution``.
+Any missing shape can be easily wrapped using :py:class:`~zfit.pdf.WrapDistribution`.
 
 .. toctree::
     :maxdepth: 2

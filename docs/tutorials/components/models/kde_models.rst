@@ -1,4 +1,5 @@
 .. _sec-kernel-density-estimation:
+
 Kerned Density Estimation
 """"""""""""""""""""""""""""
 
@@ -41,6 +42,7 @@ The larger the bandwidth parameter $h$ the larger is the range of influence of
 a single data point on the estimated distribution.
 
 .. _section-exact-kdes:
+
 Exact KDEs
 ''''''''''
 
@@ -73,6 +75,7 @@ TensorFlow-Probability distribution.
   kde = zfit.pdf.KDE1DimExact(obs, data, bandwidth, kernel, padding, weights, name)
 
 .. _sec-grid-kdes:
+
 Grid KDEs
 '''''''''
 
@@ -114,6 +117,7 @@ and the method.
   kde = zfit.pdf.KDE1DimGrid(obs, data, bandwidth, kernel, num_grid_points, binning_method, padding, weights, name)
 
 .. _sec-kde-bandwidth:
+
 Bandwidth
 '''''''''
 
@@ -173,6 +177,7 @@ Adaptive methods
 
 
 .. _sec-fft-kdes:
+
 FFT KDEs
 '''''''''
 **Summary** *By rewriting the KDE as a discrete convolution and using the FFT, the density can be
@@ -224,6 +229,7 @@ supports similar arguments such as the grid KDEs except that the
 bandwidth can't be variable.
 
 .. _sec-isj-kde:
+
 ISJ KDEs
 '''''''''
 
@@ -311,5 +317,6 @@ above) or also to compute the kernel density estimation directly using
 another Discrete Cosine Transform.
 
 .. _sec-boundary-bias-and-padding:
+
 Boundary bias and padding
 ''''''''''''''''''''''''''

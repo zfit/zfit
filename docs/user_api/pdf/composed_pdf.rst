@@ -1,5 +1,4 @@
-Composed PDFs
---------------
+
 
 Composed PDFs build on top of others and provide sums, products and more.
 

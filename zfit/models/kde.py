@@ -516,7 +516,7 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
         Exact, one dimensional, (truncated) Kernel Density Estimation with a Gaussian Kernel.
 
         This implementation features an exact implementation as is preferably used for smaller (max. ~ a few thousand
-        points) data sets. For larger data sets, methods such as :py:class:~``zfit.pdf.KDE1DimGrid``
+        points) data sets. For larger data sets, methods such as :py:class:`~zfit.pdf.KDE1DimGrid`
         that bin the dataset may be more efficient
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -685,7 +685,7 @@ class KDE1DimExact(KDEHelperMixin, WrapDistribution):
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
         This PDF features an exact implementation as is preferable for smaller (max. ~ a few thousand
-        points) data sets. For larger data sets, methods such as :py:class:~``zfit.pdf.KDE1DimGrid``
+        points) data sets. For larger data sets, methods such as :py:class:`~zfit.pdf.KDE1DimGrid`
         that bin the dataset may be more efficient
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 

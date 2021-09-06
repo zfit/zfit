@@ -1,5 +1,4 @@
-Kernel Density Estimation
---------------------------
+
 
 KDEs provide a means of non-parametric density estimation.
 
