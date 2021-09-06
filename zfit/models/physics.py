@@ -127,6 +127,8 @@ def double_crystalball_mu_integral(limits, params, model):
     nr = params["nr"]
 
     lower, upper = limits._rect_limits_tf
+    lower = lower[:, 0]
+    upper = upper[:, 0]
 
     return double_crystalball_mu_integral_func(mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr,
                                                lower=lower, upper=upper)
