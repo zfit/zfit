@@ -46,31 +46,40 @@ and well integrated into `Scikit-HEP <https://scikit-hep.org/>`_, the HEP Python
 - **Documentation**: See `stable documentation`_ or `latest documentation`_
 - **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
   `ask on StackOverflow <https://stackoverflow.com/questions/ask?tags=zfit>`_ (with the **zfit** tag) or `contact`_ us directly.
-- **Physics/HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute/find more HEP
+- **Physics, HEP**: `zfit-physics <https://github.com/zfit/zfit-physics>`_ is the place to contribute and find more HEP
   related content
+- **Statistical inference**: `hepstats <https://github.com/scikit-hep/hepstats>`_ for limits, CI, sWeights and more
 
 
 
-If you use zfit in **research**, please consider `citing <https://www.sciencedirect.com/science/article/pii/S2352711019303851>`_.
+If you use zfit in **research**, please
+consider `citing <https://www.sciencedirect.com/science/article/pii/S2352711019303851>`_.
 
-*N.B.*: zfit is currently in *beta stage*, so while most core parts are established, some may still be missing and bugs may be encountered.
+*N.B.*: zfit is currently in *beta stage*, so while most core parts are established,
+some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
-If you want to use it for your project and you are not sure if all the needed functionality is there, feel free to `contact`_.
+If you want to use it for your project and you are not sure if all the needed functionality is there,
+feel free to `contact`_.
 
 
 Why?
 ====
 
-The basic idea behind zfit is to offer a Python oriented alternative to the very successful RooFit library from the `ROOT <https://root.cern.ch/>`_ data analysis package that can integrate with the other packages that are part if the scientific Python ecosystem.
-Contrary to the monolithic approach of ROOT/RooFit, the aim of zfit is to be light and flexible enough to integrate with any state-of-art tools and to allow scalability going to larger datasets.
+The basic idea behind zfit is to offer a Python oriented alternative to the very successful RooFit library
+from the `ROOT <https://root.cern.ch/>`_ data analysis package that can integrate with the other packages
+that are part if the scientific Python ecosystem.
+Contrary to the monolithic approach of ROOT/RooFit, the aim of zfit is to be light and flexible enough t
+o integrate with any state-of-art tools and to allow scalability going to larger datasets.
 
 These core ideas are supported by two basic pillars:
 
 - The skeleton and extension of the code is minimalist, simple and finite:
-  the zfit library is exclusively designed for the purpose of model fitting and sampling with no attempt to extend its functionalities to features such as statistical methods or plotting.
+  the zfit library is exclusively designed for the purpose of model fitting and sampling with no attempt to extend its
+  functionalities to features such as statistical methods or plotting.
 
 - zfit is designed for optimal parallelisation and scalability by making use of TensorFlow as its backend.
-  The use of TensorFlow provides crucial features in the context of model fitting like taking care of the parallelisation and analytic derivatives.
+  The use of TensorFlow provides crucial features in the context of model fitting like taking care of the
+  parallelisation and analytic derivatives.
 
 
 
