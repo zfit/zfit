@@ -617,6 +617,9 @@ class ExactKDE1Dim(KDEHelperMixin, WrapDistribution):
         r"""
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
+        For a more in-depth explanation, see also in the section about Kernel Density Estimation
+        :ref:`section-exact-kdes`
+
         Given a sample *data* we want to estimate the
 
         .. math::
@@ -720,6 +723,10 @@ class GridKDE1Dim(KDEHelperMixin, WrapDistribution):
                  name: str = "GridKDE1DimV1"):
         r"""
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+
+        For a more in-depth explanation, see also in the section about Kernel Density Estimation
+        :ref:`sec-grid-kdes`
+
         .. math::
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
@@ -816,6 +823,9 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
                  name: str = "KDE1DimFFTV1"):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
+        For a more in-depth explanation, see also in the section about Kernel Density Estimation
+        :ref:`sec-fft-kdes`
+
         .. math::
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
@@ -905,6 +915,9 @@ class KDE1DimISJV1(KDEHelperMixin, BasePDF):
                  weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
                  name: str = "KDE1DimISJV1"):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+
+        For a more in-depth explanation, see also in the section about Kernel Density Estimation
+        :ref:`sec-isj-kde`
 
         .. math::
 
