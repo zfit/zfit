@@ -10,6 +10,31 @@ pdf.kde.bandwidth.data: |1+
   Data points to determine the bandwidth
                 from.
 
+pdf.kde.init.data: |1+
+  Data sample to approximate
+              the density from. The points represent positions of the *kernel*,
+              the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
+              be an array-like object.
+
+
+pdf.kde.init.obs: |1+
+  Observable space of the KDE.
+              As with any other PDF, this will be used as the default *norm*, but
+              does not define the domain of the PDF. Namely this can be a smaller
+              space than *data*, as long as the name of the observable match.
+              Using a larger dataset is actually good practice to avoid
+              bountary biases, see also :ref:`sec-boundary-bias-and-padding`.
+
+pdf.kde.init.bandwidth: |1+
+  Bandwidth of the kernel,
+              often also denoted as :math:`h`. For a Gaussian kernel, this
+              corresponds to *sigma*.
+              Valid options are {'silverman', 'scott', 'adaptive'} or a numerical.
+                              If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
+                              A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
+
+
+
 pdf.kde.bandwidth.explain_global: |1+
   A global bandwidth
               is a single parameter that is shared amongst all kernels.

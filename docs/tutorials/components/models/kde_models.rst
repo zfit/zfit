@@ -1,6 +1,8 @@
 Kerned Density Estimation
 """"""""""""""""""""""""""""
 
+:Authors: Marc Steiner; Jonas Eschle
+
 An introduction to Kernel Density Estimations, explanations to all methods implemented in zfit and a throughout
 comparison of the performance can be found in
 `Performance of univariate kernel density estimation methods in TensorFlow <https://astroviking.github.io/ba-thesis/>`_
@@ -21,6 +23,22 @@ one might argue that this is not a major improvement. Upon closer inspection, on
 does depend less strongly on the kernel bandwidth than histograms do on bin width and it is much easier to specify
 rules for an approximately optimal kernel bandwidth than it is to do so for bin width.
 
+
+Given a set of :math:`$n$` sample points :math:`$x_k$` (:math:`$k = 1,\cdots,n$`), an exact kernel density estimation
+`$\widehat{f}_h(x)$` can be calculated as
+
+.. math::
+    :label: eq-exact-kde
+
+    \widehat{f}_h(x) = \frac{1}{nh} \sum_{k=1}^n K\Big(\frac{x-x_k}{h}\Big)
+
+where :math:`$K(x)$` is called the kernel function, :math:`$h$` is the bandwidth of the kernel and :math:`$x$` is the
+value for which the estimate is calculated. The kernel function defines the shape and size of influence of a single
+data point over the estimation, whereas the bandwidth defines the range of influence. Most typically a simple
+Gaussian distribution (:math:`$K(x) :=\frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}x^2}$`) is used as kernel function.
+The larger the bandwidth parameter $h$ the larger is the range of influence of
+a single data point on the estimated distribution.
+
 .. _section-exact-kdes:
 Exact KDEs
 ''''''''''
@@ -34,22 +52,13 @@ Therefore, this kind of PDF is better used for smaller datasets and a Grid KDE i
 
 **Explanation**
 
-Given a set of :math:`$n$` sample points :math:`$x_k$` (:math:`$k = 1,\cdots,n$`), an exact kernel density estimation
-`$\widehat{f}_h(x)$` can be calculated as
-
-.. math::
-    \widehat{f}_h(x) = \frac{1}{nh} \sum_{k=1}^n K\Big(\frac{x-x_k}{h}\Big)
-
-where :math:`$K(x)$` is called the kernel function, :math:`$h$` is the bandwidth of the kernel and :math:`$x$` is the
-value for which the estimate is calculated. The kernel function defines the shape and size of influence of a single
-data point over the estimation, whereas the bandwidth defines the range of influence. Most typically a simple
-Gaussian distribution (:math:`$K(x) :=\frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}x^2}$`) is used as kernel function.
-The larger the bandwidth parameter $h$ the larger is the range of influence of
-a single data point on the estimated distribution.
+Exact KDEs implement exactly Eq. :eq:`eq-exact-kde` without any approximation and therefore no loss of information.
 
 The computational complexity of the exact KDE above is given by :math:`$\mathcal{O}(nm)$` where :math:`$n$`
 is the number of sample points to estimate from and :math:`$m$` is the number of evaluation points
 (the points where you want to calculate the estimate).
+
+Due to this cost, the method is most often used for smaller datasamples.
 
 There exist several approximative methods to decrease this complexity and therefore decrease the runtime as well.
 
@@ -82,6 +91,8 @@ we can assign an estimate
 the kernel density estimation instead.
 
 .. math::
+    :label: eq-kdebin
+
     \widehat{f}_h(x) = \frac{1}{nh} \sum_{l=1}^N c_l \cdot K\Big(\frac{x-g_l}{h}\Big)
 
 This lowers the computational complexity down to :math:`$\mathcal{O}(N \cdot m)$`.
@@ -101,17 +112,70 @@ and the method.
 
   kde = zfit.pdf.GridKDE1Dim(obs, data, bandwidth, kernel, num_grid_points, binning_method, padding, weights, name)
 
+.. _sec-kde-bandwidth:
 Bandwidth
 '''''''''
 
-Bandwidth denotes the width of the kernel. There are two main distinction, a global and local bandwidths. The former
+**Summary** *Bandwidth denotes the width of the kernel and aims usually at reducing the integrated squared error.
+There are two main distinction, a global and local bandwidths. The former
 is the same width for all kernels while the latter uses different bandwidth for each kernel and therefore can, in
-general, better reflect the local density.
+general, better reflect the local density, often at a computational cost.*
+
+**Explanation**
+
+The optimal bandwidth is often defined as the one that minimizes the
+mean integrated squared error (:math:`MISE`) between the kernel density
+estimation :math:`\widehat{f}_{h,norm}(x)` and the true probability
+density function :math:`f(x)`, where :math:`\mathbb{E}_f` denotes the
+expected value with respect to the sample which was used to calculate
+the KDE.
+
+.. math::
+    :label: eq-mise
+
+    MISE(h) = \mathbb{E}_f\int [\widehat{f}_{h,norm}(x) - f(x)]^2 dx
+
+To find the optimal bandwidth it is useful to look at the second order
+derivative :math:`f^{(2)}` of the unknown distribution as it indicates
+how many peaks the distribution has and how steep they are. For a
+distribution with many narrow peaks close together a smaller bandwidth
+leads to better result since the peaks do not get smeared together to a
+single peak for instance.
+
+An asymptotically optimal bandwidth
+:math:`h_{AMISE}` which minimizes a first-order asymptotic approximation
+of the :math:`MISE` is then given by
+
+.. math::
+    :label: eq-amise
+
+    `h_{AMISE}(x) = \Big( \frac{1}{2N\sqrt{\pi} \| f^{(2)}(x)\|^2}\Big)^{\frac{1}{5}}`
+
+where :math:`N` is the number of sample points (or grid points if
+binning is used).
+
+
+**Implementation**
+
+zfit implements a few different bandwidth methods, of which not all are available for all KDEs.
+
+Rule of thumb
+    Scott and Silvermann both proposed rule of thumb for the kernel bandwidth. These are approximate estimates
+    that are a global parameter.
+
+Adaptive methods
+    These methods calculate a local density parameter that is approximately :math:`/propto f( x ) ^ {-1/2}`,
+    where :math:`f(x)` is an initial estimate of the density. This can be calculated for example by using
+    a rule of thumb to obtain an initial estimate.
+    The main disadvantage is a higher computational complexity; the initial overhead as well as
+    for the evaluation of the PDF. Most notably the memory consumption can be significantly higher.
+
 
 .. _sec-fft-kdes:
 FFT KDEs
 '''''''''
-**Summary**
+**Summary** *By rewriting the KDE as a discrete convolution and using the FFT, the density can be
+approximated interpolating between the discetized values.*
 
 
 Another technique to speed up the computation is rewriting the kernel
@@ -122,12 +186,13 @@ above.
 By using the fact that a convolution is just a multiplication in Fourier
 space and only evaluating the KDE at grid points one can reduce the
 computational complexity down to
-:math:`\mathcal{O}(\log{N} \cdot N)`.[@gramacki2018fft]
+:math:`\mathcal{O}(\log{N} \cdot N)`
 
-Using the equation @ref(eq:kdebin) from above only evaluated at grid
+Using Eq. :eq:`eq-kdebin` from above only evaluated at grid
 points gives us
 
 .. math::
+    :label: eq-binkdegrid
 
     \widehat{f}_h(g_j) = \frac{1}{nh} \sum_{l=1}^N c_l \cdot K\Big(\frac{g_j-g_l}{h}\Big) = \frac{1}{nh}
     \sum_{l=1}^N k_{j-l} \cdot c_l
@@ -137,75 +202,54 @@ where :math:`k_{j-l} = K(\frac{g_j-g_l}{h})`.
 
 If we set :math:`c_l = 0` for all :math:`l` not in the set
 :math:`\{1, ..., N\}` and notice that :math:`K(-x) = K(x)` we can extend
-equation @ref(eq:binkdegrid) to a discrete convolution as follows
+Eq. :eq:`eq-binkdegrid` to a discrete convolution as follows
 
 .. math::
 
     \widehat{f}_h(g_j) = \frac{1}{nh} \sum_{l=-N}^N k_{j-l} \cdot c_l = \vec{c} \ast \vec{k}
 
-By using the well known convolution theorem we can fourier transform
+By using the convolution theorem we can fourier transform
 :math:`\vec{c}` and :math:`\vec{k}`, multiply them and inverse fourier
 transform them again to get the result of the discrete convolution.
 
-However, due to the limitation of evaluating only at the grid points
+Due to the limitation of evaluating only at the grid points
 themselves, one needs to interpolate to get values for the estimated
 distribution at points in between.
+
+**Implementation**
+
+This is implemented in zfit as :py:class:~`zfit.pdf.KDE1DimFFT`. It
+supports similar arguments such as the grid KDEs except that the
+bandwidth can't be variable.
 
 .. _sec-isj-kde:
 ISJ KDEs
 '''''''''
 
-**Summary**
+**Summary** *A different take on KDEs is
+a new adaptive kernel density estimator based on linear
+diffusion processes. It performs especially well on data that do not follow
+a normal distribution. The method also includes an estimation for the optimal
+bandwidth.*
 
-A different take on KDEs is described in the paper ‘Kernel density
-estimation by diffusion’ by Botev et al.[@botev2010kernel] The authors
-present a new adaptive kernel density estimator based on linear
-diffusion processes which also includes an estimation for the optimal
-bandwidth. A more detailed and extensive explanation of the algorithm as
-well as an implementation in Matlab is given in the ‘Handbook of Monte
-Carlo Methods’[@kroese2013handbook] by the original paper authors.
-However the general idea is briefly sketched below.
+The method is described completely in the paper ‘Kernel density
+estimation by diffusion’ by :cite:t:`Botev_2010_diffusion`.
+The general idea is briefly sketched below.
 
-The optimal bandwidth is often defined as the one that minimizes the
-mean integrated squared error (:math:`MISE`) between the kernel density
-estimation :math:`\widehat{f}_{h,norm}(x)` and the true probability
-density function :math:`f(x)`, where :math:`\mathbb{E}_f` denotes the
-expected value with respect to the sample which was used to calculate
-the KDE.
-
-:raw-latex:`\begin{equation}
-MISE(h) = \mathbb{E}_f\int [\widehat{f}_{h,norm}(x) - f(x)]^2 dx
-(\#eq:mise)
-\end{equation}`
-
-To find the optimal bandwidth it is useful to look at the second order
-derivative :math:`f^{(2)}` of the unknown distribution as it indicates
-how many peaks the distribution has and how steep they are. For a
-distribution with many narrow peaks close together a smaller bandwidth
-leads to better result since the peaks do not get smeared together to a
-single peak for instance.
-
-As derived by Wand and Jones an asymptotically optimal bandwidth
-:math:`h_{AMISE}` which minimizes a first-order asymptotic approximation
-of the :math:`MISE` is then given by[@wand1994kernel]
-
-:raw-latex:`\begin{equation}
-h_{AMISE}(x) = \Big( \frac{1}{2N\sqrt{\pi} \| f^{(2)}(x)\|^2}\Big)^{\frac{1}{5}}
-(\#eq:hamise)
-\end{equation}`
-
-where :math:`N` is the number of sample points (or grid points if
-binning is used).
+As explained in :ref:`sec-kde-bandwidth`, the optimal bandwidth is often
+defined as the one that minimizes the
+(:math:`MISE`) as defined in Eq. :eq:`eq-mise` respectively a
+first-order asymptotic approximation :math:`h_{AMISE}` as defined in
+Eq. :eq:`eq-amise`.
 
 As Sheather and Jones showed, this second order derivative can be
 estimated, starting from an even higher order derivative
 :math:`\|f^{(l+2)}\|^2` by using the fact that
 :math:`\|f^{(j)}\|^2 = (-1)^j \mathbb{E}_f[f^{(2j)}(X)], \text{ } j\geq 1`
 
-:raw-latex:`\begin{equation}
-h_j=\left(\frac{1+1 / 2^{j+1 / 2}}{3} \frac{1 \times 3 \times 5 \times \cdots \times(2 j-1)}{N \sqrt{\pi / 2}\left\|f^{(j+1)}\right\|^{2}}\right)^{1 /(3+2 j)} = \gamma_j(h_{j+1})
-(\#eq:hj)
-\end{equation}`
+.. math::
+
+    h_j=\left(\frac{1+1 / 2^{j+1 / 2}}{3} \frac{1 \times 3 \times 5 \times \cdots \times(2 j-1)}{N \sqrt{\pi / 2}\left\|f^{(j+1)}\right\|^{2}}\right)^{1 /(3+2 j)} = \gamma_j(h_{j+1})
 
 where :math:`h_j` is the optimal bandwidth for the :math:`j`-th
 derivative of :math:`f` and the function :math:`\gamma_j` defines the
@@ -225,4 +269,46 @@ Their proposed plug-in method works as follows:
 
 The weakest point of this procedure is the assumption that the true
 distribution is a Gaussian density function in order to compute
-:math:`\|\widehat{f}^{(l+2)}\|^2`.
+:math:`\|\widehat{f}^{(l+2)}\|^2`. This can lead to arbitrarily bad
+estimates of :math:`h_{AMISE}`, when the true distribution is far from
+being normal.
+
+Therefore Botev et al. took this idea further. Given
+the function :math:`\gamma^{[k]}` such that
+
+.. math::
+
+    \gamma^{[k]}(h)=\underbrace{\gamma_{1}\left(\cdots \gamma_{k-1}\left(\gamma_{k}\right.\right.}_{k \text { times }}(h)) \cdots)
+
+:math:`h_{AMISE}` can be calculated as
+
+.. math::
+
+    h_{AMISE} = h_{1}=\gamma^{[1]}(h_{2})= \gamma^{[2]}(h_{3})=\cdots=\gamma^{[l]}(h_{l+1})
+
+By setting :math:`h_{AMISE}=h_{l+1}` and using fixed point iteration to
+solve the equation
+
+.. math::
+
+    h_{AMISE} = \gamma^{[l]}(h_{AMISE})
+
+the optimal bandwidth :math:`h_{AMISE}` can be found directly.
+
+This **eliminates the need to assume normally distributed data** for the
+initial estimate and leads to improved accuracy, especially for
+density distributions that are far from normal.
+According to their paper increasing :math:`l` beyond
+:math:`l=5` does not increase the accuracy in any practically meaningful
+way. The computation is especially efficient if :math:`\gamma^{[5]}` is
+computed using the Discrete Cosine Transform - an FFT related
+transformation.
+
+The optimal bandwidth :math:`h_{AMISE}` can then either be used for
+other kernel density estimation methods (like the FFT-approach discussed
+above) or also to compute the kernel density estimation directly using
+another Discrete Cosine Transform.
+
+.. _sec-boundary-bias-and-padding:
+Boundary bias and padding
+''''''''''''''''''''''''''

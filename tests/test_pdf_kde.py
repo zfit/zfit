@@ -148,7 +148,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
         [
             ('kernel', dist) for dist in [None, StudentT]
         ], [
-            ('type', zfit.pdf.KDE1DimFFTV1)
+            ('type', zfit.pdf.KDE1DimFFT)
         ],
         [
             ('num_grid_points', n) for n in [None, 800]
@@ -172,7 +172,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
             ('padding', padding)
         ],
         [
-            ('type', zfit.pdf.KDE1DimISJV1)
+            ('type', zfit.pdf.KDE1DimISJ)
         ],
         [
             ('num_grid_points', n) for n in [None, 800]

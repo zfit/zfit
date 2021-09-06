@@ -538,12 +538,20 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
 
 
         Args:
-            data: 1-D Tensor-like. The positions of the `kernel`, the :math:`x_i`. Determines how many kernels will be created.
+            data: |@doc:pdf.kde.init.data| Data sample to approximate
+             the density from. The points represent positions of the *kernel*,
+             the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
+             be an array-like object. |@docend:pdf.kde.init.data|
             bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptive'} or a numerical.
                 If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
                 A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
 
-            obs: Observables
+            obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
+             As with any other PDF, this will be used as the default *norm*, but
+             does not define the domain of the PDF. Namely this can be a smaller
+             space than *data*, as long as the name of the observable match.
+             Using a larger dataset is actually good practice to avoid
+             bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
             weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
             truncate: If a truncated Gaussian kernel should be used with the limits given by the `obs` lower and
                 upper limits. This can cause NaNs in case datapoints are outside of the limits.
@@ -746,7 +754,7 @@ class GridKDE1Dim(KDEHelperMixin, WrapDistribution):
         if num_grid_points is None:
             num_grid_points = 1024
         if bandwidth == 'isj':
-            raise ValueError("isj not supported in GridKDE, use directly 'KDE1DimISJV1'")
+            raise ValueError("isj not supported in GridKDE, use directly 'KDE1DimISJ'")
         if bandwidth == 'adaptive_std':
             raise ValueError("adaptive_std not supported in GridKDE due to very bad results. This is maybe caused"
                              " by an issue regarding weights of the underlaying implementation.")
@@ -805,7 +813,7 @@ class GridKDE1Dim(KDEHelperMixin, WrapDistribution):
                          name=name)
 
 
-class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
+class KDE1DimFFT(KDEHelperMixin, BasePDF):
     _N_OBS = 1
 
     def __init__(self,
@@ -820,7 +828,7 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
                  fft_method: Optional[str] = None,
                  padding: Optional[Union[callable, str, bool]] = None,
                  weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
-                 name: str = "KDE1DimFFTV1"):
+                 name: str = "KDE1DimFFT"):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
         For a more in-depth explanation, see also in the section about Kernel Density Estimation
@@ -902,7 +910,7 @@ class KDE1DimFFTV1(KDEHelperMixin, BasePDF):
         return value
 
 
-class KDE1DimISJV1(KDEHelperMixin, BasePDF):
+class KDE1DimISJ(KDEHelperMixin, BasePDF):
     _N_OBS = 1
 
     def __init__(self,
@@ -913,7 +921,7 @@ class KDE1DimISJV1(KDEHelperMixin, BasePDF):
                  num_grid_points: Optional[int] = None,
                  binning_method: Optional[str] = None,
                  weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
-                 name: str = "KDE1DimISJV1"):
+                 name: str = "KDE1DimISJ"):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
         For a more in-depth explanation, see also in the section about Kernel Density Estimation
