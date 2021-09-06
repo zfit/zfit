@@ -8,10 +8,12 @@ Copyright (c) 2021 zfit
 #  Copyright (c) 2021 zfit
 
 import numpy as np
+import tensorflow as tf
 
 import zfit
 
-# set everything to numpy mode
+# set everything to numpy mode. This is only needed if we
+# don't use
 zfit.run.set_autograd_mode(False)
 zfit.run.set_graph_mode(False)
 
@@ -27,6 +29,14 @@ minimizer = zfit.minimize.IpyoptV1()
 def func(x):
     x = np.array(x)  # make sure it's an array
     return np.sum((x - 0.1) ** 2 + x[1] ** 4)
+
+
+# We can use the same in pure TF, then we can also use
+# the analytic gradient
+# @tf.function
+# def func(x):
+#     x = tf.convert_to_tensor(x)  # make sure it's an array
+#     return tf.reduce_sum((x - 0.1) ** 2 + x[1] ** 4)
 
 
 # we can also use a more complicated function instead
