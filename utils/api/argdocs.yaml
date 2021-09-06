@@ -49,6 +49,28 @@ pdf.kde.init.bandwidth: |1+
               A scalar value is usually referred to as a global bandwidth while
               an array holds local bandwidths
 
+pdf.kde.init.kernel: |1+
+  The kernel is the heart
+              of the Kernel Density Estimation, which consists of the sum of
+              kernels around each sample point. Therefore, a kernel should represent
+              the distribution probability of a single data point as close as
+              possible.
+
+              The most widespread kernel is a Gaussian, or Normal, distribution. Due
+              to the law of large numbers, the sum of many (arbitrary) random variables
+              -- this is the case for most real world observable as they are the result of
+              multiple consecutive random effects -- results in a Gaussian distribution.
+              However, there are many cases where this assumption is not per-se true. In
+              this cases an alternative kernel may offers a better choice.
+
+              Valid choices are callables that return a
+              :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
+              that belong to the loc-scale family.
+
+pdf.kde.init.padding: |1+
+  KDEs have a peculiar
+              weakness: the boundaries.
+
 pdf.kde.init.weights: |1+
   Weights of each event
               in *data*, can be None or Tensor-like with shape compatible
