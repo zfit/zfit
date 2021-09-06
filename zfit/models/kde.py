@@ -41,7 +41,10 @@ def bandwidth_rule_of_thumb(data: znp.array, weights: Optional[znp.array],
     Args:
         data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
                from. |@docend:pdf.kde.bandwidth.data|
-        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+        weights: |@doc:pdf.kde.bandwidth.weights| Weights of each event
+               in *data*, can be None or Tensor-like with shape compatible
+               with *data*. This will change the count of the events, whereas
+               weight :math:`w_i` of :math:`x_i`. |@docend:pdf.kde.bandwidth.weights|
         factor (default: 0.9): Factor that scales the rule of thumb. Ofter used are 0.9 for
         silvermans rule of thumb or 1.059 for scotts rule of thumb.
 
@@ -71,7 +74,10 @@ def bandwidth_silverman(data, weights):
     Args:
         data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
                from. |@docend:pdf.kde.bandwidth.data|
-        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+        weights: |@doc:pdf.kde.bandwidth.weights| Weights of each event
+               in *data*, can be None or Tensor-like with shape compatible
+               with *data*. This will change the count of the events, whereas
+               weight :math:`w_i` of :math:`x_i`. |@docend:pdf.kde.bandwidth.weights|
 
     Returns:
         Estimated bandwidth
@@ -98,7 +104,10 @@ def bandwidth_scott(data, weights):
     Args:
         data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
                from. |@docend:pdf.kde.bandwidth.data|
-        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+        weights: |@doc:pdf.kde.bandwidth.weights| Weights of each event
+               in *data*, can be None or Tensor-like with shape compatible
+               with *data*. This will change the count of the events, whereas
+               weight :math:`w_i` of :math:`x_i`. |@docend:pdf.kde.bandwidth.weights|
 
     Returns:
         Estimated bandwidth
@@ -127,7 +136,10 @@ def bandwidth_isj(data, weights):
     Args:
         data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
                from. |@docend:pdf.kde.bandwidth.data|
-        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+        weights: |@doc:pdf.kde.bandwidth.weights| Weights of each event
+               in *data*, can be None or Tensor-like with shape compatible
+               with *data*. This will change the count of the events, whereas
+               weight :math:`w_i` of :math:`x_i`. |@docend:pdf.kde.bandwidth.weights|
 
     Returns:
         Estimated bandwidth
@@ -183,7 +195,10 @@ def bandwidth_adaptive_geomV1(data, func, weights):
     Args:
         data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
                from. |@docend:pdf.kde.bandwidth.data|
-        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+        weights: |@doc:pdf.kde.bandwidth.weights| Weights of each event
+               in *data*, can be None or Tensor-like with shape compatible
+               with *data*. This will change the count of the events, whereas
+               weight :math:`w_i` of :math:`x_i`. |@docend:pdf.kde.bandwidth.weights|
 
     Returns:
         Estimated bandwidth of size data
@@ -245,7 +260,10 @@ def bandwidth_adaptive_zfitV1(data, func, weights) -> znp.array:
     Args:
         data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
                from. |@docend:pdf.kde.bandwidth.data|
-        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+        weights: |@doc:pdf.kde.bandwidth.weights| Weights of each event
+               in *data*, can be None or Tensor-like with shape compatible
+               with *data*. This will change the count of the events, whereas
+               weight :math:`w_i` of :math:`x_i`. |@docend:pdf.kde.bandwidth.weights|
 
     Returns:
         Estimated bandwidth array of same size as data
@@ -304,7 +322,10 @@ def bandwidth_adaptive_stdV1(data, func, weights):
     Args:
         data: |@doc:pdf.kde.bandwidth.data| Data points to determine the bandwidth
                from. |@docend:pdf.kde.bandwidth.data|
-        weights: |@doc:pdf.kde.bandwidth.weights| Individual event weight of *data*. |@docend:pdf.kde.bandwidth.weights|
+        weights: |@doc:pdf.kde.bandwidth.weights| Weights of each event
+               in *data*, can be None or Tensor-like with shape compatible
+               with *data*. This will change the count of the events, whereas
+               weight :math:`w_i` of :math:`x_i`. |@docend:pdf.kde.bandwidth.weights|
 
     Returns:
         Estimated bandwidth array of same size as data
@@ -541,10 +562,15 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
             data: |@doc:pdf.kde.init.data| Data sample to approximate
              the density from. The points represent positions of the *kernel*,
              the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
-             be an array-like object. |@docend:pdf.kde.init.data|
-            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptive'} or a numerical.
-                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
-                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
+             be an array-like object.
+
+             If the data has weights, they will be taken into account.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.data|
 
             obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
              As with any other PDF, this will be used as the default *norm*, but
@@ -552,10 +578,35 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
              space than *data*, as long as the name of the observable match.
              Using a larger dataset is actually good practice to avoid
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
-            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
+            bandwidth: Valid pre-defined options are {'silverman', 'scott', 'adaptive'}.
+
+            |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
+             often also denoted as :math:`h`. For a Gaussian kernel, this
+             corresponds to *sigma*. This can be calculated using
+             pre-defined options or by specifying a numerical value that is
+             broadcastable to *data* -- a scalar or an array-like
+             object with the same size as *data*.
+
+             A scalar value is usually referred to as a global bandwidth while
+             an array holds local bandwidths |@docend:pdf.kde.init.bandwidth|
+
+            The bandwidth can also be a parameter, which should be used with caution. However,
+            it allows to use it in cross-valitadion with a likelihood method.
+
+
+            weights: |@doc:pdf.kde.init.weights| Weights of each event
+             in *data*, can be None or Tensor-like with shape compatible
+             with *data*. Instead of using this parameter, it is preferred
+             to use a ``ZfitData`` as *data* that contains weights.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
             truncate: If a truncated Gaussian kernel should be used with the limits given by the `obs` lower and
                 upper limits. This can cause NaNs in case datapoints are outside of the limits.
-            name: Name of the PDF
+            name: |@doc:pdf.kde.init.name||@docend:pdf.kde.init.name|
         """
         original_data = data
         data, size, weights = self._convert_init_data_weights_size(data, weights, padding=False)
@@ -652,13 +703,57 @@ class ExactKDE1Dim(KDEHelperMixin, WrapDistribution):
         corresponding to a single value, or a local bandwidth, each corresponding to one data point.
 
         Args:
-            data: 1-D Tensor-like.
-            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
-                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
-                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
-            obs: Observables
-            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
-            name: Name of the PDF
+            data: |@doc:pdf.kde.init.data| Data sample to approximate
+             the density from. The points represent positions of the *kernel*,
+             the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
+             be an array-like object.
+
+             If the data has weights, they will be taken into account.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.data|
+
+            obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
+             As with any other PDF, this will be used as the default *norm*, but
+             does not define the domain of the PDF. Namely this can be a smaller
+             space than *data*, as long as the name of the observable match.
+             Using a larger dataset is actually good practice to avoid
+             bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
+            bandwidth: Valid pre-defined options are {'silverman', 'scott', 'adaptive'}.
+
+            |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
+             often also denoted as :math:`h`. For a Gaussian kernel, this
+             corresponds to *sigma*. This can be calculated using
+             pre-defined options or by specifying a numerical value that is
+             broadcastable to *data* -- a scalar or an array-like
+             object with the same size as *data*.
+
+             A scalar value is usually referred to as a global bandwidth while
+             an array holds local bandwidths |@docend:pdf.kde.init.bandwidth|
+
+            The bandwidth can also be a parameter, which should be used with caution. However,
+            it allows to use it in cross-valitadion with a likelihood method.
+            kernel: |@doc:pdf.kde.init.kernel||@docend:pdf.kde.init.kernel|
+            padding: |@doc:pdf.kde.init.padding||@docend:pdf.kde.init.padding|
+
+
+            weights: |@doc:pdf.kde.init.weights| Weights of each event
+             in *data*, can be None or Tensor-like with shape compatible
+             with *data*. Instead of using this parameter, it is preferred
+             to use a ``ZfitData`` as *data* that contains weights.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            name: |@doc:model.init.name| Human readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
         """
         if kernel is None:
             kernel = tfd.Normal

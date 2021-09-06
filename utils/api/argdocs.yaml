@@ -1,9 +1,14 @@
 model.init.name: |1+
-    Name of the PDF for a better visibility.
-                Has no programmatical functional purpose.
+    Human readable name
+                or label of
+                the PDF for better identification.
+                Has no programmatical functional purpose as idendification.
 
 pdf.kde.bandwidth.weights: |1+
-  Individual event weight of *data*.
+  Weights of each event
+                in *data*, can be None or Tensor-like with shape compatible
+                with *data*. This will change the count of the events, whereas
+                weight :math:`w_i` of :math:`x_i`.
 
 
 pdf.kde.bandwidth.data: |1+
@@ -15,6 +20,14 @@ pdf.kde.init.data: |1+
               the density from. The points represent positions of the *kernel*,
               the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
               be an array-like object.
+
+              If the data has weights, they will be taken into account.
+              This will change the count of the events, whereas
+              weight :math:`w_i` of :math:`x_i` will scale the value of
+              :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+              If no weights are given, each kernel will be scaled by the same
+              constant :math:`\frac{1}{n_{data}}`.
 
 
 pdf.kde.init.obs: |1+
@@ -28,12 +41,25 @@ pdf.kde.init.obs: |1+
 pdf.kde.init.bandwidth: |1+
   Bandwidth of the kernel,
               often also denoted as :math:`h`. For a Gaussian kernel, this
-              corresponds to *sigma*.
-              Valid options are {'silverman', 'scott', 'adaptive'} or a numerical.
-                              If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
-                              A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
+              corresponds to *sigma*. This can be calculated using
+              pre-defined options or by specifying a numerical value that is
+              broadcastable to *data* -- a scalar or an array-like
+              object with the same size as *data*.
 
+              A scalar value is usually referred to as a global bandwidth while
+              an array holds local bandwidths
 
+pdf.kde.init.weights: |1+
+  Weights of each event
+              in *data*, can be None or Tensor-like with shape compatible
+              with *data*. Instead of using this parameter, it is preferred
+              to use a ``ZfitData`` as *data* that contains weights.
+              This will change the count of the events, whereas
+              weight :math:`w_i` of :math:`x_i` will scale the value of
+              :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+              If no weights are given, each kernel will be scaled by the same
+              constant :math:`\frac{1}{n_{data}}`.
 
 pdf.kde.bandwidth.explain_global: |1+
   A global bandwidth
