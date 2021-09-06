@@ -39,7 +39,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
-    'sphinx.ext.bibtex',
+    'sphinxcontrib.bibtex',
     'sphinx.ext.githubpages',
     'sphinx.ext.todo',
     'sphinx_copybutton',
@@ -302,11 +302,11 @@ intersphinx_mapping = {
     # 'numdifftools': ('https://numdifftools.readthedocs.io/en/latest/index.html', None),
     "tensorflow": (
         "https://www.tensorflow.org/api_docs/python",
-        "https://github.com/GPflow/tensorflow-intersphinx/raw/master/tf2_py_objects.inv"
+        "https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tf2_py_objects.inv"
     ),
     "tensorflow_probability": (
         "https://www.tensorflow.org/probability/api_docs/python",
-        "https://github.com/GPflow/tensorflow-intersphinx/raw/master/tfp_py_objects.inv"
+        " https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tfp_py_objects.inv"
     ),
     'uproot': ('https://uproot.readthedocs.io/en/latest/', None),
 }
