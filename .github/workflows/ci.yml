@@ -65,11 +65,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install --use-feature=in-tree-build .[alldev]
       - name: Test with pytest
-        run: |
-#          TODO: how to run below on windows?
+#        TODO: how to run below on windows?
 #          if [[ $GITHUB_REF == 'refs/heads/develop' ]]; then
-#              echo "PYTEST_ADDOPTS=--longtests-kde" >> "$GITHUB_ENV"
+#          echo "PYTEST_ADDOPTS=--longtests-kde" >> "$GITHUB_ENV"
 #          fi
+        run: |
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest . -n2
           mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
       - name: Coveralls Parallel
