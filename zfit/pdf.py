@@ -7,8 +7,8 @@ from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (Cauchy, Gauss, Poisson, TruncatedGauss, Uniform,
                               WrapDistribution)
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
-from .models.kde import (ExactKDE1Dim, GaussianKDE1DimV1, GridKDE1Dim,
-                         KDE1DimFFT, KDE1DimISJ)
+from .models.kde import (GaussianKDE1DimV1, KDE1DimExact, KDE1DimFFT,
+                         KDE1DimGrid, KDE1DimISJ)
 from .models.physics import CrystalBall, DoubleCB
 from .models.polynomials import (Chebyshev, Chebyshev2, Hermite, Laguerre,
                                  Legendre, RecursivePolynomial)
@@ -20,7 +20,7 @@ __all__ = ['BasePDF', 'BaseFunctor',
            'Gauss', 'Uniform', 'TruncatedGauss', 'WrapDistribution', 'Cauchy', 'Poisson',
            "Chebyshev", "Legendre", "Chebyshev2", "Hermite", "Laguerre", "RecursivePolynomial",
            'ProductPDF', 'SumPDF',
-           'GaussianKDE1DimV1', "GridKDE1Dim", 'ExactKDE1Dim', 'KDE1DimFFT', 'KDE1DimISJ',
+           'GaussianKDE1DimV1', "KDE1DimGrid", 'KDE1DimExact', 'KDE1DimFFT', 'KDE1DimISJ',
            'FFTConvPDFV1',
            'ConditionalPDFV1',
            'ZPDF', 'SimplePDF', 'SimpleFunctorPDF'

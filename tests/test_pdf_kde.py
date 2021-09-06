@@ -39,13 +39,13 @@ def create_pdf_sample(npoints=500, upper=None):
 def test_grid_kde():
     data, obs, pdf = create_pdf_sample()
     with pytest.raises(ValueError):
-        zfit.pdf.GridKDE1Dim(obs=obs, data=data, bandwidth='eoaue')
+        zfit.pdf.KDE1DimGrid(obs=obs, data=data, bandwidth='eoaue')
 
 
 def test_exact_kde():
     data, obs, pdf = create_pdf_sample()
     with pytest.raises(ValueError):
-        zfit.pdf.ExactKDE1Dim(obs=obs, data=data, bandwidth='eoaue')
+        zfit.pdf.KDE1DimExact(obs=obs, data=data, bandwidth='eoaue')
 
 
 def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True, upper=None, legacy=True,
@@ -100,7 +100,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
         [
             ('kernel', dist) for dist in [None, StudentT]
         ], [
-            ('type', zfit.pdf.ExactKDE1Dim)
+            ('type', zfit.pdf.KDE1DimExact)
         ], [('npoints', npoints_lim)]
     )
     if not full:
@@ -120,7 +120,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
         [
             ('kernel', dist) for dist in [None, StudentT]
         ], [
-            ('type', zfit.pdf.GridKDE1Dim)
+            ('type', zfit.pdf.KDE1DimGrid)
         ],
         [
             ('num_grid_points', n) for n in [None, 800]
@@ -197,7 +197,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     _ = cfg.pop('npoints', None)
 
     constructor = cfg.pop('type')
-    if constructor in (zfit.pdf.GaussianKDE1DimV1, zfit.pdf.ExactKDE1Dim):
+    if constructor in (zfit.pdf.GaussianKDE1DimV1, zfit.pdf.KDE1DimExact):
         npoints = npoints_lim
 
     data, obs, pdf = create_pdf_sample(npoints, upper=upper)

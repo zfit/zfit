@@ -516,7 +516,7 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
         Exact, one dimensional, (truncated) Kernel Density Estimation with a Gaussian Kernel.
 
         This implementation features an exact implementation as is preferably used for smaller (max. ~ a few thousand
-        points) data sets. For larger data sets, methods such as :py:class:~``zfit.pdf.GridKDE1Dim``
+        points) data sets. For larger data sets, methods such as :py:class:~``zfit.pdf.KDE1DimGrid``
         that bin the dataset may be more efficient
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -655,7 +655,7 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
         self._truncate = truncate
 
 
-class ExactKDE1Dim(KDEHelperMixin, WrapDistribution):
+class KDE1DimExact(KDEHelperMixin, WrapDistribution):
     _bandwidth_methods = KDEHelperMixin._bandwidth_methods.copy()
     _bandwidth_methods.update({
         'adaptive_geom': _adaptive_geom_bandwidth_KDEV1,
@@ -685,7 +685,7 @@ class ExactKDE1Dim(KDEHelperMixin, WrapDistribution):
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
         This PDF features an exact implementation as is preferable for smaller (max. ~ a few thousand
-        points) data sets. For larger data sets, methods such as :py:class:~``zfit.pdf.GridKDE1Dim``
+        points) data sets. For larger data sets, methods such as :py:class:~``zfit.pdf.KDE1DimGrid``
         that bin the dataset may be more efficient
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -803,7 +803,7 @@ class ExactKDE1Dim(KDEHelperMixin, WrapDistribution):
                          name=name)
 
 
-class GridKDE1Dim(KDEHelperMixin, WrapDistribution):
+class KDE1DimGrid(KDEHelperMixin, WrapDistribution):
     _N_OBS = 1
     _bandwidth_methods = KDEHelperMixin._bandwidth_methods.copy()
     _bandwidth_methods.update({

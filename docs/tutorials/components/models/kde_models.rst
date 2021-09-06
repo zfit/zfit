@@ -1,3 +1,4 @@
+.. _sec-kernel-density-estimation:
 Kerned Density Estimation
 """"""""""""""""""""""""""""
 
@@ -64,12 +65,12 @@ There exist several approximative methods to decrease this complexity and theref
 
 **Implementation**
 
-In zfit, the exact KDE :py:class:~`zfit.pdf.ExactKDE1Dim` takes an arbitrary kernel, which is a
+In zfit, the exact KDE :py:class:~`zfit.pdf.KDE1DimExact` takes an arbitrary kernel, which is a
 TensorFlow-Probability distribution.
 
 .. code-block::
 
-  kde = zfit.pdf.ExactKDE1Dim(obs, data, bandwidth, kernel, padding, weights, name)
+  kde = zfit.pdf.KDE1DimExact(obs, data, bandwidth, kernel, padding, weights, name)
 
 .. _sec-grid-kdes:
 Grid KDEs
@@ -110,7 +111,7 @@ and the method.
 
 .. code-block::
 
-  kde = zfit.pdf.GridKDE1Dim(obs, data, bandwidth, kernel, num_grid_points, binning_method, padding, weights, name)
+  kde = zfit.pdf.KDE1DimGrid(obs, data, bandwidth, kernel, num_grid_points, binning_method, padding, weights, name)
 
 .. _sec-kde-bandwidth:
 Bandwidth
