@@ -384,7 +384,7 @@ class KDEHelperMixin:
         'scott': _bandwidth_scott_KDEV1,
         'silverman': _bandwidth_silverman_KDEV1,
     }
-    _default_padding = 0.1
+    _default_padding = False
 
     def _convert_init_data_weights_size(self, data, weights, padding):
         self._original_data = data  # for copying
@@ -435,21 +435,25 @@ def padreflect_data_weights_1dim(data, mode, weights=None):
         mode = znp.array(0.1)
     if not isinstance(mode, dict):
         mode = {'lower': mode, 'upper': mode}
+    for key in mode:
+        if key not in ('lower', 'upper'):
+            raise ValueError(f"Key '{key}' is not a valid padding specification")
     minimum = znp.min(data)
     maximum = znp.max(data)
     diff = (maximum - minimum)
-    lower = mode.get('lower')
     new_data = []
     new_weights = []
+
+    lower = mode.get('lower')
     if lower is not None:
         dx_lower = diff * lower
         lower_area = data < minimum + dx_lower
-        lower_index = znp.where(lower_area)
-        lower_data = tf.gather(data, indices=lower_index)[:, 0]
+        lower_index = znp.where(lower_area)[0]
+        lower_data = tf.gather(data, indices=lower_index)
         lower_data_mirrored = - lower_data + 2 * minimum
         new_data.append(lower_data_mirrored)
         if weights is not None:
-            lower_weights = tf.gather(weights, indices=lower_index)[:, 0]
+            lower_weights = tf.gather(weights, indices=lower_index)
             new_weights.append(lower_weights)
     new_data.append(data)
     new_weights.append(weights)
@@ -457,12 +461,12 @@ def padreflect_data_weights_1dim(data, mode, weights=None):
     if upper is not None:
         dx_upper = diff * upper
         upper_area = data > maximum - dx_upper
-        upper_index = tf.where(upper_area)
-        upper_data = tf.gather(data, indices=upper_index)[:, 0]
+        upper_index = znp.where(upper_area)[0]
+        upper_data = tf.gather(data, indices=upper_index)
         upper_data_mirrored = - upper_data + 2 * maximum
         new_data.append(upper_data_mirrored)
         if weights is not None:
-            upper_weights = tf.gather(weights, indices=upper_index)[:, 0]
+            upper_weights = tf.gather(weights, indices=upper_index)
             new_weights.append(upper_weights)
 
     data = tf.concat(new_data, axis=0)
