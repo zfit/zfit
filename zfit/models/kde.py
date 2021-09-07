@@ -167,6 +167,7 @@ def bandwidth_adaptive_geomV1(data, func, weights):
              usually
 
              .. math::
+
                h_{i} \propto f( x_{i} ) ^ {-1/2}
 
              Estimates can still differ in the overall scaling of this
@@ -232,6 +233,7 @@ def bandwidth_adaptive_zfitV1(data, func, weights) -> znp.array:
              usually
 
              .. math::
+
                h_{i} \propto f( x_{i} ) ^ {-1/2}
 
              Estimates can still differ in the overall scaling of this
@@ -294,6 +296,7 @@ def bandwidth_adaptive_stdV1(data, func, weights):
              usually
 
              .. math::
+
                h_{i} \propto f( x_{i} ) ^ {-1/2}
 
              Estimates can still differ in the overall scaling of this
@@ -753,7 +756,27 @@ class KDE1DimExact(KDEHelperMixin, WrapDistribution):
              :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
              that belong to the loc-scale family. |@docend:pdf.kde.init.kernel|
             padding: |@doc:pdf.kde.init.padding| KDEs have a peculiar
-             weakness: the boundaries. |@docend:pdf.kde.init.padding|
+             weakness: the boundaries, as the outside has a zero density. This makes the KDE
+             go down at the bountary as well, as the density approaches zero, no matter what the
+             density inside the boundary was.
+
+             There are two ways to circumvent this problem:
+               - the best solution: providing a larger dataset than the default space the PDF is used in
+               - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
+                 with a zero derivative. This is a padding technique and can improve the boundaries.
+                 However, one important drawback of this method is to keep in mind that this will actually
+                 alter the PDF *to look mirrored*. If the PDF is plotted in a larger range, this becomes
+                 clear.
+
+             Possible options are a number (default 0.1) that depicts the fraction of the overall space
+             that defines the data mirrored on both sides. For example, for a space from 0 to 5, a value of
+             0.3 means that all data in the region of 0 to 1.5 is taken, mirrored around 0 as well as
+             all data from 3.5 to 5 and mirrored at 5. The new data will go from -1.5 to 6.5, so the
+             KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
+             hides this.
+             Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lower: 0.1}``
+             or ``{'lower: 0.2, 'upper': 0.1}``. For more control, a callable that takes data and weights can
+             also be used. |@docend:pdf.kde.init.padding|
 
 
             weights: |@doc:pdf.kde.init.weights| Weights of each event

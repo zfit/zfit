@@ -5,6 +5,16 @@ Kerned Density Estimation
 
 :Authors: Marc Steiner; Jonas Eschle
 
+
+.. jupyter-execute::
+    :hide-code:
+    :hide-output:
+
+    import zfit
+    from zfit import z
+    import numpy as np
+    import matplotlib.pyplot as plt
+
 An introduction to Kernel Density Estimations, explanations to all methods implemented in zfit and a throughout
 comparison of the performance can be found in
 `Performance of univariate kernel density estimation methods in TensorFlow <https://astroviking.github.io/ba-thesis/>`_
@@ -70,9 +80,18 @@ There exist several approximative methods to decrease this complexity and theref
 In zfit, the exact KDE :py:class:~`zfit.pdf.KDE1DimExact` takes an arbitrary kernel, which is a
 TensorFlow-Probability distribution.
 
-.. code-block::
+.. jupyter-execute::
 
-  kde = zfit.pdf.KDE1DimExact(obs, data, bandwidth, kernel, padding, weights, name)
+    obs = zfit.Space('x', (-5, 5))
+    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=500_000))
+
+    kde = zfit.pdf.KDE1DimExact(data,
+                                # obs, bandwidth, kernel,
+                                # padding, weights, name
+                                )
+    x = np.linspace(-5, 5, 200)
+    plt.plot(x, kde.pdf(x))
+
 
 .. _sec-grid-kdes:
 
@@ -112,9 +131,18 @@ The implementation of Grid KDEs is similar to the exact KDEs, except that the fo
 uses this as a grid for the kernel. Therefore, it also takes parameters for the binning, such as the number of bins
 and the method.
 
-.. code-block::
 
-  kde = zfit.pdf.KDE1DimGrid(obs, data, bandwidth, kernel, num_grid_points, binning_method, padding, weights, name)
+
+.. jupyter-execute::
+
+    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=500_000))
+
+    kde = zfit.pdf.KDE1DimGrid(data,
+                               # obs, bandwidth, kernel, num_grid_points,
+                               # binning_method, padding, weights, name
+                               )
+    plt.plot(x, kde.pdf(x))
+
 
 .. _sec-kde-bandwidth:
 
@@ -180,6 +208,7 @@ Adaptive methods
 
 FFT KDEs
 '''''''''
+
 **Summary** *By rewriting the KDE as a discrete convolution and using the FFT, the density can be
 approximated interpolating between the discetized values.*
 
@@ -227,6 +256,14 @@ distribution at points in between.
 This is implemented in zfit as :py:class:~`zfit.pdf.KDE1DimFFT`. It
 supports similar arguments such as the grid KDEs except that the
 bandwidth can't be variable.
+
+.. jupyter-execute::
+
+    kde = zfit.pdf.KDE1DimFFT(data,
+                              # obs, bandwidth, kernel, num_grid_points, fft_method,
+                              # binning_method, padding, weights, name
+                              )
+    plt.plot(x, kde.pdf(x))
 
 .. _sec-isj-kde:
 
@@ -316,7 +353,75 @@ other kernel density estimation methods (like the FFT-approach discussed
 above) or also to compute the kernel density estimation directly using
 another Discrete Cosine Transform.
 
+
+.. jupyter-execute::
+
+    kde = zfit.pdf.KDE1DimISJ(data,
+                              # obs, num_grid_points, binning_method,
+                              # padding, weights, name
+                              )
+    plt.plot(x, kde.pdf(x))
+
 .. _sec-boundary-bias-and-padding:
 
 Boundary bias and padding
 ''''''''''''''''''''''''''
+
+KDEs have a peculiar weakness: the boundaries, as the outside has a zero density. This makes the KDE
+go down at the bountary as well, as the density approaches zero, no matter what the
+density inside the boundary was.
+
+.. jupyter-execute::
+
+    obs = zfit.Space('x', (-2, 0.5))  # will cut of data at -2, 0.5
+    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=500_000))
+
+    kde = zfit.pdf.KDE1DimExact(data)
+
+    x = np.linspace(-2, 0.5, 200)
+    plt.plot(x, kde.pdf(x))
+
+There are two ways to circumvent this problem:
+
+The best solution: providing a larger dataset than the default space the PDF is used in
+
+.. jupyter-execute::
+
+    obs_wide = zfit.Space('x', (-5, 5))
+    data_wide = zfit.Data.from_numpy(obs=obs_wide, array=np.random.normal(size=500_000))
+
+    kde = zfit.pdf.KDE1DimExact(data, obs=obs)
+
+    plt.plot(x, kde.pdf(x))
+
+To get an idea of what happened, this is actually the full PDF. Notice that it is normalized over
+``obs``.
+
+.. jupyter-execute::
+    :hide-code:
+
+    x = np.linspace(-5, 5, 200)
+    plt.plot(x, kde.pdf(x))
+    x = np.linspace(-2, 0.5, 200)
+
+
+Another technique, as we may don't have more data on the edges, is to mirror
+the existing data at the boundaries, which is equivalent to a boundary condition
+with a zero derivative. This is a padding technique and can improve the boundaries.
+
+.. jupyter-execute::
+
+    kde = zfit.pdf.KDE1DimExact(data, obs=obs, padding=0.2)
+
+    plt.plot(x, kde.pdf(x))
+
+
+However, one important drawback of this method is to keep in mind that this will actually
+alter the PDF *to look mirrored*. Plotting the PDF in a larger range makes this
+clear.
+
+.. jupyter-execute::
+    :hide-code:
+
+    x = np.linspace(-5, 5, 200)
+    plt.plot(x, kde.pdf(x))
