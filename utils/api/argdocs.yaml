@@ -87,8 +87,8 @@ pdf.kde.init.padding: |1+
               all data from 3.5 to 5 and mirrored at 5. The new data will go from -1.5 to 6.5, so the
               KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
               hides this.
-              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lower: 0.1}``
-              or ``{'lower: 0.2, 'upper': 0.1}``. For more control, a callable that takes data and weights can
+              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
+              or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
               also be used.
 
 

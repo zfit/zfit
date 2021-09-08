@@ -458,9 +458,9 @@ def padreflect_data_weights_1dim(data, mode, weights=None):
     if mode is True:
         mode = znp.array(0.1)
     if not isinstance(mode, dict):
-        mode = {'lower': mode, 'upper': mode}
+        mode = {'lowermirror': mode, 'uppermirror': mode}
     for key in mode:
-        if key not in ('lower', 'upper'):
+        if key not in ('lowermirror', 'uppermirror'):
             raise ValueError(f"Key '{key}' is not a valid padding specification")
     minimum = znp.min(data)
     maximum = znp.max(data)
@@ -468,7 +468,7 @@ def padreflect_data_weights_1dim(data, mode, weights=None):
     new_data = []
     new_weights = []
 
-    lower = mode.get('lower')
+    lower = mode.get('lowermirror')
     if lower is not None:
         dx_lower = diff * lower
         lower_area = data < minimum + dx_lower
@@ -481,7 +481,7 @@ def padreflect_data_weights_1dim(data, mode, weights=None):
             new_weights.append(lower_weights)
     new_data.append(data)
     new_weights.append(weights)
-    upper = mode.get('upper')
+    upper = mode.get('uppermirror')
     if upper is not None:
         dx_upper = diff * upper
         upper_area = data > maximum - dx_upper
@@ -774,8 +774,8 @@ class KDE1DimExact(KDEHelperMixin, WrapDistribution):
              all data from 3.5 to 5 and mirrored at 5. The new data will go from -1.5 to 6.5, so the
              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
              hides this.
-             Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lower: 0.1}``
-             or ``{'lower: 0.2, 'upper': 0.1}``. For more control, a callable that takes data and weights can
+             Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
              also be used. |@docend:pdf.kde.init.padding|
 
 
