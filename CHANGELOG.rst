@@ -29,8 +29,10 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
-- Double crystallball: move a minus sign down, vectorize the integral
+- Double crystallball: move a minus sign down, vectorize the integral, fix wrong output shape of pdf
 - add a minimal value in the loss to avoid NaNs when taking the log of 0
+- improve feedback when taking the derivative with respect to a parameter that
+  a function does not depend on or if the function is purely Python.
 
 Experimental
 ------------
