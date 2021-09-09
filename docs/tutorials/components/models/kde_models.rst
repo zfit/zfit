@@ -83,7 +83,7 @@ TensorFlow-Probability distribution.
 .. jupyter-execute::
 
     obs = zfit.Space('x', (-5, 5))
-    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=500_000))
+    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=1000))
 
     kde = zfit.pdf.KDE1DimExact(data,
                                 # obs, bandwidth, kernel,

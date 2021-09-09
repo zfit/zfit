@@ -461,7 +461,8 @@ def padreflect_data_weights_1dim(data, mode, weights=None):
         mode = {'lowermirror': mode, 'uppermirror': mode}
     for key in mode:
         if key not in ('lowermirror', 'uppermirror'):
-            raise ValueError(f"Key '{key}' is not a valid padding specification")
+            raise ValueError(f"Key '{key}' is not a valid padding specification, use 'lowermirror' or 'uppermirror'"
+                             f" in order to mirror the data.")
     minimum = znp.min(data)
     maximum = znp.max(data)
     diff = (maximum - minimum)
