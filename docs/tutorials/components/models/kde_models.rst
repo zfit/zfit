@@ -374,7 +374,7 @@ density inside the boundary was.
 .. jupyter-execute::
 
     obs = zfit.Space('x', (-2, 0.5))  # will cut of data at -2, 0.5
-    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=500_000))
+    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=1000))
 
     kde = zfit.pdf.KDE1DimExact(data)
 
@@ -388,7 +388,7 @@ The best solution: providing a larger dataset than the default space the PDF is 
 .. jupyter-execute::
 
     obs_wide = zfit.Space('x', (-5, 5))
-    data_wide = zfit.Data.from_numpy(obs=obs_wide, array=np.random.normal(size=500_000))
+    data_wide = zfit.Data.from_numpy(obs=obs_wide, array=np.random.normal(size=1000))
 
     kde = zfit.pdf.KDE1DimExact(data, obs=obs)
 
