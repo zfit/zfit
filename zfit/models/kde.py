@@ -409,6 +409,7 @@ class KDEHelperMixin:
         'silverman': _bandwidth_silverman_KDEV1,
     }
     _default_padding = False
+    _default_num_grid_points = 256
 
     def _convert_init_data_weights_size(self, data, weights, padding):
         self._original_data = data  # for copying
@@ -887,7 +888,8 @@ class KDE1DimGrid(KDEHelperMixin, WrapDistribution):
         if binning_method is None:
             binning_method = 'linear'
         if num_grid_points is None:
-            num_grid_points = 1024
+            num_grid_points = self._default_num_grid_points
+
         if bandwidth == 'isj':
             raise ValueError("isj not supported in GridKDE, use directly 'KDE1DimISJ'")
         if bandwidth == 'adaptive_std':
@@ -987,7 +989,7 @@ class KDE1DimFFT(KDEHelperMixin, BasePDF):
         if isinstance(bandwidth, ZfitParameter):
             raise TypeError(f"bandwidth cannot be a Parameter for the FFT KDE.")
         if num_grid_points is None:
-            num_grid_points = 1024
+            num_grid_points = self._default_num_grid_points
         if binning_method is None:
             binning_method = 'linear'
         if fft_method is None:
@@ -1077,7 +1079,7 @@ class KDE1DimISJ(KDEHelperMixin, BasePDF):
             name: Name of the PDF
         """
         if num_grid_points is None:
-            num_grid_points = 1024
+            num_grid_points = self._default_num_grid_points
         if binning_method is None:
             binning_method = 'linear'
         if padding is None:
