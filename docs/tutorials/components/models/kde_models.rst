@@ -429,4 +429,5 @@ clear.
     x = np.linspace(-5, 5, 200)
     plt.plot(x, kde.pdf(x))
 
-:jupyter-download:notebook:`click to download as a notebook`
+Download as :jupyter-download:notebook:`notebook <zfit_kde_introduction.ipynb>`,
+:jupyter-download:script:`script <zfit_kde_introduction.ipynb>`
