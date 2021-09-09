@@ -135,7 +135,7 @@ and the method.
 
 .. jupyter-execute::
 
-    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=500_000))
+    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=50_000))
 
     kde = zfit.pdf.KDE1DimGrid(data,
                                # obs, bandwidth, kernel, num_grid_points,
