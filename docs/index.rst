@@ -26,6 +26,59 @@
 Scalable pythonic fitting
 =========================
 
+.. panels::
+    :header: text-center
+
+    .. dropdown:: Getting started
+
+        .. link-button:: getting_started/installation
+            :type: ref
+            :text: Installation
+            :classes: btn-outline-primary btn-block
+
+        .. link-button:: getting_started/5_minutes_to_zfit
+            :type: ref
+            :text: "5 minutes to zfit"
+            :classes: btn-outline-primary btn-block
+
+        .. link-button:: ask_a_question
+            :type: ref
+            :text: Asking questions
+            :classes: btn-outline-primary btn-block
+
+    ---
+
+    .. dropdown:: Tutorials
+
+        .. link-button:: tutorials/introduction
+            :type: ref
+            :text: Introduction
+            :classes: btn-outline-primary btn-block
+
+        .. link-button:: tutorials/components/index
+            :type: ref
+            :text: zfit components
+            :classes: btn-outline-primary btn-block
+
+        .. link-button:: tutorials/guides/index
+            :type: ref
+            :text: Guides
+            :classes: btn-outline-primary btn-block
+
+    ---
+
+    .. link-button:: whats_new/index
+        :type: ref
+        :text: What's new?
+        :classes: btn-outline-primary btn-block
+
+    ---
+
+    .. link-button:: user_api/index
+        :type: ref
+        :text: API documentation
+        :classes: btn-outline-primary btn-block
+
 
 The zfit package is a model fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions. The main focus is on the scalability, parallelisation and a user friendly experience framework (no cython, no C++ needed to extend). The basic idea is to offer a pythonic oriented alternative to
 the very successful RooFit library from the `ROOT <https://root.cern.ch/>`_ data analysis package. While RooFit has provided a stable platform for most of the needs of the High Energy Physics (HEP) community in the last few years, it has become increasingly difficult to integrate all the developments in the scientific Python ecosystem into RooFit due to its monolithic nature. Conversely, the core of zfit aims at becoming a solid ground for model fitting while providing enough flexibility to incorporate state-of-art tools and to allow scalability going to larger datasets.

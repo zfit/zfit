@@ -45,6 +45,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx_copybutton',
     'sphinxcontrib.youtube',
+    "sphinx_panels",
     'seed_intersphinx_mapping',
     "myst_nb",
     'releases',
@@ -53,8 +54,11 @@ extensions = [
 
 ]
 
+panels_add_bootstrap_css = False
+
 releases_github_path = "zfit/zfit"
 releases_document_name = "../CHANGELOG.rst"
+
 # jupyter_execute_notebooks = "force"  # use if needed and cache should be ignored
 jupyter_execute_notebooks = "cache"
 if jupyter_execute_notebooks == "cache":
