@@ -409,7 +409,7 @@ class KDEHelperMixin:
         'silverman': _bandwidth_silverman_KDEV1,
     }
     _default_padding = False
-    _default_num_grid_points = 256
+    _default_num_grid_points = 1024
 
     def _convert_init_data_weights_size(self, data, weights, padding):
         self._original_data = data  # for copying

@@ -8,15 +8,6 @@ Kernel Density Estimation
 .. jupyter-kernel::
   :id: zfit_kde_introduction.ipynb
 
-.. jupyter-execute::
-    :hide-code:
-    :hide-output:
-
-    import zfit
-    from zfit import z
-    import numpy as np
-    import matplotlib.pyplot as plt
-
 An introduction to Kernel Density Estimations, explanations to all methods implemented in zfit and a throughout
 comparison of the performance can be found in
 `Performance of univariate kernel density estimation methods in TensorFlow <https://astroviking.github.io/ba-thesis/>`_
@@ -81,6 +72,15 @@ There exist several approximative methods to decrease this complexity and theref
 
 In zfit, the exact KDE :py:class:`~zfit.pdf.KDE1DimExact` takes an arbitrary kernel, which is a
 TensorFlow-Probability distribution.
+
+.. jupyter-execute::
+    :hide-code:
+    :hide-output:
+
+    import zfit
+    from zfit import z
+    import numpy as np
+    import matplotlib.pyplot as plt
 
 .. jupyter-execute::
 
@@ -429,5 +429,7 @@ clear.
     x = np.linspace(-5, 5, 200)
     plt.plot(x, kde.pdf(x))
 
-Download as :jupyter-download:notebook:`notebook <zfit_kde_introduction.ipynb>`,
+
+
+Download this tutorial :jupyter-download:notebook:`notebook <zfit_kde_introduction.ipynb>`,
 :jupyter-download:script:`script <zfit_kde_introduction.ipynb>`
