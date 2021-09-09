@@ -85,14 +85,17 @@ TensorFlow-Probability distribution.
 .. jupyter-execute::
 
     obs = zfit.Space('x', (-5, 5))
-    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=1000))
+    gauss = zfit.pdf.Gauss(obs=obs, mu=0, sigma=2)
+    data = gauss.sample(1000)
 
     kde = zfit.pdf.KDE1DimExact(data,
                                 # obs, bandwidth, kernel,
                                 # padding, weights, name
                                 )
     x = np.linspace(-5, 5, 200)
-    plt.plot(x, kde.pdf(x))
+    plt.plot(x, kde.pdf(x), label='Exact KDE')
+    plt.plot(x, gauss.pdf(x), label='True PDF')
+    plt.legend()
 
 .. thebe-button:: Run interactively
 
@@ -138,13 +141,15 @@ and the method.
 
 .. jupyter-execute::
 
-    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=50_000))
+    data = gauss.sample(100_000)
 
     kde = zfit.pdf.KDE1DimGrid(data,
                                # obs, bandwidth, kernel, num_grid_points,
                                # binning_method, padding, weights, name
                                )
-    plt.plot(x, kde.pdf(x))
+    plt.plot(x, kde.pdf(x), label='Grid KDE')
+    plt.plot(x, gauss.pdf(x), label='True PDF')
+    plt.legend()
 
 
 .. _sec-kde-bandwidth:
@@ -266,7 +271,9 @@ bandwidth can't be variable.
                               # obs, bandwidth, kernel, num_grid_points, fft_method,
                               # binning_method, padding, weights, name
                               )
-    plt.plot(x, kde.pdf(x))
+    plt.plot(x, kde.pdf(x), label='FFT KDE')
+    plt.plot(x, gauss.pdf(x), label='True PDF')
+    plt.legend()
 
 .. _sec-isj-kde:
 
@@ -363,7 +370,9 @@ another Discrete Cosine Transform.
                               # obs, num_grid_points, binning_method,
                               # padding, weights, name
                               )
-    plt.plot(x, kde.pdf(x))
+    plt.plot(x, kde.pdf(x), label='ISJ KDE')
+    plt.plot(x, gauss.pdf(x), label='True PDF')
+    plt.legend()
 
 .. _sec-boundary-bias-and-padding:
 
@@ -377,12 +386,14 @@ density inside the boundary was.
 .. jupyter-execute::
 
     obs = zfit.Space('x', (-2, 0.5))  # will cut of data at -2, 0.5
-    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(size=1000))
+    data_narrow = gauss.sample(1000, limits=obs)
 
-    kde = zfit.pdf.KDE1DimExact(data)
+    kde = zfit.pdf.KDE1DimExact(data_narrow)
 
     x = np.linspace(-2, 0.5, 200)
-    plt.plot(x, kde.pdf(x))
+    plt.plot(x, kde.pdf(x), label='Biased KDE')
+    plt.plot(x, gauss.pdf(x, obs), label='True PDF')
+    plt.legend()
 
 There are two ways to circumvent this problem:
 
@@ -391,11 +402,13 @@ The best solution: providing a larger dataset than the default space the PDF is 
 .. jupyter-execute::
 
     obs_wide = zfit.Space('x', (-5, 5))
-    data_wide = zfit.Data.from_numpy(obs=obs_wide, array=np.random.normal(size=1000))
+    data_wide = gauss.sample(1000, limits=obs_wide)
 
     kde = zfit.pdf.KDE1DimExact(data, obs=obs)
 
-    plt.plot(x, kde.pdf(x))
+    plt.plot(x, kde.pdf(x), label='Wide KDE')
+    plt.plot(x, gauss.pdf(x, obs), label='True PDF')
+    plt.legend()
 
 To get an idea of what happened, this is actually the full PDF. Notice that it is normalized over
 ``obs``.
@@ -404,7 +417,9 @@ To get an idea of what happened, this is actually the full PDF. Notice that it i
     :hide-code:
 
     x = np.linspace(-5, 5, 200)
-    plt.plot(x, kde.pdf(x))
+    plt.plot(x, kde.pdf(x), label='Wide KDE')
+    plt.plot(x, gauss.pdf(x, obs), label='True PDF')
+    plt.legend()
     x = np.linspace(-2, 0.5, 200)
 
 
@@ -416,7 +431,9 @@ with a zero derivative. This is a padding technique and can improve the boundari
 
     kde = zfit.pdf.KDE1DimExact(data, obs=obs, padding=0.2)
 
-    plt.plot(x, kde.pdf(x))
+    plt.plot(x, kde.pdf(x), label='Padded KDE')
+    plt.plot(x, gauss.pdf(x, obs), label='True PDF')
+    plt.legend()
 
 
 However, one important drawback of this method is to keep in mind that this will actually
@@ -427,7 +444,9 @@ clear.
     :hide-code:
 
     x = np.linspace(-5, 5, 200)
-    plt.plot(x, kde.pdf(x))
+    plt.plot(x, kde.pdf(x), label='Padded KDE')
+    plt.plot(x, gauss.pdf(x, obs), label='True PDF')
+    plt.legend()
 
 
 
