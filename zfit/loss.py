@@ -3,8 +3,9 @@ import warnings
 
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
-__all__ = ['ExtendedUnbinnedNLL', "UnbinnedNLL", "BaseLoss", "SimpleLoss", 'experimental_enable_loss_penalty']
+__all__ = ['ExtendedUnbinnedNLL', "UnbinnedNLL", "BaseLoss", "SimpleLoss"]
 
+from .util.exception import BreakingAPIChangeError
 from .util.warnings import warn_experimental_feature
 
 
@@ -17,5 +18,6 @@ def experimental_enable_loss_penalty(enable=True):
     Args:
         enable: If True, enable this feature.
     """
-    warnings.warn("This has been removed and is now activated by default. Remove this function call."
-                  "Many thanks for the feedbacks received.")
+    from .util.exception import BreakingAPIChangeError
+    raise BreakingAPIChangeError("This has been removed and is now activated by default. Remove this function call."
+                                 "Many thanks for the feedbacks received.")
