@@ -857,12 +857,12 @@ class KDE1DimGrid(KDEHelperMixin, WrapDistribution):
     def __init__(self,
                  data: ztyping.XTypeInput,
                  *,
-                 obs: Optional[ztyping.ObsTypeInput] = None,
                  bandwidth: Optional[Union[ztyping.ParamTypeInput, str, Callable]] = None,
                  kernel: tfd.Distribution = None,
                  padding: Optional[Union[callable, str, bool]] = None,
                  num_grid_points: Optional[int] = None,
                  binning_method: Optional[str] = None,
+                 obs: Optional[ztyping.ObsTypeInput] = None,
                  weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
                  name: str = "GridKDE1DimV1"):
         r"""
@@ -875,13 +875,102 @@ class KDE1DimGrid(KDEHelperMixin, WrapDistribution):
             f_h(x) =  \frac{1}{nh} \sum_{i=1}^n K\Big(\frac{x-x_i}{h}\Big)
 
         Args:
-            data: 1-D Tensor-like.
-            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
-                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
-                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
-            obs: Observables
-            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
-            name: Name of the PDF
+            data: |@doc:pdf.kde.init.data| Data sample to approximate
+             the density from. The points represent positions of the *kernel*,
+             the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
+             be an array-like object.
+
+             If the data has weights, they will be taken into account.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.data|
+            bandwidth: |@doc:pdf.kde.init.||@docend:pdf.kde.init.|
+            kernel: |@doc:pdf.kde.init.kernel| The kernel is the heart
+             of the Kernel Density Estimation, which consists of the sum of
+             kernels around each sample point. Therefore, a kernel should represent
+             the distribution probability of a single data point as close as
+             possible.
+
+             The most widespread kernel is a Gaussian, or Normal, distribution. Due
+             to the law of large numbers, the sum of many (arbitrary) random variables
+             -- this is the case for most real world observable as they are the result of
+             multiple consecutive random effects -- results in a Gaussian distribution.
+             However, there are many cases where this assumption is not per-se true. In
+             this cases an alternative kernel may offers a better choice.
+
+             Valid choices are callables that return a
+             :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
+             that belong to the loc-scale family. |@docend:pdf.kde.init.kernel|
+            padding: |@doc:pdf.kde.init.padding| KDEs have a peculiar
+             weakness: the boundaries, as the outside has a zero density. This makes the KDE
+             go down at the bountary as well, as the density approaches zero, no matter what the
+             density inside the boundary was.
+
+             There are two ways to circumvent this problem:
+               - the best solution: providing a larger dataset than the default space the PDF is used in
+               - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
+                 with a zero derivative. This is a padding technique and can improve the boundaries.
+                 However, one important drawback of this method is to keep in mind that this will actually
+                 alter the PDF *to look mirrored*. If the PDF is plotted in a larger range, this becomes
+                 clear.
+
+             Possible options are a number (default 0.1) that depicts the fraction of the overall space
+             that defines the data mirrored on both sides. For example, for a space from 0 to 5, a value of
+             0.3 means that all data in the region of 0 to 1.5 is taken, mirrored around 0 as well as
+             all data from 3.5 to 5 and mirrored at 5. The new data will go from -1.5 to 6.5, so the
+             KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
+             hides this.
+             Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
+             also be used. |@docend:pdf.kde.init.padding|
+            num_grid_points: |@doc:pdf.kde.init.num_grid_points| Number of points in
+             the binning grid.
+
+             The data will be binned using the *binning_method* in *num_grid_points*
+             and this histogram grid will then be used as kernel points. This has the
+             advantage to have a constant computational complexity independent of the data
+             size.
+
+             A number from 32 on can already yield good results, while the default is set
+             to 1024, creating a fine grid. Lowering the number increases the performance
+             at the cost of accuracy. |@docend:pdf.kde.init.num_grid_points|
+            binning_method: |@doc:pdf.kde.init.binning_method| Method to be used for
+             binning the data. Options are 'linear', 'simple'.
+
+             The data can be binned in the usual way ('simple'), but this is less precise
+             for KDEs, where we are interested in the shape of the histogram and smoothing
+             it. Therefore, a better suited method, 'linear', is available.
+
+             In normal binnig, each event (or weight) falls into the bin within the bin edges,
+             while the neighbouring bins get zero counts from this event.
+             In linear binning, the event is split between two bins, proportional to its
+             closeness to each bin.
+
+             The 'linear' method provides superior performance, most notably in small (~32)
+             grids. |@docend:pdf.kde.init.binning_method|
+            obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
+             As with any other PDF, this will be used as the default *norm*, but
+             does not define the domain of the PDF. Namely this can be a smaller
+             space than *data*, as long as the name of the observable match.
+             Using a larger dataset is actually good practice to avoid
+             bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
+            weights: |@doc:pdf.kde.init.weights| Weights of each event
+             in *data*, can be None or Tensor-like with shape compatible
+             with *data*. Instead of using this parameter, it is preferred
+             to use a ``ZfitData`` as *data* that contains weights.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            name: |@doc:model.init.name| Human readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
         """
         if kernel is None:
             kernel = tfd.Normal
@@ -978,13 +1067,104 @@ class KDE1DimFFT(KDEHelperMixin, BasePDF):
         interpolating between this points to get an estimate for x.
 
         Args:
-            data: 1-D Tensor-like.
-            bandwidth: Bandwidth of the kernel. Valid options are {'silverman', 'scott', 'adaptiveV1'} or a numerical.
-                If a numerical is given, it as to be broadcastable to the batch and event shape of the distribution.
-                A scalar or a `zfit.Parameter` will simply broadcast to `data` for a 1-D distribution.
-            obs: Observables
-            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
-            name: Name of the PDF
+            data: |@doc:pdf.kde.init.data| Data sample to approximate
+             the density from. The points represent positions of the *kernel*,
+             the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
+             be an array-like object.
+
+             If the data has weights, they will be taken into account.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.data|
+            bandwidth: |@doc:pdf.kde.init.||@docend:pdf.kde.init.|
+            kernel: |@doc:pdf.kde.init.kernel| The kernel is the heart
+             of the Kernel Density Estimation, which consists of the sum of
+             kernels around each sample point. Therefore, a kernel should represent
+             the distribution probability of a single data point as close as
+             possible.
+
+             The most widespread kernel is a Gaussian, or Normal, distribution. Due
+             to the law of large numbers, the sum of many (arbitrary) random variables
+             -- this is the case for most real world observable as they are the result of
+             multiple consecutive random effects -- results in a Gaussian distribution.
+             However, there are many cases where this assumption is not per-se true. In
+             this cases an alternative kernel may offers a better choice.
+
+             Valid choices are callables that return a
+             :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
+             that belong to the loc-scale family. |@docend:pdf.kde.init.kernel|
+            padding: |@doc:pdf.kde.init.padding| KDEs have a peculiar
+             weakness: the boundaries, as the outside has a zero density. This makes the KDE
+             go down at the bountary as well, as the density approaches zero, no matter what the
+             density inside the boundary was.
+
+             There are two ways to circumvent this problem:
+               - the best solution: providing a larger dataset than the default space the PDF is used in
+               - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
+                 with a zero derivative. This is a padding technique and can improve the boundaries.
+                 However, one important drawback of this method is to keep in mind that this will actually
+                 alter the PDF *to look mirrored*. If the PDF is plotted in a larger range, this becomes
+                 clear.
+
+             Possible options are a number (default 0.1) that depicts the fraction of the overall space
+             that defines the data mirrored on both sides. For example, for a space from 0 to 5, a value of
+             0.3 means that all data in the region of 0 to 1.5 is taken, mirrored around 0 as well as
+             all data from 3.5 to 5 and mirrored at 5. The new data will go from -1.5 to 6.5, so the
+             KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
+             hides this.
+             Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
+             also be used. |@docend:pdf.kde.init.padding|
+            num_grid_points: |@doc:pdf.kde.init.num_grid_points| Number of points in
+             the binning grid.
+
+             The data will be binned using the *binning_method* in *num_grid_points*
+             and this histogram grid will then be used as kernel points. This has the
+             advantage to have a constant computational complexity independent of the data
+             size.
+
+             A number from 32 on can already yield good results, while the default is set
+             to 1024, creating a fine grid. Lowering the number increases the performance
+             at the cost of accuracy. |@docend:pdf.kde.init.num_grid_points|
+            binning_method: |@doc:pdf.kde.init.binning_method| Method to be used for
+             binning the data. Options are 'linear', 'simple'.
+
+             The data can be binned in the usual way ('simple'), but this is less precise
+             for KDEs, where we are interested in the shape of the histogram and smoothing
+             it. Therefore, a better suited method, 'linear', is available.
+
+             In normal binnig, each event (or weight) falls into the bin within the bin edges,
+             while the neighbouring bins get zero counts from this event.
+             In linear binning, the event is split between two bins, proportional to its
+             closeness to each bin.
+
+             The 'linear' method provides superior performance, most notably in small (~32)
+             grids. |@docend:pdf.kde.init.binning_method|
+            support:
+            fft_method:
+            obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
+             As with any other PDF, this will be used as the default *norm*, but
+             does not define the domain of the PDF. Namely this can be a smaller
+             space than *data*, as long as the name of the observable match.
+             Using a larger dataset is actually good practice to avoid
+             bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
+            weights: |@doc:pdf.kde.init.weights| Weights of each event
+             in *data*, can be None or Tensor-like with shape compatible
+             with *data*. Instead of using this parameter, it is preferred
+             to use a ``ZfitData`` as *data* that contains weights.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            name: |@doc:model.init.name| Human readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
         """
         if isinstance(bandwidth, ZfitParameter):
             raise TypeError(f"bandwidth cannot be a Parameter for the FFT KDE.")
@@ -1026,7 +1206,7 @@ class KDE1DimFFT(KDEHelperMixin, BasePDF):
         if support is None:
             area = znp.reshape(self.space.area(), ())
             if area is not None:
-                support = area
+                support = area * 1.2
         self._support = support
         self._grid = None
         self._grid_data = None
@@ -1073,10 +1253,85 @@ class KDE1DimISJ(KDEHelperMixin, BasePDF):
         with a Gaussian Kernel is a solution to the Heat Equation.
 
         Args:
-            data: 1-D Tensor-like.
-            obs: Observables
-            weights: Weights of each `data`, can be None or Tensor-like with shape compatible with `data`
-            name: Name of the PDF
+            data: |@doc:pdf.kde.init.data| Data sample to approximate
+             the density from. The points represent positions of the *kernel*,
+             the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
+             be an array-like object.
+
+             If the data has weights, they will be taken into account.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.data|
+            padding: |@doc:pdf.kde.init.padding| KDEs have a peculiar
+             weakness: the boundaries, as the outside has a zero density. This makes the KDE
+             go down at the bountary as well, as the density approaches zero, no matter what the
+             density inside the boundary was.
+
+             There are two ways to circumvent this problem:
+               - the best solution: providing a larger dataset than the default space the PDF is used in
+               - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
+                 with a zero derivative. This is a padding technique and can improve the boundaries.
+                 However, one important drawback of this method is to keep in mind that this will actually
+                 alter the PDF *to look mirrored*. If the PDF is plotted in a larger range, this becomes
+                 clear.
+
+             Possible options are a number (default 0.1) that depicts the fraction of the overall space
+             that defines the data mirrored on both sides. For example, for a space from 0 to 5, a value of
+             0.3 means that all data in the region of 0 to 1.5 is taken, mirrored around 0 as well as
+             all data from 3.5 to 5 and mirrored at 5. The new data will go from -1.5 to 6.5, so the
+             KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
+             hides this.
+             Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
+             also be used. |@docend:pdf.kde.init.padding|
+            num_grid_points: |@doc:pdf.kde.init.num_grid_points| Number of points in
+             the binning grid.
+
+             The data will be binned using the *binning_method* in *num_grid_points*
+             and this histogram grid will then be used as kernel points. This has the
+             advantage to have a constant computational complexity independent of the data
+             size.
+
+             A number from 32 on can already yield good results, while the default is set
+             to 1024, creating a fine grid. Lowering the number increases the performance
+             at the cost of accuracy. |@docend:pdf.kde.init.num_grid_points|
+            binning_method: |@doc:pdf.kde.init.binning_method| Method to be used for
+             binning the data. Options are 'linear', 'simple'.
+
+             The data can be binned in the usual way ('simple'), but this is less precise
+             for KDEs, where we are interested in the shape of the histogram and smoothing
+             it. Therefore, a better suited method, 'linear', is available.
+
+             In normal binnig, each event (or weight) falls into the bin within the bin edges,
+             while the neighbouring bins get zero counts from this event.
+             In linear binning, the event is split between two bins, proportional to its
+             closeness to each bin.
+
+             The 'linear' method provides superior performance, most notably in small (~32)
+             grids. |@docend:pdf.kde.init.binning_method|
+            obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
+             As with any other PDF, this will be used as the default *norm*, but
+             does not define the domain of the PDF. Namely this can be a smaller
+             space than *data*, as long as the name of the observable match.
+             Using a larger dataset is actually good practice to avoid
+             bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
+            weights: |@doc:pdf.kde.init.weights| Weights of each event
+             in *data*, can be None or Tensor-like with shape compatible
+             with *data*. Instead of using this parameter, it is preferred
+             to use a ``ZfitData`` as *data* that contains weights.
+             This will change the count of the events, whereas
+             weight :math:`w_i` of :math:`x_i` will scale the value of
+             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+             If no weights are given, each kernel will be scaled by the same
+             constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            name: |@doc:model.init.name| Human readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
         """
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points

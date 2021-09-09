@@ -3,6 +3,16 @@ model.init.name: |1+
                 or label of
                 the PDF for better identification.
                 Has no programmatical functional purpose as idendification.
+model.init.obs: |1+
+    Observables of the
+                model. This will be used as the default space of the PDF and,
+                if not given explicitly, as the normalization range.
+
+                The default space is used for example in the sample method: if no
+                sampling limits are given, the default space is used.
+
+                The observables are not equal to the domain as it does not restrict or
+                truncate the model outside of this range.
 
 pdf.kde.bandwidth.weights: |1+
   Weights of each event
@@ -103,6 +113,35 @@ pdf.kde.init.weights: |1+
 
               If no weights are given, each kernel will be scaled by the same
               constant :math:`\frac{1}{n_{data}}`.
+
+pdf.kde.init.num_grid_points: |1+
+  Number of points in
+              the binning grid.
+
+              The data will be binned using the *binning_method* in *num_grid_points*
+              and this histogram grid will then be used as kernel points. This has the
+              advantage to have a constant computational complexity independent of the data
+              size.
+
+              A number from 32 on can already yield good results, while the default is set
+              to 1024, creating a fine grid. Lowering the number increases the performance
+              at the cost of accuracy.
+
+pdf.kde.init.binning_method: |1+
+  Method to be used for
+              binning the data. Options are 'linear', 'simple'.
+
+              The data can be binned in the usual way ('simple'), but this is less precise
+              for KDEs, where we are interested in the shape of the histogram and smoothing
+              it. Therefore, a better suited method, 'linear', is available.
+
+              In normal binnig, each event (or weight) falls into the bin within the bin edges,
+              while the neighbouring bins get zero counts from this event.
+              In linear binning, the event is split between two bins, proportional to its
+              closeness to each bin.
+
+              The 'linear' method provides superior performance, most notably in small (~32)
+              grids.
 
 pdf.kde.bandwidth.explain_global: |1+
   A global bandwidth
