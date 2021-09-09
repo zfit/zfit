@@ -77,6 +77,9 @@ TensorFlow-Probability distribution.
     :hide-code:
     :hide-output:
 
+    import os
+    os.environ["ZFIT_DISABLE_TF_WARNINGS"] = "1"
+
     import zfit
     from zfit import z
     import numpy as np
