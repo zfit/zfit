@@ -22,6 +22,7 @@ setuptools_scm_git_archive
 Sphinx~=3.5.4
 sphinx-autodoc-typehints
 sphinx-copybutton
+sphinxcontrib-images
 tox>=2.9.1
 twine>=1.10.0
 watchdog>=0.8.3

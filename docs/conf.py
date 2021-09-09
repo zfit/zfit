@@ -37,16 +37,24 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
+    'sphinxcontrib.images',
+    'sphinxcontrib.programoutput',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.githubpages',
     'sphinx.ext.todo',
     'sphinx_copybutton',
+    'sphinxcontrib.youtube',
     'seed_intersphinx_mapping',
     "myst_nb",
+    'releases',
+    # "sphinxcontrib.fulltoc",
     "sphinx_togglebutton",
 
 ]
+
+releases_github_path = "zfit/zfit"
+releases_document_name = "../CHANGELOG.rst"
 # jupyter_execute_notebooks = "force"  # use if needed and cache should be ignored
 jupyter_execute_notebooks = "cache"
 if jupyter_execute_notebooks == "cache":
