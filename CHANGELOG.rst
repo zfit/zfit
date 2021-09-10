@@ -15,6 +15,7 @@ Major Features and Improvements
   multidimensional integrals. If there is a sharp peak, this maybe fails to integrate and the number of points
   has to be manually raised
 - add windows in CI
+
 Breaking changes
 ------------------
 - the numerical integration improved with more sensible values for tolerance. This means however that some fits will

@@ -50,7 +50,7 @@ Scalable pythonic fitting
 
     .. dropdown:: Tutorials
 
-        .. link-button:: _tmp/zfit-tutorials/introduction/Introduction.ipynb
+        .. link-button:: tutorials/introduction
             :type: ref
             :text: Introduction
             :classes: btn-outline-primary btn-block

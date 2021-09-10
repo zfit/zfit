@@ -232,9 +232,14 @@ html_logo = "images/zfit-logo-light_400x168.png"
 html_theme_options = {
     "github_url": "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
+    "navigation_depth": 3,
     "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
     "search_bar_position": "sidebar",
+
+    # "repository_url": "https://github.com/zfit/zfit",  # adding jupyter book somehow?
+    # "repository_branch": "develop",
+    # "path_to_docs": "docs",
 }
 
 html_context = {

@@ -1,5 +1,4 @@
 #  Copyright (c) 2021 zfit
-import warnings
 
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
@@ -18,5 +17,6 @@ def experimental_enable_loss_penalty(enable=True):
         enable: If True, enable this feature.
     """
     from .util.exception import BreakingAPIChangeError
-    raise BreakingAPIChangeError("This has been removed and is now activated by default. Remove this function call."
+    raise BreakingAPIChangeError("This has been removed and is now activated by default."
+                                 " Remove this function call."
                                  "Many thanks for the feedbacks received.")
