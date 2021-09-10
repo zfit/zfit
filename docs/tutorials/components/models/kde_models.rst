@@ -290,7 +290,7 @@ a normal distribution. The method also includes an estimation for the optimal
 bandwidth.*
 
 The method is described completely in the paper ‘Kernel density
-estimation by diffusion’ by :cite:t:`Botev_2010_diffusion`.
+estimation by diffusion’ by :cite:t:`Botev_2010`.
 The general idea is briefly sketched below.
 
 As explained in :ref:`sec-kde-bandwidth`, the optimal bandwidth is often
