@@ -25,6 +25,8 @@ Data
 
     intro/data
 
+.. _sec-components-model:
+
 Model
 =====
 

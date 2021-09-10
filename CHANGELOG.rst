@@ -14,7 +14,19 @@ Major Features and Improvements
 - improve the numerical integration by adding a one dimensional efficient integrator, testing for the accuracy of
   multidimensional integrals. If there is a sharp peak, this maybe fails to integrate and the number of points
   has to be manually raised
+- add highly performant kernel density estimation (mainly contributed by Marc Steiner)
+  in 1 dimension which allow
+  for the choice of arbitrary kernels, support
+  boundary mirroring of the data and allow for large (millions) of data samples:
+  - :class:`~zfit.pdf.KDE1DimExact` for the normal density estimation
+  - :class:`~zfit.pdf.KDE1DimGrid` using a binning
+  - :class:`~zfit.pdf.KDE1DimFFT` using a binning and FFT
+  - :class:`~zfit.pdf.KDE1DimISJ` using a binning and an algorithm (ISJ) to solve the optimal bandwidth
+
+  For an introduction, see either :ref:`sec-kernel-density-estimation` or the tutorial :ref:`sec-components-model`
+
 - add windows in CI
+
 Breaking changes
 ------------------
 - the numerical integration improved with more sensible values for tolerance. This means however that some fits will

@@ -403,7 +403,7 @@ def calc_kernel_probs(size, weights):
         return tf.broadcast_to(1 / size, shape=(tf.cast(size, tf.int32),))
 
 
-class KDEHelperMixin:
+class KDEHelper:
     _bandwidth_methods = {
         'scott': _bandwidth_scott_KDEV1,
         'silverman': _bandwidth_silverman_KDEV1,
@@ -502,9 +502,9 @@ def padreflect_data_weights_1dim(data, mode, weights=None):
     return data, weights
 
 
-class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
+class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
     _N_OBS = 1
-    _bandwidth_methods = KDEHelperMixin._bandwidth_methods.copy()
+    _bandwidth_methods = KDEHelper._bandwidth_methods.copy()
     _bandwidth_methods.update({
         'adaptive': _adaptive_std_bandwidth_KDEV1,
         'isj': _bandwidth_isj_KDEV1
@@ -660,8 +660,8 @@ class GaussianKDE1DimV1(KDEHelperMixin, WrapDistribution):
         self._truncate = truncate
 
 
-class KDE1DimExact(KDEHelperMixin, WrapDistribution):
-    _bandwidth_methods = KDEHelperMixin._bandwidth_methods.copy()
+class KDE1DimExact(KDEHelper, WrapDistribution):
+    _bandwidth_methods = KDEHelper._bandwidth_methods.copy()
     _bandwidth_methods.update({
         'adaptive_geom': _adaptive_geom_bandwidth_KDEV1,
         'adaptive_std': _adaptive_std_bandwidth_KDEV1,
@@ -844,9 +844,9 @@ class KDE1DimExact(KDEHelperMixin, WrapDistribution):
                          name=name)
 
 
-class KDE1DimGrid(KDEHelperMixin, WrapDistribution):
+class KDE1DimGrid(KDEHelper, WrapDistribution):
     _N_OBS = 1
-    _bandwidth_methods = KDEHelperMixin._bandwidth_methods.copy()
+    _bandwidth_methods = KDEHelper._bandwidth_methods.copy()
     _bandwidth_methods.update({
         'adaptive_geom': _adaptive_geom_bandwidth_grid_KDEV1,
         'adaptive_zfit': _adaptive_zfit_bandwidth_grid_KDEV1,
@@ -1039,7 +1039,7 @@ class KDE1DimGrid(KDEHelperMixin, WrapDistribution):
                          name=name)
 
 
-class KDE1DimFFT(KDEHelperMixin, BasePDF):
+class KDE1DimFFT(KDEHelper, BasePDF):
     _N_OBS = 1
 
     def __init__(self,
@@ -1227,7 +1227,7 @@ class KDE1DimFFT(KDEHelperMixin, BasePDF):
         return value
 
 
-class KDE1DimISJ(KDEHelperMixin, BasePDF):
+class KDE1DimISJ(KDEHelper, BasePDF):
     _N_OBS = 1
 
     def __init__(self,
