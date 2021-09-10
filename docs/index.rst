@@ -38,7 +38,7 @@ Scalable pythonic fitting
 
         .. link-button:: getting_started/5_minutes_to_zfit
             :type: ref
-            :text: "5 minutes to zfit"
+            :text: 5 minutes to zfit
             :classes: btn-outline-primary btn-block
 
         .. link-button:: ask_a_question
@@ -50,7 +50,7 @@ Scalable pythonic fitting
 
     .. dropdown:: Tutorials
 
-        .. link-button:: tutorials/introduction
+        .. link-button:: _tmp/zfit-tutorials/introduction/Introduction.ipynb
             :type: ref
             :text: Introduction
             :classes: btn-outline-primary btn-block

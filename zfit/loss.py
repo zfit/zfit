@@ -5,7 +5,6 @@ from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
 __all__ = ['ExtendedUnbinnedNLL', "UnbinnedNLL", "BaseLoss", "SimpleLoss"]
 
-from .util.exception import BreakingAPIChangeError
 from .util.warnings import warn_experimental_feature
 
 
