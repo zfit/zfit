@@ -47,15 +47,14 @@ extensions = [
     "sphinx_panels",
     'seed_intersphinx_mapping',
     "myst_nb",
-    'releases',
     "sphinx_togglebutton",
 
 ]
 
-panels_add_bootstrap_css = False
+panels_add_bootstrap_css = False  # for sphinx_panel, use custom css from theme, not bootstrap
 
-releases_github_path = "zfit/zfit"
-releases_document_name = "../CHANGELOG.rst"
+# releases_github_path = "zfit/zfit"  # TODO: use releases or similar?
+# releases_document_name = "../CHANGELOG.rst"
 
 # jupyter_execute_notebooks = "force"  # use if needed and cache should be ignored
 jupyter_execute_notebooks = "cache"
