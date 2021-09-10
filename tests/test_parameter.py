@@ -394,3 +394,16 @@ def test_set_values():
     zfit.param.set_values(params, init_values)
     for param, val in zip(params, init_values):
         assert param.value().numpy() == val
+
+
+def test_deletion():
+    import gc
+
+    def func():
+        a = zfit.Parameter(f'param', 42)
+        return True
+
+    assert func()
+
+    gc.collect()
+    assert func()  # this must not raise an error
