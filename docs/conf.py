@@ -38,7 +38,6 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
     'sphinxcontrib.images',
-    'sphinxcontrib.programoutput',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.githubpages',
@@ -49,7 +48,6 @@ extensions = [
     'seed_intersphinx_mapping',
     "myst_nb",
     'releases',
-    # "sphinxcontrib.fulltoc",
     "sphinx_togglebutton",
 
 ]
