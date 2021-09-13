@@ -49,7 +49,10 @@ def test_numerical_hessian(graph):
 
 
 def test_reduce_geometric_mean():
+    import zfit.z.numpy as znp
     rnd1 = np.random.poisson(1000, size=(54, 14, 3)).astype(np.float64)
     gmean_np = scipy.stats.mstats.gmean(rnd1, axis=None)
     gmea_z = z.math.reduce_geometric_mean(rnd1)
+    gmea_z_weighted = z.math.reduce_geometric_mean(rnd1, weights=znp.ones_like(rnd1))
     np.testing.assert_allclose(gmea_z, gmean_np)
+    np.testing.assert_allclose(gmea_z_weighted, gmean_np)

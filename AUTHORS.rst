@@ -15,6 +15,7 @@ Development Lead
 
 Contributors
 ------------
+| Marc Steiner <marcsteiner19@gmail.com>
 | Chris Burr <christopher.burr@cern.ch>
 | Martina Ferrillo <martina.ferrillo@cern.ch>
 | Abhijit Mathad <amathad@cern.ch>

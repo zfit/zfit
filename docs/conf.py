@@ -40,6 +40,7 @@ extensions = [
     'sphinxcontrib.images',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
+    'sphinxcontrib.bibtex',
     'sphinx.ext.githubpages',
     'sphinx.ext.todo',
     'sphinx_copybutton',
@@ -74,6 +75,9 @@ myst_enable_extensions = [
     "dollarmath",
     "html_image",
 ]
+
+
+bibtex_bibfiles = [str(project_dir.joinpath('docs', 'refs.bib'))]
 
 zfit_tutorials_path = project_dir.joinpath('docs', '_tmp', 'zfit-tutorials')
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
@@ -147,9 +151,10 @@ with open('hyperlinks.txt') as hyperlinks:
 
 # makes the jupyter extension executable
 jupyter_sphinx_thebelab_config = {
+    'bootstrap': False,
     'requestKernel': True,
     'binderOptions': {
-        'repo': "zfit/zfit",
+        'repo': "zfit/zfit-tutorials",
         'binderUrl': "https://mybinder.org",
         'repoProvider': "github",
     },
@@ -312,11 +317,11 @@ intersphinx_mapping = {
     # 'numdifftools': ('https://numdifftools.readthedocs.io/en/latest/index.html', None),
     "tensorflow": (
         "https://www.tensorflow.org/api_docs/python",
-        "https://github.com/GPflow/tensorflow-intersphinx/raw/master/tf2_py_objects.inv"
+        "https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tf2_py_objects.inv"
     ),
     "tensorflow_probability": (
         "https://www.tensorflow.org/probability/api_docs/python",
-        "https://github.com/GPflow/tensorflow-intersphinx/raw/master/tfp_py_objects.inv"
+        " https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tfp_py_objects.inv"
     ),
     'uproot': ('https://uproot.readthedocs.io/en/latest/', None),
 }

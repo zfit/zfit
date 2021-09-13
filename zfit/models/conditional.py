@@ -40,8 +40,10 @@ class ConditionalPDFV1(BaseFunctor):
                 parameter, meaning that the parameter *param* in the ``cond`` mapping will now be
                 determined by the data in the ``Space``, the value of the ``cond``.
             cond: Mapping of parameter to input data.
-            name: |@doc:model.init.name| Name of the PDF for a better visibility.
-               Has no programmatical functional purpose. |@docend:model.init.name|
+            name: |@doc:model.init.name| Human readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
             use_vectorized_map ():
             sample_with_replacement ():
         """

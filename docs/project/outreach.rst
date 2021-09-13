@@ -3,7 +3,7 @@ Outreach
 ===============
 
 The project zfit aims to establish a basis in terms of API and basic functionality for a (likelihood) fitting
-ecosystem that is capable to deal with the demands from High Energy Physics (HEP).
+ecosystem that is capable of dealing with the demands from High Energy Physics (HEP).
 
 Papers and proceedings
 =======================

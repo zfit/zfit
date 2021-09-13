@@ -695,12 +695,7 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
             dtype:
         """
         super().__init__(name=name, params={}, dtype=dtype)
-        static_value = tf.get_static_value(value, partial=True)
-        self._value_np = static_value
-        if static_value is None:
-            raise RuntimeError("Cannot convert input to static value. If you encounter this, please open a bug report"
-                               " on Github: https://github.com/zfit/zfit")
-
+        self._value_np = tf.get_static_value(value, partial=True)
         self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
 
     @property
