@@ -94,7 +94,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     ],
         [
             ('weights', weight) for weight in [None, znp.ones(shape=npoints_lim)]
-        ],[
+        ], [
             ('padding', padding)
         ],
         [
@@ -114,7 +114,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     ],
         [
             ('weights', weight) for weight in [None, znp.ones(shape=npoints)]
-        ],[
+        ], [
             ('padding', padding)
         ],
         [
@@ -142,7 +142,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     ],
         [
             ('weights', weight) for weight in [None, znp.ones(shape=npoints)]
-        ],[
+        ], [
             ('padding', padding)
         ],
         [
@@ -168,7 +168,7 @@ def create_kde(kdetype=None, npoints=1500, cfgonly=False, nonly=False, full=True
     comb = itertools.product(
         [
             ('weights', weight) for weight in [None, znp.ones(shape=npoints)]
-        ],[
+        ], [
             ('padding', padding)
         ],
         [
