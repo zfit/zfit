@@ -584,8 +584,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
              Using a larger dataset is actually good practice to avoid
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
             bandwidth: Valid pre-defined options are {'silverman', 'scott', 'adaptive'}.
-
-            |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
+             |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
              often also denoted as :math:`h`. For a Gaussian kernel, this
              corresponds to *sigma*. This can be calculated using
              pre-defined options or by specifying a numerical value that is
@@ -604,8 +603,8 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
              with *data*. Instead of using this parameter, it is preferred
              to use a ``ZfitData`` as *data* that contains weights.
              This will change the count of the events, whereas
-             weight :math:`w_i` of :math:`x_i` will scale the value of
-             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+             weight :math:`w_i` of :math:`x_i` will scale the value of :math:`K_i( x_i)`,
+             resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
@@ -728,8 +727,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
              Using a larger dataset is actually good practice to avoid
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
             bandwidth: Valid pre-defined options are {'silverman', 'scott', 'adaptive'}.
-
-            |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
+             |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
              often also denoted as :math:`h`. For a Gaussian kernel, this
              corresponds to *sigma*. This can be calculated using
              pre-defined options or by specifying a numerical value that is
@@ -738,9 +736,9 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
 
              A scalar value is usually referred to as a global bandwidth while
              an array holds local bandwidths |@docend:pdf.kde.init.bandwidth|
+             The bandwidth can also be a parameter, which should be used with caution. However,
+             it allows to use it in cross-valitadion with a likelihood method.
 
-            The bandwidth can also be a parameter, which should be used with caution. However,
-            it allows to use it in cross-valitadion with a likelihood method.
             kernel: |@doc:pdf.kde.init.kernel| The kernel is the heart
              of the Kernel Density Estimation, which consists of the sum of
              kernels around each sample point. Therefore, a kernel should represent
@@ -757,12 +755,14 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
              Valid choices are callables that return a
              :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
              that belong to the loc-scale family. |@docend:pdf.kde.init.kernel|
+
             padding: |@doc:pdf.kde.init.padding| KDEs have a peculiar
              weakness: the boundaries, as the outside has a zero density. This makes the KDE
              go down at the bountary as well, as the density approaches zero, no matter what the
              density inside the boundary was.
 
              There are two ways to circumvent this problem:
+
                - the best solution: providing a larger dataset than the default space the PDF is used in
                - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
                  with a zero derivative. This is a padding technique and can improve the boundaries.
@@ -780,14 +780,13 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
              or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
              also be used. |@docend:pdf.kde.init.padding|
 
-
             weights: |@doc:pdf.kde.init.weights| Weights of each event
              in *data*, can be None or Tensor-like with shape compatible
              with *data*. Instead of using this parameter, it is preferred
              to use a ``ZfitData`` as *data* that contains weights.
              This will change the count of the events, whereas
-             weight :math:`w_i` of :math:`x_i` will scale the value of
-             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+             weight :math:`w_i` of :math:`x_i` will scale the value of :math:`K_i( x_i)`,
+             resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
@@ -887,7 +886,16 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.data|
-            bandwidth: |@doc:pdf.kde.init.||@docend:pdf.kde.init.|
+
+            bandwidth: |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
+             often also denoted as :math:`h`. For a Gaussian kernel, this
+             corresponds to *sigma*. This can be calculated using
+             pre-defined options or by specifying a numerical value that is
+             broadcastable to *data* -- a scalar or an array-like
+             object with the same size as *data*.
+
+             A scalar value is usually referred to as a global bandwidth while
+             an array holds local bandwidths |@docend:pdf.kde.init.bandwidth|
             kernel: |@doc:pdf.kde.init.kernel| The kernel is the heart
              of the Kernel Density Estimation, which consists of the sum of
              kernels around each sample point. Therefore, a kernel should represent
@@ -910,6 +918,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
              density inside the boundary was.
 
              There are two ways to circumvent this problem:
+
                - the best solution: providing a larger dataset than the default space the PDF is used in
                - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
                  with a zero derivative. This is a padding technique and can improve the boundaries.
@@ -962,8 +971,8 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
              with *data*. Instead of using this parameter, it is preferred
              to use a ``ZfitData`` as *data* that contains weights.
              This will change the count of the events, whereas
-             weight :math:`w_i` of :math:`x_i` will scale the value of
-             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+             weight :math:`w_i` of :math:`x_i` will scale the value of :math:`K_i( x_i)`,
+             resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
@@ -1079,7 +1088,15 @@ class KDE1DimFFT(KDEHelper, BasePDF):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.data|
-            bandwidth: |@doc:pdf.kde.init.||@docend:pdf.kde.init.|
+            bandwidth: |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
+             often also denoted as :math:`h`. For a Gaussian kernel, this
+             corresponds to *sigma*. This can be calculated using
+             pre-defined options or by specifying a numerical value that is
+             broadcastable to *data* -- a scalar or an array-like
+             object with the same size as *data*.
+
+             A scalar value is usually referred to as a global bandwidth while
+             an array holds local bandwidths |@docend:pdf.kde.init.bandwidth|
             kernel: |@doc:pdf.kde.init.kernel| The kernel is the heart
              of the Kernel Density Estimation, which consists of the sum of
              kernels around each sample point. Therefore, a kernel should represent
@@ -1102,6 +1119,7 @@ class KDE1DimFFT(KDEHelper, BasePDF):
              density inside the boundary was.
 
              There are two ways to circumvent this problem:
+
                - the best solution: providing a larger dataset than the default space the PDF is used in
                - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
                  with a zero derivative. This is a padding technique and can improve the boundaries.
@@ -1156,8 +1174,8 @@ class KDE1DimFFT(KDEHelper, BasePDF):
              with *data*. Instead of using this parameter, it is preferred
              to use a ``ZfitData`` as *data* that contains weights.
              This will change the count of the events, whereas
-             weight :math:`w_i` of :math:`x_i` will scale the value of
-             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+             weight :math:`w_i` of :math:`x_i` will scale the value of :math:`K_i( x_i)`,
+             resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
@@ -1271,6 +1289,7 @@ class KDE1DimISJ(KDEHelper, BasePDF):
              density inside the boundary was.
 
              There are two ways to circumvent this problem:
+
                - the best solution: providing a larger dataset than the default space the PDF is used in
                - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
                  with a zero derivative. This is a padding technique and can improve the boundaries.
@@ -1323,8 +1342,8 @@ class KDE1DimISJ(KDEHelper, BasePDF):
              with *data*. Instead of using this parameter, it is preferred
              to use a ``ZfitData`` as *data* that contains weights.
              This will change the count of the events, whereas
-             weight :math:`w_i` of :math:`x_i` will scale the value of
-             :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+             weight :math:`w_i` of :math:`x_i` will scale the value of :math:`K_i( x_i)`,
+             resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|

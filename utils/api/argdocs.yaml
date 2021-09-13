@@ -84,6 +84,7 @@ pdf.kde.init.padding: |1+
               density inside the boundary was.
 
               There are two ways to circumvent this problem:
+
                 - the best solution: providing a larger dataset than the default space the PDF is used in
                 - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
                   with a zero derivative. This is a padding technique and can improve the boundaries.
@@ -108,8 +109,8 @@ pdf.kde.init.weights: |1+
               with *data*. Instead of using this parameter, it is preferred
               to use a ``ZfitData`` as *data* that contains weights.
               This will change the count of the events, whereas
-              weight :math:`w_i` of :math:`x_i` will scale the value of
-              :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+              weight :math:`w_i` of :math:`x_i` will scale the value of :math:`K_i( x_i)`,
+              resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
 
               If no weights are given, each kernel will be scaled by the same
               constant :math:`\frac{1}{n_{data}}`.

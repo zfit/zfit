@@ -432,7 +432,7 @@ with a zero derivative. This is a padding technique and can improve the boundari
 
 .. jupyter-execute::
 
-    kde = zfit.pdf.KDE1DimExact(data, obs=obs, padding=0.2)
+    kde = zfit.pdf.KDE1DimExact(data_narrow, obs=obs, padding=0.2)
 
     plt.plot(x, kde.pdf(x), label='Padded KDE')
     plt.plot(x, gauss.pdf(x, obs), label='True PDF')
