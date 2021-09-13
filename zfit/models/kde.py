@@ -616,7 +616,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         data, size, weights = self._convert_init_data_weights_size(data, weights, padding=False)
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data, truncate=truncate,
-                                                                   name=name, obs=obs, weights=weights, padding=False)
+                                                                   name=name, obs=obs, weights=weights)
         params = {'bandwidth': bandwidth_param}
 
         probs = calc_kernel_probs(size, weights)
