@@ -22,8 +22,8 @@ setuptools_scm_git_archive
 Sphinx>=3.5.4
 sphinx-autodoc-typehints
 sphinx-copybutton
-sphinxcontrib-bibtex
 sphinx-panels
+sphinxcontrib-bibtex
 sphinxcontrib-images
 sphinxcontrib-youtube>=1.0.0.dev20210831
 tox>=2.9.1
