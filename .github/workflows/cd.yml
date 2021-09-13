@@ -45,3 +45,18 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           password: ${{ secrets.PYPI_ZFIT_TOKEN }}
+
+  test_publish:
+    needs: [ dist ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          password: ${{ secrets.PYPI_ZFIT_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
