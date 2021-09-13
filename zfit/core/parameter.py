@@ -258,7 +258,6 @@ class ZfitParameterMixin(BaseNumeric):
         return self._name
 
     def __del__(self):
-        del self._existing_params[self.name]
         with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
             super().__del__(self)
 
@@ -592,8 +591,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         return extract_filter_params(self, floating=floating, extract_independent=False)
 
     def __del__(self):
-        with contextlib.suppress(KeyError):
-            self._independent_params.remove(self)
         super().__del__()
 
     def __repr__(self):
