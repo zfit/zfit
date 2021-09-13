@@ -1235,9 +1235,6 @@ class Space(BaseSpace):
         return return_dict
 
     @property
-    # @deprecated(date=None, instructions="`limits` is depreceated (currently) due to the unambiguous nature of the word."
-    #                                     " Use `inside` to check if an Tensor is inside the limits or"
-    #                                     " `rect_limits` if you need to retreave the rectangular limits.")
     @warn_or_fail_not_rect
     def limits(self) -> ztyping.LimitsTypeReturn:
         """Return the limits.
@@ -1423,8 +1420,7 @@ class Space(BaseSpace):
         return self.rect_lower.shape[0]
 
     @property
-    @deprecated(date=None, instructions="Depreceated, use .rect_limits or .inside to check if a value is inside or use"
-                                        "rect_limits to receive the rectangular limits.")
+    @deprecated(date=None, instructions="Use `limits` instead.")
     @warn_or_fail_not_rect
     def limit2d(self) -> Tuple[float, float, float, float]:
         """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
@@ -1456,8 +1452,6 @@ class Space(BaseSpace):
         raise BreakingAPIChangeError("This function is gone. Instead iterate through the space and get each limit out.")
 
     @property
-    # @deprecated(date=None, instructions="Depreceated (currently) due to the unambiguous nature of the word."
-    #                                     " Use `rect_lower` instead.")
     @warn_or_fail_not_rect
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
@@ -1468,8 +1462,6 @@ class Space(BaseSpace):
         # raise BreakingAPIChangeError("Use rect_lower")
 
     @property
-    # @deprecated(date=None, instructions="depreceated (currently) due to the unambiguous nature of the word."
-    #                                     " Use `rect_upper` instead.")
     @warn_or_fail_not_rect
     def upper(self) -> ztyping.UpperTypeReturn:
         """Return the upper limits.
@@ -1799,8 +1791,6 @@ class Space(BaseSpace):
 
     def get_obs_axes(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None):
         raise BreakingAPIChangeError("Simply get the coords if needed")
-
-    # @deprecated(date=None, instructions="Use rect_area to obtain the rectangular area.")
 
     @property
     def obs_axes(self):
