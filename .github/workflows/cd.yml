@@ -50,6 +50,7 @@ jobs:
 
   test_dist:
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, ‘refs/tags/’) != true  # don't run when publishing
     env: # TODO: can we improve this duplication?
       SETUPTOOLS_SCM_PRETEND_VERSION: "0.0.1dev99"  # fake, SCM adds by default local version -> can't publish
     steps:
@@ -71,6 +72,7 @@ jobs:
   test_publish:
     needs: [ test_dist ]
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, ‘refs/tags/’) != true  # don't run on publishing
     steps:
       - uses: actions/download-artifact@v2
         with:
