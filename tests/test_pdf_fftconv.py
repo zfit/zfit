@@ -1,6 +1,7 @@
 """Example test for a pdf or function."""
 #  Copyright (c) 2021 zfit
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import scipy.signal
@@ -59,13 +60,12 @@ def test_conv_simple(interpolation):
     assert pytest.approx(1, rel=1e-3) == integral.numpy()
     assert len(probs_np) == n_points
 
-    # import matplotlib.pyplot as plt
-    # plt.figure()
-    # plt.plot(x, probs_np, label='zfit')
-    # plt.plot(x, true_conv, label='numpy')
-    # plt.legend()
-    # plt.title(interpolation)
-    # plt.show()
+    plt.figure()
+    plt.title(f"Conv FFT 1Dim, interpolation={interpolation}")
+    plt.plot(x, probs_np, label='zfit')
+    plt.plot(x, true_conv, label='numpy')
+    plt.legend()
+    pytest.zfit_savefig()
 
 
 @pytest.mark.parametrize('interpolation', interpolation_methods)
@@ -144,12 +144,12 @@ def test_conv_1d_shifted(interpolation):
 
     assert pytest.approx(1, rel=1e-3) == integral.numpy()
 
-    # import matplotlib.pyplot as plt
-    # plt.figure()
-    # plt.plot(x, probs_np, label='zfit')
-    # plt.plot(x, true_conv, label='numpy')
-    # plt.legend()
-    # plt.show()
+    plt.figure()
+    plt.title("Conv FFT 1Dim shift testing")
+    plt.plot(x, probs_np, label='zfit')
+    plt.plot(x, true_conv, label='numpy')
+    plt.legend()
+    pytest.zfit_savefig()
 
 
 @pytest.mark.parametrize('interpolation', interpolation_methods)
@@ -174,28 +174,6 @@ def test_onedim_sampling(interpolation):
     x = z.unstack_x(sample)
     xns = z.unstack_x(sample_nosample)
     assert scipy.stats.ks_2samp(x, xns).pvalue > 1e-3  # can vary a lot, but still means close
-    # uni1sample = func1k.sample(npoints_sample // 2)
-    # uni2sample = func2k.sample(npoints_sample // 2)
-    # xcomb = tf.concat([uni1sample.value(), uni2sample.value()], axis=0)
-
-    # import matplotlib.pyplot as plt
-    # plt.figure()
-    # nbins = 50
-    # alpha = 0.5
-    # _, bins, _ = plt.hist(xns.numpy(), bins=nbins, label='fallback', alpha=alpha)
-    # plt.hist(x.numpy(), bins=bins, label='custom', alpha=alpha)
-    #
-    # xsum = z.unstack_x(func.sample(n=npoints_sample))
-    # xsumk = z.unstack_x(funck.sample(n=npoints_sample))
-    # xsumk_np = xsumk.numpy()
-    # np.random.shuffle(xsumk_np)
-    # plt.hist(xsumk_np + xsum.numpy(), bins=bins, label='manually convoluted', alpha=alpha)
-    # # plt.hist(xcomb.numpy() + 9, bins=bins, label='true non-convoluted', alpha=alpha)
-    # lower, upper = np.min(bins), np.max(bins)
-    # linspace = tf.linspace(lower, upper, 1000)
-    # plt.plot(linspace, conv.pdf(linspace) * npoints_sample / nbins * (upper - lower))
-    # plt.legend()
-    # plt.show()
 
 
 def true_conv_np(func, gauss1, obs, x, xkernel):
@@ -321,8 +299,6 @@ def test_conv_2D_simple():
     plt.imshow(probsr, label='zfit conv')
     plt.title('zfit conv')
 
-    plt.show(block=False)
-
     # test the sampling
     conv_nosample = FFTConvPDFV1NoSampling(func=func, kernel=gauss)
 
@@ -333,23 +309,25 @@ def test_conv_2D_simple():
     xns, yns = z.unstack_x(sample_nosample)
 
     plt.figure()
+    plt.title('FFT conv, custom sampling, addition')
     plt.hist2d(x, y, bins=30)
-    plt.title('custom sampling, addition')
+    pytest.zfit_savefig()
 
     plt.figure()
+    plt.title('FFT conv, fallback sampling, accept-reject')
     plt.hist2d(xns, yns, bins=30)
-    plt.title('fallback sampling, accept-reject')
+    pytest.zfit_savefig()
 
     plt.figure()
+    plt.title('FFT conv x projection')
     plt.hist(x.numpy(), bins=50, label='custom', alpha=0.5)
     plt.hist(xns.numpy(), bins=50, label='fallback', alpha=0.5)
     plt.legend()
-    plt.title('x')
-    plt.show()
+    pytest.zfit_savefig()
 
     plt.figure()
+    plt.title('FFT conv y projection')
     plt.hist(y.numpy(), bins=50, label='custom', alpha=0.5)
     plt.hist(yns.numpy(), bins=50, label='fallback', alpha=0.5)
-    plt.title('y')
     plt.legend()
-    plt.show()
+    pytest.zfit_savefig()

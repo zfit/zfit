@@ -6,7 +6,7 @@ docformatter
 flake8>=3.5.0
 Jinja2
 jupyter-sphinx
-matplotlib  # docs
+matplotlib  # docs, tests
 mplhep  # docs
 myst-nb
 pip>=9.0.1
