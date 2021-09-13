@@ -46,11 +46,29 @@ jobs:
         with:
           password: ${{ secrets.PYPI_ZFIT_TOKEN }}
 
-  test_publish:
-    needs: [ dist ]
+  test_dist:
     runs-on: ubuntu-latest
     env:
       SETUPTOOLS_SCM_PRETEND_VERSION: "0.0.1dev99"  # fake, SCM adds by default local version -> can't publish
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+
+      - name: Build SDist and wheel
+        run: pipx run --spec build pyproject-build
+
+      - name: Check metadata
+        run: pipx run twine check dist/*
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*
+
+  test_publish:
+    needs: [ test_dist ]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
         with:
