@@ -2,6 +2,7 @@
 #  Copyright (c) 2021 zfit
 import abc
 import collections.abc
+import contextlib
 import functools
 import warnings
 from contextlib import suppress
@@ -591,7 +592,8 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         return extract_filter_params(self, floating=floating, extract_independent=False)
 
     def __del__(self):
-        self._independent_params.remove(self)
+        with contextlib.suppress(KeyError):
+            self._independent_params.remove(self)
         super().__del__()
 
     def __repr__(self):
