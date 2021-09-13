@@ -1,17 +1,17 @@
 bumpversion>=0.5.3
 check-manifest
 coverage>=4.5.1
+coverage-lcov
 docformatter
 flake8>=3.5.0
-ipyopt<0.12
-Jinja2<3  # temp fix for failing, meta not known
+Jinja2
 jupyter-sphinx
-matplotlib  # docs
+matplotlib  # docs, tests
 mplhep  # docs
 myst-nb
 pip>=9.0.1
 pre-commit
-pydata-sphinx-theme~=0.5.2
+pydata-sphinx-theme>=0.6.2  # fix for Jinja
 pygit2
 pyyaml
 seed_intersphinx_mapping
@@ -19,9 +19,13 @@ setupext-janitor
 setuptools>=30.3.0
 setuptools_scm[toml]>=3.4
 setuptools_scm_git_archive
-Sphinx~=3.5.4
+Sphinx>=3.5.4
 sphinx-autodoc-typehints
 sphinx-copybutton
+sphinx-panels
+sphinxcontrib-bibtex
+sphinxcontrib-images
+sphinxcontrib-youtube>=1.0.0
 tox>=2.9.1
 twine>=1.10.0
 watchdog>=0.8.3

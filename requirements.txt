@@ -3,6 +3,7 @@ colored
 colorlog
 dotmap
 iminuit>=2.3
+ipyopt<0.12
 nlopt
 numdifftools
 numpy>=1.16
@@ -10,8 +11,9 @@ ordered-set
 pandas
 scipy>=1.2
 tabulate
-tensorflow~=2.5
+tensorflow>=2.5,<2.7
 tensorflow-addons
 tensorflow_probability>=0.12,<0.14
 texttable
+tf_quant_finance>=v0.0.1-dev24
 uproot>=4,<5

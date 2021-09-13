@@ -1,5 +1,6 @@
 #  Copyright (c) 2021 zfit
 import functools
+import warnings
 from typing import Mapping, Optional, Set
 
 import tensorflow as tf
@@ -39,8 +40,10 @@ class ConditionalPDFV1(BaseFunctor):
                 parameter, meaning that the parameter *param* in the ``cond`` mapping will now be
                 determined by the data in the ``Space``, the value of the ``cond``.
             cond: Mapping of parameter to input data.
-            name: |@doc:model.init.name| Name of the PDF for a better visibility.
-               Has no programmatical functional purpose. |@docend:model.init.name|
+            name: |@doc:model.init.name| Human readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
             use_vectorized_map ():
             sample_with_replacement ():
         """
@@ -93,6 +96,9 @@ class ConditionalPDFV1(BaseFunctor):
 
     @z.function(wraps='conditional_pdf')
     def _single_hook_integrate(self, limits, norm_range, x):
+        from zfit import run
+        if not run.get_graph_mode():
+            warnings.warn("Using the Conditional PDF in eager mode (no jit) maybe gets stuck.", RuntimeWarning)
 
         param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
         x_values = x.value()
@@ -104,6 +110,7 @@ class ConditionalPDFV1(BaseFunctor):
             output_signature = tf.TensorSpec(shape=(1, *x_values.shape[1:-1]), dtype=self.dtype)
             tf_map = functools.partial(tf.map_fn, fn_output_signature=output_signature)
 
+        @z.function(wraps='vectorized_map')
         def eval_int(values):
             for param, index in param_x_indices.items():
                 param.assign(values[..., index])

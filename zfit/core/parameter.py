@@ -2,12 +2,13 @@
 #  Copyright (c) 2021 zfit
 import abc
 import collections.abc
+import contextlib
 import functools
 import warnings
-from collections import OrderedDict
 from contextlib import suppress
 from inspect import signature
 from typing import Callable, Dict, Iterable, List, Optional, Set, Union
+from weakref import WeakValueDictionary
 
 import numpy as np
 import tensorflow as tf
@@ -241,7 +242,7 @@ class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParam
 
 
 class ZfitParameterMixin(BaseNumeric):
-    _existing_params = OrderedDict()
+    _existing_params = WeakValueDictionary()
 
     def __init__(self, name, **kwargs):
         if name in self._existing_params:
@@ -304,10 +305,13 @@ class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
         return self.name
 
 
+from weakref import WeakSet
+
+
 class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter):
     """Class for fit parameters, derived from TF Variable class."""
     _independent = True
-    _independent_params = []
+    _independent_params = WeakSet()
     DEFAULT_STEP_SIZE = 0.001
 
     @deprecated_args(None, "Use `lower` instead.", 'lower_limit')
@@ -331,7 +335,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             upper : upper limit
             step_size : step size
         """
-        self._independent_params.append(self)
+        self._independent_params.add(self)
 
         # legacy start
         if lower_limit is not None:
@@ -587,7 +591,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
         return extract_filter_params(self, floating=floating, extract_independent=False)
 
     def __del__(self):
-        self._independent_params.remove(self)
         super().__del__()
 
     def __repr__(self):
@@ -691,12 +694,7 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
             dtype:
         """
         super().__init__(name=name, params={}, dtype=dtype)
-        static_value = tf.get_static_value(value, partial=True)
-        self._value_np = static_value
-        if static_value is None:
-            raise RuntimeError("Cannot convert input to static value. If you encounter this, please open a bug report"
-                               " on Github: https://github.com/zfit/zfit")
-
+        self._value_np = tf.get_static_value(value, partial=True)
         self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
 
     @property

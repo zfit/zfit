@@ -58,8 +58,9 @@ if int(tf.__version__[0]) < 2:
     raise RuntimeError(f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
                        f" only with TF >= 2")
 
+from . import z  # initialize first
 from . import (constraint, core, data, dimension, exception, func, loss,
-               minimize, param, pdf, sample, z)
+               minimize, param, pdf, sample)
 from .core.data import Data
 from .core.parameter import (ComplexParameter, ComposedParameter, Parameter,
                              convert_to_parameter)
@@ -81,12 +82,12 @@ def _maybe_disable_jit():
         warnings.warn("Depreceated to use `ZFIT_EXPERIMENTAL_DO_JIT`, use `ZFIT_GRAPH_MODE` instead.",
                       DeprecationWarning)
     arg = arg2 if arg1 is None else arg1
-    if arg is not None:
-        run.set_graph_mode(bool(int(arg)))
+    if arg is not None and not int(arg):
+        run.set_graph_mode(False)
 
     graph = os.environ.get("ZFIT_GRAPH_MODE")
-    if graph is not None:
-        run.set_graph_mode(bool(int(graph)))
+    if graph is not None and not int(graph):
+        run.set_graph_mode(False)
 
 
 # experimental flags

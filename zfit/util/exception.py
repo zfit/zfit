@@ -242,6 +242,8 @@ class VectorizedLimitsNotImplemented(StandardControlFlow):
     """Indicates that a function does not support vectorized (n_events > 1) limits in a :py:class:`~zfit.Space`."""
     pass
 
+class DerivativeCalculationError(ValueError):
+    pass
 
 # Developer verbose messages
 

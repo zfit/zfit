@@ -5,6 +5,60 @@ Changelog
 .. _newest-changelog:
 
 
+
+0.8.0 (13. Sep. 2021)
+======================
+
+Major Features and Improvements
+-------------------------------
+- allow `FitResult` to `freeze()`, making it pickleable. The parameters
+  are replaced by their name, the objects such as loss and minimizer as well.
+- improve the numerical integration by adding a one dimensional efficient integrator, testing for the accuracy of
+  multidimensional integrals. If there is a sharp peak, this maybe fails to integrate and the number of points
+  has to be manually raised
+- add highly performant kernel density estimation (mainly contributed by Marc Steiner)
+  in 1 dimension which allow
+  for the choice of arbitrary kernels, support
+  boundary mirroring of the data and allow for large (millions) of data samples:
+  - :class:`~zfit.pdf.KDE1DimExact` for the normal density estimation
+  - :class:`~zfit.pdf.KDE1DimGrid` using a binning
+  - :class:`~zfit.pdf.KDE1DimFFT` using a binning and FFT
+  - :class:`~zfit.pdf.KDE1DimISJ` using a binning and an algorithm (ISJ) to solve the optimal bandwidth
+
+  For an introduction, see either :ref:`sec-kernel-density-estimation` or the tutorial :ref:`sec-components-model`
+
+- add windows in CI
+
+Breaking changes
+------------------
+- the numerical integration improved with more sensible values for tolerance. This means however that some fits will
+  greatly increase the runtime. To restore the old behavior globally, do
+  for each instance `pdf.update_integration_options(draws_per_dim=40_000, max_draws=40_000, tol=1)`
+  This will integrate regardless of the chosen precision and it may be non-optimal.
+  However, the precision estimate in the integrator is also not perfect and maybe overestimates the error, so that
+  the integration by default takes longer than necessary. Feel free to play around with the parameters and report back.
+
+
+Bug fixes and small changes
+---------------------------
+- Double crystallball: move a minus sign down, vectorize the integral, fix wrong output shape of pdf
+- add a minimal value in the loss to avoid NaNs when taking the log of 0
+- improve feedback when taking the derivative with respect to a parameter that
+  a function does not depend on or if the function is purely Python.
+- make parameters deletable, especially it works now to create parameters in a function only
+  and no NameAlreadyTakenError will be thrown.
+
+
+Requirement changes
+-------------------
+
+- add TensorFlow 2.6 support (now 2.5 and 2.6 are supported)
+
+Thanks
+------
+- Marc Steiner for contributing many new KDE methods!
+
+
 0.7.2 (7. July 2021)
 ======================
 

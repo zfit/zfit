@@ -63,7 +63,7 @@ def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, f
                 probs = model.pdf(data, norm_range=fit_range)
         else:
             probs = model.pdf(data)
-        log_probs = znp.log(probs)
+        log_probs = znp.log(probs + znp.asarray(1e-307, dtype=znp.float64))  # minor offset to avoid NaNs from log(0)
         nll = _nll_calc_unbinned_tf(log_probs=log_probs,
                                     weights=data.weights if data.weights is not None else None,
                                     log_offset=log_offset)
@@ -777,7 +777,7 @@ class SimpleLoss(BaseLoss):
 
         if self._call_with_args:
             params = self._simple_func_params
-
+            params = tuple(params)
             value = self._simple_func(params)
         else:
             value = self._simple_func()
