@@ -34,6 +34,8 @@ Bug fixes and small changes
 - add a minimal value in the loss to avoid NaNs when taking the log of 0
 - improve feedback when taking the derivative with respect to a parameter that
   a function does not depend on or if the function is purely Python.
+- make parameters deletable, especially it works now to create parameters in a function only
+  and no NameAlreadyTakenError will be thrown.
 
 Experimental
 ------------
