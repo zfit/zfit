@@ -4,8 +4,6 @@ Changelog
 
 .. _newest-changelog:
 
-
-
 0.8.0 (13. Sep. 2021)
 ======================
 
