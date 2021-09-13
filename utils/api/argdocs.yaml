@@ -1,7 +1,194 @@
 model.init.name: |1+
-    Name of the PDF for a better visibility.
-                Has no programmatical functional purpose.
+    Human readable name
+                or label of
+                the PDF for better identification.
+                Has no programmatical functional purpose as idendification.
+model.init.obs: |1+
+    Observables of the
+                model. This will be used as the default space of the PDF and,
+                if not given explicitly, as the normalization range.
 
+                The default space is used for example in the sample method: if no
+                sampling limits are given, the default space is used.
+
+                The observables are not equal to the domain as it does not restrict or
+                truncate the model outside of this range.
+
+pdf.kde.bandwidth.weights: |1+
+  Weights of each event
+                in *data*, can be None or Tensor-like with shape compatible
+                with *data*. This will change the count of the events, whereas
+                weight :math:`w_i` of :math:`x_i`.
+
+
+pdf.kde.bandwidth.data: |1+
+  Data points to determine the bandwidth
+                from.
+
+pdf.kde.init.data: |1+
+  Data sample to approximate
+              the density from. The points represent positions of the *kernel*,
+              the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
+              be an array-like object.
+
+              If the data has weights, they will be taken into account.
+              This will change the count of the events, whereas
+              weight :math:`w_i` of :math:`x_i` will scale the value of
+              :math:`K_i( x_i)`, resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+              If no weights are given, each kernel will be scaled by the same
+              constant :math:`\frac{1}{n_{data}}`.
+
+
+pdf.kde.init.obs: |1+
+  Observable space of the KDE.
+              As with any other PDF, this will be used as the default *norm*, but
+              does not define the domain of the PDF. Namely this can be a smaller
+              space than *data*, as long as the name of the observable match.
+              Using a larger dataset is actually good practice to avoid
+              bountary biases, see also :ref:`sec-boundary-bias-and-padding`.
+
+pdf.kde.init.bandwidth: |1+
+  Bandwidth of the kernel,
+              often also denoted as :math:`h`. For a Gaussian kernel, this
+              corresponds to *sigma*. This can be calculated using
+              pre-defined options or by specifying a numerical value that is
+              broadcastable to *data* -- a scalar or an array-like
+              object with the same size as *data*.
+
+              A scalar value is usually referred to as a global bandwidth while
+              an array holds local bandwidths
+
+pdf.kde.init.kernel: |1+
+  The kernel is the heart
+              of the Kernel Density Estimation, which consists of the sum of
+              kernels around each sample point. Therefore, a kernel should represent
+              the distribution probability of a single data point as close as
+              possible.
+
+              The most widespread kernel is a Gaussian, or Normal, distribution. Due
+              to the law of large numbers, the sum of many (arbitrary) random variables
+              -- this is the case for most real world observable as they are the result of
+              multiple consecutive random effects -- results in a Gaussian distribution.
+              However, there are many cases where this assumption is not per-se true. In
+              this cases an alternative kernel may offers a better choice.
+
+              Valid choices are callables that return a
+              :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
+              that belong to the loc-scale family.
+
+pdf.kde.init.padding: |1+
+  KDEs have a peculiar
+              weakness: the boundaries, as the outside has a zero density. This makes the KDE
+              go down at the bountary as well, as the density approaches zero, no matter what the
+              density inside the boundary was.
+
+              There are two ways to circumvent this problem:
+
+                - the best solution: providing a larger dataset than the default space the PDF is used in
+                - mirroring the existing data at the boundaries, which is equivalent to a boundary condition
+                  with a zero derivative. This is a padding technique and can improve the boundaries.
+                  However, one important drawback of this method is to keep in mind that this will actually
+                  alter the PDF *to look mirrored*. If the PDF is plotted in a larger range, this becomes
+                  clear.
+
+              Possible options are a number (default 0.1) that depicts the fraction of the overall space
+              that defines the data mirrored on both sides. For example, for a space from 0 to 5, a value of
+              0.3 means that all data in the region of 0 to 1.5 is taken, mirrored around 0 as well as
+              all data from 3.5 to 5 and mirrored at 5. The new data will go from -1.5 to 6.5, so the
+              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
+              hides this.
+              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
+              or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
+              also be used.
+
+
+pdf.kde.init.weights: |1+
+  Weights of each event
+              in *data*, can be None or Tensor-like with shape compatible
+              with *data*. Instead of using this parameter, it is preferred
+              to use a ``ZfitData`` as *data* that contains weights.
+              This will change the count of the events, whereas
+              weight :math:`w_i` of :math:`x_i` will scale the value of :math:`K_i( x_i)`,
+              resulting in a factor of :math:`\frac{w_i}{\sum w_i} `.
+
+              If no weights are given, each kernel will be scaled by the same
+              constant :math:`\frac{1}{n_{data}}`.
+
+pdf.kde.init.num_grid_points: |1+
+  Number of points in
+              the binning grid.
+
+              The data will be binned using the *binning_method* in *num_grid_points*
+              and this histogram grid will then be used as kernel points. This has the
+              advantage to have a constant computational complexity independent of the data
+              size.
+
+              A number from 32 on can already yield good results, while the default is set
+              to 1024, creating a fine grid. Lowering the number increases the performance
+              at the cost of accuracy.
+
+pdf.kde.init.binning_method: |1+
+  Method to be used for
+              binning the data. Options are 'linear', 'simple'.
+
+              The data can be binned in the usual way ('simple'), but this is less precise
+              for KDEs, where we are interested in the shape of the histogram and smoothing
+              it. Therefore, a better suited method, 'linear', is available.
+
+              In normal binnig, each event (or weight) falls into the bin within the bin edges,
+              while the neighbouring bins get zero counts from this event.
+              In linear binning, the event is split between two bins, proportional to its
+              closeness to each bin.
+
+              The 'linear' method provides superior performance, most notably in small (~32)
+              grids.
+
+pdf.kde.bandwidth.explain_global: |1+
+  A global bandwidth
+              is a single parameter that is shared amongst all kernels.
+              While this is a fast and robust method,
+              it is a rule of thumb approximation. Due to its global nature,
+              it cannot take into account the different varying
+              local densities. It uses notably the least amount of memory
+              of all methods.
+
+pdf.kde.bandwidth.explain_local: |1+
+  A local bandwidth
+              means that each kernel i has a different bandwidth.
+              In other words, given some data points with size n,
+              we will need n bandwidth parameters.
+              This is often more accurate than a global bandwidth,
+              as it allows to have larger bandwiths in areas of smaller density,
+              where, due to the small local sample size, we have less certainty
+              over the true density while having a smaller bandwidth in denser
+              populated areas.
+
+              The accuracy comes at the cost of a longer pre-calculation to obtain
+              the local bandwidth (there are different methods available), an
+              increased runtime and - most importantly - an peak memory usage.
+
+              This can be especially costly for a large number (> few thousand) of
+              kernels and/or evaluating on large datasets (> 10'000).
+
+pdf.kde.bandwidth.explain_adaptive: |1+
+  Adaptive bandwidths are
+              a way to reduce the dependence on the bandwidth parameter
+              and usually are local bandwidths that take into account
+              the local densities.
+              Adaptive bandwidths are constructed by using an initial estimate
+              of the local density in order to calculate a sensible bandwidth
+              for each kernel. The initial estimator can be a kernel density
+              estimation using a global bandwidth with a rule of thumb.
+              The adaptive bandwidth h is obtained using this estimate, where
+              usually
+
+              .. math::
+
+                h_{i} \propto f( x_{i} ) ^ {-1/2}
+
+              Estimates can still differ in the overall scaling of this
+              bandwidth.
 
 minimizer.verbosity: |1+
  Verbosity of the minimizer. Has to be between 0 and 10.

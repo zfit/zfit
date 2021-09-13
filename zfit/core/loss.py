@@ -780,7 +780,7 @@ class SimpleLoss(BaseLoss):
 
         if self._call_with_args:
             params = self._simple_func_params
-
+            params = tuple(params)
             value = self._simple_func(params)
         else:
             value = self._simple_func()

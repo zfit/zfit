@@ -25,6 +25,8 @@ Data
 
     intro/data
 
+.. _sec-components-model:
+
 Model
 =====
 
@@ -32,6 +34,8 @@ Model
     :maxdepth: 1
 
     intro/model
+    models/kde_models
+    ../../../_tmp/zfit-tutorials/components/13 - Kernel Density Estimation.ipynb
 
 The following tutorials can also be found in
 `zfit tutorials as Jupyter Notebooks. <https://github.com/zfit/zfit-tutorials>`_

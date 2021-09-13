@@ -10,6 +10,9 @@ Introduction tutorial
 
 A more extensive introduction: 20 minutes to zfit.
 
+..  youtube:: https://youtu.be/uYl5jArxhmM?t=170
+       :width: 320
+
 .. toctree::
     :maxdepth: 1
     :hidden:

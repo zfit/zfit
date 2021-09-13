@@ -4,11 +4,13 @@ from typing import Callable, Iterable, Optional
 
 import numdifftools
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
 
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated
+from . import numpy as znp
 from .tools import _auto_upcast
 from .zextension import convert_to_tensor
 
@@ -289,11 +291,51 @@ def automatic_value_gradients_hessian(*args, **kwargs):
 
 
 @tf.function(autograph=False)
-def reduce_geometric_mean(input_tensor, axis=None, keepdims=False):
-    log_mean = znp.mean(znp.log(input_tensor), axis=axis, keepdims=keepdims)
+def reduce_geometric_mean(input_tensor, axis=None, weights=None, keepdims=False):
+    if weights is not None:
+        log_mean = tf.nn.weighted_moments(log(input_tensor), axes=axis, frequency_weights=weights)[0]
+    else:
+        log_mean = znp.mean(znp.log(input_tensor), axis=axis, keepdims=keepdims)
     return znp.exp(log_mean)
 
 
 def log(x):
     x = _auto_upcast(x)
     return _auto_upcast(znp.log(x=x))
+
+
+def weighted_quantile(x, quantiles, weights=None, side='middle'):
+    """ Very close to numpy.percentile, but supports weights.
+    NOTE: quantiles should be in [0, 1]!
+    :param x: tensor with data
+    :param quantiles: array-like with many quantiles needed
+    :param weights: array-like of the same length as `x`
+    :return: numpy.array with computed quantiles.
+    """
+    if weights is None:
+        return tfp.stats.percentile(x, 100 * quantiles)
+    x = znp.array(x)
+    quantiles = znp.array(quantiles)
+    quantiles = znp.reshape(quantiles, (-1,))
+    weights = znp.array(weights)
+
+    sorter = znp.argsort(x)
+    x = tf.gather(x, sorter)
+    weights = tf.gather(weights, sorter)
+
+    weighted_quantiles = znp.cumsum(weights) - 0.5 * weights
+
+    weighted_quantiles /= znp.sum(weights)
+    if side == 'middle':
+        quantile_index_left = tf.searchsorted(weighted_quantiles, quantiles, side='left')
+        quantile_index_right = tf.searchsorted(weighted_quantiles, quantiles, side='right')
+
+        calculated_left = tf.gather(x, quantile_index_left)
+        calculated_right = tf.gather(x, quantile_index_right)
+        calculated = (calculated_left + calculated_right) / 2
+    elif side in ('left', 'right'):
+
+        quantile_index = tf.searchsorted(weighted_quantiles, quantiles, side=side)
+
+        calculated = tf.gather(x, quantile_index)
+    return calculated

@@ -39,7 +39,10 @@ def sample_testing(pdf):
 
 
 def eval_testing(pdf, x):
-    probs = pdf.pdf(x).numpy()
+    probs = pdf.pdf(x)
+    assert probs.shape.rank == 1
+    assert probs.shape[0] == x.shape[0]
+    probs = zfit.run(probs)
     assert not np.any(np.isnan(probs))
     return probs
 

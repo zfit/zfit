@@ -51,6 +51,7 @@ def setup_teardown():
 
 def pytest_addoption(parser):
     parser.addoption("--longtests", action="store", default=False)
+    parser.addoption("--longtests-kde", action="store", default=False)
 
 
 def pytest_configure():
