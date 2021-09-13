@@ -4,10 +4,10 @@ import abc
 import collections.abc
 import functools
 import warnings
-from collections import OrderedDict
 from contextlib import suppress
 from inspect import signature
 from typing import Callable, Dict, Iterable, List, Optional, Set, Union
+from weakref import WeakValueDictionary
 
 import numpy as np
 import tensorflow as tf
@@ -241,7 +241,7 @@ class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParam
 
 
 class ZfitParameterMixin(BaseNumeric):
-    _existing_params = OrderedDict()
+    _existing_params = WeakValueDictionary()
 
     def __init__(self, name, **kwargs):
         if name in self._existing_params:
@@ -257,6 +257,7 @@ class ZfitParameterMixin(BaseNumeric):
         return self._name
 
     def __del__(self):
+        del self._existing_params[self.name]
         with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
             super().__del__(self)
 
@@ -304,10 +305,13 @@ class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
         return self.name
 
 
+from weakref import WeakSet
+
+
 class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter):
     """Class for fit parameters, derived from TF Variable class."""
     _independent = True
-    _independent_params = []
+    _independent_params = WeakSet()
     DEFAULT_STEP_SIZE = 0.001
 
     @deprecated_args(None, "Use `lower` instead.", 'lower_limit')
@@ -331,7 +335,7 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
             upper : upper limit
             step_size : step size
         """
-        self._independent_params.append(self)
+        self._independent_params.add(self)
 
         # legacy start
         if lower_limit is not None:

@@ -21,6 +21,9 @@ Predefined PDFs and basic properties
 
 A series of predefined PDFs are available to the users and can be easily accessed using autocompletion (if available). In fact, all of these can also be seen in
 
+.. jupyter-kernel::
+  :id: zfit_model_introduction.ipynb
+
 .. jupyter-execute::
     :hide-output:
     :hide-code:
@@ -32,6 +35,8 @@ A series of predefined PDFs are available to the users and can be easily accesse
     from zfit import z
     import numpy as np
 
+
+.. thebe-button:: Run interactively
 
 .. jupyter-execute::
 
@@ -259,3 +264,8 @@ Advanced sampling and toy studies
 
 More advanced and repeated sampling, such as used in toy studies, will be
 explained in :ref:`playing_with_toys`.
+
+
+
+Download this tutorial :jupyter-download:notebook:`notebook <zfit_model_introduction.ipynb>`,
+:jupyter-download:script:`script <zfit_model_introduction.ipynb>`

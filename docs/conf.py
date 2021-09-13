@@ -37,17 +37,26 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
+    'sphinxcontrib.images',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
     'sphinx.ext.githubpages',
     'sphinx.ext.todo',
     'sphinx_copybutton',
+    'sphinxcontrib.youtube',
+    "sphinx_panels",
     'seed_intersphinx_mapping',
     "myst_nb",
     "sphinx_togglebutton",
 
 ]
+
+panels_add_bootstrap_css = False  # for sphinx_panel, use custom css from theme, not bootstrap
+
+# releases_github_path = "zfit/zfit"  # TODO: use releases or similar?
+# releases_document_name = "../CHANGELOG.rst"
+
 # jupyter_execute_notebooks = "force"  # use if needed and cache should be ignored
 jupyter_execute_notebooks = "cache"
 if jupyter_execute_notebooks == "cache":
@@ -228,9 +237,14 @@ html_logo = "images/zfit-logo-light_400x168.png"
 html_theme_options = {
     "github_url": "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
+    "navigation_depth": 3,
     "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
     "search_bar_position": "sidebar",
+
+    # "repository_url": "https://github.com/zfit/zfit",  # adding jupyter book somehow?
+    # "repository_branch": "develop",
+    # "path_to_docs": "docs",
 }
 
 html_context = {
