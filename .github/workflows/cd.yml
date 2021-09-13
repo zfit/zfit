@@ -58,5 +58,5 @@ jobs:
 
       - uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
-          password: ${{ secrets.PYPI_ZFIT_TOKEN }}
+          password: ${{ secrets.PYPI_TEST_ZFIT_TOKEN }}
           repository_url: https://test.pypi.org/legacy/

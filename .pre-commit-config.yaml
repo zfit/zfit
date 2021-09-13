@@ -65,7 +65,7 @@ repos:
       - id: isort
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.25.0
+    rev: v2.26.0
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]
@@ -77,7 +77,7 @@ repos:
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.1.0
+    rev: 1.1.1
     hooks:
       - id: nbqa-isort
         additional_dependencies: [ isort==5.6.4 ]
