@@ -4,8 +4,10 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
-========
+
+
+0.8.0 (13. Sep. 2021)
+======================
 
 Major Features and Improvements
 -------------------------------
@@ -31,13 +33,11 @@ Breaking changes
 ------------------
 - the numerical integration improved with more sensible values for tolerance. This means however that some fits will
   greatly increase the runtime. To restore the old behavior globally, do
-  for each instance `pdf.update_integration_options(draws_per_dim=40_000, max_draws = 40_000, tol = 1)`
+  for each instance `pdf.update_integration_options(draws_per_dim=40_000, max_draws=40_000, tol=1)`
   This will integrate regardless of the chosen precision and it may be non-optimal.
   However, the precision estimate in the integrator is also not perfect and maybe overestimates the error, so that
   the integration by default takes longer than necessary. Feel free to play around with the parameters and report back.
 
-Depreceations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -48,8 +48,6 @@ Bug fixes and small changes
 - make parameters deletable, especially it works now to create parameters in a function only
   and no NameAlreadyTakenError will be thrown.
 
-Experimental
-------------
 
 Requirement changes
 -------------------
@@ -58,6 +56,7 @@ Requirement changes
 
 Thanks
 ------
+- Marc Steiner for contributing many new KDE methods!
 
 
 0.7.2 (7. July 2021)
