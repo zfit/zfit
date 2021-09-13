@@ -65,7 +65,7 @@ def test_conv_simple(interpolation):
     plt.plot(x, probs_np, label='zfit')
     plt.plot(x, true_conv, label='numpy')
     plt.legend()
-    pytest.zfit_savefig()
+    # pytest.zfit_savefig()
 
 
 @pytest.mark.parametrize('interpolation', interpolation_methods)
@@ -149,7 +149,7 @@ def test_conv_1d_shifted(interpolation):
     plt.plot(x, probs_np, label='zfit')
     plt.plot(x, true_conv, label='numpy')
     plt.legend()
-    pytest.zfit_savefig()
+    # pytest.zfit_savefig()
 
 
 @pytest.mark.parametrize('interpolation', interpolation_methods)
@@ -311,23 +311,23 @@ def test_conv_2D_simple():
     plt.figure()
     plt.title('FFT conv, custom sampling, addition')
     plt.hist2d(x, y, bins=30)
-    pytest.zfit_savefig()
+    # pytest.zfit_savefig()
 
     plt.figure()
     plt.title('FFT conv, fallback sampling, accept-reject')
     plt.hist2d(xns, yns, bins=30)
-    pytest.zfit_savefig()
+    # pytest.zfit_savefig()
 
     plt.figure()
     plt.title('FFT conv x projection')
     plt.hist(x.numpy(), bins=50, label='custom', alpha=0.5)
     plt.hist(xns.numpy(), bins=50, label='fallback', alpha=0.5)
     plt.legend()
-    pytest.zfit_savefig()
+    # pytest.zfit_savefig()
 
     plt.figure()
     plt.title('FFT conv y projection')
     plt.hist(y.numpy(), bins=50, label='custom', alpha=0.5)
     plt.hist(yns.numpy(), bins=50, label='fallback', alpha=0.5)
     plt.legend()
-    pytest.zfit_savefig()
+    # pytest.zfit_savefig()
