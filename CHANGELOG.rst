@@ -4,6 +4,31 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
 0.8.0 (13. Sep. 2021)
 ======================
 
