@@ -288,7 +288,6 @@ def test_all_kde(kdetype, npoints, jit, request):
         data_np = zfit.run(data)
         plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
         plt.legend()
-        plt.show()
 
     abs_tol = 0.005 if kdetype[1] > 3000 else 0.03
     tolfac = 6 if not cfg['type'] == tfp.distributions.Normal else 1
@@ -375,7 +374,6 @@ def test_kde_border(kdetype, npoints, upper):
     data_np = zfit.run(data)
     plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
     plt.legend()
-    plt.show()
 
     integral = zfit.run(integral)
     expected_integral = zfit.run(expected_integral)
