@@ -311,7 +311,13 @@ texinfo_documents = [
      'One line description of project.',
      'Miscellaneous'),
 ]
-
+# cross reference
+default_role = "py:obj"
+primary_domain = "py"
+# nitpicky = True  # warn if cross-references are missing
+# nitpick_ignore = [
+#     ("py:class", "tensorflow.keras.losses.Loss"),
+# ]
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     # 'numdifftools': ('https://numdifftools.readthedocs.io/en/latest/index.html', None),
