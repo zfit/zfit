@@ -151,8 +151,8 @@ with open('hyperlinks.txt') as hyperlinks:
 
 # makes the jupyter extension executable
 jupyter_sphinx_thebelab_config = {
-    'bootstrap': False,
-    'requestKernel': True,
+    # 'bootstrap': False,
+    # 'requestKernel': True,
     'binderOptions': {
         'repo': "zfit/zfit-tutorials",
         'binderUrl': "https://mybinder.org",
