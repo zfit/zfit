@@ -593,12 +593,12 @@ class BaseBinnedPDFV1(
 register_tensor_conversion(BaseBinnedPDFV1)
 
 
-class BinnedFromUnbinned(BaseBinnedPDFV1):
+class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):
 
     def __init__(self, pdf, space, extended=None, norm=None):
         if pdf.is_extended:
             extended = pdf.get_yield()
-        super().__init__(obs=space, extended=extended, norm=norm, params={}, name="BinnedFromUnbinned")
+        super().__init__(obs=space, extended=extended, norm=norm, params={}, name="BinnedFromUnbinnedPDF")
         self.pdfs = [pdf]
 
     def _get_params(self, floating: bool | None = True, is_yield: bool | None = None,

@@ -104,7 +104,7 @@ def test_binned_nll(weights):
     binning = zfit.binned.Regular(22, obs.lower[0], obs.upper[0], name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
-    binned_gauss = zfit.pdf.BinnedFromUnbinned(gaussian1, obs_binned)
+    binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned)
 
     title = f"Binned gaussian fit{' with random weights' if weights is not None else ''}"
     plt.figure()
@@ -137,7 +137,7 @@ def test_binned_nll(weights):
     constraints = zfit.constraint.nll_gaussian(params=[mu2, sigma2],
                                                observation=[mu_constr[0], sigma_constr[0]],
                                                uncertainty=[mu_constr[1], sigma_constr[1]])
-    gaussian2 = zfit.pdf.BinnedFromUnbinned(gaussian2, obs_binned)
+    gaussian2 = zfit.pdf.BinnedFromUnbinnedPDF(gaussian2, obs_binned)
     nll_object = zfit.loss.BinnedNLL(model=gaussian2, data=test_values_binned,
                                      constraints=constraints)
 
