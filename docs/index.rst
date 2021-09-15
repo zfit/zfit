@@ -26,6 +26,13 @@
 Scalable pythonic fitting
 =========================
 
+.. link-button:: https://zfit-tutorials.readthedocs.io/en/latest/
+    :type: url
+    :text: Online interactive tutorials
+    :classes: btn-outline-primary btn-block
+
+
+
 .. panels::
     :header: text-center
 
@@ -55,14 +62,14 @@ Scalable pythonic fitting
             :text: Introduction
             :classes: btn-outline-primary btn-block
 
-        .. link-button:: tutorials/components/index
-            :type: ref
-            :text: zfit components
+        .. link-button:: https://zfit-tutorials.readthedocs.io/en/latest/
+            :type: url
+            :text: Interactive tutorials
             :classes: btn-outline-primary btn-block
 
-        .. link-button:: tutorials/guides/index
+        .. link-button:: tutorials/components/index
             :type: ref
-            :text: Guides
+            :text: Components
             :classes: btn-outline-primary btn-block
 
     ---
@@ -78,6 +85,8 @@ Scalable pythonic fitting
         :type: ref
         :text: API documentation
         :classes: btn-outline-primary btn-block
+
+
 
 
 The zfit package is a model fitting library based on `TensorFlow <https://www.tensorflow.org/>`_ and optimised for simple and direct manipulation of probability density functions. The main focus is on the scalability, parallelisation and a user friendly experience framework (no cython, no C++ needed to extend). The basic idea is to offer a pythonic oriented alternative to
