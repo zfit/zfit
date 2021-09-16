@@ -410,7 +410,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                                    priority: Union[int, float] = 50, *,
                                    supports_norm: bool = None,
                                    supports_norm_range: bool = None,
-                                   supports_multiple_limits: bool = False) -> None:
+                                   supports_multiple_limits: bool = None) -> None:
         """Register an analytic integral with the class.
 
         Args:
@@ -436,7 +436,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """
         if supports_norm_range is not None:
             supports_norm = supports_norm_range
-        cls._analytic_integral.register(func=func, limits=limits, supports_norm=supports_norm_range,
+        if supports_norm is None:
+            supports_norm = False
+        if supports_multiple_limits is None:
+            supports_multiple_limits = False
+        cls._analytic_integral.register(func=func, limits=limits, supports_norm=supports_norm,
                                         priority=priority, supports_multiple_limits=supports_multiple_limits)
 
     @classmethod

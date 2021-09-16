@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import boost_histogram as bh
 import hist
+import tensorflow as tf
 
 from zfit._variables.axis import histaxes_to_binning, binning_to_histaxes
 from zfit.core.interfaces import ZfitBinnedData
+from ..util.exception import ShapeIncompatibleError
 from zfit.z import numpy as znp
 
 
@@ -15,9 +17,30 @@ class BinnedHolder(
     # tfp.experimental.AutoCompositeTensor
 ):
     def __init__(self, space, values, variances):
+        self._check_init_values(space, values, variances)
         self.space = space
         self.values = values
         self.variances = variances
+
+    def _check_init_values(self, space, values, variances):
+        value_shape = tf.shape(values)
+        edges_shape = znp.array([tf.shape(znp.reshape(edge, (-1,)))[0] for edge in space.binning.edges])
+        values_rank = value_shape.shape[0]
+        if variances is not None:
+            variances_shape = tf.shape(variances)
+            variances_rank = variances_shape.shape[0]
+            if values_rank != variances_rank:
+                raise ShapeIncompatibleError(
+                    f"Values {values} and variances {variances} differ in rank: {values_rank} vs {variances_rank}")
+            tf.assert_equal(variances_shape, value_shape,
+                            message=f"Variances and values do not have the same shape:"
+                                    f" {variances_shape} vs {value_shape}")
+        binning_rank = len(space.binning.edges)
+        if binning_rank != values_rank:
+            raise ShapeIncompatibleError(f"Values and binning  differ in rank: {values_rank} vs {binning_rank}")
+        tf.assert_equal(edges_shape - 1, value_shape,
+                        message=f"Edges (minus one) and values do not have the same shape:"
+                                f" {edges_shape} vs {value_shape}")
 
     def with_obs(self, obs):
         space = self.space.with_obs(obs)

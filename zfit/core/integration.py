@@ -596,6 +596,12 @@ class AnalyticIntegral:
             return integral_fn(x=x, limits=limits, norm_range=norm, params=params, model=model)
         with suppress(TypeError):
             return integral_fn(limits=limits, norm_range=norm, params=params, model=model)
+        assert False, "Could not integrate, unknown reason. Please fill a bug report."
+
+        # with suppress(TypeError):
+        #     return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)
+        # with suppress(TypeError):
+        #     return integral_fn(limits=limits, norm=norm, params=params, model=model)
 
 
 class Integral:  # TODO analytic integral

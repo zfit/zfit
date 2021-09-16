@@ -122,10 +122,12 @@ def test_integrate():
 
     sumpdf = zfit.pdf.SumPDF([gauss1, gauss2], frac)
     sumpdf_true = SimpleSampleSumPDF([gauss1, gauss2], frac)
-
+    assert zfit.run(gauss1.integrate(limits, norm=limits)) == pytest.approx(1, abs=0.01)
     integral = sumpdf.integrate(limits=limits, norm=False).numpy()
     integral_true = sumpdf_true.integrate(limits=limits, norm=False).numpy()
+    integral_manual_true = gauss1.integrate(limits) * frac + gauss2.integrate(limits) * (1 - frac)
 
+    assert integral_true == pytest.approx(integral_manual_true.numpy(), rel=0.03)
     assert integral_true == pytest.approx(integral, rel=0.03)
     assert integral_true < 0.85
 

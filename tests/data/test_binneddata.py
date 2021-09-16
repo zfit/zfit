@@ -121,13 +121,29 @@ def test_with_obs():
     np.testing.assert_allclose(h.variances()[:, 3, 5], h2.variances()[3, :, 5])
 
 
-def test_values():
-    assert True
-
-
-def test_variance():
-    assert True
-
-
-def test_counts():
-    assert True
+def test_valid_input():
+    from zfit._data.binneddatav1 import BinnedHolder
+    import zfit.z.numpy as znp
+    import zfit
+    from zfit.exception import ShapeIncompatibleError
+    obs10 = zfit.Space('x', binning=zfit.binned.Regular(10, -3, 4, name='x'))
+    obs5 = zfit.Space('x', binning=zfit.binned.Regular(5, -3, 4, name='x'))
+    _ = BinnedHolder(obs10, znp.random.uniform(size=[10]), znp.random.uniform(size=[10]))
+    with pytest.raises(tf.errors.InvalidArgumentError):
+        _ = BinnedHolder(obs10, znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
+    with pytest.raises(tf.errors.InvalidArgumentError):
+        _ = BinnedHolder(obs5, znp.random.uniform(size=[10]), znp.random.uniform(size=[5]))
+    with pytest.raises(tf.errors.InvalidArgumentError):
+        _ = BinnedHolder(obs5, znp.random.uniform(size=[10]), znp.random.uniform(size=[10]))
+    _ = BinnedHolder(obs5, znp.random.uniform(size=[5]), None)
+    _ = BinnedHolder(obs10, znp.random.uniform(size=[10]), None)
+    with pytest.raises(tf.errors.InvalidArgumentError):
+        _ = BinnedHolder(obs5, znp.random.uniform(size=[10]), None)
+    with pytest.raises(tf.errors.InvalidArgumentError):
+        _ = BinnedHolder(obs10, znp.random.uniform(size=[5]), None)
+    with pytest.raises(ShapeIncompatibleError):
+        _ = BinnedHolder(obs10, znp.random.uniform(size=[10]), znp.random.uniform(size=[10, 2]))
+    with pytest.raises(ShapeIncompatibleError):
+        _ = BinnedHolder(obs10, znp.random.uniform(size=[10, 2]), znp.random.uniform(size=[10, 2]))
+    with pytest.raises(ShapeIncompatibleError):
+        _ = BinnedHolder(obs10, znp.random.uniform(size=[5, 2]), None)

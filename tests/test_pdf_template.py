@@ -170,7 +170,7 @@ def test_binned_template_pdf_bbfull():
     counts1 = np.random.uniform(high=150, size=(bins1, bins2))  # generate counts
     counts2 = np.random.normal(loc=50, size=(bins1, bins2))
     counts3 = np.linspace(10, 100, num=bins1)[:, None] * np.linspace(10, 500, num=bins2)[None, :]
-    binnings = [zfit.binned.Regular(bins1, 0, 10, name='obs1'), zfit.binned.Regular(7, -10, bins2, name='obs2')]
+    binnings = [zfit.binned.Regular(bins1, 0, 10, name='obs1'), zfit.binned.Regular(bins2, -10, 7, name='obs2')]
     binning = binnings
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 
@@ -212,12 +212,14 @@ def test_binned_template_pdf_bbfull():
         constraints3
     ])
     # for i in progressbar.progressbar(range(1000000)):
-    #     loss.value()
-    #     loss.gradients()
+    loss.value()
+    loss.gradients()
+    print('start minimization')
     minimizer = zfit.minimize.Minuit(verbosity=8, gradient=False)
     minimizer.minimize(loss)
 
     counts = pdf_sum.counts()
-    assert np.all(counts_data > counts)
-    assert np.all(counts > counts_mc)
+    np.testing.assert_array_less(counts_mc, counts_data)  # this is an assumption, if that is wrong, the test is flawed
+    np.testing.assert_array_less(counts, counts_data)
+    np.testing.assert_array_less(counts_mc, counts)
     # np.testing.assert_allclose(counts_data, probs, rtol=0.01)

@@ -2865,11 +2865,12 @@ def check_norm(supports=None):
                     norm_is_arg = len(args) > norm_index
                     if norm_is_arg:
                         norm = args[norm_index]
-            if not norm_is_arg:
-                if 'norm_range' in kwargs:
-                    kwargs['norm_range'] = False
-                if 'norm' in kwargs:
-                    kwargs['norm'] = False
+            args = list(args)
+            # if not norm_is_arg:  # TODO: remove? why is this here?
+            #     if 'norm_range' in kwargs:
+            #         kwargs['norm_range'] = False
+            #     if 'norm' in kwargs:
+            #         kwargs['norm'] = False
 
             # assume it's not supported. Switch if we find that it is supported.
             norm_not_supported = not supports[0] is True
@@ -2880,6 +2881,17 @@ def check_norm(supports=None):
                     norm_not_supported = False
                 if norm_not_supported:
                     norm_not_supported = not norm.limits_are_false
+                    if norm.limits_are_false:
+                        if not norm_is_arg:  # TODO: remove? why is this here?
+                            if 'norm_range' in kwargs:
+                                kwargs['norm_range'] = False
+                            if 'norm' in kwargs:
+                                kwargs['norm'] = False
+                        else:
+                            if norm_range_index is not None:
+                                args[norm_range_index] = False
+                            elif norm_index is not None:
+                                args[norm_index] = False
             elif norm_not_supported:
                 norm_not_supported = not (norm is None or norm is False)
             if norm_not_supported:
@@ -2930,7 +2942,7 @@ def no_multiple_limits(func):
 
 
 @deprecated_norm_range
-def supports(*, norm: Union[bool, str, Iterable[str]] = False, multiple_limits: bool = False,
+def supports(*, norm: Union[bool, str, Iterable[str]] = None, multiple_limits: bool = None,
              norm_range=None) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
 
@@ -2944,12 +2956,17 @@ def supports(*, norm: Union[bool, str, Iterable[str]] = False, multiple_limits: 
         multiple_limits: If False, only simple limits are to be expected and no iteration is
             therefore required.
     """
+    if norm is None:
+        norm = False
+    if multiple_limits is None:
+        multiple_limits = False
+
     decorator_stack = []
     if not multiple_limits:
         decorator_stack.append(no_multiple_limits)
 
-    if norm is not True:  # check True. Could also be a str
-        decorator_stack.append(no_norm_range)
+    if norm is not None:  # check True. Could also be a str
+        decorator_stack.append(check_norm(norm))
 
     def create_deco_stack(func):
         for decorator in reversed(decorator_stack):
@@ -2994,7 +3011,7 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
     Returns:
     """
     try:
-        new_space = combine_spaces(*spaces)
+        _ = combine_spaces(*spaces)
     except LimitsIncompatibleError:
         return False
     else:

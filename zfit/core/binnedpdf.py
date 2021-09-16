@@ -211,7 +211,8 @@ class BaseBinnedPDFV1(
         values = self._call_pdf(x, norm=norm)
 
         if binindices is not None:  # because we have the flow, so we need to make it here with pads
-            padded_values = znp.pad(values, znp.ones((values.ndim, 2)), mode="constant")  # for overflow
+            padded_values = znp.pad(values, znp.ones((values.ndim, 2), dtype=znp.float64),
+                                    mode="constant")  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
             ordered_values = move_axis_obs(self.space, original_space, values)
@@ -270,7 +271,8 @@ class BaseBinnedPDFV1(
         values = self._call_ext_pdf(x, norm=norm)
 
         if binindices is not None:  # because we have the flow, so we need to make it here with pads
-            padded_values = znp.pad(values, znp.ones((values.ndim, 2)), mode="constant")  # for overflow
+            padded_values = znp.pad(values, znp.ones((values.ndim, 2), dtype=znp.float64),
+                                    mode="constant")  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
             ordered_values = move_axis_obs(self.space, original_space, values)
@@ -705,17 +707,18 @@ def binned_rect_integration(*,
         binwidths = []
         for i, edge in enumerate(scaled_edges):
             edge_lower_index = [0] * rank
-            edge_lowest_index = znp.asarray(edge_lower_index.copy(), dtype=znp.int64)
+            # int32 is needed! Otherwise the gradient will fail
+            edge_lowest_index = znp.asarray(edge_lower_index.copy(), dtype=znp.int32)
 
             edge_lower_index[i] = 1
-            edge_lower_index = znp.asarray(edge_lower_index, dtype=znp.int64)
+            edge_lower_index = znp.asarray(edge_lower_index, dtype=znp.int32)
             edge_upper_index = [1] * rank
             edge_highest_index = edge_upper_index.copy()
             max_index = tf.shape(edge)[i]
             edge_highest_index[i] = max_index
-            edge_highest_index = znp.asarray(edge_highest_index, dtype=znp.int64)
+            edge_highest_index = znp.asarray(edge_highest_index, dtype=znp.int32)
             edge_upper_index[i] = max_index - 1  # we want to skip the last (as we skip also the first)
-            edge_upper_index = znp.asarray(edge_upper_index, dtype=znp.int64)
+            edge_upper_index = znp.asarray(edge_upper_index, dtype=znp.int32)
             lower_edge = tf.slice(edge, edge_lowest_index, (edge_upper_index - edge_lowest_index))
             upper_edge = tf.slice(edge, edge_lower_index, (edge_highest_index - edge_lower_index))
             binwidths.append(upper_edge - lower_edge)
@@ -769,7 +772,7 @@ def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace) -> tuple[
     lower_all = lower[0]
     upper_all = upper[0]
     rank = len(edges)
-    zero_bins = znp.zeros([rank], dtype=znp.int64)
+    zero_bins = znp.zeros([rank], dtype=znp.int32)
     for i, edge in enumerate(edges):
         edge = znp.asarray(edge)
         lower_i = lower_all[i, None]
@@ -784,14 +787,14 @@ def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace) -> tuple[
         lower_bin_float = tfp.stats.find_bins(lower_i, flat_edge,
                                               extend_lower_interval=True,
                                               extend_upper_interval=True)
-        lower_bin = tf.reshape(tf.cast(lower_bin_float, dtype=znp.int64), [-1])
+        lower_bin = tf.reshape(tf.cast(lower_bin_float, dtype=znp.int32), [-1])
         lower_bins = tf.tensor_scatter_nd_update(zero_bins, [[i]], lower_bin)
         # +1 below because the outer bin is searched, meaning the one that is higher than the value
 
         upper_bin_float = tfp.stats.find_bins(upper_i, flat_edge,
                                               extend_lower_interval=True,
                                               extend_upper_interval=True)
-        upper_bin = tf.reshape(tf.cast(upper_bin_float, dtype=znp.int64), [-1])
+        upper_bin = tf.reshape(tf.cast(upper_bin_float, dtype=znp.int32), [-1])
         upper_bin_p1 = upper_bin + 1
         upper_bins = tf.tensor_scatter_nd_update(zero_bins, [[i]], upper_bin_p1)
         size = upper_bins - lower_bins
@@ -803,6 +806,6 @@ def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace) -> tuple[
         cut_scaled_edges.append(new_edge)
     # lower_bins_indices = tf.stack([lower_bins, dims], axis=-1)
     # upper_bins_indices = tf.stack([upper_bins, dims], axis=-1)
-    all_lower_bins = znp.sum(all_lower_bins, axis=0)
-    all_upper_bins = znp.sum(all_upper_bins, axis=0)
+    all_lower_bins = tf.cast(znp.sum(all_lower_bins, axis=0), dtype=znp.int32)
+    all_upper_bins = tf.cast(znp.sum(all_upper_bins, axis=0), dtype=znp.int32)
     return cut_scaled_edges, (all_lower_bins, all_upper_bins)

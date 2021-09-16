@@ -38,10 +38,9 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         density = counts / areas
         return density
 
-    @supports(norm='same')
+    # @supports(norm='norm')
+    @supports(norm=False)
     def _counts(self, x, norm=None):
-        if norm not in (False, None, self.norm):
-            return super()._counts(x, norm)
 
         sysshape_flat = tf.stack([p for name, p in self.params.items() if name.startswith('sysshape')])
         counts = self._data.values()
@@ -49,8 +48,6 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         return counts * sysshape
 
     def _rel_counts(self, x, norm=None):
-        if norm not in (False, None, self.norm):
-            return super()._rel_counts(x, norm)
         sysshape_flat = tf.stack([p for name, p in self.params.items() if name.startswith('sysshape')])
         counts = self._data.values()
         sysshape = tf.reshape(sysshape_flat, counts.shape)

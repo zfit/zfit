@@ -1,12 +1,12 @@
 #  Copyright (c) 2021 zfit
-import time
 
 import mplhep
 import numpy as np
 import pytest
+from matplotlib import pyplot as plt
+
 import zfit
 import zfit.z.numpy as znp
-from matplotlib import pyplot as plt
 from zfit import z
 from zfit._data.binneddatav1 import BinnedDataV1
 from zfit._variables.axis import Regular
@@ -68,8 +68,10 @@ def test_binned_nll_simple():
     counts = np.random.uniform(high=1, size=(10, 20))  # generate counts
     counts2 = np.random.normal(loc=5, size=(10, 20))
     counts3 = np.linspace(0, 10, num=10)[:, None] * np.linspace(0, 5, num=20)[None, :]
-    binning = [Regular(10, 0, 10, name='obs1'),
-               zfit.binned.Variable([-10, -5, 5, 7, 10, 15, 17, 21, 23.5, 27, 30], name='obs2')]
+    binning = [
+        zfit.binned.Variable([-10, -5, 5, 7, 10, 15, 17, 21, 23.5, 27, 30], name='obs1'),
+        Regular(20, 0, 10, name='obs2'),
+    ]
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 
     mc1 = BinnedDataV1.from_tensor(space=obs, values=counts, variances=znp.ones_like(counts) * 1.3)
