@@ -149,7 +149,7 @@ def test_conv_1d_shifted(interpolation):
     plt.plot(x, probs_np, label='zfit')
     plt.plot(x, true_conv, label='numpy')
     plt.legend()
-    # pytest.zfit_savefig()
+    pytest.zfit_savefig()
 
 
 @pytest.mark.parametrize('interpolation', interpolation_methods)

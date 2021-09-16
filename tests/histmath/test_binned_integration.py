@@ -19,7 +19,7 @@ def test_calculate_scaled_edges(edges_bins1):
 def test_binned_rect_integration(edges_bins1):
     edges, _, limits, limits_true, value_scaling, values = edges_bins1
 
-    integral = binned_rect_integration(values=values, edges=edges, limits=limits)
+    integral = binned_rect_integration(density=values, edges=edges, limits=limits)
     true_integral = limits_true.area() * value_scaling
     assert pytest.approx(float(true_integral)) == float(integral)
 

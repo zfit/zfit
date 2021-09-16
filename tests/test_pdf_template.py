@@ -43,7 +43,7 @@ def test_binned_template_pdf():
     np.testing.assert_allclose(true_sum_counts, sample.values() / nsamples * pdf_sum.get_yield(), rtol=0.03)
 
     # integrate
-    true_integral = znp.sum(true_sum_counts * np.prod(axes.widths, axis=0))
+    true_integral = znp.sum(true_sum_counts)
     integral = pdf_sum.ext_integrate(limits=obs)
     assert pytest.approx(float(true_integral)) == float(integral)
 
@@ -138,12 +138,11 @@ def test_morphing_templates2D(alphas):
               counts1 + np.random.uniform(high=20, size=shape)]
     if alphas is not None:
         counts.append(counts1 + np.random.uniform(high=5, size=shape))
-    binning1 = zfit.binned.Variable(sorted(np.random.uniform(0, 10, size=bins1)), name='obs1')
+    binning1 = zfit.binned.Variable(sorted(np.random.uniform(0, 10, size=bins1 + 1)), name='obs1')
     binning2 = zfit.binned.Regular(bins2, 0, 10, name='obs2')
     obs1 = zfit.Space(obs='obs1', binning=binning1)
     obs2 = zfit.Space(obs='obs2', binning=binning2)
     obs = obs1 * obs2
-    # obs._binning = NamedAxesTuple([binning1, binning2])  # TODO: does it work without this?
     datasets = [BinnedDataV1.from_tensor(obs, count) for count in counts]
     pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
     if alphas is not None:

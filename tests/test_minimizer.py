@@ -280,7 +280,7 @@ numgrads = [False, True]
 # num_grads = [True]
 # num_grads = [False]
 
-spaces_all = [obs1, obs1_split]
+spaces_all = [obs1, obs1_split] if not zfit.run.executing_eagerly() else [obs1]
 
 error_scales = {
     None: 1,

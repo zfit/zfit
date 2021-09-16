@@ -815,12 +815,12 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         raise NotImplementedError
 
     @abstractmethod
-    def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
             limits: the limits to integrate over
-            norm_range: the limits to normalize over or False to integrate the
+            norm: the limits to normalize over or False to integrate the
                 unnormalized probability
             name:
 
@@ -833,7 +833,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
     @abstractmethod
     def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None,
                                    priority: int = 50, *,
-                                   supports_norm_range: bool = False,
+                                   supports_norm: bool = False,
                                    supports_multiple_limits: bool = False):
         """Register an analytic integral with the class.
 
@@ -842,7 +842,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
             limits: |limits_arg_descr|
             priority:
             supports_multiple_limits:
-            supports_norm_range:
+            supports_norm:
 
         Returns:
         """

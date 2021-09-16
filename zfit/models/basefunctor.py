@@ -12,6 +12,7 @@ from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace
 from ..core.space import Space, combine_spaces
 from ..util import ztyping
 from ..util.container import convert_to_container
+from ..util.deprecation import deprecated_norm_range
 from ..util.exception import (LimitsIncompatibleError,
                               NormRangeNotSpecifiedError,
                               SpaceIncompatibleError)
@@ -73,16 +74,6 @@ class FunctorMixin(ZfitFunctorMixin):
                                     for model in self.models))
         return params
 
-    # def _infer_space_from_daughters(self):
-    #     space = set(model.space for model in self.models)
-    #     obs = set(norm_range.obs for norm_range in space)
-    #     if len(space) == 1:
-    #         return space.pop()
-    #     elif len(obs) > 1:  # TODO(Mayou36, #77): different obs?
-    #         return None
-    #     else:
-    #         return False
-
     def _get_dependencies(self):
         dependents = super()._get_dependencies()  # get the own parameter dependents
         model_dependents = _extract_dependencies(self.get_models())
@@ -113,13 +104,14 @@ class FunctorMixin(ZfitFunctorMixin):
             # models = [self.models[name] for name in names]
         return models
 
-    def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):
-        if norm_range is None:
+    @deprecated_norm_range
+    def _check_input_norm_default(self, norm, caller_name="", none_is_error=True):
+        if norm is None:
             try:
-                norm_range = self.norm_range
+                norm = self.norm_range
             except AttributeError:
-                raise NormRangeNotSpecifiedError("The normalization range is `None`, no default norm_range is set")
-        return self._check_input_norm_range(norm_range=norm_range, none_is_error=none_is_error)
+                raise NormRangeNotSpecifiedError("The normalization range is `None`, no default norm is set")
+        return self._check_input_norm_range(norm=norm, none_is_error=none_is_error)
 
 
 def _extract_common_obs(obs: Tuple[Union[Tuple[str], Space]]) -> Tuple[str]:

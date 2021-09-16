@@ -3,6 +3,7 @@
 #  Copyright (c) 2021 zfit
 
 import collections
+from contextlib import suppress
 from typing import Callable, List, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -522,7 +523,7 @@ class AnalyticIntegral:
 
     def register(self, func: Callable, limits: ztyping.LimitsType,
                  priority: int = 50, *,
-                 supports_norm_range: bool = False, supports_multiple_limits: bool = False) -> None:
+                 supports_norm: bool = False, supports_multiple_limits: bool = False) -> None:
         """Register an analytic integral.
 
         Args:
@@ -532,7 +533,7 @@ class AnalyticIntegral:
             possible limits
             priority: If two or more integrals can integrate over certain limits, the one with the higher
                 priority is taken (usually around 0-100).
-            supports_norm_range: If True, norm_range will (if needed) be given to `func` as an argument.
+            supports_norm: If True, norm_range will (if needed) be given to `func` as an argument.
             supports_multiple_limits: If True, multiple limits may be given as an argument to `func`.
         """
 
@@ -549,14 +550,14 @@ class AnalyticIntegral:
         axes = frozenset(limits.axes)
 
         # add catching everything unsupported:
-        func = supports(norm=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
+        func = supports(norm=supports_norm, multiple_limits=supports_multiple_limits)(func)
         limits = limits.with_axes(axes=tuple(sorted(limits.axes)))
         self._integrals[axes][limits] = Integral(func=func, limits=limits,
                                                  priority=priority)  # TODO improve with
         # database-like access
 
     def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None,
-                  norm_range: ztyping.LimitsType = None, model: ZfitModel = None, params: dict = None) -> ztyping.XType:
+                  norm: ztyping.LimitsType = None, model: ZfitModel = None, params: dict = None) -> ztyping.XType:
         """Integrate analytically over the axes if available.
 
         Args:
@@ -564,7 +565,7 @@ class AnalyticIntegral:
                 integrated function. If a full integration is performed, this should be `None`.
             limits: The limits to integrate
             axes: The dimensions to integrate over
-            norm_range: |norm_range_arg_descr|
+            norm: |norm_range_arg_descr|
             params: The parameters of the function
 
 
@@ -586,11 +587,15 @@ class AnalyticIntegral:
             raise AnalyticIntegralNotImplemented(
                 f"Integral is available for axes {axes}, but not for limits {limits}")
 
-        try:
-            integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params, model=model)
-        except TypeError:
-            integral = integral_fn(limits=limits, norm_range=norm_range, params=params, model=model)
-        return integral
+        with suppress(TypeError):
+            return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)
+        with suppress(TypeError):
+            return integral_fn(limits=limits, norm=norm, params=params, model=model)
+
+        with suppress(TypeError):
+            return integral_fn(x=x, limits=limits, norm_range=norm, params=params, model=model)
+        with suppress(TypeError):
+            return integral_fn(limits=limits, norm_range=norm, params=params, model=model)
 
 
 class Integral:  # TODO analytic integral

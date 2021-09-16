@@ -57,7 +57,9 @@ class BinnedDataV1(ZfitBinnedData,
         from zfit import Space
         space = Space(binning=histaxes_to_binning(hist.axes))
         values = znp.asarray(hist.values(flow=flow))
-        variances = znp.asarray(hist.variances(flow=flow))
+        variances = hist.variances(flow=flow)
+        if variances is not None:
+            variances = znp.asarray(variances)
         holder = BinnedHolder(space=space, values=values, variances=variances)
         return cls(holder)
 

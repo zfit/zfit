@@ -22,12 +22,12 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         self._binned_space = self.pdfs[0].space.with_obs(self.space)
 
     @supports(norm=True, multiple_limits=True)
-    def _pdf(self, x, norm_range):
+    def _pdf(self, x, norm):
         binned_space = self.pdfs[0].space
         binindices = unbinned_to_binindex(x, binned_space, flow=True)
         pdf = self.pdfs[0]
 
-        values = pdf.pdf(binned_space, norm=norm_range)
+        values = pdf.pdf(binned_space, norm=norm)
 
         # because we have the flow, so we need to make it here with pads
         padded_values = znp.pad(values, znp.ones((values.ndim, 2)), mode="constant")  # for overflow
@@ -35,13 +35,13 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         return ordered_values
 
     @supports(norm=True, multiple_limits=True)
-    def _ext_pdf(self, x, norm_range):
+    def _ext_pdf(self, x, norm):
         binned_space = binned_space = self.pdfs[0].space
         binindices = unbinned_to_binindex(x, binned_space, flow=True)
 
         pdf = self.pdfs[0]
 
-        values = pdf.ext_pdf(binned_space, norm=norm_range)
+        values = pdf.ext_pdf(binned_space, norm=norm)
         ndim = len(values.shape)
 
         # because we have the flow, so we need to make it here with pads
@@ -50,12 +50,12 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         return ordered_values
 
     @supports(norm=True, multiple_limits=True)
-    def _integrate(self, limits, norm_range):
-        return self.pdfs[0].integrate(limits, norm=norm_range)
+    def _integrate(self, limits, norm):
+        return self.pdfs[0].integrate(limits, norm=norm)
 
     @supports(norm=True, multiple_limits=True)
-    def _ext_integrate(self, limits, norm_range):
-        return self.pdfs[0].ext_integrate(limits, norm=norm_range)
+    def _ext_integrate(self, limits, norm):
+        return self.pdfs[0].ext_integrate(limits, norm=norm)
 
     @supports(norm=True, multiple_limits=True)
     def _sample(self, n, limits: ZfitSpace):
@@ -108,9 +108,9 @@ class SplinePDF(BaseFunctor):
         return self._order
 
     @supports(norm=True)
-    def _ext_pdf(self, x, norm_range):
+    def _ext_pdf(self, x, norm):
         pdf = self.pdfs[0]
-        density = pdf.ext_pdf(x.space, norm=norm_range)
+        density = pdf.ext_pdf(x.space, norm=norm)
         density_flat = znp.reshape(density, (-1,))
         centers_list = znp.meshgrid(*pdf.space.binning.centers, indexing='ij')
         centers_list_flat = [znp.reshape(cent, (-1,)) for cent in centers_list]
@@ -126,9 +126,9 @@ class SplinePDF(BaseFunctor):
         return probs[0, ..., 0]
 
     @supports(norm=True)
-    def _pdf(self, x, norm_range):
+    def _pdf(self, x, norm):
         pdf = self.pdfs[0]
-        density = pdf.pdf(x.space, norm=norm_range)  # TODO: order? Give obs, pdf makes order and binning herself?
+        density = pdf.pdf(x.space, norm=norm)  # TODO: order? Give obs, pdf makes order and binning herself?
         centers = pdf.space.binning.centers[0][None, :, None]  # TODO: only 1 dim now
         probs = tfa.image.interpolate_spline(
             train_points=centers,

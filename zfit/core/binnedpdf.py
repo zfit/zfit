@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Callable
 #  Copyright (c) 2021 zfit
 from contextlib import suppress
+from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -24,7 +25,7 @@ from .space import supports, convert_to_space
 from .tensorlike import OverloadableMixinValues, register_tensor_conversion
 from ..util import ztyping
 from ..util.cache import GraphCachable
-from ..util.deprecation import deprecated_args
+from ..util.deprecation import deprecated_args, deprecated
 from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
                               SpaceIncompatibleError,
                               SpecificFunctionNotImplemented,
@@ -334,7 +335,7 @@ class BaseBinnedPDFV1(
     def _fallback_integrate(self, limits, norm):
         bincounts = self._call_rel_counts(limits, norm=norm)  # TODO: fake data? not to integrate limits?
         edges = limits.binning.edges
-        return binned_rect_integration(values=bincounts, edges=edges, limits=limits)  # TODO: check integral, correct?
+        return binned_rect_integration(counts=bincounts, edges=edges, limits=limits)  # TODO: check integral, correct?
 
     def _auto_integrate(self, limits, norm):
         try:
@@ -371,7 +372,7 @@ class BaseBinnedPDFV1(
     def _fallback_ext_integrate(self, limits, norm):  # TODO: rather use pdf?
         bincounts = self._call_counts(limits, norm=norm)  # TODO: fake data? not to integrate limits?
         edges = limits.binning.edges
-        return binned_rect_integration(values=bincounts, edges=edges, limits=limits)  # TODO: check integral, correct?
+        return binned_rect_integration(counts=bincounts, edges=edges, limits=limits)  # TODO: check integral, correct?
 
     def _auto_ext_integrate(self, limits, norm):
         try:
@@ -441,8 +442,8 @@ class BaseBinnedPDFV1(
     def is_extended(self) -> bool:
         return self._yield is not None
 
-    def set_norm_range(self, norm_range):
-        return self._norm
+    def set_norm_range(self, norm):
+        self._norm = norm
 
     def create_extended(self, yield_: ztyping.ParamTypeInput) -> ZfitPDF:
         raise WorkInProgressError
@@ -453,11 +454,12 @@ class BaseBinnedPDFV1(
 
     @classmethod
     def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None, priority: int = 50, *,
-                                   supports_norm_range: bool = False, supports_multiple_limits: bool = False):
+                                   supports_norm: bool = False, supports_multiple_limits: bool = False,
+                                   supports_norm_range):
         raise WorkInProgressError
 
     def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType,
-                          norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+                          norm: ztyping.LimitsType = None) -> ztyping.XType:
         raise WorkInProgressError
 
     @classmethod
@@ -481,6 +483,7 @@ class BaseBinnedPDFV1(
         return norm
 
     @property
+    @deprecated(None, "use `norm` instead.")
     def norm_range(self):
         return self.norm
 
@@ -679,31 +682,48 @@ class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):
 
 
 # TODO: extend with partial integration. Axis parameter?
-def binned_rect_integration(values: znp.array, edges: Iterable[znp.array], limits: ZfitSpace) -> tf.Tensor:
+def binned_rect_integration(*,
+                            edges: Iterable[znp.array],
+                            limits: ZfitSpace,
+                            counts: znp.array | None = None,
+                            density: znp.array | None = None,
+                            ) -> tf.Tensor:
+    if counts is not None:
+        if density is not None:
+            raise ValueError("Either specify 'counts' or 'density' but not both.")
+        is_density = False
+        values = counts
+    elif density is not None:
+        is_density = True
+        values = density
+    else:
+        raise ValueError("Need to specify either 'counts' or 'density', not None.")
     scaled_edges, (lower_bins, upper_bins) = cut_edges_and_bins(edges=edges, limits=limits)
-    values_cut = tf.slice(values, lower_bins, (upper_bins - lower_bins))
-    rank = values.shape.rank
-    binwidths = []
-    for i, edge in enumerate(scaled_edges):
-        edge_lower_index = [0] * rank
-        edge_lowest_index = znp.asarray(edge_lower_index.copy(), dtype=znp.int64)
+    values_cut = tf.slice(values, lower_bins, (upper_bins - lower_bins))  # since limits are inclusive
+    if is_density:
+        rank = values.shape.rank
+        binwidths = []
+        for i, edge in enumerate(scaled_edges):
+            edge_lower_index = [0] * rank
+            edge_lowest_index = znp.asarray(edge_lower_index.copy(), dtype=znp.int64)
 
-        edge_lower_index[i] = 1
-        edge_lower_index = znp.asarray(edge_lower_index, dtype=znp.int64)
-        edge_upper_index = [1] * rank
-        edge_highest_index = edge_upper_index.copy()
-        max_index = tf.shape(edge)[i]
-        edge_highest_index[i] = max_index
-        edge_highest_index = znp.asarray(edge_highest_index, dtype=znp.int64)
-        edge_upper_index[i] = max_index - 1  # we want to skip the last (as we skip also the first)
-        edge_upper_index = znp.asarray(edge_upper_index, dtype=znp.int64)
-        lower_edge = tf.slice(edge, edge_lowest_index, (edge_upper_index - edge_lowest_index))
-        upper_edge = tf.slice(edge, edge_lower_index, (edge_highest_index - edge_lower_index))
-        binwidths.append(upper_edge - lower_edge)
-    # binwidths = [(edge[1:] - edge[:-1]) for edge in scaled_edges]
-    binareas = np.prod(binwidths, axis=0)  # needs to be np as znp or tf can't broadcast otherwise
+            edge_lower_index[i] = 1
+            edge_lower_index = znp.asarray(edge_lower_index, dtype=znp.int64)
+            edge_upper_index = [1] * rank
+            edge_highest_index = edge_upper_index.copy()
+            max_index = tf.shape(edge)[i]
+            edge_highest_index[i] = max_index
+            edge_highest_index = znp.asarray(edge_highest_index, dtype=znp.int64)
+            edge_upper_index[i] = max_index - 1  # we want to skip the last (as we skip also the first)
+            edge_upper_index = znp.asarray(edge_upper_index, dtype=znp.int64)
+            lower_edge = tf.slice(edge, edge_lowest_index, (edge_upper_index - edge_lowest_index))
+            upper_edge = tf.slice(edge, edge_lower_index, (edge_highest_index - edge_lower_index))
+            binwidths.append(upper_edge - lower_edge)
+        # binwidths = [(edge[1:] - edge[:-1]) for edge in scaled_edges]
+        binareas = np.prod(binwidths, axis=0)  # needs to be np as znp or tf can't broadcast otherwise
 
-    integral = tf.reduce_sum(values_cut * binareas, axis=limits.axes)
+        values_cut *= binareas
+    integral = tf.reduce_sum(values_cut, axis=limits.axes)
     return integral
 
 

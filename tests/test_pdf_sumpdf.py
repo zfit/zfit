@@ -101,15 +101,15 @@ def test_integrate():
     class SimpleSampleSumPDF(zfit.pdf.SumPDF):
 
         @zfit.supports()
-        def _integrate(self, limits, norm_range):
+        def _integrate(self, limits, norm):
             raise SpecificFunctionNotImplemented  # fallback to the default sampling
 
         @zfit.supports()
-        def _analytic_integrate(self, limits, norm_range):
+        def _analytic_integrate(self, limits, norm):
             raise SpecificFunctionNotImplemented
 
         @zfit.supports()
-        def _numeric_integrate(self, limits, norm_range):
+        def _numeric_integrate(self, limits, norm):
             raise SpecificFunctionNotImplemented
 
     mu1, mu2 = 0, 1.7

@@ -88,13 +88,13 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
             kwargs = kwargs()
         return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
-    def _unnormalized_pdf(self, x: "zfit.Data", norm_range=False):
+    def _unnormalized_pdf(self, x: "zfit.Data"):
         value = z.unstack_x(x)  # TODO: use this? change shaping below?
         return self.distribution.prob(value=value, name="unnormalized_pdf")
 
     # TODO: register integral?
     @supports()
-    def _analytic_integrate(self, limits, norm_range):
+    def _analytic_integrate(self, limits, norm):
         lower, upper = limits._rect_limits_tf
         lower = z.unstack_x(lower)
         upper = z.unstack_x(upper)

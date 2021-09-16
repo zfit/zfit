@@ -131,8 +131,8 @@ def test_binned_nll(weights):
     # mplhep.histplot(test_values_binned.to_hist() /  float(test_values_binned.nevents))
     rel_error = 0.035 if weights is None else 0.15  # more fluctuating with weights
 
-    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np_shifted), rel=rel_error)
-    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np_shifted), rel=rel_error)
+    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np_shifted), abs=rel_error)
+    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np_shifted), abs=rel_error)
 
     constraints = zfit.constraint.nll_gaussian(params=[mu2, sigma2],
                                                observation=[mu_constr[0], sigma_constr[0]],

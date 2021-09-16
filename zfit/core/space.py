@@ -28,7 +28,7 @@ from .._variables.axis import Binning
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.deprecation import deprecated_args
+from ..util.deprecation import deprecated_args, deprecated_norm_range
 from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
                               BreakingAPIChangeError,
                               CannotConvertToNumpyError,
@@ -2850,9 +2850,7 @@ def check_norm(supports=None):
                 self = None
             norm_range = kwargs.get('norm_range')
             norm = kwargs.get('norm')
-            if norm_range is not None:
-                norm = norm_range
-            norm = None
+
             norm_is_arg = False
             if norm_range is not None:
                 norm = norm_range
@@ -2931,7 +2929,7 @@ def no_multiple_limits(func):
     return new_func
 
 
-@deprecated_args(None, "Use `norm` instead.", 'norm_range')
+@deprecated_norm_range
 def supports(*, norm: Union[bool, str, Iterable[str]] = False, multiple_limits: bool = False,
              norm_range=None) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
@@ -2946,8 +2944,6 @@ def supports(*, norm: Union[bool, str, Iterable[str]] = False, multiple_limits: 
         multiple_limits: If False, only simple limits are to be expected and no iteration is
             therefore required.
     """
-    if norm_range is not None:
-        norm = norm_range
     decorator_stack = []
     if not multiple_limits:
         decorator_stack.append(no_multiple_limits)

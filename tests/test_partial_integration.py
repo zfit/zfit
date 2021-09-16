@@ -49,7 +49,7 @@ def test_partial_integral():
 
     data_np = np.linspace((1, 1), (4, 4), 4000)
     data = zfit.Data.from_numpy(obs=obs, array=data_np)
-    probs = cosxy2.pdf(data)
+    probs = cosxy2.pdf(data, norm=False)
     probs_np = probs.numpy()
     x = data_np[:, 0]
     y = data_np[:, 1]
@@ -58,8 +58,8 @@ def test_partial_integral():
     assert pytest.approx(0., rel=0.0001) == np.std(ratios)  # ratio should be constant
     ratio = np.average(ratios)
 
-    integral_x_tf = cosxy2.partial_integrate(x=data, limits=xspace)
-    integral_y_tf = cosxy2.partial_integrate(x=data, limits=yspace)
+    integral_x_tf = cosxy2.partial_integrate(x=data, limits=xspace, norm=False)
+    integral_y_tf = cosxy2.partial_integrate(x=data, limits=yspace, norm=False)
     integral_x_np = integral_x_tf.numpy()
     integral_y_np = integral_y_tf.numpy()
 

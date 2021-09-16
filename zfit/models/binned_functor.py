@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 from .. import z
+from ..util.deprecation import deprecated_norm_range
 from ..z import numpy as znp
 from ..core.binnedpdf import BaseBinnedPDFV1
 from ..core.interfaces import ZfitModel
@@ -43,9 +44,8 @@ class BinnedSumPDFV1(FunctorMixin, BaseBinnedPDFV1):
 
         return prob
 
+    @deprecated_norm_range
     def _ext_pdf(self, x, norm, *, norm_range=None):
-        if norm_range is not None:
-            norm = norm_range
         prob = tf.reduce_sum([model.ext_pdf(x) for model in self.models], axis=0)
         prob /= np.prod(self.space.binning.width, axis=0)
         return prob

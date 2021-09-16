@@ -37,7 +37,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         new_params.update(override_params)
         return type(self)(new_params)
 
-    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
+    def gradient(self, x: ztyping.XType, norm: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
         # TODO(Mayou36): well, really needed... this gradient?
         raise NotImplementedError("What do you need? Use tf.gradient...")
 
