@@ -12,6 +12,7 @@ numdifftools
 numpy>=1.16
 ordered-set
 pandas
+pydantic
 scipy>=1.2
 tabulate
 tensorflow>=2.5,<2.7
