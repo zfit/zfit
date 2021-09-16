@@ -257,13 +257,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             draws = min({0: 10, 1: 15, 2: 150, 3: 300, 4: 600}.get(logtolonly, 1e30), high_draws)
             draws = int(min(draws, self.integration.max_draws))
         if draws_per_dim is not None:
-            self.integration.draws_per_dim = draws  # make it odd
+            self.integration.draws_per_dim = draws
 
         if draws_simpson == 'auto':
             logtol = abs(math.log10(self.integration.tol * 0.005))
-            npoints = 10 + 25 * (logtol + 1) + 2.2 ** logtol
-            npoints = int(npoints)
-            self.integration.draws_simpson = npoints
+            npoints = 10 + 100 * (logtol + 1) + 1.8 ** logtol
+            draws_simpson = int(npoints)
+        if draws_simpson is not None:
+            self.integration.draws_simpson = draws_simpson
 
     # TODO: remove below? or add "analytic gradients"?
     def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):

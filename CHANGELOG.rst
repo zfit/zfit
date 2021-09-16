@@ -35,7 +35,7 @@ Thanks
 ------
 
 
-0.8.0 (13. Sep. 2021)
+0.8.1 (14. Sep. 2021)
 ======================
 
 Major Features and Improvements

@@ -29,8 +29,8 @@ does depend less strongly on the kernel bandwidth than histograms do on bin widt
 rules for an approximately optimal kernel bandwidth than it is to do so for bin width.
 
 
-Given a set of :math:`n` sample points :math:`x_k` (:math:`k = 1,\cdots,n`), an exact kernel density estimation
-`\widehat{f}_h(x)` can be calculated as
+Given a set of :math:`n` sample points :math:`x_k` (:math:`k = 1,\cdots,n`), an exact kernel density
+estimation :math:`\widehat{f}_h(x)` can be calculated as
 
 .. math::
     :label: eq-exact-kde
