@@ -44,7 +44,7 @@ def test_binned_template_pdf():
 
     # integrate
     true_integral = znp.sum(true_sum_counts)
-    integral = pdf_sum.ext_integrate(limits=obs)
+    integral = pdf_sum.ext_integrate(limits=obs, )
     assert pytest.approx(float(true_integral)) == float(integral)
 
     # import matplotlib.pyplot as plt

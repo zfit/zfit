@@ -28,7 +28,10 @@ from .space import Space, convert_to_space, supports
 
 def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztypes.float,
                    mc_sampler=tfp.mcmc.sample_halton_sequence, max_draws=None, tol=None,
+                   vectorizable=None,
                    mc_options=None, simpsons_options=None):
+    if vectorizable is None:
+        vectorizable = False
     limits = convert_to_space(limits)
 
     if n_axes is None:
@@ -45,7 +48,7 @@ def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztype
         max_draws = mc_options.get('max_draws')
         integral = mc_integrate(x=x, func=func, limits=limits, n_axes=n_axes, method=method, dtype=dtype,
                                 mc_sampler=mc_sampler, draws_per_dim=draws_per_dim, max_draws=max_draws, tol=tol,
-                                importance_sampling=None)
+                                importance_sampling=None, vectorizable=vectorizable)
     elif method.lower() == 'simpson':
         num_points = simpsons_options['draws_simpson']
         integral = simpson_integrate(func=func, limits=limits, num_points=num_points)
@@ -81,14 +84,13 @@ def simpson_integrate(func, limits, num_points):  # currently not vectorized
 # @z.function
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
                  x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 40000,
-                 max_draws=800_000, tol: float = 1e-6,
-                 method: str = None,
-                 dtype: Type = ztypes.float,
-                 mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
-                 importance_sampling: Optional[Callable] = None) -> tf.Tensor:
+                 max_draws=800_000, tol: float = 1e-6, method: str = None, dtype: Type = ztypes.float,
+                 mc_sampler: Callable = tfp.mcmc.sample_halton_sequence, importance_sampling: Optional[Callable] = None,
+                 vectorizable=None) -> tf.Tensor:
     """Monte Carlo integration of `func` over `limits`.
 
     Args:
+        vectorizable ():
         func: The function to be integrated over
         limits: The limits of the integral
         axes: The row to integrate over. None means integration over all value
@@ -104,6 +106,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     Returns:
         The integral
     """
+    if vectorizable is None:
+        vectorizable = False
     tol = znp.array(tol, dtype=znp.float64)
     if axes is not None and n_axes is not None:
         raise ValueError("Either specify axes or n_axes")
@@ -213,7 +217,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                                         znp.array(0., dtype=znp.float64),
                                         0,
                                         0]
-            if partial:
+            if partial or vectorizable:
                 avg, error, std, ntot, i = body_integrate(avg, error, std, ntot, i)
             else:
                 avg, error, std, ntot, i = tf.while_loop(cond=cond, body=body_integrate,
@@ -244,7 +248,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                     )
                 return
 
-            tf.cond(error > tol, print_none_return, lambda: None)
+            if not vectorizable:
+                tf.cond(error > tol, print_none_return, lambda: None)
         integral = avg * tf.cast(z.convert_to_tensor(space.rect_area()), dtype=avg.dtype)
         integrals.append(integral)
     return z.reduce_sum(integrals, axis=0)

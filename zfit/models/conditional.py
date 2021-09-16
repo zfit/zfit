@@ -96,7 +96,7 @@ class ConditionalPDFV1(BaseFunctor):
         return params
 
     @z.function(wraps='conditional_pdf')
-    def _single_hook_integrate(self, limits, norm, x):
+    def _single_hook_integrate(self, limits, norm, x, options):
         from zfit import run
         if not run.get_graph_mode():
             warnings.warn("Using the Conditional PDF in eager mode (no jit) maybe gets stuck.", RuntimeWarning)
@@ -116,7 +116,7 @@ class ConditionalPDFV1(BaseFunctor):
             for param, index in param_x_indices.items():
                 param.assign(values[..., index])
 
-            return pdf.integrate(limits=limits, norm=norm, var=x)
+            return pdf.integrate(limits=limits, norm=norm, options=options)
 
         integrals = tf_map(eval_int, x_values)
         integrals = integrals[:, 0]  # removing stack dimension, implicitly in map_fn

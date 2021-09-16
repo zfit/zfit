@@ -25,7 +25,7 @@ from .space import supports, convert_to_space
 from .tensorlike import OverloadableMixinValues, register_tensor_conversion
 from ..util import ztyping
 from ..util.cache import GraphCachable
-from ..util.deprecation import deprecated_args, deprecated
+from ..util.deprecation import deprecated_args, deprecated, deprecated_norm_range
 from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
                               SpaceIncompatibleError,
                               SpecificFunctionNotImplemented,
@@ -228,14 +228,14 @@ class BaseBinnedPDFV1(
             pdf = self._pdf(x, norm=norm)
         except NormNotImplemented:
             unnormed_pdf = self._pdf(x, norm=False)
-            normalization = self.normalization(norm)
+            normalization = self.normalization(norm, options=options)
             pdf = unnormed_pdf / normalization
         return pdf
 
     def _fallback_pdf(self, x, norm):
         values = self._call_unnormalized_pdf(x)
         if norm is not False:
-            values = values / self.normalization(norm)
+            values = values / self.normalization(norm, options=options)
         return values
 
     def _unnormalized_pdf(self, x):
@@ -298,100 +298,97 @@ class BaseBinnedPDFV1(
         values = self._call_pdf(x, norm=norm)
         return values * self.get_yield()
 
-    def normalization(self, norm=None, *, limits: ztyping.LimitsType = None) -> ztyping.NumericalTypeReturn:
+    def normalization(self, limits, *, options=None) -> ztyping.NumericalTypeReturn:
         if limits is not None:
             norm = limits
+        if options is None:
+            options = {}
         norm = self._check_convert_norm(norm, none_is_error=True)
-        return self._call_normalization(norm)
+        return self._call_normalization(norm, options=options)
 
-    def _call_normalization(self, norm):
+    def _call_normalization(self, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
-            return self._normalization(norm)
+            return self._normalization(norm, options=options)
 
         # fallback
-        return self._call_integrate(norm, norm=False)
+        return self._call_integrate(norm, norm=False, options=None)
 
     @_BinnedPDF_register_check_support(True)
-    def _normalization(self, limits):
+    def _normalization(self, limits, *, options):
         raise SpecificFunctionNotImplemented
 
     @_BinnedPDF_register_check_support(True)
-    def _integrate(self, limits, norm):
+    def _integrate(self, limits, norm, options):
         raise SpecificFunctionNotImplemented
 
-    @deprecated_args(None, "Use `norm` instead.", "norm_range")
-    def integrate(self,
-                  limits: ztyping.LimitsType,
-                  norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
-        if norm_range is not None:
-            norm = norm_range
+    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options) -> ztyping.XType:
         norm = self._check_convert_norm(norm)
         limits = self._check_convert_limits(limits)
-        return self._call_integrate(limits, norm)
+        return self._call_integrate(limits, norm, options)
 
-    def _call_integrate(self, limits, norm):
+    def _call_integrate(self, limits, norm, options=None):
+        if options is None:
+            options = {}
         with suppress(SpecificFunctionNotImplemented):
-            return self._auto_integrate(limits, norm)
-        return self._fallback_integrate(limits, norm)
+            return self._auto_integrate(limits, norm, options)
+        return self._fallback_integrate(limits, norm, options)
 
-    def _fallback_integrate(self, limits, norm):
+    def _fallback_integrate(self, limits, norm, options):
         bincounts = self._call_rel_counts(limits, norm=norm)  # TODO: fake data? not to integrate limits?
         edges = limits.binning.edges
         return binned_rect_integration(counts=bincounts, edges=edges, limits=limits)  # TODO: check integral, correct?
 
-    def _auto_integrate(self, limits, norm):
+    def _auto_integrate(self, limits, norm, options):
         try:
-            integral = self._integrate(limits=limits, norm=norm)
+            integral = self._integrate(limits=limits, norm=norm, options=options)
         except NormNotImplemented:
-            unnormalized_integral = self._auto_integrate(limits=limits, norm=False)
-            normalization = self.normalization(norm)
+            unnormalized_integral = self._auto_integrate(limits=limits, norm=False, options=options)
+            normalization = self.normalization(norm, options=options)
             integral = unnormalized_integral / normalization
         except MultipleLimitsNotImplemented:
             integrals = []  # TODO: map?
             for sub_limits in limits:
-                integrals.append(self._auto_integrate(limits=sub_limits, norm=norm))
+                integrals.append(self._auto_integrate(limits=sub_limits, norm=norm, options=options))
             integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
         return integral
 
-    @deprecated_args(None, "Use `norm` instead.", "norm_range")
-    def ext_integrate(self,
-                      limits: ztyping.LimitsType,
-                      norm: ztyping.LimitsType = None,
-                      *, norm_range=None) -> ztyping.XType:
-        if norm_range is not None:
-            norm = norm_range
+    @deprecated_norm_range
+    def ext_integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *,
+                      norm_range=None, options=None) -> ztyping.XType:
         if not self.is_extended:
             raise NotExtendedPDFError
+        if options is None:
+            options = {}
         norm = self._check_convert_norm(norm)
         limits = self._check_convert_limits(limits)
-        return self._call_ext_integrate(limits, norm)
+        return self._call_ext_integrate(limits, norm, options=options)
 
-    def _call_ext_integrate(self, limits, norm):
+    def _call_ext_integrate(self, limits, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
-            return self._auto_ext_integrate(limits, norm)
-        return self._fallback_ext_integrate(limits, norm)
+            return self._auto_ext_integrate(limits, norm, options=options)
+        return self._fallback_ext_integrate(limits, norm, options=options)
 
-    def _fallback_ext_integrate(self, limits, norm):  # TODO: rather use pdf?
+    def _fallback_ext_integrate(self, limits, norm, *, options):  # TODO: rather use pdf?
         bincounts = self._call_counts(limits, norm=norm)  # TODO: fake data? not to integrate limits?
         edges = limits.binning.edges
-        return binned_rect_integration(counts=bincounts, edges=edges, limits=limits)  # TODO: check integral, correct?
+        return binned_rect_integration(counts=bincounts, edges=edges, limits=limits)
 
-    def _auto_ext_integrate(self, limits, norm):
+    def _auto_ext_integrate(self, limits, norm, *, options):
         try:
-            integral = self._ext_integrate(limits=limits, norm=norm)
+            integral = self._ext_integrate(limits=limits, norm=norm, options=options)
         except NormNotImplemented:
-            unnormalized_integral = self._auto_ext_integrate(limits=limits, norm=False)
-            normalization = self.ext_normalization(norm)
+            unnormalized_integral = self._auto_ext_integrate(limits=limits, norm=False, options=options)
+            normalization = self.ext_normalization(norm, options=options)
             integral = unnormalized_integral / normalization
         except MultipleLimitsNotImplemented:
             integrals = []  # TODO: map?
             for sub_limits in limits:
-                integrals.append(self._auto_integrate(limits=sub_limits, norm=norm))
+                integrals.append(self._auto_integrate(limits=sub_limits, norm=norm, options=options))
             integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
         return integral
 
     @_BinnedPDF_register_check_support(True)
-    def _ext_integrate(self, limits, norm):
+    def _ext_integrate(self, limits, norm, *, options):
         raise SpecificFunctionNotImplemented
 
     def sample(self, n: int = None, limits: ztyping.LimitsType = None) -> ztyping.XType:
@@ -460,8 +457,8 @@ class BaseBinnedPDFV1(
                                    supports_norm_range):
         raise WorkInProgressError
 
-    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType,
-                          norm: ztyping.LimitsType = None) -> ztyping.XType:
+    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, *, norm=None, options=None,
+                          norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         raise WorkInProgressError
 
     @classmethod
@@ -530,19 +527,21 @@ class BaseBinnedPDFV1(
             return self._auto_counts(x, norm)
         return self._fallback_counts(x, norm)
 
-    def ext_normalization(self, norm):
+    def ext_normalization(self, norm, *, options=None):
         if not self.is_extended:
             raise NotExtendedPDFError
+        if options is None:
+            options = {}
         norm = self._check_convert_norm(norm, none_is_error=True)
-        return self._call_ext_normalization(norm)
+        return self._call_ext_normalization(norm, options=options)
 
-    def _call_ext_normalization(self, norm):
+    def _call_ext_normalization(self, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
-            return self._ext_normalization(norm)
+            return self._ext_normalization(norm, options=options)
         # fallback
-        return self.normalization(norm) / self.get_yield()
+        return self.normalization(norm, options=options) / self.get_yield()
 
-    def _ext_normalization(self, norm):
+    def _ext_normalization(self, norm, *, options):
         raise SpecificFunctionNotImplemented
 
     def _auto_counts(self, x, norm):
@@ -625,12 +624,13 @@ class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):
         uppers_meshed_flat = [znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed]
         lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
+        options = {'type': 'bins'}
 
         @z.function
         def integrate_one(limits):
             l, u = tf.unstack(limits)
             limits_space = zfit.Space(obs=self.obs, limits=[l, u])
-            return pdf.integrate(limits_space, norm=False)
+            return pdf.integrate(limits_space, norm=False, options=options)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
         # values = tf.map_fn(integrate_one, limits)
@@ -654,13 +654,14 @@ class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):
         uppers_meshed_flat = [znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed]
         lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
+        options = {'type': 'bins'}
 
         if pdf.is_extended:
             @z.function
             def integrate_one(limits):
                 l, u = tf.unstack(limits)
                 limits_space = zfit.Space(obs=self.obs, limits=[l, u])
-                return pdf.ext_integrate(limits_space, norm=False)
+                return pdf.ext_integrate(limits_space, norm=False, options=options)
 
             missing_yield = False
         else:
@@ -668,7 +669,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):
             def integrate_one(limits):
                 l, u = tf.unstack(limits)
                 limits_space = zfit.Space(obs=self.obs, limits=[l, u])
-                return pdf.integrate(limits_space, norm=False)
+                return pdf.integrate(limits_space, norm=False, options=options)
 
             missing_yield = True
 

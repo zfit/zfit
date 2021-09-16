@@ -168,7 +168,6 @@ def test_unbinned_data():
     plt.plot(x, y_binned, '--', label="binned pdf")
     plt.legend()
     pytest.zfit_savefig()
-    plt.show()
 
 
 def test_unbinned_data2D():
@@ -264,11 +263,6 @@ def test_binned_from_unbinned_2D():
 
     gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss2D, space=obs_binned, extended=n)
     values = gauss_binned.rel_counts(obs_binned)  # TODO: good test?
-
-    # start = time.time()
-    # for _ in range(2):
-    #     values = gauss_binned.rel_counts(obs_binned)
-    # print(f"Time needed: {time.time() - start}")
 
     sample = gauss_binned.sample(n, limits=obs_binned)
     hist_sampled = sample.to_hist()

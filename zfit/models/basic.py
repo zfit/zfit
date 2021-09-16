@@ -97,21 +97,21 @@ class Exponential(BasePDF):
     # All hooks are needed to set the right shift when "entering" the pdf. The norm range is taken where both are
     # available. No special need needs to be taken for sampling (it samples from the correct region, the limits, and
     # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
-    def _single_hook_integrate(self, limits, norm, x):
+    def _single_hook_integrate(self, limits, norm, x, options):
         with self._set_numerics_data_shift(norm):
-            return super()._single_hook_integrate(limits, norm, x=x)
+            return super()._single_hook_integrate(limits, norm, x=x, options=None)
 
     def _single_hook_analytic_integrate(self, limits, norm):
         with self._set_numerics_data_shift(limits=norm):
             return super()._single_hook_analytic_integrate(limits, norm)
 
-    def _single_hook_numeric_integrate(self, limits, norm):
+    def _single_hook_numeric_integrate(self, limits, norm, options):
         with self._set_numerics_data_shift(limits=norm):
-            return super()._single_hook_numeric_integrate(limits, norm)
+            return super()._single_hook_numeric_integrate(limits, norm, options)
 
-    def _single_hook_partial_integrate(self, x, limits, norm):
+    def _single_hook_partial_integrate(self, x, limits, norm, *, options):
         with self._set_numerics_data_shift(limits=norm):
-            return super()._single_hook_partial_integrate(x, limits, norm)
+            return super()._single_hook_partial_integrate(x, limits, norm, options=options)
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm):
         with self._set_numerics_data_shift(limits=norm):

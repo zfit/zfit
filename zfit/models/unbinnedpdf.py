@@ -50,12 +50,12 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         return ordered_values
 
     @supports(norm=True, multiple_limits=True)
-    def _integrate(self, limits, norm):
-        return self.pdfs[0].integrate(limits, norm=norm)
+    def _integrate(self, limits, norm, options=None):
+        return self.pdfs[0].integrate(limits, norm=norm, options=options)
 
     @supports(norm=True, multiple_limits=True)
     def _ext_integrate(self, limits, norm):
-        return self.pdfs[0].ext_integrate(limits, norm=norm)
+        return self.pdfs[0].ext_integrate(limits, norm=norm, options=options)
 
     @supports(norm=True, multiple_limits=True)
     def _sample(self, n, limits: ZfitSpace):

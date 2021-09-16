@@ -192,22 +192,16 @@ def test_mc_integration(chunksize, limits):
     # simpel example
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
-    num_integral = zintegrate.mc_integrate(func=func1_5deps,
-                                           limits=Space(limits=limits_simple_5deps,
-                                                        axes=tuple(range(5))),
-                                           n_axes=5)
+    num_integral = zintegrate.mc_integrate(func=func1_5deps, limits=Space(limits=limits_simple_5deps,
+                                                                          axes=tuple(range(5))), n_axes=5)
     if isinstance(limits, list):
         spaces = [Space(limits=limit, axes=tuple(range(1))) for limit in limits]
         space2 = spaces[0] + spaces[1]
     else:
         space2 = Space(limits=limits2, axes=tuple(range(1)))
-    num_integral2 = zintegrate.mc_integrate(func=func2_1deps,
-                                            limits=space2,
-                                            n_axes=1)
-    num_integral3 = zintegrate.mc_integrate(func=func3_2deps,
-                                            limits=Space(limits=limits3,
-                                                         axes=(0, 1)),
-                                            n_axes=2)
+    num_integral2 = zintegrate.mc_integrate(func=func2_1deps, limits=space2, n_axes=1)
+    num_integral3 = zintegrate.mc_integrate(func=func3_2deps, limits=Space(limits=limits3,
+                                                                           axes=(0, 1)), n_axes=2)
 
     integral = num_integral.numpy()
     integral2 = num_integral2.numpy()
@@ -228,9 +222,7 @@ def test_mc_partial_integration():
     values = z.convert_to_tensor(func4_values)
     data1 = zfit.Data.from_tensor(obs='obs2', tensor=tf.expand_dims(values, axis=-1))
     limits1 = Space(limits=limits4_2dim, obs=['obs1', 'obs3'], axes=(0, 2))
-    num_integral = zintegrate.mc_integrate(x=data1,
-                                           func=func4_3deps,
-                                           limits=limits1)
+    num_integral = zintegrate.mc_integrate(func=func4_3deps, limits=limits1, x=data1)
 
     vals_tensor = z.convert_to_tensor(func4_2values)
 
@@ -238,10 +230,7 @@ def test_mc_partial_integration():
     data2 = zfit.Data.from_tensor(obs=['obs1', 'obs3'], tensor=vals_reshaped)
 
     limits2 = Space(limits=limits4_1dim, obs=['obs2'], axes=1)
-    num_integral2 = zintegrate.mc_integrate(x=data2,
-                                            func=func4_3deps,
-                                            limits=limits2,
-                                            draws_per_dim=1000)
+    num_integral2 = zintegrate.mc_integrate(func=func4_3deps, limits=limits2, x=data2, draws_per_dim=1000)
 
     integral = num_integral.numpy()
     integral2 = num_integral2.numpy()
@@ -286,15 +275,16 @@ def test_analytic_integral():
     gauss_params1 = CustomGaussOLD(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
     normal_params1 = Gauss(mu=mu, sigma=sigma, obs=obs1, name="gauss_params1")
     gauss_integral_infs = gauss_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm=False)
-    normal_integral_infs = normal_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm=False)
+    normal_integral_infs = normal_params1.integrate(limits=(-8 * sigma_true, 8 * sigma_true), norm=False,
+                                                    )
 
     DistFunc3.register_analytic_integral(func=func3_2deps_fully_integrated,
                                          limits=Space(limits=limits3, axes=(0, 1)))
 
     dist_func3 = DistFunc3(obs=['obs1', 'obs2'])
     normal_integral_infs = normal_integral_infs
-    func3_integrated = dist_func3.integrate(limits=Space(limits=limits3, axes=(0, 1)),
-                                            norm=False).numpy()
+    func3_integrated = dist_func3.integrate(limits=Space(limits=limits3, axes=(0, 1)), norm=False,
+                                            ).numpy()
     assert func3_integrated == pytest.approx(
         func3_2deps_fully_integrated(limits=Space(limits=limits3, axes=(0, 1))).numpy())
     assert gauss_integral_infs.numpy() == pytest.approx(np.sqrt(np.pi * 2.) * sigma_true, rel=0.0001)

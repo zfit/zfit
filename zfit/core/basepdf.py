@@ -32,7 +32,7 @@ Let's create an instance and some example data
 Now we can get the probability
 >>> probs = gauss.pdf()  # `norm_range` specifies over which range to normalize
 Or the integral
->>> integral = gauss.integrate(limits=(-5, 3.1),norm=False)  # norm_range is False -> return unnormalized
+>>> integral = gauss.integrate(limits=(-5, 3.1),norm=False,options=options)  # norm_range is False -> return unnormalized
 integral
 Or directly sample from it
 >>> sample = gauss.sample(n_draws=1000, limits=(-10, 10))  # draw 1000 samples within (-10, 10)
@@ -45,7 +45,7 @@ the `norm_range`)
 >>> gauss.is_extended
 True
 
->>> integral_extended = gauss.integrate(limits=(-10, 10),norm=(-10, 10))  # yields approx 100
+>>> integral_extended = gauss.integrate(limits=(-10, 10),norm=(-10, 10),options=options)  # yields approx 100
 
 For more advanced methods and ways to register analytic integrals or overwrite certain methods, see
 also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials>`_
@@ -58,9 +58,9 @@ from contextlib import suppress
 from typing import Dict, Optional, Set, Type, Union
 
 import tensorflow as tf
+
 import zfit.z.numpy as znp
 from zfit import z
-
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
 from .interfaces import ZfitParameter, ZfitPDF
@@ -70,7 +70,7 @@ from .space import Space
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
-from ..util.deprecation import deprecated, deprecated_args, deprecated_norm_range
+from ..util.deprecation import deprecated, deprecated_norm_range
 from ..util.exception import (AlreadyExtendedPDFError, BreakingAPIChangeError,
                               FunctionNotImplemented, NotExtendedPDFError,
                               NormNotImplemented,
@@ -166,7 +166,6 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         norm = self._norm
         if norm is None:
-
             norm = self.space
         return norm
 
@@ -192,15 +191,19 @@ class BasePDF(ZfitPDF, BaseModel):
     def _normalization(self, limits):
         raise SpecificFunctionNotImplemented
 
-    def normalization(self, limits: ztyping.LimitsType) -> ztyping.XType:
+    def normalization(self, limits: ztyping.LimitsType, *, options=None) -> ztyping.XType:
         """Return the normalization of the function (usually the integral over `limits`).
 
         Args:
+            * ():
+            options ():
             limits:  The limits on where to normalize over
 
         Returns:
             The normalization value
         """
+        if options is None:
+            options = {}
         limits = self._check_input_limits(limits=limits)
 
         return self._single_hook_normalization(limits=limits)
@@ -218,7 +221,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._fallback_normalization(limits)
 
     def _fallback_normalization(self, limits):
-        return self._hook_integrate(limits=limits, norm=False)
+        return self._hook_integrate(limits=limits, norm=False, options=None)
 
     def _unnormalized_pdf(self, x):
         raise SpecificFunctionNotImplemented
@@ -277,7 +280,7 @@ class BasePDF(ZfitPDF, BaseModel):
             probs = self._ext_pdf(x, norm)
         except NormNotImplemented:
             unnorm_probs = self._ext_pdf(x, False)
-            normalization = self.normalization(norm)
+            normalization = self.normalization(norm, options=options)
             probs = unnorm_probs / normalization
         return probs
 
@@ -316,7 +319,7 @@ class BasePDF(ZfitPDF, BaseModel):
             pdf = self._ext_log_pdf(x, norm)
         except NormNotImplemented:
             unnormed_pdf = self._ext_log_pdf(x, False)
-            normalization = znp.log(self.normalization(norm))
+            normalization = znp.log(self.normalization(norm, options=options))
             pdf = unnormed_pdf - normalization
         return pdf
 
@@ -328,8 +331,8 @@ class BasePDF(ZfitPDF, BaseModel):
     def _pdf(self, x, norm, *, norm_range=None):
         raise SpecificFunctionNotImplemented
 
-    @z.function(wraps='model')
     @deprecated_norm_range
+    @z.function(wraps='model')
     def pdf(self, x: ztyping.XTypeInput, norm: ztyping.LimitsTypeInput = None, *, norm_range=None) -> ztyping.XType:
         """Probability density function, normalized over `norm`.
 
@@ -422,10 +425,12 @@ class BasePDF(ZfitPDF, BaseModel):
     @z.function(wraps='model')
     @deprecated_norm_range
     def ext_integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *,
-                      norm_range=None) -> ztyping.XType:
+                      norm_range=None,
+                      options=None) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
+            options ():
             limits: the limits to integrate over
             norm: the limits to normalize over or False to integrate the
                 unnormalized probability
@@ -433,12 +438,14 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             The integral value as a scalar with shape ()
         """
+        if options is None:
+            options = {}
         assert norm_range is None
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
-        return self.integrate(limits=limits, norm=norm) * self.get_yield()
+        return self.integrate(limits=limits, norm=norm, options=options) * self.get_yield()
 
     def _apply_yield(self, value: float, norm: ztyping.LimitsType, log: bool) -> Union[float, tf.Tensor]:
         if self.is_extended and not norm.limits_are_false:
@@ -590,7 +597,7 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.special import SimpleFunctorPDF
 
         def partial_integrate_wrapped(self_simple, x):
-            return self.partial_integrate(x, limits=limits_to_integrate, norm=False)
+            return self.partial_integrate(x, limits=limits_to_integrate, options=options)
 
         new_pdf = SimpleFunctorPDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs
                                                                     if obs not in limits_to_integrate.obs]),

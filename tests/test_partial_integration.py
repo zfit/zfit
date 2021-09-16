@@ -58,8 +58,8 @@ def test_partial_integral():
     assert pytest.approx(0., rel=0.0001) == np.std(ratios)  # ratio should be constant
     ratio = np.average(ratios)
 
-    integral_x_tf = cosxy2.partial_integrate(x=data, limits=xspace, norm=False)
-    integral_y_tf = cosxy2.partial_integrate(x=data, limits=yspace, norm=False)
+    integral_x_tf = cosxy2.partial_integrate(x=data, limits=xspace, options=options)
+    integral_y_tf = cosxy2.partial_integrate(x=data, limits=yspace, options=options)
     integral_x_np = integral_x_tf.numpy()
     integral_y_np = integral_y_tf.numpy()
 

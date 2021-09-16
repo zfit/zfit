@@ -104,21 +104,21 @@ def test_product_separation():
     data2 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs2)
     data1 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs1)
     data4 = zfit.Data.from_numpy(array=np.linspace(0, 1, npoints), obs=obs4)
-    integral13 = prod13.partial_integrate(x=data3, limits=obs1, norm_range=False)
+    integral13 = prod13.partial_integrate(x=data3, limits=obs1, norm=False)
     assert integral13.shape[0] == npoints
-    trueint3 = gauss4.pdf(data3, norm_range=False) * gauss3.integrate(obs1, norm_range=False)
+    trueint3 = gauss4.pdf(data3, norm=False) * gauss3.integrate(obs1, norm=False)
     np.testing.assert_allclose(integral13, trueint3)
-    assert prod12.partial_integrate(x=data2, limits=obs1).shape[0] == npoints
-    assert prod123.partial_integrate(x=data3, limits=obs1 * obs2).shape[0] == npoints
-    assert prod123.partial_integrate(x=data2, limits=obs1 * obs3).shape[0] == npoints
+    assert prod12.partial_integrate(x=data2, limits=obs1, ).shape[0] == npoints
+    assert prod123.partial_integrate(x=data3, limits=obs1 * obs2, ).shape[0] == npoints
+    assert prod123.partial_integrate(x=data2, limits=obs1 * obs3, ).shape[0] == npoints
 
     prod1234 = ProductPDF(pdfs=[gauss1, gauss2, gauss4, gauss5])
-    integ = prod1234.partial_integrate(data1, limits=obs2 * obs3 * obs4, norm_range=False)
+    integ = prod1234.partial_integrate(data1, limits=obs2 * obs3 * obs4, norm=False)
     assert integ.shape[0] == npoints
 
     obs13 = obs1 * obs3
-    analytic_int = zfit.run(prod13.analytic_integrate(limits=obs13, norm_range=False))
-    numeric_int = zfit.run(prod13.numeric_integrate(limits=obs13, norm_range=False))
+    analytic_int = zfit.run(prod13.analytic_integrate(limits=obs13, norm=False))
+    numeric_int = zfit.run(prod13.numeric_integrate(limits=obs13, norm=False))
     assert pytest.approx(analytic_int, rel=1e-3) == numeric_int
 
 
@@ -156,8 +156,8 @@ def test_prod_gauss_nd():
 
 @pytest.mark.flaky(reruns=3)
 def test_prod_gauss_nd_mixed():
-    norm_range = (-5, 4)
-    low, high = norm_range
+    norm = (-5, 4)
+    low, high = norm
     test_values = np.random.uniform(low=low, high=high, size=(1000, 4))
 
     obs4d = ['obs1', 'obs2', 'obs3', 'obs4']
@@ -170,7 +170,7 @@ def test_prod_gauss_nd_mixed():
     gausses = create_gaussians()
 
     for gauss in gausses:
-        gauss.set_norm_range(norm_range)
+        gauss.set_norm_range(norm)
     gauss1, gauss2, gauss3 = gausses
     prod_gauss_3d = product_gauss_3d()
 
@@ -231,7 +231,7 @@ def test_exp():
     normalization_testing(exp2, limits=(5400, 5800))
 
     intlim = [5400, 5500]
-    integral2 = zfit.run(exp2.integrate(intlim))
+    integral2 = zfit.run(exp2.integrate(intlim, ))
     numintegral2 = zfit.run(exp2.numeric_integrate(intlim))
     assert integral2 == pytest.approx(numintegral2, rel=0.03)
 
@@ -270,9 +270,9 @@ def test_extended_gauss():
     gauss_dists = [gauss1, gauss2, gauss3]
 
     sum_gauss = SumPDF(pdfs=gauss_dists)
-    integral_true = sum_gauss.integrate((-1, 5)) * sum_gauss.get_yield()
+    integral_true = sum_gauss.integrate((-1, 5), ) * sum_gauss.get_yield()
 
-    assert zfit.run(integral_true) == pytest.approx(zfit.run(sum_gauss.ext_integrate((-1, 5))))
+    assert zfit.run(integral_true) == pytest.approx(zfit.run(sum_gauss.ext_integrate((-1, 5), )))
     normalization_testing(pdf=sum_gauss, limits=obs1)
 
 

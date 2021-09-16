@@ -208,12 +208,12 @@ class SumPDF(BaseFunctor):
         return z.convert_to_tensor(prob)
 
     @supports(multiple_limits=True)
-    def _integrate(self, limits, norm):
+    def _integrate(self, limits, norm, options):
         pdfs = self.pdfs
         fracs = self.fracs
         # TODO(SUM): why was this needed?
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
-        integrals = [frac * pdf.integrate(limits=limits)  # do NOT propagate the norm_range!
+        integrals = [frac * pdf.integrate(limits=limits, options=options)  # do NOT propagate the norm_range!
                      for pdf, frac in zip(pdfs, fracs)]
         integral = sum(integrals)
         return z.convert_to_tensor(integral)
@@ -234,18 +234,19 @@ class SumPDF(BaseFunctor):
         return z.convert_to_tensor(integral)
 
     @supports(multiple_limits=True)
-    def _partial_integrate(self, x, limits, norm):
+    def _partial_integrate(self, x, limits, norm, *, options):
 
         pdfs = self.pdfs
         fracs = self.fracs
 
-        partial_integral = [pdf.partial_integrate(x=x, limits=limits) * frac  # do NOT propagate the norm_range!
+        # do NOT propagate the norm_range!
+        partial_integral = [pdf.partial_integrate(x=x, limits=limits, options=options) * frac
                             for pdf, frac in zip(pdfs, fracs)]
         partial_integral = sum(partial_integral)
         return z.convert_to_tensor(partial_integral)
 
     @supports(multiple_limits=True)
-    def _partial_analytic_integrate(self, x, limits, norm):
+    def _partial_analytic_integrate(self, x, limits, norm, options):
         pdfs = self.pdfs
         fracs = self.fracs
         try:
@@ -321,12 +322,12 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
             raise SpecificFunctionNotImplemented
 
     @supports(norm=False)
-    def _integrate(self, limits, norm):
+    def _integrate(self, limits, norm, options):
         if not self._prod_is_same_obs_pdf:
             integrals = []
             for pdf in self._prod_disjoint_obs_pdfs:
                 limit = limits.with_obs(pdf.obs)
-                integrals.append(pdf.integrate(limits=limit, norm=norm))
+                integrals.append(pdf.integrate(limits=limit, norm=norm, options=options))
             integral = functools.reduce(operator.mul, integrals)
             return z.convert_to_tensor(integral)
         else:
@@ -350,7 +351,7 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
         return z.convert_to_tensor(integral)
 
     @supports(multiple_limits=True, norm=True)
-    def _partial_integrate(self, x, limits, norm):
+    def _partial_integrate(self, x, limits, norm, *, options):
         if self._prod_is_same_obs_pdf:
             raise SpecificFunctionNotImplemented
         pdfs = self._prod_disjoint_obs_pdfs
@@ -360,9 +361,9 @@ class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disass
             intersection_limits = set(pdf.obs).intersection(limits.obs)
             intersection_data = set(pdf.obs).intersection(x.obs)
             if intersection_limits and not intersection_data:
-                values.append(pdf.integrate(limits=limits, norm=norm))
+                values.append(pdf.integrate(limits=limits, norm=norm, options=options))
             elif intersection_limits:  # implicitly "and intersection_data"
-                values.append(pdf.partial_integrate(x=x, limits=limits, norm=norm))
+                values.append(pdf.partial_integrate(x=x, limits=limits, options=options))
             else:
                 assert not intersection_limits and intersection_data, "Something slipped, the logic is flawed."
                 values.append(pdf.pdf(x, norm_range=norm))

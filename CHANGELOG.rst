@@ -16,8 +16,10 @@ Major Features and Improvements
 Breaking changes
 ------------------
 
-- params given in ComposedParameters are not sorted anymore. Rely on their name intead
+- params given in ComposedParameters are not sorted anymore. Rely on their name instead
   (kwargs)
+- `norm_range` is now called `norm` and should be replaced everywhere if possible. This will break in
+  the future.
 
 Depreceations
 -------------

@@ -667,7 +667,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         else:
             warnings.warn("The function of composed parameters should take a single argument, a mapping."
                           " If you see this, the code may be broken and returns wrong values (it should not,"
-                          " but may does).")
+                          " but may does).", stacklevel=2)
             value = self._value_fn(*params.values())
         return tf.convert_to_tensor(value, dtype=self.dtype)
 
