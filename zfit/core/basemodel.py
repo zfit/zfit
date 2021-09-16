@@ -383,7 +383,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _call_integrate(self, limits, norm):
 
         with suppress(FunctionNotImplemented):
-            return self._integrate(limits=limits, norm=norm)
+            return self._integrate(limits, norm)
         with suppress(AnalyticIntegralNotImplemented):
             return self._hook_analytic_integrate(limits=limits, norm=norm)
         return self._fallback_integrate(limits=limits, norm=norm)
@@ -517,7 +517,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _call_analytic_integrate(self, limits, norm):
         with suppress(FunctionNotImplemented, AnalyticIntegralNotImplemented):
-            return self._analytic_integrate(limits=limits, norm=norm)
+            return self._analytic_integrate(limits, norm)
         return self._fallback_analytic_integrate(limits=limits, norm=norm)
 
     def _fallback_analytic_integrate(self, limits, norm):
@@ -578,7 +578,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _call_numeric_integrate(self, limits, norm):
         with suppress(FunctionNotImplemented):
-            return self._numeric_integrate(limits=limits, norm=norm)
+            return self._numeric_integrate(limits, norm)
         return self._fallback_numeric_integrate(limits=limits, norm=norm)
 
     def _fallback_numeric_integrate(self, limits, norm):
