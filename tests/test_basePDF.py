@@ -362,8 +362,8 @@ def test_projection_pdf(test_values):
     obs = x * y
     from zfit.models.special import SimplePDF
     gauss_xy = SimplePDF(func=correlated_func, obs=obs)
-    assert gauss_xy.create_projection_pdf(limits_to_integrate=y).norm_range == x
-    proj_pdf = gauss_xy.create_projection_pdf(limits_to_integrate=y)
+    assert gauss_xy.create_projection_pdf(limits=y).norm_range == x
+    proj_pdf = gauss_xy.create_projection_pdf(limits=y)
     test_values = znp.array([-0.95603563, -0.84636306, -0.83895759, 2.62608006, 1.02336499,
                              -0.99631608, -1.22185623, 0.83838586, 2.77894762, -2.48259488,
                              1.5440374, 0.1109899, 0.20873491, -2.45271623, 2.04510553,

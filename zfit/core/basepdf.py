@@ -70,7 +70,7 @@ from .space import Space
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
-from ..util.deprecation import deprecated, deprecated_norm_range
+from ..util.deprecation import deprecated, deprecated_norm_range, deprecated_args
 from ..util.exception import (AlreadyExtendedPDFError, BreakingAPIChangeError,
                               FunctionNotImplemented, NotExtendedPDFError,
                               NormNotImplemented,
@@ -583,24 +583,30 @@ class BasePDF(ZfitPDF, BaseModel):
                 raise NotExtendedPDFError("PDF is not extended but only yield parameters were requested.")
         return params
 
-    def create_projection_pdf(self, limits_to_integrate: ztyping.LimitsTypeInput) -> 'ZfitPDF':
+    @deprecated_args(None, "Use `limits` instead.", 'limits_to_integrate')
+    def create_projection_pdf(self, limits: ztyping.LimitsTypeInput, *, options=None,
+                              limits_to_integrate=None) -> 'ZfitPDF':
         """Create a PDF projection by integrating out some of the dimensions.
 
         The new projection pdf is still fully dependent on the pdf it was created with.
 
         Args:
-            limits_to_integrate:
+            * ():
+            options ():
+            limits:
 
         Returns:
             A pdf without the dimensions from `limits_to_integrate`.
         """
         from ..models.special import SimpleFunctorPDF
+        if limits_to_integrate is not None:
+            limits = limits_to_integrate
 
         def partial_integrate_wrapped(self_simple, x):
-            return self.partial_integrate(x, limits=limits_to_integrate, options=options)
+            return self.partial_integrate(x, limits=limits, options=options)
 
         new_pdf = SimpleFunctorPDF(obs=self.space.get_subspace(obs=[obs for obs in self.obs
-                                                                    if obs not in limits_to_integrate.obs]),
+                                                                    if obs not in limits.obs]),
                                    pdfs=(self,),
                                    func=partial_integrate_wrapped)
         return new_pdf

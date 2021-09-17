@@ -15,6 +15,8 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
     def __init__(self, pdf, obs=None):
         if pdf.is_extended:
             extended = pdf.get_yield()
+        else:
+            extended = None
         if obs is None:
             obs = pdf.space
             obs = obs.with_binning(None)

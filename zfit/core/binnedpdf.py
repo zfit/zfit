@@ -245,7 +245,7 @@ class BaseBinnedPDFV1(
         return self._unnormalized_pdf(x)
 
     @_BinnedPDF_register_check_support(True)
-    def _ext_pdf(self, x, norm, *, norm_range=None):
+    def _ext_pdf(self, x, norm):
         raise SpecificFunctionNotImplemented
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
