@@ -18,6 +18,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- fixed a longstanding bug in the DoubleCB implementation of the integral.
 
 Experimental
 ------------
