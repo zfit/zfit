@@ -56,7 +56,7 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         return self.pdfs[0].integrate(limits, norm=norm, options=options)
 
     @supports(norm=True, multiple_limits=True)
-    def _ext_integrate(self, limits, norm):
+    def _ext_integrate(self, limits, norm, options):
         return self.pdfs[0].ext_integrate(limits, norm=norm, options=options)
 
     @supports(norm=True, multiple_limits=True)
@@ -81,6 +81,7 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
 
         counts_flat = znp.reshape(sample.values(), (-1,))
+        counts_flat = tf.cast(counts_flat, znp.int32)  # TODO: what if we have fractions?
         lower_flat_repeated = tf.repeat(lower_flat, counts_flat, axis=0)
         upper_flat_repeated = tf.repeat(upper_flat, counts_flat, axis=0)
         sample_unbinned = tf.random.uniform((znp.sum(counts_flat), ndim),

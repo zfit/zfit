@@ -12,7 +12,7 @@ from .strategy import ZfitStrategy
 from .termination import EDM, ConvergenceCriterion
 from .. import z
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import Parameter, assign_values
+from ..core.parameter import Parameter, assign_values, assign_values_jit
 from ..settings import run
 from ..util.cache import GraphCachable
 from ..util.deprecation import deprecated_args

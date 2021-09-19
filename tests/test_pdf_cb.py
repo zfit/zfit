@@ -65,6 +65,15 @@ def test_cb_integral():
 
     assert pytest.approx(integral_numeric, integral, 1e-5)
 
+    rnd_limits = sorted(np.random.uniform(*bounds, 13))
+    integrals = []
+    for low, up in zip(rnd_limits[:-1], rnd_limits[1:]):
+        integrals.append(cbl.integrate((low, up), norm=False))
+
+    integral = np.sum(integrals)
+    integral_full = zfit.run(cbl.integrate(bounds, norm=False))
+    assert pytest.approx(integral_full, integral)
+
 
 def test_cb_dcb():
     obs = zfit.Space('x', limits=bounds)
@@ -130,3 +139,12 @@ def test_cb_dcb():
 
     assert np.allclose(ratio_l, ratio_l[0])
     assert np.allclose(ratio_r, ratio_r[0])
+
+    rnd_limits = sorted(np.random.uniform(*bounds, 130))
+    integrals = []
+    for low, up in zip(rnd_limits[:-1], rnd_limits[1:]):
+        integrals.append(dcb.integrate((low, up), norm=False))
+
+        integral = np.sum(integrals)
+        integral_full = zfit.run(dcb.integrate((bounds[0], up), norm=False))
+        assert pytest.approx(integral_full, integral)

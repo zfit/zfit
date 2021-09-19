@@ -45,7 +45,7 @@ def sample_with_replacement(a: tf.Tensor, axis: int, sample_shape: Tuple[int]) -
 
 
 def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union[float, tf.Tensor]] = None,
-                       logits: Iterable[Union[float, tf.Tensor]] = None, dtype=tf.int64) -> tf.Tensor:
+                       logits: Iterable[Union[float, tf.Tensor]] = None, dtype=tf.int32) -> tf.Tensor:
     """Get the number of counts for different classes with given probs/logits.
 
     Args:
@@ -77,20 +77,23 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
     # total_count = tf.broadcast_to(total_count, shape=probs_logits_shape)
 
     # @function
-    def wrapped_func(dtype, logits, probs, total_count):
-        if probs is not None:
-            shape = probs.shape
-            probs = znp.reshape(probs, [-1])
-        else:
-            shape = logits.shape
-            logits = znp.reshape(logits, [-1])
-        dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
-        counts_flat = dist.sample()
-        counts_flat = tf.cast(counts_flat, dtype=dtype)
-        counts = znp.reshape(counts_flat, shape)
-        return counts
 
-    return wrapped_func(dtype, logits, probs, total_count)
+    return _wrapped_multinomial_func(dtype, logits, probs, total_count)
+
+
+@function(wraps='tensor')
+def _wrapped_multinomial_func(dtype, logits, probs, total_count):
+    if probs is not None:
+        shape = probs.shape
+        probs = znp.reshape(probs, [-1])
+    else:
+        shape = logits.shape
+        logits = znp.reshape(logits, [-1])
+    dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
+    counts_flat = dist.sample()
+    counts_flat = tf.cast(counts_flat, dtype=dtype)
+    counts = znp.reshape(counts_flat, shape)
+    return counts
 
 
 @wraps(tf.random.normal)

@@ -2,6 +2,7 @@
 from typing import Iterable, Optional, Union
 
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 from .. import z
 from ..core.interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitPDF, ZfitData
@@ -11,6 +12,8 @@ from ..util.checks import NONE
 from ..z import numpy as znp
 
 z.function(wraps='tensor')
+
+
 def _spd_transform(values, probs, variances):
     # Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
     scale = values * tf.math.reciprocal_no_nan(variances)
@@ -25,8 +28,23 @@ def poisson_loss_calc(probs, values, log_offset, variances=None):
     probs += znp.asarray(1e-307, dtype=znp.float64)
     poisson_term = tf.nn.log_poisson_loss(values,  # TODO: correct offset
                                           znp.log(
-                                              probs)) + log_offset
+                                              probs), compute_full_loss=False)  # TODO: optimization?
+    if log_offset is not None:
+        poisson_term += log_offset
     return poisson_term
+
+
+# @z.function(wraps='tensor')
+# def poisson_loss_calc(probs, values, log_offset, variances=None):
+#     if variances is not None:
+#         values, probs = _spd_transform(values, probs, variances=variances)
+#     values += znp.asarray(1e-307, dtype=znp.float64)
+#     probs += znp.asarray(1e-307, dtype=znp.float64)
+#     poisson_term =  - tfp.distributions.Poisson(
+#         rate=values, force_probs_to_zero_outside_support=False).log_prob(probs)
+#     if log_offset is not None:
+#         poisson_term += log_offset
+#     return poisson_term
 
 
 class BaseBinnedNLL(BaseLoss):

@@ -16,8 +16,7 @@ Major Features and Improvements
 Breaking changes
 ------------------
 
-- params given in ComposedParameters are not sorted anymore. Rely on their name instead
-  (kwargs)
+- params given in ComposedParameters are not sorted anymore. Rely on their name instead.
 - `norm_range` is now called `norm` and should be replaced everywhere if possible. This will break in
   the future.
 
@@ -26,6 +25,7 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- remove warning when using `rect_limits` or similar.
 
 Experimental
 ------------

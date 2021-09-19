@@ -13,6 +13,7 @@ pip>=9.0.1
 pre-commit
 pydata-sphinx-theme>=0.6.2  # fix for Jinja
 pygit2
+pyhf
 pyyaml
 seed_intersphinx_mapping
 setupext-janitor

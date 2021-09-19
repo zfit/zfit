@@ -18,7 +18,7 @@ from ordered_set import OrderedSet
 from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 
-from ..core.interfaces import ZfitIndependentParameter, ZfitLoss, ZfitParameter
+from ..core.interfaces import ZfitIndependentParameter, ZfitLoss, ZfitParameter, ZfitData
 from ..core.parameter import assign_values
 from ..settings import run
 from ..util.container import convert_to_container
@@ -164,7 +164,7 @@ def _covariance_minuit(result, params):
 
 
 def _covariance_np(result, params):
-    if any(data.weights is not None for data in result.loss.data):
+    if any(isinstance(data, ZfitData) and data.weights is not None for data in result.loss.data):
         warnings.warn("The computation of the covariance matrix with weights is still experimental.",
                       ExperimentalFeatureWarning)
 
@@ -183,7 +183,7 @@ def _covariance_np(result, params):
 
 
 def _covariance_approx(result, params):
-    if any(data.weights is not None for data in result.loss.data):
+    if any(isinstance(data, ZfitData) and data.weights is not None for data in result.loss.data):
         warnings.warn("Approximate covariance/hesse estimation with weights is not supported, returning None",
                       RuntimeWarning)
     covariance_dict = {}
@@ -1205,7 +1205,7 @@ class FitResult(ZfitResult):
 
         params = list(self.params.keys())
 
-        if any(data.weights is not None for data in self.loss.data):
+        if any(isinstance(data, ZfitData) and data.weights is not None for data in self.loss.data):
             return covariance_with_weights(method=method, result=self, params=params)
         else:
             return method(result=self, params=params)

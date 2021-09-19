@@ -7,7 +7,7 @@ from typing import Callable, Mapping, Optional, Union
 import nlopt
 import numpy as np
 
-from ..core.parameter import assign_values, set_values
+from ..core.parameter import assign_values, set_values, assign_values_jit
 from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (NOT_SUPPORTED, BaseMinimizer, minimize_supports,

@@ -4,7 +4,7 @@ from typing import List
 import numpy as np
 import tensorflow as tf
 
-from .. import z
+from .. import z, convert_to_parameter
 from ..util.deprecation import deprecated_norm_range
 from ..z import numpy as znp
 from ..core.binnedpdf import BaseBinnedPDFV1
@@ -32,7 +32,17 @@ class BinnedSumPDFV1(FunctorMixin, BaseBinnedPDFV1):
 
         if not all(model.is_extended for model in self.models):
             raise RuntimeError
-        self._set_yield(tf.reduce_sum([m.get_yield() for m in self.models]))
+        yields = [pdf.get_yield() for pdf in self.models]
+
+        def sum_yields_func():
+            return znp.sum(
+                [tf.convert_to_tensor(value=y, dtype_hint=znp.float64) for y in yields])
+
+        sum_yields = convert_to_parameter(sum_yields_func, params=yields)
+        yield_fracs = [convert_to_parameter(lambda sum_yields, yield_: yield_ / sum_yields,
+                                            params=[sum_yields, yield_])
+                       for yield_ in yields]
+        self._set_yield(sum_yields)
 
     @property
     def _models(self) -> List[ZfitModel]:

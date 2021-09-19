@@ -8,7 +8,7 @@ import numpy as np
 import scipy.optimize
 from scipy.optimize import BFGS, HessianUpdateStrategy
 
-from ..core.parameter import assign_values
+from ..core.parameter import assign_values, assign_values_jit
 from ..settings import run
 from ..util.container import convert_to_container
 from ..util.exception import MaximumIterationReached

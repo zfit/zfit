@@ -187,9 +187,9 @@ def test_binned_template_pdf_bbfull():
     counts_data *= 1.1
     data = BinnedDataV1.from_tensor(space=obs, values=counts_data)
 
-    pdf1 = BinnedTemplatePDFV1(data=mc1)
-    pdf2 = BinnedTemplatePDFV1(data=mc2)
-    pdf3 = BinnedTemplatePDFV1(data=mc3)
+    pdf1 = BinnedTemplatePDFV1(data=mc1, sysshape=True)
+    pdf2 = BinnedTemplatePDFV1(data=mc2, sysshape=True)
+    pdf3 = BinnedTemplatePDFV1(data=mc3, sysshape=True)
     assert len(pdf1.counts()) > 0
     pdf_sum = BinnedSumPDFV1(pdfs=[pdf1, pdf2, pdf3], obs=obs)
     counts1_flat = np.reshape(counts1, -1)

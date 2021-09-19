@@ -65,6 +65,7 @@ def numeric_integrate():
 
 def simpson_integrate(func, limits, num_points):  # currently not vectorized
     integrals = []
+    num_points = tf.cast(num_points, znp.int32)
     num_points += num_points % 2 + 1  # sanitize number of points
     for space in limits:
         lower, upper = space.rect_limits

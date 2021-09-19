@@ -1,4 +1,7 @@
 #  Copyright (c) 2020 zfit
+import time
+
+import hist
 import mplhep
 import numpy as np
 import pytest
@@ -243,7 +246,7 @@ def create_gauss2d_binned(n, nbins=130):
 
 
 def test_binned_from_unbinned_2D():
-    # zfit.run.set_graph_mode(True)
+    zfit.run.set_graph_mode(True)
     n = 100000
 
     mu = zfit.Parameter('mu', 1, 0, 19)
@@ -251,18 +254,37 @@ def test_binned_from_unbinned_2D():
     obsx = zfit.Space('x', (-5, 10))
     obsy = zfit.Space('y', (-50, 100))
     gaussx = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obsx)
-    gaussy = zfit.pdf.Gauss(mu=mu, sigma=sigma * 20, obs=obsy)
+    muy = mu + 3
+    sigmay = sigma * 20
+    gaussy = zfit.pdf.Gauss(mu=muy, sigma=sigmay, obs=obsy)
     gauss2D = zfit.pdf.ProductPDF([gaussx, gaussy])
 
-    normal = np.random.normal(float(mu), float(sigma), size=500)
     axisx = zfit.binned.Variable(np.concatenate([np.linspace(-5, 5, 43), np.linspace(5, 10, 30)[1:]], axis=0), name="x")
+    axisxhist = hist.axis.Variable(np.concatenate([np.linspace(-5, 5, 43), np.linspace(5, 10, 30)[1:]], axis=0),
+                                   name="x")
     axisy = zfit.binned.Regular(15, -50, 100, name='y')
+    axisyhist = hist.axis.Regular(15, -50, 100, name='y')
     obs_binnedx = zfit.Space(['x'], binning=axisx)
     obs_binnedy = zfit.Space('y', binning=axisy)
     obs_binned = obs_binnedx * obs_binnedy
 
     gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss2D, space=obs_binned, extended=n)
     values = gauss_binned.rel_counts(obs_binned)  # TODO: good test?
+    start = time.time()
+    ntrial = 10
+    for _ in range(ntrial):
+        values = gauss_binned.rel_counts(obs_binned)
+    print(f"Time taken {(time.time() - start) / ntrial}")
+    hist2d = hist.Hist(axisxhist, axisyhist)
+    nruns = 5
+    npoints = 5_000_000
+    for _ in range(nruns):
+        normal2d = np.random.normal([float(mu), float(muy)], [float(sigma), float(sigmay)], size=(npoints, 2))
+        hist2d.fill(*normal2d.T, threads=4)
+
+    diff = np.abs(values * hist2d.sum() - hist2d.counts()) - 6.5 * np.sqrt(hist2d.counts())  # 5 sigma for 1000 bins
+    print(diff)
+    np.testing.assert_array_less(diff, 0)
 
     sample = gauss_binned.sample(n, limits=obs_binned)
     hist_sampled = sample.to_hist()

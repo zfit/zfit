@@ -115,7 +115,9 @@ def test_integrate():
     mu1, mu2 = 0, 1.7
     frac = 0.7
 
-    obs = zfit.Space('obs1', (mu1 - 0.5, mu2 + 1))
+    lower = mu1 - 0.5
+    upper = mu2 + 1
+    obs = zfit.Space('obs1', (lower, upper))
     limits = zfit.Space('obs1', (mu1 - 0.3, mu2 + 0.1))
     gauss1 = zfit.pdf.Gauss(obs=obs, mu=mu1, sigma=0.93)
     gauss2 = zfit.pdf.Gauss(obs=obs, mu=mu2, sigma=1.2)
@@ -135,3 +137,12 @@ def test_integrate():
     analytic_integral = sumpdf.analytic_integrate(limits=limits, norm=False).numpy()
 
     assert integral_true == pytest.approx(analytic_integral, rel=0.03)
+
+    rnd_limits = sorted(np.random.uniform(lower, upper, 10))
+    integrals = []
+    for low, up in zip(rnd_limits[:-1], rnd_limits[1:]):
+        integrals.append(sumpdf.integrate((low, up), norm=False))
+
+    integral = np.sum(integrals)
+    integral_full = zfit.run(sumpdf.integrate((lower, upper), norm=False))
+    assert pytest.approx(integral_full, integral)

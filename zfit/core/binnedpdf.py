@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Callable
 #  Copyright (c) 2021 zfit
 from contextlib import suppress
-from typing import Optional
+from typing import Optional, Set
 
 import numpy as np
 import tensorflow as tf
@@ -14,7 +14,7 @@ import zfit
 import zfit.z.numpy as znp
 from zfit import z
 from zfit._data.binneddatav1 import BinnedDataV1, move_axis_obs
-from .baseobject import BaseNumeric
+from .baseobject import BaseNumeric, extract_filter_params
 from .binning import unbinned_to_binindex
 from .data import Data
 from .dimension import BaseDimensional
@@ -147,6 +147,24 @@ class BaseBinnedPDFV1(
     def _get_dependencies(self) -> ztyping.DependentsType:
         return super()._get_dependencies()
 
+    def _get_params(self,
+                    floating: bool | None = True,
+                    is_yield: bool | None = None,
+                    extract_independent: bool | None = True) -> set[ZfitParameter]:
+
+        params = super()._get_params(floating, is_yield=is_yield,
+                                     extract_independent=extract_independent)
+
+        if is_yield is not False:
+            if self.is_extended:
+                yield_params = extract_filter_params(self.get_yield(), floating=floating,
+                                                     extract_independent=extract_independent)
+                yield_params.update(params)  # putting the yields at the beginning
+                params = yield_params
+            elif is_yield is True:
+                raise NotExtendedPDFError("PDF is not extended but only yield parameters were requested.")
+        return params
+
     def _convert_input_binned_x(self, x, none_is_space=None):
         if x is None and none_is_space:
             return self.space
@@ -218,6 +236,7 @@ class BaseBinnedPDFV1(
             ordered_values = move_axis_obs(self.space, original_space, values)
         return ordered_values
 
+    @z.function(wraps='model')
     def _call_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_pdf(x, norm)
@@ -228,14 +247,14 @@ class BaseBinnedPDFV1(
             pdf = self._pdf(x, norm=norm)
         except NormNotImplemented:
             unnormed_pdf = self._pdf(x, norm=False)
-            normalization = self.normalization(norm, options=options)
+            normalization = self.normalization(norm)
             pdf = unnormed_pdf / normalization
         return pdf
 
     def _fallback_pdf(self, x, norm):
         values = self._call_unnormalized_pdf(x)
         if norm is not False:
-            values = values / self.normalization(norm, options=options)
+            values = values / self.normalization(norm)
         return values
 
     def _unnormalized_pdf(self, x):
@@ -278,6 +297,7 @@ class BaseBinnedPDFV1(
             ordered_values = move_axis_obs(self.space, original_space, values)
         return ordered_values
 
+    @z.function(wraps='model')
     def _call_ext_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_pdf(x, norm)
@@ -326,6 +346,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         return self._call_integrate(limits, norm, options)
 
+    @z.function(wraps='model')
     def _call_integrate(self, limits, norm, options=None):
         if options is None:
             options = {}
@@ -363,6 +384,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         return self._call_ext_integrate(limits, norm, options=options)
 
+    @z.function(wraps='model')
     def _call_ext_integrate(self, limits, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_integrate(limits, norm, options=options)
@@ -406,6 +428,7 @@ class BaseBinnedPDFV1(
             values = values.with_obs(original_limits)
         return values
 
+    @z.function(wraps='model')
     def _call_sample(self, n, limits):
         with suppress(SpecificFunctionNotImplemented):
             self._sample(n, limits)
@@ -419,7 +442,7 @@ class BaseBinnedPDFV1(
         probs = self.rel_counts(limits,
                                 norm=False)
         probs /= znp.sum(probs)  # TODO: should we just ask for the normed? or what is better?
-        values = z.random.counts_multinomial(n, probs=probs)
+        values = z.random.counts_multinomial(n, probs=probs, dtype=tf.float64)
         return values
 
     # ZfitMinimalHist implementation
@@ -512,6 +535,7 @@ class BaseBinnedPDFV1(
             space = space.with_coords(self.space, allow_superset=True, allow_subset=True)
         return space
 
+    @z.function(wraps='model')
     def counts(self, x=None, norm=None):  # TODO: x preprocessing and sorting
         if not self.is_extended:
             raise NotExtendedPDFError
@@ -522,6 +546,7 @@ class BaseBinnedPDFV1(
         counts = self._call_counts(x, norm)
         return move_axis_obs(self.space, space, counts)
 
+    @z.function(wraps='model')
     def _call_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_counts(x, norm)
@@ -560,6 +585,7 @@ class BaseBinnedPDFV1(
     def _counts(self, x, norm):
         raise SpecificFunctionNotImplemented
 
+    @z.function(wraps='model')
     def rel_counts(self, x=None, norm=None):
         x = self._convert_input_binned_x(x, none_is_space=True)
         space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
@@ -568,6 +594,7 @@ class BaseBinnedPDFV1(
         values = self._call_rel_counts(x, norm)
         return move_axis_obs(self.space, space, values)
 
+    @z.function(wraps='model')
     def _call_rel_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_rel_counts(x, norm=norm)

@@ -99,7 +99,6 @@ ANY_UPPER = AnyUpper()
 
 # TODO(warning): set a changeable warning system in zfit
 def warn_or_fail_not_rect(func):
-    warned = False
 
     def wrapped_func(*args, **kwargs):
         self = args[0]
@@ -108,14 +107,6 @@ def warn_or_fail_not_rect(func):
                                f" not rectangular limits. Use `rect_*` functions to obtain the"
                                f" rectangular limits/area or `inside`/`filter` to test if values are"
                                f" inside of the space.")
-        nonlocal warned
-        if not warned:
-            warnings.warn(f"The function {func} may does not return the actual area/limits"
-                          f" but rather the rectangular limits. {self} can also have functional"
-                          f" limits that are arbitrarily defined and lay inside the rect_limits."
-                          f" To test if a value is inside, use `inside` or `filter`.",
-                          stacklevel=2)
-            warned = True
         return func(*args, **kwargs)
 
     return wrapped_func

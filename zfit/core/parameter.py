@@ -1,10 +1,10 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2021 zfit
 import abc
-import collections.abc
 import functools
 import warnings
 from contextlib import suppress
+import collections
 from inspect import signature
 from typing import Callable, Dict, Iterable, List, Optional, Set, Union
 from weakref import WeakValueDictionary
@@ -665,10 +665,17 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         if len(parameters) == 1 and (len(params) > 1 or 'params' in parameters):
             value = self._value_fn(params)
         else:
-            warnings.warn("The function of composed parameters should take a single argument, a mapping."
-                          " If you see this, the code may be broken and returns wrong values (it should not,"
-                          " but may does).", stacklevel=2)
-            value = self._value_fn(*params.values())
+            # TODO: should we advertise the below?
+            # warnings.warn("The function of composed parameters should take a single argument, a mapping."
+            #               "For example, one parameter called `params`, which is a dict that contains all other"
+            #               "parameters."
+            #               " If you see this, the code may be broken and returns wrong values (it should not,"
+            #               " but may does).", stacklevel=1)
+            if self._composed_param_original_order is None:  # TODO: this is a temp fix for legacy behavior
+                raise RuntimeError("This should not be reached. To fix this, make sure that the params to"
+                                   " ComposedParameter are a dict.")
+            params = self._composed_param_original_order  # to make sure we have the right order
+            value = self._value_fn(*params)
         return tf.convert_to_tensor(value, dtype=self.dtype)
 
     def read_value(self):
@@ -769,6 +776,10 @@ class ComposedParameter(BaseComposedParameter):
             params = dependents
         elif params is NotSpecified:
             raise ValueError
+        if not isinstance(params, collections.Mapping):
+            self._composed_param_original_order = convert_to_container(params)
+        else:
+            self._composed_param_original_order = None
         if isinstance(params, dict):
             params_dict = params
         else:
@@ -894,7 +905,7 @@ def convert_to_parameters(value,
                           step_size=None):
     if prefer_constant is None:
         prefer_constant = True
-    if isinstance(value, collections.abc.Mapping):
+    if isinstance(value, collections.Mapping):
         return convert_to_parameters(**value, prefer_constant=False)
     value = convert_to_container(value)
     is_param_already = [isinstance(val, ZfitIndependentParameter) for val in value]
@@ -923,6 +934,7 @@ def convert_to_parameters(value,
     return params
 
 
+@deprecated_args(None, 'Use `params` instead.', 'dependents')
 def convert_to_parameter(value,
                          name: Optional[str] = None,
                          prefer_constant: bool = True,
@@ -999,7 +1011,7 @@ def convert_to_parameter(value,
     return value
 
 
-@z.function(wraps='assign')
+@tf.function
 def assign_values_jit(params: Union[Parameter, Iterable[Parameter]],
                       values: Union[ztyping.NumericalScalarType,
                                     Iterable[ztyping.NumericalScalarType]],

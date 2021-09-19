@@ -154,13 +154,12 @@ class SumPDF(BaseFunctor):
         if all_extended and not fracs:
             yields = [pdf.get_yield() for pdf in pdfs]
 
-            def sum_yields_func():
-                return znp.sum(
-                    [tf.convert_to_tensor(value=y, dtype_hint=ztypes.float) for y in yields])
+            def sum_yields_func(params):
+                return znp.sum(list(params.values()))
 
-            sum_yields = convert_to_parameter(sum_yields_func, params=yields)
-            yield_fracs = [convert_to_parameter(lambda sum_yields, yield_: yield_ / sum_yields,
-                                                params=[sum_yields, yield_])
+            sum_yields = convert_to_parameter(sum_yields_func, params={f'yield_{i}': y for i, y in enumerate(yields)})
+            yield_fracs = [convert_to_parameter(lambda params: params['yield_'] / params['sum_yields'],
+                                                params={'sum_yields': sum_yields, 'yield_': yield_})
                            for yield_ in yields]
 
             fracs_cleaned = None

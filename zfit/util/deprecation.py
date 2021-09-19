@@ -7,8 +7,8 @@ __all__ = "deprecated", "deprecated_args", "deprecate_norm_range"  # noqa
 
 
 def deprecated_norm_range(func):
-    @deprecated_args(None, "Use `norm` instead.", "norm_range")
     @functools.wraps(func)
+    @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def wrapper(*args, norm=None, norm_range=None, **kwargs):
         if norm_range is not None:
             norm = norm_range

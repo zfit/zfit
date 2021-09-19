@@ -46,7 +46,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
     Returns:
         Gradients
     """
-    from ..core.parameter import assign_values
+    from ..core.parameter import assign_values, assign_values_jit
 
     params = convert_to_container(params)
 
@@ -107,7 +107,7 @@ def numerical_hessian(func: Optional[Callable],
     Returns:
         Hessian matrix
     """
-    from ..core.parameter import assign_values
+    from ..core.parameter import assign_values, assign_values_jit
 
     params = convert_to_container(params)
 

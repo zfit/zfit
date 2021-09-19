@@ -83,7 +83,6 @@ def test_binned_nll_simple():
     pdf = BinnedTemplatePDFV1(data=mc1)
     pdf2 = BinnedTemplatePDFV1(data=mc2)
     pdf3 = BinnedTemplatePDFV1(data=mc3)
-    # assert len(pdf.ext_pdf(None)) > 0
     pdf_sum = BinnedSumPDFV1(pdfs=[pdf, pdf2, pdf3], obs=obs)
 
     nll = zfit.loss.ExtendedBinnedNLL(pdf_sum, data=observed_data)
@@ -131,7 +130,7 @@ def test_binned_nll(weights):
     pytest.zfit_savefig()
     # plt.show()
     # mplhep.histplot(test_values_binned.to_hist() /  float(test_values_binned.nevents))
-    rel_error = 0.035 if weights is None else 0.15  # more fluctuating with weights
+    rel_error = 0.045 if weights is None else 0.15  # more fluctuating with weights
 
     assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np_shifted), abs=rel_error)
     assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np_shifted), abs=rel_error)
