@@ -136,10 +136,15 @@ def double_crystalball_mu_integral(limits, params, model):
 
 @z.function(wraps='zfit_tensor')
 def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower, upper):
-    integral_left = crystalball_integral_func(mu=mu, sigma=sigma, alpha=alphal, n=nl, lower=lower, upper=mu)
+    # mu_broadcast =
+    upper_of_lowerint = znp.minimum(mu, upper)
+    integral_left = crystalball_integral_func(mu=mu, sigma=sigma, alpha=alphal, n=nl, lower=lower,
+                                              upper=upper_of_lowerint)
     left = tf.where(tf.less(mu, lower), znp.zeros_like(integral_left), integral_left)
 
-    integral_right = crystalball_integral_func(mu=mu, sigma=sigma, alpha=-alphar, n=nr, lower=mu, upper=upper)
+    lower_of_upperint = znp.maximum(mu, lower)
+    integral_right = crystalball_integral_func(mu=mu, sigma=sigma, alpha=-alphar, n=nr, lower=lower_of_upperint,
+                                               upper=upper)
     right = tf.where(tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right)
 
     integral = left + right

@@ -2,7 +2,6 @@
 #  Copyright (c) 2021 zfit
 import abc
 import collections.abc
-import contextlib
 import functools
 import warnings
 from contextlib import suppress
@@ -589,9 +588,6 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
     def get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
                    extract_independent: Optional[bool] = True, only_floating=NotSpecified) -> Set["ZfitParameter"]:
         return extract_filter_params(self, floating=floating, extract_independent=False)
-
-    def __del__(self):
-        super().__del__()
 
     def __repr__(self):
         if tf.executing_eagerly():  # more explicit: we check for exactly this attribute, nothing inside numpy
