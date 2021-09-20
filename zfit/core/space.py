@@ -120,9 +120,7 @@ ANY_UPPER = AnyUpper()
 
 
 # TODO(warning): set a changeable warning system in zfit
-def warn_or_fail_not_rect(func):
-    warned = False
-
+def fail_not_rect(func):
     def wrapped_func(*args, **kwargs):
         self = args[0]
         if self.has_limits and not self.has_rect_limits:
@@ -130,14 +128,7 @@ def warn_or_fail_not_rect(func):
                                f" not rectangular limits. Use `rect_*` functions to obtain the"
                                f" rectangular limits/area or `inside`/`filter` to test if values are"
                                f" inside of the space.")
-        nonlocal warned
-        if not warned:
-            warnings.warn(f"The function {func} may does not return the actual area/limits"
-                          f" but rather the rectangular limits. {self} can also have functional"
-                          f" limits that are arbitrarily defined and lay inside the rect_limits."
-                          f" To test if a value is inside, use `inside` or `filter`.",
-                          stacklevel=2)
-            warned = True
+
         return func(*args, **kwargs)
 
     return wrapped_func
@@ -1235,7 +1226,7 @@ class Space(BaseSpace):
         return return_dict
 
     @property
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def limits(self) -> ztyping.LimitsTypeReturn:
         """Return the limits.
 
@@ -1421,7 +1412,7 @@ class Space(BaseSpace):
 
     @property
     @deprecated(date=None, instructions="Use `limits` instead.")
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def limit2d(self) -> Tuple[float, float, float, float]:
         """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
 
@@ -1452,7 +1443,7 @@ class Space(BaseSpace):
         raise BreakingAPIChangeError("This function is gone. Instead iterate through the space and get each limit out.")
 
     @property
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
 
@@ -1462,7 +1453,7 @@ class Space(BaseSpace):
         # raise BreakingAPIChangeError("Use rect_lower")
 
     @property
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def upper(self) -> ztyping.UpperTypeReturn:
         """Return the upper limits.
 
@@ -1796,7 +1787,7 @@ class Space(BaseSpace):
     def obs_axes(self):
         raise BreakingAPIChangeError
 
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def area(self) -> float:
         """Return the total area of all the limits and axes.
 
@@ -1844,7 +1835,7 @@ class Space(BaseSpace):
     @property  # TODO(discussion): depreceate 1d limits? or keep?
     # @deprecated(date=None, instructions="depreceated, use `rect_limits` instead which has a similar functionality"
     #                                     " Use `inside` to check if an Tensor is inside the limits.")
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def limit1d(self) -> Tuple[float, float]:
         """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
 
@@ -2331,7 +2322,7 @@ class MultiSpace(BaseSpace):
 
     # noinspection PyPropertyDefinition
     @property
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def limits(self) -> None:
         self._raise_limits_not_implemented()
 
@@ -2342,13 +2333,13 @@ class MultiSpace(BaseSpace):
 
     # noinspection PyPropertyDefinition
     @property
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def lower(self) -> None:
         self._raise_limits_not_implemented()
 
     # noinspection PyPropertyDefinition
     @property
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def upper(self) -> None:
         self._raise_limits_not_implemented()
 
@@ -2457,7 +2448,7 @@ class MultiSpace(BaseSpace):
                               name=name)
         return new_space
 
-    @warn_or_fail_not_rect
+    @fail_not_rect
     def area(self) -> float:
         return self.rect_area()
 
