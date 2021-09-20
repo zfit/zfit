@@ -4,32 +4,14 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
-========
 
-Major Features and Improvements
--------------------------------
-
-Breaking changes
-------------------
-
-Depreceations
--------------
+0.8.2 (20 Sep 2021)
+====================
 
 Bug fixes and small changes
 ---------------------------
 - fixed a longstanding bug in the DoubleCB implementation of the integral.
 - remove outdated deprecations
-
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
-
 
 0.8.1 (14. Sep. 2021)
 ======================
