@@ -26,6 +26,7 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 - remove warning when using `rect_limits` or similar.
+- fixed a longstanding bug in the DoubleCB implementation of the integral.
 
 Experimental
 ------------
