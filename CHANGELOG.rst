@@ -4,6 +4,7 @@ Changelog
 
 .. _newest-changelog:
 
+
 Develop
 ========
 
@@ -26,7 +27,6 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 - remove warning when using `rect_limits` or similar.
-- fixed a longstanding bug in the DoubleCB implementation of the integral.
 
 Experimental
 ------------
@@ -37,6 +37,14 @@ Requirement changes
 Thanks
 ------
 
+
+0.8.2 (20 Sep 2021)
+====================
+
+Bug fixes and small changes
+---------------------------
+- fixed a longstanding bug in the DoubleCB implementation of the integral.
+- remove outdated deprecations
 
 0.8.1 (14. Sep. 2021)
 ======================
