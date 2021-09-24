@@ -24,6 +24,14 @@ def test_binned_rect_integration(edges_bins1):
     assert pytest.approx(float(true_integral)) == float(integral)
 
 
+def test_partial_binned_rect_integration(edges_bins1):
+    edges, _, limits, limits_true, value_scaling, values = edges_bins1
+    limits = limits.with_obs(['a', 'c'])
+    integral = binned_rect_integration(density=values, edges=edges, limits=limits, axis=[0, 2])
+    # true_integral = limits_true.area() * value_scaling
+    # assert pytest.approx(float(true_integral)) == float(integral)
+
+
 @pytest.fixture()
 def edges_bins1():
     import zfit
@@ -34,7 +42,7 @@ def edges_bins1():
     num2 = 10
     num3 = 12
     value_scaling = 5.2
-    values = znp.ones(shape=(num1, num2, num3)) * value_scaling
+    values = znp.ones(shape=(num1 - 1, num2 - 1, num3 - 1)) * value_scaling
     edges3 = znp.linspace(lower3, upper3, num=num3)[None, None, ...]
     edges = [
         znp.linspace(0, 5, num=num1)[..., None, None],

@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Callable
 #  Copyright (c) 2021 zfit
 from contextlib import suppress
-from typing import Optional, Set
+from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -25,6 +25,7 @@ from .space import supports, convert_to_space
 from .tensorlike import OverloadableMixinValues, register_tensor_conversion
 from ..util import ztyping
 from ..util.cache import GraphCachable
+from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args, deprecated, deprecated_norm_range
 from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
                               SpaceIncompatibleError,
@@ -125,13 +126,13 @@ class BaseBinnedPDFV1(
     def axes(self):
         return self.space.binning
 
-    def to_data(self):
-        values = self.values()
+    def to_data(self, **kwargs):
+        values = self.values(**kwargs)
         data = BinnedDataV1.from_tensor(space=self.space, values=values)
         return data
 
-    def to_hist(self):
-        return self.to_data().to_hist()
+    def to_hist(self, **kwargs):
+        return self.to_data(**kwargs).to_hist()
 
     @property
     def space(self):
@@ -302,7 +303,7 @@ class BaseBinnedPDFV1(
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_pdf(x, norm)
         with suppress(SpecificFunctionNotImplemented):
-            return self._call_counts(x, norm=norm) / np.prod(self.space.binning.widths, axis=0)
+            return self._auto_counts(x, norm=norm) / np.prod(self.space.binning.widths, axis=0)
         return self._fallback_ext_pdf(x, norm=norm)
 
     def _auto_ext_pdf(self, x, norm):
@@ -455,7 +456,7 @@ class BaseBinnedPDFV1(
             return self.rel_counts(var)
 
     def update_integration_options(self, *args, **kwargs):
-        raise WorkInProgressError
+        raise RuntimeError("Integration options not available for BinnedPDF")
 
     def as_func(self, norm_range: ztyping.LimitsType = False):
         raise WorkInProgressError
@@ -471,14 +472,15 @@ class BaseBinnedPDFV1(
         raise WorkInProgressError
 
     def get_yield(self) -> ZfitParameter | None:
-        # TODO: catch
+        if not self.is_extended:
+            raise NotExtendedPDFError
         return self._yield
 
     @classmethod
     def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None, priority: int = 50, *,
                                    supports_norm: bool = False, supports_multiple_limits: bool = False,
                                    supports_norm_range):
-        raise WorkInProgressError
+        raise RuntimeError("analytic integral not available for BinnedPDF")
 
     def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, *, norm=None, options=None,
                           norm_range: ztyping.LimitsType = None) -> ztyping.XType:
@@ -713,11 +715,15 @@ class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):
 
 # TODO: extend with partial integration. Axis parameter?
 def binned_rect_integration(*,
-                            edges: Iterable[znp.array],
                             limits: ZfitSpace,
+                            edges: Iterable[znp.array],
                             counts: znp.array | None = None,
                             density: znp.array | None = None,
+                            axis: Iterable[int] | None = None,
                             ) -> tf.Tensor:
+    edges = convert_to_container(edges)
+    if not isinstance(limits, ZfitSpace):
+        raise TypeError(f"limits has to be a ZfitSpace, not {limits}.")
     if counts is not None:
         if density is not None:
             raise ValueError("Either specify 'counts' or 'density' but not both.")
@@ -728,7 +734,27 @@ def binned_rect_integration(*,
         values = density
     else:
         raise ValueError("Need to specify either 'counts' or 'density', not None.")
-    scaled_edges, (lower_bins, upper_bins) = cut_edges_and_bins(edges=edges, limits=limits)
+    ndims = values.shape.ndims
+    # partial = axis is not None and len(axis) < ndims
+    if axis is not None:
+        axis = convert_to_container(axis)
+        if len(axis) > ndims:
+            raise ValueError(f'axis {axis} is larger than values has ndims {values.shape}.')
+    else:
+        axis = list(range(ndims))
+    # edges_to_cut = [edges[ax] for ax in axis]
+
+    scaled_edges, (lower_bins, upper_bins) = cut_edges_and_bins(edges=edges, limits=limits, axis=axis)
+    # if partial:
+    #     scaled_edges_full = edges
+    #     for edge, ax in zip(scaled_edges, axis):
+    #         scaled_edges_full[ax] = edge
+    #     scaled_edges = scaled_edges_full
+    #     indices = tf.convert_to_tensor(axis)[:, None]
+    #     lower_bins = tf.scatter_nd(indices, lower_bins, shape=(ndims,))
+    #     upper_bins = tf.tensor_scatter_nd_update(tf.convert_to_tensor(values.shape),
+    #                                              indices, upper_bins)
+
     values_cut = tf.slice(values, lower_bins, (upper_bins - lower_bins))  # since limits are inclusive
     if is_density:
         rank = values.shape.rank
@@ -754,12 +780,12 @@ def binned_rect_integration(*,
         binareas = np.prod(binwidths, axis=0)  # needs to be np as znp or tf can't broadcast otherwise
 
         values_cut *= binareas
-    integral = tf.reduce_sum(values_cut, axis=limits.axes)
+    integral = tf.reduce_sum(values_cut, axis=axis)
     return integral
 
 
 @z.function(wraps='tensor')
-def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace) -> tuple[
+def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace, axis=None) -> tuple[
     list[znp.array], tuple[znp.array, znp.array]]:
     """Cut the *edges* according to *limits* and calculate the bins inside.
 
@@ -788,6 +814,8 @@ def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace) -> tuple[
             the highest bin which was still (partially) inside the limits **plus one** (so it's the index of the
             edge that is right outside).
     """
+    if axis is not None:
+        axis = convert_to_container(axis)
     cut_scaled_edges = []
     all_lower_bins = []
     all_upper_bins = []
@@ -800,40 +828,68 @@ def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace) -> tuple[
     lower_all = lower[0]
     upper_all = upper[0]
     rank = len(edges)
-    zero_bins = znp.zeros([rank], dtype=znp.int32)
+    # zero_bins = znp.zeros([rank], dtype=znp.int32)
+    current_axis = 0
     for i, edge in enumerate(edges):
         edge = znp.asarray(edge)
-        lower_i = lower_all[i, None]
-        edge_minimum = tf.gather(edge, indices=0, axis=i)
-        lower_i = znp.maximum(lower_i, edge_minimum)
-        upper_i = upper_all[i, None]
-        edge_maximum = tf.gather(edge, indices=tf.shape(edge)[i] - 1, axis=i)
-        upper_i = znp.minimum(upper_i, edge_maximum)
-        # we get the bins that are just one too far. Then we update this whole bin tensor with the actual edge.
-        # The bins index is the index below the value.
-        flat_edge = tf.reshape(edge, [-1])
-        lower_bin_float = tfp.stats.find_bins(lower_i, flat_edge,
-                                              extend_lower_interval=True,
-                                              extend_upper_interval=True)
-        lower_bin = tf.reshape(tf.cast(lower_bin_float, dtype=znp.int32), [-1])
-        lower_bins = tf.tensor_scatter_nd_update(zero_bins, [[i]], lower_bin)
-        # +1 below because the outer bin is searched, meaning the one that is higher than the value
+        if axis is None or i in axis:
 
-        upper_bin_float = tfp.stats.find_bins(upper_i, flat_edge,
-                                              extend_lower_interval=True,
-                                              extend_upper_interval=True)
-        upper_bin = tf.reshape(tf.cast(upper_bin_float, dtype=znp.int32), [-1])
-        upper_bin_p1 = upper_bin + 1
-        upper_bins = tf.tensor_scatter_nd_update(zero_bins, [[i]], upper_bin_p1)
-        size = upper_bins - lower_bins
-        new_edge = tf.slice(edge, lower_bins, size + 1)  # +1 because stop is exclusive
-        new_edge = tf.tensor_scatter_nd_update(new_edge, [zero_bins, size],
-                                               [tf.reshape(lower_i, [-1])[0], tf.reshape(upper_i, [-1])[0]])
-        all_lower_bins.append(lower_bins)
-        all_upper_bins.append(upper_bins)
+            edge = znp.reshape(edge, (-1,))
+            lower_i = lower_all[current_axis, None]
+            edge_minimum = edge[0]
+            # edge_minimum = tf.gather(edge, indices=0, axis=i)
+            lower_i = znp.maximum(lower_i, edge_minimum)
+            upper_i = upper_all[current_axis, None]
+            edge_maximum = edge[-1]
+            # edge_maximum = tf.gather(edge, indices=tf.shape(edge)[i] - 1, axis=i)
+            upper_i = znp.minimum(upper_i, edge_maximum)
+            # we get the bins that are just one too far. Then we update this whole bin tensor with the actual edge.
+            # The bins index is the index below the value.
+            lower_bin_float = tfp.stats.find_bins(lower_i, edge,
+                                                  extend_lower_interval=True,
+                                                  extend_upper_interval=True)
+            lower_bin = tf.reshape(tf.cast(lower_bin_float, dtype=znp.int32), [-1])
+            # lower_bins = tf.tensor_scatter_nd_update(zero_bins, [[i]], lower_bin)
+            # +1 below because the outer bin is searched, meaning the one that is higher than the value
+
+            upper_bin_float = tfp.stats.find_bins(upper_i, edge,
+                                                  extend_lower_interval=True,
+                                                  extend_upper_interval=True)
+            upper_bin = tf.reshape(tf.cast(upper_bin_float, dtype=znp.int32), [-1]) + 1
+            # upper_bin_p1 = upper_bin + 1
+            # upper_bins = tf.tensor_scatter_nd_update(zero_bins, [[i]], upper_bin_p1)
+            size = upper_bin - lower_bin
+            new_edge = tf.slice(edge, lower_bin, size + 1)  # +1 because stop is exclusive
+            # new_edge = tf.tensor_scatter_nd_update(new_edge, [0, size],
+            #                                        [tf.reshape(lower_i, [-1])[0], tf.reshape(upper_i, [-1])[0]])
+            new_edge = tf.tensor_scatter_nd_update(new_edge, [tf.constant([0]), size], [lower_i[0], upper_i[0]])
+
+            current_axis += 1
+        else:
+            lower_bin = [0]
+            upper_bin = znp.asarray([edge.shape[i] - 1], dtype=znp.int32)
+            new_edge = edge
+        new_shape = [1] * rank
+        new_shape[i] = -1
+        new_edge = znp.reshape(new_edge, new_shape)
+        all_lower_bins.append(lower_bin)
+        all_upper_bins.append(upper_bin)
         cut_scaled_edges.append(new_edge)
+
+    # partial = axis is not None and len(axis) < rank
+    #
+    # if partial:
+    #     scaled_edges_full = list(edges)
+    #     for edge, ax in zip(cut_scaled_edges, axis):
+    #         scaled_edges_full[ax] = edge
+    #     scaled_edges = scaled_edges_full
+    #     indices = tf.convert_to_tensor(axis)[:, None]
+    #     lower_bins = tf.scatter_nd(indices, lower_bins, shape=(ndims,))
+    #     upper_bins = tf.tensor_scatter_nd_update(tf.convert_to_tensor(values.shape),
+    #                                              indices, upper_bins)
     # lower_bins_indices = tf.stack([lower_bins, dims], axis=-1)
     # upper_bins_indices = tf.stack([upper_bins, dims], axis=-1)
-    all_lower_bins = tf.cast(znp.sum(all_lower_bins, axis=0), dtype=znp.int32)
-    all_upper_bins = tf.cast(znp.sum(all_upper_bins, axis=0), dtype=znp.int32)
+    # all_lower_bins = tf.cast(znp.sum(all_lower_bins, axis=0), dtype=znp.int32)
+    all_lower_bins = tf.concat(all_lower_bins, axis=0)
+    all_upper_bins = tf.concat(all_upper_bins, axis=0)
     return cut_scaled_edges, (all_lower_bins, all_upper_bins)
