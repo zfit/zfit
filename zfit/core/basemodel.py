@@ -827,9 +827,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         draws_per_dim = self.integration.draws_per_dim
         draws_simpson = self.integration.draws_simpson
         if is_binned:
-            draws_per_dim = max(draws_per_dim / 30, 10)
+            draws_per_dim = max(draws_per_dim // 30, 10)
             # draws_per_dim = 100
-            draws_simpson = max(draws_simpson / 30, 10)
+            draws_simpson = max(draws_simpson // 30, 10)
             # draws_simpson = 100
 
         integration_options = dict(func=func, limits=limits, n_axes=limits.n_obs, x=x,
