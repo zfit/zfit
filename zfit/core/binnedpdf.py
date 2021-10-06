@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import operator
 from collections.abc import Iterable, Callable
 #  Copyright (c) 2021 zfit
 from contextlib import suppress
-from typing import Optional
+from functools import reduce
 
 import numpy as np
 import tensorflow as tf
@@ -744,13 +745,15 @@ def binned_rect_integration(*,
     else:
         axis = list(range(ndims))
 
-    scaled_edges, (lower_bins, upper_bins), unscaled_edges = cut_edges_and_bins(edges=edges, limits=limits, axis=axis)
+    scaled_edges, (lower_bins, upper_bins), unscaled_edges = cut_edges_and_bins(edges=edges, limits=limits, axis=axis,
+                                                                                unscaled=True)
 
     values_cut = tf.slice(values, lower_bins, (upper_bins - lower_bins))  # since limits are inclusive
 
     rank = values.shape.rank
     binwidths = []
-    binwidths_unscaled = []
+    if not is_density:
+        binwidths_unscaled = []
     # calculate the binwidth in each dimension
     for i, edge in enumerate(scaled_edges):
         edge_lower_index = [0] * rank
@@ -777,7 +780,7 @@ def binned_rect_integration(*,
             upper_edge_unscaled = tf.slice(unscaled_edges[i], edge_lower_index, (edge_highest_index - edge_lower_index))
             binwidths_unscaled.append(upper_edge_unscaled - lower_edge_unscaled)
 
-    binareas = np.prod(binwidths, axis=0)  # needs to be np as znp or tf can't broadcast otherwise
+    binareas = reduce(operator.mul, binwidths)  # needs to be np as znp or tf can't broadcast otherwise
     if not is_density:  # scale the counts by the fraction. This is mostly one.
         binareas_uncut = np.prod(binwidths_unscaled, axis=0)
         binareas /= binareas_uncut

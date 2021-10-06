@@ -1,8 +1,8 @@
 #  Copyright (c) 2021 zfit
-import hist
 import numpy as np
 import pytest
 
+import zfit
 from zfit.core.binnedpdf import binned_rect_integration
 
 
@@ -17,15 +17,74 @@ def test_calculate_scaled_edges(edges_bins1):
 
 
 def test_binned_rect_integration(edges_bins1):
-    edges, _, limits, limits_true, value_scaling, values = edges_bins1
+    edges, true_scaled_edges, limits, limits_true, value_scaling, values = edges_bins1
 
     integral = binned_rect_integration(density=values, edges=edges, limits=limits)
     true_integral = limits_true.area() * value_scaling
     assert pytest.approx(float(true_integral)) == float(integral)
 
     # integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
-    # true_integral = limits_true.area() * value_scaling
+    # true_integral = value_scaling * np.prod([e.shape.num_elements()
+    #                                                               for e in true_scaled_edges])
     # assert pytest.approx(float(true_integral)) == float(integral)
+
+
+def test_binned_simple():
+    import zfit.z.numpy as znp
+
+    scaling = 0.2
+    values = znp.ones((2, 2)) * scaling
+    edges = [[0., 2.5, 5.], [1., 5., 9.]]
+    lim1 = zfit.Space('a', (0, 5))
+    lim2 = zfit.Space('b', (1, 9))
+    limits = lim1 * lim2
+    integral = binned_rect_integration(density=values, edges=edges, limits=limits)
+    true_integral = 5 * 8 * scaling  # area lim1, area lim2, scaling
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+    integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
+    true_integral = 4 * scaling  # 4 elements
+
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+
+def test_binned_simple_too_large():
+    import zfit.z.numpy as znp
+
+    scaling = 0.2
+    values = znp.ones((2, 2)) * scaling
+    edges = [[0., 2.5, 5.], [1., 5., 9.]]
+    lim1 = zfit.Space('a', (-1, 10))
+    lim2 = zfit.Space('b', (0.5, 19))
+    limits = lim1 * lim2
+    integral = binned_rect_integration(density=values, edges=edges, limits=limits)
+    true_integral = 5 * 8 * scaling  # area lim1, area lim2, scaling
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+    integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
+    true_integral = 4 * scaling  # 4 elements
+
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+
+def test_binned_simple_scaled():
+    import zfit.z.numpy as znp
+
+    scaling = 0.2
+    values = znp.ones((2, 2)) * scaling
+    reducefac = 0.8  # reduce the limits by a factor of 0.8
+    edges = [[0., 2.5, 5.], [1., 5., 9.]]
+    lim1 = zfit.Space('a', (0.5, 4.5))
+    lim2 = zfit.Space('b', (1.8, 8.2))
+    limits = lim1 * lim2
+    integral = binned_rect_integration(density=values, edges=edges, limits=limits)
+    true_integral = 5 * 8 * scaling * reducefac ** 2  # area lim1, area lim2, scaling
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+    integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
+    true_integral = (2 * reducefac) ** 2 * scaling  # 4 elements
+
+    assert pytest.approx(float(true_integral)) == float(integral)
 
 
 def test_partial_binned_rect_integration(edges_bins1):
