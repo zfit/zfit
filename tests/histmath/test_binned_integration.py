@@ -87,6 +87,26 @@ def test_binned_simple_scaled():
     assert pytest.approx(float(true_integral)) == float(integral)
 
 
+def test_binned_simple_scaled_asym():
+    import zfit.z.numpy as znp
+
+    scaling = 0.2
+    values = znp.ones((2, 2)) * scaling
+    reducefac = 0.85  # reduce the limits by a factor of 0.8
+    edges = [[0., 2.5, 5.], [1., 5., 9.]]
+    lim1 = zfit.Space('a', (0.25, 4.5))
+    lim2 = zfit.Space('b', (1.4, 8.2))
+    limits = lim1 * lim2
+    integral = binned_rect_integration(density=values, edges=edges, limits=limits)
+    true_integral = 5 * 8 * scaling * reducefac ** 2  # area lim1, area lim2, scaling
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+    integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
+    true_integral = (2 * reducefac) ** 2 * scaling  # 4 elements
+
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+
 def test_partial_binned_rect_integration(edges_bins1):
     edges, true_scaled_edges, limits, limits_true, value_scaling, values = edges_bins1
     limits_part = limits.with_obs(['a', 'c'])
