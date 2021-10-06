@@ -153,11 +153,11 @@ def hypotest_zfit(minimizer, nll):
 
 
 bins = [
-    1,
-    10,
-    50,
+    # 1,
+    # 10,
+    # 50,
     100,
-    200,
+    # 200,
     # 400,
 ]
 bin_ids = [f'{n_bins}_bins' for n_bins in bins]
@@ -224,11 +224,11 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
         nll = zfit.loss.ExtendedBinnedNLL(zmodel, zdata,
                                           constraints=constraint)
 
-        minimizer = zfit.minimize.Minuit(tol=1e-5, gradient=False)
+        minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=False)
+
         nll.value()
         nll.value()
         nll.gradient()
         nll.gradient()
-        print('start benchmark')
         benchmark(hypotest, minimizer, nll)
     assert True

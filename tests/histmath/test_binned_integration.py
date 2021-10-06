@@ -10,7 +10,7 @@ def test_calculate_scaled_edges(edges_bins1):
     from zfit.core.binnedpdf import cut_edges_and_bins
 
     edges, true_scaled_edges, limits, limits_true, value_scaling, values = edges_bins1
-    scaled_edges, bins = cut_edges_and_bins(edges, limits)
+    scaled_edges, bins, _ = cut_edges_and_bins(edges, limits)
     np.testing.assert_allclose(true_scaled_edges[0], scaled_edges[0])
     np.testing.assert_allclose(true_scaled_edges[1], scaled_edges[1])
     np.testing.assert_allclose(true_scaled_edges[2], scaled_edges[2])
@@ -23,13 +23,21 @@ def test_binned_rect_integration(edges_bins1):
     true_integral = limits_true.area() * value_scaling
     assert pytest.approx(float(true_integral)) == float(integral)
 
-
-def test_partial_binned_rect_integration(edges_bins1):
-    edges, _, limits, limits_true, value_scaling, values = edges_bins1
-    limits = limits.with_obs(['a', 'c'])
-    integral = binned_rect_integration(density=values, edges=edges, limits=limits, axis=[0, 2])
+    # integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
     # true_integral = limits_true.area() * value_scaling
     # assert pytest.approx(float(true_integral)) == float(integral)
+
+
+def test_partial_binned_rect_integration(edges_bins1):
+    edges, true_scaled_edges, limits, limits_true, value_scaling, values = edges_bins1
+    limits_part = limits.with_obs(['a', 'c'])
+    limits_nonint = limits.with_obs('b')
+    limits_nonint = limits_nonint.with_limits([1.9, 4.2])
+    limits_full = (limits_part * limits_nonint).with_obs(['a', 'b', 'c'])
+    integral = binned_rect_integration(density=values, edges=edges, limits=limits_part, axis=[0, 2])
+    assert integral.shape[0] == edges[1].shape[1] - 1
+    full_integral = binned_rect_integration(density=values, edges=edges, limits=limits_full)
+    assert pytest.approx(np.sum(integral), float(full_integral))
 
 
 @pytest.fixture()
