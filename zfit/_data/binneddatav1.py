@@ -7,7 +7,7 @@ import hist
 import tensorflow as tf
 
 from zfit._variables.axis import histaxes_to_binning, binning_to_histaxes
-from zfit.core.interfaces import ZfitBinnedData
+from zfit.core.interfaces import ZfitBinnedData, ZfitSpace
 from ..util.exception import ShapeIncompatibleError
 from zfit.z import numpy as znp
 
@@ -65,15 +65,26 @@ class BinnedDataV1(ZfitBinnedData,
                    # tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, ZfitBinnedData
                    ):
 
-    def __init__(self, holder):
+    def __init__(self, *, holder):
         self.holder: BinnedHolder = holder
 
-    @classmethod
-    def from_tensor(cls, space, values, variances=None):  # TODO: add overflow bins if needed
-        values = znp.asarray(values)
-        if variances is not None:
+    @classmethod  # TODO: add overflow bins if needed
+    def from_tensor(cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None) -> BinnedDataV1:
+        """Create a Binned dataset defined in *space* where values are considered to be the counts.
+
+        Args:
+            space: The space of the data. Variables need to match the values dimensions. The space has to be binned
+                and carry the information about the edges.
+            values: Actual counts of the histogram.
+            variances: Uncertainties of the histogram values. If `True`, the uncertainties are taken to be poissonian
+                distributed.
+        """
+        values = znp.asarray(values, znp.float64)
+        if variances is True:
+            variances = znp.sqrt(values)
+        elif variances is not None:
             variances = znp.asarray(variances)
-        return cls(BinnedHolder(space=space, values=values, variances=variances))
+        return cls(holder=BinnedHolder(space=space, values=values, variances=variances))
 
     @classmethod
     def from_hist(cls, hist: hist.NamedHist) -> BinnedDataV1:
@@ -84,10 +95,10 @@ class BinnedDataV1(ZfitBinnedData,
         if variances is not None:
             variances = znp.asarray(variances)
         holder = BinnedHolder(space=space, values=values, variances=variances)
-        return cls(holder)
+        return cls(holder=holder)
 
     def with_obs(self, obs) -> BinnedDataV1:
-        return type(self)(self.holder.with_obs(obs))
+        return type(self)(holder=self.holder.with_obs(obs))
 
     @property
     def kind(self):

@@ -4,6 +4,7 @@ import tensorflow as tf
 
 from ..core.binnedpdf import BaseBinnedPDFV1
 from ..core.space import supports
+from ..util.exception import SpecificFunctionNotImplemented
 from ..z import numpy as znp
 
 
@@ -11,6 +12,8 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
 
     def __init__(self, data, sysshape=None, extended=None, norm=None, name="BinnedTemplatePDF"):
         obs = data.space
+        if extended is None:
+            extended = True
         if sysshape is None:
             sysshape = {}
         if sysshape is True:
@@ -20,7 +23,8 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         params = {}
         params.update(sysshape)
         self._template_sysshape = sysshape
-        if extended is None:
+        if extended is True:
+            self._automatically_extended = True
             if sysshape:
                 import zfit
 
@@ -38,6 +42,8 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
 
             else:
                 extended = znp.sum(data.values())
+        elif extended is not False:
+            self._automatically_extended = False
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
 
         self._data = data
@@ -54,17 +60,18 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         density = counts / areas
         return density
 
-    # @supports(norm='norm')
-    # # @supports(norm=False)
-    # def _counts(self, x, norm=None):
-    #
-    #     values = self._data.values()
-    #     sysshape = list(self._template_sysshape.values())
-    #     if sysshape:
-    #         sysshape_flat = tf.stack(sysshape)
-    #         sysshape = tf.reshape(sysshape_flat, values.shape)
-    #         values = values * sysshape
-    #     return values
+    @supports(norm='norm')
+    # @supports(norm=False)
+    def _counts(self, x, norm=None):
+        if not self._automatically_extended:
+            raise SpecificFunctionNotImplemented
+        values = self._data.values()
+        sysshape = list(self._template_sysshape.values())
+        if sysshape:
+            sysshape_flat = tf.stack(sysshape)
+            sysshape = tf.reshape(sysshape_flat, values.shape)
+            values = values * sysshape
+        return values
 
     @supports(norm='norm')
     def _rel_counts(self, x, norm=None):

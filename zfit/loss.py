@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
 
-from ._loss.binnedloss import ExtendedBinnedNLL, BinnedNLL
+from ._loss.binnedloss import ExtendedBinnedNLL, BinnedNLL, BinnedChi2, ExtendedBinnedChi2
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
 __all__ = ["ExtendedUnbinnedNLL",

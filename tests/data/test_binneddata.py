@@ -147,3 +147,15 @@ def test_valid_input():
         _ = BinnedHolder(obs10, znp.random.uniform(size=[10, 2]), znp.random.uniform(size=[10, 2]))
     with pytest.raises(ShapeIncompatibleError):
         _ = BinnedHolder(obs10, znp.random.uniform(size=[5, 2]), None)
+
+
+def test_variance():
+    import zfit
+    import zfit.z.numpy as znp
+
+    binning1 = zfit.binned.Regular(3, -3.5, 3, name="x")
+    obs = zfit.Space('x', binning=binning1)
+    values = znp.array([100., 200, 50])
+    data = zfit.data.BinnedDataV1.from_tensor(obs, values=values, variances=True)
+    data2 = zfit.data.BinnedDataV1.from_tensor(obs, values=values, variances=values ** 0.5)
+    np.testing.assert_allclose(data.variances(), data2.variances())

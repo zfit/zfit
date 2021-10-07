@@ -61,6 +61,7 @@ XTypeReturn = Union[XTypeReturnNoData, "zfit.Data"]  #:
 NumericalTypeReturn = Union[tf.Tensor, np.array]  #:
 
 DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]  #:
+BinnedDataInputType = Union["zfit.data.BinnedDataV1", Iterable["zfit.data.BinnedDataV1"]]  #:
 
 WeightsStrInputType = Union[tf.Tensor, None, np.ndarray, str]  #:
 WeightsInputType = Union[tf.Tensor, None, np.ndarray]  #:
@@ -71,6 +72,8 @@ ModelsInputType = Union['zfit.core.interfaces.ZfitModel',
 
 PDFInputType = Union['zfit.core.interfaces.ZfitPDF',
                      Iterable['zfit.core.interfaces.ZfitPDF']]  #:
+BinnedPDFInputType = Union['zfit.core.interfaces.ZfitBinnedPDF',
+                           Iterable['zfit.core.interfaces.ZfitBinnedPDF']]  #:
 
 FuncInputType = Union['zfit.core.interfaces.ZfitFunc',
                       Iterable['zfit.core.interfaces.ZfitFunc']]  #:

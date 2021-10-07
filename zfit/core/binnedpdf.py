@@ -242,6 +242,8 @@ class BaseBinnedPDFV1(
     def _call_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_pdf(x, norm)
+        with suppress(SpecificFunctionNotImplemented):
+            return self._auto_rel_counts(x, norm=norm) / np.prod(self.space.binning.widths, axis=0)
         return self._fallback_pdf(x, norm=norm)
 
     def _auto_pdf(self, x, norm):
@@ -718,11 +720,29 @@ class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):
 
 def binned_rect_integration(*,
                             limits: ZfitSpace,
-                            edges: Iterable[znp.array],
+                            edges: Iterable[znp.array] | znp.array,
                             counts: znp.array | None = None,
                             density: znp.array | None = None,
-                            axis: Iterable[int] | None = None,
-                            ) -> tf.Tensor:
+                            axis: Iterable[int] | int | None = None,
+                            ) -> znp.array:
+    """Integrate a histogram over *limits*.
+
+    This integrator does take into account that limits do not match the edges.
+
+    Args:
+        limits: Limits to integrate over. A possible binning is ignored.
+        edges: The edges per axis. They should have the shape `(1,..., 1, n, 1, ..., 1)`, where n is the *ith* axis.
+            `ZfitBinning` provides this format on the `edges` attribute.
+        counts: Counts of the histogram. This is what most histograms have and is equal to the density multiplied by
+            the binwidth.
+            Exactly one of counts or density has to be provided.
+        density: The density of a histogram is the bincount divided by the binwidth.
+            Exactly one of counts or density has to be provided.
+        axis: Which axes to integrate over. Defaults to all.
+
+    Returns:
+        Integral with shape corresponding to the non-integrated axes (or a scalar in case of all axes integrated).
+    """
     edges = convert_to_container(edges)
     if not isinstance(limits, ZfitSpace):
         raise TypeError(f"limits has to be a ZfitSpace, not {limits}.")
@@ -844,13 +864,12 @@ def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace, axis=None,
     lower_all = lower[0]
     upper_all = upper[0]
     rank = len(edges)
-    # zero_bins = znp.zeros([rank], dtype=znp.int32)
     current_axis = 0
     for i, edge in enumerate(edges):
         edge = znp.asarray(edge)
+        edge = znp.reshape(edge, (-1,))
         if axis is None or i in axis:
 
-            edge = znp.reshape(edge, (-1,))
             lower_i = lower_all[current_axis, None]
             edge_minimum = edge[0]
             # edge_minimum = tf.gather(edge, indices=0, axis=i)
@@ -872,8 +891,6 @@ def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace, axis=None,
                                                   extend_lower_interval=True,
                                                   extend_upper_interval=True)
             upper_bin = tf.reshape(tf.cast(upper_bin_float, dtype=znp.int32), [-1]) + 1
-            # upper_bin_p1 = upper_bin + 1
-            # upper_bins = tf.tensor_scatter_nd_update(zero_bins, [[i]], upper_bin_p1)
             size = upper_bin - lower_bin
             new_edge = tf.slice(edge, lower_bin, size + 1)  # +1 because stop is exclusive
             new_edge = tf.tensor_scatter_nd_update(new_edge, [tf.constant([0]), size], [lower_i[0], upper_i[0]])
@@ -884,7 +901,7 @@ def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace, axis=None,
             current_axis += 1
         else:
             lower_bin = [0]
-            upper_bin = znp.asarray([edge.shape[i] - 1], dtype=znp.int32)
+            upper_bin = znp.asarray([edge.shape[0] - 1], dtype=znp.int32)
             new_edge = edge
             if unscaled:
                 new_edge_unscaled = edge

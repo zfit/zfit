@@ -107,6 +107,82 @@ def test_binned_simple_scaled_asym():
     assert pytest.approx(float(true_integral)) == float(integral)
 
 
+def test_binned_scaled_asym():
+    import zfit.z.numpy as znp
+
+    values = znp.array([[1., 3.], [2., 4.]])
+    edges = [[0., 2.5, 5.], [1., 5., 9.]]
+    lim1 = zfit.Space('a', (1.2, 4.7))
+    lim2 = zfit.Space('b', (2.1, 8.2))
+    limits = lim1 * lim2
+    binw11 = 1.3
+    binw21 = 2.9
+    binw12 = 2.2
+    binw22 = 3.2
+
+    # using densities
+    integral = binned_rect_integration(density=values, edges=edges, limits=limits)
+    true_integral = 1 * binw11 * binw21 + 2 * binw12 * binw21 + 3 * binw11 * binw22 + 4 * binw12 * binw22
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+    # using counts
+    integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
+    true_integral = 1 * binw11 * binw21 + 2 * binw12 * binw21 + 3 * binw11 * binw22 + 4 * binw12 * binw22
+    true_integral /= 10  # each bin has an area of 10
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+
+def test_binned_partial_scaled_asym_axis0():
+    import zfit.z.numpy as znp
+
+    values = znp.array([[1., 3.], [2., 4.]])
+    edges = [[0., 2.5, 5.], [1., 5., 9.]]
+    lim1 = zfit.Space('a', (1.2, 4.7))
+    integral = binned_rect_integration(density=values, edges=edges, limits=lim1, axis=0)
+    binw11 = 1.3
+    binw21 = 4
+    binw12 = 2.2
+    binw22 = 4
+    true_integral = 1 * binw11 * binw21 + 2 * binw12 * binw21, 3 * binw11 * binw22 + 4 * binw12 * binw22
+    assert pytest.approx(true_integral) == zfit.run(integral)
+
+
+def test_binned_partial_scaled_asym_axis1():
+    import zfit.z.numpy as znp
+
+    values = znp.array([[1., 3.], [2., 4.]])
+    edges = [[0., 2.5, 5.], [1., 5., 9.]]
+    lim2 = zfit.Space('b', (2.1, 8.2))
+
+    integral = binned_rect_integration(density=values, edges=edges, limits=lim2, axis=1)
+    binw11 = 2.5
+    binw21 = 2.9
+    binw12 = 2.5
+    binw22 = 3.2
+    true_integral = 1 * binw11 * binw21 + 3 * binw11 * binw22, 2 * binw12 * binw21 + 4 * binw12 * binw22
+    assert pytest.approx(true_integral) == zfit.run(integral)
+
+
+def test_binned_scaled_asym_one():
+    import zfit.z.numpy as znp
+
+    values = znp.array([[1., 3.], [2., 4.]])
+    edges = [[0., 2.5, 5.], [1., 5., 9.]]
+    lim1 = zfit.Space('a', (0, 4.7))
+    lim2 = zfit.Space('b', (1, 9))
+    limits = lim1 * lim2
+    integral = binned_rect_integration(density=values, edges=edges, limits=limits)
+    binw11 = 2.5
+    binw21 = 4
+    binw12 = 2.2
+    binw22 = 4
+    true_integral = 1 * binw11 * binw21 + 2 * binw12 * binw21 + 3 * binw11 * binw22 + 4 * binw12 * binw22
+    assert pytest.approx(float(true_integral)) == float(integral)
+
+    # integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
+    # true_integral = (2 * reducefac) ** 2 * scaling  # 4 e
+
+
 def test_partial_binned_rect_integration(edges_bins1):
     edges, true_scaled_edges, limits, limits_true, value_scaling, values = edges_bins1
     limits_part = limits.with_obs(['a', 'c'])
