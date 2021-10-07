@@ -672,10 +672,14 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
             #               " If you see this, the code may be broken and returns wrong values (it should not,"
             #               " but may does).", stacklevel=1)
             if self._composed_param_original_order is None:  # TODO: this is a temp fix for legacy behavior
-                raise RuntimeError("This should not be reached. To fix this, make sure that the params to"
-                                   " ComposedParameter are a dict.")
-            params = self._composed_param_original_order  # to make sure we have the right order
-            value = self._value_fn(*params)
+                try:
+                    value = self._value_fn(**params)  # since the order is None, it has to be a dict
+                except Exception as error:
+                    raise RuntimeError("This should not be reached. To fix this, make sure that the params to"
+                                       " ComposedParameter are a dict and that the function takes .")
+            else:
+                params = self._composed_param_original_order  # to make sure we have the right order
+                value = self._value_fn(*params)
         return tf.convert_to_tensor(value, dtype=self.dtype)
 
     def read_value(self):
