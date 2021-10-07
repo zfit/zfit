@@ -43,7 +43,7 @@ def warn_advanced_feature(message, identifier):
         warned_advanced.add(identifier)
         warnings.warn(
             f"Either you're using an advanced feature OR causing unwanted behavior. "
-            f"To turn this warning off, use `zfit.settings.advanced_warnings['{identifier}']` = False` "
+            f"To turn this warning off, use `zfit.settings.advanced_warnings['{identifier}'] = False` "
             f" or 'all' (use with care) with `zfit.settings.advanced_warnings['all'] = False\n"
             + message, category=AdvancedFeatureWarning, stacklevel=2)
 
@@ -63,6 +63,6 @@ def warn_changed_feature(message, identifier):
         warned_changed.add(identifier)
         warnings.warn(
             f"The behavior of this functionality recently changed."
-            f"To turn this warning off, use `zfit.settings.changed_warnings.{identifier}` = False` "
+            f"To turn this warning off, use `zfit.settings.changed_warnings.{identifier} = False` "
             f" or 'all' with `zfit.settings.changed_warnings.all = False\n"
             + message, category=ChangedFeatureWarning, stacklevel=2)

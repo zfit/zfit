@@ -18,10 +18,10 @@ sigma_true = 4.1
 mu_true2 = 1.01
 sigma_true2 = 3.5
 
-mu_constr = [1.3, 0.2]  # mu, sigma
-sigma_constr = [3.6, 0.2]
+mu_constr = [1.3, 0.02]  # mu, sigma
+sigma_constr = [3.2, 0.03]
 
-yield_true = 3000
+yield_true = 30000
 test_values_np = np.random.normal(loc=mu_true, scale=sigma_true, size=(yield_true, 1))
 test_values_np2 = np.random.normal(loc=mu_true2, scale=sigma_true2, size=yield_true)
 
@@ -63,7 +63,8 @@ def create_gauss2(obs=None):
     return zfit.pdf.Gauss(mu, sigma, obs=obs, name="gaussian2"), mu, sigma
 
 
-def test_binned_nll_simple():
+@pytest.mark.parametrize('Loss', [zfit.loss.ExtendedBinnedNLL, zfit.loss.ExtendedBinnedChi2])
+def test_binned_extended_simple(Loss):
     # zfit.run.set_graph_mode(False)
     counts = np.random.uniform(high=1, size=(10, 20))  # generate counts
     counts2 = np.random.normal(loc=5, size=(10, 20))
@@ -85,17 +86,20 @@ def test_binned_nll_simple():
     pdf3 = BinnedTemplatePDFV1(data=mc3)
     pdf_sum = BinnedSumPDFV1(pdfs=[pdf, pdf2, pdf3], obs=obs)
 
-    nll = zfit.loss.ExtendedBinnedNLL(pdf_sum, data=observed_data)
-    print(nll.value())
+    nll = Loss(pdf_sum, data=observed_data)
+    nll.value(), nll.gradient()  # TODO: add some check?
 
 
 @pytest.mark.plots
-# @pytest.mark.flaky(3)
+@pytest.mark.flaky(2)
 @pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
-@pytest.mark.parametrize('Loss', [zfit.loss.BinnedNLL, zfit.loss.BinnedChi2])
-# @pytest.mark.parametrize('weights', [None])
+@pytest.mark.parametrize('Loss', [
+    zfit.loss.BinnedNLL,
+    zfit.loss.BinnedChi2,
+    zfit.loss.ExtendedBinnedNLL,
+    zfit.loss.ExtendedBinnedChi2
+])
 def test_binned_loss(weights, Loss):
-    # zfit.run.set_autograd_mode(False)
     obs = zfit.Space("obs1", limits=(-15, 25))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
     gaussian2, mu2, sigma2 = create_gauss2(obs=obs)
@@ -103,11 +107,12 @@ def test_binned_loss(weights, Loss):
     test_values_np_shifted *= 1.2
     test_values = znp.array(test_values_np_shifted)
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
-
+    init_yield = test_values_np.shape[0] * 1.2
+    scale = zfit.Parameter('yield', init_yield, 0, init_yield * 4, step_size=1)
     binning = zfit.binned.Regular(32, obs.lower[0], obs.upper[0], name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
-    binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned)
+    binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
 
     loss = Loss(model=binned_gauss, data=test_values_binned)
 
@@ -119,38 +124,60 @@ def test_binned_loss(weights, Loss):
     mplhep.histplot(binned_gauss.to_hist(), label="PDF before fit")
     mplhep.histplot(test_values_binned.to_hist() / float(test_values_binned.nevents),
                     label="Data")
+
+    # timing, uncomment to test
     # loss.value_gradient(params=loss.get_params())
+    # loss.value()
+    # loss.gradient()
+    # import time, progressbar
     # start = time.time()
-    # for _ in progressbar.progressbar(range(100)):
+    # for _ in progressbar.progressbar(range(1000)):
     #     loss.value()
+    #     loss.gradient()
     # print(f"Needed: {time.time() - start}")
-    minimizer = zfit.minimize.Minuit(gradient=False, verbosity=7, tol=1e-5)
-    status = minimizer.minimize(loss=loss, params=[mu1, sigma1])
-    # status.hesse()
-    # status.errors()
-    params = status.params
-    # plt.figure()
+
+    minimizer = zfit.minimize.Minuit(gradient=False)
+    result = minimizer.minimize(loss=loss)
+
+    params = result.params
     mplhep.histplot(binned_gauss.to_hist(), label="PDF after fit")
     plt.legend()
     pytest.zfit_savefig()
-    plt.show()
-    # mplhep.histplot(test_values_binned.to_hist() /  float(test_values_binned.nevents))
-    abs_error = 0.15 if weights is None else 0.08  # more fluctuating with weights
-    abs_error *= 2 if isinstance(loss, zfit.loss.BinnedChi2) else 1
 
-    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np_shifted), abs=abs_error)
-    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np_shifted), abs=abs_error)
+    result.hesse(name='hesse')
+    result.errors(name='asymerr')
+    print(result)
+    rel_tol_errors = 0.1
+    mu_error = 0.03
+    sigma_error = 0.022
+    params_list = [mu1, sigma1]
+    errors = [mu_error, sigma_error]
+    if loss.is_extended:
+        params_list.append(scale)
+        errors.append(170)
+    for param, errorval in zip(params_list, errors):
+        assert pytest.approx(result.params[param]['hesse']['error'], rel=rel_tol_errors) == errorval
+        assert pytest.approx(result.params[param]['asymerr']['lower'], rel=rel_tol_errors) == - errorval
+        assert pytest.approx(result.params[param]['asymerr']['upper'], rel=rel_tol_errors) == errorval
 
-    constraints = zfit.constraint.nll_gaussian(params=[mu2, sigma2],
-                                               observation=[mu_constr[0], sigma_constr[0]],
-                                               uncertainty=[mu_constr[1], sigma_constr[1]])
-    gaussian2 = zfit.pdf.BinnedFromUnbinnedPDF(gaussian2, obs_binned)
+    abs_tol_val = 0.15 if weights is None else 0.08  # more fluctuating with weights
+    abs_tol_val *= 2 if isinstance(loss, zfit.loss.BinnedChi2) else 1
+
+    assert params[mu1]['value'] == pytest.approx(np.mean(test_values_np_shifted), abs=abs_tol_val)
+    assert params[sigma1]['value'] == pytest.approx(np.std(test_values_np_shifted), abs=abs_tol_val)
+    if loss.is_extended:
+        nexpected = test_values_np_shifted.shape[0]
+        assert params[scale]['value'] == pytest.approx(nexpected, abs=3 * nexpected ** 0.5)
+    constraints = zfit.constraint.GaussianConstraint(params=[mu2, sigma2],
+                                                     observation=[mu_constr[0], sigma_constr[0]],
+                                                     uncertainty=[mu_constr[1], sigma_constr[1]])
+    gaussian2 = zfit.pdf.BinnedFromUnbinnedPDF(gaussian2, obs_binned, extended=scale)
     loss = Loss(model=gaussian2, data=test_values_binned,
                 constraints=constraints)
 
-    minimizer = zfit.minimize.Minuit()
-    status = minimizer.minimize(loss=loss, params=[mu2, sigma2])
-    params = status.params
+    minimizer = zfit.minimize.Minuit(gradient=False)
+    result = minimizer.minimize(loss=loss, params=[mu2, sigma2])
+    params = result.params
     if weights is None:
         assert params[mu2]['value'] > np.mean(test_values_np_shifted)
         assert params[sigma2]['value'] < np.std(test_values_np_shifted)

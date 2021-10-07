@@ -1,5 +1,5 @@
 #  Copyright (c) 2021 zfit
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, Union, Set
 
 import numpy as np
 import tensorflow as tf
@@ -82,6 +82,15 @@ class ExtendedBinnedNLL(BaseBinned):
 
         return nll
 
+    @property
+    def is_extended(self):
+        return True
+
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+
+        return super()._get_params(floating, is_yield, extract_independent)
+
 
 class BinnedNLL(BaseBinned):
 
@@ -110,6 +119,16 @@ class BinnedNLL(BaseBinned):
             nll += constraints
 
         return nll
+
+    @property
+    def is_extended(self):
+        return False
+
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        if not self.is_extended:
+            is_yield = False  # the loss does not depend on the yields
+        return super()._get_params(floating, is_yield, extract_independent)
 
 
 @z.function(wraps='tensor')
@@ -181,6 +200,16 @@ class BinnedChi2(BaseBinned):
 
         return chi2_term
 
+    @property
+    def is_extended(self):
+        return False
+
+    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
+                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+        if not self.is_extended:
+            is_yield = False  # the loss does not depend on the yields
+        return super()._get_params(floating, is_yield, extract_independent)
+
 
 class ExtendedBinnedChi2(BaseBinned):
     def __init__(self, model: ztyping.BinnedPDFInputType, data: ztyping.BinnedDataInputType,
@@ -217,3 +246,7 @@ class ExtendedBinnedChi2(BaseBinned):
             chi2_term += constraints
 
         return chi2_term
+
+    @property
+    def is_extended(self):
+        return True

@@ -33,6 +33,7 @@ from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
                               SpecificFunctionNotImplemented,
                               WorkInProgressError, NormNotImplemented, MultipleLimitsNotImplemented,
                               BasePDFSubclassingError)
+from ..util.warnings import warn_advanced_feature
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -633,18 +634,24 @@ class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):
 
     def __init__(self, pdf, space, extended=None, norm=None):
         if pdf.is_extended:
-            extended = pdf.get_yield()
+            if extended is not None:
+                warn_advanced_feature(f"PDF {pdf} is already extended, but extended also given {extended}. Will"
+                                      f" use the given yield.", identifier="extend_wrapped_extended")
+            else:
+                extended = pdf.get_yield()
         super().__init__(obs=space, extended=extended, norm=norm, params={}, name="BinnedFromUnbinnedPDF")
         self.pdfs = [pdf]
 
     def _get_params(self, floating: bool | None = True, is_yield: bool | None = None,
                     extract_independent: bool | None = True) -> set[ZfitParameter]:
-        return self.pdfs[0].get_params(floating=floating, is_yield=is_yield, extract_independent=extract_independent)
+        params = super()._get_params(floating=floating, is_yield=is_yield, extract_independent=extract_independent)
+        daughter_params = self.pdfs[0].get_params(floating=floating, is_yield=is_yield,
+                                                  extract_independent=extract_independent)
+        return daughter_params | params
 
     @z.function
     def _rel_counts(self, x, norm):
         pdf = self.pdfs[0]
-        # edge = self.axes.edges[0]  # HACK 1D only
         edges = [znp.array(edge) for edge in self.axes.edges]
         edges_flat = [znp.reshape(edge, [-1]) for edge in edges]
         lowers = [edge[:-1] for edge in edges_flat]
