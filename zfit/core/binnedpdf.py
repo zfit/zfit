@@ -171,7 +171,7 @@ class BaseBinnedPDFV1(
     def _convert_input_binned_x(self, x, none_is_space=None):
         if x is None and none_is_space:
             return self.space
-        if isinstance(x, uhi.typing.plottable.PlottableHistogram):
+        if isinstance(x, uhi.typing.plottable.PlottableHistogram) and not isinstance(x, ZfitBinnedData):
             x = BinnedDataV1.from_hist(x)
         if not isinstance(x, ZfitBinnedData):
             if not isinstance(x, ZfitSpace):

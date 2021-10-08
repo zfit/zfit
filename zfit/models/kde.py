@@ -777,8 +777,8 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
              hides this.
              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
-             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
-             also be used. |@docend:pdf.kde.init.padding|
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``.
+             For more control, a callable that takes data and weights can also be used. |@docend:pdf.kde.init.padding|
 
             weights: |@doc:pdf.kde.init.weights| Weights of each event
              in *data*, can be None or Tensor-like with shape compatible
@@ -933,8 +933,8 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
              hides this.
              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
-             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
-             also be used. |@docend:pdf.kde.init.padding|
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``.
+             For more control, a callable that takes data and weights can also be used. |@docend:pdf.kde.init.padding|
             num_grid_points: |@doc:pdf.kde.init.num_grid_points| Number of points in
              the binning grid.
 
@@ -1134,8 +1134,8 @@ class KDE1DimFFT(KDEHelper, BasePDF):
              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
              hides this.
              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
-             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
-             also be used. |@docend:pdf.kde.init.padding|
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``.
+             For more control, a callable that takes data and weights can also be used. |@docend:pdf.kde.init.padding|
             num_grid_points: |@doc:pdf.kde.init.num_grid_points| Number of points in
              the binning grid.
 
@@ -1304,8 +1304,8 @@ class KDE1DimISJ(KDEHelper, BasePDF):
              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
              hides this.
              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
-             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
-             also be used. |@docend:pdf.kde.init.padding|
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``.
+             For more control, a callable that takes data and weights can also be used. |@docend:pdf.kde.init.padding|
             num_grid_points: |@doc:pdf.kde.init.num_grid_points| Number of points in
              the binning grid.
 

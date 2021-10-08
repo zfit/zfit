@@ -163,7 +163,7 @@ def test_unbinned_data():
     plt.plot(centers, ycenter_binned, '--', label="binned pdf")
     plt.legend()
     pytest.zfit_savefig()
-    plt.show()
+    # plt.show()
 
     plt.figure()
     plt.title("Binned Gauss evaluated on unbinned data")

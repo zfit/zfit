@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from types import Union
+from typing import Union
 
 import boost_histogram as bh
 import hist
@@ -137,15 +137,15 @@ class BinnedDataV1(ZfitBinnedData,
         """
         binning = binning_to_histaxes(self.holder.space.binning)
         h = hist.NamedHist(*binning, storage=bh.storage.Weight())
-        h.view(flow=flow).value = self.values(flow=flow)
-        h.view(flow=flow).variance = self.variances(flow=flow)
+        h.view(flow=flow).value = self.values()  # TODO: flow?
+        h.view(flow=flow).variance = self.variances()  # TODO: flow?
         return h
 
     def _to_boost_histogram_(self):
         binning = binning_to_histaxes(self.holder.space.binning)
         h = bh.Histogram(*binning, storage=bh.storage.Weight())
-        h.view(flow=flow).value = self.values(flow=flow)
-        h.view(flow=flow).variance = self.variances(flow=flow)
+        h.view(flow=flow).value = self.values()  # TODO: flow?
+        h.view(flow=flow).variance = self.variances()  # TODO: flow?
         return h
 
     @property
@@ -175,7 +175,7 @@ class BinnedDataV1(ZfitBinnedData,
         #     vals = tf.slice(vals, znp.ones_like(shape), shape - 2)
         return vals
 
-    def variances(self) -> Union[None, znp.array]:  # , flow=False
+    def variances(self) -> None | znp.array:  # , flow=False
         """Variances, if available, of the histogram as an ndim array.
 
         Compared to `hist`, zfit does not make a difference between a view and a copy; tensors are immutable.
@@ -224,7 +224,7 @@ class BinnedDataV1(ZfitBinnedData,
         meshed_center = znp.meshgrid(*self.axes.centers, indexing='ij')
         flat_centers = [znp.reshape(center, (-1,)) for center in meshed_center]
         centers = znp.stack(flat_centers, axis=-1)
-        flat_weights = znp.reshape(self.values(flow=False), (-1,))
+        flat_weights = znp.reshape(self.values(), (-1,))  # TODO: flow?
         space = self.space.copy(binning=None)
         from zfit import Data
         return Data.from_tensor(obs=space, tensor=centers, weights=flat_weights)

@@ -272,7 +272,8 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known that this is only a local minimum
+                   - the minimizer may even converged but it is known
+                     that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
             edm: |@doc:result.init.edm| The estimated distance to minimum
@@ -476,7 +477,8 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known that this is only a local minimum
+                   - the minimizer may even converged but it is known
+                     that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
             values: |@doc:result.init.values| Values of the parameters at the
@@ -552,7 +554,8 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known that this is only a local minimum
+                   - the minimizer may even converged but it is known
+                     that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
             values: |@doc:result.init.values| Values of the parameters at the
@@ -675,7 +678,8 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known that this is only a local minimum
+                   - the minimizer may even converged but it is known
+                     that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
             criterion: |@doc:result.init.criterion| Criterion that was used during the minimization.
@@ -767,7 +771,8 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known that this is only a local minimum
+                   - the minimizer may even converged but it is known
+                     that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
             values: |@doc:result.init.values| Values of the parameters at the

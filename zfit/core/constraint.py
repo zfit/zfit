@@ -130,7 +130,7 @@ class ProbabilityConstraint(BaseConstraint):
         Returns:
         """
         sample = self._sample(n=n)
-        return {p: sample[:, i] for i, p in enumerate(self.observation)}
+        return {p: sample[:, i] for i, p in enumerate(self._ordered_params)}
 
     @abc.abstractmethod
     def _sample(self, n):

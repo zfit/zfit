@@ -175,10 +175,8 @@ def test_gaussian_constraint_sampling():
 
     sample = constr.sample(15000)
 
-    print(sample)
-
-    assert np.mean(sample[constr.observation[0]]) == pytest.approx(observed[0], rel=0.01)
-    assert np.std(sample[constr.observation[0]]) == pytest.approx(sigma[0], rel=0.01)
+    assert np.mean(sample[param1]) == pytest.approx(observed[0], rel=0.01)
+    assert np.std(sample[param1]) == pytest.approx(sigma[0], rel=0.01)
 
 
 def test_simple_constraint():

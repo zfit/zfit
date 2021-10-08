@@ -508,8 +508,8 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                    While the exact gradient can speed up the convergence and is
                    often beneficial, this ain't true for the computation of the
                    (inverse) Hessian matrix.
-                   Due to the $n^2$ number of entries (compared to $n$ in the
-                   gradient) from the $n$ parameters, this can grow quite
+                   Due to the :math:`n^2` number of entries (compared to :math:`n` in the
+                   gradient) from the :math:`n` parameters, this can grow quite
                    large and become computationally expensive.
 
                    Therefore, many algorithms use an approximated (inverse)
@@ -639,8 +639,8 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                    While the exact gradient can speed up the convergence and is
                    often beneficial, this ain't true for the computation of the
                    (inverse) Hessian matrix.
-                   Due to the $n^2$ number of entries (compared to $n$ in the
-                   gradient) from the $n$ parameters, this can grow quite
+                   Due to the :math:`n^2` number of entries (compared to :math:`n` in the
+                   gradient) from the :math:`n` parameters, this can grow quite
                    large and become computationally expensive.
 
                    Therefore, many algorithms use an approximated (inverse)
@@ -788,8 +788,8 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                    While the exact gradient can speed up the convergence and is
                    often beneficial, this ain't true for the computation of the
                    (inverse) Hessian matrix.
-                   Due to the $n^2$ number of entries (compared to $n$ in the
-                   gradient) from the $n$ parameters, this can grow quite
+                   Due to the :math:`n^2` number of entries (compared to :math:`n` in the
+                   gradient) from the :math:`n` parameters, this can grow quite
                    large and become computationally expensive.
 
                    Therefore, many algorithms use an approximated (inverse)
@@ -954,8 +954,8 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                    While the exact gradient can speed up the convergence and is
                    often beneficial, this ain't true for the computation of the
                    (inverse) Hessian matrix.
-                   Due to the $n^2$ number of entries (compared to $n$ in the
-                   gradient) from the $n$ parameters, this can grow quite
+                   Due to the :math:`n^2` number of entries (compared to :math:`n` in the
+                   gradient) from the :math:`n` parameters, this can grow quite
                    large and become computationally expensive.
 
                    Therefore, many algorithms use an approximated (inverse)

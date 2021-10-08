@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
 from typing import (Callable, Dict, Iterable, List, Optional, Tuple, TypeVar,
-                    Union)
+                    Union, Mapping)
 
 import numpy as np
 import tensorflow as tf
@@ -9,7 +9,6 @@ from ordered_set import OrderedSet
 
 # The #: symbols at the end of every type alias are for marking the module level variables
 # as documented, such that sphinx will document them.
-
 LowerTypeInput = Union[tf.Tensor, np.ndarray, Tuple[float], List[float], float]  #:
 LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]  #:
 
@@ -117,3 +116,6 @@ LimitsDictNoCoords = Union[LimitsDictAxes, LimitsDictObs]  #:
 LimitsDictWithCoords = Dict[str, LimitsDictNoCoords]  #:
 
 BinningInput = Union[Iterable["ZfitBinning"], "ZfitBinning"]
+OptionsInputType = Optional[Mapping[str, object]]
+ConstraintsInputType = Optional[
+    Union['zfit.core.interfaces.ZfitConstraint', Iterable['zfit.core.interfaces.ZfitConstraint']]]

@@ -1072,6 +1072,9 @@ def _check_convert_param_values(params, values):
             values = convert_to_container(values)
             if not len(params) == len(values):
                 raise ValueError(f"Incompatible length of parameters and values: {params}, {values}")
+    not_param = [param for param in params if not isinstance(param, ZfitParameter)]
+    if not_param:
+        raise TypeError(f"The following are not parameters (but should be): {not_param}")
     if not all(param.independent for param in params):
         raise ParameterNotIndependentError(f'trying to set value of parameters that are not independent '
                                            f'{[param for param in params if not param.independent]}')
