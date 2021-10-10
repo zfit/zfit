@@ -746,7 +746,11 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
 
     def __repr__(self):
         value = self._value_np
-        return f"<zfit.param.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
+        if value is not None:
+            value_str = f"{value: .4g}"
+        else:
+            value_str = "symbolic"
+        return f"<zfit.param.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value_str}>"
 
 
 register_tensor_conversion(ConstantParameter, 'ConstantParameter', overload_operators=True)

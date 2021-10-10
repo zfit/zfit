@@ -716,7 +716,10 @@ class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):
         # values = tf.map_fn(integrate_one, limits)  # HACK
         # print('HACK INPLACE binnedpdf')
         # values = znp.array([integrate_one(limit) for limit in limits])  # HACK
-        values = tf.vectorized_map(integrate_one, limits)[:, 0]
+        try:
+            values = tf.vectorized_map(integrate_one, limits)[:, 0]
+        except ValueError:
+            values = tf.map_fn(integrate_one, limits)
         values = znp.reshape(values, shape)
         if missing_yield:
             values *= self.get_yield()
