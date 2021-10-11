@@ -14,6 +14,7 @@ pre-commit
 pydata-sphinx-theme>=0.6.2  # fix for Jinja
 pygit2
 pyhf
+pytest-benchmark
 pyyaml
 seed_intersphinx_mapping
 setupext-janitor
