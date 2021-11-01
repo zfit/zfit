@@ -19,6 +19,8 @@ Depreceations
 
 Bug fixes and small changes
 ---------------------------
+- gauss integral accepts now also tensor inputs in limits
+- parameters at limits is now shown correctly
 
 Experimental
 ------------

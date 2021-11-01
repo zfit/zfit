@@ -152,9 +152,9 @@ class Exponential(BasePDF):
 
 def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params['lambda']
-    lower, upper = limits.rect_limits_np
-    if any(np.isinf([lower, upper])):
-        raise AnalyticIntegralNotImplemented
+    lower, upper = limits.rect_limits
+    # if any(np.isinf([lower, upper])):
+    #     raise AnalyticIntegralNotImplemented
 
     integral = _exp_integral_func_shifting(lambd=lambda_, lower=lower, upper=upper, model=model)
     return integral[0]
@@ -164,8 +164,8 @@ def _exp_integral_func_shifting(lambd, lower, upper, model):
     def raw_integral(x):
         return z.exp(lambd * (model._shift_x(x))) / lambd  # needed due to overflow in exp otherwise
 
-    lower_int = raw_integral(x=z.constant(lower))
-    upper_int = raw_integral(x=z.constant(upper))
+    lower_int = raw_integral(x=lower)
+    upper_int = raw_integral(x=upper)
     integral = (upper_int - lower_int)
     return integral
 
