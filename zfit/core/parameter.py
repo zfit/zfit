@@ -416,21 +416,33 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
     def at_limit(self) -> tf.Tensor:
         """If the value is at the limit (or over it).
 
-        The precision is up to 1e-5 relative.
-
         Returns:
             Boolean `tf.Tensor` that tells whether the value is at the limits.
         """
         return self._check_at_limit(self.value())
 
     def _check_at_limit(self, value, exact=False):
+        """The precision is up to 1e-5 relative or 1e-8 absolute if exact is None.
+
+        Args:
+            value ():
+            exact ():
+
+        Returns:
+        """
         if not self.has_limits:
             return tf.constant(False)
         # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
         diff = znp.abs(self.upper - self.lower)  # catch if it is minus inf
-        tol = znp.minimum(diff * 1e-5, 1e-3)  # if one limit is inf we would get inf
         if not exact:
-            tol = - tol
+            reltol = 0.00005
+            abstol = 1e-5
+        else:
+            reltol = 1e-5
+            abstol = 1e-5
+        tol = znp.minimum(diff * reltol, abstol)  # if one limit is inf we would get inf
+        if not exact:  # if exact, we wanna allow to set it slightly over the limit.
+            tol = - tol  # If not, we wanna make sure it's inside
         at_lower = z.unstable.less_equal(value, self.lower - tol)
         at_upper = z.unstable.greater_equal(value, self.upper + tol)
         return z.unstable.logical_or(at_lower, at_upper)

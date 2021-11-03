@@ -27,6 +27,8 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 - remove warning when using `rect_limits` or similar.
+- gauss integral accepts now also tensor inputs in limits
+- parameters at limits is now shown correctly
 
 Experimental
 ------------
