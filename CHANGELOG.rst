@@ -12,7 +12,7 @@ Major Features and Improvements
 -------------------------------
 
 - new Poisson PDF
-- Poisson constraint
+- added Poisson constraint, LogNormal Constraint
 
 Breaking changes
 ------------------

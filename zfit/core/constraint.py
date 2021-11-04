@@ -4,22 +4,19 @@ import abc
 from collections import OrderedDict
 from typing import Callable, Dict, Optional, Union
 
-import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
 import zfit.z.numpy as znp
 from zfit import z
-
+from .baseobject import BaseNumeric
+from .dependents import _extract_dependencies
+from .interfaces import ZfitConstraint, ZfitParameter
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError
-from .baseobject import BaseNumeric
-from .dependents import _extract_dependencies
-from .interfaces import ZfitConstraint, ZfitParameter
-from .parameter import convert_to_parameter
 
 tfd = tfp.distributions
 
@@ -274,3 +271,40 @@ class PoissonConstraint(TFProbabilityConstraint):
 
         super().__init__(name="PoissonConstraint", observation=observation, params=params,
                          distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
+
+
+class LogNormalConstraint(TFProbabilityConstraint):
+    def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType,
+                 uncertainty: ztyping.NumericalScalarType):
+        r"""Log-normal constraints on a list of parameters to some observed values.
+
+        Constraints parameters that can be counts (i.e. from a histogram) or, more generally, are
+        LogNormal distributed. This is often used in the case of histogram templates which are obtained
+        from simulation and have a log-normal uncertainty due to a multiplicative uncertainty.
+
+        .. math::
+            \text{constraint} = \text{LogNormal}(\text{observation}; \text{params})
+
+
+        Args:
+            params: The parameters to constraint; corresponds to the mu in the Poisson
+                distribution.
+            observation: observed values of the parameter; corresponds to lambda
+                in the Poisson distribution.
+            uncertainty: uncertainty of the observed values of the parameter; corresponds to sigma
+                in the Poisson distribution.
+        Raises:
+            ShapeIncompatibleError: If params, mu and sigma have incompatible shapes.
+        """
+
+        observation = convert_to_container(observation, tuple)
+        params = convert_to_container(params, tuple)
+        uncertainty = convert_to_container(uncertainty, tuple)
+
+        distribution = tfd.LogNormal
+        dist_params = lambda observation: dict(loc=observation, scale=uncertainty)
+        dist_kwargs = dict(validate_args=False)
+
+        super().__init__(name="LogNormalConstraint", observation=observation, params=params,
+                         distribution=distribution, dist_params=dist_params,
+                         dist_kwargs=dist_kwargs)

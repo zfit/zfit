@@ -146,7 +146,7 @@ def test_gaussian_constraint_orderbug2():  # as raised in #162, failed before fi
     param3 = zfit.Parameter("param4", 1.0)
     param4 = zfit.Parameter("param5", 1.0)
 
-    constraint = {"params"     : [param1, param2, param3, param4, param5],
+    constraint = {"params": [param1, param2, param3, param4, param5],
                   "observation": [1500, 1.0, 1.0, 1.0, 0.5],
                   "uncertainty": [0.05 * 1500, 0.001, 0.01, 0.1, 0.05 * 0.5]}
 
@@ -196,3 +196,16 @@ def test_simple_constraint():
     assert constr_np == pytest.approx(2.02)
 
     assert constr.get_cache_deps() == set(params)
+
+
+def test_log_normal_constraint():
+    # x, lam = np.random.randint(1, 100, size=(2, 50))
+    lam = 44.3
+    x = 45.3
+    lam_tensor = z.convert_to_tensor(lam)
+    constr = zfit.constraint.LogNormalConstraint(params=z.convert_to_tensor(x),
+                                                 observation=lam_tensor, uncertainty=lam_tensor ** 0.5)
+    lognormal_constr_val = constr.value()
+    # true_val = true_poisson_constr_value(x, lam)
+    true_lognormal = 25.128554  # maybe add dynamically?
+    np.testing.assert_allclose(lognormal_constr_val, true_lognormal)
