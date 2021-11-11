@@ -15,7 +15,7 @@ scipy>=1.2
 tabulate
 tensorflow>=2.6,<2.7  # `deprecated` won't work properly in <2.6
 tensorflow-addons
-tensorflow_probability>=0.12,<0.14
+tensorflow_probability>=0.12,<0.15
 texttable
 tf_quant_finance>=v0.0.1-dev24
 uhi

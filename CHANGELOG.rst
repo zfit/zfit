@@ -101,6 +101,7 @@ Experimental
 
 Requirement changes
 -------------------
+- add TensorFlow 2.7 support
 
 Thanks
 ------
