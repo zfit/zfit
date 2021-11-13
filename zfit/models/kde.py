@@ -470,7 +470,7 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
     else:
         minimum = znp.array(limits[0][0])
         maximum = znp.array(limits[1][0])
-        
+
     diff = (maximum - minimum)
     new_data = []
     new_weights = []
@@ -731,7 +731,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
              space than *data*, as long as the name of the observable match.
              Using a larger dataset is actually good practice to avoid
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
-            bandwidth: Valid pre-defined options are {'silverman', 'scott', 
+            bandwidth: Valid pre-defined options are {'silverman', 'scott',
              'adaptive_zfit', 'adaptive_geom', 'adaptive_std', 'isj'}.
              |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
              often also denoted as :math:`h`. For a Gaussian kernel, this
@@ -893,7 +893,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.data|
 
-            bandwidth: Valid pre-defined options are {'silverman', 'scott', 
+            bandwidth: Valid pre-defined options are {'silverman', 'scott',
              'adaptive_zfit', 'adaptive_geom'}.
              |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
              often also denoted as :math:`h`. For a Gaussian kernel, this
