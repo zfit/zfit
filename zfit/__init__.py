@@ -66,7 +66,7 @@ def _maybe_disable_warnings():
             " In order to suppress the TensorFlow warnings AND this warning,"
             " set ZFIT_DISABLE_TF_WARNINGS=1."
         )
-    elif disable_warnings == "0":
+    elif disable_warnings == "0":  # just ignore and do nothing
         return
 
     os.environ["KMP_AFFINITY"] = "noverbose"
