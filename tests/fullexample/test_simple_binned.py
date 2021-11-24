@@ -76,8 +76,8 @@ def test_simlpe_examples_1D():
                                       constraints=zfit.constraint.GaussianConstraint(list(shapesys.values()),
                                                                                      [1, 1],
                                                                                      unc), )
-    print(nll.value())
-    print(nll.gradient())
+    # print(nll.value())
+    # print(nll.gradient())
     # minimizer = zfit.minimize.ScipyLBFGSBV1()
     # minimizer = zfit.minimize.IpyoptV1()
     minimizer = zfit.minimize.Minuit(tol=1e-5)
@@ -88,7 +88,7 @@ def test_simlpe_examples_1D():
     # mu_z = sigmodel.get_yield() / znp.sum(zmcsig.values())
     zbestfit = zfit.run(result.params)
     errors = [p['hesse_np']['error'] for p in result.params.values()]
-    print('minval actual:', nll.value(), nll.gradient())
+    # print('minval actual:', nll.value(), nll.gradient())
     # errors = np.ones(3) * 0.1
     # print('mu:', mu_z)
 
@@ -104,10 +104,10 @@ def test_simlpe_examples_1D():
 
     bestfit_pars, twice_nll = pyhf.infer.mle.fit(data, model, return_fitted_val=True)
     diff = (bestfit_pars - zbestfit) / errors
-    print(bestfit_pars)
+    # print(bestfit_pars)
     np.testing.assert_allclose(diff, 0, atol=0.1)
 
-    print(-2 * model.logpdf(bestfit_pars, data), twice_nll)
+    # print(-2 * model.logpdf(bestfit_pars, data), twice_nll)
 
 
 import pyhf

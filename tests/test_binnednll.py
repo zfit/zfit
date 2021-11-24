@@ -122,8 +122,7 @@ def test_binned_loss(weights, Loss):
     plt.figure()
     plt.title(title)
     mplhep.histplot(binned_gauss.to_hist(), label="PDF before fit")
-    mplhep.histplot(test_values_binned.to_hist() / float(test_values_binned.nevents),
-                    label="Data")
+    mplhep.histplot(test_values_binned.to_hist(), label="Data")
 
     # timing, uncomment to test
     # loss.value_gradient(params=loss.get_params())
@@ -197,7 +196,7 @@ def test_binned_loss(weights, Loss):
     "expected",
     "data"
 ])
-def test_binned_loss(Loss, empty, errors):  # TODO: add test with zeros in bins
+def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in bins
     obs = zfit.Space("obs1", limits=(-1, 2))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
     test_values_np_shifted = test_values_np - 1.8  # shift them a bit

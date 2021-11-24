@@ -54,8 +54,6 @@ Bug fixes and small changes
 Major Features and Improvements
 -------------------------------
 
-
-
 - allow `FitResult` to `freeze()`, making it pickleable. The parameters
   are replaced by their name, the objects such as loss and minimizer as well.
 - improve the numerical integration by adding a one dimensional efficient integrator, testing for the accuracy of

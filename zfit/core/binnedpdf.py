@@ -72,8 +72,9 @@ class BaseBinnedPDFV1(
     ZfitMinimalHist,
     ZfitBinnedPDF):
 
-    def __init__(self, obs, extended=None, norm=None, **kwargs):
+    def __init__(self, obs, extended=None, norm=None, name=None, **kwargs):
         super().__init__(dtype=znp.float64, **kwargs)
+        self._name = name  # TODO: why is this needed?
 
         self._space = self._check_convert_obs_init(obs)
         self._yield = None
@@ -627,7 +628,7 @@ class BaseBinnedPDFV1(
         return rel_counts
 
 
-register_tensor_conversion(BaseBinnedPDFV1)
+# register_tensor_conversion(BaseBinnedPDFV1)
 
 
 class BinnedFromUnbinnedPDF(BaseBinnedPDFV1):

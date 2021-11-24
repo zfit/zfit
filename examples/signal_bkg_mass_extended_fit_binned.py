@@ -31,8 +31,6 @@ model_unbinned = zfit.pdf.SumPDF([gauss_extended, exp_extended])
 model = zfit.pdf.BinnedFromUnbinnedPDF(model_unbinned, space=obs_binned)
 
 # data
-# n_sample = 10000
-
 n_sample = 21200
 data = model.sample(n=n_sample)
 
@@ -80,8 +78,6 @@ param_errors, _ = result.errors()  # this returns a new FitResult if a new minim
 print(result.valid)  # check if the result is still valid
 
 # plot the data
-# data_np = data[:, 0].numpy()
-
 
 plot_pdf("after fit")
 plt.show()
