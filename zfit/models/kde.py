@@ -428,7 +428,7 @@ class KDEHelper:
         if callable(padding):
             data, weights = padding(data=data, weights=weights, limits=limits)
         elif padding is not False:
-            data, weights = padreflect_data_weights_1dim(data, weights=weights, mode=padding, limits=None)
+            data, weights = padreflect_data_weights_1dim(data, weights=weights, mode=padding, limits=limits)
         shape_data = tf.shape(data)
         size = tf.cast(shape_data[0], ztypes.float)
         return data, size, weights
