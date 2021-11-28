@@ -1,21 +1,26 @@
 #  Copyright (c) 2021 zfit
 
 import abc
+from collections import OrderedDict
 from typing import Iterable, List, Optional, Set, Tuple, Union
 
-from ordered_set import OrderedSet
+import tensorflow as tf
 
-from ..core.basemodel import BaseModel
+from ..settings import ztypes, run
+from ..core.coordinates import convert_to_obs_str
 from ..core.dependents import _extract_dependencies
 from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace
+from ..core.parameter import convert_to_parameter
 from ..core.space import Space, combine_spaces
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_norm_range
 from ..util.exception import (LimitsIncompatibleError,
                               NormRangeNotSpecifiedError,
-                              SpaceIncompatibleError)
+                              ObsIncompatibleError, ModelIncompatibleError)
+from ..util.warnings import warn_advanced_feature, warn_changed_feature
+from ..z import numpy as znp
 
 
 def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitSpace]) -> ZfitSpace:
@@ -122,3 +127,70 @@ def _extract_common_obs(obs: Tuple[Union[Tuple[str], Space]]) -> Tuple[str]:
             if o not in unique_obs:
                 unique_obs.append(o)
     return tuple(unique_obs)
+
+
+def _preprocess_init_sum(fracs, obs, pdfs):
+    if len(pdfs) < 2:
+        raise ValueError(f"Cannot build a sum of less than two pdfs {pdfs}")
+    common_obs = obs if obs is not None else pdfs[0].obs
+    common_obs = convert_to_obs_str(common_obs)
+    if not all(frozenset(pdf.obs) == frozenset(common_obs) for pdf in pdfs):
+        raise ObsIncompatibleError("Currently, sums are only supported in the same observables")
+    # check if all extended
+    are_extended = [pdf.is_extended for pdf in pdfs]
+    all_extended = all(are_extended)
+    no_extended = not any(are_extended)
+    fracs = convert_to_container(fracs)
+    if fracs:  # not None or empty list
+        fracs = [convert_to_parameter(frac) for frac in fracs]
+    elif not all_extended:
+        raise ModelIncompatibleError(f"Not all pdf {pdfs} are extended and no fracs {fracs} are provided.")
+    if not no_extended and fracs:
+        warn_advanced_feature(f"This SumPDF is built with fracs {fracs} and {'all' if all_extended else 'some'} "
+                              f"pdf are extended: {pdfs}."
+                              f" This will ignore the yields of the already extended pdfs and the result will"
+                              f" be a not extended SumPDF.", identifier='sum_extended_frac')
+    # catch if args don't fit known case
+    if fracs:
+        # create fracs if one is missing
+        if len(fracs) == len(pdfs) - 1:
+            remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
+            remaining_frac = convert_to_parameter(remaining_frac_func,
+                                                  params=fracs)
+            if run.numeric_checks:
+                tf.debugging.assert_non_negative(remaining_frac,
+                                                 f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}")  # check fractions
+
+            # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
+            fracs_cleaned = fracs + [remaining_frac]
+
+        elif len(fracs) == len(pdfs):
+            warn_changed_feature("A SumPDF with the number of fractions equal to the number of pdf will no longer "
+                                 "be extended. To make it extended, either manually use 'create_exteneded' or set "
+                                 "the yield. OR provide all pdfs as extended pdfs and do not provide a fracs "
+                                 "argument.", identifier='new_sum')
+            fracs_cleaned = fracs
+
+        else:
+            raise ModelIncompatibleError(f"If all PDFs are not extended {pdfs}, the fracs {fracs} have to be of"
+                                         f" the same length as pdf or one less.")
+        param_fracs = fracs_cleaned
+    # for the extended case, take the yields, normalize them, in case no fracs are given.
+    sum_yields = None
+    if all_extended and not fracs:
+        yields = [pdf.get_yield() for pdf in pdfs]
+
+        def sum_yields_func(params):
+            return znp.sum(list(params.values()))
+
+        sum_yields = convert_to_parameter(sum_yields_func, params={f'yield_{i}': y for i, y in enumerate(yields)})
+        yield_fracs = [convert_to_parameter(lambda params: params['yield_'] / params['sum_yields'],
+                                            params={'sum_yields': sum_yields, 'yield_': yield_})
+                       for yield_ in yields]
+
+        fracs_cleaned = None
+        param_fracs = yield_fracs
+    params = OrderedDict()
+    for i, frac in enumerate(param_fracs):
+        params[f'frac_{i}'] = frac
+    return all_extended, fracs_cleaned, param_fracs, params, sum_yields

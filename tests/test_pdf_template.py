@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 from zfit._data.binneddatav1 import BinnedData
 from zfit._loss.binnedloss import ExtendedBinnedNLL
 from zfit.models.binned_functor import BinnedSumPDFV1
-from zfit.models.morphing import SplineMorphing
+from zfit.models.morphing import SplineMorphingPDF
 from zfit.models.template import BinnedTemplatePDFV1
 
 
@@ -20,9 +20,10 @@ def test_binned_template_pdf():
     counts = np.random.uniform(high=1, size=(bins1, bins2))  # generate counts
     counts2 = np.random.normal(loc=5, size=(bins1, bins2))
     counts3 = np.linspace(0, 10, num=bins1)[:, None] * np.linspace(0, 5, num=bins2)[None, :]
-    binnings = [zfit.binned.Regular(bins1, 0, 10, name='obs1'), zfit.binned.Regular(7, -10, bins2, name='obs2')]
+    binnings = [zfit.binned.RegularBinning(bins1, 0, 10, name='obs1'),
+                zfit.binned.RegularBinning(7, -10, bins2, name='obs2')]
     binning = binnings
-    axes = zfit.binned.Binning(binning)
+    axes = zfit.binned.Binnings(binning)
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 
     data = BinnedData.from_tensor(space=obs, values=counts, variances=znp.ones_like(counts) * 1.3)
@@ -44,7 +45,7 @@ def test_binned_template_pdf():
 
     # integrate
     true_integral = znp.sum(true_sum_counts)
-    integral = pdf_sum.ext_integrate(limits=obs, )
+    integral = pdf_sum.ext_integrate(limits=obs)
     assert pytest.approx(float(true_integral)) == float(integral)
 
     # import matplotlib.pyplot as plt
@@ -64,14 +65,14 @@ def test_morphing_templates(alphas):
               counts1 + np.random.uniform(high=20, size=bins1)]
     if alphas is not None:
         counts.append(counts1 + np.random.uniform(high=5, size=bins1))
-    binning = zfit.binned.Regular(bins1, 0, 10, name='obs1')
+    binning = zfit.binned.RegularBinning(bins1, 0, 10, name='obs1')
     obs = zfit.Space(obs='obs1', binning=binning)
     datasets = [BinnedData.from_tensor(obs, count) for count in counts]
     pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
     if alphas is not None:
         pdfs = {a: p for a, p in zip(alphas, pdfs)}
     alpha = zfit.Parameter('alpha', 0, -5, 5)
-    morph = SplineMorphing(alpha=alpha, hists=pdfs)
+    morph = SplineMorphingPDF(alpha=alpha, hists=pdfs)
     if alphas is None:
         alphas = [-1, 0, 1]
     for i, a in enumerate(alphas):
@@ -138,8 +139,8 @@ def test_morphing_templates2D(alphas):
               counts1 + np.random.uniform(high=20, size=shape)]
     if alphas is not None:
         counts.append(counts1 + np.random.uniform(high=5, size=shape))
-    binning1 = zfit.binned.Variable(sorted(np.random.uniform(0, 10, size=bins1 + 1)), name='obs1')
-    binning2 = zfit.binned.Regular(bins2, 0, 10, name='obs2')
+    binning1 = zfit.binned.VariableBinning(sorted(np.random.uniform(0, 10, size=bins1 + 1)), name='obs1')
+    binning2 = zfit.binned.RegularBinning(bins2, 0, 10, name='obs2')
     obs1 = zfit.Space(obs='obs1', binning=binning1)
     obs2 = zfit.Space(obs='obs2', binning=binning2)
     obs = obs1 * obs2
@@ -148,7 +149,7 @@ def test_morphing_templates2D(alphas):
     if alphas is not None:
         pdfs = {a: p for a, p in zip(alphas, pdfs)}
     alpha = zfit.Parameter('alpha', 0, -5, 5)
-    morph = SplineMorphing(alpha=alpha, hists=pdfs)
+    morph = SplineMorphingPDF(alpha=alpha, hists=pdfs)
     if alphas is None:
         alphas = [-1, 0, 1]
     for i, a in enumerate(alphas):
@@ -170,7 +171,8 @@ def test_binned_template_pdf_bbfull():
     counts1 = np.random.uniform(high=150, size=(bins1, bins2))  # generate counts
     counts2 = np.random.normal(loc=50, size=(bins1, bins2))
     counts3 = np.linspace(10, 100, num=bins1)[:, None] * np.linspace(10, 500, num=bins2)[None, :]
-    binnings = [zfit.binned.Regular(bins1, 0, 10, name='obs1'), zfit.binned.Regular(bins2, -10, 7, name='obs2')]
+    binnings = [zfit.binned.RegularBinning(bins1, 0, 10, name='obs1'),
+                zfit.binned.RegularBinning(bins2, -10, 7, name='obs2')]
     binning = binnings
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 

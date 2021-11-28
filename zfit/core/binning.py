@@ -64,7 +64,10 @@ def unbinned_to_hist_eager(values, edges, weights=None):
     return znp.array(h.values(flow=False), znp.float64), znp.array(h.variances(flow=False), znp.float64)
 
 
-def unbinned_to_binned(data, space):
+def unbinned_to_binned(data, space, binned_class=None):
+    if binned_class is None:
+        from zfit._data.binneddatav1 import BinnedData
+        binned_class = BinnedData
     values = data.value()
     weights = data.weights
     if weights is not None:
@@ -72,8 +75,7 @@ def unbinned_to_binned(data, space):
     edges = tuple(space.binning.edges)
     values, variances = tf.numpy_function(unbinned_to_hist_eager, inp=[values, edges, weights],
                                           Tout=[tf.float64, tf.float64])
-    from zfit._data.binneddatav1 import BinnedData
-    binned = BinnedData.from_tensor(space=space, values=values, variances=variances)
+    binned = binned_class.from_tensor(space=space, values=values, variances=variances)
     return binned
 
 

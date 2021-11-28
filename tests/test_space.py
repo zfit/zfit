@@ -4,7 +4,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import z
-from zfit._variables.axis import Regular
+from zfit._variables.axis import RegularBinning
 from zfit.core.coordinates import Coordinates
 from zfit.core.space import ANY, Limit, Space
 from zfit.util.exception import (CoordinatesUnderdefinedError,
@@ -19,7 +19,7 @@ def setup_teardown_vectors():
 
 
 obs1 = ('a', 'b', 'c', 'd', 'e')
-binning1 = [Regular(10 + i, 0 + i, 10 + 2 * i, name=ob) for i, ob in enumerate(obs1)]
+binning1 = [RegularBinning(10 + i, 0 + i, 10 + 2 * i, name=ob) for i, ob in enumerate(obs1)]
 obs2 = ('c', 'b', 'd', 'e', 'a')
 binning2 = [binning1[obs1.index(ob)] for ob in obs2]
 axes1 = (0, 1, 2, 3, 4)
@@ -395,10 +395,10 @@ def test_space_add(limits):
 
 
 @pytest.mark.parametrize('binning', [None, {
-    'x': zfit.binned.Variable([1, 5, 7.3, 11.2], name='x'),
-    'y': zfit.binned.Regular(12, 1, 5, name='y'),
-    'z': zfit.binned.Variable([1, 2, 4, 5.2, 6.3, 11.2], name='z'),
-    'a': zfit.binned.Regular(12, 2, 4, name='a')
+    'x': zfit.binned.VariableBinning([1, 5, 7.3, 11.2], name='x'),
+    'y': zfit.binned.RegularBinning(12, 1, 5, name='y'),
+    'z': zfit.binned.VariableBinning([1, 2, 4, 5.2, 6.3, 11.2], name='z'),
+    'a': zfit.binned.RegularBinning(12, 2, 4, name='a')
 
 }
                                      ])
@@ -465,7 +465,7 @@ def test_combine_spaces(binning):
 
 
 def test_create_binned_space():
-    binning = zfit.binned.Regular(50, -10, 10, name='x')
+    binning = zfit.binned.RegularBinning(50, -10, 10, name='x')
     obs_bin = zfit.Space("x", binning=binning)
     assert obs_bin.binning['x'] == binning
     assert obs_bin.lower[0][0] == -10
@@ -477,7 +477,7 @@ def test_create_binned_space():
     assert obs2.lower[0][0] == -10
     assert obs2.upper[0][0] == 10
 
-    binning = zfit.binned.Variable([1, 5, 7.3, 11.2], name='x')
+    binning = zfit.binned.VariableBinning([1, 5, 7.3, 11.2], name='x')
     obs_bin = zfit.Space("x", binning=binning)
     assert obs_bin.binning['x'] == binning
     assert obs_bin.lower[0][0] == 1
@@ -488,4 +488,4 @@ def test_create_binned_raises():
     with pytest.raises(ValueError, match="must be > 0"):
         zfit.Space("x", binning=0)
     with pytest.raises(TypeError):
-        zfit.binned.Regular(5, -10, 10)
+        zfit.binned.RegularBinning(5, -10, 10)

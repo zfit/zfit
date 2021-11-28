@@ -57,7 +57,7 @@ def test_simlpe_examples_1D():
                 "version": "1.0.0"
                 }""")
 
-    obs = zfit.Space('signal', binning=zfit.binned.Regular(2, 0, 2, name='signal'))
+    obs = zfit.Space('signal', binning=zfit.binned.RegularBinning(2, 0, 2, name='signal'))
     zdata = zfit.data.BinnedData.from_tensor(obs, datanp)
     zmcsig = zfit.data.BinnedData.from_tensor(obs, signp)
     zmcbkg = zfit.data.BinnedData.from_tensor(obs, bkgnp)
@@ -105,7 +105,7 @@ def test_simlpe_examples_1D():
     bestfit_pars, twice_nll = pyhf.infer.mle.fit(data, model, return_fitted_val=True)
     diff = (bestfit_pars - zbestfit) / errors
     # print(bestfit_pars)
-    np.testing.assert_allclose(diff, 0, atol=0.1)
+    np.testing.assert_allclose(diff, 0, atol=1e-3)
 
     # print(-2 * model.logpdf(bestfit_pars, data), twice_nll)
 
@@ -205,7 +205,7 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
         else:
             zfit.run.set_graph_mode(True)
         hypotest = hypotest_zfit
-        obs = zfit.Space('signal', binning=zfit.binned.Regular(n_bins, -0.5, n_bins + 0.5, name='signal'))
+        obs = zfit.Space('signal', binning=zfit.binned.RegularBinning(n_bins, -0.5, n_bins + 0.5, name='signal'))
         zdata = zfit.data.BinnedData.from_tensor(obs, datanp)
         zmcsig = zfit.data.BinnedData.from_tensor(obs, signp)
         zmcbkg = zfit.data.BinnedData.from_tensor(obs, bkgnp)

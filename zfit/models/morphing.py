@@ -27,7 +27,7 @@ def spline_interpolator(alpha, alphas, densities):
     return y
 
 
-class SplineMorphing(BaseBinnedPDFV1):
+class SplineMorphingPDF(BaseBinnedPDFV1):
     _morphing_interpolator = staticmethod(spline_interpolator)
 
     def __init__(self, alpha, hists, extended=None, norm=None):

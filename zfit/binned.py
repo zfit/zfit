@@ -1,6 +1,6 @@
 #  Copyright (c) 2020 zfit
 
 
-from ._variables.axis import Regular, Variable, Binning
+from ._variables.axis import RegularBinning, VariableBinning, Binnings
 
-__all__ = ['Regular', 'Variable', 'Binning']
+__all__ = ['RegularBinning', 'VariableBinning', 'Binnings']

@@ -513,8 +513,8 @@ class Data(GraphCachable, ZfitUnbinnedData, BaseDimensional, BaseObject, Overloa
         return f'<zfit.Data: {self.name} obs={self.obs}>'
 
     def to_binned(self, space):
-        from zfit.core.binning import unbinned_to_binned
-        return unbinned_to_binned(self, space)
+        from zfit._data.binneddatav1 import BinnedData
+        return BinnedData.from_unbinned(space=space, data=self)
 
 
 class SampleData(Data):

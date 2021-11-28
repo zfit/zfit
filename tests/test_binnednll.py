@@ -9,7 +9,7 @@ import zfit
 import zfit.z.numpy as znp
 from zfit import z
 from zfit._data.binneddatav1 import BinnedData
-from zfit._variables.axis import Regular
+from zfit._variables.axis import RegularBinning
 from zfit.models.binned_functor import BinnedSumPDFV1
 from zfit.models.template import BinnedTemplatePDFV1
 
@@ -70,8 +70,8 @@ def test_binned_extended_simple(Loss):
     counts2 = np.random.normal(loc=5, size=(10, 20))
     counts3 = np.linspace(0, 10, num=10)[:, None] * np.linspace(0, 5, num=20)[None, :]
     binning = [
-        zfit.binned.Variable([-10, -5, 5, 7, 10, 15, 17, 21, 23.5, 27, 30], name='obs1'),
-        Regular(20, 0, 10, name='obs2'),
+        zfit.binned.VariableBinning([-10, -5, 5, 7, 10, 15, 17, 21, 23.5, 27, 30], name='obs1'),
+        RegularBinning(20, 0, 10, name='obs2'),
     ]
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 
@@ -109,7 +109,7 @@ def test_binned_loss(weights, Loss):
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
     init_yield = test_values_np.shape[0] * 1.2
     scale = zfit.Parameter('yield', init_yield, 0, init_yield * 4, step_size=1)
-    binning = zfit.binned.Regular(32, obs.lower[0], obs.upper[0], name="obs1")
+    binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
@@ -205,7 +205,7 @@ def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in 
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values)
     init_yield = test_values_np.shape[0] * 1.2
     scale = zfit.Parameter('yield', init_yield, 0, init_yield * 4, step_size=1)
-    binning = zfit.binned.Regular(32, obs.lower[0], obs.upper[0], name="obs1")
+    binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)

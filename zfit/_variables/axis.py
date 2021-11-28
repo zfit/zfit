@@ -7,9 +7,9 @@ import zfit_interface as zinterface
 from hist.axestuple import NamedAxesTuple
 
 
-@tfp.experimental.auto_composite_tensor()
-class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):
-    pass
+# @tfp.experimental.auto_composite_tensor()
+# class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):
+#     pass
 
 
 class Variable(zinterface.variables.ZfitVar):
@@ -76,22 +76,22 @@ class HashableAxisMixin:
         return hash(tuple(self.edges))
 
 
-class Regular(HashableAxisMixin, hist.axis.Regular, family='zfit'):
+class RegularBinning(HashableAxisMixin, hist.axis.Regular, family='zfit'):
 
     def __init__(self, bins: int, start: float, stop: float, *, name: str) -> None:
-        super().__init__(bins, start, stop, name=name)
+        super().__init__(bins, start, stop, name=name, flow=False)
 
 
-class Variable(HashableAxisMixin, hist.axis.Variable, family='zfit'):
+class VariableBinning(HashableAxisMixin, hist.axis.Variable, family='zfit'):
     def __init__(self,
                  edges: Iterable[float],
                  *,
                  name: str
                  ) -> None:
-        super().__init__(edges=edges, name=name)
+        super().__init__(edges=edges, name=name, flow=False)
 
 
-class Binning(hist.axestuple.NamedAxesTuple):
+class Binnings(hist.axestuple.NamedAxesTuple):
     pass
 
 
@@ -103,8 +103,20 @@ def axis_to_histaxis(axis):
     return axis
 
 
+def new_from_axis(axis):
+    if isinstance(axis, hist.axis.Regular):
+        lower, upper = axis.edges[0], axis.edges[-1]
+        return RegularBinning(axis.size, lower, upper, name=axis.name)
+    if isinstance(axis, hist.axis.Variable):
+        return VariableBinning(axis.edges, name=axis.name)
+    raise ValueError(f"{axis} is not a valid axis.")
+
+
 def histaxes_to_binning(binnings):
-    return binnings
+    new_binnings = []
+    for binning in binnings:
+        new_binnings.append(new_from_axis(binning))
+    return Binnings(new_binnings)
 
 
 def binning_to_histaxes(binnings):

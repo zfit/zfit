@@ -445,10 +445,8 @@ class BaseBinnedPDFV1(
             raise WorkInProgressError("limits different from the default are not yet available."
                                       " Please open an issue if you need this:"
                                       " https://github.com/zfit/zfit/issues/new/choose")
-        probs = self.rel_counts(limits,
-                                norm=False)
-        probs /= znp.sum(probs)  # TODO: should we just ask for the normed? or what is better?
-        values = z.random.counts_multinomial(n, probs=probs, dtype=tf.float64)
+        probs = self.rel_counts(limits)
+        values = z.random.counts_multinomial(n, probs=probs, dtype=znp.float64)
         return values
 
     # ZfitMinimalHist implementation

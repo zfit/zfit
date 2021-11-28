@@ -222,7 +222,7 @@ def create_gauss_binned(n, nbins=130):
     obs = zfit.Space('x', (-5, 10))
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
     gauss.set_yield(n)
-    axis = zfit.binned.Regular(nbins, -5, 10, name='x')
+    axis = zfit.binned.RegularBinning(nbins, -5, 10, name='x')
     obs_binned = zfit.Space('x', binning=[axis])
     gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss, space=obs_binned, extended=n)
     return gauss, gauss_binned, obs, obs_binned
@@ -238,8 +238,8 @@ def create_gauss2d_binned(n, nbins=130):
     gaussy = zfit.pdf.Gauss(mu=250, sigma=200, obs=obsy)
     prod = zfit.pdf.ProductPDF([gaussx, gaussy])
     prod.set_yield(n)
-    axisx = zfit.binned.Regular(nbins, -5, 10, name='x')
-    axisy = zfit.binned.Regular(nbins, 50, 600, name='y')
+    axisx = zfit.binned.RegularBinning(nbins, -5, 10, name='x')
+    axisy = zfit.binned.RegularBinning(nbins, 50, 600, name='y')
     obs_binned = zfit.Space(['x', 'y'], binning=[axisx, axisy])
     gauss_binned = BinnedFromUnbinnedPDF(pdf=prod, space=obs_binned, extended=n)
     return prod, gauss_binned, obs2d, obs_binned
@@ -259,10 +259,11 @@ def test_binned_from_unbinned_2D():
     gaussy = zfit.pdf.Gauss(mu=muy, sigma=sigmay, obs=obsy)
     gauss2D = zfit.pdf.ProductPDF([gaussx, gaussy])
 
-    axisx = zfit.binned.Variable(np.concatenate([np.linspace(-5, 5, 43), np.linspace(5, 10, 30)[1:]], axis=0), name="x")
+    axisx = zfit.binned.VariableBinning(np.concatenate([np.linspace(-5, 5, 43), np.linspace(5, 10, 30)[1:]], axis=0),
+                                        name="x")
     axisxhist = hist.axis.Variable(np.concatenate([np.linspace(-5, 5, 43), np.linspace(5, 10, 30)[1:]], axis=0),
                                    name="x")
-    axisy = zfit.binned.Regular(15, -50, 100, name='y')
+    axisy = zfit.binned.RegularBinning(15, -50, 100, name='y')
     axisyhist = hist.axis.Regular(15, -50, 100, name='y')
     obs_binnedx = zfit.Space(['x'], binning=axisx)
     obs_binnedy = zfit.Space('y', binning=axisy)

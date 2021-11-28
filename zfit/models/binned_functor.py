@@ -1,73 +1,81 @@
 #  Copyright (c) 2021 zfit
-from typing import List
+from typing import List, Iterable, Optional
 
 import numpy as np
 import tensorflow as tf
 
-from .. import z, convert_to_parameter
+from .. import z, convert_to_parameter, supports
+from ..util import ztyping
 from ..util.deprecation import deprecated_norm_range
+from ..util.exception import SpecificFunctionNotImplemented, NormNotImplemented
 from ..z import numpy as znp
 from ..core.binnedpdf import BaseBinnedPDFV1
-from ..core.interfaces import ZfitModel
+from ..core.interfaces import ZfitModel, ZfitPDF
 from ..util.container import convert_to_container
-from .basefunctor import FunctorMixin
-
-
-# class FunctorMixin:
-#
-#     def __init__(self, models, **kwargs) -> None:
-#         super().__init__(**kwargs)
-#         self._models = convert_to_container(models)
-#
-#     @property
-#     def models(self) -> List[ZfitModel]:
-#         return self._models
+from .basefunctor import FunctorMixin, _preprocess_init_sum
 
 
 class BinnedSumPDFV1(FunctorMixin, BaseBinnedPDFV1):
 
-    def __init__(self, pdfs, obs=None, name="BinnedSumPDF", **kwargs):
-        self.pdfs = convert_to_container(pdfs)
-        super().__init__(obs=obs, params={}, name=name, models=pdfs, **kwargs)
+    def __init__(
+            self,
+            pdfs: Iterable[ZfitPDF],
+            fracs: Optional[ztyping.ParamTypeInput] = None,
+            obs: ztyping.ObsTypeInput = None,
+            name: str = "BinnedSumPDF"
+    ):
+        self._fracs = None
 
-        if not all(model.is_extended for model in self.models):
-            raise RuntimeError
-        yields = [pdf.get_yield() for pdf in self.models]
+        pdfs = convert_to_container(pdfs)
+        self.pdfs = pdfs
 
-        def sum_yields_func():
-            return znp.sum(
-                [tf.convert_to_tensor(value=y, dtype_hint=znp.float64) for y in yields])
+        all_extended, fracs_cleaned, param_fracs, params, sum_yields = _preprocess_init_sum(fracs, obs, pdfs)
 
-        sum_yields = convert_to_parameter(sum_yields_func, params=yields)
-        yield_fracs = [convert_to_parameter(lambda sum_yields, yield_: yield_ / sum_yields,
-                                            params=[sum_yields, yield_])
-                       for yield_ in yields]
-        self._set_yield(sum_yields)
+        self._fracs = param_fracs
+        self._original_fracs = fracs_cleaned
+
+        extended = sum_yields if all_extended else None
+        super().__init__(models=pdfs, obs=obs, params=params, name=name, extended=extended)
 
     @property
     def _models(self) -> List[ZfitModel]:
         return self.pdfs
 
-    def _unnormalized_pdf(self, x):
-        models = self.models
-        prob = tf.reduce_sum([model._unnormalized_pdf(x) for model in models], axis=0)
+    # def _unnormalized_pdf(self, x):
+    #     models = self.models
+    #     prob = tf.reduce_sum([model._unnormalized_pdf(x) for model in models], axis=0)
+    #     return prob
 
-        return prob
+    @supports(norm=True)
+    def _pdf(self, x, norm):
+        equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
+        if norm and not equal_norm_ranges:
+            raise NormNotImplemented
+        pdfs = self.pdfs
+        fracs = self.params.values()
+        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
+        prob = znp.sum(probs)
+        return z.convert_to_tensor(prob)
 
     @deprecated_norm_range
     def _ext_pdf(self, x, norm, *, norm_range=None):
-        prob = tf.reduce_sum([model.ext_pdf(x) for model in self.models], axis=0)
-        prob /= np.prod(self.space.binning.width, axis=0)
-        return prob
+        equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
+        if norm and not equal_norm_ranges:
+            raise NormNotImplemented
+        prob = znp.sum([model.ext_pdf(x) for model in self.models], axis=0)
+        return z.convert_to_tensor(prob)
 
     def _counts(self, x, norm=None):
-        if norm not in (None, False, self.norm):
-            raise RuntimeError("norm range different than None or False currently not supported.")
+        equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
+        if norm and not equal_norm_ranges:
+            raise NormNotImplemented
         prob = znp.sum([model.counts(x) for model in self.models], axis=0)
         return prob
 
     def _rel_counts(self, x, norm=None):
-        if norm not in (None, False, self.norm):
-            return super()._rel_counts(x, norm)
-        counts = self.counts(x, norm)
-        return counts / znp.sum(counts)  # TODO: needs fracs!
+        equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
+        if norm and not equal_norm_ranges:
+            raise NormNotImplemented
+        fracs = self.params.values()
+        prob = znp.sum([model.rel_counts(x) * frac for model, frac in zip(self.models, fracs)], axis=0)
+        return prob

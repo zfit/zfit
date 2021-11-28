@@ -9,7 +9,7 @@ import hist
 import tensorflow as tf
 
 from zfit._variables.axis import histaxes_to_binning, binning_to_histaxes
-from zfit.core.interfaces import ZfitBinnedData, ZfitSpace
+from zfit.core.interfaces import ZfitBinnedData, ZfitSpace, ZfitData
 from zfit.z import numpy as znp
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError
@@ -88,6 +88,11 @@ class BinnedData(ZfitBinnedData,
         elif variances is not None:
             variances = znp.asarray(variances)
         return cls(holder=BinnedHolder(space=space, values=values, variances=variances))
+
+    @classmethod
+    def from_unbinned(cls, space: ZfitSpace, data: ZfitData):
+        from zfit.core.binning import unbinned_to_binned
+        return unbinned_to_binned(data, space)
 
     @classmethod
     def from_hist(cls, hist: hist.NamedHist) -> BinnedData:

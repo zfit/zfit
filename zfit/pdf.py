@@ -11,6 +11,7 @@ __all__ = ['BasePDF', 'BaseFunctor',
            'ConditionalPDFV1',
            'ZPDF', 'SimplePDF', 'SimpleFunctorPDF',
            "BinnedFromUnbinnedPDF", "UnbinnedFromBinnedPDF",
+           "SplineMorphingPDF",
            ]
 
 from .core.basepdf import BasePDF
@@ -23,6 +24,7 @@ from .models.dist_tfp import (Cauchy, Gauss, Poisson, TruncatedGauss, Uniform,
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
 from .models.kde import (GaussianKDE1DimV1, KDE1DimExact, KDE1DimFFT,
                          KDE1DimGrid, KDE1DimISJ)
+from .models.morphing import SplineMorphingPDF
 from .models.physics import CrystalBall, DoubleCB
 from .models.polynomials import (Chebyshev, Chebyshev2, Hermite, Laguerre,
                                  Legendre, RecursivePolynomial)

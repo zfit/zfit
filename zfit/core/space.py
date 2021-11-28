@@ -24,7 +24,7 @@ from .dimension import common_axes, common_obs, limits_overlap
 from .interfaces import (ZfitLimit, ZfitOrderableDimensional,
                          ZfitSpace, ZfitPDF)
 from .. import z
-from .._variables.axis import Binning, Regular
+from .._variables.axis import Binnings, RegularBinning
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -1073,10 +1073,10 @@ class Space(BaseSpace,
         if name is None:
             name = "Space"
         if not isinstance(binning, int):
-            if not isinstance(binning, Binning):
+            if not isinstance(binning, Binnings):
                 binning = convert_to_container(binning)
                 if binning is not None:
-                    binning = Binning(binning)
+                    binning = Binnings(binning)
             if binning is not None and not all(binning.name):
                 raise TypeError(
                     f"Axes must have a name. Missing: {[axis for axis in binning if not hasattr(axis, 'name')]}")
@@ -1104,7 +1104,7 @@ class Space(BaseSpace,
                 raise ValueError("If binning is an integer, it must be > 0")
             lower = self.lower[0][0]
             upper = self.upper[0][0]
-            binning = Binning([Regular(bins=binning, start=lower, stop=upper, name=self.obs[0])])
+            binning = Binnings([RegularBinning(bins=binning, start=lower, stop=upper, name=self.obs[0])])
 
         self._binning = binning
 
@@ -1113,7 +1113,7 @@ class Space(BaseSpace,
     def binning(self):
         binning_out = self._binning
         if binning_out is not None:
-            binning_out = Binning([binning_out[ob] for ob in self.obs])
+            binning_out = Binnings([binning_out[ob] for ob in self.obs])
         return binning_out
 
     @property
@@ -1815,9 +1815,9 @@ class Space(BaseSpace,
         return self.rect_area()
 
     def with_binning(self, binning):
-        if binning is not None and not isinstance(binning, Binning):
+        if binning is not None and not isinstance(binning, Binnings):
             binning = convert_to_container(binning)
-            binning = Binning(binning)
+            binning = Binnings(binning)
         return self.copy(binning=binning)
 
     # Operators
@@ -2016,7 +2016,7 @@ def combine_spaces(*spaces: Iterable[Space]):
                     if binning not in binnings_ordererd:
                         binnings_ordererd.append(binning)
 
-        binning = Binning(binnings_ordererd)
+        binning = Binnings(binnings_ordererd)
     else:
         binning = None
     using_obs = bool(common_obs_ordered)

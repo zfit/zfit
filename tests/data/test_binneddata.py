@@ -126,8 +126,8 @@ def test_valid_input():
     import zfit.z.numpy as znp
     import zfit
     from zfit.exception import ShapeIncompatibleError
-    obs10 = zfit.Space('x', binning=zfit.binned.Regular(10, -3, 4, name='x'))
-    obs5 = zfit.Space('x', binning=zfit.binned.Regular(5, -3, 4, name='x'))
+    obs10 = zfit.Space('x', binning=zfit.binned.RegularBinning(10, -3, 4, name='x'))
+    obs5 = zfit.Space('x', binning=zfit.binned.RegularBinning(5, -3, 4, name='x'))
     _ = BinnedHolder(obs10, znp.random.uniform(size=[10]), znp.random.uniform(size=[10]))
     with pytest.raises(tf.errors.InvalidArgumentError):
         _ = BinnedHolder(obs10, znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
@@ -153,7 +153,7 @@ def test_variance():
     import zfit
     import zfit.z.numpy as znp
 
-    binning1 = zfit.binned.Regular(3, -3.5, 3, name="x")
+    binning1 = zfit.binned.RegularBinning(3, -3.5, 3, name="x")
     obs = zfit.Space('x', binning=binning1)
     values = znp.array([100., 200, 50])
     data = zfit.data.BinnedData.from_tensor(obs, values=values, variances=True)

@@ -9,7 +9,7 @@ import zfit
 n_bins = 50
 
 # create space
-obs_binned = zfit.Space("x", binning=zfit.binned.Regular(50, -10, 10, name='x'))
+obs_binned = zfit.Space("x", binning=zfit.binned.RegularBinning(50, -10, 10, name='x'))
 obs = obs_binned.with_binning(None)
 
 # parameters
