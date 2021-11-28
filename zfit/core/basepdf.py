@@ -30,7 +30,7 @@ Let's create an instance and some example data
 >>> gauss = MyGauss(mean=mean, stddev=stddev)
 >>> example_data = np.random.random(10)
 Now we can get the probability
->>> probs = gauss.pdf()  # `norm_range` specifies over which range to normalize
+>>> probs = gauss.pdf(example_data)  # `norm` specifies over which range to normalize
 Or the integral
 >>> integral = gauss.integrate(limits=(-5, 3.1),norm=False,options=options)  # norm_range is False -> return unnormalized
 integral
@@ -280,7 +280,7 @@ class BasePDF(ZfitPDF, BaseModel):
             probs = self._ext_pdf(x, norm)
         except NormNotImplemented:
             unnorm_probs = self._ext_pdf(x, False)
-            normalization = self.normalization(norm, options=options)
+            normalization = self.normalization(norm)
             probs = unnorm_probs / normalization
         return probs
 

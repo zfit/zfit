@@ -57,8 +57,8 @@ panels_add_bootstrap_css = False  # for sphinx_panel, use custom css from theme,
 # releases_github_path = "zfit/zfit"  # TODO: use releases or similar?
 # releases_document_name = "../CHANGELOG.rst"
 
-# jupyter_execute_notebooks = "force"  # use if needed and cache should be ignored
-jupyter_execute_notebooks = "cache"
+jupyter_execute_notebooks = "force"  # use if needed and cache should be ignored
+# jupyter_execute_notebooks = "cache"
 if jupyter_execute_notebooks == "cache":
     jupyter_cache_path = project_dir.joinpath('docs', '.cache', 'myst-nb')
     jupyter_cache_path.mkdir(parents=True, exist_ok=True)

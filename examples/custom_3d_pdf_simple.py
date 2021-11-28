@@ -34,7 +34,7 @@ alpha = zfit.Parameter("alpha", 0.2)  # floating
 beta = zfit.Parameter("beta", 0.4, floating=False)  # non-floating
 custom_pdf = CustomPDF(obs=obs, alpha=alpha, beta=beta)
 
-integral = custom_pdf.integrate(limits=obs, options=options)  # = 1 since normalized
+integral = custom_pdf.integrate(limits=obs)  # = 1 since normalized
 sample = custom_pdf.sample(n=1000)  # DO NOT USE THIS FOR TOYS!
 prob = custom_pdf.pdf(sample)  # DO NOT USE THIS FOR TOYS!
 
