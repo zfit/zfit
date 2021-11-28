@@ -24,7 +24,7 @@ from .dimension import common_axes, common_obs, limits_overlap
 from .interfaces import (ZfitLimit, ZfitOrderableDimensional,
                          ZfitSpace, ZfitPDF)
 from .. import z
-from .._variables.axis import Binning
+from .._variables.axis import Binning, Regular
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -1059,54 +1059,34 @@ class Space(BaseSpace,
         Axes are the same concept as observables, but numbers, indexes, and are used *inside* an object. There,
         axes 0 corresponds to the 0th data column we get (which corresponds to a certain observable).
 
-        Every space can have limits; they are either rectangular or an arbitrary function (together with rectangular
-        limits). Spaces can be combined (multiplied) to create higher dimensional spaces.
-        `Spaces` can be added, which combines them into one `Space` consisting of two disconnected limits.
-
-        So integrating over the space consisting of the two added disconnected ranges,
-        e.g. 0 to 1 and 2 to 3 will return the sum of the two separate integrals.
-
-        .. code-block:: python
-
-            lower_band = zfit.Space('obs1', (0, 1))
-            upper_band = zfit.Space('obs1', (2, 3))
-            combined_obs = lower_band + upper_band
-            integral_comb = model.integrate(limits=combined_obs)
-            # which is equivalent to the lower
-            integral_sep = model.integrate(limits=lower_band) + model.integrate(limits=upper_band)
-            assert integral_comb == integral_sep
-
-
-        In principle, the same behavior could also be achieved by specifying an arbitrary function. Using the addition
-        allows for certain optimizations inside.
-
-
-
         Args:
-            obs:
-            limits:
-            name:
+            obs: |@doc:space.init.obs| Observable of the space. |@docend:space.init.obs|
+            limits: |@doc:space.init.limits| A tuple-like object of the limits of the space.
+               This are the lower and upper limits. |@docend:space.init.limits|
+            binning: |@doc:space.init.binning| Binning of the space.
+               Currently only regular and variable binning *with a name* is supported.
+               If an integer is given, it is interpreted as the number of bins and
+               a regular binning is automatically created using the limits as the
+               start and end points. |@docend:space.init.binning|
+            name: |@doc:space.init.name| Human readable name of the space. |@docend:space.init.name|
         """
         if name is None:
             name = "Space"
-        binning_debug = binning
-        if not isinstance(binning, Binning):
-            binning = convert_to_container(binning)
-            if binning is not None:
-                binning = Binning(binning)
-        if binning is not None and obs is None and axes is None:
-            obs = [axis.name for axis in binning]
+        if not isinstance(binning, int):
+            if not isinstance(binning, Binning):
+                binning = convert_to_container(binning)
+                if binning is not None:
+                    binning = Binning(binning)
+            if binning is not None and not all(binning.name):
+                raise TypeError(
+                    f"Axes must have a name. Missing: {[axis for axis in binning if not hasattr(axis, 'name')]}")
+            if binning is not None and obs is None and axes is None:
+                obs = [axis.name for axis in binning]
 
         super().__init__(obs=obs, axes=axes, name=name)
 
-        if binning is not None:
-            # if limits is not None or rect_limits is not None:
-            #     raise ValueError("If binning is provided, limits can not be given but will be taken from the binning.")
-            if obs is not None:
-                binning = [[axis for axis in binning if axis.name == ob][0] for ob in self.obs]
-            else:
-                obs = [axis.name for axis in binning]
-            binning = Binning(binning)
+        if binning is not None and not isinstance(binning, int):
+
             if limits is None and rect_limits is None:
                 limits = [[], []]
                 for axis in binning:
@@ -1115,8 +1095,18 @@ class Space(BaseSpace,
 
         limits_dict = self._check_convert_input_limits(limit=limits, rect_limits=rect_limits, obs=self.obs,
                                                        axes=self.axes, n_obs=self.n_obs)
-        self._binning = binning
         self._limits_dict = limits_dict
+
+        if isinstance(binning, int):
+            if not self.n_obs == 1:
+                raise ValueError("Can only use integer as binning with 1D spaces")
+            if binning < 1:
+                raise ValueError("If binning is an integer, it must be > 0")
+            lower = self.lower[0][0]
+            upper = self.upper[0][0]
+            binning = Binning([Regular(bins=binning, start=lower, stop=upper, name=self.obs[0])])
+
+        self._binning = binning
 
     # TODO(Mayou36): put it everywhere, multilimits
     @property

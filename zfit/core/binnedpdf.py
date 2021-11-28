@@ -14,7 +14,7 @@ import uhi
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from zfit._data.binneddatav1 import BinnedDataV1, move_axis_obs
+from zfit._data.binneddatav1 import BinnedData, move_axis_obs
 from .baseobject import BaseNumeric, extract_filter_params
 from .binning import unbinned_to_binindex
 from .data import Data
@@ -129,13 +129,13 @@ class BaseBinnedPDFV1(
     def axes(self):
         return self.space.binning
 
-    def to_data(self, **kwargs):
+    def to_binneddata(self, **kwargs):
         values = self.values(**kwargs)
-        data = BinnedDataV1.from_tensor(space=self.space, values=values)
+        data = BinnedData.from_tensor(space=self.space, values=values)
         return data
 
     def to_hist(self, **kwargs):
-        return self.to_data(**kwargs).to_hist()
+        return self.to_binneddata(**kwargs).to_hist()
 
     @property
     def space(self):
@@ -173,7 +173,7 @@ class BaseBinnedPDFV1(
         if x is None and none_is_space:
             return self.space
         if isinstance(x, uhi.typing.plottable.PlottableHistogram) and not isinstance(x, ZfitBinnedData):
-            x = BinnedDataV1.from_hist(x)
+            x = BinnedData.from_hist(x)
         if not isinstance(x, ZfitBinnedData):
             if not isinstance(x, ZfitSpace):
                 if not isinstance(x, ZfitUnbinnedData):
@@ -429,7 +429,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         values = self._call_sample(n, limits)
         if not isinstance(values, ZfitBinnedData):
-            values = BinnedDataV1.from_tensor(space=limits, values=values, variances=None)
+            values = BinnedData.from_tensor(space=limits, values=values, variances=None)
         if isinstance(original_limits, ZfitSpace):
             values = values.with_obs(original_limits)
         return values

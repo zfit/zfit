@@ -423,7 +423,7 @@ class BinnedChi2(BaseBinned):
             N_\mathrm{PDF,bin} = \mathrm{pdf}(\text{integral}) \cdot N_\mathrm{Data,tot}
             \sigma_\mathrm{bin} = \text{variance}
 
-        with `variance` the value of :class:`~zfit.data.BinnedDataV1.variances` of the binned data.
+        with `variance` the value of :class:`~zfit.data.BinnedData.variances` of the binned data.
 
         |@doc:loss.init.binned.explain.chi2zeros| If the dataset has empty bins, the errors
         will be zero and :math:`\chi^2` is undefined. Two possibilities are available and
@@ -555,7 +555,7 @@ class ExtendedBinnedChi2(BaseBinned):
             N_\mathrm{PDF,bin} = \mathrm{pdf}(\text{integral}) \cdot N_\mathrm{PDF,expected}
             \sigma_\mathrm{bin} = \text{variance}
 
-        with `variance` the value of :class:`~zfit.data.BinnedDataV1.variances` of the binned data.
+        with `variance` the value of :class:`~zfit.data.BinnedData.variances` of the binned data.
 
         |@doc:loss.init.binned.explain.chi2zeros| If the dataset has empty bins, the errors
         will be zero and :math:`\chi^2` is undefined. Two possibilities are available and
@@ -644,7 +644,7 @@ class ExtendedBinnedChi2(BaseBinned):
             elif variance_method == 'data':
                 variances = dat.variances()
             else:
-                raise ValueError(f"Variance method ")
+                raise ValueError(f"Variance method {variance_method} not supported")
             if variances is None:
                 raise ValueError(f"variances cannot be None for Chi2: {dat}")
 

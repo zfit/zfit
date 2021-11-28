@@ -1,4 +1,6 @@
 #  Copyright (c) 2021 zfit
+from typing import Iterable
+
 import hist
 import tensorflow_probability as tfp
 import zfit_interface as zinterface
@@ -64,16 +66,29 @@ class UnbinnedAxis(Axis):
 
 # TODO: fill out below and don't just use the hist objects
 class HashableAxisMixin:
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        if self.name == "":
+            raise ValueError("Currently, a binning has to have a name coinciding with the obs.")
+
     def __hash__(self):
         return hash(tuple(self.edges))
 
 
 class Regular(HashableAxisMixin, hist.axis.Regular, family='zfit'):
-    pass
+
+    def __init__(self, bins: int, start: float, stop: float, *, name: str) -> None:
+        super().__init__(bins, start, stop, name=name)
 
 
 class Variable(HashableAxisMixin, hist.axis.Variable, family='zfit'):
-    pass
+    def __init__(self,
+                 edges: Iterable[float],
+                 *,
+                 name: str
+                 ) -> None:
+        super().__init__(edges=edges, name=name)
 
 
 class Binning(hist.axestuple.NamedAxesTuple):

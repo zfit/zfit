@@ -7,7 +7,7 @@ import pytest
 import zfit
 import zfit.z.numpy as znp
 from matplotlib import pyplot as plt
-from zfit._data.binneddatav1 import BinnedDataV1
+from zfit._data.binneddatav1 import BinnedData
 from zfit._loss.binnedloss import ExtendedBinnedNLL
 from zfit.models.binned_functor import BinnedSumPDFV1
 from zfit.models.morphing import SplineMorphing
@@ -25,9 +25,9 @@ def test_binned_template_pdf():
     axes = zfit.binned.Binning(binning)
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 
-    data = BinnedDataV1.from_tensor(space=obs, values=counts, variances=znp.ones_like(counts) * 1.3)
-    data2 = BinnedDataV1.from_tensor(obs, counts2)
-    data3 = BinnedDataV1.from_tensor(obs, counts3)
+    data = BinnedData.from_tensor(space=obs, values=counts, variances=znp.ones_like(counts) * 1.3)
+    data2 = BinnedData.from_tensor(obs, counts2)
+    data3 = BinnedData.from_tensor(obs, counts3)
 
     pdf = BinnedTemplatePDFV1(data=data, extended=np.sum(counts))
     pdf2 = BinnedTemplatePDFV1(data=data2, extended=np.sum(counts2))
@@ -66,7 +66,7 @@ def test_morphing_templates(alphas):
         counts.append(counts1 + np.random.uniform(high=5, size=bins1))
     binning = zfit.binned.Regular(bins1, 0, 10, name='obs1')
     obs = zfit.Space(obs='obs1', binning=binning)
-    datasets = [BinnedDataV1.from_tensor(obs, count) for count in counts]
+    datasets = [BinnedData.from_tensor(obs, count) for count in counts]
     pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
     if alphas is not None:
         pdfs = {a: p for a, p in zip(alphas, pdfs)}
@@ -106,7 +106,7 @@ def test_morphing_templates(alphas):
             color = cm.get_cmap('winter')(normed_a)
             alpha.set_value(a)
             histo = morph.ext_pdf(None)
-            histo = BinnedDataV1.from_tensor(obs, histo)
+            histo = BinnedData.from_tensor(obs, histo)
             histo = histo.to_hist()
             values = histo.values()
             x = histo.axes.edges[0][:-1]
@@ -143,7 +143,7 @@ def test_morphing_templates2D(alphas):
     obs1 = zfit.Space(obs='obs1', binning=binning1)
     obs2 = zfit.Space(obs='obs2', binning=binning2)
     obs = obs1 * obs2
-    datasets = [BinnedDataV1.from_tensor(obs, count) for count in counts]
+    datasets = [BinnedData.from_tensor(obs, count) for count in counts]
     pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
     if alphas is not None:
         pdfs = {a: p for a, p in zip(alphas, pdfs)}
@@ -174,9 +174,9 @@ def test_binned_template_pdf_bbfull():
     binning = binnings
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 
-    mc1 = BinnedDataV1.from_tensor(space=obs, values=counts1, variances=znp.ones_like(counts1) * 1.3)
-    mc2 = BinnedDataV1.from_tensor(obs, counts2)
-    mc3 = BinnedDataV1.from_tensor(obs, counts3)
+    mc1 = BinnedData.from_tensor(space=obs, values=counts1, variances=znp.ones_like(counts1) * 1.3)
+    mc2 = BinnedData.from_tensor(obs, counts2)
+    mc3 = BinnedData.from_tensor(obs, counts3)
 
     counts_mc = counts1 + counts2 + counts3
 
@@ -185,7 +185,7 @@ def test_binned_template_pdf_bbfull():
     counts3_data = np.linspace(10, 100, num=bins1)[:, None] * np.linspace(20, 490, num=bins2)[None, :]
     counts_data = counts1_data + counts2_data + counts3_data
     counts_data *= 1.1
-    data = BinnedDataV1.from_tensor(space=obs, values=counts_data)
+    data = BinnedData.from_tensor(space=obs, values=counts_data)
 
     pdf1 = BinnedTemplatePDFV1(data=mc1, sysshape=True)
     pdf2 = BinnedTemplatePDFV1(data=mc2, sysshape=True)

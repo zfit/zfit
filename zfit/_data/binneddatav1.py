@@ -64,15 +64,15 @@ flow = False  # TODO: track the flow or not?
 
 
 # @tfp.experimental.auto_composite_tensor()
-class BinnedDataV1(ZfitBinnedData,
-                   # tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, ZfitBinnedData
-                   ):
+class BinnedData(ZfitBinnedData,
+                 # tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, ZfitBinnedData
+                 ):
 
     def __init__(self, *, holder):
         self.holder: BinnedHolder = holder
 
     @classmethod  # TODO: add overflow bins if needed
-    def from_tensor(cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None) -> BinnedDataV1:
+    def from_tensor(cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None) -> BinnedData:
         """Create a binned dataset defined in *space* where values are considered to be the counts.
 
         Args:
@@ -90,7 +90,7 @@ class BinnedDataV1(ZfitBinnedData,
         return cls(holder=BinnedHolder(space=space, values=values, variances=variances))
 
     @classmethod
-    def from_hist(cls, hist: hist.NamedHist) -> BinnedDataV1:
+    def from_hist(cls, hist: hist.NamedHist) -> BinnedData:
         """Create a binned dataset from a `hist` histogram.
 
         Args:
@@ -105,7 +105,7 @@ class BinnedDataV1(ZfitBinnedData,
         holder = BinnedHolder(space=space, values=values, variances=variances)
         return cls(holder=holder)
 
-    def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedDataV1:
+    def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedData:
         """Return a subset of the data in the ordering of *obs*.
 
         Args:
@@ -228,5 +228,19 @@ class BinnedDataV1(ZfitBinnedData,
         space = self.space.copy(binning=None)
         from zfit import Data
         return Data.from_tensor(obs=space, tensor=centers, weights=flat_weights)
+
+    def __str__(self):
+        import zfit
+        if zfit.run.executing_eagerly():
+            return self.to_hist().__str__()
+        else:
+            return f"Binned data, {self.obs} (non-eager)"
+
+    def _repr_html_(self):
+        import zfit
+        if zfit.run.executing_eagerly():
+            return self.to_hist()._repr_html_()
+        else:
+            return f"Binned data, {self.obs} (non-eager)"
 
 # tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)

@@ -72,8 +72,8 @@ def unbinned_to_binned(data, space):
     edges = tuple(space.binning.edges)
     values, variances = tf.numpy_function(unbinned_to_hist_eager, inp=[values, edges, weights],
                                           Tout=[tf.float64, tf.float64])
-    from zfit._data.binneddatav1 import BinnedDataV1
-    binned = BinnedDataV1.from_tensor(space=space, values=values, variances=variances)
+    from zfit._data.binneddatav1 import BinnedData
+    binned = BinnedData.from_tensor(space=space, values=values, variances=variances)
     return binned
 
 

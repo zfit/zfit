@@ -1,4 +1,4 @@
-from ._data.binneddatav1 import BinnedDataV1
+from ._data.binneddatav1 import BinnedData
 from .core.data import Data
 
-__all__ = ['Data', 'BinnedDataV1']
+__all__ = ['Data', 'BinnedData']

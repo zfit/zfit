@@ -8,8 +8,8 @@ import tensorflow as tf
 
 @pytest.fixture
 def hist1():
-    from zfit._data.binneddatav1 import BinnedDataV1
-    return BinnedDataV1
+    from zfit._data.binneddatav1 import BinnedData
+    return BinnedData
 
 
 @pytest.fixture
@@ -57,8 +57,8 @@ def test_from_and_to_binned():
 
     h3.fill(x=x2, y=y2)
 
-    from zfit._data.binneddatav1 import BinnedDataV1
-    h1 = BinnedDataV1.from_hist(h3)
+    from zfit._data.binneddatav1 import BinnedData
+    h1 = BinnedData.from_hist(h3)
     for _ in range(10):  # make sure this works many times
         unbinned = h1.to_unbinned()
         binned = unbinned.to_binned(space=h1.space)
@@ -80,9 +80,9 @@ def test_from_and_to_hist():
 
     h3.fill(x=x2, y=y2)
 
-    from zfit._data.binneddatav1 import BinnedDataV1
+    from zfit._data.binneddatav1 import BinnedData
     for _ in range(10):  # make sure this works many times
-        h1 = BinnedDataV1.from_hist(h3)
+        h1 = BinnedData.from_hist(h3)
         np.testing.assert_allclose(h1.variances(), h3.variances())
         np.testing.assert_allclose(h1.values(), h3.values())
         unbinned = h1.to_unbinned()
@@ -98,7 +98,7 @@ def test_from_and_to_hist():
 
 
 def test_with_obs():
-    from zfit._data.binneddatav1 import BinnedDataV1
+    from zfit._data.binneddatav1 import BinnedData
     h1 = hist.NamedHist(
         hist.axis.Regular(25, -3.5, 3, name="x", flow=False),
         hist.axis.Regular(21, -4, 5, name="y", flow=False),
@@ -111,7 +111,7 @@ def test_with_obs():
     z2 = 0.3 * np.random.randn(1_000)
 
     h1.fill(x=x2, y=y2, z=z2)
-    h = BinnedDataV1.from_hist(h1)
+    h = BinnedData.from_hist(h1)
     obs = ('x', 'y', 'z')
     obs2 = ('y', 'x', 'z')
     assert obs == h.obs
@@ -156,6 +156,6 @@ def test_variance():
     binning1 = zfit.binned.Regular(3, -3.5, 3, name="x")
     obs = zfit.Space('x', binning=binning1)
     values = znp.array([100., 200, 50])
-    data = zfit.data.BinnedDataV1.from_tensor(obs, values=values, variances=True)
-    data2 = zfit.data.BinnedDataV1.from_tensor(obs, values=values, variances=values ** 0.5)
+    data = zfit.data.BinnedData.from_tensor(obs, values=values, variances=True)
+    data2 = zfit.data.BinnedData.from_tensor(obs, values=values, variances=values ** 0.5)
     np.testing.assert_allclose(data.variances(), data2.variances())

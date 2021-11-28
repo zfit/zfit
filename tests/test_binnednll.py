@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from zfit._data.binneddatav1 import BinnedDataV1
+from zfit._data.binneddatav1 import BinnedData
 from zfit._variables.axis import Regular
 from zfit.models.binned_functor import BinnedSumPDFV1
 from zfit.models.template import BinnedTemplatePDFV1
@@ -75,11 +75,11 @@ def test_binned_extended_simple(Loss):
     ]
     obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
 
-    mc1 = BinnedDataV1.from_tensor(space=obs, values=counts, variances=znp.ones_like(counts) * 1.3)
-    mc2 = BinnedDataV1.from_tensor(obs, counts2)
-    mc3 = BinnedDataV1.from_tensor(obs, counts3)
+    mc1 = BinnedData.from_tensor(space=obs, values=counts, variances=znp.ones_like(counts) * 1.3)
+    mc2 = BinnedData.from_tensor(obs, counts2)
+    mc3 = BinnedData.from_tensor(obs, counts3)
     sum_counts = counts + counts2 + counts3
-    observed_data = BinnedDataV1.from_tensor(space=obs, values=sum_counts, variances=(sum_counts + 0.5) ** 2)
+    observed_data = BinnedData.from_tensor(space=obs, values=sum_counts, variances=(sum_counts + 0.5) ** 2)
 
     pdf = BinnedTemplatePDFV1(data=mc1)
     pdf2 = BinnedTemplatePDFV1(data=mc2)

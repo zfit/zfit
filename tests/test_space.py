@@ -462,3 +462,30 @@ def test_combine_spaces(binning):
     space2 = space2a + space2b
     space = space1 * space2
     assert space == space12
+
+
+def test_create_binned_space():
+    binning = zfit.binned.Regular(50, -10, 10, name='x')
+    obs_bin = zfit.Space("x", binning=binning)
+    assert obs_bin.binning['x'] == binning
+    assert obs_bin.lower[0][0] == -10
+    assert obs_bin.upper[0][0] == 10
+
+    binning_n = 50
+    obs2 = zfit.Space("x", limits=(-10, 10), binning=binning_n)
+    assert obs2.binning['x'] == binning
+    assert obs2.lower[0][0] == -10
+    assert obs2.upper[0][0] == 10
+
+    binning = zfit.binned.Variable([1, 5, 7.3, 11.2], name='x')
+    obs_bin = zfit.Space("x", binning=binning)
+    assert obs_bin.binning['x'] == binning
+    assert obs_bin.lower[0][0] == 1
+    assert obs_bin.upper[0][0] == 11.2
+
+
+def test_create_binned_raises():
+    with pytest.raises(ValueError, match="must be > 0"):
+        zfit.Space("x", binning=0)
+    with pytest.raises(TypeError):
+        zfit.binned.Regular(5, -10, 10)

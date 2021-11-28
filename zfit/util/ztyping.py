@@ -60,7 +60,7 @@ XTypeReturn = Union[XTypeReturnNoData, "zfit.Data"]  #:
 NumericalTypeReturn = Union[tf.Tensor, np.array]  #:
 
 DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]  #:
-BinnedDataInputType = Union["zfit.data.BinnedDataV1", Iterable["zfit.data.BinnedDataV1"]]  #:
+BinnedDataInputType = Union["zfit.data.BinnedData", Iterable["zfit.data.BinnedData"]]  #:
 
 WeightsStrInputType = Union[tf.Tensor, None, np.ndarray, str]  #:
 WeightsInputType = Union[tf.Tensor, None, np.ndarray]  #:
@@ -115,7 +115,7 @@ LimitsDictObs = Dict[Tuple[str], 'zfit.core.interfaces.ZfitLimit']  #:
 LimitsDictNoCoords = Union[LimitsDictAxes, LimitsDictObs]  #:
 LimitsDictWithCoords = Dict[str, LimitsDictNoCoords]  #:
 
-BinningInput = Union[Iterable["ZfitBinning"], "ZfitBinning"]
+BinningInput = Union[Iterable["ZfitBinning"], "ZfitBinning", int]
 OptionsInputType = Optional[Mapping[str, object]]
 ConstraintsInputType = Optional[
     Union['zfit.core.interfaces.ZfitConstraint', Iterable['zfit.core.interfaces.ZfitConstraint']]]

@@ -1,3 +1,21 @@
+space.init.obs: |1+
+    Observable of the space.
+
+
+space.init.limits: |1+
+    A tuple-like object of the limits of the space.
+                This are the lower and upper limits.
+
+space.init.binning: |1+
+    Binning of the space.
+                Currently only regular and variable binning *with a name* is supported.
+                If an integer is given, it is interpreted as the number of bins and
+                a regular binning is automatically created using the limits as the
+                start and end points.
+
+space.init.name: |1+
+    Human readable name of the space.
+
 model.init.name: |1+
     Human readable name
                 or label of

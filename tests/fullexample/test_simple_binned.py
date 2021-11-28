@@ -58,9 +58,9 @@ def test_simlpe_examples_1D():
                 }""")
 
     obs = zfit.Space('signal', binning=zfit.binned.Regular(2, 0, 2, name='signal'))
-    zdata = zfit.data.BinnedDataV1.from_tensor(obs, datanp)
-    zmcsig = zfit.data.BinnedDataV1.from_tensor(obs, signp)
-    zmcbkg = zfit.data.BinnedDataV1.from_tensor(obs, bkgnp)
+    zdata = zfit.data.BinnedData.from_tensor(obs, datanp)
+    zmcsig = zfit.data.BinnedData.from_tensor(obs, signp)
+    zmcbkg = zfit.data.BinnedData.from_tensor(obs, bkgnp)
 
     shapesys = {f'shapesys_{i}': zfit.Parameter(f'shapesys_{i}', 1, 0.1, 10) for i in range(2)}
     bkgmodel = BinnedTemplatePDFV1(zmcbkg, sysshape=shapesys)
@@ -206,9 +206,9 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
             zfit.run.set_graph_mode(True)
         hypotest = hypotest_zfit
         obs = zfit.Space('signal', binning=zfit.binned.Regular(n_bins, -0.5, n_bins + 0.5, name='signal'))
-        zdata = zfit.data.BinnedDataV1.from_tensor(obs, datanp)
-        zmcsig = zfit.data.BinnedDataV1.from_tensor(obs, signp)
-        zmcbkg = zfit.data.BinnedDataV1.from_tensor(obs, bkgnp)
+        zdata = zfit.data.BinnedData.from_tensor(obs, datanp)
+        zmcsig = zfit.data.BinnedData.from_tensor(obs, signp)
+        zmcbkg = zfit.data.BinnedData.from_tensor(obs, bkgnp)
 
         shapesys = {f'shapesys_{i}': zfit.Parameter(f'shapesys_{i}', 1, 0.1, 10) for i in range(n_bins)}
         bkgmodel = BinnedTemplatePDFV1(zmcbkg, sysshape=shapesys)
