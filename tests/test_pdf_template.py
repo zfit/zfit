@@ -85,7 +85,6 @@ def test_morphing_templates(alphas):
             numpy.testing.assert_array_less((morph.counts() - counts[i]) ** 2, max_dist)
             numpy.testing.assert_array_less((morph.counts() - counts[i + 1]) ** 2, max_dist)
 
-    hists = []
     import matplotlib.cm as cm
 
     amin, amax = -2, 2

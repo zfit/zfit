@@ -47,8 +47,9 @@ def test_composite(holder1, holder2):
 
 
 def test_from_and_to_binned():
-    h3 = hist.NamedHist(
-        hist.axis.Regular(3, -3, 3, name="x", flow=False), hist.axis.Regular(2, -5, 5, name="y", flow=False),
+    h3 = hist.Hist(
+        hist.axis.Regular(3, -3, 3, name="x", flow=False),
+        hist.axis.Regular(2, -5, 5, name="y", flow=False),
         storage=hist.storage.Weight()
     )
 

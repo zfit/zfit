@@ -1,10 +1,12 @@
 #  Copyright (c) 2021 zfit
+import hist
 import numpy as np
 import pytest
 
-import zfit.z.numpy as znp
 import zfit
+import zfit.z.numpy as znp
 from zfit.data import BinnedData
+from zfit.util.exception import NotExtendedPDFError
 
 
 def test_sum_histogram_pdf():
@@ -39,3 +41,51 @@ def test_sum_histogram_pdf():
     true_integral = znp.sum(true_sum_counts)
     integral = pdf_sum.ext_integrate(limits=obs)
     assert pytest.approx(float(true_integral)) == float(integral)
+
+
+def test_pdf_formhist():
+    h = hist.Hist(
+        hist.axis.Regular(3, -3, 3, name="x", flow=False),
+        hist.axis.Regular(2, -5, 5, name="y", flow=False),
+        storage=hist.storage.Weight()
+    )
+
+    x2 = np.random.randn(1_000)
+    y2 = 0.5 * np.random.randn(1_000)
+
+    h.fill(x=x2, y=y2)
+    pdf = zfit.pdf.HistogramPDF(data=h)
+    assert not pdf.is_extended
+    ntot = h.sum().value
+    np.testing.assert_allclose(h.values() / ntot, pdf.rel_counts(h))
+    with pytest.raises(NotExtendedPDFError):
+        _ = pdf.counts()
+
+    np.testing.assert_allclose(h.density(), pdf.pdf(h))
+    with pytest.raises(NotExtendedPDFError):
+        _ = pdf.ext_pdf(h)
+
+    # test extended
+    ext_pdf = zfit.pdf.HistogramPDF(data=h, extended=True)
+    assert ext_pdf.is_extended
+
+    # test pdf
+    np.testing.assert_allclose(h.values() / ntot, ext_pdf.rel_counts(h))
+    np.testing.assert_allclose(h.counts(), ext_pdf.counts(h))
+    # test counts
+    np.testing.assert_allclose(h.density(), pdf.pdf(h))
+    np.testing.assert_allclose(h.density() * ntot, ext_pdf.ext_pdf(h))
+
+    # test sample
+    sample = ext_pdf.sample(n=1_000)
+    assert sample.nevents == 1_000
+    assert sample.rank == 2
+
+    sample = pdf.sample(n=1_000)
+    assert sample.nevents == 1_000
+    assert sample.rank == 2
+
+    # test integral
+    assert pytest.approx(ntot, ext_pdf.ext_integrate())
+    assert pytest.approx(1., ext_pdf.integrate())
+    assert pytest.approx(1., pdf.integrate())
