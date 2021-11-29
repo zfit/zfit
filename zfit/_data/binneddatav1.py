@@ -141,7 +141,7 @@ class BinnedData(ZfitBinnedData,
         library <https://hist.readthedocs.io/>`_ offers, such as plots.
         """
         binning = binning_to_histaxes(self.holder.space.binning)
-        h = hist.NamedHist(*binning, storage=bh.storage.Weight())
+        h = hist.Hist(*binning, storage=bh.storage.Weight())
         h.view(flow=flow).value = self.values()  # TODO: flow?
         h.view(flow=flow).variance = self.variances()  # TODO: flow?
         return h

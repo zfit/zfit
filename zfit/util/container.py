@@ -3,6 +3,7 @@
 from typing import Any, Callable, Iterable, Union
 
 import tensorflow as tf
+from uhi.typing.plottable import PlottableHistogram
 
 import zfit.binned
 
@@ -30,12 +31,13 @@ def convert_to_container(value: Any, container: Callable = list, non_containers=
         raise TypeError("`non_containers` have to be a list or a tuple")
     if value is None and not convert_none:
         return value
-    if not isinstance(value, container):
+    if not type(value) == container:
+        non_containers.extend([str, tf.Tensor, ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter,
+                               ZfitBinnedData, zfit.binned.RegularBinning, zfit.binned.VariableBinning,
+                               PlottableHistogram])
         try:
-            non_containers.extend([str, tf.Tensor, ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter,
-                                   ZfitBinnedData, zfit.binned.RegularBinning, zfit.binned.VariableBinning])
             if isinstance(value, tuple(non_containers)):
-                raise TypeError
+                raise TypeError  # we can't convert, it's a non-container
             value = container(value)
         except (TypeError, AttributeError):  # by tf, it can't convert
             value = container((value,))

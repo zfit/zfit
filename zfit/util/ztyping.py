@@ -9,6 +9,8 @@ from ordered_set import OrderedSet
 
 # The #: symbols at the end of every type alias are for marking the module level variables
 # as documented, such that sphinx will document them.
+from uhi.typing.plottable import PlottableHistogram
+
 LowerTypeInput = Union[tf.Tensor, np.ndarray, Tuple[float], List[float], float]  #:
 LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]  #:
 
@@ -60,7 +62,8 @@ XTypeReturn = Union[XTypeReturnNoData, "zfit.Data"]  #:
 NumericalTypeReturn = Union[tf.Tensor, np.array]  #:
 
 DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]  #:
-BinnedDataInputType = Union["zfit.data.BinnedData", Iterable["zfit.data.BinnedData"]]  #:
+BinnedDataInputType = Union[PlottableHistogram, Iterable[PlottableHistogram]]  #:
+ZfitBinnedDataInputType = Union["zfit.data.BinnedData", Iterable["zfit.data.BinnedData"]]  #:
 
 WeightsStrInputType = Union[tf.Tensor, None, np.ndarray, str]  #:
 WeightsInputType = Union[tf.Tensor, None, np.ndarray]  #:

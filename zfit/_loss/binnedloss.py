@@ -3,6 +3,7 @@ from typing import Iterable, Optional, Set
 
 import numpy as np
 import tensorflow as tf
+from uhi.typing.plottable import PlottableHistogram
 
 from .. import z
 from ..core.interfaces import ZfitBinnedData, ZfitBinnedPDF
@@ -44,6 +45,12 @@ class BaseBinned(BaseLoss):
                  options: OptionsInputType = None):
         model = convert_to_container(model)
         data = convert_to_container(data)
+        from zfit._data.binneddatav1 import BinnedData
+        data = [
+            BinnedData.from_hist(d)
+            if (isinstance(d, PlottableHistogram) and not isinstance(d, ZfitBinnedData)) else d
+            for d in data
+        ]
         not_binned_pdf = [mod for mod in model if not isinstance(mod, ZfitBinnedPDF)]
         not_binned_data = [dat for dat in data if not isinstance(dat, ZfitBinnedData)]
         not_binned_pdf_msg = ("The following PDFs are not binned but need to be. They can be wrapped in an "

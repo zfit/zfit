@@ -212,3 +212,31 @@ def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in 
 
     loss = Loss(model=binned_gauss, data=test_values_binned, options={'empty': empty, 'errors': errors})
     loss.value_gradient(loss.get_params())
+
+
+@pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
+@pytest.mark.parametrize('Loss', [
+    zfit.loss.BinnedNLL,
+    zfit.loss.BinnedChi2,
+    zfit.loss.ExtendedBinnedNLL,
+    zfit.loss.ExtendedBinnedChi2
+])
+def test_binned_loss_hist(weights, Loss):
+    obs = zfit.Space("obs1", limits=(-15, 25))
+    gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
+    test_values_np_shifted = test_values_np - 1.8  # shift them a bit
+    test_values_np_shifted *= 1.2
+    test_values = znp.array(test_values_np_shifted)
+    test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
+    init_yield = test_values_np.shape[0] * 1.2
+    scale = zfit.Parameter('yield', init_yield, 0, init_yield * 4, step_size=1)
+    binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
+    obs_binned = obs.with_binning(binning)
+    test_values_binned = test_values.to_binned(obs_binned)
+    h = test_values_binned.to_hist()
+    binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
+
+    loss = Loss(model=binned_gauss, data=h)
+    loss2 = Loss(model=binned_gauss, data=test_values_binned)
+
+    assert pytest.approx(float(loss.value()), float(loss2.value()))
