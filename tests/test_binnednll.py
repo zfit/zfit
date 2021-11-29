@@ -10,7 +10,7 @@ import zfit.z.numpy as znp
 from zfit import z
 from zfit._data.binneddatav1 import BinnedData
 from zfit._variables.axis import RegularBinning
-from zfit.models.binned_functor import BinnedSumPDFV1
+from zfit.models.binned_functor import BinnedSumPDF
 from zfit.models.template import BinnedTemplatePDFV1
 
 mu_true = 1.2
@@ -84,7 +84,7 @@ def test_binned_extended_simple(Loss):
     pdf = BinnedTemplatePDFV1(data=mc1)
     pdf2 = BinnedTemplatePDFV1(data=mc2)
     pdf3 = BinnedTemplatePDFV1(data=mc3)
-    pdf_sum = BinnedSumPDFV1(pdfs=[pdf, pdf2, pdf3], obs=obs)
+    pdf_sum = BinnedSumPDF(pdfs=[pdf, pdf2, pdf3], obs=obs)
 
     nll = Loss(pdf_sum, data=observed_data)
     nll.value(), nll.gradient()  # TODO: add some check?

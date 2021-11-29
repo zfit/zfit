@@ -9,7 +9,7 @@ import zfit.z.numpy as znp
 from matplotlib import pyplot as plt
 from zfit._data.binneddatav1 import BinnedData
 from zfit._loss.binnedloss import ExtendedBinnedNLL
-from zfit.models.binned_functor import BinnedSumPDFV1
+from zfit.models.binned_functor import BinnedSumPDF
 from zfit.models.morphing import SplineMorphingPDF
 from zfit.models.template import BinnedTemplatePDFV1
 
@@ -34,7 +34,7 @@ def test_binned_template_pdf():
     pdf2 = BinnedTemplatePDFV1(data=data2, extended=np.sum(counts2))
     pdf3 = BinnedTemplatePDFV1(data=data3, extended=np.sum(counts3))
     assert len(pdf.ext_pdf(data)) > 0
-    pdf_sum = BinnedSumPDFV1(pdfs=[pdf, pdf2, pdf3], obs=obs)
+    pdf_sum = BinnedSumPDF(pdfs=[pdf, pdf2, pdf3], obs=obs)
 
     probs = pdf_sum.counts(data)
     true_sum_counts = counts + counts2 + counts3
@@ -193,7 +193,7 @@ def test_binned_template_pdf_bbfull():
     pdf2 = BinnedTemplatePDFV1(data=mc2, sysshape=True)
     pdf3 = BinnedTemplatePDFV1(data=mc3, sysshape=True)
     assert len(pdf1.counts()) > 0
-    pdf_sum = BinnedSumPDFV1(pdfs=[pdf1, pdf2, pdf3], obs=obs)
+    pdf_sum = BinnedSumPDF(pdfs=[pdf1, pdf2, pdf3], obs=obs)
     counts1_flat = np.reshape(counts1, -1)
     constraints1 = zfit.constraint.GaussianConstraint(pdf1.params.values(), observation=np.ones_like(counts1_flat),
                                                       uncertainty=np.sqrt(

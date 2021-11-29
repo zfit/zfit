@@ -5,7 +5,7 @@ import numpy as np
 # In[2]:
 import zfit
 import zfit.z.numpy as znp
-from zfit.models.binned_functor import BinnedSumPDFV1
+from zfit.models.binned_functor import BinnedSumPDF
 from zfit.models.template import BinnedTemplatePDFV1
 
 
@@ -70,7 +70,7 @@ def test_simlpe_examples_1D():
     sigyield = zfit.ComposedParameter('sigyield', lambda params: params['mu'] * znp.sum(zmcsig.values()),
                                       params={'mu': mu})
     sigmodel = BinnedTemplatePDFV1(zmcsig, extended=sigyield)
-    zmodel = BinnedSumPDFV1([sigmodel, bkgmodel])
+    zmodel = BinnedSumPDF([sigmodel, bkgmodel])
     unc = np.array(uncnp) / np.array(bkgnp)
     nll = zfit.loss.ExtendedBinnedNLL(zmodel, zdata,
                                       constraints=zfit.constraint.GaussianConstraint(list(shapesys.values()),
@@ -80,7 +80,7 @@ def test_simlpe_examples_1D():
     # print(nll.gradient())
     # minimizer = zfit.minimize.ScipyLBFGSBV1()
     # minimizer = zfit.minimize.IpyoptV1()
-    minimizer = zfit.minimize.Minuit(tol=1e-5)
+    minimizer = zfit.minimize.Minuit(tol=1e-5, gradient=False)
     result = minimizer.minimize(nll)
     result.hesse(method='hesse_np')
     # result.errors()
@@ -218,7 +218,7 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
         sigyield = zfit.ComposedParameter('sigyield', lambda params: params['mu'] * znp.sum(zmcsig.values()),
                                           params={'mu': mu})
         sigmodel = BinnedTemplatePDFV1(zmcsig, extended=sigyield)
-        zmodel = BinnedSumPDFV1([sigmodel, bkgmodel])
+        zmodel = BinnedSumPDF([sigmodel, bkgmodel])
         unc = np.array(uncnp) / np.array(bkgnp)
         constraint = zfit.constraint.GaussianConstraint(list(shapesys.values()), np.ones_like(unc).tolist(), unc)
         nll = zfit.loss.ExtendedBinnedNLL(zmodel, zdata,

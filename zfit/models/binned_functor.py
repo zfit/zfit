@@ -1,21 +1,19 @@
 #  Copyright (c) 2021 zfit
 from typing import List, Iterable, Optional
 
-import numpy as np
-import tensorflow as tf
-
-from .. import z, convert_to_parameter, supports
-from ..util import ztyping
-from ..util.deprecation import deprecated_norm_range
-from ..util.exception import SpecificFunctionNotImplemented, NormNotImplemented
-from ..z import numpy as znp
+from .basefunctor import FunctorMixin, _preprocess_init_sum
+from .. import z
 from ..core.binnedpdf import BaseBinnedPDFV1
 from ..core.interfaces import ZfitModel, ZfitPDF
+from ..core.space import supports
+from ..util import ztyping
 from ..util.container import convert_to_container
-from .basefunctor import FunctorMixin, _preprocess_init_sum
+from ..util.deprecation import deprecated_norm_range
+from ..util.exception import NormNotImplemented
+from ..z import numpy as znp
 
 
-class BinnedSumPDFV1(FunctorMixin, BaseBinnedPDFV1):
+class BinnedSumPDF(FunctorMixin, BaseBinnedPDFV1):
 
     def __init__(
             self,

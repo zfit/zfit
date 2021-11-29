@@ -54,8 +54,9 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         density = counts / areas
         return density
 
+    @supports(norm=False)
     def _pdf(self, x, norm):
-        counts = self._counts(x, norm)
+        counts = self._rel_counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
         density = counts / areas
         return density

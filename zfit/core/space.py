@@ -2928,12 +2928,14 @@ def supports(*, norm: Union[bool, str, Iterable[str]] = None, multiple_limits: b
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
 
     If any of the flags is set to False, it will check the arguments and, in case they match a flag
-    (say if a *norm_range* is passed while the *norm_range* flag is set to `False`), it will
+    (say if a *norm* is passed while the *norm* flag is set to `False`), it will
     raise a corresponding exception (in this example a `NormRangeNotImplementedError`) that will
     be catched by an earlier function that knows how to handle things.
 
     Args:
-        norm: If False, no norm_range argument will be passed through resp. will be `None`
+        norm: If False, no norm_range argument will be passed through resp. will be `None`.
+            Other options include `'space'` or `'norm'`, which will check if the norm is equal to
+            the space or norm of the PDF. If they are, it is assumed to be supported.
         multiple_limits: If False, only simple limits are to be expected and no iteration is
             therefore required.
     """
