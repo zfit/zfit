@@ -10,14 +10,14 @@ __all__ = ['BasePDF', 'BaseFunctor',
            'FFTConvPDFV1',
            'ConditionalPDFV1',
            'ZPDF', 'SimplePDF', 'SimpleFunctorPDF',
-           "BinnedFromUnbinnedPDF", "UnbinnedFromBinnedPDF",
+           "UnbinnedFromBinnedPDF",
            "HistogramPDF",
            "SplineMorphingPDF", "BinwiseModifier",
            "BinnedSumPDF",
            ]
 
 from .core.basepdf import BasePDF
-from .core.binnedpdf import BinnedFromUnbinnedPDF
+from .models.tobinned import BinnedFromUnbinnedPDF
 from .models.basic import Exponential
 from .models.binned_functor import BinnedSumPDF
 from .models.conditional import ConditionalPDFV1

@@ -54,7 +54,7 @@ def test_pdf_formhist():
     y2 = 0.5 * np.random.randn(1_000)
 
     h.fill(x=x2, y=y2)
-    pdf = zfit.pdf.HistogramPDF(data=h)
+    pdf = zfit.pdf.HistogramPDF(data=h, extended=False)
     assert not pdf.is_extended
     ntot = h.sum().value
     np.testing.assert_allclose(h.values() / ntot, pdf.rel_counts(h))

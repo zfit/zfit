@@ -54,6 +54,39 @@ pdf.init.extended.auto: |1+
                 using the total number of events in the histogram.
                 This is the default.
 
+pdf.integrate.limits: |1+
+  Limits of the integration.
+
+
+pdf.integrate.norm: |1+
+  Normalization of the integration.
+                By default, this is the same as the default space of the PDF.
+                `False` means no normalization and returns the unnormed integral.
+pdf.integrate.options: |1+
+  Options for the integration.
+                Additional options for the integration. Currently supported options are:
+                - type: one of (`bins`)
+                  This hints that bins are integrated. A method that is vectorizable, non-dynamic and
+                  therefore less suitable for complicated functions is chosen.
+
+pdf.sample.n: |1+
+  Number of samples to draw.
+                For an extended PDF, the argument is optional and will be the
+                poisson-fluctuated expected number of events, i.e. the yield.
+
+pdf.sample.limits: |1+
+  Limits of the sampling.
+                By default, this is the same as the default space of the PDF.
+
+pdf.binned.counts.x: |1+
+  Data for the binned PDF.
+                The returned counts correspond to the binned axis in `x`.
+
+pdf.binned.counts.norm: |1+
+  Normalization of the counts.
+                This normalizes the counts so that the actual sum of all counts is
+                equal to the yield.
+
 
 pdf.kde.bandwidth.weights: |1+
   Weights of each event

@@ -6,6 +6,7 @@ import pytest
 from matplotlib import pyplot as plt
 
 import zfit
+import zfit.models.tobinned
 import zfit.z.numpy as znp
 from zfit import z
 from zfit._data.binneddatav1 import BinnedData
@@ -112,7 +113,7 @@ def test_binned_loss(weights, Loss):
     binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
-    binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
+    binned_gauss = zfit.models.tobinned.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
 
     loss = Loss(model=binned_gauss, data=test_values_binned)
 
@@ -170,7 +171,7 @@ def test_binned_loss(weights, Loss):
     constraints = zfit.constraint.GaussianConstraint(params=[mu2, sigma2],
                                                      observation=[mu_constr[0], sigma_constr[0]],
                                                      uncertainty=[mu_constr[1], sigma_constr[1]])
-    gaussian2 = zfit.pdf.BinnedFromUnbinnedPDF(gaussian2, obs_binned, extended=scale)
+    gaussian2 = zfit.models.tobinned.BinnedFromUnbinnedPDF(gaussian2, obs_binned, extended=scale)
     loss = Loss(model=gaussian2, data=test_values_binned,
                 constraints=constraints)
 
@@ -208,7 +209,7 @@ def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in 
     binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
-    binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
+    binned_gauss = zfit.models.tobinned.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
 
     loss = Loss(model=binned_gauss, data=test_values_binned, options={'empty': empty, 'errors': errors})
     loss.value_gradient(loss.get_params())
@@ -234,7 +235,7 @@ def test_binned_loss_hist(weights, Loss):
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     h = test_values_binned.to_hist()
-    binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
+    binned_gauss = zfit.models.tobinned.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
 
     loss = Loss(model=binned_gauss, data=h)
     loss2 = Loss(model=binned_gauss, data=test_values_binned)

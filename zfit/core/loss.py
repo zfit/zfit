@@ -223,7 +223,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                              "\nfit_range: {}".format(pdf, data, fit_range))
 
         # sanitize fit_range
-        fit_range = [p.convert_sort_space(limits=range_) if range_ is not None else None for p, range_ in
+        fit_range = [p._convert_sort_space(limits=range_) if range_ is not None else None for p, range_ in
                      zip(pdf, fit_range)]
         # TODO: sanitize pdf, data?
         self.add_cache_deps(cache_deps=pdf)

@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 import zfit.pdf
 import zfit.z.numpy as znp
-from zfit.core.binnedpdf import BinnedFromUnbinnedPDF
+from zfit.models.tobinned import BinnedFromUnbinnedPDF
 from zfit.models.unbinnedpdf import SplinePDF
 
 

@@ -65,6 +65,7 @@ NumericalTypeReturn = Union[tf.Tensor, np.array]  #:
 DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]  #:
 BinnedDataInputType = Union[PlottableHistogram, Iterable[PlottableHistogram]]  #:
 ZfitBinnedDataInputType = Union["zfit.data.BinnedData", Iterable["zfit.data.BinnedData"]]  #:
+AnyDataInputType = Union[DataInputType, BinnedDataInputType]  #:
 
 WeightsStrInputType = Union[tf.Tensor, None, np.ndarray, str]  #:
 WeightsInputType = Union[tf.Tensor, None, np.ndarray]  #:
@@ -111,17 +112,15 @@ DependentsType = OrderedSet('zfit.Parameter')  #:
 CacherOrCachersType = Union['zfit.core.interfaces.ZfitCachable',
                             Iterable['zfit.core.interfaces.ZfitCachable']]  #:
 
-try:
-    from typing import OrderedDict
-except ImportError:  # < python 3.7
-    OrderedDict = Dict
+OrderedDict = Dict
 
 LimitsDictAxes = Dict[Tuple[int], 'zfit.core.interfaces.ZfitLimit']  #:
 LimitsDictObs = Dict[Tuple[str], 'zfit.core.interfaces.ZfitLimit']  #:
 LimitsDictNoCoords = Union[LimitsDictAxes, LimitsDictObs]  #:
 LimitsDictWithCoords = Dict[str, LimitsDictNoCoords]  #:
 
-BinningInput = Union[Iterable["ZfitBinning"], "ZfitBinning", int]
-OptionsInputType = Optional[Mapping[str, object]]
+BinningInput = Union[Iterable["ZfitBinning"], "ZfitBinning", int]  #:
+OptionsInputType = Optional[Mapping[str, object]]  #:
 ConstraintsInputType = Optional[
-    Union['zfit.core.interfaces.ZfitConstraint', Iterable['zfit.core.interfaces.ZfitConstraint']]]
+    Union['zfit.core.interfaces.ZfitConstraint', Iterable['zfit.core.interfaces.ZfitConstraint']]]  #:
+ArrayLike = tf.types.experimental.TensorLike  #:
