@@ -90,7 +90,7 @@ class FunctorMixin(ZfitFunctorMixin):
 
         Can be `pdfs` or `funcs`.
         """
-        return self._models
+        return list(self._models)
 
     @property
     def _model_same_obs(self):

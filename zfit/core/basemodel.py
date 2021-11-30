@@ -287,7 +287,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 raise ValueError("Normalization range `norm` has to be specified or"
                                  "a default normalization range has to be set. Currently, both are None")
 
-        return self.convert_sort_space(limits=norm)
+        return self._convert_sort_space(limits=norm)
 
     def _check_input_limits(self, limits, none_is_error=False):
         if limits is None or (isinstance(limits, ZfitSpace) and not limits.has_limits):
@@ -296,11 +296,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             # else:
             #     limits = False
 
-        return self.convert_sort_space(limits=limits)
+        return self._convert_sort_space(limits=limits)
 
-    def convert_sort_space(self, obs: Union[ztyping.ObsTypeInput, ztyping.LimitsTypeInput] = None,
-                           axes: ztyping.AxesTypeInput = None,
-                           limits: ztyping.LimitsTypeInput = None) -> Union[ZfitSpace, None]:
+    def _convert_sort_space(self, obs: Union[ztyping.ObsTypeInput, ztyping.LimitsTypeInput] = None,
+                            axes: ztyping.AxesTypeInput = None,
+                            limits: ztyping.LimitsTypeInput = None) -> Union[ZfitSpace, None]:
         """Convert the inputs (using eventually `obs`, `axes`) to
         :py:class:`~zfit.ZfitSpace` and sort them according to own `obs`.
 

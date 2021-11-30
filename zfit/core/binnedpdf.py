@@ -78,7 +78,9 @@ class BaseBinnedPDFV1(
         self._space = self._check_convert_obs_init(obs)
         self._yield = None
         self._norm = self._check_convert_norm_init(norm)
-        if extended is not None:
+        if extended is None:
+            extended = False
+        if extended is not False:
             self._set_yield(extended)
 
     def _check_convert_obs_init(self, obs):
@@ -375,7 +377,9 @@ class BaseBinnedPDFV1(
     def _integrate(self, limits, norm, options):
         raise SpecificFunctionNotImplemented
 
-    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options) -> ztyping.XType:
+    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options=None) -> ztyping.XType:
+        if options is None:
+            options = {}
         norm = self._check_convert_norm(norm)
         limits = self._check_convert_limits(limits)
         return self._call_integrate(limits, norm, options)
@@ -718,8 +722,8 @@ class BaseBinnedPDFV1(
         rel_counts = density * np.prod(self.space.binning.widths, axis=0)
         return rel_counts
 
-
-# register_tensor_conversion(BaseBinnedPDFV1)
+    def set_norm_range(self):
+        raise RuntimeError("set_norm_range is removed and should not be used anymore.")
 
 
 def binned_rect_integration(*,

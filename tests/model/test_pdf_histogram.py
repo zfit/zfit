@@ -86,6 +86,7 @@ def test_pdf_formhist():
     assert sample.rank == 2
 
     # test integral
-    assert pytest.approx(ntot, ext_pdf.ext_integrate())
-    assert pytest.approx(1., ext_pdf.integrate())
-    assert pytest.approx(1., pdf.integrate())
+    limits = ext_pdf.space
+    assert pytest.approx(ntot, ext_pdf.ext_integrate(limits))
+    assert pytest.approx(1., ext_pdf.integrate(limits))
+    assert pytest.approx(1., pdf.integrate(limits))

@@ -479,15 +479,15 @@ class Data(GraphCachable, ZfitUnbinnedData, BaseDimensional, BaseObject, Overloa
     #     setattr(Data, operator, _run_op)
 
     def _check_input_data_range(self, data_range):
-        data_range = self.convert_sort_space(limits=data_range)
+        data_range = self._convert_sort_space(limits=data_range)
         if not frozenset(self.data_range.obs) == frozenset(data_range.obs):
             raise ObsIncompatibleError(f"Data range has to cover the full observable space {self.data_range.obs}, not "
                                        f"only {data_range.obs}")
         return data_range
 
     # TODO(Mayou36): refactor with pdf or other range things?
-    def convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
-                           limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
+    def _convert_sort_space(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None,
+                            limits: ztyping.LimitsTypeInput = None) -> Union[Space, None]:
         """Convert the inputs (using eventually `obs`, `axes`) to
         :py:class:`~zfit.Space` and sort them according to own `obs`.
 
