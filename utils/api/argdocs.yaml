@@ -35,6 +35,11 @@ pdf.init.norm: |1+
   Normalization of the PDF.
                 By default, this is the same as the default space of the PDF.
 
+pdf.pdf.norm: |1+
+  Normalization of the function.
+                By default, this is the `norm` of the PDF (which by default is the same as
+                the space of the PDF).
+
 pdf.init.extended: |1+
   The overall yield of the PDF.
                 If this is parameter-like, it will be used as the yield,

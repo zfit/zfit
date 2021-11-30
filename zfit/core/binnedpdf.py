@@ -129,12 +129,28 @@ class BaseBinnedPDFV1(
     def axes(self):
         return self.space.binning
 
-    def to_binneddata(self, **kwargs):
+    def to_binneddata(self, **kwargs) -> zfit.data.BinnedData:
+        """Create an Asimov dataset as `BinnedData` using either `counts` (for extended) or `rel_counts`
+
+        Args:
+            **kwargs (): arguments to `counts` or `rel_counts`.
+
+        Returns:
+            BinnedData: Binned data representing the Asimov dataset of this PDF.
+        """
         values = self.values(**kwargs)
         data = BinnedData.from_tensor(space=self.space, values=values)
         return data
 
     def to_hist(self, **kwargs):
+        """Create an Asimov histogram as `Hist` using either `counts` (for extended) or `rel_counts`.
+
+        Args:
+            **kwargs (): arguments to `counts` or `rel_counts`.
+
+        Returns:
+            ``hist.Hist``: Histogram representing the Asimov dataset of this PDF.
+        """
         return self.to_binneddata(**kwargs).to_hist()
 
     @property
@@ -212,6 +228,18 @@ class BaseBinnedPDFV1(
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
+        """Probability density function, evaluated at `x` or in the bins of `x`
+
+        Args:
+            x: values to evaluate the PDF at. If this is a `ZfitBinnedData`-like object, a histogram of *densities*
+                will be returned. If x is a `ZfitUnbinnedData`-like object, the densities will be evaluated at the
+                points of `x`.
+            norm: |@doc:pdf.pdf.norm| Normalization of the function.
+               By default, this is the `norm` of the PDF (which by default is the same as
+               the space of the PDF). |@docend:pdf.pdf.norm|
+
+        Returns:
+        """
         if norm_range is not None:
             norm = norm_range
 
