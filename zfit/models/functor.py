@@ -25,7 +25,7 @@ from ..util.exception import (AnalyticIntegralNotImplemented,
                               NormRangeUnderdefinedError, SpecificFunctionNotImplemented)
 from ..z.random import counts_multinomial
 
-
+# TODO: order of spaces if the obs is different from the wrapped pdf
 class BaseFunctor(FunctorMixin, BasePDF):
 
     def __init__(self, pdfs, name="BaseFunctor", **kwargs):

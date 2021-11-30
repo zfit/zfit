@@ -1,5 +1,5 @@
 #  Copyright (c) 2021 zfit
-from typing import Mapping
+from typing import Mapping, Optional
 
 import numpy as np
 
@@ -8,12 +8,34 @@ from ..core.space import supports
 from ..core.interfaces import ZfitBinnedPDF
 import tensorflow as tf
 import zfit.z.numpy as znp
+from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 
 
-class BinwiseModifier(BaseBinnedFunctorPDF):
+class BinwiseScaleModifier(BaseBinnedFunctorPDF):
 
-    def __init__(self, pdf, modifiers=None, extended=None, norm=None, name="BinnedTemplatePDF"):
+    def __init__(self, pdf: ZfitBinnedPDF, modifiers: Mapping[str, ztyping.ParamTypeInput] = None,
+                 extended: ztyping.ExtendedInputType = None, norm: ztyping.NormInputType = None,
+                 name: Optional[str] = "BinnedTemplatePDF") -> None:
+        """Modifier that scales each bin separately of the *pdf*.
+
+        Binwise modification can be used to account for uncorrelated or correlated uncertainties.
+
+        Args:
+            pdf: Binned pdf to be modified.
+            modifiers: Modifiers for each bin.
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               `ext_*` methods and the `counts` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+        """
         obs = pdf.space
         if not isinstance(pdf, ZfitBinnedPDF):
             raise TypeError("pdf must be a BinnedPDF")

@@ -1,11 +1,16 @@
 #  Copyright (c) 2021 zfit
+from typing import Iterable, Mapping, Union, List, Tuple
+
 import tensorflow as tf
 import tensorflow_addons as tfa
+from uhi.typing.plottable import PlottableHistogram
+
 import zfit.z.numpy as znp
 from zfit import z
 from zfit.core.binnedpdf import BaseBinnedPDFV1
-
 from ..core import parameter
+from ..core.interfaces import ZfitBinnedPDF
+from ..util import ztyping
 
 
 @z.function(wraps='tensor')
@@ -30,14 +35,35 @@ def spline_interpolator(alpha, alphas, densities):
 class SplineMorphingPDF(BaseBinnedPDFV1):
     _morphing_interpolator = staticmethod(spline_interpolator)
 
-    def __init__(self, alpha, hists, extended=None, norm=None):
+    def __init__(
+            self,
+            alpha: ztyping.ParamTypeInput,
+            hists: Union[
+                Mapping[Union[float, int], Iterable[ZfitBinnedPDF]], List[ZfitBinnedPDF], Tuple[ZfitBinnedPDF]],
+            extended: ztyping.ExtendedInputType = None,
+            norm: ztyping.NormInputType = None
+    ):
+        """Morphing a set of histograms with a spline interpolation.
 
-        if isinstance(hists, list):
+        Args:
+            alpha: Parameter for the spline interpolation.
+            hists: A mapping of alpha values to histograms. This allows for arbitrary interpolation points.
+                If a list or tuple of exactly three PDFs is given, this corresponds to the histograms at
+                alhpa equal to -1, 0 and 1 respectively.
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               `ext_*` methods and the `counts` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+        """
+        if isinstance(hists, (list, tuple)):
             if len(hists) != 3:
                 raise ValueError("If hists is a list, it is assumed to correspond to an alpha of -1, 0 and 1."
                                  f" hists is {hists} and has length {len(hists)}.")
             else:
-                hists = {float(i - 1): hist for i, hist in enumerate(hists)}
+                hists = {float(i - 1): hist for i, hist in enumerate(hists)}  # mapping to -1, 0, 1
         self.hists = hists
         self.alpha = alpha
         obs = list(hists.values())[0].space

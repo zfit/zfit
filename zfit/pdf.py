@@ -10,13 +10,15 @@ __all__ = ['BasePDF', 'BaseFunctor',
            'FFTConvPDFV1',
            'ConditionalPDFV1',
            'ZPDF', 'SimplePDF', 'SimpleFunctorPDF',
-           "UnbinnedFromBinnedPDF",
+           "UnbinnedFromBinnedPDF", "BinnedFromUnbinnedPDF",
            "HistogramPDF",
-           "SplineMorphingPDF", "BinwiseModifier",
+           "SplineMorphingPDF", "BinwiseScaleModifier",
            "BinnedSumPDF",
+           "SplinePDF",
            ]
 
 from .core.basepdf import BasePDF
+from .models.interpolation import SplinePDF
 from .models.tobinned import BinnedFromUnbinnedPDF
 from .models.basic import Exponential
 from .models.binned_functor import BinnedSumPDF
@@ -25,7 +27,7 @@ from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (Cauchy, Gauss, Poisson, TruncatedGauss, Uniform,
                               WrapDistribution)
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
-from .models.histmodifier import BinwiseModifier
+from .models.histmodifier import BinwiseScaleModifier
 from .models.histogram import HistogramPDF
 from .models.kde import (GaussianKDE1DimV1, KDE1DimExact, KDE1DimFFT,
                          KDE1DimGrid, KDE1DimISJ)

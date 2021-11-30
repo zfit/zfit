@@ -165,7 +165,7 @@ def test_morphing_templates2D(alphas):
 
 def _binned_template_composed_factory(data, sysshape):
     pdf = zfit.pdf.HistogramPDF(data=data, extended=True)
-    pdf = zfit.pdf.BinwiseModifier(pdf=pdf, modifiers=sysshape)
+    pdf = zfit.pdf.BinwiseScaleModifier(pdf=pdf, modifiers=sysshape)
     return pdf
 
 
