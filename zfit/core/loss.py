@@ -533,7 +533,7 @@ class UnbinnedNLL(BaseLoss):
                .. math::
                  \mathcal{L}(\theta) = \mathcal{L}_{unconstrained} \prod_{i} f_{constr_i}(\theta)
 
-               Usually, a auxiliary measurement -- by its very nature -S  should only be added once
+               Usually, an auxiliary measurement -- by its very nature -S  should only be added once
                to the loss. zfit does not automatically deduplicate constraints if they are given
                multiple times, leaving the freedom for arbitrary constructs.
 
@@ -556,7 +556,7 @@ class UnbinnedNLL(BaseLoss):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differs! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use `create_new` in order to have a comparable likelihood
                  between different losses
 
 
@@ -633,7 +633,7 @@ class UnbinnedNLL(BaseLoss):
                .. math::
                  \mathcal{L}(\theta) = \mathcal{L}_{unconstrained} \prod_{i} f_{constr_i}(\theta)
 
-               Usually, a auxiliary measurement -- by its very nature -S  should only be added once
+               Usually, an auxiliary measurement -- by its very nature -S  should only be added once
                to the loss. zfit does not automatically deduplicate constraints if they are given
                multiple times, leaving the freedom for arbitrary constructs.
 
@@ -656,7 +656,7 @@ class UnbinnedNLL(BaseLoss):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differs! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use `create_new` in order to have a comparable likelihood
                  between different losses
 
 

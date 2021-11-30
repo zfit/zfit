@@ -47,15 +47,12 @@ class BaseFunctorFuncV1(FunctorMixin, BaseFuncV1):
 
         self.funcs = funcs
         super().__init__(name=name, models=self.funcs, params=params, **kwargs)
+        self._models = self.funcs
 
     def _get_dependencies(self):  # TODO: change recursive to `only_floating`?
         dependents = super()._get_dependencies()  # get the own parameter dependents
         func_dependents = _extract_dependencies(self.funcs)  # flatten
         return dependents.union(func_dependents)
-
-    @property
-    def _models(self) -> Dict[Union[float, int, str], ZfitModel]:
-        return self.funcs
 
 
 class SumFunc(BaseFunctorFuncV1):

@@ -53,6 +53,7 @@ ObsType = Tuple[str]  #:
 # Space
 SpaceOrSpacesTypeInput = Union["zfit.Space", Iterable["zfit.Space"]]  #:
 SpaceType = "zfit.Space"  #:
+NormInputType = "zfit.Space"  #:
 
 # Data
 XType = Union[float, tf.Tensor]  #:
@@ -97,6 +98,8 @@ ParamsOrNameType = Optional[Union[ParamsTypeOpt, Iterable[str]]]  #:
 ParameterType = TypeVar('ParameterType', bound=Dict[str, "zfit.core.interfaces.ZfitParameter"])  #:
 ParametersType = Iterable[ParameterType]
 ParamTypeInput = TypeVar('ParamTypeInput', 'zfit.core.interfaces.ZfitParameter', NumericalScalarType)  #:
+
+ExtendedInputType = Union[bool, ParamTypeInput]  #:
 
 # Zfit Structure
 BaseObjectType = Union['zfit.core.interfaces.ZfitParameter',

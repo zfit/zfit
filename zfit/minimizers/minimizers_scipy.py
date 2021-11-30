@@ -69,7 +69,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
@@ -87,7 +87,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             minimize_func:
             initializer:
             verbosity_setter:
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         self._minimize_func = scipy.optimize.minimize if minimize_func is None else minimize_func
 
@@ -381,7 +381,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
 
               Increasing the verbosity will gradually increase the output.
@@ -391,7 +391,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method but it may not always be
+                   evaluation compared to a numerical method, but it may not always be
                    possible. In this case, zfit switches to a generic, numerical gradient
                    which in general performs worse than if the minimizer has its own
                    numerical gradient.
@@ -421,7 +421,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if maxcor is not None:
@@ -485,7 +485,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method but it may not always be
+                   evaluation compared to a numerical method, but it may not always be
                    possible. In this case, zfit switches to a generic, numerical gradient
                    which in general performs worse than if the minimizer has its own
                    numerical gradient.
@@ -535,7 +535,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -553,7 +553,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if inexact is not None:
@@ -622,7 +622,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method but it may not always be
+                   evaluation compared to a numerical method, but it may not always be
                    possible. In this case, zfit switches to a generic, numerical gradient
                    which in general performs worse than if the minimizer has its own
                    numerical gradient.
@@ -666,7 +666,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -684,7 +684,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if eta is not None:
@@ -766,7 +766,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method but it may not always be
+                   evaluation compared to a numerical method, but it may not always be
                    possible. In this case, zfit switches to a generic, numerical gradient
                    which in general performs worse than if the minimizer has its own
                    numerical gradient.
@@ -829,7 +829,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
 
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
@@ -848,7 +848,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if init_trust_radius is not None:
@@ -931,7 +931,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method but it may not always be
+                   evaluation compared to a numerical method, but it may not always be
                    possible. In this case, zfit switches to a generic, numerical gradient
                    which in general performs worse than if the minimizer has its own
                    numerical gradient.
@@ -994,7 +994,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1012,7 +1012,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
 
@@ -1081,7 +1081,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method but it may not always be
+                   evaluation compared to a numerical method, but it may not always be
                    possible. In this case, zfit switches to a generic, numerical gradient
                    which in general performs worse than if the minimizer has its own
                    numerical gradient.
@@ -1107,7 +1107,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1125,7 +1125,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if maxcg is not None:
@@ -1197,7 +1197,7 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1215,7 +1215,7 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         if init_trust_radius is not None:
@@ -1272,7 +1272,7 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1290,7 +1290,7 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         minimizer_options = {}
@@ -1342,7 +1342,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                    method from the minimizer.
                    In general, using the zfit provided automatic gradient is
                    more precise and needs less computation time for the
-                   evaluation compared to a numerical method but it may not always be
+                   evaluation compared to a numerical method, but it may not always be
                    possible. In this case, zfit switches to a generic, numerical gradient
                    which in general performs worse than if the minimizer has its own
                    numerical gradient.
@@ -1368,7 +1368,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1386,7 +1386,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         minimizer_options = {}
@@ -1443,7 +1443,7 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1461,7 +1461,7 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         minimizer_options = {'options': options}
@@ -1512,7 +1512,7 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1530,7 +1530,7 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         options = {}
         minimizer_options = {}

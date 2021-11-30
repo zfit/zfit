@@ -23,7 +23,7 @@ from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace, ZfitMinimalHist
     ZfitUnbinnedData
 from .parameter import convert_to_parameter
 from .space import supports, convert_to_space
-from .tensorlike import OverloadableMixinValues, register_tensor_conversion
+from .tensorlike import OverloadableMixinValues
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.container import convert_to_container

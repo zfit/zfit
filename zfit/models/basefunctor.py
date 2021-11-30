@@ -1,18 +1,17 @@
 #  Copyright (c) 2021 zfit
 
-import abc
 from collections import OrderedDict
 from typing import Iterable, List, Optional, Set, Tuple, Union
 
 import tensorflow as tf
 
-from ..settings import ztypes, run
 from ..core.coordinates import convert_to_obs_str
 from ..core.dependents import _extract_dependencies
 from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace
 from ..core.parameter import convert_to_parameter
 from ..core.space import Space, combine_spaces
+from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_norm_range
@@ -69,6 +68,7 @@ class FunctorMixin(ZfitFunctorMixin):
         super().__init__(obs=obs, **kwargs)
         # TODO: needed? remove below
         self._model_obs = tuple(model.obs for model in models)
+        self._models = models
 
     def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
                     extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
@@ -95,11 +95,6 @@ class FunctorMixin(ZfitFunctorMixin):
     @property
     def _model_same_obs(self):
         return get_same_obs(self._model_obs)
-
-    @property
-    @abc.abstractmethod
-    def _models(self) -> List[ZfitModel]:
-        raise NotImplementedError
 
     def get_models(self, names=None) -> List[ZfitModel]:
         if names is None:

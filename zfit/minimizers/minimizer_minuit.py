@@ -87,7 +87,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity| This
                 also changes the iminuit internal verbosity at around 7.
             options: Additional options that will be directly passsed into :meth:`~iminuitMinuit.migrad`
@@ -107,7 +107,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
 
 
             use_minuit_grad: deprecated, legacy.

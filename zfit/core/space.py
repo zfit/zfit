@@ -1062,13 +1062,13 @@ class Space(BaseSpace,
         Args:
             obs: |@doc:space.init.obs| Observable of the space. |@docend:space.init.obs|
             limits: |@doc:space.init.limits| A tuple-like object of the limits of the space.
-               This are the lower and upper limits. |@docend:space.init.limits|
+               These are the lower and upper limits. |@docend:space.init.limits|
             binning: |@doc:space.init.binning| Binning of the space.
-               Currently only regular and variable binning *with a name* is supported.
+               Currently, only regular and variable binning *with a name* is supported.
                If an integer is given, it is interpreted as the number of bins and
                a regular binning is automatically created using the limits as the
                start and end points. |@docend:space.init.binning|
-            name: |@doc:space.init.name| Human readable name of the space. |@docend:space.init.name|
+            name: |@doc:space.init.name| Human-readable name of the space. |@docend:space.init.name|
         """
         if name is None:
             name = "Space"

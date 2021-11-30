@@ -272,7 +272,7 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known
+                   - the minimizer maybe even converged but it is known
                      that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
@@ -289,11 +289,11 @@ class FitResult(ZfitResult):
                    The result itself can still be an invalid minimum
                    such as if the parameters are at or close
                    to the limits or in case another minimum is found. |@docend:result.init.converged|
-            message: |@doc:result.init.message| Human readable message to indicate the reason
+            message: |@doc:result.init.message| Human-readable message to indicate the reason
                    if the fitresult is not valid.
                    If the fit is valid, the message (should)
                    be an empty string (or None),
-                   otherwise it should denote the reason for the invalidity. |@docend:result.init.message|
+                   otherwise, it should denote the reason for the invalidity. |@docend:result.init.message|
             info: |@doc:result.init.info| Additional information (if available)
                    such as *number of gradient function calls* or the
                    original minimizer return message.
@@ -312,9 +312,9 @@ class FitResult(ZfitResult):
                    This is an approximated value and the exact meaning
                    can differ between different minimizers. |@docend:result.init.niter|
             evaluator: |@doc:result.init.evaluator| Loss evaluator that was used during the
-                   minimization and that may contains information
+                   minimization and that may contain information
                    about the last evaluations of the gradient
-                   etc which can serve as approximations. |@docend:result.init.evaluator|
+                   etc. which can serve as approximations. |@docend:result.init.evaluator|
         """
         super().__init__()
 
@@ -368,9 +368,9 @@ class FitResult(ZfitResult):
             approx: |@doc:result.init.approx| Collection of approximations found during
                    the minimization process such as gradient and hessian. |@docend:result.init.approx|
             evaluator: |@doc:result.init.evaluator| Loss evaluator that was used during the
-                   minimization and that may contains information
+                   minimization and that may contain information
                    about the last evaluations of the gradient
-                   etc which can serve as approximations. |@docend:result.init.evaluator|
+                   etc. which can serve as approximations. |@docend:result.init.evaluator|
             info: |@doc:result.init.info| Additional information (if available)
                    such as *number of gradient function calls* or the
                    original minimizer return message.
@@ -477,17 +477,17 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known
+                   - the minimizer maybe even converged but it is known
                      that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
             values: |@doc:result.init.values| Values of the parameters at the
                    found minimum. |@docend:result.init.values|
-            message: |@doc:result.init.message| Human readable message to indicate the reason
+            message: |@doc:result.init.message| Human-readable message to indicate the reason
                    if the fitresult is not valid.
                    If the fit is valid, the message (should)
                    be an empty string (or None),
-                   otherwise it should denote the reason for the invalidity. |@docend:result.init.message|
+                   otherwise, it should denote the reason for the invalidity. |@docend:result.init.message|
             converged: |@doc:result.init.converged| Whether the fit has successfully converged or not.
                    The result itself can still be an invalid minimum
                    such as if the parameters are at or close
@@ -506,9 +506,9 @@ class FitResult(ZfitResult):
                    This determines the estimated distance to the
                    minimum (edm) |@docend:result.init.criterion|
             evaluator: |@doc:result.init.evaluator| Loss evaluator that was used during the
-                   minimization and that may contains information
+                   minimization and that may contain information
                    about the last evaluations of the gradient
-                   etc which can serve as approximations. |@docend:result.init.evaluator|
+                   etc. which can serve as approximations. |@docend:result.init.evaluator|
 
         Returns:
             ``zfit.minimize.FitResult``:
@@ -554,17 +554,17 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known
+                   - the minimizer maybe even converged but it is known
                      that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
             values: |@doc:result.init.values| Values of the parameters at the
                    found minimum. |@docend:result.init.values|
-            message: |@doc:result.init.message| Human readable message to indicate the reason
+            message: |@doc:result.init.message| Human-readable message to indicate the reason
                    if the fitresult is not valid.
                    If the fit is valid, the message (should)
                    be an empty string (or None),
-                   otherwise it should denote the reason for the invalidity. |@docend:result.init.message|
+                   otherwise, it should denote the reason for the invalidity. |@docend:result.init.message|
             converged: |@doc:result.init.converged| Whether the fit has successfully converged or not.
                    The result itself can still be an invalid minimum
                    such as if the parameters are at or close
@@ -583,9 +583,9 @@ class FitResult(ZfitResult):
                    This determines the estimated distance to the
                    minimum (edm) |@docend:result.init.criterion|
             evaluator: |@doc:result.init.evaluator| Loss evaluator that was used during the
-                   minimization and that may contains information
+                   minimization and that may contain information
                    about the last evaluations of the gradient
-                   etc which can serve as approximations. |@docend:result.init.evaluator|
+                   etc. which can serve as approximations. |@docend:result.init.evaluator|
 
 
         Returns:
@@ -660,11 +660,11 @@ class FitResult(ZfitResult):
                    and the state of other `FitResults` or of the *actual*
                    minimizer that performed the minimization
                    won't be altered. |@docend:result.init.minimizer|
-            message: |@doc:result.init.message| Human readable message to indicate the reason
+            message: |@doc:result.init.message| Human-readable message to indicate the reason
                    if the fitresult is not valid.
                    If the fit is valid, the message (should)
                    be an empty string (or None),
-                   otherwise it should denote the reason for the invalidity. |@docend:result.init.message|
+                   otherwise, it should denote the reason for the invalidity. |@docend:result.init.message|
             edm: |@doc:result.init.edm| The estimated distance to minimum
                    which is the criterion value at the minimum. |@docend:result.init.edm|
             niter: |@doc:result.init.niter| Approximate number of iterations ~= number
@@ -678,7 +678,7 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known
+                   - the minimizer maybe even converged but it is known
                      that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
@@ -686,9 +686,9 @@ class FitResult(ZfitResult):
                    This determines the estimated distance to the
                    minimum (edm) |@docend:result.init.criterion|
             evaluator: |@doc:result.init.evaluator| Loss evaluator that was used during the
-                   minimization and that may contains information
+                   minimization and that may contain information
                    about the last evaluations of the gradient
-                   etc which can serve as approximations. |@docend:result.init.evaluator|
+                   etc. which can serve as approximations. |@docend:result.init.evaluator|
 
         Returns:
             `zfit.minimize.FitResult`:
@@ -771,17 +771,17 @@ class FitResult(ZfitResult):
 
                    - parameter(s) at the limit
                    - maxiter reached without proper convergence
-                   - the minimizer may even converged but it is known
+                   - the minimizer maybe even converged but it is known
                      that this is only a local minimum
 
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
             values: |@doc:result.init.values| Values of the parameters at the
                    found minimum. |@docend:result.init.values|
-            message: |@doc:result.init.message| Human readable message to indicate the reason
+            message: |@doc:result.init.message| Human-readable message to indicate the reason
                    if the fitresult is not valid.
                    If the fit is valid, the message (should)
                    be an empty string (or None),
-                   otherwise it should denote the reason for the invalidity. |@docend:result.init.message|
+                   otherwise, it should denote the reason for the invalidity. |@docend:result.init.message|
             converged: |@doc:result.init.converged| Whether the fit has successfully converged or not.
                    The result itself can still be an invalid minimum
                    such as if the parameters are at or close
@@ -800,9 +800,9 @@ class FitResult(ZfitResult):
                    This determines the estimated distance to the
                    minimum (edm) |@docend:result.init.criterion|
             evaluator: |@doc:result.init.evaluator| Loss evaluator that was used during the
-                   minimization and that may contains information
+                   minimization and that may contain information
                    about the last evaluations of the gradient
-                   etc which can serve as approximations. |@docend:result.init.evaluator|
+                   etc. which can serve as approximations. |@docend:result.init.evaluator|
             inv_hessian: The (approximated) inverse hessian matrix.
             hessian: The (approximated) hessian matrix.
 

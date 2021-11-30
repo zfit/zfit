@@ -13,7 +13,15 @@ from ..util.exception import NormNotImplemented
 from ..z import numpy as znp
 
 
-class BinnedSumPDF(FunctorMixin, BaseBinnedPDFV1):
+class BaseBinnedFunctorPDF(FunctorMixin, BaseBinnedPDFV1):
+    """Base class for binned functors."""
+
+    def __init__(self, models, obs, **kwargs):
+        super().__init__(models, obs, **kwargs)
+        self.pdfs = self.models
+
+
+class BinnedSumPDF(BaseBinnedFunctorPDF):
 
     def __init__(
             self,
@@ -34,10 +42,6 @@ class BinnedSumPDF(FunctorMixin, BaseBinnedPDFV1):
 
         extended = sum_yields if all_extended else None
         super().__init__(models=pdfs, obs=obs, params=params, name=name, extended=extended)
-
-    @property
-    def _models(self) -> List[ZfitModel]:
-        return self.pdfs
 
     # def _unnormalized_pdf(self, x):
     #     models = self.models

@@ -163,7 +163,7 @@ class BaseMinimizer(ZfitMinimizer):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -182,7 +182,7 @@ class BaseMinimizer(ZfitMinimizer):
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__()
         self._n_iter_per_param = 3000

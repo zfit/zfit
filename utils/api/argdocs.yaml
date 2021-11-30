@@ -1,26 +1,25 @@
 space.init.obs: |1+
     Observable of the space.
 
-
 space.init.limits: |1+
     A tuple-like object of the limits of the space.
-                This are the lower and upper limits.
+                These are the lower and upper limits.
 
 space.init.binning: |1+
     Binning of the space.
-                Currently only regular and variable binning *with a name* is supported.
+                Currently, only regular and variable binning *with a name* is supported.
                 If an integer is given, it is interpreted as the number of bins and
                 a regular binning is automatically created using the limits as the
                 start and end points.
 
 space.init.name: |1+
-    Human readable name of the space.
+    Human-readable name of the space.
 
 model.init.name: |1+
-    Human readable name
+    Human-readable name
                 or label of
                 the PDF for better identification.
-                Has no programmatical functional purpose as idendification.
+                Has no programmatical functional purpose as identification.
 model.init.obs: |1+
     Observables of the
                 model. This will be used as the default space of the PDF and,
@@ -30,7 +29,26 @@ model.init.obs: |1+
                 sampling limits are given, the default space is used.
 
                 The observables are not equal to the domain as it does not restrict or
-                truncate the model outside of this range.
+                truncate the model outside this range.
+
+pdf.init.norm: |1+
+  Normalization of the PDF.
+                By default, this is the same as the default space of the PDF.
+
+pdf.init.extended: |1+
+  The overall yield of the PDF.
+                If this is parameter-like, it will be used as the yield,
+                the expected number of events, and the PDF will be extended.
+                An extended PDF has additional functionality, such as the
+                `ext_*` methods and the `counts` (for binned PDFs).
+
+
+pdf.init.extended.auto: |1+
+                If `True`,
+                the PDF will be extended automatically if the PDF is extended
+                using the total number of events in the histogram.
+                This is the default.
+
 
 pdf.kde.bandwidth.weights: |1+
   Weights of each event
@@ -61,9 +79,9 @@ pdf.kde.init.data: |1+
 pdf.kde.init.obs: |1+
   Observable space of the KDE.
               As with any other PDF, this will be used as the default *norm*, but
-              does not define the domain of the PDF. Namely this can be a smaller
+              does not define the domain of the PDF. Namely, this can be a smaller
               space than *data*, as long as the name of the observable match.
-              Using a larger dataset is actually good practice to avoid
+              Using a larger dataset is actually good practice avoiding
               bountary biases, see also :ref:`sec-boundary-bias-and-padding`.
 
 pdf.kde.init.bandwidth: |1+
@@ -89,7 +107,7 @@ pdf.kde.init.kernel: |1+
               -- this is the case for most real world observable as they are the result of
               multiple consecutive random effects -- results in a Gaussian distribution.
               However, there are many cases where this assumption is not per-se true. In
-              this cases an alternative kernel may offers a better choice.
+              this cases an alternative kernel may offer a better choice.
 
               Valid choices are callables that return a
               :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
@@ -173,7 +191,7 @@ pdf.kde.bandwidth.explain_global: |1+
 
 pdf.kde.bandwidth.explain_local: |1+
   A local bandwidth
-              means that each kernel i has a different bandwidth.
+              means that each kernel :math:`i` has a different bandwidth.
               In other words, given some data points with size n,
               we will need n bandwidth parameters.
               This is often more accurate than a global bandwidth,
@@ -184,7 +202,7 @@ pdf.kde.bandwidth.explain_local: |1+
 
               The accuracy comes at the cost of a longer pre-calculation to obtain
               the local bandwidth (there are different methods available), an
-              increased runtime and - most importantly - an peak memory usage.
+              increased runtime and - most importantly - a peak memory usage.
 
               This can be especially costly for a large number (> few thousand) of
               kernels and/or evaluating on large datasets (> 10'000).
@@ -192,7 +210,7 @@ pdf.kde.bandwidth.explain_local: |1+
 pdf.kde.bandwidth.explain_adaptive: |1+
   Adaptive bandwidths are
               a way to reduce the dependence on the bandwidth parameter
-              and usually are local bandwidths that take into account
+              and are usually local bandwidths that take into account
               the local densities.
               Adaptive bandwidths are constructed by using an initial estimate
               of the local density in order to calculate a sensible bandwidth
@@ -220,7 +238,7 @@ minimizer.verbosity: |1+
                 - Setting the verbosity to 10 will print out every
                   evaluation of the loss function and gradient.
 
-                Some minimizer offer additional output which is also
+                Some minimizers offer additional output which is also
                 distributed as above but may duplicate certain printed values.
 
 minimizer.tol: |1+
@@ -248,7 +266,7 @@ minimizer.maxiter: |1+
                     This corresponds to roughly the maximum number of
                     evaluations of the `value`, 'gradient` or `hessian`.
 minimizer.name: |1+
-    Human readable name of the minimizer.
+    Human-readable name of the minimizer.
 minimizer.maxcor: |1+
     Maximum number of memory history to keep
                     when using a quasi-Newton update formula such as BFGS.
@@ -266,7 +284,7 @@ minimizer.scipy.gradient: |1+
                     method from the minimizer.
                     In general, using the zfit provided automatic gradient is
                     more precise and needs less computation time for the
-                    evaluation compared to a numerical method but it may not always be
+                    evaluation compared to a numerical method, but it may not always be
                     possible. In this case, zfit switches to a generic, numerical gradient
                     which in general performs worse than if the minimizer has its own
                     numerical gradient.
@@ -382,7 +400,7 @@ loss.init.constraints: |1+
                 .. math::
                   \mathcal{L}(\theta) = \mathcal{L}_{unconstrained} \prod_{i} f_{constr_i}(\theta)
 
-                Usually, a auxiliary measurement -- by its very nature -S  should only be added once
+                Usually, an auxiliary measurement -- by its very nature -S  should only be added once
                 to the loss. zfit does not automatically deduplicate constraints if they are given
                 multiple times, leaving the freedom for arbitrary constructs.
 
@@ -465,7 +483,7 @@ loss.init.options: |1+
                   value of the NLL is meaningless. However,
                   with this switch on, one cannot directly compare
                   different likelihoods ablolute value as the constant
-                  may differs! Use `create_new` in order to have a comparable likelihood
+                  may differ! Use `create_new` in order to have a comparable likelihood
                   between different losses
 
 
@@ -501,7 +519,7 @@ result.init.valid: |1+
 
                     - parameter(s) at the limit
                     - maxiter reached without proper convergence
-                    - the minimizer may even converged but it is known
+                    - the minimizer maybe even converged but it is known
                       that this is only a local minimum
 
                     To indicate the reason for the invalidity, pass a message.
@@ -524,11 +542,11 @@ result.init.converged: |1+
                     such as if the parameters are at or close
                     to the limits or in case another minimum is found.
 result.init.message: |1+
-    Human readable message to indicate the reason
+    Human-readable message to indicate the reason
                     if the fitresult is not valid.
                     If the fit is valid, the message (should)
                     be an empty string (or None),
-                    otherwise it should denote the reason for the invalidity.
+                    otherwise, it should denote the reason for the invalidity.
 result.init.info: |1+
     Additional information (if available)
                     such as *number of gradient function calls* or the
@@ -551,9 +569,9 @@ result.init.niter: |1+
                     can differ between different minimizers.
 result.init.evaluator: |1+
     Loss evaluator that was used during the
-                    minimization and that may contains information
+                    minimization and that may contain information
                     about the last evaluations of the gradient
-                    etc which can serve as approximations.
+                    etc. which can serve as approximations.
 
 result.init.values: |1+
     Values of the parameters at the

@@ -16,7 +16,7 @@ import zfit.z.numpy as znp
 from .basefunctor import _preprocess_init_sum
 from .. import z
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitData, ZfitModel, ZfitPDF
+from ..core.interfaces import ZfitData, ZfitPDF
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
 from ..util import ztyping
@@ -48,10 +48,6 @@ class BaseFunctor(FunctorMixin, BasePDF):
     @property
     def pdfs_extended(self):
         return [pdf.is_extended for pdf in self.pdfs]
-
-    @property
-    def _models(self) -> List[ZfitModel]:
-        return self.pdfs
 
 
 class SumPDF(BaseFunctor):
@@ -205,7 +201,7 @@ class SumPDF(BaseFunctor):
         return sample
 
 
-class ProductPDF(BaseFunctor):  # TODO: compose of smaller Product PDF by disassembling components subsets of obs
+class ProductPDF(BaseFunctor):
     def __init__(self, pdfs: List[ZfitPDF], obs: ztyping.ObsTypeInput = None, name="ProductPDF"):
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import abc
 from abc import ABCMeta, abstractmethod
-from typing import Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Callable
 
 import boost_histogram as bh
 import numpy as np
@@ -990,8 +990,14 @@ class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist):
     #     return self.space.binning
 
 
-class ZfitBinnedPDF(ZfitPDF):
-    pass
+class ZfitBinnedPDF(ZfitPDF, metaclass=ABCMeta):
+    @abstractmethod
+    def counts(self, x, norm):
+        pass
+
+    @abstractmethod
+    def rel_counts(self, x, norm):
+        pass
 
 
 class ZfitBinning(abc.ABC):

@@ -163,7 +163,14 @@ def test_morphing_templates2D(alphas):
             numpy.testing.assert_array_less((morph.counts() - counts[i + 1]) ** 2, max_dist)
 
 
-def test_binned_template_pdf_bbfull():
+def _binned_template_composed_factory(data, sysshape):
+    pdf = zfit.pdf.HistogramPDF(data=data, extended=True)
+    pdf = zfit.pdf.BinwiseModifier(pdf=pdf, modifiers=sysshape)
+    return pdf
+
+
+@pytest.mark.parametrize('TemplateLikePDF', [BinnedTemplatePDFV1, _binned_template_composed_factory])
+def test_binned_template_pdf_bbfull(TemplateLikePDF):
     bins1 = 15
     bins2 = 10
 
@@ -188,9 +195,9 @@ def test_binned_template_pdf_bbfull():
     counts_data *= 1.1
     data = BinnedData.from_tensor(space=obs, values=counts_data)
 
-    pdf1 = BinnedTemplatePDFV1(data=mc1, sysshape=True)
-    pdf2 = BinnedTemplatePDFV1(data=mc2, sysshape=True)
-    pdf3 = BinnedTemplatePDFV1(data=mc3, sysshape=True)
+    pdf1 = TemplateLikePDF(data=mc1, sysshape=True)
+    pdf2 = TemplateLikePDF(data=mc2, sysshape=True)
+    pdf3 = TemplateLikePDF(data=mc3, sysshape=True)
     assert len(pdf1.counts()) > 0
     pdf_sum = BinnedSumPDF(pdfs=[pdf1, pdf2, pdf3], obs=obs)
     counts1_flat = np.reshape(counts1, -1)
