@@ -4,7 +4,7 @@ from typing import Optional
 import tensorflow_addons as tfa
 
 import zfit.z.numpy as znp
-from zfit import supports
+from ..core.space import supports
 from .functor import BaseFunctor
 from ..core.interfaces import ZfitBinnedPDF
 from ..util import ztyping
