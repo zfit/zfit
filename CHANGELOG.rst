@@ -11,6 +11,8 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- Binned fits support, although limited in content, is here! This includes BinnedData, binned PDFs, and
+  binned losses. TODO: extend to include changes/point to binned introduction.
 - new Poisson PDF
 - added Poisson constraint, LogNormal Constraint
 

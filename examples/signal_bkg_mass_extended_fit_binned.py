@@ -29,7 +29,7 @@ exp_extended = exponential.create_extended(n_bkg)
 model_unbinned = zfit.pdf.SumPDF([gauss_extended, exp_extended])
 
 # make binned
-model = zfit.models.tobinned.BinnedFromUnbinnedPDF(model_unbinned, space=obs_binned)
+model = zfit.pdf.BinnedFromUnbinnedPDF(model_unbinned, space=obs_binned)
 
 # data
 n_sample = 21200

@@ -1815,9 +1815,9 @@ class Space(BaseSpace,
         return self.rect_area()
 
     def with_binning(self, binning):
-        if binning is not None and not isinstance(binning, Binnings):
-            binning = convert_to_container(binning)
-            binning = Binnings(binning)
+        # if binning is not None and not isinstance(binning, Binnings):
+        #     binning = convert_to_container(binning)
+        #     binning = Binnings(binning)
         return self.copy(binning=binning)
 
     # Operators
@@ -1843,8 +1843,8 @@ class Space(BaseSpace,
         if set(overwrite_kwargs) - set(kwargs):
             raise KeyError(f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}")
         binning = kwargs.get('binning')
-        if binning is not None and kwargs.get('obs'):
-            kwargs['binning'] = [binning[ob] for ob in kwargs['obs']]
+        # if binning is not None and kwargs.get('obs'):
+        #     kwargs['binning'] = [binning[ob] for ob in kwargs['obs']]
         new_space = type(self)(**kwargs)
         return new_space
 
