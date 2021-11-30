@@ -91,7 +91,7 @@ if __name__ == '__main__':
     x_part = zfit.Data.from_numpy(array=np.array([2.1, 2.2, 3.2]), obs='obs1')
 
     # integrate over obs2 with limits 1, 2 for the `x_part`. This will use the analytic integral above
-    pdf.partial_integrate(x=x_part, limits=zfit.Space('obs2', (1, 2)), options=options)
+    pdf.partial_integrate(x=x_part, limits=zfit.Space('obs2', (1, 2)))
     # we can explicitly call the analytic integral. Without registering it (e.g. comment the line with the `register`
     # and run again), it will raise an error
     pdf.partial_analytic_integrate(x=x_part, limits=zfit.Space('obs2', (1, 2)))

@@ -32,7 +32,7 @@ Let's create an instance and some example data
 Now we can get the probability
 >>> probs = gauss.pdf(example_data)  # `norm` specifies over which range to normalize
 Or the integral
->>> integral = gauss.integrate(limits=(-5, 3.1),norm=False,options=options)  # norm_range is False -> return unnormalized
+>>> integral = gauss.integrate(limits=(-5, 3.1),norm=False)  # norm_range is False -> return unnormalized
 integral
 Or directly sample from it
 >>> sample = gauss.sample(n_draws=1000, limits=(-10, 10))  # draw 1000 samples within (-10, 10)
@@ -45,7 +45,7 @@ the `norm_range`)
 >>> gauss.is_extended
 True
 
->>> integral_extended = gauss.integrate(limits=(-10, 10),norm=(-10, 10),options=options)  # yields approx 100
+>>> integral_extended = gauss.ext_integrate(limits=(-10, 10),norm=(-10, 10))  # yields approx 100
 
 For more advanced methods and ways to register analytic integrals or overwrite certain methods, see
 also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials>`_
@@ -319,7 +319,7 @@ class BasePDF(ZfitPDF, BaseModel):
             pdf = self._ext_log_pdf(x, norm)
         except NormNotImplemented:
             unnormed_pdf = self._ext_log_pdf(x, False)
-            normalization = znp.log(self.normalization(norm, options=options))
+            normalization = znp.log(self.normalization(norm))
             pdf = unnormed_pdf - normalization
         return pdf
 
