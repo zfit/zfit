@@ -7,8 +7,8 @@
 # get current directory name
 pushd "$(dirname "$0")" >/dev/null || exit
 MAKE_DOCS_PATH="$(
-    cd "$(dirname "$0")" || exit
-    pwd -P
+  cd "$(dirname "$0")" || exit
+  pwd -P
 )"
 #MAKE_DOCS_PATH=$(pwd -P)
 popd >/dev/null || exit
@@ -20,4 +20,4 @@ popd >/dev/null || exit
 make clean
 bash prepare_apidocs.sh
 make -C "${MAKE_DOCS_PATH}" clean && make -C "${MAKE_DOCS_PATH}" html -j8 &&
-    echo "Documentation successfully built!" || echo "FAILED to build Documentation"
+  echo "Documentation successfully built!" || echo "FAILED to build Documentation"

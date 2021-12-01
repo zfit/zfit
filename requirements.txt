@@ -1,7 +1,10 @@
+boost-histogram
 colorama
 colored
 colorlog
+deprecated
 dotmap
+hist
 iminuit>=2.3
 ipyopt<0.12
 nlopt
@@ -9,11 +12,13 @@ numdifftools
 numpy>=1.16
 ordered-set
 pandas
+pydantic
 scipy>=1.2
 tabulate
-tensorflow>=2.5,<2.7
+tensorflow>=2.6,<2.7  # deprecated won't work properly in <2.6
 tensorflow-addons
 tensorflow_probability>=0.12,<0.14
 texttable
 tf_quant_finance>=v0.0.1-dev24
 uproot>=4,<5
+zfit_interface @ git+https://github.com/zfit/zfit-interface # TODO: for development, change to release

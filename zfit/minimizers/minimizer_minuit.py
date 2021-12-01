@@ -5,17 +5,18 @@ from typing import List, Mapping, Optional
 import iminuit
 import numpy as np
 
-from ..core.interfaces import ZfitLoss
-from ..core.parameter import Parameter, assign_values, set_values
-from ..settings import run
-from ..util.cache import GraphCachable
-from ..util.deprecation import deprecated_args
-from ..util.exception import MaximumIterationReached
 from .baseminimizer import (BaseMinimizer, minimize_supports,
                             print_minimization_status)
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import EDM, ConvergenceCriterion
+from .. import z
+from ..core.interfaces import ZfitLoss
+from ..core.parameter import Parameter, assign_values, assign_values_jit
+from ..settings import run
+from ..util.cache import GraphCachable
+from ..util.deprecation import deprecated_args
+from ..util.exception import MaximumIterationReached
 
 
 class Minuit(BaseMinimizer, GraphCachable):
@@ -59,7 +60,8 @@ class Minuit(BaseMinimizer, GraphCachable):
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
             mode: A number used by minuit to define the internal minimization strategy, either 0, 1 or 2.
-                As `explained in the iminuit docs <>`_, they mean:
+                As `explained in the iminuit docs <https://iminuit.readthedocs.io/en/stable/faq.html#what-happens-when-i-change-the-strategy>`_
+                , they mean:
                 - 0 (default with zfit gradient): the fastest and the number of function calls required to minimise
                     scales linearly with the number of fitted parameters. The Hesse matrix is not computed during the
                     minimisation (only an approximation that is continuously updated).
@@ -85,7 +87,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity| This
                 also changes the iminuit internal verbosity at around 7.
             options: Additional options that will be directly passsed into :meth:`~iminuitMinuit.migrad`
@@ -105,7 +107,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
 
 
             use_minuit_grad: deprecated, legacy.
@@ -207,7 +209,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                                           internal_tol=internal_tol)
 
             if converged or maxiter_reached:
-                assign_values(params, minimizer.values)  # make sure it's at the right value
+                assign_values(params, z.convert_to_tensor(minimizer.values))  # make sure it's at the right value
                 if not maxiter_reached:
                     valid = True
                 break

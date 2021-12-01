@@ -11,13 +11,13 @@ from .util.exception import (AnalyticIntegralNotImplemented,
                              MultipleLimitsNotImplemented,
                              NameAlreadyTakenError, NormRangeNotImplemented,
                              SpecificFunctionNotImplemented,
-                             VectorizedLimitsNotImplemented)
+                             VectorizedLimitsNotImplemented, ShapeIncompatibleError)
 
 __all__ = ['NameAlreadyTakenError', 'IllegalInGraphModeError', 'NormRangeNotImplemented',
            'MultipleLimitsNotImplemented', 'VectorizedLimitsNotImplemented',
            'AnalyticNotImplemented', 'FunctionNotImplemented', 'AnalyticSamplingNotImplemented',
            'AnalyticIntegralNotImplemented', 'SpecificFunctionNotImplemented', 'MinimizerSubclassingError',
-           "MaximumIterationReached",
+           "MaximumIterationReached", "ShapeIncompatibleError",
            'InitNotImplemented', 'NONE']
 
 

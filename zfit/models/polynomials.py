@@ -108,7 +108,7 @@ def legendre_shape(x, coeffs):
     return create_poly(x=x, polys=legendre_polys, coeffs=coeffs, recurrence=legendre_recurrence)
 
 
-def legendre_integral(limits: ztyping.SpaceType, norm_range: ztyping.SpaceType,
+def legendre_integral(limits: ztyping.SpaceType, norm: ztyping.SpaceType,
                       params: List["zfit.Parameter"], model: RecursivePolynomial):
     """Recursive integral of Legendre polynomials."""
     lower, upper = limits.limit1d
@@ -241,7 +241,7 @@ class Chebyshev(RecursivePolynomial):
         return chebyshev_shape(x=x, coeffs=coeffs)
 
 
-def func_integral_chebyshev1(limits, norm_range, params, model):
+def func_integral_chebyshev1(limits, norm, params, model):
     lower, upper = limits.rect_limits
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
@@ -325,7 +325,7 @@ class Chebyshev2(RecursivePolynomial):
         return chebyshev2_shape(x=x, coeffs=coeffs)
 
 
-def func_integral_chebyshev2(limits, norm_range, params, model):
+def func_integral_chebyshev2(limits, norm, params, model):
     lower, upper = limits.limit1d
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
@@ -431,14 +431,14 @@ class Laguerre(RecursivePolynomial):
         return laguerre_shape(x=x, coeffs=coeffs)
 
 
-def func_integral_laguerre(limits, norm_range, params: Dict, model):
+def func_integral_laguerre(limits, norm, params: Dict, model):
     """The integral of the simple laguerre polynomials.
 
     Defined as :math:`\\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
 
     Args:
         limits:
-        norm_range:
+        norm:
         params:
         model:
 
@@ -523,7 +523,7 @@ class Hermite(RecursivePolynomial):
         return hermite_shape(x=x, coeffs=coeffs)
 
 
-def func_integral_hermite(limits, norm_range, params, model):
+def func_integral_hermite(limits, norm, params, model):
     lower, upper = limits.limit1d
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)

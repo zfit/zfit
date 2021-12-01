@@ -8,3 +8,4 @@ zfit.egg-info/
 /docs/_tmp/zfit-tutorial/
 /.cache/
 /.pytest_cache/
+/build/

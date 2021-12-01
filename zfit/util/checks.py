@@ -17,8 +17,8 @@ class NotSpecified(Singleton):
     def __bool__(self):
         return False
 
-    def __str__(self):
-        return "A not specified state"
+    def __repr__(self):
+        return "None"
 
 
 NONE = NotSpecified()

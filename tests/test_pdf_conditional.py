@@ -72,7 +72,7 @@ def test_conditional_pdf_simple():
     result = minimizer.minimize(nll)
     assert result.valid
 
-    integrals2 = cond_gauss2d.integrate(limits=xobs, x=data2d)
+    integrals2 = cond_gauss2d.integrate(limits=xobs, var=data2d)
     assert integrals2.shape[0] == data2d.nevents
     assert integrals2.shape.rank == 1
     np.testing.assert_allclose(integrals2, np.ones_like(integrals2), atol=1e-5)

@@ -29,6 +29,11 @@ def true_gauss_constr_value(x, mu, sigma):
     return -np.sum([logpdf(x_, loc=mu, scale=sigma) for x_, mu, sigma in zip(x, mu, sigma)])
 
 
+def true_poisson_constr_value(x, lam):
+    logpdf = lambda x, loc: scipy.stats.poisson.logpmf(x, mu=loc)
+    return -np.sum([logpdf(x_, loc=lam_) for x_, lam_ in zip(x, lam)])
+
+
 def true_multinormal_constr_value(x, mean, cov):
     return -scipy.stats.multivariate_normal.logpdf(x, mean=mean, cov=cov)
 
@@ -36,6 +41,15 @@ def true_multinormal_constr_value(x, mean, cov):
 def test_base_constraint():  # TODO(Mayou36): upgrade to tf2, use ABC again
     with pytest.raises(TypeError):
         BaseConstraint()
+
+
+def test_poisson_constrain():
+    x, lam = np.random.randint(1, 100, size=(2, 50))
+    constr = zfit.constraint.PoissonConstraint(params=z.convert_to_tensor(x),
+                                               observation=z.convert_to_tensor(lam))
+    poiss_constr_val = constr.value()
+    true_val = true_poisson_constr_value(x, lam)
+    np.testing.assert_allclose(poiss_constr_val, true_val)
 
 
 def test_gaussian_constraint_shape_errors():
@@ -77,7 +91,7 @@ def test_gaussian_constraint_matrix():
 
 def test_gaussian_constraint():
     param_vals = [5, 6, 3]
-    observed = [3, 6.1, 4.3]
+    observed = [zfit.Parameter(f'observed {val}', val) for val in [3, 6.1, 4.3]]
     sigma = [1, 0.3, 0.7]
     true_val = true_gauss_constr_value(x=observed, mu=param_vals, sigma=sigma)
     assert true_val == true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
@@ -101,9 +115,9 @@ def test_gaussian_constraint():
 
     constr.observation[0].set_value(5)
     observed[0] = 5
-    print("x: ", param_vals, [p.numpy() for p in params])
-    print("mu: ", observed, [p.numpy() for p in constr.observation])
-    print("sigma: ", sigma, np.sqrt([p for p in np.diag(constr.covariance)]))
+    # print("x: ", param_vals, [p.numpy() for p in params])
+    # print("mu: ", observed, [p.numpy() for p in constr.observation])
+    # print("sigma: ", sigma, np.sqrt([p for p in np.diag(constr.covariance)]))
     true_val3 = true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
     constr3_np = constr.value().numpy()
     assert constr3_np == pytest.approx(true_val3)
@@ -161,10 +175,8 @@ def test_gaussian_constraint_sampling():
 
     sample = constr.sample(15000)
 
-    print(sample)
-
-    assert np.mean(sample[constr.observation[0]]) == pytest.approx(observed[0], rel=0.01)
-    assert np.std(sample[constr.observation[0]]) == pytest.approx(sigma[0], rel=0.01)
+    assert np.mean(sample[param1]) == pytest.approx(observed[0], rel=0.01)
+    assert np.std(sample[param1]) == pytest.approx(sigma[0], rel=0.01)
 
 
 def test_simple_constraint():
@@ -184,3 +196,16 @@ def test_simple_constraint():
     assert constr_np == pytest.approx(2.02)
 
     assert constr.get_cache_deps() == set(params)
+
+
+def test_log_normal_constraint():
+    # x, lam = np.random.randint(1, 100, size=(2, 50))
+    lam = 44.3
+    x = 45.3
+    lam_tensor = z.convert_to_tensor(lam)
+    constr = zfit.constraint.LogNormalConstraint(params=z.convert_to_tensor(x),
+                                                 observation=lam_tensor, uncertainty=lam_tensor ** 0.5)
+    lognormal_constr_val = constr.value()
+    # true_val = true_poisson_constr_value(x, lam)
+    true_lognormal = 25.128554  # maybe add dynamically?
+    np.testing.assert_allclose(lognormal_constr_val, true_lognormal)

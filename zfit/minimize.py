@@ -25,19 +25,17 @@ from .util.deprecation import deprecated
 
 class AdamMinimizer(Adam):
 
-    @deprecated(None, "Use zfit.minimize.Adam instead.")
     def __init__(self, tol=None, learning_rate=0.2, beta1=0.9, beta2=0.999, epsilon=1e-08, name='Adam', **kwargs):
-        super().__init__(tol, learning_rate, beta1, beta2, epsilon, name, **kwargs)
 
+        raise RuntimeError("Use zfit.minimize.Adam instead.")
 
 class MinuitMinimizer(Minuit):
 
-    @deprecated(None, "Use zfit.minimize.Minuit instead.")
+
     def __init__(self, strategy: ZfitStrategy = None, minimize_strategy: int = 1, tol: float = None,
                  verbosity: int = 5, name: str = None, ncall: int = 10000, use_minuit_grad: bool = None,
                  **options):
-        super().__init__(strategy, minimize_strategy, tol, verbosity, name, ncall, use_minuit_grad,
-                         **options)
+        raise RuntimeError(None, "Use zfit.minimize.Minuit instead.")
 
 
 class Scipy:

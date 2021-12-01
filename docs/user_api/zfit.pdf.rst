@@ -1,8 +1,6 @@
 PDF
 ---
 
-.. todo:: Fill overview page
-
 Basic PDFs
 ##########
 
@@ -15,6 +13,21 @@ Any missing shape can be easily wrapped using :py:class:`~zfit.pdf.WrapDistribut
     :maxdepth: 2
 
     pdf/basic
+
+
+Binned PDFs
+##########
+
+Binned PDFs extend the functionality of unbinned PDFs by providing more histogram-like features in
+addition to the basic unbinned PDFs. They interface well with the
+`boost-histogram <https://boost-histogram.readthedocs.io/en/latest/>`_ and especially
+`Hist <https://github.com/scikit-hep/hist>`_ libraries.
+
+.. toctree::
+    :maxdepth: 2
+
+    pdf/binned_pdf
+
 
 Polynomials
 #############

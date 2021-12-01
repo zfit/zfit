@@ -280,7 +280,7 @@ numgrads = [False, True]
 # num_grads = [True]
 # num_grads = [False]
 
-spaces_all = [obs1, obs1_split]
+spaces_all = [obs1, obs1_split] if not zfit.run.executing_eagerly() else [obs1]
 
 error_scales = {
     None: 1,
@@ -297,6 +297,7 @@ error_scales = {
 # @pytest.mark.parametrize("cl_scale", [(0.683, 1), (0.9548, 2), (0.99747, 3)])  # cl and expected scale of error
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.flaky(reruns=3)
+# @pytest.mark.skip
 def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces,
                     pytestconfig):
     long_clarg = pytestconfig.getoption("longtests")

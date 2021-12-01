@@ -1,11 +1,14 @@
 #  Copyright (c) 2021 zfit
+from __future__ import annotations
 
 import abc
 from abc import ABCMeta, abstractmethod
-from typing import Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Callable
 
+import boost_histogram as bh
 import numpy as np
 import tensorflow as tf
+from uhi.typing.plottable import PlottableHistogram
 
 from ..util import ztyping
 from ..util.deprecation import deprecated
@@ -40,15 +43,20 @@ class ZfitDimensional(ZfitObject):
         Corresponds to the last dimension.
         """
         raise NotImplementedError
+    # TODO: activate?
+    # @property
+    # @abstractmethod
+    # def space(self):
+    #     raise NotImplementedError
 
 
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
     @abstractmethod
     def with_obs(self,
-                 obs: Optional[ztyping.ObsTypeInput],
+                 obs: ztyping.ObsTypeInput | None,
                  allow_superset: bool = True,
-                 allow_subset: bool = True) -> "ZfitOrderableDimensional":
+                 allow_subset: bool = True) -> ZfitOrderableDimensional:
         """Create a new instance that has `obs`; sorted by or set or dropped.
 
         The behavior is as follows:
@@ -86,9 +94,9 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
     @abstractmethod
     def with_axes(self,
-                  axes: Optional[ztyping.AxesTypeInput],
+                  axes: ztyping.AxesTypeInput | None,
                   allow_superset: bool = True,
-                  allow_subset: bool = True) -> "ZfitOrderableDimensional":
+                  allow_subset: bool = True) -> ZfitOrderableDimensional:
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
         The behavior is as follows:
@@ -126,7 +134,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def with_autofill_axes(self, overwrite: bool = False) -> "ZfitOrderableDimensional":
+    def with_autofill_axes(self, overwrite: bool = False) -> ZfitOrderableDimensional:
         """Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).
 
         This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or
@@ -156,7 +164,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def reorder_x(self, x: Union[tf.Tensor, np.ndarray],
+    def reorder_x(self, x: tf.Tensor | np.ndarray,
                   *,
                   x_obs: ztyping.ObsTypeInput = None,
                   x_axes: ztyping.AxesTypeInput = None,
@@ -194,7 +202,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
     def get_reorder_indices(self,
                             obs: ztyping.ObsTypeInput = None,
                             axes: ztyping.AxesTypeInput = None
-                            ) -> Tuple[int]:
+                            ) -> tuple[int]:
         """Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.
 
         Args:
@@ -215,7 +223,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 class ZfitData(ZfitDimensional):
 
     @abstractmethod
-    def value(self, obs: List[str] = None) -> ztyping.XType:
+    def value(self, obs: list[str] = None) -> ztyping.XType:
         raise NotImplementedError
 
     @abstractmethod
@@ -230,6 +238,10 @@ class ZfitData(ZfitDimensional):
     @abstractmethod
     def weights(self):
         raise NotImplementedError
+
+
+class ZfitUnbinnedData(ZfitData):
+    pass
 
 
 class ZfitLimit(abc.ABC, metaclass=ABCMeta):
@@ -301,7 +313,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
+    def rect_area(self) -> float | np.ndarray | tf.Tensor:
         """Calculate the total rectangular area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -329,7 +341,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @abstractmethod
     def filter(self, x: ztyping.XTypeInput,
                guarantee_limits: bool = False,
-               axis: Optional[int] = None
+               axis: int | None = None
                ) -> ztyping.XTypeReturnNoData:
         """Filter `x` by removing the elements along `axis` that are not inside the limits.
 
@@ -401,7 +413,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         raise NotImplementedError
 
     @property
-    def n_events(self) -> Union[int, None]:
+    def n_events(self) -> int | None:
         """Shape of the first dimension, usually reflects the number of events.
 
         Returns:
@@ -411,7 +423,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def equal(self, other: object, allow_graph: bool) -> Union[bool, tf.Tensor]:
+    def equal(self, other: object, allow_graph: bool) -> bool | tf.Tensor:
         """Compare the limits on equality. For ANY objects, this also returns true.
 
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
@@ -436,7 +448,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     def less_equal(self,
                    other: object,
                    allow_graph: bool = True
-                   ) -> Union[bool, tf.Tensor]:
+                   ) -> bool | tf.Tensor:
         """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
 
         This can be used to determine whether a fitting range specification can handle another limit.
@@ -483,6 +495,14 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMeta):
 
     @property
+    def is_binned(self):
+        raise NotImplementedError
+
+    @property
+    def binning(self):
+        raise NotImplementedError
+
+    @property
     @abstractmethod
     def n_limits(self) -> int:
         """Return the number of limits."""
@@ -491,7 +511,7 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
     # TODO: legacy?
     @property
     @abstractmethod
-    def limits(self) -> Tuple[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
+    def limits(self) -> tuple[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
         """Return the tuple(lower, upper)."""
         raise NotImplementedError
 
@@ -521,9 +541,9 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
     @abstractmethod
     def with_limits(self,
                     limits: ztyping.LimitsTypeInput = None,
-                    rect_limits: Optional[ztyping.RectLimitsInputType] = None,
-                    name: Optional[str] = None
-                    ) -> "ZfitSpace":
+                    rect_limits: ztyping.RectLimitsInputType | None = None,
+                    name: str | None = None
+                    ) -> ZfitSpace:
         """Return a copy of the space with the new `limits` (and the new `name`).
 
         Args:
@@ -604,10 +624,10 @@ class ZfitDependenciesMixin:
 class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
     @abstractmethod
     def get_params(self,
-                   floating: Optional[bool] = True,
-                   is_yield: Optional[bool] = None,
-                   extract_independent: Optional[bool] = True
-                   ) -> Set["ZfitParameter"]:
+                   floating: bool | None = True,
+                   is_yield: bool | None = None,
+                   extract_independent: bool | None = True
+                   ) -> set[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
@@ -741,7 +761,7 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
 class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @abstractmethod
-    def gradient(self, params: ztyping.ParamTypeInput = None) -> List[tf.Tensor]:
+    def gradient(self, params: ztyping.ParamTypeInput = None) -> list[tf.Tensor]:
         raise NotImplementedError
 
     @abstractmethod
@@ -750,21 +770,21 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def model(self) -> List["ZfitModel"]:
+    def model(self) -> list[ZfitModel]:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def data(self) -> List["ZfitData"]:
+    def data(self) -> list[ZfitData]:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def fit_range(self) -> List["ZfitSpace"]:
+    def fit_range(self) -> list[ZfitSpace]:
         raise NotImplementedError
 
     @abstractmethod
-    def add_constraints(self, constraints: List[tf.Tensor]):
+    def add_constraints(self, constraints: list[tf.Tensor]):
         raise NotImplementedError
 
     @property
@@ -795,13 +815,14 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         raise NotImplementedError
 
     @abstractmethod
-    def integrate(self, limits: ztyping.LimitsType, norm_range: ztyping.LimitsType = None,
-                  name: str = "integrate") -> ztyping.XType:
+    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
+            * ():
+            options ():
             limits: the limits to integrate over
-            norm_range: the limits to normalize over or False to integrate the
+            norm: the limits to normalize over or False to integrate the
                 unnormalized probability
             name:
 
@@ -814,7 +835,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
     @abstractmethod
     def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None,
                                    priority: int = 50, *,
-                                   supports_norm_range: bool = False,
+                                   supports_norm: bool = False,
                                    supports_multiple_limits: bool = False):
         """Register an analytic integral with the class.
 
@@ -823,14 +844,14 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
             limits: |limits_arg_descr|
             priority:
             supports_multiple_limits:
-            supports_norm_range:
+            supports_norm:
 
         Returns:
         """
         raise NotImplementedError
 
     @abstractmethod
-    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType,
+    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, *, norm=None, options=None,
                           norm_range: ztyping.LimitsType = None) -> ztyping.XType:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
@@ -838,6 +859,9 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         to the dimensions of `norm_range` (if not False)
 
         Args:
+            * ():
+            norm ():
+            options ():
             x: The value at which the partially integrated function will be evaluated
             limits: the limits to integrate over. Can contain only some axes
             norm_range: the limits to normalize over. Has to have all axes
@@ -885,7 +909,7 @@ class ZfitFunc(ZfitModel):
 class ZfitPDF(ZfitModel):
 
     @abstractmethod
-    def pdf(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+    def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, norm_range=None) -> ztyping.XType:
         raise NotImplementedError
 
     @property
@@ -898,15 +922,15 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abstractmethod
-    def create_extended(self, yield_: ztyping.ParamTypeInput) -> "ZfitPDF":
+    def create_extended(self, yield_: ztyping.ParamTypeInput) -> ZfitPDF:
         raise NotImplementedError
 
     @abstractmethod
-    def get_yield(self) -> Union[ZfitParameter, None]:
+    def get_yield(self) -> ZfitParameter | None:
         raise NotImplementedError
 
     @abstractmethod
-    def normalization(self, limits: ztyping.LimitsType) -> ztyping.NumericalTypeReturn:
+    def normalization(self, limits: ztyping.LimitsType, *, options) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
     @abstractmethod
@@ -918,15 +942,77 @@ class ZfitFunctorMixin:
 
     @property
     @abstractmethod
-    def models(self) -> Dict[Union[float, int, str], ZfitModel]:
+    def models(self) -> dict[float | int | str, ZfitModel]:
         raise NotImplementedError
 
     @abstractmethod
-    def get_models(self) -> List[ZfitModel]:
+    def get_models(self) -> list[ZfitModel]:
         raise NotImplementedError
 
 
 class ZfitConstraint(abc.ABC):
     @abstractmethod
     def value(self):
+        raise NotImplementedError
+
+
+class ZfitMinimalHist(PlottableHistogram):
+
+    @property
+    def kind(self):
+        raise NotImplementedError
+
+    def values(self):
+        raise NotImplementedError
+
+    def variances(self) -> np.ndarray | None:
+        raise NotImplementedError
+
+    def axes(self):
+        raise NotImplementedError
+
+
+class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist):
+
+    @abstractmethod
+    def variances(self):
+        raise NotImplementedError
+
+    def with_obs(self, obs) -> ZfitBinnedData:
+        raise NotImplementedError
+
+    # @abstractmethod
+    # def counts(self):  # TODO: name?
+    #     raise NotImplementedError
+
+    # @abstractmethod
+    # def binning(self):
+    #     return self.space.binning
+
+
+class ZfitBinnedPDF(ZfitPDF, metaclass=ABCMeta):
+    @abstractmethod
+    def counts(self, x, norm):
+        pass
+
+    @abstractmethod
+    def rel_counts(self, x, norm):
+        pass
+
+
+class ZfitBinning(abc.ABC):
+
+    @abstractmethod
+    def get_binnings(self) -> list[bh.axis.Axis]:
+        """Return the binning of the axes.
+
+        Returns:
+            binnings:
+        """
+        raise NotImplementedError
+
+
+class ZfitRectBinning(ZfitBinning):
+    @abstractmethod
+    def get_edges(self):
         raise NotImplementedError

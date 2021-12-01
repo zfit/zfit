@@ -39,10 +39,8 @@ frac.set_value(0.07)
 
 # plot the data
 data_np = data[:, 0].numpy()
-color = 'black'
 n_bins = 50
 
-linewidth = 2.5
 plot_scaling = n_sample / n_bins * obs.area()
 
 x = np.linspace(-10, 10, 1000)

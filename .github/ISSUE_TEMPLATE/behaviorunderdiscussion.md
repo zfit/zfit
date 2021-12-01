@@ -18,12 +18,13 @@ Please include the stacktrace here
 
 Please fill in the relevant points (if possible).
 
--   zfit version:
--   Python version:
--   Are you using conda, pipenv, etc? :
--   Operating System:
--   Tensorflow version:
+- zfit version:
+- Python version:
+- Are you using conda, pipenv, etc? :
+- Operating System:
+- Tensorflow version:
 
 ## Desired behavior
 
-What would you expect to happen and why? Be aware that there are also many more usecases than your specific one, if you can think of where it would break, please include this here.
+What would you expect to happen and why? Be aware that there are also many more usecases than your specific one, if you
+can think of where it would break, please include this here.

@@ -7,7 +7,6 @@ TODO(Mayou36): subclassing?
 import abc
 import typing
 
-import tensorflow as tf
 
 import zfit
 from zfit.util.exception import (ShapeIncompatibleError,
@@ -19,7 +18,7 @@ from .basemodel import BaseModel
 from .interfaces import ZfitFunc
 
 
-class BaseFunc(BaseModel, ZfitFunc):
+class BaseFuncV1(BaseModel, ZfitFunc):
 
     def __init__(self, obs=None, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
                  params: typing.Any = None):
@@ -38,7 +37,7 @@ class BaseFunc(BaseModel, ZfitFunc):
         new_params.update(override_params)
         return type(self)(new_params)
 
-    def gradient(self, x: ztyping.XType, norm_range: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
+    def gradient(self, x: ztyping.XType, norm: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
         # TODO(Mayou36): well, really needed... this gradient?
         raise NotImplementedError("What do you need? Use tf.gradient...")
 
@@ -86,4 +85,4 @@ class BaseFunc(BaseModel, ZfitFunc):
 
     def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):  # TODO(Mayou36): default
 
-        return self._check_input_norm_range(norm_range=norm_range, none_is_error=none_is_error)
+        return self._check_input_norm(norm=norm_range, none_is_error=none_is_error)

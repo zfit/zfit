@@ -8,13 +8,13 @@ from typing import Iterable, Optional, Set
 import tensorflow as tf
 from ordered_set import OrderedSet
 
+from .dependents import BaseDependentsMixin
+from .interfaces import (ZfitIndependentParameter, ZfitNumericParametrized,
+                         ZfitObject, ZfitParameter, ZfitParametrized)
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
-from .dependents import BaseDependentsMixin
-from .interfaces import (ZfitIndependentParameter, ZfitNumericParametrized,
-                         ZfitObject, ZfitParameter, ZfitParametrized)
 
 
 class BaseObject(ZfitObject):
@@ -57,14 +57,17 @@ class BaseObject(ZfitObject):
         return object.__hash__(self)
 
 
-class BaseParametrized(ZfitParametrized):
+class BaseParametrized(BaseObject, ZfitParametrized):
 
     def __init__(self, params, **kwargs) -> None:
+        # print(f"DEBUG: {kwargs}")  # TODO REMOVE!
+        # raise RuntimeError("DEBUG needs to be removed")
         super().__init__(**kwargs)
         from zfit.core.parameter import convert_to_parameter
 
         params = params or OrderedDict()
-        params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
+        # params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
+        params = {n: convert_to_parameter(p) for n, p in params.items()}  # why sorted?
 
         # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
         self._params = params
