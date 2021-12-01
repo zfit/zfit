@@ -1,5 +1,5 @@
 #  Copyright (c) 2021 zfit
-from typing import Mapping, Optional
+from typing import Mapping, Optional, Union
 
 import numpy as np
 
@@ -14,7 +14,7 @@ from ..util.exception import SpecificFunctionNotImplemented
 
 class BinwiseScaleModifier(BaseBinnedFunctorPDF):
 
-    def __init__(self, pdf: ZfitBinnedPDF, modifiers: Mapping[str, ztyping.ParamTypeInput] = None,
+    def __init__(self, pdf: ZfitBinnedPDF, modifiers: Union[bool, Mapping[str, ztyping.ParamTypeInput]] = None,
                  extended: ztyping.ExtendedInputType = None, norm: ztyping.NormInputType = None,
                  name: Optional[str] = "BinnedTemplatePDF") -> None:
         """Modifier that scales each bin separately of the *pdf*.
