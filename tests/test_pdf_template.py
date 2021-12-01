@@ -67,8 +67,8 @@ def test_morphing_templates(alphas):
         counts.append(counts1 + np.random.uniform(high=5, size=bins1))
     binning = zfit.binned.RegularBinning(bins1, 0, 10, name='obs1')
     obs = zfit.Space(obs='obs1', binning=binning)
-    datasets = [BinnedData.from_tensor(obs, count) for count in counts]
-    pdfs = [BinnedTemplatePDFV1(data=data, extended=np.sum(data.values())) for data in datasets]
+    histos = [BinnedData.from_tensor(obs, count) for count in counts]
+    pdfs = [zfit.pdf.HistogramPDF(h) for h in histos]
     if alphas is not None:
         pdfs = {a: p for a, p in zip(alphas, pdfs)}
     alpha = zfit.Parameter('alpha', 0, -5, 5)
