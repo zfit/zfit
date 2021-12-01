@@ -1,10 +1,10 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2021 zfit
 import abc
-import collections.abc
 import functools
 import warnings
 from contextlib import suppress
+import collections
 from inspect import signature
 from typing import Callable, Dict, Iterable, List, Optional, Set, Union
 from weakref import WeakValueDictionary
@@ -21,6 +21,9 @@ from tensorflow.python.ops.resource_variable_ops import \
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
+from .. import z
+
+znp = z.numpy
 import zfit.z.numpy as znp
 
 from .. import z
@@ -41,6 +44,7 @@ from ..util.temporary import TemporarilySet
 from . import interfaces as zinterfaces
 from .dependents import _extract_dependencies
 from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+
 
 # todo add type hints in this module for api
 
@@ -412,21 +416,33 @@ class Parameter(ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndepende
     def at_limit(self) -> tf.Tensor:
         """If the value is at the limit (or over it).
 
-        The precision is up to 1e-5 relative.
-
         Returns:
             Boolean `tf.Tensor` that tells whether the value is at the limits.
         """
         return self._check_at_limit(self.value())
 
     def _check_at_limit(self, value, exact=False):
+        """The precision is up to 1e-5 relative or 1e-8 absolute if exact is None.
+
+        Args:
+            value ():
+            exact ():
+
+        Returns:
+        """
         if not self.has_limits:
             return tf.constant(False)
         # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
         diff = znp.abs(self.upper - self.lower)  # catch if it is minus inf
-        tol = znp.minimum(diff * 1e-5, 1e-3)  # if one limit is inf we would get inf
         if not exact:
-            tol = - tol
+            reltol = 0.00005
+            abstol = 1e-5
+        else:
+            reltol = 1e-5
+            abstol = 1e-5
+        tol = znp.minimum(diff * reltol, abstol)  # if one limit is inf we would get inf
+        if not exact:  # if exact, we wanna allow to set it slightly over the limit.
+            tol = - tol  # If not, we wanna make sure it's inside
         at_lower = z.unstable.less_equal(value, self.lower - tol)
         at_upper = z.unstable.greater_equal(value, self.upper + tol)
         return z.unstable.logical_or(at_lower, at_upper)
@@ -656,8 +672,26 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         return self._params
 
     def value(self):
-
-        value = self._value_fn(*self.params.values())
+        params = self.params
+        parameters = signature(self._value_fn).parameters
+        if len(parameters) == 1 and (len(params) > 1 or 'params' in parameters):
+            value = self._value_fn(params)
+        else:
+            # TODO: should we advertise the below?
+            # warnings.warn("The function of composed parameters should take a single argument, a mapping."
+            #               "For example, one parameter called `params`, which is a dict that contains all other"
+            #               "parameters."
+            #               " If you see this, the code may be broken and returns wrong values (it should not,"
+            #               " but may does).", stacklevel=1)
+            if self._composed_param_original_order is None:  # TODO: this is a temp fix for legacy behavior
+                try:
+                    value = self._value_fn(**params)  # since the order is None, it has to be a dict
+                except Exception as error:
+                    raise RuntimeError("This should not be reached. To fix this, make sure that the params to"
+                                       " ComposedParameter are a dict and that the function takes .")
+            else:
+                params = self._composed_param_original_order  # to make sure we have the right order
+                value = self._value_fn(*params)
         return tf.convert_to_tensor(value, dtype=self.dtype)
 
     def read_value(self):
@@ -724,7 +758,11 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
 
     def __repr__(self):
         value = self._value_np
-        return f"<zfit.param.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value:.4g}>"
+        if value is not None:
+            value_str = f"{value: .4g}"
+        else:
+            value_str = "symbolic"
+        return f"<zfit.param.{self.__class__.__name__} '{self.name}' dtype={self.dtype.name} value={value_str}>"
 
 
 register_tensor_conversion(ConstantParameter, 'ConstantParameter', overload_operators=True)
@@ -732,9 +770,12 @@ register_tensor_conversion(BaseComposedParameter, 'BaseComposedParameter', overl
 
 
 class ComposedParameter(BaseComposedParameter):
-    def __init__(self, name: str, value_fn: Callable,
+    @deprecated_args(None, "Use `params` instead.", "dependents")
+    def __init__(self,
+                 name: str,
+                 value_fn: Callable,
                  params: Union[Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter] = NotSpecified,
-                 dtype: tf.dtypes.DType = ztypes.float,
+                 dtype: tf.dtypes.DType = ztypes.float, *,
                  dependents: Union[Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter] = NotSpecified):
         """Arbitrary composition of parameters.
 
@@ -753,9 +794,12 @@ class ComposedParameter(BaseComposedParameter):
         """
         if dependents is not NotSpecified:
             params = dependents
-            warnings.warn("`dependents` is deprecated, use `params` instead.", stacklevel=2)
         elif params is NotSpecified:
             raise ValueError
+        if not isinstance(params, collections.Mapping):
+            self._composed_param_original_order = convert_to_container(params)
+        else:
+            self._composed_param_original_order = None
         if isinstance(params, dict):
             params_dict = params
         else:
@@ -771,7 +815,7 @@ class ComposedParameter(BaseComposedParameter):
             value = f'{self.numpy():.4g}'
         else:
             value = "graph-node"
-        return f"<zfit.{self.__class__.__name__} '{self.name}' params={self.params} value={value}>"
+        return f"<zfit.{self.__class__.__name__} '{self.name}' params={[(k, p.name) for k, p in self.params.items()]} value={value}>"
 
 
 class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as input?
@@ -881,7 +925,7 @@ def convert_to_parameters(value,
                           step_size=None):
     if prefer_constant is None:
         prefer_constant = True
-    if isinstance(value, collections.abc.Mapping):
+    if isinstance(value, collections.Mapping):
         return convert_to_parameters(**value, prefer_constant=False)
     value = convert_to_container(value)
     is_param_already = [isinstance(val, ZfitIndependentParameter) for val in value]
@@ -910,6 +954,7 @@ def convert_to_parameters(value,
     return params
 
 
+@deprecated_args(None, 'Use `params` instead.', 'dependents')
 def convert_to_parameter(value,
                          name: Optional[str] = None,
                          prefer_constant: bool = True,
@@ -986,13 +1031,22 @@ def convert_to_parameter(value,
     return value
 
 
+@tf.function
+def assign_values_jit(params: Union[Parameter, Iterable[Parameter]],
+                      values: Union[ztyping.NumericalScalarType,
+                                    Iterable[ztyping.NumericalScalarType]],
+                      use_locking=False):
+    for i, param in enumerate(params):
+        param.assign(values[i], read_value=False, use_locking=use_locking)
+
+
 def assign_values(params: Union[Parameter, Iterable[Parameter]],
                   values: Union[ztyping.NumericalScalarType,
                                 Iterable[ztyping.NumericalScalarType]],
                   use_locking=False):
     params, values = _check_convert_param_values(params, values)
-    for i, param in enumerate(params):
-        param.assign(values[i], read_value=False, use_locking=use_locking)
+    params = tuple(params)
+    assign_values_jit(params=params, values=values, use_locking=use_locking)
 
 
 def set_values(params: Union[Parameter, Iterable[Parameter]],
@@ -1034,6 +1088,9 @@ def _check_convert_param_values(params, values):
             values = convert_to_container(values)
             if not len(params) == len(values):
                 raise ValueError(f"Incompatible length of parameters and values: {params}, {values}")
+    not_param = [param for param in params if not isinstance(param, ZfitParameter)]
+    if not_param:
+        raise TypeError(f"The following are not parameters (but should be): {not_param}")
     if not all(param.independent for param in params):
         raise ParameterNotIndependentError(f'trying to set value of parameters that are not independent '
                                            f'{[param for param in params if not param.independent]}')

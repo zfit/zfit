@@ -10,7 +10,7 @@ import zfit.z.numpy as znp
 from .. import z
 from ..core.interfaces import ZfitIndependentParameter, ZfitPDF, ZfitSpace
 from ..core.parameter import set_values
-from ..core.space import combine_spaces, convert_to_space
+from ..core.space import combine_spaces, convert_to_space, supports
 from ..util.exception import WorkInProgressError
 from ..util.warnings import warn_experimental_feature
 from .functor import BaseFunctor
@@ -40,10 +40,10 @@ class ConditionalPDFV1(BaseFunctor):
                 parameter, meaning that the parameter *param* in the ``cond`` mapping will now be
                 determined by the data in the ``Space``, the value of the ``cond``.
             cond: Mapping of parameter to input data.
-            name: |@doc:model.init.name| Human readable name
+            name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
-               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
             use_vectorized_map ():
             sample_with_replacement ():
         """
@@ -52,7 +52,7 @@ class ConditionalPDFV1(BaseFunctor):
         self._cond, cond_obs = self._check_input_cond(cond)
         obs = pdf.space * cond_obs
         super().__init__(pdfs=pdf, obs=obs, name=name)
-        self.set_norm_range(pdf.norm_range)
+        self.set_norm_range(pdf.norm)
 
     def _check_input_cond(self, cond):
         spaces = []
@@ -62,8 +62,9 @@ class ConditionalPDFV1(BaseFunctor):
             spaces.append(convert_to_space(obs))
         return cond, combine_spaces(*spaces)
 
+    @supports(norm=True, multiple_limits=True)
     @z.function(wraps='conditional_pdf')
-    def _pdf(self, x, norm_range):
+    def _pdf(self, x, norm):
         pdf = self.pdfs[0]
         param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
         x_values = x.value()
@@ -80,7 +81,7 @@ class ConditionalPDFV1(BaseFunctor):
             x_pdf = cond_and_data[None, ..., :pdf.n_obs]
             for param, index in param_x_indices.items():
                 param.assign(cond_and_data[..., index])
-            return pdf.pdf(x_pdf, norm_range=norm_range)
+            return pdf.pdf(x_pdf, norm=norm)
 
         params = tuple(param_x_indices.keys())
         with set_values(params, params):
@@ -95,7 +96,7 @@ class ConditionalPDFV1(BaseFunctor):
         return params
 
     @z.function(wraps='conditional_pdf')
-    def _single_hook_integrate(self, limits, norm_range, x):
+    def _single_hook_integrate(self, limits, norm, x, options):
         from zfit import run
         if not run.get_graph_mode():
             warnings.warn("Using the Conditional PDF in eager mode (no jit) maybe gets stuck.", RuntimeWarning)
@@ -115,7 +116,7 @@ class ConditionalPDFV1(BaseFunctor):
             for param, index in param_x_indices.items():
                 param.assign(values[..., index])
 
-            return pdf.integrate(limits=limits, norm_range=norm_range, x=x)
+            return pdf.integrate(limits=limits, norm=norm, options=options)
 
         integrals = tf_map(eval_int, x_values)
         integrals = integrals[:, 0]  # removing stack dimension, implicitly in map_fn

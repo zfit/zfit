@@ -308,8 +308,8 @@ def test_all_kde(kdetype, npoints, jit, request):
 def _run(kdetype, full, upper=None, legacy=True, padding=False):
     from zfit.z import numpy as znp
     kde, pdf, data = create_kde(*kdetype, full=full, upper=upper, legacy=legacy, padding=padding)
-    integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
-    expected_integral = kde.integrate(limits=kde.space, norm_range=(-3, 2))
+    integral = kde.integrate(limits=kde.space, norm=(-3, 2), )
+    expected_integral = kde.integrate(limits=kde.space, norm=(-3, 2), )
     rel_tol = 0.04
     sample = kde.sample(1).value()
     sample2 = kde.sample(1500).value()

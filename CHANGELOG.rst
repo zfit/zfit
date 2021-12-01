@@ -5,6 +5,43 @@ Changelog
 .. _newest-changelog:
 
 
+0.9.0a0
+========
+
+Major Features and Improvements
+-------------------------------
+
+- Binned fits support, although limited in content, is here! This includes BinnedData, binned PDFs, and
+  binned losses. TODO: extend to include changes/point to binned introduction.
+- new Poisson PDF
+- added Poisson constraint, LogNormal Constraint
+
+Breaking changes
+------------------
+
+- params given in ComposedParameters are not sorted anymore. Rely on their name instead.
+- `norm_range` is now called `norm` and should be replaced everywhere if possible. This will break in
+  the future.
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+- remove warning when using `rect_limits` or similar.
+- gauss integral accepts now also tensor inputs in limits
+- parameters at limits is now shown correctly
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
 0.8.2 (20 Sep 2021)
 ====================
 
@@ -18,6 +55,7 @@ Bug fixes and small changes
 
 Major Features and Improvements
 -------------------------------
+
 - allow `FitResult` to `freeze()`, making it pickleable. The parameters
   are replaced by their name, the objects such as loss and minimizer as well.
 - improve the numerical integration by adding a one dimensional efficient integrator, testing for the accuracy of
@@ -101,6 +139,7 @@ Requirement changes
 -------------------
 
 - remove Python 3.6 support
+- boost-histogram
 
 
 
@@ -281,7 +320,6 @@ Major Features and Improvements
 -------------------------------
 
 - upgrad to TensorFlow 2.3
-- new Poisson PDF
 
 Breaking changes
 ------------------

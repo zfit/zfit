@@ -3,6 +3,7 @@
 #  Copyright (c) 2021 zfit
 
 import collections
+from contextlib import suppress
 from typing import Callable, List, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -25,10 +26,12 @@ from ..util.exception import (AnalyticIntegralNotImplemented,
 from .space import Space, convert_to_space, supports
 
 
-@supports()
 def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztypes.float,
                    mc_sampler=tfp.mcmc.sample_halton_sequence, max_draws=None, tol=None,
+                   vectorizable=None,
                    mc_options=None, simpsons_options=None):
+    if vectorizable is None:
+        vectorizable = False
     limits = convert_to_space(limits)
 
     if n_axes is None:
@@ -45,7 +48,7 @@ def auto_integrate(func, limits, n_axes=None, x=None, method="AUTO", dtype=ztype
         max_draws = mc_options.get('max_draws')
         integral = mc_integrate(x=x, func=func, limits=limits, n_axes=n_axes, method=method, dtype=dtype,
                                 mc_sampler=mc_sampler, draws_per_dim=draws_per_dim, max_draws=max_draws, tol=tol,
-                                importance_sampling=None)
+                                importance_sampling=None, vectorizable=vectorizable)
     elif method.lower() == 'simpson':
         num_points = simpsons_options['draws_simpson']
         integral = simpson_integrate(func=func, limits=limits, num_points=num_points)
@@ -62,6 +65,7 @@ def numeric_integrate():
 
 def simpson_integrate(func, limits, num_points):  # currently not vectorized
     integrals = []
+    num_points = tf.cast(num_points, znp.int32)
     num_points += num_points % 2 + 1  # sanitize number of points
     for space in limits:
         lower, upper = space.rect_limits
@@ -81,14 +85,13 @@ def simpson_integrate(func, limits, num_points):  # currently not vectorized
 # @z.function
 def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyping.AxesTypeInput] = None,
                  x: Optional[ztyping.XType] = None, n_axes: Optional[int] = None, draws_per_dim: int = 40000,
-                 max_draws=800_000, tol: float = 1e-6,
-                 method: str = None,
-                 dtype: Type = ztypes.float,
-                 mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
-                 importance_sampling: Optional[Callable] = None) -> tf.Tensor:
+                 max_draws=800_000, tol: float = 1e-6, method: str = None, dtype: Type = ztypes.float,
+                 mc_sampler: Callable = tfp.mcmc.sample_halton_sequence, importance_sampling: Optional[Callable] = None,
+                 vectorizable=None) -> tf.Tensor:
     """Monte Carlo integration of `func` over `limits`.
 
     Args:
+        vectorizable ():
         func: The function to be integrated over
         limits: The limits of the integral
         axes: The row to integrate over. None means integration over all value
@@ -104,6 +107,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
     Returns:
         The integral
     """
+    if vectorizable is None:
+        vectorizable = False
     tol = znp.array(tol, dtype=znp.float64)
     if axes is not None and n_axes is not None:
         raise ValueError("Either specify axes or n_axes")
@@ -213,7 +218,7 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                                         znp.array(0., dtype=znp.float64),
                                         0,
                                         0]
-            if partial:
+            if partial or vectorizable:
                 avg, error, std, ntot, i = body_integrate(avg, error, std, ntot, i)
             else:
                 avg, error, std, ntot, i = tf.while_loop(cond=cond, body=body_integrate,
@@ -244,7 +249,8 @@ def mc_integrate(func: Callable, limits: ztyping.LimitsType, axes: Optional[ztyp
                     )
                 return
 
-            tf.cond(error > tol, print_none_return, lambda: None)
+            if not vectorizable:
+                tf.cond(error > tol, print_none_return, lambda: None)
         integral = avg * tf.cast(z.convert_to_tensor(space.rect_area()), dtype=avg.dtype)
         integrals.append(integral)
     return z.reduce_sum(integrals, axis=0)
@@ -523,7 +529,7 @@ class AnalyticIntegral:
 
     def register(self, func: Callable, limits: ztyping.LimitsType,
                  priority: int = 50, *,
-                 supports_norm_range: bool = False, supports_multiple_limits: bool = False) -> None:
+                 supports_norm: bool = False, supports_multiple_limits: bool = False) -> None:
         """Register an analytic integral.
 
         Args:
@@ -533,7 +539,7 @@ class AnalyticIntegral:
             possible limits
             priority: If two or more integrals can integrate over certain limits, the one with the higher
                 priority is taken (usually around 0-100).
-            supports_norm_range: If True, norm_range will (if needed) be given to `func` as an argument.
+            supports_norm: If True, norm_range will (if needed) be given to `func` as an argument.
             supports_multiple_limits: If True, multiple limits may be given as an argument to `func`.
         """
 
@@ -550,14 +556,14 @@ class AnalyticIntegral:
         axes = frozenset(limits.axes)
 
         # add catching everything unsupported:
-        func = supports(norm_range=supports_norm_range, multiple_limits=supports_multiple_limits)(func)
+        func = supports(norm=supports_norm, multiple_limits=supports_multiple_limits)(func)
         limits = limits.with_axes(axes=tuple(sorted(limits.axes)))
         self._integrals[axes][limits] = Integral(func=func, limits=limits,
                                                  priority=priority)  # TODO improve with
         # database-like access
 
     def integrate(self, x: Optional[ztyping.XType], limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None,
-                  norm_range: ztyping.LimitsType = None, model: ZfitModel = None, params: dict = None) -> ztyping.XType:
+                  norm: ztyping.LimitsType = None, model: ZfitModel = None, params: dict = None) -> ztyping.XType:
         """Integrate analytically over the axes if available.
 
         Args:
@@ -565,7 +571,7 @@ class AnalyticIntegral:
                 integrated function. If a full integration is performed, this should be `None`.
             limits: The limits to integrate
             axes: The dimensions to integrate over
-            norm_range: |norm_range_arg_descr|
+            norm: |norm_range_arg_descr|
             params: The parameters of the function
 
 
@@ -587,11 +593,21 @@ class AnalyticIntegral:
             raise AnalyticIntegralNotImplemented(
                 f"Integral is available for axes {axes}, but not for limits {limits}")
 
-        try:
-            integral = integral_fn(x=x, limits=limits, norm_range=norm_range, params=params, model=model)
-        except TypeError:
-            integral = integral_fn(limits=limits, norm_range=norm_range, params=params, model=model)
-        return integral
+        with suppress(TypeError):
+            return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)
+        with suppress(TypeError):
+            return integral_fn(limits=limits, norm=norm, params=params, model=model)
+
+        with suppress(TypeError):
+            return integral_fn(x=x, limits=limits, norm_range=norm, params=params, model=model)
+        with suppress(TypeError):
+            return integral_fn(limits=limits, norm_range=norm, params=params, model=model)
+        assert False, "Could not integrate, unknown reason. Please fill a bug report."
+
+        # with suppress(TypeError):
+        #     return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)
+        # with suppress(TypeError):
+        #     return integral_fn(limits=limits, norm=norm, params=params, model=model)
 
 
 class Integral:  # TODO analytic integral

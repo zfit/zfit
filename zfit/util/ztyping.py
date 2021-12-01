@@ -1,6 +1,6 @@
 #  Copyright (c) 2021 zfit
 from typing import (Callable, Dict, Iterable, List, Optional, Tuple, TypeVar,
-                    Union)
+                    Union, Mapping)
 
 import numpy as np
 import tensorflow as tf
@@ -9,6 +9,7 @@ from ordered_set import OrderedSet
 
 # The #: symbols at the end of every type alias are for marking the module level variables
 # as documented, such that sphinx will document them.
+from uhi.typing.plottable import PlottableHistogram
 
 LowerTypeInput = Union[tf.Tensor, np.ndarray, Tuple[float], List[float], float]  #:
 LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]  #:
@@ -52,6 +53,7 @@ ObsType = Tuple[str]  #:
 # Space
 SpaceOrSpacesTypeInput = Union["zfit.Space", Iterable["zfit.Space"]]  #:
 SpaceType = "zfit.Space"  #:
+NormInputType = "zfit.Space"  #:
 
 # Data
 XType = Union[float, tf.Tensor]  #:
@@ -61,6 +63,9 @@ XTypeReturn = Union[XTypeReturnNoData, "zfit.Data"]  #:
 NumericalTypeReturn = Union[tf.Tensor, np.array]  #:
 
 DataInputType = Union["zfit.Data", Iterable["zfit.Data"]]  #:
+BinnedDataInputType = Union[PlottableHistogram, Iterable[PlottableHistogram]]  #:
+ZfitBinnedDataInputType = Union["zfit.data.BinnedData", Iterable["zfit.data.BinnedData"]]  #:
+AnyDataInputType = Union[DataInputType, BinnedDataInputType]  #:
 
 WeightsStrInputType = Union[tf.Tensor, None, np.ndarray, str]  #:
 WeightsInputType = Union[tf.Tensor, None, np.ndarray]  #:
@@ -71,6 +76,8 @@ ModelsInputType = Union['zfit.core.interfaces.ZfitModel',
 
 PDFInputType = Union['zfit.core.interfaces.ZfitPDF',
                      Iterable['zfit.core.interfaces.ZfitPDF']]  #:
+BinnedPDFInputType = Union['zfit.core.interfaces.ZfitBinnedPDF',
+                           Iterable['zfit.core.interfaces.ZfitBinnedPDF']]  #:
 
 FuncInputType = Union['zfit.core.interfaces.ZfitFunc',
                       Iterable['zfit.core.interfaces.ZfitFunc']]  #:
@@ -93,6 +100,8 @@ ParameterType = TypeVar('ParameterType', bound=Dict[str, "zfit.core.interfaces.Z
 ParametersType = Iterable[ParameterType]
 ParamTypeInput = TypeVar('ParamTypeInput', 'zfit.core.interfaces.ZfitParameter', NumericalScalarType)  #:
 
+ExtendedInputType = Union[bool, ParamTypeInput]  #:
+
 # Zfit Structure
 BaseObjectType = Union['zfit.core.interfaces.ZfitParameter',
                        'zfit.core.interfaces.ZfitFunction',
@@ -103,12 +112,15 @@ DependentsType = OrderedSet('zfit.Parameter')  #:
 CacherOrCachersType = Union['zfit.core.interfaces.ZfitCachable',
                             Iterable['zfit.core.interfaces.ZfitCachable']]  #:
 
-try:
-    from typing import OrderedDict
-except ImportError:  # < python 3.7
-    OrderedDict = Dict
+OrderedDict = Dict
 
 LimitsDictAxes = Dict[Tuple[int], 'zfit.core.interfaces.ZfitLimit']  #:
 LimitsDictObs = Dict[Tuple[str], 'zfit.core.interfaces.ZfitLimit']  #:
 LimitsDictNoCoords = Union[LimitsDictAxes, LimitsDictObs]  #:
 LimitsDictWithCoords = Dict[str, LimitsDictNoCoords]  #:
+
+BinningInput = Union[Iterable["ZfitBinning"], "ZfitBinning", int]  #:
+OptionsInputType = Optional[Mapping[str, object]]  #:
+ConstraintsInputType = Optional[
+    Union['zfit.core.interfaces.ZfitConstraint', Iterable['zfit.core.interfaces.ZfitConstraint']]]  #:
+ArrayLike = tf.types.experimental.TensorLike  #:

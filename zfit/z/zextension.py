@@ -176,7 +176,9 @@ class FunctionWrapperRegistry:
         return self.do_jit_types[self.wraps] and self.allow_jit
 
     def reset(self, **kwargs_user):
-        kwargs = dict(autograph=False, experimental_relax_shapes=True)
+        kwargs = dict(autograph=False,
+                      experimental_relax_shapes=True,
+                      )
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
 

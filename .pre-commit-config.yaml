@@ -1,13 +1,14 @@
 ci:
-  autoupdate_schedule: monthly
+  autoupdate_schedule: quarterly
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
       - id: check-added-large-files
+        args: [ '--maxkb=1000' ]
       - id: check-case-conflict
-      - id: check-merge-conflict
+      #      - id: check-merge-conflict
       - id: check-symlinks
       - id: check-yaml
       - id: check-toml
@@ -59,21 +60,22 @@ repos:
   #      hooks:
   #          - id: pydocstyle
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.9.3
-    hooks:
-      - id: isort
+  #  - repo: https://github.com/PyCQA/isort
+  #    rev: 5.9.3
+  #    hooks:
+  #      - id: isort
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.26.0
+    rev: v2.29.0
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]
 
   - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v1.17.0
+    rev: v1.19.0
     hooks:
-      - id: setup-cfg-fmt
+    - id: setup-cfg-fmt
+      args: [--max-py-version=3.10]
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
@@ -87,7 +89,7 @@ repos:
         args: [ --py37-plus ]
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: '0.46'
+    rev: '0.47'
     hooks:
       - id: check-manifest
         stages: [ manual ]
@@ -104,3 +106,10 @@ repos:
 #    hooks:
 #      - id: upgrade-type-hints
 #        args: [ '--futures=true' ]
+
+# TODO: activate once the repo is in a full state (e.g. after merging the new binned
+#  - repo: https://github.com/ambv/black
+#    rev: stable
+#    hooks:
+#      - id: black
+#        language_version: python3.7

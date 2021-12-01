@@ -7,7 +7,7 @@ from typing import Callable, Mapping, Optional, Union
 import nlopt
 import numpy as np
 
-from ..core.parameter import assign_values, set_values
+from ..core.parameter import assign_values, set_values, assign_values_jit
 from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (NOT_SUPPORTED, BaseMinimizer, minimize_supports,
@@ -99,7 +99,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
              criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
@@ -118,7 +118,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                    This corresponds to roughly the maximum number of
                    evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
              minimizer_options: Additional options that will be set in the minimizer.
-             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         self._algorithm = algorithm
         if minimizer_options is None:
@@ -396,7 +396,7 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -414,7 +414,7 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_LBFGS,
@@ -491,7 +491,7 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -509,7 +509,7 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
 
         if rank is None:
@@ -599,7 +599,7 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -617,7 +617,7 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_TNEWTON_PRECOND_RESTART,
@@ -710,7 +710,7 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -728,7 +728,7 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_SLSQP,
@@ -802,7 +802,7 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -820,7 +820,7 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LN_BOBYQA,
@@ -894,7 +894,7 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -912,7 +912,7 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_MMA,
@@ -977,7 +977,7 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -995,7 +995,7 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LD_CCSAQ,
@@ -1089,7 +1089,7 @@ class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1107,7 +1107,7 @@ class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LN_COBYLA,
@@ -1183,7 +1183,7 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1201,7 +1201,7 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__(name=name,
                          algorithm=nlopt.LN_SBPLX,
@@ -1296,7 +1296,7 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1314,7 +1314,7 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         if randomized is None:
             randomized = False
@@ -1404,7 +1404,7 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1422,7 +1422,7 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
 
         if randomized is None:
@@ -1513,7 +1513,7 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1531,7 +1531,7 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
 
         algorithm = nlopt.GN_ESCH
@@ -1610,7 +1610,7 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
              maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
@@ -1628,7 +1628,7 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-             name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
 
         algorithm = nlopt.GN_ISRES

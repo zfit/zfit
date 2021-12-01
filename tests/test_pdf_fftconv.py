@@ -138,7 +138,7 @@ def test_conv_1d_shifted(interpolation):
     probs = conv.pdf(x=x)
     true_conv = true_conv_np(func, funck, obs, x=x, xkernel=kernel_points)
 
-    integral = conv.integrate(limits=obs)
+    integral = conv.integrate(limits=obs, )
     probs_np = probs.numpy()
     np.testing.assert_allclose(probs_np, true_conv, rtol=0.01, atol=0.01)
 
@@ -149,7 +149,7 @@ def test_conv_1d_shifted(interpolation):
     plt.plot(x, probs_np, label='zfit')
     plt.plot(x, true_conv, label='numpy')
     plt.legend()
-    # pytest.zfit_savefig()
+    pytest.zfit_savefig()
 
 
 @pytest.mark.parametrize('interpolation', interpolation_methods)
@@ -277,7 +277,7 @@ def test_conv_2D_simple():
     import matplotlib.pyplot as plt
 
     # np.testing.assert_allclose(probs, true_probs, rtol=0.2, atol=0.1)
-    integral = conv.integrate(limits=obs_func)
+    integral = conv.integrate(limits=obs_func, )
     assert pytest.approx(1, rel=1e-3) == integral.numpy()
     probs_np = probs_rnd.numpy()
     assert len(probs_np) == n_points

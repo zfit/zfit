@@ -101,34 +101,48 @@ def test_integrate():
     class SimpleSampleSumPDF(zfit.pdf.SumPDF):
 
         @zfit.supports()
-        def _integrate(self, limits, norm_range):
+        def _integrate(self, limits, norm, options):
             raise SpecificFunctionNotImplemented  # fallback to the default sampling
 
         @zfit.supports()
-        def _analytic_integrate(self, limits, norm_range):
+        def _analytic_integrate(self, limits, norm):
             raise SpecificFunctionNotImplemented
 
         @zfit.supports()
-        def _numeric_integrate(self, limits, norm_range):
+        def _numeric_integrate(self, limits, norm=None, options=None):
             raise SpecificFunctionNotImplemented
 
     mu1, mu2 = 0, 1.7
     frac = 0.7
 
-    obs = zfit.Space('obs1', (mu1 - 0.5, mu2 + 1))
+    lower = mu1 - 0.5
+    upper = mu2 + 1
+    obs = zfit.Space('obs1', (lower, upper))
     limits = zfit.Space('obs1', (mu1 - 0.3, mu2 + 0.1))
     gauss1 = zfit.pdf.Gauss(obs=obs, mu=mu1, sigma=0.93)
     gauss2 = zfit.pdf.Gauss(obs=obs, mu=mu2, sigma=1.2)
 
     sumpdf = zfit.pdf.SumPDF([gauss1, gauss2], frac)
     sumpdf_true = SimpleSampleSumPDF([gauss1, gauss2], frac)
+    assert zfit.run(gauss1.integrate(limits, norm=limits, )) == pytest.approx(1, abs=0.01)
+    integral = sumpdf.integrate(limits=limits, norm=False, ).numpy()
+    integral_true = sumpdf_true.integrate(limits=limits, norm=False, ).numpy()
+    integral_manual_true = gauss1.integrate(limits, ) * frac + gauss2.integrate(limits,
+                                                                                ) * (1 - frac)
 
-    integral = sumpdf.integrate(limits=limits, norm_range=False).numpy()
-    integral_true = sumpdf_true.integrate(limits=limits, norm_range=False).numpy()
-
+    assert integral_true == pytest.approx(integral_manual_true.numpy(), rel=0.03)
     assert integral_true == pytest.approx(integral, rel=0.03)
     assert integral_true < 0.85
 
-    analytic_integral = sumpdf.analytic_integrate(limits=limits, norm_range=False).numpy()
+    analytic_integral = sumpdf.analytic_integrate(limits=limits, norm=False).numpy()
 
     assert integral_true == pytest.approx(analytic_integral, rel=0.03)
+
+    rnd_limits = sorted(np.random.uniform(lower, upper, 10))
+    integrals = []
+    for low, up in zip(rnd_limits[:-1], rnd_limits[1:]):
+        integrals.append(sumpdf.integrate((low, up), norm=False))
+
+    integral = np.sum(integrals)
+    integral_full = zfit.run(sumpdf.integrate((lower, upper), norm=False))
+    assert pytest.approx(integral_full, integral)

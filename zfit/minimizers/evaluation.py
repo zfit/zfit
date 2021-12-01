@@ -7,7 +7,7 @@ import tensorflow as tf
 import texttable as tt
 
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import assign_values, set_values
+from ..core.parameter import assign_values, set_values, assign_values_jit
 from ..settings import run
 from ..util import ztyping
 from ..util.exception import (DerivativeCalculationError,

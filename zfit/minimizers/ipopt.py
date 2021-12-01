@@ -67,7 +67,7 @@ class IpyoptV1(BaseMinimizer):
                - Setting the verbosity to 10 will print out every
                  evaluation of the loss function and gradient.
 
-               Some minimizer offer additional output which is also
+               Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             hessian: Determine which hessian matrix to use during the minimization.
               One of the following option is possible
@@ -172,7 +172,7 @@ class IpyoptV1(BaseMinimizer):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name| Human readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         minimizer_options = {}
 

@@ -10,15 +10,13 @@ from ordered_set import OrderedSet
 
 import zfit.z.numpy as znp
 from zfit import z
-
+from .baseobject import BaseNumeric
+from .dependents import _extract_dependencies
+from .interfaces import ZfitConstraint, ZfitParameter
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError
-from .baseobject import BaseNumeric
-from .dependents import _extract_dependencies
-from .interfaces import ZfitConstraint, ZfitParameter
-from .parameter import convert_to_parameter
 
 tfd = tfp.distributions
 
@@ -87,20 +85,22 @@ class ProbabilityConstraint(BaseConstraint):
             observation: Observed values of the parameter
                 to constraint obtained from auxiliary measurements.
         """
-
+        # TODO: proper handling of input params, arrays. ArrayParam?
+        params = convert_to_container(params)
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
         super().__init__(name=name, dtype=dtype, params=params_dict, **kwargs)
+        params = tuple(self.params.values())
 
         observation = convert_to_container(observation, tuple)
         if len(observation) != len(params):
             raise ShapeIncompatibleError("observation and params have to be the same length. Currently"
                                          f"observation: {len(observation)}, params: {len(params)}")
 
-        self._observation = []
-        for obs, p in zip(observation, params):
-            obs = convert_to_parameter(obs, f"{p.name}_obs", prefer_constant=False)
-            obs.floating = False
-            self._observation.append(obs)
+        self._observation = observation  # TODO: needed below? Why?
+        # for obs, p in zip(observation, params):
+        #     obs = convert_to_parameter(obs, f"{p.name}_obs", prefer_constant=False)
+        #     obs.floating = False
+        #     self._observation.append(obs)
 
         self._ordered_params = params
 
@@ -127,7 +127,7 @@ class ProbabilityConstraint(BaseConstraint):
         Returns:
         """
         sample = self._sample(n=n)
-        return {p: sample[:, i] for i, p in enumerate(self.observation)}
+        return {p: sample[:, i] for i, p in enumerate(self._ordered_params)}
 
     @abc.abstractmethod
     def _sample(self, n):
@@ -168,10 +168,9 @@ class TFProbabilityConstraint(ProbabilityConstraint):
 
     def _value(self):
         value = -self.distribution.log_prob(self._params_array)
-        return value
+        return tf.reduce_sum(value)
 
     def _sample(self, n):
-        # TODO cache: add proper caching
         return self.distribution.sample(n)
 
 
@@ -238,3 +237,74 @@ class GaussianConstraint(TFProbabilityConstraint):
     def covariance(self):
         """Return the covariance matrix of the observed values of the parameters constrained."""
         return self._covariance()
+
+
+class PoissonConstraint(TFProbabilityConstraint):
+
+    def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType):
+        r"""Poisson constraints on a list of parameters to some observed values.
+
+        Constraints parameters that can be counts (i.e. from a histogram) or, more generally, are
+        Poisson distributed. This is often used in the case of histogram templates which are obtained
+        from simulation and have a poisson uncertainty due to limited statistics.
+
+        .. math::
+            \text{constraint} = \text{Poisson}(\text{observation}; \text{params})
+
+
+        Args:
+            params: The parameters to constraint; corresponds to the mu in the Poisson
+                distribution.
+            observation: observed values of the parameter; corresponds to lambda
+                in the Poisson distribution.
+        Raises:
+            ShapeIncompatibleError: If params and observation have incompatible shapes.
+        """
+
+        observation = convert_to_container(observation, tuple)
+        # observation = tuple(convert_to_parameter(obs) for obs in observation)
+        params = convert_to_container(params, tuple)
+
+        distribution = tfd.Poisson
+        dist_params = dict(rate=observation)
+        dist_kwargs = dict(validate_args=False)
+
+        super().__init__(name="PoissonConstraint", observation=observation, params=params,
+                         distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
+
+
+class LogNormalConstraint(TFProbabilityConstraint):
+    def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType,
+                 uncertainty: ztyping.NumericalScalarType):
+        r"""Log-normal constraints on a list of parameters to some observed values.
+
+        Constraints parameters that can be counts (i.e. from a histogram) or, more generally, are
+        LogNormal distributed. This is often used in the case of histogram templates which are obtained
+        from simulation and have a log-normal uncertainty due to a multiplicative uncertainty.
+
+        .. math::
+            \text{constraint} = \text{LogNormal}(\text{observation}; \text{params})
+
+
+        Args:
+            params: The parameters to constraint; corresponds to the mu in the Poisson
+                distribution.
+            observation: observed values of the parameter; corresponds to lambda
+                in the Poisson distribution.
+            uncertainty: uncertainty of the observed values of the parameter; corresponds to sigma
+                in the Poisson distribution.
+        Raises:
+            ShapeIncompatibleError: If params, mu and sigma have incompatible shapes.
+        """
+
+        observation = convert_to_container(observation, tuple)
+        params = convert_to_container(params, tuple)
+        uncertainty = convert_to_container(uncertainty, tuple)
+
+        distribution = tfd.LogNormal
+        dist_params = lambda observation: dict(loc=observation, scale=uncertainty)
+        dist_kwargs = dict(validate_args=False)
+
+        super().__init__(name="LogNormalConstraint", observation=observation, params=params,
+                         distribution=distribution, dist_params=dist_params,
+                         dist_kwargs=dist_kwargs)

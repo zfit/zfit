@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 zfit
+#  Copyright (c) 2021 zfit
 
 import matplotlib.pyplot as plt
 import tensorflow as tf

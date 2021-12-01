@@ -12,6 +12,7 @@ from .baseminimizer import BaseMinimizer, minimize_supports
 from .evaluation import print_gradient
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
+from ..core.parameter import assign_values
 
 
 class BFGS(BaseMinimizer):

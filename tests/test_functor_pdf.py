@@ -25,7 +25,7 @@ def test_norm_range():
 
     sum1 = zfit.pdf.SumPDF(pdfs=[gauss1, gauss2], fracs=0.4, obs=space1)
     assert sum1.obs == (obs1,)
-    assert sum1.norm_range == space1
+    assert sum1.norm == space1
 
     with pytest.raises(NormRangeUnderdefinedError):
         _ = zfit.pdf.SumPDF(pdfs=[gauss1, gauss3], fracs=0.34)
@@ -33,8 +33,8 @@ def test_norm_range():
 
     sum2.set_norm_range(space2)
     with sum2.set_norm_range(space3):
-        assert sum2.norm_range == space3
-    assert sum2.norm_range == space2
+        assert sum2.norm == space3
+    assert sum2.norm == space2
 
 
 def test_combine_range():
@@ -44,8 +44,8 @@ def test_combine_range():
 
     product = zfit.pdf.ProductPDF(pdfs=[gauss1, gauss4])
     assert product.obs == (obs1, obs2)
-    assert product.norm_range == space5
+    assert product.norm == space5
 
     product = zfit.pdf.ProductPDF(pdfs=[gauss1, gauss4, gauss5])
     assert product.obs == (obs1, obs2)
-    assert product.norm_range == space5
+    assert product.norm == space5
