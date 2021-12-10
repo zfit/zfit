@@ -4,7 +4,7 @@ import pytest
 import tensorflow as tf
 
 from zfit import Parameter, z
-from zfit.models.functions import SimpleFunc
+from zfit.models.functions import SimpleFuncV1
 from zfit.models.special import SimplePDF
 from zfit.util.exception import BreakingAPIChangeError, ModelIncompatibleError
 
@@ -24,7 +24,7 @@ def test_not_allowed():
     def func2_pure(self, x):
         return param2 * x + param3
 
-    func1 = SimpleFunc(func=func1_pure, obs=obs1, p1=param1)
+    func1 = SimpleFuncV1(func=func1_pure, obs=obs1, p1=param1)
 
     pdf1 = SimplePDF(func=lambda self, x: x * param1, obs=obs1)
     pdf2 = SimplePDF(func=lambda self, x: x * param2, obs=obs1)
@@ -53,7 +53,7 @@ def test_param_func():
     param3 = Parameter('param3', 3., floating=False)
     param4 = Parameter('param4', 4.)
     a = z.math.log(3. * param1) * tf.square(param2) - param3
-    func = SimpleFunc(func=lambda self, x: a * x, obs=obs1)
+    func = SimpleFuncV1(func=lambda self, x: a * x, obs=obs1)
 
     new_func = param4 * func
 
@@ -79,8 +79,8 @@ def test_func_func():
         x = z.unstack_x(x)
         return param2 * x + param3
 
-    func1 = SimpleFunc(func=func1_pure, obs=obs1, p1=param1)
-    func2 = SimpleFunc(func=func2_pure, obs=obs1, p2=param2, p3=param3)
+    func1 = SimpleFuncV1(func=func1_pure, obs=obs1, p1=param1)
+    func2 = SimpleFuncV1(func=func2_pure, obs=obs1, p2=param2, p3=param3)
 
     added_func = func1 + func2
     prod_func = func1 * func2

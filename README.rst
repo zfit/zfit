@@ -41,7 +41,7 @@ zfit is a highly scalable and customizable model manipulation and fitting librar
 and is optimised for simple and direct manipulation of probability density functions. The project is affiliated with
 and well integrated into `Scikit-HEP <https://scikit-hep.org/>`_, the HEP Python ecosystem.
 
-- **Tutorials**: `Interactive IPython Tutorials <https://github.com/zfit/zfit-tutorials>`_
+- **Tutorials**: `Interactive introduction and tutorials <https://zfit-tutorials.readthedocs.io/en/latest/>`_
 - **Quick start**: `Example scripts <examples>`_
 - **Documentation**: See `stable documentation`_ or `latest documentation`_
 - **Questions**: see the `FAQ <https://github.com/zfit/zfit/wiki/FAQ>`_,
@@ -237,7 +237,7 @@ Contributions are always welcome, please have a look at the `Contributing guide`
 
 
 Contact
-=======
+========
 
 You can contact us directly:
  - via e-mail: zfit@physik.uzh.ch

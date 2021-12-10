@@ -17,11 +17,18 @@ from tensorflow.python.util.deprecation import deprecated
 
 import zfit
 import zfit.z.numpy as znp
-
+from .baseobject import BaseObject
+from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
+                          convert_to_obs_str)
+from .dimension import common_axes, common_obs, limits_overlap
+from .interfaces import (ZfitLimit, ZfitOrderableDimensional,
+                         ZfitSpace, ZfitPDF)
 from .. import z
+from .._variables.axis import Binnings, RegularBinning
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
+from ..util.deprecation import deprecated_args, deprecated_norm_range
 from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
                               BreakingAPIChangeError,
                               CannotConvertToNumpyError,
@@ -36,12 +43,7 @@ from ..util.exception import (AxesIncompatibleError, AxesNotSpecifiedError,
                               NumberOfEventsIncompatibleError,
                               ObsIncompatibleError, ObsNotSpecifiedError,
                               OverdefinedError, ShapeIncompatibleError,
-                              SpaceIncompatibleError)
-from .baseobject import BaseObject
-from .coordinates import (Coordinates, _convert_obs_to_str, convert_to_axes,
-                          convert_to_obs_str)
-from .dimension import common_axes, common_obs, limits_overlap
-from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace
+                              SpaceIncompatibleError, NormNotImplemented)
 
 
 class LimitRangeDefinition:
@@ -73,45 +75,21 @@ class Any(LimitRangeDefinition):
     def __le__(self, other):
         return True
 
-    # def __eq__(self, other):
-    #     return True
-
     def __ge__(self, other):
         return True
 
     def __gt__(self, other):
         return True
 
-    # def __hash__(self):
-    #     return hash(id(self))
-
 
 class AnyLower(Any):
     def __repr__(self):
         return '<Any Lower Limit>'
 
-    # def __eq__(self, other):
-    #     return False
-
-    # def __ge__(self, other):
-    #     return False
-    #
-    # def __gt__(self, other):
-    #     return False
-
 
 class AnyUpper(Any):
     def __repr__(self):
         return '<Any Upper Limit>'
-
-    # def __eq__(self, other):
-    #     return False
-
-    # def __le__(self, other):
-    #     return False
-    #
-    # def __lt__(self, other):
-    #     return False
 
 
 ANY = Any()
@@ -196,7 +174,10 @@ def is_range_definition(limit):
         return False  # not iterable and was not a LimitRangeDefinition in the beginning
 
 
-class Limit(ZfitLimit):
+# @tfp.experimental.auto_composite_tensor()
+class Limit(ZfitLimit,
+            # tfp.experimental.AutoCompositeTensor
+            ):
     _experimental_allow_vectors = False
 
     def __init__(self, limit_fn: ztyping.LimitsFuncTypeInput = None,
@@ -737,6 +718,10 @@ class BaseSpace(ZfitSpace, BaseObject):
         coords = Coordinates(obs, axes)
         self.coords = coords
 
+    @property
+    def is_binned(self):
+        return self.binning is not None
+
     def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturn:
         """Test if `x` is inside the limits.
 
@@ -915,7 +900,7 @@ class BaseSpace(ZfitSpace, BaseObject):
                 limits = 'rectangular'
         else:
             limits = 'functional'
-        return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={limits}>"
+        return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={limits}, binned={self.is_binned}>"
 
     def __add__(self, other):
         if not isinstance(other, ZfitSpace):
@@ -1029,7 +1014,7 @@ class BaseSpace(ZfitSpace, BaseObject):
 
     def __hash__(self):
         limits_frozen = tuple(((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items()))
-        hash_val = hash(tuple((limits_frozen, hash(self.coords))))
+        hash_val = hash(tuple((limits_frozen, hash(self.coords), hash(self.binning))))
         return hash_val
 
     def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
@@ -1046,14 +1031,19 @@ class BaseSpace(ZfitSpace, BaseObject):
         return self.has_limits
 
 
-class Space(BaseSpace):
+# @tfp.experimental.auto_composite_tensor()
+class Space(BaseSpace,
+            # tfp.experimental.AutoCompositeTensor
+            ):
     AUTO_FILL = object()
     ANY = ANY
     ANY_LOWER = ANY_LOWER  # TODO: needed? or move everything inside?
     ANY_UPPER = ANY_UPPER
 
-    def __init__(self, obs: Optional[ztyping.ObsTypeInput] = None,
+    def __init__(self,
+                 obs: Optional[ztyping.ObsTypeInput] = None,
                  limits: Optional[ztyping.LimitsTypeInput] = None,
+                 binning: ztyping.BinningInput = None,
                  axes=None, rect_limits=None,
                  name: Optional[str] = "Space"):
         """Define a space with the name (`obs`) of the axes (and it's number) and possibly it's limits.
@@ -1069,40 +1059,66 @@ class Space(BaseSpace):
         Axes are the same concept as observables, but numbers, indexes, and are used *inside* an object. There,
         axes 0 corresponds to the 0th data column we get (which corresponds to a certain observable).
 
-        Every space can have limits; they are either rectangular or an arbitrary function (together with rectangular
-        limits). Spaces can be combined (multiplied) to create higher dimensional spaces.
-        `Spaces` can be added, which combines them into one `Space` consisting of two disconnected limits.
-
-        So integrating over the space consisting of the two added disconnected ranges,
-        e.g. 0 to 1 and 2 to 3 will return the sum of the two separate integrals.
-
-        .. code-block:: python
-
-            lower_band = zfit.Space('obs1', (0, 1))
-            upper_band = zfit.Space('obs1', (2, 3))
-            combined_obs = lower_band + upper_band
-            integral_comb = model.integrate(limits=combined_obs)
-            # which is equivalent to the lower
-            integral_sep = model.integrate(limits=lower_band) + model.integrate(limits=upper_band)
-            assert integral_comb == integral_sep
-
-
-        In principle, the same behavior could also be achieved by specifying an arbitrary function. Using the addition
-        allows for certain optimizations inside.
-
-
-
         Args:
-            obs:
-            limits:
-            name:
+            obs: |@doc:space.init.obs| Observable of the space. |@docend:space.init.obs|
+            limits: |@doc:space.init.limits| A tuple-like object of the limits of the space.
+               These are the lower and upper limits. |@docend:space.init.limits|
+            binning: |@doc:space.init.binning| Binning of the space.
+               Currently, only regular and variable binning *with a name* is supported.
+               If an integer is given, it is interpreted as the number of bins and
+               a regular binning is automatically created using the limits as the
+               start and end points. |@docend:space.init.binning|
+            name: |@doc:space.init.name| Human-readable name of the space. |@docend:space.init.name|
         """
         if name is None:
             name = "Space"
+        if not isinstance(binning, int):
+            if not isinstance(binning, Binnings):
+                binning = convert_to_container(binning)
+                if binning is not None:
+                    binning = Binnings(binning)
+            if binning is not None and not all(binning.name):
+                raise TypeError(
+                    f"Axes must have a name. Missing: {[axis for axis in binning if not hasattr(axis, 'name')]}")
+            if binning is not None and obs is None and axes is None:
+                obs = [axis.name for axis in binning]
+
         super().__init__(obs=obs, axes=axes, name=name)
+
+        if binning is not None and not isinstance(binning, int):
+
+            if limits is None and rect_limits is None:
+                limits = [[], []]
+                for axis in binning:
+                    limits[0].append(axis.edges[0])
+                    limits[1].append(axis.edges[-1])
+
         limits_dict = self._check_convert_input_limits(limit=limits, rect_limits=rect_limits, obs=self.obs,
                                                        axes=self.axes, n_obs=self.n_obs)
         self._limits_dict = limits_dict
+
+        if isinstance(binning, int):
+            if not self.n_obs == 1:
+                raise ValueError("Can only use integer as binning with 1D spaces")
+            if binning < 1:
+                raise ValueError("If binning is an integer, it must be > 0")
+            lower = self.lower[0][0]
+            upper = self.upper[0][0]
+            binning = Binnings([RegularBinning(bins=binning, start=lower, stop=upper, name=self.obs[0])])
+
+        self._binning = binning
+
+    # TODO(Mayou36): put it everywhere, multilimits
+    @property
+    def binning(self):
+        binning_out = self._binning
+        if binning_out is not None:
+            binning_out = Binnings([binning_out[ob] for ob in self.obs])
+        return binning_out
+
+    @property
+    def is_binned(self):
+        return self.binning is not None
 
     @property
     def has_rect_limits(self) -> bool:
@@ -1396,7 +1412,7 @@ class Space(BaseSpace):
     @property
     def limits_are_set(self):
         return all(limit.limits_are_set
-                   for limit in self._limits_dict['obs' if self.obs else 'axes'].values())
+                   for limit in self._limits_dict['obs' if self.obs else 'axes'].values() if not limit is self)
 
     @property
     def n_events(self) -> Union[int, None]:
@@ -1509,7 +1525,7 @@ class Space(BaseSpace):
         Returns:
             Copy of the current object with the new limits.
         """
-        new_space = type(self)(obs=self.coords, limits=limits, rect_limits=rect_limits,
+        new_space = type(self)(obs=self.coords, limits=limits, rect_limits=rect_limits, binning=self.binning,
                                name=name)
         return new_space
 
@@ -1596,7 +1612,10 @@ class Space(BaseSpace):
         else:
             obs = _convert_obs_to_str(obs)
             coords = self.coords.with_obs(obs, allow_superset=allow_superset, allow_subset=allow_subset)
-            new_space = type(self)(coords, limits=self._limits_dict)
+            binning = self.binning
+            if binning is not None:
+                binning = [binning[ob] for ob in obs if ob in self.obs]
+            new_space = type(self)(coords, limits=self._limits_dict, binning=binning)
         return new_space
 
     def with_axes(self,
@@ -1653,7 +1672,7 @@ class Space(BaseSpace):
             else:
 
                 coords = self.coords.with_axes(axes=axes, allow_superset=allow_superset, allow_subset=allow_subset)
-                new_space = type(self)(coords, limits=self._limits_dict)
+                new_space = type(self)(coords, limits=self._limits_dict, binning=self.binning)
 
         return new_space
 
@@ -1795,6 +1814,14 @@ class Space(BaseSpace):
         """
         return self.rect_area()
 
+    def with_binning(self, binning):
+        # if binning is not None and not isinstance(binning, Binnings):
+        #     binning = convert_to_container(binning)
+        #     binning = Binnings(binning)
+        return self.copy(binning=binning)
+
+    # Operators
+
     def copy(self, **overwrite_kwargs) -> "zfit.Space":
         """Create a new :py:class:`~zfit.Space` using the current attributes and overwriting with
         `overwrite_overwrite_kwargs`.
@@ -1809,16 +1836,17 @@ class Space(BaseSpace):
         """
         kwargs = {'name': self.name,
                   'limits': self._limits_dict,
+                  'binning': self.binning,
                   'axes': self.axes,
                   'obs': self.obs}
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
             raise KeyError(f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}")
-
+        binning = kwargs.get('binning')
+        # if binning is not None and kwargs.get('obs'):
+        #     kwargs['binning'] = [binning[ob] for ob in kwargs['obs']]
         new_space = type(self)(**kwargs)
         return new_space
-
-    # Operators
 
     def _inside(self, x, guarantee_limits):
         xs_inside = []
@@ -1974,6 +2002,23 @@ def combine_spaces(*spaces: Iterable[Space]):
 
     common_obs_ordered = common_obs(spaces=spaces)
     common_axes_ordered = common_axes(spaces=spaces)
+    all_spaces_binned = all(space.is_binned for space in spaces)
+    all_spaces_unbinned = not any(space.is_binned for space in spaces)
+    if not (all_spaces_binned or all_spaces_unbinned):
+        raise ValueError(f"Some spaces are binned {[s for s in spaces if s.is_binned]}"
+                         f" while others are not {[s for s in spaces if not s.is_binned]}. Cannot mix.")
+    if all_spaces_binned:
+        binnings_ordererd = []
+        for ob in common_obs_ordered:
+            for space in spaces:
+                if ob in space.obs:
+                    binning = space.binning[ob]
+                    if binning not in binnings_ordererd:
+                        binnings_ordererd.append(binning)
+
+        binning = Binnings(binnings_ordererd)
+    else:
+        binning = None
     using_obs = bool(common_obs_ordered)
     common_coords_ordered = common_obs_ordered if using_obs else common_axes_ordered
 
@@ -2129,7 +2174,7 @@ def combine_spaces(*spaces: Iterable[Space]):
     # else:
     #     limits = (new_lower, new_upper)
     new_space = Space(obs=common_obs_ordered if using_obs else None, axes=None if using_obs else common_axes_ordered,
-                      limits=limits)
+                      binning=binning, limits=limits)
     # if new_space.n_limits > 1:
     #     new_space = MultiSpace(Space, obs=all_obs)
     return new_space
@@ -2168,6 +2213,8 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
     elif axes_not_none:  # axes only matter if there are no obs
         if set(space1.axes) != set(space2.axes):
             return False
+    if not space1.binning == space2.binning:
+        return False
     # check limits
     if not space1.limits_are_set:
         if not space2.limits_are_set:
@@ -2248,9 +2295,9 @@ class MultiSpace(BaseSpace):
     def __new__(cls,
                 spaces: Iterable[ZfitSpace],
                 obs: ztyping.ObsTypeInput = None,
+                binning: ztyping.BinningInput = None,
                 axes: ztyping.AxesTypeInput = None,
-                name: str = None) -> Union[
-        'Space', 'MultiSpace']:
+                name: str = None) -> Union['Space', 'MultiSpace']:
         spaces, obs, axes = cls._check_convert_input_spaces_obs_axes(spaces, obs, axes)
         if len(spaces) == 1:
             return spaces[0]
@@ -2284,8 +2331,11 @@ class MultiSpace(BaseSpace):
         spaces = flatten_spaces(spaces)
         all_have_obs = all(space.obs is not None for space in spaces)
         all_have_axes = all(space.axes is not None for space in spaces)
+        all_binnings_compatible = len({space.binning for space in spaces}) == 1
         n_events = [space.n_events in (spaces[0].n_events, None) for space in spaces]
         all_nevents_compatible = all(n_events)
+        if not all_binnings_compatible:
+            raise ValueError("Binnings not compatible, maybe this needs to be better care taken.")
         if not all_nevents_compatible:
             raise NumberOfEventsIncompatibleError("The number of events of the spaces do not coincide")
         if all_have_axes:
@@ -2296,11 +2346,14 @@ class MultiSpace(BaseSpace):
             spaces = [space.with_obs(obs, allow_subset=False, allow_superset=False) for space in spaces]
             if not (all_have_axes and all(space.axes == axes for space in spaces)):  # obs coincide, axes don't -> drop
                 spaces = [space.with_axes(None) for space in spaces]
+
+
         elif all_have_axes:
             if all(space.obs is None for space in spaces):
                 spaces = [space.with_axes(axes, allow_superset=False, allow_subset=False) for space in spaces]
             if not (all_have_obs and all(space.obs == obs for space in spaces)):  # axes coincide, obs don't -> drop
                 spaces = [space.with_obs(None) for space in spaces]
+
 
         else:
             raise SpaceIncompatibleError("Spaces do not have consistent obs and/or axes.")
@@ -2319,6 +2372,10 @@ class MultiSpace(BaseSpace):
         spaces = tuple(spaces)
 
         return spaces, obs, axes
+
+    @property
+    def binning(self):
+        return self.spaces[0].binning
 
     # noinspection PyPropertyDefinition
     @property
@@ -2750,33 +2807,94 @@ def convert_to_space(obs: Optional[ztyping.ObsTypeInput] = None, axes: Optional[
     return space
 
 
-def no_norm_range(func):
-    """Decorator: Catch the 'norm_range' kwargs. If not None, raise NormRangeNotImplementedError."""
-    parameters = inspect.signature(func).parameters
-    keys = list(parameters.keys())
-    if 'norm_range' in keys:
-        norm_range_index = keys.index('norm_range')
-    else:
+def check_norm(supports=None):
+    if supports is None:
+        supports = False
+    supports = convert_to_container(supports, convert_none=True)
+
+    def no_norm_range(func):
+        """Decorator: Catch the 'norm' kwargs. If not None, raise `NormNotImplemented`."""
+        parameters = inspect.signature(func).parameters
+        keys = list(parameters.keys())
         norm_range_index = None
+        norm_index = None
+        if 'norm_range' in keys:
+            norm_range_index = keys.index('norm_range')
+        if 'norm' in keys:
+            norm_index = keys.index('norm')
 
-    @functools.wraps(func)
-    def new_func(*args, **kwargs):
-        norm_range = kwargs.get('norm_range')
-        if isinstance(norm_range, ZfitSpace):
-            norm_range_not_false = not norm_range.limits_are_false
-        else:
-            norm_range_not_false = not (norm_range is None or norm_range is False)
-        if norm_range_index is not None:
-            norm_range_is_arg = len(args) > norm_range_index
-        else:
-            norm_range_is_arg = False
-            kwargs.pop('norm_range', None)  # remove if in signature (= norm_range_index not None)
-        if norm_range_not_false or norm_range_is_arg:
-            raise NormRangeNotImplemented()
-        else:
-            return func(*args, **kwargs)
+        @functools.wraps(func)
+        def new_func(*args, **kwargs):
+            if len(args) > 0:
+                self = args[0]
+            else:
+                self = None
+            norm_range = kwargs.get('norm_range')
+            norm = kwargs.get('norm')
 
-    return new_func
+            norm_is_arg = False
+            if norm_range is not None:
+                norm = norm_range
+            elif norm is not None:
+                norm = norm
+            else:
+                if norm_range_index is not None:
+                    norm_is_arg = len(args) > norm_range_index
+                    if norm_is_arg:
+                        norm = args[norm_range_index]
+                if norm_index is not None:
+                    norm_is_arg = len(args) > norm_index
+                    if norm_is_arg:
+                        norm = args[norm_index]
+            args = list(args)
+            # if not norm_is_arg:  # TODO: remove? why is this here?
+            #     if 'norm_range' in kwargs:
+            #         kwargs['norm_range'] = False
+            #     if 'norm' in kwargs:
+            #         kwargs['norm'] = False
+
+            # assume it's not supported. Switch if we find that it is supported.
+            norm_not_supported = not supports[0] is True
+            if isinstance(norm, ZfitSpace):
+                if 'space' in supports and isinstance(self, ZfitPDF) and self.space == norm:
+                    norm_not_supported = False
+                if 'norm' in supports and isinstance(self, ZfitPDF) and self.norm == norm:
+                    norm_not_supported = False
+                if norm_not_supported:
+                    norm_not_supported = not norm.limits_are_false
+                    if norm.limits_are_false:
+                        if not norm_is_arg:  # TODO: remove? why is this here?
+                            if 'norm_range' in kwargs:
+                                kwargs['norm_range'] = False
+                            if 'norm' in kwargs:
+                                kwargs['norm'] = False
+                        else:
+                            if norm_range_index is not None:
+                                args[norm_range_index] = False
+                            elif norm_index is not None:
+                                args[norm_index] = False
+            elif norm_not_supported:
+                norm_not_supported = not (norm is None or norm is False)
+            if norm_not_supported:
+                raise NormNotImplemented()
+            else:
+                try:
+                    return func(*args, **kwargs)
+                except TypeError as error:
+                    if "got an unexpected keyword argument 'norm_range'" in str(error):
+                        kwargs.pop('norm_range')
+                    elif "got an unexpected keyword argument 'norm'" in str(error):
+                        kwargs.pop('norm')
+                    else:
+                        raise
+                    return func(*args, **kwargs)
+
+        return new_func
+
+    return no_norm_range
+
+
+no_norm_range = check_norm(False)  # somewhat legacy, or for the simple case
 
 
 def no_multiple_limits(func):
@@ -2804,24 +2922,34 @@ def no_multiple_limits(func):
     return new_func
 
 
-def supports(*, norm_range: bool = False, multiple_limits: bool = False) -> Callable:
+@deprecated_norm_range
+def supports(*, norm: Union[bool, str, Iterable[str]] = None, multiple_limits: bool = None,
+             norm_range=None) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
 
     If any of the flags is set to False, it will check the arguments and, in case they match a flag
-    (say if a *norm_range* is passed while the *norm_range* flag is set to `False`), it will
+    (say if a *norm* is passed while the *norm* flag is set to `False`), it will
     raise a corresponding exception (in this example a `NormRangeNotImplementedError`) that will
     be catched by an earlier function that knows how to handle things.
 
     Args:
-        norm_range: If False, no norm_range argument will be passed through resp. will be `None`
+        norm: If False, no norm_range argument will be passed through resp. will be `None`.
+            Other options include `'space'` or `'norm'`, which will check if the norm is equal to
+            the space or norm of the PDF. If they are, it is assumed to be supported.
         multiple_limits: If False, only simple limits are to be expected and no iteration is
             therefore required.
     """
+    if norm is None:
+        norm = False
+    if multiple_limits is None:
+        multiple_limits = False
+
     decorator_stack = []
     if not multiple_limits:
         decorator_stack.append(no_multiple_limits)
-    if not norm_range:
-        decorator_stack.append(no_norm_range)
+
+    if norm is not None:  # check True. Could also be a str
+        decorator_stack.append(check_norm(norm))
 
     def create_deco_stack(func):
         for decorator in reversed(decorator_stack):
@@ -2866,7 +2994,7 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
     Returns:
     """
     try:
-        new_space = combine_spaces(*spaces)
+        _ = combine_spaces(*spaces)
     except LimitsIncompatibleError:
         return False
     else:

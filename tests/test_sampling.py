@@ -56,7 +56,7 @@ class TmpGaussian(zfit.pdf.BasePDF):
         sigma = self.params['sigma']
 
         return z.exp((-(x - mu) ** 2) / (
-            2 * sigma ** 2))  # non-normalized gaussian
+                2 * sigma ** 2))  # non-normalized gaussian
 
 
 class TmpGaussianPDFNonNormed(zfit.pdf.BasePDF):
@@ -66,13 +66,14 @@ class TmpGaussianPDFNonNormed(zfit.pdf.BasePDF):
         params = {'mu': mu, 'sigma': sigma}
         super().__init__(obs, params, name=name, **kwargs)
 
+    @zfit.supports(norm=True)
     def _pdf(self, x, norm_range=False):
         x = x.unstack_x()
         mu = self.params['mu']
         sigma = self.params['sigma']
 
         return z.exp((-(x - mu) ** 2) / (
-            2 * sigma ** 2))  # non-normalized gaussian
+                2 * sigma ** 2))  # non-normalized gaussian
 
 
 def create_test_gauss1():
@@ -127,10 +128,10 @@ def test_multiple_limits_sampling(gauss_factory):
     sample2 = gauss.sample(n=n, limits=obs_split)
 
     rel_tol = 1e-2
-    assert np.mean(sample1.value()) == pytest.approx(mu_true, rel_tol)
-    assert np.std(sample1.value()) == pytest.approx(sigma_true, rel_tol)
-    assert np.mean(sample2.value()) == pytest.approx(mu_true, rel_tol)
-    assert np.std(sample2.value()) == pytest.approx(sigma_true, rel_tol)
+    assert float(np.mean(sample1.value())) == pytest.approx(mu_true, rel_tol)
+    assert float(np.std(sample1.value())) == pytest.approx(sigma_true, rel_tol)
+    assert float(np.mean(sample2.value())) == pytest.approx(mu_true, rel_tol)
+    assert float(np.std(sample2.value())) == pytest.approx(sigma_true, rel_tol)
 
 
 @pytest.mark.parametrize('gauss_factory', gaussian_dists + [create_test_pdf_overriden_gauss1])
@@ -285,7 +286,7 @@ def test_importance_sampling():
             thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)
             return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
-    sample = accept_reject_sample(prob=lambda x: gauss_pdf.pdf(x, norm_range=False), n=30000, limits=obs_pdf)
+    sample = accept_reject_sample(prob=lambda x: gauss_pdf.pdf(x, norm=False), n=30000, limits=obs_pdf)
     gauss_pdf._sample_and_weights = GaussianSampleAndWeights
     sample2 = gauss_pdf.sample(n=30000, limits=obs_pdf)
     assert importance_sampling_called[0]

@@ -224,14 +224,18 @@ class AnalyticSamplingNotImplemented(AnalyticNotImplemented):
 
 
 # PDF class internal handling errors
-class NormRangeNotImplemented(StandardControlFlow):
+class NormNotImplemented(StandardControlFlow):
     """Indicates that a function does not support the normalization range argument `norm_range`."""
     pass
+
+
+NormRangeNotImplemented = NormNotImplemented  # legacy
 
 
 class MultipleLimitsNotImplemented(StandardControlFlow):
     """Indicates that a function does not support several limits in a :py:class:`~zfit.Space`."""
     pass
+
 
 class InitNotImplemented(StandardControlFlow):
     """Indicates that a minimize method does not support a FitResult instead of a loss."""

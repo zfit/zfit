@@ -2,3 +2,4 @@ _build/
 _generated/
 /_tmp/
 /.cache/
+/images/_generated_by_tests/

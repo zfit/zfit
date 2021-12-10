@@ -12,6 +12,9 @@ from ordered_set import OrderedSet
 import zfit.z.numpy as znp
 
 from .. import settings, z
+from .interfaces import ZfitPDF, ZfitBinnedData, ZfitConstraint
+
+znp = z.numpy
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
@@ -32,18 +35,20 @@ from .parameter import convert_to_parameters, set_values
 
 # @z.function
 def _unbinned_nll_tf(model: ztyping.PDFInputType, data: ztyping.DataInputType, fit_range: ZfitSpace, log_offset=None):
-    """Return unbinned negative log likelihood graph for a PDF.
+    """Return the unbinned negative log likelihood for a PDF.
 
     Args:
-        model: PDFs with a `.pdf` method. Has to be as many models as data
-        data:
+        model: |@doc:loss.init.model| PDFs that return the normalized probability for
+               *data* under the given parameters.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.init.model|
+        data: |@doc:loss.init.data| Dataset that will be given to the *model*.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.init.data|
         fit_range:
 
     Returns:
         The unbinned nll
-
-    Raises:
-        ValueError: if both `probs` and `log_probs` are specified.
     """
 
     if is_container(model):
@@ -196,7 +201,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             fit_range = []
             non_consistent = {'data': [], 'model': [], 'range': []}
             for p, d in zip(pdf, data):
-                if p.norm_range != d.data_range:
+                if p.norm != d.data_range:
                     non_consistent['data'].append(d)
                     non_consistent['model'].append(p)
                     non_consistent['range'].append((p.space, d.data_range))
@@ -218,7 +223,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                              "\nfit_range: {}".format(pdf, data, fit_range))
 
         # sanitize fit_range
-        fit_range = [p.convert_sort_space(limits=range_) if range_ is not None else None for p, range_ in
+        fit_range = [p._convert_sort_space(limits=range_) if range_ is not None else None for p, range_ in
                      zip(pdf, fit_range)]
         # TODO: sanitize pdf, data?
         self.add_cache_deps(cache_deps=pdf)
@@ -251,7 +256,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         model_checked = []
         data_checked = []
         for mod, dat in zip(model, data):
-            if not isinstance(dat, ZfitData):
+            if not isinstance(dat, (ZfitData, ZfitBinnedData)):
                 if fit_range is not None:
                     raise TypeError("Fit range should not be used if data is not ZfitData.")
 
@@ -477,28 +482,62 @@ class UnbinnedNLL(BaseLoss):
                  model: Union[ZfitPDF, Iterable[ZfitPDF]],
                  data: Union[ZfitData, Iterable[ZfitData]],
                  fit_range=None,
-                 constraints=None,
-                 options=None):
-        """Unbinned Negative Log Likelihood.
+                 constraints: ztyping.ConstraintsInputType = None,
+                 options: Optional[Mapping[str, object]] = None):
+        r"""Unbinned Negative Log Likelihood.
 
-        A simultaneous fit can be performed by giving one or more `model`, `data`, `fit_range` to the loss. The
-        length of each has to match the length of the others.
+        |@doc:loss.init.explain.unbinnednll| The unbinned log likelihood can be written as
 
+        .. math::
+            \mathcal{L}_{non-extended}(x | \theta) = \prod_{i} f_{\theta} (x_i)
+
+        where :math:`x_i` is a single event from the dataset *data* and f is the *model*. |@docend:loss.init.explain.unbinnednll|
+
+        |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+        length of each has to match the length of the others
+
+        .. math::
+            \mathcal{L}_{simultaneous}(\theta | {data_0, data_1, ..., data_n})
+            = \prod_{i} \mathcal{L}(\theta_i, data_i)
+
+        where :math:`\theta_i` is a set of parameters and
+        a subset of :math:`\theta` |@docend:loss.init.explain.simultaneous|
+
+        |@doc:loss.init.explain.negativelog| For optimization purposes, it is often easier
+        to minimize a function and to use a log transformation. The actual loss is given by
+
+        .. math::
+             \mathcal{L} = - \sum_{i}^{n} ln(f(\theta|x_i))
+
+        and therefore being called "negative log ..." |@docend:loss.init.explain.negativelog|
+
+        |@doc:loss.init.explain.weightednll| If the dataset has weights, a weighted likelihood will be constructed instead
+
+        .. math::
+            \mathcal{L} = - \sum_{i}^{n} w_i \cdot ln(f(\theta|x_i))
+
+        Note that this is not a real likelihood anymore! Calculating uncertainties
+        can be done with hesse (as it has a correction) but will yield wrong
+        results with profiling methods. The minimum is however fully valid. |@docend:loss.init.explain.weightednll|
         Args:
-            model: If not given, the current one will be used.
-                |@doc:loss.init.model| PDFs that return the normalized probability for
+            model: |@doc:loss.init.model| PDFs that return the normalized probability for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.init.model|
-            data: If not given, the current one will be used.
-                |@doc:loss.init.data| Dataset that will be given to the *model*.
+            data: |@doc:loss.init.data| Dataset that will be given to the *model*.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.init.data|
-            fit_range: The fitting range. It's the norm_range for the models (if
-                they have a norm_range) and the data_range for the data.
-            constraints: If not given, the current one will be used.
-                |@doc:loss.init.constraints| Auxiliary measurements that add a term to the loss
-               or terms that restrict the loss in an other way such as penalties. |@docend:loss.init.constraints|
+            constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
+               that add a likelihood term to the loss.
+
+               .. math::
+                 \mathcal{L}(\theta) = \mathcal{L}_{unconstrained} \prod_{i} f_{constr_i}(\theta)
+
+               Usually, an auxiliary measurement -- by its very nature -S  should only be added once
+               to the loss. zfit does not automatically deduplicate constraints if they are given
+               multiple times, leaving the freedom for arbitrary constructs.
+
+               Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
             options: If not given, the current one will be used.
                 |@doc:loss.init.options| Additional options (as a dict) for the loss.
                Current possibilities include:
@@ -517,7 +556,7 @@ class UnbinnedNLL(BaseLoss):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differs! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use `create_new` in order to have a comparable likelihood
                  between different losses
 
 
@@ -568,7 +607,7 @@ class UnbinnedNLL(BaseLoss):
                    fit_range=NONE,
                    constraints=NONE,
                    options=NONE):
-        """Create a new loss from the current loss and replacing what is given as the arguments.
+        r"""Create a new loss from the current loss and replacing what is given as the arguments.
 
         This creates a "copy" of the current loss but replacing any argument that is explicitly given.
         Equivalent to creating a new instance but with some arguments taken.
@@ -588,8 +627,17 @@ class UnbinnedNLL(BaseLoss):
                in the same order to do a simultaneous fit. |@docend:loss.init.data|
             fit_range:
             constraints: If not given, the current one will be used.
-                |@doc:loss.init.constraints| Auxiliary measurements that add a term to the loss
-               or terms that restrict the loss in an other way such as penalties. |@docend:loss.init.constraints|
+                |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
+               that add a likelihood term to the loss.
+
+               .. math::
+                 \mathcal{L}(\theta) = \mathcal{L}_{unconstrained} \prod_{i} f_{constr_i}(\theta)
+
+               Usually, an auxiliary measurement -- by its very nature -S  should only be added once
+               to the loss. zfit does not automatically deduplicate constraints if they are given
+               multiple times, leaving the freedom for arbitrary constructs.
+
+               Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
             options: If not given, the current one will be used.
                 |@doc:loss.init.options| Additional options (as a dict) for the loss.
                Current possibilities include:
@@ -608,7 +656,7 @@ class UnbinnedNLL(BaseLoss):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differs! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use `create_new` in order to have a comparable likelihood
                  between different losses
 
 
@@ -617,7 +665,6 @@ class UnbinnedNLL(BaseLoss):
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
 
-        Returns:
         """
         if model is NONE:
             model = self.model
@@ -637,7 +684,55 @@ class UnbinnedNLL(BaseLoss):
 
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
-    """An Unbinned Negative Log Likelihood with an additional poisson term for the number of events in the dataset."""
+
+    def __init__(self, model: Union[ZfitPDF, Iterable[ZfitPDF]], data: Union[ZfitData, Iterable[ZfitData]],
+                 fit_range=None, constraints: ztyping.ConstraintsInputType = None,
+                 options: Optional[Mapping[str, object]] = None):
+        r"""An Unbinned Negative Log Likelihood with an additional poisson term for the number of events in the dataset.
+
+        |@doc:loss.init.explain.unbinnednll| The unbinned log likelihood can be written as
+
+        .. math::
+            \mathcal{L}_{non-extended}(x | \theta) = \prod_{i} f_{\theta} (x_i)
+
+        where :math:`x_i` is a single event from the dataset *data* and f is the *model*. |@docend:loss.init.explain.unbinnednll|
+
+        |@doc:loss.init.explain.extendedterm| The extended likelihood has an additional term
+
+        .. math::
+            \mathcal{L}_{extended term} = poiss(N_{tot}, N_{data})
+            = N_{data}^{N_{tot}} \frac{e^{- N_{data}}}{N_{tot}!}
+
+        and the extended likelihood is the product of both. |@docend:loss.init.explain.extendedterm|
+
+        |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+        length of each has to match the length of the others
+
+        .. math::
+            \mathcal{L}_{simultaneous}(\theta | {data_0, data_1, ..., data_n})
+            = \prod_{i} \mathcal{L}(\theta_i, data_i)
+
+        where :math:`\theta_i` is a set of parameters and
+        a subset of :math:`\theta` |@docend:loss.init.explain.simultaneous|
+
+        |@doc:loss.init.explain.negativelog| For optimization purposes, it is often easier
+        to minimize a function and to use a log transformation. The actual loss is given by
+
+        .. math::
+             \mathcal{L} = - \sum_{i}^{n} ln(f(\theta|x_i))
+
+        and therefore being called "negative log ..." |@docend:loss.init.explain.negativelog|
+
+        |@doc:loss.init.explain.weightednll| If the dataset has weights, a weighted likelihood will be constructed instead
+
+        .. math::
+            \mathcal{L} = - \sum_{i}^{n} w_i \cdot ln(f(\theta|x_i))
+
+        Note that this is not a real likelihood anymore! Calculating uncertainties
+        can be done with hesse (as it has a correction) but will yield wrong
+        results with profiling methods. The minimum is however fully valid. |@docend:loss.init.explain.weightednll|
+        """
+        super().__init__(model=model, data=data, constraints=constraints, options=options)
 
     @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints, log_offset):
@@ -678,7 +773,7 @@ class SimpleLoss(BaseLoss):
                  deps: Iterable["zfit.Parameter"] = NONE,
                  dependents: Iterable["zfit.Parameter"] = NONE,
                  ):
-        """Loss from a (function returning a) Tensor.
+        r"""Loss from a (function returning a) Tensor.
 
         This allows for a very generic loss function as the functions only restriction is that is
         should depend on `zfit.Parameter`.

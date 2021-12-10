@@ -157,7 +157,7 @@ def bandwidth_adaptive_geomV1(data, func, weights):
 
     |@doc:pdf.kde.bandwidth.explain_adaptive| Adaptive bandwidths are
              a way to reduce the dependence on the bandwidth parameter
-             and usually are local bandwidths that take into account
+             and are usually local bandwidths that take into account
              the local densities.
              Adaptive bandwidths are constructed by using an initial estimate
              of the local density in order to calculate a sensible bandwidth
@@ -174,7 +174,7 @@ def bandwidth_adaptive_geomV1(data, func, weights):
              bandwidth. |@docend:pdf.kde.bandwidth.explain_adaptive|
 
     |@doc:pdf.kde.bandwidth.explain_local| A local bandwidth
-             means that each kernel i has a different bandwidth.
+             means that each kernel :math:`i` has a different bandwidth.
              In other words, given some data points with size n,
              we will need n bandwidth parameters.
              This is often more accurate than a global bandwidth,
@@ -185,7 +185,7 @@ def bandwidth_adaptive_geomV1(data, func, weights):
 
              The accuracy comes at the cost of a longer pre-calculation to obtain
              the local bandwidth (there are different methods available), an
-             increased runtime and - most importantly - an peak memory usage.
+             increased runtime and - most importantly - a peak memory usage.
 
              This can be especially costly for a large number (> few thousand) of
              kernels and/or evaluating on large datasets (> 10'000). |@docend:pdf.kde.bandwidth.explain_local|
@@ -223,7 +223,7 @@ def bandwidth_adaptive_zfitV1(data, func, weights) -> znp.array:
 
     |@doc:pdf.kde.bandwidth.explain_adaptive| Adaptive bandwidths are
              a way to reduce the dependence on the bandwidth parameter
-             and usually are local bandwidths that take into account
+             and are usually local bandwidths that take into account
              the local densities.
              Adaptive bandwidths are constructed by using an initial estimate
              of the local density in order to calculate a sensible bandwidth
@@ -240,7 +240,7 @@ def bandwidth_adaptive_zfitV1(data, func, weights) -> znp.array:
              bandwidth. |@docend:pdf.kde.bandwidth.explain_adaptive|
 
     |@doc:pdf.kde.bandwidth.explain_local| A local bandwidth
-             means that each kernel i has a different bandwidth.
+             means that each kernel :math:`i` has a different bandwidth.
              In other words, given some data points with size n,
              we will need n bandwidth parameters.
              This is often more accurate than a global bandwidth,
@@ -251,7 +251,7 @@ def bandwidth_adaptive_zfitV1(data, func, weights) -> znp.array:
 
              The accuracy comes at the cost of a longer pre-calculation to obtain
              the local bandwidth (there are different methods available), an
-             increased runtime and - most importantly - an peak memory usage.
+             increased runtime and - most importantly - a peak memory usage.
 
              This can be especially costly for a large number (> few thousand) of
              kernels and/or evaluating on large datasets (> 10'000). |@docend:pdf.kde.bandwidth.explain_local|
@@ -286,7 +286,7 @@ def bandwidth_adaptive_stdV1(data, func, weights):
 
     |@doc:pdf.kde.bandwidth.explain_adaptive| Adaptive bandwidths are
              a way to reduce the dependence on the bandwidth parameter
-             and usually are local bandwidths that take into account
+             and are usually local bandwidths that take into account
              the local densities.
              Adaptive bandwidths are constructed by using an initial estimate
              of the local density in order to calculate a sensible bandwidth
@@ -303,7 +303,7 @@ def bandwidth_adaptive_stdV1(data, func, weights):
              bandwidth. |@docend:pdf.kde.bandwidth.explain_adaptive|
 
     |@doc:pdf.kde.bandwidth.explain_local| A local bandwidth
-             means that each kernel i has a different bandwidth.
+             means that each kernel :math:`i` has a different bandwidth.
              In other words, given some data points with size n,
              we will need n bandwidth parameters.
              This is often more accurate than a global bandwidth,
@@ -314,7 +314,7 @@ def bandwidth_adaptive_stdV1(data, func, weights):
 
              The accuracy comes at the cost of a longer pre-calculation to obtain
              the local bandwidth (there are different methods available), an
-             increased runtime and - most importantly - an peak memory usage.
+             increased runtime and - most importantly - a peak memory usage.
 
              This can be especially costly for a large number (> few thousand) of
              kernels and/or evaluating on large datasets (> 10'000). |@docend:pdf.kde.bandwidth.explain_local|
@@ -584,9 +584,9 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
 
             obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
              As with any other PDF, this will be used as the default *norm*, but
-             does not define the domain of the PDF. Namely this can be a smaller
+             does not define the domain of the PDF. Namely, this can be a smaller
              space than *data*, as long as the name of the observable match.
-             Using a larger dataset is actually good practice to avoid
+             Using a larger dataset is actually good practice avoiding
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
             bandwidth: Valid pre-defined options are {'silverman', 'scott', 'adaptive'}.
              |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
@@ -727,9 +727,9 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
 
             obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
              As with any other PDF, this will be used as the default *norm*, but
-             does not define the domain of the PDF. Namely this can be a smaller
+             does not define the domain of the PDF. Namely, this can be a smaller
              space than *data*, as long as the name of the observable match.
-             Using a larger dataset is actually good practice to avoid
+             Using a larger dataset is actually good practice avoiding
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
             bandwidth: Valid pre-defined options are {'silverman', 'scott',
              'adaptive_zfit', 'adaptive_geom', 'adaptive_std', 'isj'}.
@@ -756,7 +756,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
              -- this is the case for most real world observable as they are the result of
              multiple consecutive random effects -- results in a Gaussian distribution.
              However, there are many cases where this assumption is not per-se true. In
-             this cases an alternative kernel may offers a better choice.
+             this cases an alternative kernel may offer a better choice.
 
              Valid choices are callables that return a
              :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
@@ -783,8 +783,8 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
              hides this.
              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
-             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
-             also be used. |@docend:pdf.kde.init.padding|
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``.
+             For more control, a callable that takes data and weights can also be used. |@docend:pdf.kde.init.padding|
 
             weights: |@doc:pdf.kde.init.weights| Weights of each event
              in *data*, can be None or Tensor-like with shape compatible
@@ -796,10 +796,10 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
-            name: |@doc:model.init.name| Human readable name
+            name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
-               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         if kernel is None:
             kernel = tfd.Normal
@@ -915,7 +915,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
              -- this is the case for most real world observable as they are the result of
              multiple consecutive random effects -- results in a Gaussian distribution.
              However, there are many cases where this assumption is not per-se true. In
-             this cases an alternative kernel may offers a better choice.
+             this cases an alternative kernel may offer a better choice.
 
              Valid choices are callables that return a
              :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
@@ -941,8 +941,8 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
              hides this.
              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
-             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
-             also be used. |@docend:pdf.kde.init.padding|
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``.
+             For more control, a callable that takes data and weights can also be used. |@docend:pdf.kde.init.padding|
             num_grid_points: |@doc:pdf.kde.init.num_grid_points| Number of points in
              the binning grid.
 
@@ -970,9 +970,9 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
              grids. |@docend:pdf.kde.init.binning_method|
             obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
              As with any other PDF, this will be used as the default *norm*, but
-             does not define the domain of the PDF. Namely this can be a smaller
+             does not define the domain of the PDF. Namely, this can be a smaller
              space than *data*, as long as the name of the observable match.
-             Using a larger dataset is actually good practice to avoid
+             Using a larger dataset is actually good practice avoiding
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
             weights: |@doc:pdf.kde.init.weights| Weights of each event
              in *data*, can be None or Tensor-like with shape compatible
@@ -984,10 +984,10 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
-            name: |@doc:model.init.name| Human readable name
+            name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
-               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         if kernel is None:
             kernel = tfd.Normal
@@ -1116,7 +1116,7 @@ class KDE1DimFFT(KDEHelper, BasePDF):
              -- this is the case for most real world observable as they are the result of
              multiple consecutive random effects -- results in a Gaussian distribution.
              However, there are many cases where this assumption is not per-se true. In
-             this cases an alternative kernel may offers a better choice.
+             this cases an alternative kernel may offer a better choice.
 
              Valid choices are callables that return a
              :py:class:`~tensorflow_probability.distribution.Distribution`, such as all distributions
@@ -1142,8 +1142,8 @@ class KDE1DimFFT(KDEHelper, BasePDF):
              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
              hides this.
              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
-             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
-             also be used. |@docend:pdf.kde.init.padding|
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``.
+             For more control, a callable that takes data and weights can also be used. |@docend:pdf.kde.init.padding|
             num_grid_points: |@doc:pdf.kde.init.num_grid_points| Number of points in
              the binning grid.
 
@@ -1173,9 +1173,9 @@ class KDE1DimFFT(KDEHelper, BasePDF):
             fft_method:
             obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
              As with any other PDF, this will be used as the default *norm*, but
-             does not define the domain of the PDF. Namely this can be a smaller
+             does not define the domain of the PDF. Namely, this can be a smaller
              space than *data*, as long as the name of the observable match.
-             Using a larger dataset is actually good practice to avoid
+             Using a larger dataset is actually good practice avoiding
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
             weights: |@doc:pdf.kde.init.weights| Weights of each event
              in *data*, can be None or Tensor-like with shape compatible
@@ -1187,10 +1187,10 @@ class KDE1DimFFT(KDEHelper, BasePDF):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
-            name: |@doc:model.init.name| Human readable name
+            name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
-               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         if isinstance(bandwidth, ZfitParameter):
             raise TypeError(f"bandwidth cannot be a Parameter for the FFT KDE.")
@@ -1312,8 +1312,8 @@ class KDE1DimISJ(KDEHelper, BasePDF):
              KDE is also having a shape outside the desired range. Using it only for the range 0 to 5
              hides this.
              Using a dict, each side separately (or only a single one) can be mirrored, like ``{'lowermirror: 0.1}``
-             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``. For more control, a callable that takes data and weights can
-             also be used. |@docend:pdf.kde.init.padding|
+             or ``{'lowermirror: 0.2, 'uppermirror': 0.1}``.
+             For more control, a callable that takes data and weights can also be used. |@docend:pdf.kde.init.padding|
             num_grid_points: |@doc:pdf.kde.init.num_grid_points| Number of points in
              the binning grid.
 
@@ -1341,9 +1341,9 @@ class KDE1DimISJ(KDEHelper, BasePDF):
              grids. |@docend:pdf.kde.init.binning_method|
             obs: |@doc:pdf.kde.init.obs| Observable space of the KDE.
              As with any other PDF, this will be used as the default *norm*, but
-             does not define the domain of the PDF. Namely this can be a smaller
+             does not define the domain of the PDF. Namely, this can be a smaller
              space than *data*, as long as the name of the observable match.
-             Using a larger dataset is actually good practice to avoid
+             Using a larger dataset is actually good practice avoiding
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
             weights: |@doc:pdf.kde.init.weights| Weights of each event
              in *data*, can be None or Tensor-like with shape compatible
@@ -1355,10 +1355,10 @@ class KDE1DimISJ(KDEHelper, BasePDF):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
-            name: |@doc:model.init.name| Human readable name
+            name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
-               Has no programmatical functional purpose as idendification. |@docend:model.init.name|
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
