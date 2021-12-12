@@ -1,9 +1,6 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ""
-labels: bug
-assignees: ""
+name: Bug report about: Create a report to help us improve title: ""
+labels: bug assignees: ""
 ---
 
 **Bugs** Please fill the below form _if possible_.
@@ -29,11 +26,11 @@ If there was a crash, please include the traceback here.
 <!--- How has this issue affected you? What are you trying to accomplish? -->
 <!--- Providing context helps us come up with a solution that is most useful in the real world -->
 
--   zfit version:
--   Python version:
--   Are you using conda, pipenv, etc? :
--   Operating System:
--   Tensorflow version:
+- zfit version:
+- Python version:
+- Are you using conda, pipenv, etc? :
+- Operating System:
+- Tensorflow version:
 
 ## Possible Solution/Implementation
 

@@ -4,8 +4,8 @@ import pytest
 
 @pytest.mark.parametrize('weights', [None, np.array([1., 2., 3., 4., 5., 6., 7., 8.])])
 def test_padreflect_data_weights_1dim(weights):
-    from zfit.models.kde import padreflect_data_weights_1dim
     from zfit import Space
+    from zfit.models.kde import padreflect_data_weights_1dim
     testarray = np.array([0.1, 0.5, -2, 5, 6.7, -1.2, 1.2, 7])
 
     data, w = padreflect_data_weights_1dim(testarray, mode=0.1, weights=weights)

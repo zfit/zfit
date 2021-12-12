@@ -21,7 +21,7 @@ def test_approx(params):
     np.testing.assert_allclose(approx.gradient(params=params[1]), grad[1])
     np.testing.assert_allclose(approx.gradient(params=params[2:0:-1]), grad[2:0:-1])
 
-    np.testing.assert_allclose(approx.hessian() , hessian)
+    np.testing.assert_allclose(approx.hessian(), hessian)
     assert approx.inv_hessian(invert=False) is None
     np.testing.assert_allclose(approx.inv_hessian(invert=True), np.linalg.inv(hessian))
     # now it should be available and cached

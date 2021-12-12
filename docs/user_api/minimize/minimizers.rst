@@ -21,7 +21,7 @@ which takes a loss, parameters and (optionally) a :class:`~zfit.result.FitResult
 take information to have a better start into the minimization.
 
 Minuit
-=======
+======
 
 .. autosummary::
     :toctree: _generated/minimizers

@@ -1,24 +1,24 @@
 engines:
-    duplication:
-        enabled: true
-        config:
-            languages:
-                - python
-    fixme:
-        enabled: true
-    radon:
-        enabled: true
-        config:
-            python_version: 3
+  duplication:
+    enabled: true
+    config:
+      languages:
+        - python
+  fixme:
+    enabled: true
+  radon:
+    enabled: true
+    config:
+      python_version: 3
 ratings:
-    paths:
-        - "**.py"
+  paths:
+    - "**.py"
 exclude_paths:
-    - tests/
-    - docs/
-    - build/
-    - dist/
-    - legacy/
+  - tests/
+  - docs/
+  - build/
+  - dist/
+  - legacy/
 checks:
-    argument-count:
-        enabled: false
+  argument-count:
+    enabled: false

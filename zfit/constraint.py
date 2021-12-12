@@ -2,10 +2,11 @@
 
 import tensorflow as tf
 
-from .core.constraint import GaussianConstraint, SimpleConstraint
+from .core.constraint import (GaussianConstraint, PoissonConstraint,
+                              SimpleConstraint, LogNormalConstraint)
 from .util import ztyping
 
-__all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint"]
+__all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint", "PoissonConstraint", "LogNormalConstraint"]
 
 
 def nll_gaussian(params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType,

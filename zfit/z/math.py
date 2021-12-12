@@ -46,7 +46,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
     Returns:
         Gradients
     """
-    from ..core.parameter import assign_values
+    from ..core.parameter import assign_values, assign_values_jit
 
     params = convert_to_container(params)
 
@@ -107,7 +107,7 @@ def numerical_hessian(func: Optional[Callable],
     Returns:
         Hessian matrix
     """
-    from ..core.parameter import assign_values
+    from ..core.parameter import assign_values, assign_values_jit
 
     params = convert_to_container(params)
 
@@ -288,6 +288,7 @@ def automatic_value_gradient_hessian(func: Callable = None, params: Iterable["zf
 @deprecated(None, "Use `automatic_value_gradient_hessian` instead.")
 def automatic_value_gradients_hessian(*args, **kwargs):
     return automatic_value_gradient_hessian(*args, **kwargs)
+
 
 @tf.function(autograph=False)
 def reduce_geometric_mean(input_tensor, axis=None, weights=None, keepdims=False):

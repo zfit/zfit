@@ -10,7 +10,7 @@ import yaml
 here = os.path.dirname(os.path.realpath(__file__))
 
 parser = argparse.ArgumentParser(
-    description='Apply cuts to ntuple',
+    description='Replace arguments with central stored ones',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 

@@ -56,7 +56,8 @@ def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
 
     true_minimum = loss.value().numpy()
 
-    for param in [a_param, b_param, c_param]:
+    all_params = [a_param, b_param, c_param]
+    for param in all_params:
         param.assign(param.init_val)  # reset the value
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
@@ -64,7 +65,7 @@ def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
 
     result = minimizer.minimize(loss=loss)
     cur_val = loss.value().numpy()
-    aval, bval, cval = (v.numpy() for v in (a_param, b_param, c_param))
+    aval, bval, cval = (result.params[p]['value'] for p in all_params)
 
     ret = {'result': result, 'true_min': true_minimum, 'cur_val': cur_val, 'a': aval, 'b': bval, 'c': cval,
            'a_param': a_param, 'b_param': b_param, 'c_param': c_param}
@@ -87,11 +88,9 @@ def test_set_values():
 
     fitresult = create_fitresult((zfit.minimize.Minuit, {}, True))
     result = fitresult['result']
-    param_a = fitresult['a_param']
     param_b = fitresult['b_param']
     param_c = fitresult['c_param']
 
-    val_a = fitresult['a']
     val_b = fitresult['b']
     val_c = fitresult['c']
     with pytest.raises(ValueError):
@@ -99,9 +98,8 @@ def test_set_values():
     param_c.assign(9999)
     zfit.param.set_values([param_c, param_b], values=result)
 
-    assert param_a.value() == val_a
-    assert param_b.value() == val_b
-    assert param_c.value() == val_c
+    assert zfit.run(param_b.value()) == val_b
+    assert zfit.run(param_c.value()) == val_c
 
     param_d = zfit.Parameter("param_d", 12)
     with pytest.raises(ValueError):

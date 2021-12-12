@@ -1,8 +1,6 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2021 zfit
-import inspect
-import sys
 import warnings
 
 from pkg_resources import get_distribution
@@ -21,13 +19,16 @@ __maintainer__ = "zfit"
 __email__ = 'zfit@physik.uzh.ch'
 __credits__ = "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade"
 
-__all__ = ["z", "constraint", "pdf", "minimize", "loss", "core", "data", "func", "dimension", "exception",
-           "sample",
+__all__ = ["z", "constraint", "pdf", "minimize", "loss", "data", "func", "dimension", "exception",
+           "sample", "binned",
            "Parameter", "ComposedParameter", "ComplexParameter", "convert_to_parameter",
            "Space", "convert_to_space", "supports",
            "run", "settings"]
 
 #  Copyright (c) 2019 zfit
+warnings.warn("This is an ALPHA version of zfit for feature testing, do NOT use it in production! "
+              "It is NOT stable and contains bugs and untested features. "
+              "For production use, please use the last beta stable version of zfit.")
 
 
 def _maybe_disable_warnings():
@@ -59,7 +60,7 @@ if int(tf.__version__[0]) < 2:
                        f" only with TF >= 2")
 
 from . import z  # initialize first
-from . import (constraint, core, data, dimension, exception, func, loss,
+from . import (constraint, data, dimension, exception, func, loss, binned,
                minimize, param, pdf, sample)
 from .core.data import Data
 from .core.parameter import (ComplexParameter, ComposedParameter, Parameter,

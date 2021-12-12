@@ -1,8 +1,11 @@
 """Used to make pytest functions available globally."""
 
+import os
+import pathlib
 #  Copyright (c) 2021 zfit
 import sys
 
+import matplotlib.pyplot as plt
 import pytest
 
 try:
@@ -49,3 +52,20 @@ def setup_teardown():
 def pytest_addoption(parser):
     parser.addoption("--longtests", action="store", default=False)
     parser.addoption("--longtests-kde", action="store", default=False)
+
+
+def pytest_configure():
+    here = os.path.dirname(os.path.abspath(__file__))
+    images_dir = pathlib.Path(here).joinpath('..', 'docs', 'images', '_generated_by_tests')
+    images_dir.mkdir(exist_ok=True)
+
+    def savefig(figure=None):
+        if figure is None:
+            figure = plt.gcf()
+        title_sanitized = figure.axes[0].get_title().replace(' ', '_')
+        if not title_sanitized:
+            raise RuntimeError("Title has to be set for plot that should be saved.")
+        savepath = images_dir.joinpath(title_sanitized)
+        plt.savefig(str(savepath))
+
+    pytest.zfit_savefig = savefig
