@@ -811,7 +811,9 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
                 raise ValueError("obs can only be None if data is ZfitData with limits.")
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding, limits=obs.limits)
+        data, size, weights = self._convert_init_data_weights_size(data, weights,
+                                                                   padding=padding,
+                                                                   limits=obs.limits)
         self._padding = padding
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
                                                                    name=name, obs=obs, weights=weights,
@@ -1009,7 +1011,9 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
                 raise ValueError("obs can only be None if data is ZfitData with limits.")
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding, limits=obs.limits)
+        data, size, weights = self._convert_init_data_weights_size(data, weights,
+                                                                   padding=padding,
+                                                                   limits=obs.limits)
         self._padding = padding
 
         self._original_data = data  # for copying
@@ -1210,7 +1214,9 @@ class KDE1DimFFT(KDEHelper, BasePDF):
                 raise ValueError("obs can only be None if data is ZfitData with limits.")
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding, limits=obs.limits)
+        data, size, weights = self._convert_init_data_weights_size(data, weights,
+                                                                   padding=padding,
+                                                                   limits=obs.limits)
         self._padding = padding
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
@@ -1371,7 +1377,9 @@ class KDE1DimISJ(KDEHelper, BasePDF):
                 raise ValueError("obs can only be None if data is ZfitData with limits.")
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding, limits=obs.limits)
+        data, size, weights = self._convert_init_data_weights_size(data, weights,
+                                                                   padding=padding,
+                                                                   limits=obs.limits)
         self._padding = padding
 
         num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
