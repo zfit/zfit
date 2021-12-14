@@ -29,7 +29,7 @@ Requirement changes
 
 Thanks
 ------
-
+ - schmitse for finding and fixing a mirroring bug in the KDEs
 
 0.9.0a0
 ========
