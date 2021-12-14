@@ -4,6 +4,32 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+- KDE datasets are now correctly mirrored around observable space limits
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+
 
 0.9.0a0
 ========
@@ -31,7 +57,6 @@ Bug fixes and small changes
 - remove warning when using `rect_limits` or similar.
 - gauss integral accepts now also tensor inputs in limits
 - parameters at limits is now shown correctly
-- KDE datasets are now mirrored around observable space limits
 
 Experimental
 ------------
