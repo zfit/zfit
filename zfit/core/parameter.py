@@ -1050,19 +1050,24 @@ def assign_values(params: Union[Parameter, Iterable[Parameter]],
 
 
 def set_values(params: Union[Parameter, Iterable[Parameter]],
-               values: Union[ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType], ZfitResult]):
+               values: Union[ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType], ZfitResult],
+               allow_partial: Optional[bool] = False):
     """Set the values (using a context manager or not) of multiple parameters.
 
     Args:
         params: Parameters to set the values.
         values: List-like object that supports indexing.
+        allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult`
+            and not all are present in the
+            *values*. If False, *params* not in *values* will raise an error.
+            Note that setting this to true will also go with an empty values container.
 
     Returns:
         An object for a context manager (but can also be used without), can be ignored.
     Raises:
         ValueError: If the value is not between the limits of the parameter
     """
-    params, values = _check_convert_param_values(params, values)
+    params, values = _check_convert_param_values(params, values, allow_partial)
 
     def setter(values):
         for i, param in enumerate(params):
@@ -1074,15 +1079,17 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
     return TemporarilySet(values, setter=setter, getter=getter)
 
 
-def _check_convert_param_values(params, values):
+def _check_convert_param_values(params, values, allow_partial):
     params = convert_to_container(params)
     if isinstance(values, ZfitResult):
         result = values
         values = []
         for param in params:
             if not param in result.params:
-                raise ValueError(f"Cannot set {param} with {repr(result)} as it is not contained.")
-            values.append(result.params[param]['value'])
+                if not allow_partial:
+                    raise ValueError(f"Cannot set {param} with {repr(result)} as it is not contained.")
+            else:
+                values.append(result.params[param]['value'])
     elif len(params) > 1:
         if not tf.is_tensor(values) or isinstance(values, np.ndarray):
             values = convert_to_container(values)
