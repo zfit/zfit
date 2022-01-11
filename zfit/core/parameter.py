@@ -1043,7 +1043,26 @@ def assign_values_jit(params: Union[Parameter, Iterable[Parameter]],
 def assign_values(params: Union[Parameter, Iterable[Parameter]],
                   values: Union[ztyping.NumericalScalarType,
                                 Iterable[ztyping.NumericalScalarType]],
-                  use_locking=False):
+                  use_locking=False, allow_partial: Optional[bool] = None):
+    """Set the values of multiple parameters in a fast way.
+
+    In general, :meth:`set_values` is to be preferred. `assign_values` will ignore out-of-bounds errors,
+     does not offer a context-manager but is in general (an order of magnitude) faster.
+
+    Args:
+        params: Parameters to set the values.
+        values: List-like object that supports indexing.
+        use_locking: if true, lock the parameter to avoid race conditions.
+        allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult`
+            and not all are present in the
+            *values*. If False, *params* not in *values* will raise an error.
+            Note that setting this to true will also go with an empty values container.
+
+    Raises:
+        ValueError: If not all *params* are in *values* if *values* is a `FitResult` and `allow_partial` is `False`.
+    """
+    if allow_partial is None:
+        allow_partial = False
     params, values = _check_convert_param_values(params, values)
     params = tuple(params)
     assign_values_jit(params=params, values=values, use_locking=use_locking)
@@ -1051,7 +1070,7 @@ def assign_values(params: Union[Parameter, Iterable[Parameter]],
 
 def set_values(params: Union[Parameter, Iterable[Parameter]],
                values: Union[ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType], ZfitResult],
-               allow_partial: Optional[bool] = False):
+               allow_partial: Optional[bool] = None):
     """Set the values (using a context manager or not) of multiple parameters.
 
     Args:
@@ -1065,8 +1084,11 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
     Returns:
         An object for a context manager (but can also be used without), can be ignored.
     Raises:
-        ValueError: If the value is not between the limits of the parameter
+        ValueError: If the value is not between the limits of the parameter.
+        ValueError: If not all *params* are in *values* if *values* is a `FitResult` and `allow_partial` is `False`.
     """
+    if allow_partial is None:
+        allow_partial = False
     params, values = _check_convert_param_values(params, values, allow_partial)
 
     def setter(values):
@@ -1079,21 +1101,24 @@ def set_values(params: Union[Parameter, Iterable[Parameter]],
     return TemporarilySet(values, setter=setter, getter=getter)
 
 
-def _check_convert_param_values(params, values, allow_partial):
+def _check_convert_param_values(params, values, allow_partial=False):
     params = convert_to_container(params)
     if isinstance(values, ZfitResult):
         result = values
+        new_params = []
         values = []
         for param in params:
-            if not param in result.params:
-                if not allow_partial:
-                    raise ValueError(f"Cannot set {param} with {repr(result)} as it is not contained.")
-            else:
+            if param in result.params:
                 values.append(result.params[param]['value'])
+                new_params.append(param)
+            elif not allow_partial:
+                raise ValueError(f"Cannot set {param} with {repr(result)} as it is not contained. To partially set"
+                                 f" the parameters (only those in the result), use allow_partial")
+        params = new_params
     elif len(params) > 1:
         if not tf.is_tensor(values) or isinstance(values, np.ndarray):
             values = convert_to_container(values)
-            if not len(params) == len(values):
+            if len(params) != len(values):
                 raise ValueError(f"Incompatible length of parameters and values: {params}, {values}")
     not_param = [param for param in params if not isinstance(param, ZfitParameter)]
     if not_param:
