@@ -9,6 +9,8 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- Save results by pickling, unpickling a frozen (`FitResult.freeze()`) result and using
+  `zfit.param.set_values(params, result)` to set the values of `params`.
 
 Breaking changes
 ------------------
@@ -30,34 +32,6 @@ Requirement changes
 Thanks
 ------
  - schmitse for finding and fixing a mirroring bug in the KDEs
-
-Develop
-========
-
-Major Features and Improvements
--------------------------------
-
-- Save results by pickling, unpickling a frozen (`FitResult.freeze()`) result and using
-  `zfit.param.set_values(params, result)` to set the values of `params`.
-
-Breaking changes
-------------------
-
-Depreceations
--------------
-
-Bug fixes and small changes
----------------------------
-
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
-
 
 0.9.0a0
 ========

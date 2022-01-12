@@ -27,28 +27,31 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
             obs = obs.with_binning(None)
         super().__init__(pdfs=pdf, obs=obs, extended=extended)
         self._binned_space = self.pdfs[0].space.with_obs(self.space)
+        self._binned_norm = self.pdfs[0].norm.with_obs(self.space)
 
-    @supports(norm=True, multiple_limits=True)
+    @supports(norm='norm', multiple_limits=True)
     def _pdf(self, x, norm):
         binned_space = self.pdfs[0].space
         binindices = unbinned_to_binindex(x, binned_space, flow=True)
         pdf = self.pdfs[0]
 
-        values = pdf.pdf(binned_space, norm=norm)
+        binned_norm = norm if norm is False else self._binned_norm
+        values = pdf.pdf(binned_space, norm=binned_norm)
 
         # because we have the flow, so we need to make it here with pads
         padded_values = znp.pad(values, znp.ones((values.ndim, 2)), mode="constant")  # for overflow
         ordered_values = tf.gather_nd(padded_values, indices=binindices)
         return ordered_values
 
-    @supports(norm=True, multiple_limits=True)
+    @supports(norm='norm', multiple_limits=True)
     def _ext_pdf(self, x, norm):
         binned_space = self.pdfs[0].space
         binindices = unbinned_to_binindex(x, binned_space, flow=True)
 
         pdf = self.pdfs[0]
 
-        values = pdf.ext_pdf(binned_space, norm=norm)
+        binned_norm = norm if norm is False else self._binned_norm
+        values = pdf.ext_pdf(binned_space, norm=binned_norm)
         ndim = len(values.shape)
 
         # because we have the flow, so we need to make it here with pads
@@ -56,13 +59,15 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         ordered_values = tf.gather_nd(padded_values, indices=binindices)
         return ordered_values
 
-    @supports(norm=True, multiple_limits=True)
+    @supports(norm='norm', multiple_limits=True)
     def _integrate(self, limits, norm, options=None):
-        return self.pdfs[0].integrate(limits, norm=norm, options=options)
+        binned_norm = norm if norm is False else self._binned_norm
+        return self.pdfs[0].integrate(limits, norm=binned_norm, options=options)
 
     @supports(norm=True, multiple_limits=True)
     def _ext_integrate(self, limits, norm, options):
-        return self.pdfs[0].ext_integrate(limits, norm=norm, options=options)
+        binned_norm = norm if norm is False else self._binned_norm
+        return self.pdfs[0].ext_integrate(limits, norm=binned_norm, options=options)
 
     @supports(norm=True, multiple_limits=True)
     def _sample(self, n, limits: ZfitSpace):
