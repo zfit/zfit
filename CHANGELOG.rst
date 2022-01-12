@@ -4,6 +4,32 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+- KDE datasets are now correctly mirrored around observable space limits
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+
+Thanks
+------
+ - schmitse for finding and fixing a mirroring bug in the KDEs
 
 0.9.0a0
 ========

@@ -411,7 +411,7 @@ class KDEHelper:
     _default_padding = False
     _default_num_grid_points = 1024
 
-    def _convert_init_data_weights_size(self, data, weights, padding):
+    def _convert_init_data_weights_size(self, data, weights, padding, limits=None):
         self._original_data = data  # for copying
         if isinstance(data, ZfitData):
             if data.weights is not None:
@@ -426,9 +426,9 @@ class KDEHelper:
             data = z.unstack_x(data)
 
         if callable(padding):
-            data, weights = padding(data=data, weights=weights)
+            data, weights = padding(data=data, weights=weights, limits=limits)
         elif padding is not False:
-            data, weights = padreflect_data_weights_1dim(data, weights=weights, mode=padding)
+            data, weights = padreflect_data_weights_1dim(data, weights=weights, mode=padding, limits=limits)
         shape_data = tf.shape(data)
         size = tf.cast(shape_data[0], ztypes.float)
         return data, size, weights
@@ -453,7 +453,7 @@ class KDEHelper:
         return bandwidth, bandwidth_param
 
 
-def padreflect_data_weights_1dim(data, mode, weights=None):
+def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
     if mode is False:
         return data, weights
     if mode is True:
@@ -464,8 +464,13 @@ def padreflect_data_weights_1dim(data, mode, weights=None):
         if key not in ('lowermirror', 'uppermirror'):
             raise ValueError(f"Key '{key}' is not a valid padding specification, use 'lowermirror' or 'uppermirror'"
                              f" in order to mirror the data.")
-    minimum = znp.min(data)
-    maximum = znp.max(data)
+    if limits is None:
+        minimum = znp.min(data)
+        maximum = znp.max(data)
+    else:
+        minimum = znp.array(limits[0][0])
+        maximum = znp.array(limits[1][0])
+
     diff = (maximum - minimum)
     new_data = []
     new_weights = []
@@ -613,7 +618,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
             name: |@doc:pdf.kde.init.name||@docend:pdf.kde.init.name|
         """
         original_data = data
-        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=False)
+        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=False, limits=None)
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data, truncate=truncate,
                                                                    name=name, obs=obs, weights=weights)
@@ -726,7 +731,8 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
              space than *data*, as long as the name of the observable match.
              Using a larger dataset is actually good practice avoiding
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
-            bandwidth: Valid pre-defined options are {'silverman', 'scott', 'adaptive'}.
+            bandwidth: Valid pre-defined options are {'silverman', 'scott',
+             'adaptive_zfit', 'adaptive_geom', 'adaptive_std', 'isj'}.
              |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
              often also denoted as :math:`h`. For a Gaussian kernel, this
              corresponds to *sigma*. This can be calculated using
@@ -805,7 +811,9 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
                 raise ValueError("obs can only be None if data is ZfitData with limits.")
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding)
+        data, size, weights = self._convert_init_data_weights_size(data, weights,
+                                                                   padding=padding,
+                                                                   limits=obs.limits)
         self._padding = padding
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
                                                                    name=name, obs=obs, weights=weights,
@@ -887,7 +895,9 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.data|
 
-            bandwidth: |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
+            bandwidth: Valid pre-defined options are {'silverman', 'scott',
+             'adaptive_zfit', 'adaptive_geom'}.
+             |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
              often also denoted as :math:`h`. For a Gaussian kernel, this
              corresponds to *sigma*. This can be calculated using
              pre-defined options or by specifying a numerical value that is
@@ -1001,7 +1011,9 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
                 raise ValueError("obs can only be None if data is ZfitData with limits.")
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding)
+        data, size, weights = self._convert_init_data_weights_size(data, weights,
+                                                                   padding=padding,
+                                                                   limits=obs.limits)
         self._padding = padding
 
         self._original_data = data  # for copying
@@ -1202,7 +1214,9 @@ class KDE1DimFFT(KDEHelper, BasePDF):
                 raise ValueError("obs can only be None if data is ZfitData with limits.")
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding)
+        data, size, weights = self._convert_init_data_weights_size(data, weights,
+                                                                   padding=padding,
+                                                                   limits=obs.limits)
         self._padding = padding
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(bandwidth=bandwidth, data=data,
@@ -1363,7 +1377,9 @@ class KDE1DimISJ(KDEHelper, BasePDF):
                 raise ValueError("obs can only be None if data is ZfitData with limits.")
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(data, weights, padding=padding)
+        data, size, weights = self._convert_init_data_weights_size(data, weights,
+                                                                   padding=padding,
+                                                                   limits=obs.limits)
         self._padding = padding
 
         num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
