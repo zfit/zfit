@@ -197,10 +197,10 @@ For more details and information of what you can do with zfit, checkout the `lat
 Prerequisites
 =============
 
-``zfit`` works with Python versions 3.7 and 3.8.
+``zfit`` works with Python versions 3.7, 3.8 and 3.9.
 The following packages (amongst others) are required:
 
-- `tensorflow <https://www.tensorflow.org/>`_ >= 2.4
+- `tensorflow <https://www.tensorflow.org/>`_ >= 2.6
 - `tensorflow_probability <https://www.tensorflow.org/probability>`_
 - `scipy <https://www.scipy.org/>`_ >=1.2
 - `uproot <https://github.com/scikit-hep/uproot>`_
@@ -211,9 +211,9 @@ The following packages (amongst others) are required:
 Installing
 ==========
 
-zfit is currently only available on pip. If possible, use a conda or virtual environment and do:
+zfit is currently *only available on pip*. The **conda version is highly outdated and should not be used**.
 
-For pip (if you don't use conda):
+If possible, use a conda or virtual environment and do:
 
 .. code-block:: console
 
