@@ -277,9 +277,11 @@ def automatic_value_gradient_hessian(func: Callable = None, params: Iterable["zf
         computed_hessian = znp.stack(
             [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)]
         )
+        # gradfunc = lambda par_grad: tape.gradient(par_grad[0], sources=par_grad[1])
+        # computed_hessian = tf.vectorized_map(gradfunc, zip(params, gradients))
     else:
         computed_hessian = z.convert_to_tensor(tape.jacobian(gradients_tf, sources=params,
-                                                             experimental_use_pfor=False  # causes TF bug? Slow..
+                                                             experimental_use_pfor=True  # causes TF bug? Slow..
                                                              ))
     del tape
     return loss, gradients, computed_hessian

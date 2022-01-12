@@ -72,8 +72,8 @@ def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
 
     return ret
 
-
-def test_set_values():
+@pytest.mark.parametrize('do_pickle', [True, False])
+def test_set_values_fitresult(do_pickle):
     upper1 = 5.33
     lower1 = 0.
     param1 = zfit.Parameter('param1', 2., lower1, upper1)
@@ -96,14 +96,26 @@ def test_set_values():
     with pytest.raises(ValueError):
         param_b.set_value(999)
     param_c.assign(9999)
-    zfit.param.set_values([param_c, param_b], values=result)
+    if do_pickle:
+        result.freeze()
+        result = pickle.loads(pickle.dumps(result))
+    with zfit.param.set_values([param_c, param_b], values=result):
+        assert zfit.run(param_b.value()) == val_b
+        assert zfit.run(param_c.value()) == val_c
 
-    assert zfit.run(param_b.value()) == val_b
+    # test partial
+    param_new = zfit.Parameter('param_new', 42., 12., 48.)
+    with pytest.raises(ValueError):
+        zfit.param.set_values([param_c, param_new], values=result)  # allow_partial by default false
+
+    zfit.param.set_values([param_c, param_new], values=result, allow_partial=True)  # allow_partial by default false
     assert zfit.run(param_c.value()) == val_c
 
+    # test partial in case we have nothing to set
     param_d = zfit.Parameter("param_d", 12)
     with pytest.raises(ValueError):
         zfit.param.set_values([param_d], result)
+    zfit.param.set_values([param_d], result, allow_partial=True)
 
 
 minimizers = [

@@ -18,6 +18,10 @@ from ordered_set import OrderedSet
 from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 
+from .errors import (compute_errors, covariance_with_weights, dict_to_matrix,
+                     matrix_to_dict)
+from .interface import ZfitMinimizer, ZfitResult
+from .termination import ConvergenceCriterion
 from ..core.interfaces import ZfitIndependentParameter, ZfitLoss, ZfitParameter, ZfitData
 from ..core.parameter import assign_values
 from ..settings import run
@@ -25,10 +29,6 @@ from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
 from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
-from .errors import (compute_errors, covariance_with_weights, dict_to_matrix,
-                     matrix_to_dict)
-from .interface import ZfitMinimizer, ZfitResult
-from .termination import ConvergenceCriterion
 
 init(autoreset=True)
 
@@ -215,13 +215,24 @@ class NameToParamGetitem:
     __slots__ = ()
 
     def __getitem__(self, item):
-        if isinstance(item, str):
-            for param in self.keys():
-                name = param.name if isinstance(param, ZfitParameter) else param
-                if name == item:
-                    item = param
-                    break
+        if isinstance(item, ZfitParameter):
+            item = item.name
+        for param in self.keys():
+            name = param.name if isinstance(param, ZfitParameter) else param
+            if name == item:
+                item = param
+                break
         return super().__getitem__(item)  # raises key error if not there, which is good
+
+    def __contains__(self, item):
+        try:
+            self[item]
+        except KeyError:
+            return False
+        except Exception as error:
+            raise RuntimeError('Unknown exception occurred! This should not happen.') from error
+        else:
+            return True
 
 
 class FitResult(ZfitResult):
@@ -1362,9 +1373,11 @@ class ParamHolder(NameToParamGetitem, collections.UserDict):
 
         rows = []
         for param, pdict in self.items():
-            row = [param.name]
+            name = param.name if isinstance(param, ZfitParameter) else param
+            row = [name]
             row.extend(format_value(pdict.get(key, ' ')) for key in order_keys)
-            row.append(color_on_bool(run(param.at_limit), on_true=colored.bg('light_red'), on_false=False))
+            if isinstance(param, ZfitParameter):
+                row.append(color_on_bool(run(param.at_limit), on_true=colored.bg('light_red'), on_false=False))
             rows.append(row)
 
         order_keys = ['name'] + list(order_keys) + ['at limit']

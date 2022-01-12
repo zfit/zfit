@@ -31,6 +31,34 @@ Thanks
 ------
  - schmitse for finding and fixing a mirroring bug in the KDEs
 
+Develop
+========
+
+Major Features and Improvements
+-------------------------------
+
+- Save results by pickling, unpickling a frozen (`FitResult.freeze()`) result and using
+  `zfit.param.set_values(params, result)` to set the values of `params`.
+
+Breaking changes
+------------------
+
+Depreceations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
 0.9.0a0
 ========
 
@@ -41,6 +69,8 @@ Major Features and Improvements
   binned losses. TODO: extend to include changes/point to binned introduction.
 - new Poisson PDF
 - added Poisson constraint, LogNormal Constraint
+- Save results by pickling, unpickling a frozen (`FitResult.freeze()`) result and using
+  `zfit.param.set_values(params, result)` to set the values of `params`.
 
 Breaking changes
 ------------------
