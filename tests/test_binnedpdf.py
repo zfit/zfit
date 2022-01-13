@@ -15,7 +15,6 @@ from zfit.models.interpolation import SplinePDF
 
 @pytest.mark.plots
 def test_spline_from_binned_from_unbinned():
-    # zfit.run.set_graph_mode(False)
     n = 1004
     gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n)
 
@@ -64,7 +63,6 @@ def test_spline2D_from_binned_from_unbinned():
 
 @pytest.mark.plots
 def test_unbinned_from_binned_from_unbinned():
-    zfit.run.set_graph_mode(True)
     n = 1004
     gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n)
 
