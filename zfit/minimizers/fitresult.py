@@ -1092,7 +1092,7 @@ class FitResult(ZfitResult):
                 params: The parameters or their names to calculate the
                      errors. If `params` is `None`, use all *floating* parameters.
                 method: The method to use to calculate the errors. Valid choices are
-                    {'minuit_minos'} or a Callable.
+                    {'minuit_minos', 'zfit_error'} or a Callable.
                 cl: Uncertainties are calculated with respect to the confidence level cl. The default is 68.3%.
                     For example, the negative log-likelihood (without the factor of 2) has a correspondents
                     of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
