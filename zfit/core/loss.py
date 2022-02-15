@@ -930,29 +930,28 @@ class SimpleLoss(BaseLoss):
 
             import zfit
             import zfit.z.numpy as znp
-
             import tensorflow as tf
+
 
             param1 = zfit.Parameter('param1', 5, 1, 10)
             # we can build a model here if we want, but in principle, it's not necessary
 
             x = znp.random.uniform(size=(100,))
-            # Todo: change to znp.random.normal when introduced into tensorflow.experimental.numpy.
-            y = x*tf.random.normal(mean=4, stddev=0.1, shape=x.shape, dtype=tf.double)
+            y = x * tf.random.normal(mean=4, stddev=0.1, shape=x.shape, dtype=znp.float64)
 
 
-            def squared_loss():
+            def squared_loss(params):
+                param1 = params[0]
                 y_pred = x*param1  # this is very simple, but we can of course use any
                 # zfit PDF or Func inside
                 squared = (y_pred - y)**2
                 mse = znp.mean(squared)
                 return mse
 
-            squared_loss.errordef = 1
 
-            loss = zfit.loss.SimpleLoss(squared_loss, param1)
+            loss = zfit.loss.SimpleLoss(squared_loss, param1, errordef=1)
 
-        which can then be used in conjunction with any zfit minimizer such as Minuit
+        which can then be used in combination with any zfit minimizer such as Minuit
 
         .. code:: python
 
@@ -970,10 +969,9 @@ class SimpleLoss(BaseLoss):
                 "More information can be found in the upgrade guide on the website."
             )
 
-        # @z.function(wraps='loss')
-        # def wrapped_func():
-        #     return func()
-        if hasattr(func, "errordef"):
+        if hasattr(func, 'errordef'):
+            if errordef is not None:
+                raise ValueError("errordef is not allowed if func has an errordef attribute or vice versa.")
             errordef = func.errordef
 
         if errordef is None:
@@ -982,8 +980,6 @@ class SimpleLoss(BaseLoss):
                 f"it has to be set as an attribute. Typically 1 (chi2) or 0.5 (NLL)."
             )
 
-        sig = inspect.signature(func)
-        self._call_with_args = len(sig.parameters) > 0
 
         self._simple_func = func
         self._errordef = errordef
@@ -1019,12 +1015,15 @@ class SimpleLoss(BaseLoss):
     # @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints=None, log_offset=None):
 
-        if self._call_with_args:
+        try:
             params = self._simple_func_params
             params = tuple(params)
             value = self._simple_func(params)
-        else:
-            value = self._simple_func()
+        except TypeError as error:
+            if 'takes 0 positional arguments but 1 was given' in str(error):
+                value = self._simple_func()
+            else:
+                raise error
         return z.convert_to_tensor(value)
 
     def __add__(self, other):
