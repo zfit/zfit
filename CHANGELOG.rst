@@ -21,6 +21,7 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 - KDE datasets are now correctly mirrored around observable space limits
+- increase precision in FitResult string representation and add that the value is rounded
 
 Experimental
 ------------
