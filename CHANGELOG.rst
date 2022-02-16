@@ -21,6 +21,8 @@ Depreceations
 Bug fixes and small changes
 ---------------------------
 - KDE datasets are now correctly mirrored around observable space limits
+- multinomial sampling would return wrong results when invoked multiple times in graph mode due to
+  a non-dynamic shape. This is fixed and the sampling is now working as expected.
 
 Experimental
 ------------
@@ -32,6 +34,7 @@ Requirement changes
 Thanks
 ------
  - schmitse for finding and fixing a mirroring bug in the KDEs
+ - Sebastian Bysiak for finding a bug in the multinomial sampling
 
 0.9.0a0
 ========
