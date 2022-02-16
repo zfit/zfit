@@ -267,8 +267,8 @@ def test_errors(minimizer_class_and_kwargs, cl):
     c = results['c_param']
 
     for n_trial in range(n_max_trials):
-        z_errors, new_result = result.errors(method="zfit_error", cl=cl)
-        minos_errors, _ = result.errors(method="minuit_minos", cl=cl)
+        z_errors, new_result = result.errors(method="zfit_error", cl=cl, name='zfit_error')
+        minos_errors, _ = result.errors(method="minuit_minos", cl=cl, name='minuit_minos')
         if new_result is None:
             break
         else:

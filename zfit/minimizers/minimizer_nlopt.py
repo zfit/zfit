@@ -230,7 +230,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             init_scale = []
             approx_step_sizes = {}
             if result_prelim:
-                approx_step_sizes = result_prelim.hesse(params=params, method='approx')
+                approx_step_sizes = result_prelim.hesse(params=params, method='approx', name='approx')
             empty_dict = {}
             for param in params:
                 step_size = approx_step_sizes.get(param, empty_dict).get('error')
