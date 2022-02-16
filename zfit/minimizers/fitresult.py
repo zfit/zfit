@@ -23,11 +23,11 @@ from .errors import (compute_errors, covariance_with_weights, dict_to_matrix,
 from .interface import ZfitMinimizer, ZfitResult
 from .termination import ConvergenceCriterion
 from ..core.interfaces import ZfitIndependentParameter, ZfitLoss, ZfitParameter, ZfitData
-from ..core.parameter import assign_values
+from ..core.parameter import set_values
 from ..settings import run
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
-from ..util.warnings import ExperimentalFeatureWarning
+from ..util.warnings import ExperimentalFeatureWarning, warn_changed_feature
 from ..util.ztyping import ParamsTypeOpt
 
 init(autoreset=True)
@@ -239,7 +239,10 @@ class FitResult(ZfitResult):
     _default_hesse = "hesse_np"
     _hesse_methods = {"minuit_hesse": _covariance_minuit, "hesse_np": _covariance_np, "approx": _covariance_approx}
     _default_error = "zfit_error"
-    _error_methods = {"minuit_minos": _minos_minuit, "zfit_error": compute_errors}
+    _error_methods = {"minuit_minos": _minos_minuit,
+                      "zfit_error": compute_errors,
+                      "zfit_errors": compute_errors
+                      }
 
     def __init__(self,
                  loss: ZfitLoss,
@@ -431,7 +434,8 @@ class FitResult(ZfitResult):
             # cl is < 1 and gets very close. The closer, the more it matters -> scale tolerance by it
             if errordict is not None and not math.isclose(errordict['cl'], cl, abs_tol=3e-3 * (1 - cl)):
                 raise NameError(f"Error with name {method_name} already exists in {repr(self)} with a different"
-                                f" convidence level of {errordict['cl']} instead of the requested {cl}.")
+                                f" convidence level of {errordict['cl']} instead of the requested {cl}."
+                                f" Use a different name.", stacklevel=2)
             else:
                 uncached.append(p)
         return uncached
@@ -960,7 +964,7 @@ class FitResult(ZfitResult):
                           " used state. If this happens during normal operation, make sure you reset the values.",
                           RuntimeWarning)
             raise
-        assign_values(params=params, values=old_values)  # TODO: or set?
+        set_values(params=params, values=old_values, allow_partial=True)  # TODO: or set?
 
     def _input_check_params(self, params):
         if params is not None:
@@ -975,21 +979,21 @@ class FitResult(ZfitResult):
               method: Union[str, Callable] = None,
               cl: Optional[float] = None,
               name: Optional[Union[str, bool]] = None,
+              # DEPRECATED
               error_name: Optional[str] = None
               ) -> Dict[ZfitIndependentParameter, Dict]:
         """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
         Args:
-            cl:
             params: The parameters to calculate the
                 Hessian symmetric error. If None, use all parameters.
             method: the method to calculate the covariance matrix. Can be
                 {'minuit_hesse', 'hesse_np', 'approx'} or a callable.
+            cl: Confidence level for the error. If None, use the default value of 0.68.
             name: The name for the error in the dictionary. This will be added to
                 the information collected in params under ``params[p][name]`` where
                 p is a Parameter. If the name is `False`, it won't be added and only
-                returned.
-            error_name: The name for the error in the dictionary.
+                returned. Defaulst to `'hesse'`.
 
         Returns:
             Result of the hessian (symmetric) error as dict with each parameter holding
@@ -1015,10 +1019,21 @@ class FitResult(ZfitResult):
         # Deprecated name
         if error_name is not None:
             name = error_name
+
+        name_warning_triggered = False
         if name is None:
             if not isinstance(method, str):
                 raise ValueError("Need to specify `name` or use a string as `method`")
-            name = method
+            message = ("Default name of hesse (which is currently the method name such as `minuit_hesse`"
+                       "or `hesse_np`) has changed to `hesse` (it still adds the old one as well. This will"
+                       " be removed in the future). "
+                       "INSTRUCTIONS: to stay compatible, "
+                       " change wherever you access the error to 'hesse' (if you don't explicitly specify the name"
+                       " in hesse(...).")
+
+            warn_changed_feature(message, 'hesse_name')
+            name_warning_triggered = True
+            name = 'hesse'
 
         with self._input_check_reset_params(params) as params:
             uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
@@ -1034,6 +1049,8 @@ class FitResult(ZfitResult):
                 error_dict = {}
 
         error_dict.update({p: self.params[p][name] for p in params if p not in uncached_params})
+        if name_warning_triggered:
+            error_dict.update({p: self.params[p][method] for p in params if p not in uncached_params})
         return {p: error_dict[p] for p in params}
 
     def _cache_errors(self, error_name, errors):
@@ -1092,14 +1109,13 @@ class FitResult(ZfitResult):
                 params: The parameters or their names to calculate the
                      errors. If `params` is `None`, use all *floating* parameters.
                 method: The method to use to calculate the errors. Valid choices are
-                    {'minuit_minos'} or a Callable.
+                    {'minuit_minos', 'zfit_errors'} or a Callable.
                 cl: Uncertainties are calculated with respect to the confidence level cl. The default is 68.3%.
                     For example, the negative log-likelihood (without the factor of 2) has a correspondents
                     of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
                 sigma: Errors are calculated with respect to `sigma` std deviations. The definition
                     of 1 sigma depends on the loss function and is defined there.
-                name: The name for the error in the dictionary.
-                error_name: The name for the error in the dictionary.
+                name: The name for the error in the dictionary. Defaults to `errors`
 
 
             Returns:
@@ -1133,10 +1149,20 @@ class FitResult(ZfitResult):
                               "in the future, add it explicitly as in `errors(method='minuit_minos')`", FutureWarning)
             else:
                 method = self._default_error
+        name_warning_triggered = False
         if name is None:
             if not isinstance(method, str):
                 raise ValueError("Need to specify `error_name` or use a string as `method`")
-            name = method
+            message = ("Default name of errors (which is currently the method name such as `minuit_minos`"
+                       "or `zfit_errors`) has changed to `errors`. Old names are still added as well for compatibility"
+                       " but will be removed in the future. "
+                       "INSTRUCTIONS: to stay compatible,"
+                       " change wherever you access the error to 'errors' or specify the name explicitly in"
+                       " errors(...).")
+
+            warn_changed_feature(message, 'errors_name')
+            name_warning_triggered = True
+            name = 'errors'
 
         if method == 'zfit_error':
             warnings.warn(
@@ -1148,7 +1174,6 @@ class FitResult(ZfitResult):
         params = self._input_check_params(params)
 
         with self._input_check_reset_params(self.params.keys()):
-            # TODO: cache with cl!
             uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
 
             new_result = None
@@ -1165,7 +1190,9 @@ class FitResult(ZfitResult):
                     self._valid = False
                     self._message = msg
                     new_result._cache_errors(error_name=name, errors=error_dict)
-        all_errors = OrderedDict((p, self.params[p][name]) for p in params)
+        all_errors = {p: self.params[p][name] for p in params}
+        if name_warning_triggered:
+            self._cache_errors(error_name=method, errors=error_dict)
 
         return all_errors, new_result
 

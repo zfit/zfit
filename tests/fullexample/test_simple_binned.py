@@ -87,7 +87,7 @@ def test_simlpe_examples_1D():
     print(result)
     # mu_z = sigmodel.get_yield() / znp.sum(zmcsig.values())
     zbestfit = zfit.run(result.params)
-    errors = [p['hesse_np']['error'] for p in result.params.values()]
+    errors = [p['hesse']['error'] for p in result.params.values()]
     # print('minval actual:', nll.value(), nll.gradient())
     # errors = np.ones(3) * 0.1
     # print('mu:', mu_z)
