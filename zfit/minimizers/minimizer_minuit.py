@@ -266,7 +266,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         approx_step_sizes = {}
         # get possible initial step size from previous minimizer
         if init:
-            approx_step_sizes = init.hesse(params=params, method='approx')
+            approx_step_sizes = init.hesse(params=params, method='approx', name='approx')
 
         empty_dict = {}
         for param in params:

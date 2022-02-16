@@ -66,3 +66,13 @@ def warn_changed_feature(message, identifier):
             f"To turn this warning off, use `zfit.settings.changed_warnings.{identifier} = False` "
             f" or 'all' with `zfit.settings.changed_warnings.all = False\n"
             + message, category=ChangedFeatureWarning, stacklevel=2)
+
+
+warned_changing = set()
+
+
+def warn_changing_feature(message, identifier):
+    if identifier not in warned_changed:
+        warned_changing.add(identifier)
+        warnings.warn(
+            message, category=FutureWarning, stacklevel=2)

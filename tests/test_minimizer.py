@@ -244,9 +244,9 @@ def test_minimize_pure_func(params, minimizer_class_and_kwargs):
     else:
         result = minimizer.minimize(func, params)
         assert result.valid
-    result.hesse(name='hesse_np')
+    result.hesse(method='hesse_np')
     for param, error in zip(result.params, [0.32, 0.64, 1.3]):
-        assert pytest.approx(result.params[param]['hesse_np']['error'], rel=0.15) == error
+        assert pytest.approx(result.params[param]['hesse']['error'], rel=0.15) == error
     param = list(result.params)[1]
     result.errors(param, name='errors')
     assert pytest.approx(result.params[param]['errors']['lower'], rel=0.15) == -0.61
