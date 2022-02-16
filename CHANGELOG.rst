@@ -15,8 +15,17 @@ Major Features and Improvements
 Breaking changes
 ------------------
 
+
 Depreceations
 -------------
+- the default name of the uncertainty methods `hesse` and `errors` depended on
+  the method used (such as 'minuit_hesse', 'zfit_errors' etc.) and would be the exact method name.
+  New names are now 'hesse' and 'errors', independent of the method used. This reflects better that the
+  methods, while internally different, produce the same result.
+  To update, use 'hesse' instead of 'minuit_hesse' or 'hesse_np' and 'errors' instead of 'zfit_errors'
+  or 'minuit_minos' in order to access the uncertainties in the fitresult.
+  Currently, the old names are still available for backwards compatibility.
+  If a name was explicitly chosen in the error method, nothing changed.
 
 Bug fixes and small changes
 ---------------------------

@@ -68,7 +68,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             return pdf.integrate(limits_space, norm=False, options=options)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
-        values = tf.vectorized_map(integrate_one, limits)[:, 0]
+        values = tf.vectorized_map(integrate_one, limits)
         values = znp.reshape(values, shape)
         if norm:
             values /= pdf.normalization(norm)
