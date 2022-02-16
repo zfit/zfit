@@ -993,8 +993,7 @@ class FitResult(ZfitResult):
             name: The name for the error in the dictionary. This will be added to
                 the information collected in params under ``params[p][name]`` where
                 p is a Parameter. If the name is `False`, it won't be added and only
-                returned.
-            error_name: The name for the error in the dictionary.
+                returned. Defaulst to `'hesse'`.
 
         Returns:
             Result of the hessian (symmetric) error as dict with each parameter holding
@@ -1116,8 +1115,7 @@ class FitResult(ZfitResult):
                     of :math:`\Delta` NLL of 1 corresponds to 1 std deviation.
                 sigma: Errors are calculated with respect to `sigma` std deviations. The definition
                     of 1 sigma depends on the loss function and is defined there.
-                name: The name for the error in the dictionary.
-                error_name: The name for the error in the dictionary.
+                name: The name for the error in the dictionary. Defaults to `errors`
 
 
             Returns:
