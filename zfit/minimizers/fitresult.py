@@ -1351,7 +1351,7 @@ def format_value(value, highprec=True):
 
     if isinstance(value, float):
         if highprec:
-            value = f"{value:> 6.4g}"
+            value = f"{value:> 6.7g}"
         else:
             value = f"{value:> 6.2g}"
     return value
@@ -1391,7 +1391,7 @@ class ValuesHolder(NameToParamGetitem, ListWithKeys):
 class ParamHolder(NameToParamGetitem, collections.UserDict):
 
     def __str__(self) -> str:
-        order_keys = ['value', 'hesse']
+        order_keys = ['value (rounded)', 'hesse']
         keys = OrderedSet()
         for pdict in self.values():
             keys.update(OrderedSet(pdict))
