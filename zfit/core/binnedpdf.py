@@ -240,7 +240,7 @@ class BaseBinnedPDFV1(
                the space of the PDF). |@docend:pdf.pdf.norm|
 
         Returns:
-            `Array-like`: probalitity density
+            `Array-like`: probability density
         """
         if norm_range is not None:
             norm = norm_range
@@ -263,12 +263,12 @@ class BaseBinnedPDFV1(
         values = self._call_pdf(x, norm=norm)
 
         if binindices is not None:  # because we have the flow, so we need to make it here with pads
-            padded_values = znp.pad(values, znp.ones((values.ndim, 2), dtype=znp.float64),
+            padded_values = znp.pad(values, znp.ones((z._get_ndims(values), 2), dtype=znp.float64),
                                     mode="constant")  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
             ordered_values = move_axis_obs(self.space, original_space, values)
-        return ordered_values
+        return znp.asarray(ordered_values)
 
     @z.function(wraps='model')
     def _call_pdf(self, x, norm):
@@ -326,12 +326,12 @@ class BaseBinnedPDFV1(
         values = self._call_ext_pdf(x, norm=norm)
 
         if binindices is not None:  # because we have the flow, so we need to make it here with pads
-            padded_values = znp.pad(values, znp.ones((values.ndim, 2), dtype=znp.float64),
+            padded_values = znp.pad(values, znp.ones((z._get_ndims(values), 2), dtype=znp.float64),
                                     mode="constant")  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
             ordered_values = move_axis_obs(self.space, original_space, values)
-        return ordered_values
+        return znp.asarray(ordered_values)
 
     @z.function(wraps='model')
     def _call_ext_pdf(self, x, norm):
@@ -764,7 +764,7 @@ def binned_rect_integration(*,
         values = density
     else:
         raise ValueError("Need to specify either 'counts' or 'density', not None.")
-    ndims = values.shape.ndims
+    ndims = z._get_ndims(values)
     # partial = axis is not None and len(axis) < ndims
     if axis is not None:
         axis = convert_to_container(axis)

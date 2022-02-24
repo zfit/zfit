@@ -2,6 +2,7 @@
 import pydantic
 import tensorflow as tf
 
+from zfit import z
 from zfit.core.binning import unbinned_to_binindex
 from zfit.core.interfaces import ZfitSpace
 from zfit.core.space import supports
@@ -39,7 +40,7 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         values = pdf.pdf(binned_space, norm=binned_norm)
 
         # because we have the flow, so we need to make it here with pads
-        padded_values = znp.pad(values, znp.ones((values.ndim, 2)), mode="constant")  # for overflow
+        padded_values = znp.pad(values, znp.ones((z._get_ndims(values), 2)), mode="constant")  # for overflow
         ordered_values = tf.gather_nd(padded_values, indices=binindices)
         return ordered_values
 
@@ -52,7 +53,7 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
 
         binned_norm = norm if norm is False else self._binned_norm
         values = pdf.ext_pdf(binned_space, norm=binned_norm)
-        ndim = len(values.shape)
+        ndim = z._get_ndims(values)
 
         # because we have the flow, so we need to make it here with pads
         padded_values = znp.pad(values, znp.ones((ndim, 2)), mode="constant")  # for overflow
