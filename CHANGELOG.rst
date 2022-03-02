@@ -4,6 +4,31 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
 0.9.0a2
 ========
 
