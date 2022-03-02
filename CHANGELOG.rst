@@ -4,7 +4,7 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.9.0a2
 ========
 
 Major Features and Improvements
