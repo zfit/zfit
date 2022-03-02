@@ -4,7 +4,7 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.9.0a2
 ========
 
 Major Features and Improvements
@@ -12,11 +12,9 @@ Major Features and Improvements
 - Save results by pickling, unpickling a frozen (`FitResult.freeze()`) result and using
   `zfit.param.set_values(params, result)` to set the values of `params`.
 
-Breaking changes
-------------------
 
 
-Depreceations
+Deprecations
 -------------
 - the default name of the uncertainty methods `hesse` and `errors` depended on
   the method used (such as 'minuit_hesse', 'zfit_errors' etc.) and would be the exact method name.
@@ -33,12 +31,6 @@ Bug fixes and small changes
 - multinomial sampling would return wrong results when invoked multiple times in graph mode due to
   a non-dynamic shape. This is fixed and the sampling is now working as expected.
 - increase precision in FitResult string representation and add that the value is rounded
-
-Experimental
-------------
-
-Requirement changes
--------------------
 
 
 Thanks
@@ -66,7 +58,7 @@ Breaking changes
 - `norm_range` is now called `norm` and should be replaced everywhere if possible. This will break in
   the future.
 
-Depreceations
+Deprecation
 -------------
 
 Bug fixes and small changes
@@ -303,7 +295,7 @@ Breaking changes
 - Creating a ``zfit.Parameter``, usign ``set_value`` or ``set_values`` now raises a ``ValueError``
   if the value is outside the limits. Use ``assign`` to suppress it.
 
-Depreceations
+Deprecation
 -------------
 - strategy to minimizer should now be a class, not an instance anymore.
 
@@ -367,7 +359,7 @@ Major Features and Improvements
 Breaking changes
 ------------------
 
-Depreceations
+Deprecation
 -------------
 
 Bug fixes and small changes
@@ -407,9 +399,6 @@ Breaking changes
 - Minuit uses its own, internal gradient by default. To change this back, use ``use_minuit_grad=False``
 - ``minimize(params=...)`` now filters correctly non-floating parameters.
 - ``z.log`` has been moved to ``z.math.log`` (following TF)
-
-Depreceations
--------------
 
 
 Bug fixes and small changes
