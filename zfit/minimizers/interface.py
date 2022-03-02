@@ -16,10 +16,10 @@ class ZfitResult:
 
         Returns:
             Result of the hessian (symmetric) error as dict with each parameter holding
-                the error dict {'error': sym_error}.
+                the error dict {'hesse': sym_error}.
 
                 So given param_a (from zfit.Parameter(.))
-                `error_a = result.hesse(params=param_a)[param_a]['error']`
+                `error_a = result.hesse(params=param_a)[param_a]['hesse']`
                 error_a is the hessian error.
         """
         raise NotImplementedError

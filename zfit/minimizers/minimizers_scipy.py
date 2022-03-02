@@ -200,7 +200,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             init_scale = 'auto'
             # get possible initial step size from previous minimizer
         if init:
-            approx_init_hesse = result_prelim.hesse(params=params, method='approx')
+            approx_init_hesse = result_prelim.hesse(params=params, method='approx', name='approx')
             if approx_init_hesse:
                 approx_step_sizes = [val['error']
                                      for val in approx_init_hesse.values()] or None
@@ -276,7 +276,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                                                  valid=valid)
             if result_prelim.params_at_limit:
                 n_paramatlim += 1
-            approx_init_hesse = result_prelim.hesse(params=params, method='approx')
+            approx_init_hesse = result_prelim.hesse(params=params, method='approx', name='approx')
             if approx_init_hesse:
                 approx_step_sizes = [val['error']
                                      for val in approx_init_hesse.values()] or None

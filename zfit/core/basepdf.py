@@ -350,7 +350,7 @@ class BasePDF(ZfitPDF, BaseModel):
             value = self._single_hook_pdf(x=x, norm=norm)
             if run.numeric_checks:
                 z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
-            return z.to_real(value)
+            return znp.asarray(z.to_real(value))
 
     def _single_hook_pdf(self, x, norm):
         return self._hook_pdf(x=x, norm=norm)
@@ -397,7 +397,7 @@ class BasePDF(ZfitPDF, BaseModel):
         assert norm_range is None
         norm = self._check_input_norm(norm)
         with self._convert_sort_x(x) as x:
-            return self._single_hook_log_pdf(x=x, norm=norm)
+            return znp.asarray(z.to_real(self._single_hook_log_pdf(x=x, norm=norm)))
 
     def _single_hook_log_pdf(self, x, norm):
         return self._hook_log_pdf(x=x, norm=norm)

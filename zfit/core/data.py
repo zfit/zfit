@@ -327,7 +327,7 @@ class Data(GraphCachable, ZfitUnbinnedData, BaseDimensional, BaseObject, Overloa
         return z.unstack_x(self.value(obs=obs))
 
     def value(self, obs: ztyping.ObsTypeInput = None):
-        return self._value_internal(obs=obs)
+        return znp.asarray(self._value_internal(obs=obs))
         # TODO: proper iterations
         # value_iter = self._value_internal(obs=obs)
         # value = next(value_iter)

@@ -43,8 +43,8 @@ jobs:
     #    env:
     #      ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
-      - uses: actions/checkout@v2.3.5
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -86,8 +86,8 @@ jobs:
         python-version: [ 3.9 ]
     name: Testbuild docs
     steps:
-      - uses: actions/checkout@v2.3.5
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -124,8 +124,8 @@ jobs:
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
-      - uses: actions/checkout@v2.3.5
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         name: Set up Python ${{ matrix.python-version }}
 
         with:

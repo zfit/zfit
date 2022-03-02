@@ -34,5 +34,6 @@ from .zextension import function as function
 from .zextension import (function_sampling, function_tf_input, nth_pow, pi,
                          py_function, run_no_nan, safe_where, stack_x,
                          to_complex, to_real, unstack_x)
+from .tools import _get_ndims
 
 # numpy = _tnp

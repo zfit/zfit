@@ -348,6 +348,12 @@ class BinnedNLL(BaseBinned):
         """
         self._errordef = 0.5
         super().__init__(model=model, data=data, constraints=constraints, options=options)
+        extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
+        if extended_pdfs and type(self) == BinnedNLL:
+            warn_advanced_feature(f"Extended PDFs ({extended_pdfs}) are given to a normal BinnedNLL. "
+                                  f" This won't take the yield "
+                                  "into account and simply treat the PDFs as non-extended PDFs. To create an "
+                                  "extended NLL, use the `ExtendedBinnedNLL`.", identifier='extended_in_BinnedNLL')
 
     @z.function(wraps='loss')
     def _loss_func(self, model: Iterable[ZfitBinnedPDF], data: Iterable[ZfitBinnedData],
@@ -494,6 +500,12 @@ class BinnedChi2(BaseBinned):
         if options.get('errors') is None:
             options['errors'] = "data"
         super().__init__(model=model, data=data, constraints=constraints, options=options)
+        extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
+        if extended_pdfs and type(self) == BinnedChi2:
+            warn_advanced_feature(f"Extended PDFs ({extended_pdfs}) are given to a normal BinnedChi2. "
+                                  f" This won't take the yield "
+                                  "into account and simply treat the PDFs as non-extended PDFs. To create an "
+                                  "extended loss, use the `ExtendedBinnedChi2`.", identifier='extended_in_BinnedChi2')
 
     def _precompile(self):
         super()._precompile()

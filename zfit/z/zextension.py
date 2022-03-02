@@ -29,14 +29,14 @@ def to_complex(number, dtype=ztypes.complex):
 
 
 def to_real(x, dtype=ztypes.float):
-    return tf.cast(x, dtype=dtype)
+    return znp.asarray(tf.cast(x, dtype=dtype))
 
 
 def abs_square(x):
     return znp.real(x * znp.conj(x))
 
 
-def nth_pow(x, n, name=None):
+def nth_pow(x, n):
     """Calculate the nth power of the complex Tensor x.
 
     Args:
@@ -44,7 +44,7 @@ def nth_pow(x, n, name=None):
         n: Power of x, has to be a positive int
         name: No effect, for API compatibility with tf.pow
     """
-    if not n >= 0:
+    if n < 0:
         raise ValueError(f"n (power) has to be >= 0. Currently, n={n}")
 
     power = to_complex(1.)
