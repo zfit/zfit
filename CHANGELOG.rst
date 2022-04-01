@@ -19,6 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- extended sampling was erroring for some cases of binned PDFs
 
 Experimental
 ------------
@@ -28,6 +29,7 @@ Requirement changes
 
 Thanks
 ------
+- @YaniBion for discovering the bug in the extended sampling and testing the alpha release
 
 0.9.0a2
 ========
