@@ -30,7 +30,9 @@ def get_verbosity():
 ztypes = DotMap({'float': tf.float64,
                  'complex': tf.complex128,
                  'int': tf.int64,
-                 tf.float16: tf.float64,
+                 'auto_upcast': True,
+                 })
+upcast_ztypes = {tf.float16: tf.float64,
                  tf.float32: tf.float64,
                  tf.float64: tf.float64,
                  tf.complex64: tf.complex128,
@@ -38,9 +40,7 @@ ztypes = DotMap({'float': tf.float64,
                  tf.int8: tf.int64,
                  tf.int16: tf.int64,
                  tf.int32: tf.int64,
-                 tf.int64: tf.int64,
-                 'auto_upcast': True,
-                 })
+                 tf.int64: tf.int64}
 
 options = DotMap({'epsilon': 1e-8,
                   'numerical_grad': None,

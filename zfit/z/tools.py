@@ -2,12 +2,12 @@
 
 import tensorflow as tf
 
-from zfit.settings import ztypes
+from zfit.settings import upcast_ztypes
 
 
 def _auto_upcast(tensor: tf.Tensor):
     if isinstance(tensor, tf.Tensor):
-        new_dtype = ztypes[tensor.dtype]
+        new_dtype = upcast_ztypes[tensor.dtype]
         if new_dtype != tensor.dtype:
             tensor = tf.cast(x=tensor, dtype=new_dtype)
     return tensor
