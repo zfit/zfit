@@ -1,10 +1,10 @@
 """Define Parameter which holds the value."""
 #  Copyright (c) 2021 zfit
 import abc
+import collections
 import functools
 import warnings
 from contextlib import suppress
-import collections
 from inspect import signature
 from typing import Callable, Dict, Iterable, List, Optional, Set, Union
 from weakref import WeakValueDictionary
@@ -754,6 +754,9 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
 
     @property
     def static_value(self):
+        return self._value_np
+
+    def numpy(self):
         return self._value_np
 
     def __repr__(self):

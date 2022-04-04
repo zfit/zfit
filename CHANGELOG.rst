@@ -20,6 +20,8 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 
+- ``ConstantParameter`` errored when converted to numpy.
+
 Experimental
 ------------
 
