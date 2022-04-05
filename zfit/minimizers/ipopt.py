@@ -1,9 +1,19 @@
 #  Copyright (c) 2021 zfit
 import math
-import platform
 from typing import Dict, Optional, Union
 
 import numpy as np
+
+from ..util.checks import RuntimeDependency
+
+try:
+    import ipyopt
+except ImportError:
+    ipyopt = RuntimeDependency(name='ipyopt', how="On a 'Linux' environment, you can install zfit with"
+                                                  " `pip install zfit[ipyopt]` (or install ipyopt with pip). For MacOS, there are currently"
+                                                  " no wheels (but will come in the future). In this case, please install ipyopt manually "
+                                                  "to use this minimizer"
+                                                  " or install zfit on a 'Linux' environment.")
 
 from ..core.parameter import assign_values
 from ..settings import run
@@ -214,15 +224,6 @@ class IpyoptV1(BaseMinimizer):
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
-        try:
-            import ipyopt
-        except ImportError as error:
-            raise ImportError("This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
-                              " to be installed. On a 'Linux' environment, you can install zfit with"
-                              " `pip install zfit[ipyopt]` (or install ipyopt with pip). For MacOS, there are currently"
-                              " no wheels (but will come in the future). In this case, please install ipyopt manually "
-                              "to use this minimizer"
-                              " or install zfit on a 'Linux' environment.") from error
 
         if init:
             assign_values(params=params, values=init)
@@ -290,7 +291,6 @@ class IpyoptV1(BaseMinimizer):
         minimizer = ipyopt.Problem(**minimizer_kwargs)
 
         minimizer.set(**{k: v for k, v in ipopt_options.items() if v is not None})
-
 
         init_tol = min([math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e2])
         # init_tol **= 0.5

@@ -27,3 +27,16 @@ NONE = NotSpecified()
 class ZfitNotImplemented:
     def __new__(cls, *args, **kwargs):
         raise RuntimeError("Cannot create an instance of it, meant to be used as a single object reference.")
+
+
+class RuntimeDependency:
+    def __init__(self, name, how):
+        self.__name = name
+        self.__how
+
+    def __getattr__(self, item):
+        raise ImportError(f"This requires {self.__name}"
+                          " to be installed. You can usually install it with"
+                          f"`pip install zfit[{self.__name}]` or"
+                          f"`pip install zfit[all]`."
+                          f"{self.__how}")

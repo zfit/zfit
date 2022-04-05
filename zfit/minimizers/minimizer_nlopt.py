@@ -4,10 +4,15 @@ import copy
 import math
 from typing import Callable, Mapping, Optional, Union
 
-import nlopt
+from ..util.checks import RuntimeDependency
+
+try:
+    import nlopt
+except ImportError:
+    nlopt = RuntimeDependency(name="nlopt")
 import numpy as np
 
-from ..core.parameter import assign_values, set_values, assign_values_jit
+from ..core.parameter import assign_values
 from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (NOT_SUPPORTED, BaseMinimizer, minimize_supports,
