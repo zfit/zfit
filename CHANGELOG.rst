@@ -5,6 +5,11 @@ Changelog
 .. _newest-changelog:
 
 
+0.8.3 (5 Apr 2022)
+===================
+- fixate nlopt to < 2.7.1
+
+
 0.8.2 (20 Sep 2021)
 ====================
 
