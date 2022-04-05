@@ -27,6 +27,7 @@ Experimental
 
 Requirement changes
 -------------------
+- nlopt and ipyopt are now optional dependencies.
 
 Thanks
 ------
