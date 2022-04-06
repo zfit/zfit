@@ -19,7 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
-- extended sampling errored for some cases of binned PDFs
+- extended sampling errored for some cases of binned PDFs.
 
 Experimental
 ------------
