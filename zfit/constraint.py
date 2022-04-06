@@ -2,15 +2,28 @@
 
 import tensorflow as tf
 
-from .core.constraint import (GaussianConstraint, PoissonConstraint,
-                              SimpleConstraint, LogNormalConstraint)
+from .core.constraint import (
+    GaussianConstraint,
+    PoissonConstraint,
+    SimpleConstraint,
+    LogNormalConstraint,
+)
 from .util import ztyping
 
-__all__ = ["nll_gaussian", "SimpleConstraint", "GaussianConstraint", "PoissonConstraint", "LogNormalConstraint"]
+__all__ = [
+    "nll_gaussian",
+    "SimpleConstraint",
+    "GaussianConstraint",
+    "PoissonConstraint",
+    "LogNormalConstraint",
+]
 
 
-def nll_gaussian(params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType,
-                 uncertainty: ztyping.NumericalScalarType) -> tf.Tensor:
+def nll_gaussian(
+        params: ztyping.ParamTypeInput,
+        observation: ztyping.NumericalScalarType,
+        uncertainty: ztyping.NumericalScalarType,
+) -> tf.Tensor:
     """Return negative log likelihood graph for gaussian constraints on a list of parameters.
 
     Args:
@@ -24,4 +37,6 @@ def nll_gaussian(params: ztyping.ParamTypeInput, observation: ztyping.NumericalS
         ShapeIncompatibleError: if params, mu and sigma don't have the same size.
     """
 
-    return GaussianConstraint(params=params, observation=observation, uncertainty=uncertainty)
+    return GaussianConstraint(
+        params=params, observation=observation, uncertainty=uncertainty
+    )
