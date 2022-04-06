@@ -8,7 +8,6 @@ import zfit.serialization as serialization
 
 @tfp.experimental.auto_composite_tensor()
 class UnbinnedData(tfp.experimental.AutoCompositeTensor, ZfitData):
-
     def __init__(self, data, space=None, weights=None):
         self._data = data
         self._space = space

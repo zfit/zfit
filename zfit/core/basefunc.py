@@ -9,8 +9,7 @@ import typing
 
 
 import zfit
-from zfit.util.exception import (ShapeIncompatibleError,
-                                 SpecificFunctionNotImplemented)
+from zfit.util.exception import ShapeIncompatibleError, SpecificFunctionNotImplemented
 
 from ..settings import ztypes
 from ..util import ztyping
@@ -19,9 +18,13 @@ from .interfaces import ZfitFunc
 
 
 class BaseFuncV1(BaseModel, ZfitFunc):
-
-    def __init__(self, obs=None, dtype: typing.Type = ztypes.float, name: str = "BaseFunc",
-                 params: typing.Any = None):
+    def __init__(
+            self,
+            obs=None,
+            dtype: typing.Type = ztypes.float,
+            name: str = "BaseFunc",
+            params: typing.Any = None,
+    ):
         """TODO(docs): explain subclassing"""
         super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
@@ -37,7 +40,12 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         new_params.update(override_params)
         return type(self)(new_params)
 
-    def gradient(self, x: ztyping.XType, norm: ztyping.LimitsType = None, params: ztyping.ParamsTypeOpt = None):
+    def gradient(
+            self,
+            x: ztyping.XType,
+            norm: ztyping.LimitsType = None,
+            params: ztyping.ParamsTypeOpt = None,
+    ):
         # TODO(Mayou36): well, really needed... this gradient?
         raise NotImplementedError("What do you need? Use tf.gradient...")
 
@@ -61,7 +69,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
     def _single_hook_value(self, x, name):
         return self._hook_value(x, name)
 
-    def _hook_value(self, x, name='_hook_value'):
+    def _hook_value(self, x, name="_hook_value"):
         return self._call_value(x=x, name=name)
 
     def _call_value(self, x, name):
@@ -69,10 +77,12 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         try:
             return self._func(x=x)
         except ValueError as error:
-            raise ShapeIncompatibleError("Most probably, the number of obs the func was designed for"
-                                         "does not coincide with the `n_obs` from the `space`/`obs`"
-                                         "it received on initialization."
-                                         "Original Error: {}".format(error))
+            raise ShapeIncompatibleError(
+                "Most probably, the number of obs the func was designed for"
+                "does not coincide with the `n_obs` from the `space`/`obs`"
+                "it received on initialization."
+                "Original Error: {}".format(error)
+            )
 
     def as_pdf(self) -> "zfit.core.interfaces.ZfitPDF":
         """Create a PDF out of the function.
@@ -81,8 +91,11 @@ class BaseFuncV1(BaseModel, ZfitFunc):
             A PDF with the current function as the unnormalized probability.
         """
         from zfit.core.operations import convert_func_to_pdf
+
         return convert_func_to_pdf(func=self)
 
-    def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):  # TODO(Mayou36): default
+    def _check_input_norm_range_default(
+            self, norm_range, caller_name="", none_is_error=True
+    ):  # TODO(Mayou36): default
 
         return self._check_input_norm(norm=norm_range, none_is_error=none_is_error)

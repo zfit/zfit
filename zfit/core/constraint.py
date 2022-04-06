@@ -22,10 +22,13 @@ tfd = tfp.distributions
 
 
 class BaseConstraint(ZfitConstraint, BaseNumeric):
-
-    def __init__(self, params: Union[Dict[str, ZfitParameter]] = None,
-                 name: str = "BaseConstraint", dtype=ztypes.float,
-                 **kwargs):
+    def __init__(
+            self,
+            params: Union[Dict[str, ZfitParameter]] = None,
+            name: str = "BaseConstraint",
+            dtype=ztypes.float,
+            **kwargs,
+    ):
         """Base class for constraints.
 
         Args:
@@ -48,7 +51,6 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
 
 
 class SimpleConstraint(BaseConstraint):
-
     def __init__(self, func: Callable, params: Optional[ztyping.ParameterType]):
         """Constraint from a (function returning a) Tensor.
 
@@ -60,7 +62,9 @@ class SimpleConstraint(BaseConstraint):
                 dependents are figured out automatically.
         """
         self._simple_func = func
-        self._simple_func_dependents = convert_to_container(params, container=OrderedSet)
+        self._simple_func_dependents = convert_to_container(
+            params, container=OrderedSet
+        )
 
         params = convert_to_container(params, container=list)
         params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
@@ -72,10 +76,14 @@ class SimpleConstraint(BaseConstraint):
 
 
 class ProbabilityConstraint(BaseConstraint):
-
-    def __init__(self, observation: Union[ztyping.NumericalScalarType, ZfitParameter],
-                 params: Union[Dict[str, ZfitParameter]] = None, name: str = "ProbabilityConstraint",
-                 dtype=ztypes.float, **kwargs):
+    def __init__(
+            self,
+            observation: Union[ztyping.NumericalScalarType, ZfitParameter],
+            params: Union[Dict[str, ZfitParameter]] = None,
+            name: str = "ProbabilityConstraint",
+            dtype=ztypes.float,
+            **kwargs,
+    ):
         """Base class for constraints using a probability density function.
 
         Args:
@@ -93,8 +101,10 @@ class ProbabilityConstraint(BaseConstraint):
 
         observation = convert_to_container(observation, tuple)
         if len(observation) != len(params):
-            raise ShapeIncompatibleError("observation and params have to be the same length. Currently"
-                                         f"observation: {len(observation)}, params: {len(params)}")
+            raise ShapeIncompatibleError(
+                "observation and params have to be the same length. Currently"
+                f"observation: {len(observation)}, params: {len(params)}"
+            )
 
         self._observation = observation  # TODO: needed below? Why?
         # for obs, p in zip(observation, params):
@@ -139,18 +149,26 @@ class ProbabilityConstraint(BaseConstraint):
 
 
 class TFProbabilityConstraint(ProbabilityConstraint):
-
-    def __init__(self, observation: Union[ztyping.NumericalScalarType, ZfitParameter],
-                 params: Dict[str, ZfitParameter], distribution: tfd.Distribution,
-                 dist_params, dist_kwargs=None, name: str = "DistributionConstraint", dtype=ztypes.float,
-                 **kwargs):
+    def __init__(
+            self,
+            observation: Union[ztyping.NumericalScalarType, ZfitParameter],
+            params: Dict[str, ZfitParameter],
+            distribution: tfd.Distribution,
+            dist_params,
+            dist_kwargs=None,
+            name: str = "DistributionConstraint",
+            dtype=ztypes.float,
+            **kwargs,
+    ):
         """Base class for constraints using a probability density function from `tensorflow_probability`.
 
         Args:
             distribution: The probability density function
                 used to constraint the parameters
         """
-        super().__init__(observation=observation, params=params, name=name, dtype=dtype, **kwargs)
+        super().__init__(
+            observation=observation, params=params, name=name, dtype=dtype, **kwargs
+        )
 
         self._distribution = distribution
         self.dist_params = dist_params
@@ -175,9 +193,12 @@ class TFProbabilityConstraint(ProbabilityConstraint):
 
 
 class GaussianConstraint(TFProbabilityConstraint):
-
-    def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType,
-                 uncertainty: ztyping.NumericalScalarType):
+    def __init__(
+            self,
+            params: ztyping.ParamTypeInput,
+            observation: ztyping.NumericalScalarType,
+            uncertainty: ztyping.NumericalScalarType,
+    ):
         r"""Gaussian constraints on a list of parameters to some observed values with uncertainties.
 
         A Gaussian constraint is defined as the likelihood of `params` given the `observations` and `uncertainty` from
@@ -210,26 +231,40 @@ class GaussianConstraint(TFProbabilityConstraint):
             if sigma.shape.ndims > 1:
                 covariance = sigma  # TODO: square as well?
             elif sigma.shape.ndims == 1:
-                covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
+                covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.0))
             else:
                 sigma = znp.reshape(sigma, [1])
-                covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.))
+                covariance = tf.linalg.tensor_diag(z.pow(sigma, 2.0))
 
-            if not params_tensor.shape[0] == mu.shape[0] == covariance.shape[0] == covariance.shape[1]:
-                raise ShapeIncompatibleError(f"params_tensor, observation and uncertainty have to have the"
-                                             " same length. Currently"
-                                             f"param: {params_tensor.shape[0]}, mu: {mu.shape[0]}, "
-                                             f"covariance (from uncertainty): {covariance.shape[0:2]}")
+            if (
+                    not params_tensor.shape[0]
+                        == mu.shape[0]
+                        == covariance.shape[0]
+                        == covariance.shape[1]
+            ):
+                raise ShapeIncompatibleError(
+                    f"params_tensor, observation and uncertainty have to have the"
+                    " same length. Currently"
+                    f"param: {params_tensor.shape[0]}, mu: {mu.shape[0]}, "
+                    f"covariance (from uncertainty): {covariance.shape[0:2]}"
+                )
             return covariance
 
         distribution = tfd.MultivariateNormalTriL
-        dist_params = lambda observation: dict(loc=observation,
-                                               scale_tril=tf.linalg.cholesky(
-                                                   create_covariance(observation, uncertainty)))
+        dist_params = lambda observation: dict(
+            loc=observation,
+            scale_tril=tf.linalg.cholesky(create_covariance(observation, uncertainty)),
+        )
         dist_kwargs = dict(validate_args=True)
 
-        super().__init__(name="GaussianConstraint", observation=observation, params=params,
-                         distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
+        super().__init__(
+            name="GaussianConstraint",
+            observation=observation,
+            params=params,
+            distribution=distribution,
+            dist_params=dist_params,
+            dist_kwargs=dist_kwargs,
+        )
 
         self._covariance = lambda: create_covariance(self.observation, uncertainty)
 
@@ -240,8 +275,9 @@ class GaussianConstraint(TFProbabilityConstraint):
 
 
 class PoissonConstraint(TFProbabilityConstraint):
-
-    def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType):
+    def __init__(
+            self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType
+    ):
         r"""Poisson constraints on a list of parameters to some observed values.
 
         Constraints parameters that can be counts (i.e. from a histogram) or, more generally, are
@@ -269,13 +305,23 @@ class PoissonConstraint(TFProbabilityConstraint):
         dist_params = dict(rate=observation)
         dist_kwargs = dict(validate_args=False)
 
-        super().__init__(name="PoissonConstraint", observation=observation, params=params,
-                         distribution=distribution, dist_params=dist_params, dist_kwargs=dist_kwargs)
+        super().__init__(
+            name="PoissonConstraint",
+            observation=observation,
+            params=params,
+            distribution=distribution,
+            dist_params=dist_params,
+            dist_kwargs=dist_kwargs,
+        )
 
 
 class LogNormalConstraint(TFProbabilityConstraint):
-    def __init__(self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType,
-                 uncertainty: ztyping.NumericalScalarType):
+    def __init__(
+            self,
+            params: ztyping.ParamTypeInput,
+            observation: ztyping.NumericalScalarType,
+            uncertainty: ztyping.NumericalScalarType,
+    ):
         r"""Log-normal constraints on a list of parameters to some observed values.
 
         Constraints parameters that can be counts (i.e. from a histogram) or, more generally, are
@@ -305,6 +351,11 @@ class LogNormalConstraint(TFProbabilityConstraint):
         dist_params = lambda observation: dict(loc=observation, scale=uncertainty)
         dist_kwargs = dict(validate_args=False)
 
-        super().__init__(name="LogNormalConstraint", observation=observation, params=params,
-                         distribution=distribution, dist_params=dist_params,
-                         dist_kwargs=dist_kwargs)
+        super().__init__(
+            name="LogNormalConstraint",
+            observation=observation,
+            params=params,
+            distribution=distribution,
+            dist_params=dist_params,
+            dist_kwargs=dist_kwargs,
+        )

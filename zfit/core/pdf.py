@@ -17,7 +17,8 @@ from zfit.core.values import ValueHolder
 from zfit.util.container import convert_to_container
 from zfit.util.exception import (
     SpecificFunctionNotImplemented,
-    NotExtendedPDFError, WorkInProgressError,
+    NotExtendedPDFError,
+    WorkInProgressError,
 )
 
 
@@ -279,9 +280,10 @@ class PDF(Func, ZfitPDF):
 
 
 class UnbinnedPDF(PDF):
-
-    def __init__(self, obs, params=None, var=None, supports=None, extended=None, norm=None):
-        supports_default = 'ext_pdf' if extended else 'pdf'
+    def __init__(
+            self, obs, params=None, var=None, supports=None, extended=None, norm=None
+    ):
+        supports_default = "ext_pdf" if extended else "pdf"
         if supports is None:
             supports = {}
         if supports_default not in supports:
@@ -309,7 +311,14 @@ class UnbinnedPDF(PDF):
         var_supports.update(params_supports)
         if supports_default not in supports:
             supports[supports_default] = var_supports
-        super().__init__(obs=obs, params=params, var=var, supports=supports, extended=extended, norm=norm)
+        super().__init__(
+            obs=obs,
+            params=params,
+            var=var,
+            supports=supports,
+            extended=extended,
+            norm=norm,
+        )
 
 
 class HistPDF(PDF):
@@ -323,7 +332,7 @@ class HistPDF(PDF):
             norm: typing.Mapping[str, ZfitSpace] = None,
             label: str | None = None,
     ):
-        supports_default = 'counts' if extended else 'rel_counts'
+        supports_default = "counts" if extended else "rel_counts"
         if supports is None:
             supports = {}
         if supports_default not in supports:
@@ -350,14 +359,24 @@ class HistPDF(PDF):
         var_supports.update(obs_supports)
         var_supports.update(params_supports)
         supports[supports_default] = var_supports
-        if 'pdf' not in supports:
-            supports['pdf'] = {axis: VarSupports(var=v.var, full=True)
-                               for axis, v in supports[supports_default].items()}
-        if 'ext_pdf' not in supports:
-            supports['ext_pdf'] = {axis: VarSupports(var=v.var, full=True)
-                                   for axis, v in supports[supports_default].items()}
+        if "pdf" not in supports:
+            supports["pdf"] = {
+                axis: VarSupports(var=v.var, full=True)
+                for axis, v in supports[supports_default].items()
+            }
+        if "ext_pdf" not in supports:
+            supports["ext_pdf"] = {
+                axis: VarSupports(var=v.var, full=True)
+                for axis, v in supports[supports_default].items()
+            }
         super().__init__(
-            obs=obs, params=params, var=var, extended=extended, norm=norm, label=label, supports=supports,
+            obs=obs,
+            params=params,
+            var=var,
+            extended=extended,
+            norm=norm,
+            label=label,
+            supports=supports,
         )
 
     def _ext_pdf(self, var, norm):  # TODO: normalization?

@@ -13,11 +13,12 @@ from .interfaces import ZfitDimensional
 
 
 class BaseDimensional(ZfitDimensional):
-
     def _check_n_obs(self, space):
         if self._N_OBS is not None:
             if len(space.obs) != self._N_OBS:
-                raise SpaceIncompatibleError(f"Exactly {self._N_OBS} obs are allowed, {space.obs} are given.")
+                raise SpaceIncompatibleError(
+                    f"Exactly {self._N_OBS} obs are allowed, {space.obs} are given."
+                )
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -52,7 +53,9 @@ def get_same_obs(obs):
     return deps
 
 
-def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bool = False) -> bool:
+def limits_overlap(
+        spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bool = False
+) -> bool:
     """Check if _any_ of the limits of `spaces` overlaps with _any_ other of `spaces`.
 
     This also checks multiple limits within one space. If `allow_exact_match` is set to true, then
@@ -87,11 +90,19 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
                 up = upper[:, index]
 
                 for other_lower, other_upper in zip(lowers, uppers):
-                    if allow_exact_match and np.allclose(other_lower, low) and np.allclose(other_upper, up):
+                    if (
+                            allow_exact_match
+                            and np.allclose(other_lower, low)
+                            and np.allclose(other_upper, up)
+                    ):
                         continue
                     # TODO(Mayou36): tol? add global flags?
-                    low_overlaps = np.all(other_lower - eps < low) and np.all(low < other_upper - eps)
-                    up_overlaps = np.all(other_lower + eps < up) and np.all(up < other_upper + eps)
+                    low_overlaps = np.all(other_lower - eps < low) and np.all(
+                        low < other_upper - eps
+                    )
+                    up_overlaps = np.all(other_lower + eps < up) and np.all(
+                        up < other_upper + eps
+                    )
                     overlap = low_overlaps or up_overlaps
                     if overlap:
                         return True
@@ -154,7 +165,9 @@ def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool
     return all_axes
 
 
-def obs_subsets(dimensionals: Iterable[ZfitDimensional]) -> Dict[Set[str], ZfitDimensional]:
+def obs_subsets(
+        dimensionals: Iterable[ZfitDimensional],
+) -> Dict[Set[str], ZfitDimensional]:
     """Split `dimensionals` into the smallest subgroup of obs and return a dict.
 
     Args:

@@ -18,31 +18,44 @@ import scipy.integrate
 
 def check_integrate(func, limits, norm_range):
     if norm_range is not False:
-        return check_integrate(func, limits, False) / check_integrate(func, norm_range, False)
+        return check_integrate(func, limits, False) / check_integrate(
+            func, norm_range, False
+        )
     lower, upper = limits.limid1d
     return scipy.integrate.quad(func, lower, upper)
 
 
 class AutoTester:
-
     def __init__(self):
         self.pdfs = []
 
-    def register_pdf(self, pdf_class: ZfitPDF, params_factories: Union[Callable, Iterable[Callable]],
-                     scipy_dist: scipy.stats.rv_continuous = None,
-                     analytic_int_axes: Union[None, int, List[Tuple[int, ...]]] = None):
+    def register_pdf(
+            self,
+            pdf_class: ZfitPDF,
+            params_factories: Union[Callable, Iterable[Callable]],
+            scipy_dist: scipy.stats.rv_continuous = None,
+            analytic_int_axes: Union[None, int, List[Tuple[int, ...]]] = None,
+    ):
         # if not isinstance(pdf_class, ZfitPDF):
         #     raise TypeError(f"PDF {pdf_class} is not a ZfitPDF.")
         params_factories = convert_to_container(params_factories)
 
         if isinstance(analytic_int_axes, tuple):
-            raise TypeError(f"`analytic_int_axes` is either a number or a list of tuples.")
-        analytic_int_axes = convert_to_container(analytic_int_axes, non_containers=[tuple])
+            raise TypeError(
+                f"`analytic_int_axes` is either a number or a list of tuples."
+            )
+        analytic_int_axes = convert_to_container(
+            analytic_int_axes, non_containers=[tuple]
+        )
         if analytic_int_axes is not None:
             isinstance(analytic_int_axes)
-        registration = OrderedDict((('pdf_class', pdf_class),
-                                    ("params", params_factories),
-                                    ("scipy_dist", scipy_dist)))
+        registration = OrderedDict(
+            (
+                ("pdf_class", pdf_class),
+                ("params", params_factories),
+                ("scipy_dist", scipy_dist),
+            )
+        )
         self.pdfs.append(registration)
 
     def create_parameterized_pdfs(self):
