@@ -405,3 +405,15 @@ def test_deletion():
 
     gc.collect()
     assert func()  # this must not raise an error
+
+
+def test_to_numpy():
+    import zfit
+    param = zfit.Parameter(f'param', 42)
+    assert zfit.run(param) == 42
+
+    p1 = zfit.param.ConstantParameter('aoeu1', 15)
+    assert zfit.run(p1) == 15
+
+    p2 = zfit.param.ComposedParameter('aoeu2', lambda params: 2 * params['p1'], {'p1': p1})
+    assert zfit.run(p2) == 30

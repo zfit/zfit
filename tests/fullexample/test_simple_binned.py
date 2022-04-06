@@ -9,7 +9,7 @@ from zfit.models.binned_functor import BinnedSumPDF
 from zfit.models.template import BinnedTemplatePDFV1
 
 
-def test_simlpe_examples_1D():
+def test_simple_examples_1D():
     import zfit.data
     import zfit.z.numpy as znp
 

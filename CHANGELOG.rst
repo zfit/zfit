@@ -21,11 +21,14 @@ Bug fixes and small changes
 ---------------------------
 - extended sampling errored for some cases of binned PDFs.
 
+- ``ConstantParameter`` errored when converted to numpy.
+
 Experimental
 ------------
 
 Requirement changes
 -------------------
+- nlopt and ipyopt are now optional dependencies.
 
 Thanks
 ------
@@ -102,6 +105,11 @@ Requirement changes
 
 Thanks
 ------
+
+
+0.8.3 (5 Apr 2022)
+===================
+- fixate nlopt to < 2.7.1
 
 
 0.8.2 (20 Sep 2021)

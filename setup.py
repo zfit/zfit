@@ -2,7 +2,6 @@
 
 #  Copyright (c) 2021 zfit
 import os
-import platform
 
 from setuptools import setup
 
@@ -15,10 +14,8 @@ with open(os.path.join(here, 'requirements_dev.txt'), encoding='utf-8') as requi
     requirements_dev = requirements_dev_file.read().splitlines()
 
 extras_require = {}
-if platform.system() in ('Darwin', 'Windows'):  # OSX, Windows has no wheels for ipyopt, build fails
-    del requirements[
-        requirements.index('ipyopt<0.12')]  # TODO: osx wheels? https://gitlab.com/g-braeunlich/ipyopt/-/issues/4
-
+extras_require['ipyopt'] = ["ipyopt<0.12"]
+extras_require['nlopt'] = ["nlopt<=2.7.0"]
 allreq = sum(extras_require.values(), [])
 
 tests_require = [
@@ -33,7 +30,7 @@ tests_require = [
     'matplotlib'  # for plots in examples
 ]
 extras_require['all'] = allreq
-extras_require['tests'] = tests_require + extras_require.get('ipyopt', [])
+extras_require['tests'] = tests_require + extras_require['ipyopt'] + extras_require['nlopt']
 extras_require['dev'] = requirements_dev + extras_require['tests']
 extras_require['alldev'] = list(set(extras_require['all'] + extras_require['dev']))
 

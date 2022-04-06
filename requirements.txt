@@ -6,8 +6,6 @@ deprecated
 dotmap
 hist
 iminuit>=2.3
-ipyopt<0.12
-nlopt
 numdifftools
 numpy>=1.16
 ordered-set
