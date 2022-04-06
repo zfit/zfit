@@ -27,7 +27,11 @@ class CombinePolynomials(zfit.pdf.BaseFunctor):
         cosangle1_data, cosangle2_data, angle3_data = x.unstack_x()
         cosangle1, cosangle2, angle3 = self.pdfs
 
-        pdf = cosangle1.pdf(cosangle1_data) + cosangle2.pdf(cosangle2_data) + angle3.pdf(angle3_data)
+        pdf = (
+            cosangle1.pdf(cosangle1_data)
+            + cosangle2.pdf(cosangle2_data)
+            + angle3.pdf(angle3_data)
+        )
         return pdf
 
 
@@ -36,9 +40,9 @@ def create_angular():
     # c00 = zfit.Parameter(...)
     # ... and so on
 
-    cosangle1_space = zfit.Space('cos angle 1', limits=(-1, 1))
-    cosangle2_space = zfit.Space('cos angle 2', limits=(-1, 1))
-    angle3_space = zfit.Space('angle 3', limits=(-np.pi, np.pi))
+    cosangle1_space = zfit.Space("cos angle 1", limits=(-1, 1))
+    cosangle2_space = zfit.Space("cos angle 2", limits=(-1, 1))
+    angle3_space = zfit.Space("angle 3", limits=(-np.pi, np.pi))
 
     # this part could also be moved inside the __init__, but then the init would need to take all
     # the coefficients and the spaces as arguments
@@ -46,4 +50,6 @@ def create_angular():
     cosangle2_pdf = zfit.pdf.Chebyshev(obs=cosangle2_space, coeffs=[c10, c11, c12])
     angle3_pdf = zfit.pdf.Chebyshev(obs=angle3_space, coeffs=[c20, c21, c22])
 
-    return CombinePolynomials(angle1=cosangle1_pdf, angle2=cosangle2_pdf, angle3=angle3_pdf)
+    return CombinePolynomials(
+        angle1=cosangle1_pdf, angle2=cosangle2_pdf, angle3=angle3_pdf
+    )

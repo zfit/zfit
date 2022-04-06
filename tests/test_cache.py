@@ -9,12 +9,11 @@ from zfit.z.zextension import FunctionWrapperRegistry
 
 
 class Example1(GraphCachable):
-
     def value(self):
         value = self._cache.get("value")
         if value is None:
-            self._cache['value'] = np.random.random()
-        return self._cache['value']
+            self._cache["value"] = np.random.random()
+        return self._cache["value"]
 
     @invalidate_graph
     def change_param(self, new_param):
@@ -23,10 +22,11 @@ class Example1(GraphCachable):
 
 
 class MotherExample1(GraphCachable):
-
     def __init__(self, test1, test2):
         super().__init__()
-        self.add_cache_deps([test1, test2], )
+        self.add_cache_deps(
+            [test1, test2],
+        )
         self.test1 = test1
         self.test2 = test2
 
@@ -34,7 +34,7 @@ class MotherExample1(GraphCachable):
         value = self._cache.get("mother_value")
         if value is None:
             value = self.test1.value() + self.test2.value()
-        self._cache['mother_value'] = value
+        self._cache["mother_value"] = value
         return value
 
     @invalidate_graph
@@ -64,7 +64,6 @@ CONST = 40
 
 
 class GraphCreator1(GraphCachable):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.value = 42
@@ -75,7 +74,7 @@ class GraphCreator1(GraphCachable):
         self.retrace_runs += 1
         return x + self.value + CONST
 
-    @z.function(wraps='tensor')
+    @z.function(wraps="tensor")
     def calc_variable(self, x):
         return x + self.value + CONST
 
@@ -101,13 +100,13 @@ class GraphCreator2(GraphCreator1):
 graph_creators = [
     GraphCreator2,
     GraphCreator1,
-
 ]
 
 
-@pytest.mark.skipif(zfit.run.mode['graph'] is False,
-                    reason="no caching in eager mode expected")
-@pytest.mark.parametrize('graph_holder', graph_creators)
+@pytest.mark.skipif(
+    zfit.run.mode["graph"] is False, reason="no caching in eager mode expected"
+)
+@pytest.mark.parametrize("graph_holder", graph_creators)
 def test_graph_cache(graph_holder):
     graph1 = graph_holder()
     global CONST
@@ -115,7 +114,7 @@ def test_graph_cache(graph_holder):
     add = 5
     new_value = 8
     result = 47 + CONST
-    assert FunctionWrapperRegistry.do_jit_types['tensor']  # should be true by default
+    assert FunctionWrapperRegistry.do_jit_types["tensor"]  # should be true by default
     assert graph1.calc(add).numpy() == result
     assert graph1.calc_variable(add).numpy() == result
     assert graph1.retrace_runs > 0  # simple
@@ -128,9 +127,9 @@ def test_graph_cache(graph_holder):
     assert graph1.calc(add).numpy() == result
     assert graph1.calc_variable(add).numpy() == result
     assert graph1.retrace_runs == 0  # no retracing must have occurred
-    FunctionWrapperRegistry.do_jit_types['tensor'] = False
+    FunctionWrapperRegistry.do_jit_types["tensor"] = False
     assert graph1.calc_variable(add) == 10 + add + CONST
-    FunctionWrapperRegistry.do_jit_types['tensor'] = True
+    FunctionWrapperRegistry.do_jit_types["tensor"] = True
     graph1.change_value(new_value)
     assert graph1.calc(add).numpy() == new_value + add + CONST
     assert graph1.calc_variable(add).numpy() == new_value + add + CONST
@@ -139,7 +138,7 @@ def test_graph_cache(graph_holder):
     assert graph1.calc(add).numpy() == new_value + add + 40  # old const
     assert graph1.calc_variable(add).numpy() == new_value + add + 40  # old const
     clear_graph_cache()
-    FunctionWrapperRegistry.do_jit_types['something'] = False
+    FunctionWrapperRegistry.do_jit_types["something"] = False
     assert graph1.calc_no_cache(add) == new_value + add + CONST
     assert graph1.calc_variable(add) == new_value + add + CONST
     assert graph1.calc(add).numpy() == new_value + add + CONST
@@ -149,4 +148,6 @@ def test_graph_cache(graph_holder):
     assert graph1.calc(add).numpy() == new_value + add + CONST
     assert graph1.retrace_runs == 0  # no retracing must have occurred
     CONST = 40
-    FunctionWrapperRegistry.do_jit_types['something'] = True  # should be true by default
+    FunctionWrapperRegistry.do_jit_types[
+        "something"
+    ] = True  # should be true by default

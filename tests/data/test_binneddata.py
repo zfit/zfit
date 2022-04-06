@@ -9,6 +9,7 @@ import tensorflow as tf
 @pytest.fixture
 def hist1():
     from zfit._data.binneddatav1 import BinnedData
+
     return BinnedData
 
 
@@ -16,17 +17,23 @@ def hist1():
 def holder1():
     from zfit.z import numpy as znp
     from zfit._data.binneddatav1 import BinnedHolder
-    return BinnedHolder(tf.constant('asdf'), znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
+
+    return BinnedHolder(
+        tf.constant("asdf"), znp.random.uniform(size=[5]), znp.random.uniform(size=[5])
+    )
 
 
 @pytest.fixture
 def holder2():
     from zfit.z import numpy as znp
     from zfit._data.binneddatav1 import BinnedHolder
-    return BinnedHolder(tf.constant('asdf'), znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
+
+    return BinnedHolder(
+        tf.constant("asdf"), znp.random.uniform(size=[5]), znp.random.uniform(size=[5])
+    )
 
 
-@pytest.mark.skip('Currently not a composite tensor')
+@pytest.mark.skip("Currently not a composite tensor")
 def test_composite(holder1, holder2):
     from zfit.z import numpy as znp
 
@@ -50,7 +57,7 @@ def test_from_and_to_binned():
     h3 = hist.Hist(
         hist.axis.Regular(3, -3, 3, name="x", flow=False),
         hist.axis.Regular(2, -5, 5, name="y", flow=False),
-        storage=hist.storage.Weight()
+        storage=hist.storage.Weight(),
     )
 
     x2 = np.random.randn(1_000)
@@ -59,6 +66,7 @@ def test_from_and_to_binned():
     h3.fill(x=x2, y=y2)
 
     from zfit._data.binneddatav1 import BinnedData
+
     h1 = BinnedData.from_hist(h3)
     for _ in range(10):  # make sure this works many times
         unbinned = h1.to_unbinned()
@@ -72,8 +80,9 @@ def test_from_and_to_binned():
 
 def test_from_and_to_hist():
     h3 = hist.NamedHist(
-        hist.axis.Regular(25, -3.5, 3, name="x", flow=False), hist.axis.Regular(21, -4, 5, name="y", flow=False),
-        storage=hist.storage.Weight()
+        hist.axis.Regular(25, -3.5, 3, name="x", flow=False),
+        hist.axis.Regular(21, -4, 5, name="y", flow=False),
+        storage=hist.storage.Weight(),
     )
 
     x2 = np.random.randn(1_000)
@@ -82,6 +91,7 @@ def test_from_and_to_hist():
     h3.fill(x=x2, y=y2)
 
     from zfit._data.binneddatav1 import BinnedData
+
     for _ in range(10):  # make sure this works many times
         h1 = BinnedData.from_hist(h3)
         np.testing.assert_allclose(h1.variances(), h3.variances())
@@ -100,11 +110,12 @@ def test_from_and_to_hist():
 
 def test_with_obs():
     from zfit._data.binneddatav1 import BinnedData
+
     h1 = hist.NamedHist(
         hist.axis.Regular(25, -3.5, 3, name="x", flow=False),
         hist.axis.Regular(21, -4, 5, name="y", flow=False),
         hist.axis.Regular(15, -2, 1, name="z", flow=False),
-        storage=hist.storage.Weight()
+        storage=hist.storage.Weight(),
     )
 
     x2 = np.random.randn(1_000)
@@ -113,8 +124,8 @@ def test_with_obs():
 
     h1.fill(x=x2, y=y2, z=z2)
     h = BinnedData.from_hist(h1)
-    obs = ('x', 'y', 'z')
-    obs2 = ('y', 'x', 'z')
+    obs = ("x", "y", "z")
+    obs2 = ("y", "x", "z")
     assert obs == h.obs
     h2 = h.with_obs(obs2)
     assert h2.obs == obs2
@@ -127,15 +138,24 @@ def test_valid_input():
     import zfit.z.numpy as znp
     import zfit
     from zfit.exception import ShapeIncompatibleError
-    obs10 = zfit.Space('x', binning=zfit.binned.RegularBinning(10, -3, 4, name='x'))
-    obs5 = zfit.Space('x', binning=zfit.binned.RegularBinning(5, -3, 4, name='x'))
-    _ = BinnedHolder(obs10, znp.random.uniform(size=[10]), znp.random.uniform(size=[10]))
+
+    obs10 = zfit.Space("x", binning=zfit.binned.RegularBinning(10, -3, 4, name="x"))
+    obs5 = zfit.Space("x", binning=zfit.binned.RegularBinning(5, -3, 4, name="x"))
+    _ = BinnedHolder(
+        obs10, znp.random.uniform(size=[10]), znp.random.uniform(size=[10])
+    )
     with pytest.raises(tf.errors.InvalidArgumentError):
-        _ = BinnedHolder(obs10, znp.random.uniform(size=[5]), znp.random.uniform(size=[5]))
+        _ = BinnedHolder(
+            obs10, znp.random.uniform(size=[5]), znp.random.uniform(size=[5])
+        )
     with pytest.raises(tf.errors.InvalidArgumentError):
-        _ = BinnedHolder(obs5, znp.random.uniform(size=[10]), znp.random.uniform(size=[5]))
+        _ = BinnedHolder(
+            obs5, znp.random.uniform(size=[10]), znp.random.uniform(size=[5])
+        )
     with pytest.raises(tf.errors.InvalidArgumentError):
-        _ = BinnedHolder(obs5, znp.random.uniform(size=[10]), znp.random.uniform(size=[10]))
+        _ = BinnedHolder(
+            obs5, znp.random.uniform(size=[10]), znp.random.uniform(size=[10])
+        )
     _ = BinnedHolder(obs5, znp.random.uniform(size=[5]), None)
     _ = BinnedHolder(obs10, znp.random.uniform(size=[10]), None)
     with pytest.raises(tf.errors.InvalidArgumentError):
@@ -143,9 +163,13 @@ def test_valid_input():
     with pytest.raises(tf.errors.InvalidArgumentError):
         _ = BinnedHolder(obs10, znp.random.uniform(size=[5]), None)
     with pytest.raises(ShapeIncompatibleError):
-        _ = BinnedHolder(obs10, znp.random.uniform(size=[10]), znp.random.uniform(size=[10, 2]))
+        _ = BinnedHolder(
+            obs10, znp.random.uniform(size=[10]), znp.random.uniform(size=[10, 2])
+        )
     with pytest.raises(ShapeIncompatibleError):
-        _ = BinnedHolder(obs10, znp.random.uniform(size=[10, 2]), znp.random.uniform(size=[10, 2]))
+        _ = BinnedHolder(
+            obs10, znp.random.uniform(size=[10, 2]), znp.random.uniform(size=[10, 2])
+        )
     with pytest.raises(ShapeIncompatibleError):
         _ = BinnedHolder(obs10, znp.random.uniform(size=[5, 2]), None)
 
@@ -155,8 +179,10 @@ def test_variance():
     import zfit.z.numpy as znp
 
     binning1 = zfit.binned.RegularBinning(3, -3.5, 3, name="x")
-    obs = zfit.Space('x', binning=binning1)
-    values = znp.array([100., 200, 50])
+    obs = zfit.Space("x", binning=binning1)
+    values = znp.array([100.0, 200, 50])
     data = zfit.data.BinnedData.from_tensor(obs, values=values, variances=True)
-    data2 = zfit.data.BinnedData.from_tensor(obs, values=values, variances=values ** 0.5)
+    data2 = zfit.data.BinnedData.from_tensor(
+        obs, values=values, variances=values**0.5
+    )
     np.testing.assert_allclose(data.variances(), data2.variances())

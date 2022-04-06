@@ -6,12 +6,14 @@ import zfit
 from zfit import z
 
 
-@pytest.mark.skipif(zfit.run.get_graph_mode() is False, reason="If not using graph mode, we cannot test if graphs work"
-                                                               " or not.")
+@pytest.mark.skipif(
+    zfit.run.get_graph_mode() is False,
+    reason="If not using graph mode, we cannot test if graphs work" " or not.",
+)
 def test_modes():
     counts = 0
 
-    @z.function(wraps='42')
+    @z.function(wraps="42")
     def func(x):
         nonlocal counts
         counts += 1

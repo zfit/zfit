@@ -6,8 +6,8 @@ import zfit
 from zfit import z
 from zfit.core.space import ANY, Limit
 
-rect_limits = (1., 3)
-rect_limits_tf = (tf.constant(1.), tf.constant(3))
+rect_limits = (1.0, 3)
+rect_limits_tf = (tf.constant(1.0), tf.constant(3))
 rect_limit_enlarged = rect_limits[0] - 1, rect_limits[1] + 1.5
 rect_limits_any = (ANY, ANY)
 
@@ -16,11 +16,17 @@ def inside_rect_limits(x):
     return tf.logical_and(rect_limits[0] < x, x < rect_limits[1])[:, 0]
 
 
-@pytest.mark.parametrize('graph', [True, False])
-@pytest.mark.parametrize('rect_limits', [rect_limits, rect_limits_tf])
-@pytest.mark.parametrize('testclass',
-                         [Limit, lambda limit_fn=None, rect_limits=None: zfit.Space('obs1', limits=limit_fn,
-                                                                                    rect_limits=rect_limits)])
+@pytest.mark.parametrize("graph", [True, False])
+@pytest.mark.parametrize("rect_limits", [rect_limits, rect_limits_tf])
+@pytest.mark.parametrize(
+    "testclass",
+    [
+        Limit,
+        lambda limit_fn=None, rect_limits=None: zfit.Space(
+            "obs1", limits=limit_fn, rect_limits=rect_limits
+        ),
+    ],
+)
 def test_rect_limits_1d(graph, rect_limits, testclass):
     def test(allow_graph=True):
         limit = testclass(rect_limits)
@@ -53,10 +59,17 @@ def test_rect_limits_1d(graph, rect_limits, testclass):
     assert not outside
 
 
-@pytest.mark.parametrize('graph', [True, False])
-@pytest.mark.parametrize('limit_fn', [None, inside_rect_limits])
-@pytest.mark.parametrize('testclass', [Limit, lambda limit_fn, rect_limits: zfit.Space('obs1', limits=limit_fn,
-                                                                                       rect_limits=rect_limits)])
+@pytest.mark.parametrize("graph", [True, False])
+@pytest.mark.parametrize("limit_fn", [None, inside_rect_limits])
+@pytest.mark.parametrize(
+    "testclass",
+    [
+        Limit,
+        lambda limit_fn, rect_limits: zfit.Space(
+            "obs1", limits=limit_fn, rect_limits=rect_limits
+        ),
+    ],
+)
 def test_less_equal(graph, limit_fn, testclass):
     def test(limit_fn=None, allow_graph=True):
         limit = testclass(limit_fn=limit_fn, rect_limits=rect_limits)
@@ -86,8 +99,12 @@ def test_less_equal(graph, limit_fn, testclass):
 
     if graph:
         test = z.function(test)
-    inside, inside2, outside, equal, inside21, inside22, outside2 = test(limit_fn=limit_fn)
-    assert not (equal ^ bool(limit_fn))  # if a limit_fn is specified, this has precedency over the rect
+    inside, inside2, outside, equal, inside21, inside22, outside2 = test(
+        limit_fn=limit_fn
+    )
+    assert not (
+        equal ^ bool(limit_fn)
+    )  # if a limit_fn is specified, this has precedency over the rect
     assert inside
     assert inside2
     assert not outside
@@ -96,9 +113,16 @@ def test_less_equal(graph, limit_fn, testclass):
     assert bool(outside2) ^ bool(limit_fn)  # if limit_fn, this is outside
 
 
-@pytest.mark.parametrize('graph', [True, False])
-@pytest.mark.parametrize('testclass', [Limit, lambda limit_fn, rect_limits: zfit.Space('obs1', limits=limit_fn,
-                                                                                       rect_limits=rect_limits)])
+@pytest.mark.parametrize("graph", [True, False])
+@pytest.mark.parametrize(
+    "testclass",
+    [
+        Limit,
+        lambda limit_fn, rect_limits: zfit.Space(
+            "obs1", limits=limit_fn, rect_limits=rect_limits
+        ),
+    ],
+)
 def test_limits_1d(graph, testclass):
     def test(allow_graph=True):
         limit = testclass(limit_fn=inside_rect_limits, rect_limits=rect_limits)

@@ -6,17 +6,17 @@ import zfit
 from zfit import Parameter
 from zfit.models.dist_tfp import Gauss
 
-mu1_true = 1.
-mu2_true = 2.
+mu1_true = 1.0
+mu2_true = 2.0
 mu3_true = 0.6
 sigma1_true = 1.4
 sigma2_true = 2.3
 sigma3_true = 1.8
 
 test_values = np.random.uniform(low=-3, high=5, size=100)
-norm_range1 = (-4., 2.)
+norm_range1 = (-4.0, 2.0)
 
-obs1 = 'obs1'
+obs1 = "obs1"
 limits1 = zfit.Space(obs=obs1, limits=(-0.3, 1.5))
 
 
@@ -58,10 +58,12 @@ def test_gauss1():
 
 
 def test_truncated_gauss():
-    high = 2.
+    high = 2.0
     low = -0.5
-    truncated_gauss = zfit.pdf.TruncatedGauss(mu=1, sigma=2, low=low, high=high, obs=limits1)
-    gauss = zfit.pdf.Gauss(mu=1., sigma=2, obs=limits1)
+    truncated_gauss = zfit.pdf.TruncatedGauss(
+        mu=1, sigma=2, low=low, high=high, obs=limits1
+    )
+    gauss = zfit.pdf.Gauss(mu=1.0, sigma=2, obs=limits1)
 
     probs_truncated = truncated_gauss.pdf(test_values)
     probs_gauss = gauss.pdf(test_values)

@@ -5,15 +5,15 @@ import numpy as np
 
 import zfit
 
-mplhep.style.use('LHCb2')
+mplhep.style.use("LHCb2")
 import matplotlib.pyplot as plt
 
 # create space
 obs = zfit.Space("x", limits=(-10, 10))
 
 # parameters
-mu = zfit.Parameter("mu", 1., -4, 6)
-sigma = zfit.Parameter("sigma", 1., 0.1, 10)
+mu = zfit.Parameter("mu", 1.0, -4, 6)
+sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
 lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
 frac = zfit.Parameter("fraction", 0.3, 0, 1)
 
@@ -55,7 +55,12 @@ def plot_pdf(title):
     plt.plot(x, y * plot_scaling, label="Sum - Model")
     plt.plot(x, y_gauss * plot_scaling, label="Gauss - Signal")
     plt.plot(x, y_exp * plot_scaling, label="Exp - Background")
-    mplhep.histplot(np.histogram(data_np, bins=n_bins), yerr=True, color='black', histtype='errorbar')
+    mplhep.histplot(
+        np.histogram(data_np, bins=n_bins),
+        yerr=True,
+        color="black",
+        histtype="errorbar",
+    )
     plt.ylabel("Counts")
     plt.xlabel("obs: $B_{mass}$")
 

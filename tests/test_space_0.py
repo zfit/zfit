@@ -8,10 +8,12 @@ import pytest
 
 import zfit
 from zfit.core.space import Space, convert_to_space
-from zfit.util.exception import (CoordinatesUnderdefinedError,
-                                 LimitsIncompatibleError,
-                                 LimitsUnderdefinedError,
-                                 ShapeIncompatibleError)
+from zfit.util.exception import (
+    CoordinatesUnderdefinedError,
+    LimitsIncompatibleError,
+    LimitsUnderdefinedError,
+    ShapeIncompatibleError,
+)
 
 lower11 = 1
 lower12 = 4
@@ -48,8 +50,8 @@ limit2_areas = (6, 18)
 sub_limit2_areas = (3, 1.8)
 limit2_axes = (1, 5, 6)
 sub_limit2_axes = (1, 6)
-limit2_obs = ('obs1', 'obs2', 'obs3')
-sub_limit2_obs = ('obs1', 'obs3')
+limit2_obs = ("obs1", "obs2", "obs3")
+sub_limit2_obs = ("obs1", "obs3")
 
 space2 = Space(limits=limit2, axes=limit2_axes)
 space2_obs = Space(obs=limit2_obs, limits=limit2)
@@ -57,12 +59,18 @@ sub_space2 = Space(limits=sub_limit2, axes=sub_limit2_axes)
 space2_subbed_axes = space2.get_subspace(axes=sub_limit2_axes)
 
 arguments2 = (space2, lower2, upper2, limit2, limit2_axes, limit2_areas, 2)
-sub_arguments2 = (sub_space2, sub_lower2, sub_upper2, sub_limit2, sub_limit2_axes, sub_limit2_areas, 2)
+sub_arguments2 = (
+    sub_space2,
+    sub_lower2,
+    sub_upper2,
+    sub_limit2,
+    sub_limit2_axes,
+    sub_limit2_areas,
+    2,
+)
 
 
-@pytest.mark.parametrize("space1, space2", [
-    [space2_subbed_axes, sub_space2]
-])
+@pytest.mark.parametrize("space1, space2", [[space2_subbed_axes, sub_space2]])
 def test_equality(space1, space2):
     """
     Args:
@@ -73,7 +81,9 @@ def test_equality(space1, space2):
     assert space1.obs == space2.obs
     np.testing.assert_allclose(space1.rect_limits, space2.rect_limits)
     # TODO: reactivate below
-    assert zfit.run(space1.rect_area()) == pytest.approx(zfit.run(space2.rect_area()), rel=1e-8)
+    assert zfit.run(space1.rect_area()) == pytest.approx(
+        zfit.run(space2.rect_area()), rel=1e-8
+    )
 
 
 # @pytest.mark.skip  # eq missing
@@ -87,12 +97,14 @@ def test_sub_space():
 
 
 @pytest.mark.skip
-@pytest.mark.parametrize("space,lower, upper, limit, axes, areas, n_limits",
-                         [
-                             # arguments1,
-                             # arguments2,
-                             # sub_arguments2,
-                         ])
+@pytest.mark.parametrize(
+    "space,lower, upper, limit, axes, areas, n_limits",
+    [
+        # arguments1,
+        # arguments2,
+        # sub_arguments2,
+    ],
+)
 def test_space(space, lower, upper, limit, axes, areas, n_limits):
     """
     Args:
@@ -123,12 +135,13 @@ def test_space(space, lower, upper, limit, axes, areas, n_limits):
     # assert iter2_limits1_space.n_limits == 1
 
 
-@pytest.mark.parametrize("space,obs",
-                         [
-                             # (space1_obs, limit11_obs),
-                             (space2_obs, limit2_obs)
-
-                         ])
+@pytest.mark.parametrize(
+    "space,obs",
+    [
+        # (space1_obs, limit11_obs),
+        (space2_obs, limit2_obs)
+    ],
+)
 def test_setting_axes(space, obs):
     """
     Args:
@@ -141,8 +154,12 @@ def test_setting_axes(space, obs):
     while len(obs) > 1 and new_obs == list(obs):
         random.shuffle(new_obs)
     new_obs = tuple(new_obs)
-    true_lower = np.array(tuple(tuple(low[obs.index(o)] for o in new_obs) for low in lower))
-    true_upper = np.array(tuple(tuple(up[obs.index(o)] for o in new_obs) for up in upper))
+    true_lower = np.array(
+        tuple(tuple(low[obs.index(o)] for o in new_obs) for low in lower)
+    )
+    true_upper = np.array(
+        tuple(tuple(up[obs.index(o)] for o in new_obs) for up in upper)
+    )
     new_axes = tuple(range(len(new_obs)))
     coords = Space(obs=new_obs, axes=new_axes)
     # obs_axes = OrderedDict((o, ax) for o, ax in zip(new_obs, new_axes))
@@ -182,9 +199,9 @@ def test_exception():
     with pytest.raises(CoordinatesUnderdefinedError):
         Space(axes=None, limits=limit2)
     with pytest.raises(ShapeIncompatibleError):  # one obs only, but two dims
-        Space(obs='obs1', limits=(((1, 2),), ((2, 3),)))
+        Space(obs="obs1", limits=(((1, 2),), ((2, 3),)))
     with pytest.raises(ShapeIncompatibleError):  # two obs but only 1 dim
-        Space(obs=['obs1', 'obs2'], limits=(((1,),), ((2,),)))
+        Space(obs=["obs1", "obs2"], limits=(((1,),), ((2,),)))
     with pytest.raises(ShapeIncompatibleError):  # one axis but two dims
         Space(axes=(1,), limits=(((1, 2),), ((2, 3),)))
     with pytest.raises(ShapeIncompatibleError):  # two axes but only 1 dim
@@ -196,7 +213,9 @@ def test_exception():
 def test_dimensions():
     lower1, lower2 = 1, 2
     upper1, upper2 = 2, 3
-    space = Space(obs=['obs1', 'obs2'], limits=(((lower1, lower2),), ((upper1, upper2),)))
+    space = Space(
+        obs=["obs1", "obs2"], limits=(((lower1, lower2),), ((upper1, upper2),))
+    )
     assert space.n_obs == 2
     assert space.n_limits == 1
     low1, low2, up1, up2 = space.limit2d
@@ -209,14 +228,14 @@ def test_dimensions():
         space.limit1d
 
     with pytest.raises(LimitsIncompatibleError):
-        _ = Space(obs='obs1', limits=(((1,), (2,)), ((2,), (3,))))
+        _ = Space(obs="obs1", limits=(((1,), (2,)), ((2,), (3,))))
 
-    space = Space(obs=['obs1', 'obs2'], limits=(((1, 5),), ((2, 13),)))
+    space = Space(obs=["obs1", "obs2"], limits=(((1, 5),), ((2, 13),)))
     assert space.n_obs == 2
     with pytest.raises(RuntimeError):
         space.limit1d
 
-    space = Space(obs='obs1', limits=(((1,),), ((2,),)))
+    space = Space(obs="obs1", limits=(((1,),), ((2,),)))
     assert space.n_obs == 1
     assert space.n_limits == 1
 
@@ -232,4 +251,4 @@ def test_dimensions():
 
 def test_autoconvert():
     with pytest.raises(LimitsUnderdefinedError):
-        convert_to_space(obs=['obs1', 'obs2'], limits=(((1, 2),), ((2, 3),)))
+        convert_to_space(obs=["obs1", "obs2"], limits=(((1, 2),), ((2, 3),)))

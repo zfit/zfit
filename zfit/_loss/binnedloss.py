@@ -39,11 +39,11 @@ def poisson_loss_calc(probs, values, log_offset=None, variances=None):
 
 class BaseBinned(BaseLoss):
     def __init__(
-            self,
-            model: ztyping.BinnedPDFInputType,
-            data: ztyping.BinnedDataInputType,
-            constraints: ConstraintsInputType = None,
-            options: OptionsInputType = None,
+        self,
+        model: ztyping.BinnedPDFInputType,
+        data: ztyping.BinnedDataInputType,
+        constraints: ConstraintsInputType = None,
+        options: OptionsInputType = None,
     ):
         model = convert_to_container(model)
         data = convert_to_container(data)
@@ -82,28 +82,28 @@ class BaseBinned(BaseLoss):
         )
 
     def create_new(
-            self,
-            model: ztyping.BinnedPDFInputType = NONE,
-            data: ztyping.BinnedDataInputType = NONE,
-            constraints: ConstraintsInputType = NONE,
-            options: OptionsInputType = NONE,
+        self,
+        model: ztyping.BinnedPDFInputType = NONE,
+        data: ztyping.BinnedDataInputType = NONE,
+        constraints: ConstraintsInputType = NONE,
+        options: OptionsInputType = NONE,
     ):
         r"""Create a new binned loss of this type. This is preferrable over creating a new instance in most cases.
 
-         Internals, such as certain optimizations will be shared and therefore the loss is made comparable.
+        Internals, such as certain optimizations will be shared and therefore the loss is made comparable.
 
-         If something is not given, it will be taken from the current loss.
+        If something is not given, it will be taken from the current loss.
 
-         Args:
-             model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-       (`rel_counts` or `counts`) for
-       *data* under the given parameters.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
-             data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
-             constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
+        Args:
+            model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
+               (`rel_counts` or `counts`) for
+               *data* under the given parameters.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
+            data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
+            constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
                that add a likelihood term to the loss.
 
                .. math::
@@ -114,7 +114,7 @@ class BaseBinned(BaseLoss):
                multiple times, leaving the freedom for arbitrary constructs.
 
                Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
-             options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
+            options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
                Current possibilities include:
 
                - 'subtr_const' (default True): subtract from each points
@@ -140,7 +140,7 @@ class BaseBinned(BaseLoss):
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
 
-         Returns:
+        Returns:
         """
         if model is NONE:
             model = self.model
@@ -161,28 +161,28 @@ class BaseBinned(BaseLoss):
 
 class ExtendedBinnedNLL(BaseBinned):
     def __init__(
-            self,
-            model: ztyping.BinnedPDFInputType,
-            data: ztyping.BinnedDataInputType,
-            constraints: ConstraintsInputType = None,
-            options: OptionsInputType = None,
+        self,
+        model: ztyping.BinnedPDFInputType,
+        data: ztyping.BinnedDataInputType,
+        constraints: ConstraintsInputType = None,
+        options: OptionsInputType = None,
     ):
         r"""Extended binned likelihood using the expected number of events per bin with a poisson probability.
 
-         |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
+            |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
         used as described by Bohm and Zech, NIMA 748 (2014) 1-6 |@docend:loss.init.explain.spdtransform|
 
-         The binned likelihood is defined as
+            The binned likelihood is defined as
 
-         .. math::
-             \mathcal{L} = \product \mathcal{poiss}(N_{modelbin_i}, N_{databin_i})
-             = N_{databin_i}^{N_{modelbin_i}} \frac{e^{- N_{databin_i}}}{N_{modelbin_i}!}
+            .. math::
+                \mathcal{L} = \product \mathcal{poiss}(N_{modelbin_i}, N_{databin_i})
+                = N_{databin_i}^{N_{modelbin_i}} \frac{e^{- N_{databin_i}}}{N_{modelbin_i}!}
 
 
-         where :math:`databin_i` is the :math:`i^{th}` bin in the data and
-         :math:`modelbin_i` is the :math:`i^{th}` bin of the model, the expected counts.
+            where :math:`databin_i` is the :math:`i^{th}` bin in the data and
+            :math:`modelbin_i` is the :math:`i^{th}` bin of the model, the expected counts.
 
-         |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
         length of each has to match the length of the others
 
         .. math::
@@ -192,7 +192,7 @@ class ExtendedBinnedNLL(BaseBinned):
         where :math:`\theta_i` is a set of parameters and
         a subset of :math:`\theta` |@docend:loss.init.explain.simultaneous|
 
-         |@doc:loss.init.explain.negativelog| For optimization purposes, it is often easier
+            |@doc:loss.init.explain.negativelog| For optimization purposes, it is often easier
         to minimize a function and to use a log transformation. The actual loss is given by
 
         .. math::
@@ -200,16 +200,16 @@ class ExtendedBinnedNLL(BaseBinned):
 
         and therefore being called "negative log ..." |@docend:loss.init.explain.negativelog|
 
-         Args:
-             model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-       (`rel_counts` or `counts`) for
-       *data* under the given parameters.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
-             data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
-             constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
+            Args:
+                model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
+               (`rel_counts` or `counts`) for
+               *data* under the given parameters.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
+                data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
+                constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
                that add a likelihood term to the loss.
 
                .. math::
@@ -220,7 +220,7 @@ class ExtendedBinnedNLL(BaseBinned):
                multiple times, leaving the freedom for arbitrary constructs.
 
                Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
-             options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
+                options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
                Current possibilities include:
 
                - 'subtr_const' (default True): subtract from each points
@@ -253,12 +253,12 @@ class ExtendedBinnedNLL(BaseBinned):
 
     @z.function(wraps="loss")
     def _loss_func(
-            self,
-            model: Iterable[ZfitBinnedPDF],
-            data: Iterable[ZfitBinnedData],
-            fit_range,
-            constraints,
-            log_offset,
+        self,
+        model: Iterable[ZfitBinnedPDF],
+        data: Iterable[ZfitBinnedData],
+        fit_range,
+        constraints,
+        log_offset,
     ):
         poisson_terms = []
         for mod, dat in zip(model, data):
@@ -282,10 +282,10 @@ class ExtendedBinnedNLL(BaseBinned):
         return True
 
     def _get_params(
-            self,
-            floating: Optional[bool] = True,
-            is_yield: Optional[bool] = None,
-            extract_independent: Optional[bool] = True,
+        self,
+        floating: Optional[bool] = True,
+        is_yield: Optional[bool] = None,
+        extract_independent: Optional[bool] = True,
     ) -> Set["ZfitParameter"]:
 
         return super()._get_params(floating, is_yield, extract_independent)
@@ -293,27 +293,27 @@ class ExtendedBinnedNLL(BaseBinned):
 
 class BinnedNLL(BaseBinned):
     def __init__(
-            self,
-            model: ztyping.BinnedPDFInputType,
-            data: ztyping.BinnedDataInputType,
-            constraints: ConstraintsInputType = None,
-            options: OptionsInputType = None,
+        self,
+        model: ztyping.BinnedPDFInputType,
+        data: ztyping.BinnedDataInputType,
+        constraints: ConstraintsInputType = None,
+        options: OptionsInputType = None,
     ):
         r"""Binned negative log likelihood.
 
-         |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
+            |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
         used as described by Bohm and Zech, NIMA 748 (2014) 1-6 |@docend:loss.init.explain.spdtransform|
 
-         The binned likelihood is the binned version of :py:class:`~zfit.loss.UnbinnedNLL`. It is defined as
+            The binned likelihood is the binned version of :py:class:`~zfit.loss.UnbinnedNLL`. It is defined as
 
-         .. math::
-             \\mathcal{L} = \\product \\mathcal{poiss}(N_{modelbin_i}, N_{databin_i}) = N_{databin_i}^{N_{modelbin_i}} \frac{e^{- N_{databin_i}}}{N_{modelbin_i}!}
+            .. math::
+                \\mathcal{L} = \\product \\mathcal{poiss}(N_{modelbin_i}, N_{databin_i}) = N_{databin_i}^{N_{modelbin_i}} \frac{e^{- N_{databin_i}}}{N_{modelbin_i}!}
 
 
-         where :math:`databin_i` is the :math:`i^{th}` bin in the data and
-         :math:`modelbin_i` is the :math:`i^{th}` bin of the model multiplied by the total number of events in data.
+            where :math:`databin_i` is the :math:`i^{th}` bin in the data and
+            :math:`modelbin_i` is the :math:`i^{th}` bin of the model multiplied by the total number of events in data.
 
-         |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
         length of each has to match the length of the others
 
         .. math::
@@ -323,7 +323,7 @@ class BinnedNLL(BaseBinned):
         where :math:`\theta_i` is a set of parameters and
         a subset of :math:`\theta` |@docend:loss.init.explain.simultaneous|
 
-         |@doc:loss.init.explain.negativelog| For optimization purposes, it is often easier
+            |@doc:loss.init.explain.negativelog| For optimization purposes, it is often easier
         to minimize a function and to use a log transformation. The actual loss is given by
 
         .. math::
@@ -331,16 +331,16 @@ class BinnedNLL(BaseBinned):
 
         and therefore being called "negative log ..." |@docend:loss.init.explain.negativelog|
 
-         Args:
-             model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-       (`rel_counts` or `counts`) for
-       *data* under the given parameters.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
-             data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
-             constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
+            Args:
+                model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
+               (`rel_counts` or `counts`) for
+               *data* under the given parameters.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
+                data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
+                constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
                that add a likelihood term to the loss.
 
                .. math::
@@ -351,7 +351,7 @@ class BinnedNLL(BaseBinned):
                multiple times, leaving the freedom for arbitrary constructs.
 
                Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
-             options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
+                options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
                Current possibilities include:
 
                - 'subtr_const' (default True): subtract from each points
@@ -393,12 +393,12 @@ class BinnedNLL(BaseBinned):
 
     @z.function(wraps="loss")
     def _loss_func(
-            self,
-            model: Iterable[ZfitBinnedPDF],
-            data: Iterable[ZfitBinnedData],
-            fit_range,
-            constraints,
-            log_offset,
+        self,
+        model: Iterable[ZfitBinnedPDF],
+        data: Iterable[ZfitBinnedData],
+        fit_range,
+        constraints,
+        log_offset,
     ):
         poisson_terms = []
         for mod, dat in zip(model, data):
@@ -423,10 +423,10 @@ class BinnedNLL(BaseBinned):
         return False
 
     def _get_params(
-            self,
-            floating: Optional[bool] = True,
-            is_yield: Optional[bool] = None,
-            extract_independent: Optional[bool] = True,
+        self,
+        floating: Optional[bool] = True,
+        is_yield: Optional[bool] = None,
+        extract_independent: Optional[bool] = True,
     ) -> Set["ZfitParameter"]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
@@ -471,26 +471,26 @@ def _check_small_counts_chi2(data, ignore_empty):
 
 class BinnedChi2(BaseBinned):
     def __init__(
-            self,
-            model: ztyping.BinnedPDFInputType,
-            data: ztyping.BinnedDataInputType,
-            constraints: ConstraintsInputType = None,
-            options: OptionsInputType = None,
+        self,
+        model: ztyping.BinnedPDFInputType,
+        data: ztyping.BinnedDataInputType,
+        constraints: ConstraintsInputType = None,
+        options: OptionsInputType = None,
     ):
         r"""Binned Chi2 loss, using the :math:`N_{tot} from the data.
 
-         .. math::
-             \chi^2 = \sum_{\mathrm{bins}} \left( \frac{N_\mathrm{PDF,bin} - N_\mathrm{Data,bin}}{\sigma_\mathrm{Data,bin}} \right)^2
+            .. math::
+                \chi^2 = \sum_{\mathrm{bins}} \left( \frac{N_\mathrm{PDF,bin} - N_\mathrm{Data,bin}}{\sigma_\mathrm{Data,bin}} \right)^2
 
-         where
+            where
 
-         .. math::
-             N_\mathrm{PDF,bin} = \mathrm{pdf}(\text{integral}) \cdot N_\mathrm{Data,tot}
-             \sigma_\mathrm{bin} = \text{variance}
+            .. math::
+                N_\mathrm{PDF,bin} = \mathrm{pdf}(\text{integral}) \cdot N_\mathrm{Data,tot}
+                \sigma_\mathrm{bin} = \text{variance}
 
-         with `variance` the value of :class:`~zfit.data.BinnedData.variances` of the binned data.
+            with `variance` the value of :class:`~zfit.data.BinnedData.variances` of the binned data.
 
-         |@doc:loss.init.binned.explain.chi2zeros| If the dataset has empty bins, the errors
+            |@doc:loss.init.binned.explain.chi2zeros| If the dataset has empty bins, the errors
         will be zero and :math:`\chi^2` is undefined. Two possibilities are available and
         can be given as an option:
 
@@ -498,16 +498,16 @@ class BinnedChi2(BaseBinned):
         - "errors": "expected" will use the expected counts from the model
           with a Poissonian uncertainty |@docend:loss.init.binned.explain.chi2zeros|
 
-         Args:
-             model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-       (`rel_counts` or `counts`) for
-       *data* under the given parameters.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
-             data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
-             constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
+            Args:
+                model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
+               (`rel_counts` or `counts`) for
+               *data* under the given parameters.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
+                data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
+                constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
                that add a likelihood term to the loss.
 
                .. math::
@@ -518,7 +518,7 @@ class BinnedChi2(BaseBinned):
                multiple times, leaving the freedom for arbitrary constructs.
 
                Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
-             options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
+                options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
                Current possibilities include:
 
                - 'subtr_const' (default True): subtract from each points
@@ -567,20 +567,20 @@ class BinnedChi2(BaseBinned):
     def _precompile(self):
         super()._precompile()
         ignore_empty = (
-                self._options.get("empty") == "ignore"
-                or self._options.get("errors") == "expected"
+            self._options.get("empty") == "ignore"
+            or self._options.get("errors") == "expected"
         )
         data = self.data
         _check_small_counts_chi2(data, ignore_empty)
 
     @z.function(wraps="loss")
     def _loss_func(
-            self,
-            model: Iterable[ZfitBinnedPDF],
-            data: Iterable[ZfitBinnedData],
-            fit_range,
-            constraints,
-            log_offset,
+        self,
+        model: Iterable[ZfitBinnedPDF],
+        data: Iterable[ZfitBinnedData],
+        fit_range,
+        constraints,
+        log_offset,
     ):
         del fit_range
         ignore_empty = self._options.get("empty") == "ignore"
@@ -619,10 +619,10 @@ class BinnedChi2(BaseBinned):
         return False
 
     def _get_params(
-            self,
-            floating: Optional[bool] = True,
-            is_yield: Optional[bool] = None,
-            extract_independent: Optional[bool] = True,
+        self,
+        floating: Optional[bool] = True,
+        is_yield: Optional[bool] = None,
+        extract_independent: Optional[bool] = True,
     ) -> Set["ZfitParameter"]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
@@ -631,26 +631,26 @@ class BinnedChi2(BaseBinned):
 
 class ExtendedBinnedChi2(BaseBinned):
     def __init__(
-            self,
-            model: ztyping.BinnedPDFInputType,
-            data: ztyping.BinnedDataInputType,
-            constraints: ConstraintsInputType = None,
-            options: OptionsInputType = None,
+        self,
+        model: ztyping.BinnedPDFInputType,
+        data: ztyping.BinnedDataInputType,
+        constraints: ConstraintsInputType = None,
+        options: OptionsInputType = None,
     ):
         r"""Binned Chi2 loss, using the :math:`N_{tot} from the PDF.
 
-         .. math::
-             \chi^2 = \sum_{\mathrm{bins}} \left( \frac{N_\mathrm{PDF,bin} - N_\mathrm{Data,bin}}{\sigma_\mathrm{Data,bin}} \right)^2
+            .. math::
+                \chi^2 = \sum_{\mathrm{bins}} \left( \frac{N_\mathrm{PDF,bin} - N_\mathrm{Data,bin}}{\sigma_\mathrm{Data,bin}} \right)^2
 
-         where
+            where
 
-         .. math::
-             N_\mathrm{PDF,bin} = \mathrm{pdf}(\text{integral}) \cdot N_\mathrm{PDF,expected}
-             \sigma_\mathrm{bin} = \text{variance}
+            .. math::
+                N_\mathrm{PDF,bin} = \mathrm{pdf}(\text{integral}) \cdot N_\mathrm{PDF,expected}
+                \sigma_\mathrm{bin} = \text{variance}
 
-         with `variance` the value of :class:`~zfit.data.BinnedData.variances` of the binned data.
+            with `variance` the value of :class:`~zfit.data.BinnedData.variances` of the binned data.
 
-         |@doc:loss.init.binned.explain.chi2zeros| If the dataset has empty bins, the errors
+            |@doc:loss.init.binned.explain.chi2zeros| If the dataset has empty bins, the errors
         will be zero and :math:`\chi^2` is undefined. Two possibilities are available and
         can be given as an option:
 
@@ -660,15 +660,15 @@ class ExtendedBinnedChi2(BaseBinned):
 
 
         Args:
-             model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-       (`rel_counts` or `counts`) for
-       *data* under the given parameters.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
-             data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
-       If multiple model and data are given, they will be used
-       in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
-             constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
+            model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
+               (`rel_counts` or `counts`) for
+               *data* under the given parameters.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
+                data: |@doc:loss.binned.init.data| Binned dataset that will be given to the *model*.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.binned.init.data|
+                constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
                that add a likelihood term to the loss.
 
                .. math::
@@ -679,7 +679,7 @@ class ExtendedBinnedChi2(BaseBinned):
                multiple times, leaving the freedom for arbitrary constructs.
 
                Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
-             options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
+                options: |@doc:loss.init.options| Additional options (as a dict) for the loss.
                Current possibilities include:
 
                - 'subtr_const' (default True): subtract from each points
@@ -719,20 +719,20 @@ class ExtendedBinnedChi2(BaseBinned):
     def _precompile(self):
         super()._precompile()
         ignore_empty = (
-                self._options.get("empty") == "ignore"
-                or self._options.get("errors") == "expected"
+            self._options.get("empty") == "ignore"
+            or self._options.get("errors") == "expected"
         )
         data = self.data
         _check_small_counts_chi2(data, ignore_empty)
 
     @z.function(wraps="loss")
     def _loss_func(
-            self,
-            model: Iterable[ZfitBinnedPDF],
-            data: Iterable[ZfitBinnedData],
-            fit_range,
-            constraints,
-            log_offset,
+        self,
+        model: Iterable[ZfitBinnedPDF],
+        data: Iterable[ZfitBinnedData],
+        fit_range,
+        constraints,
+        log_offset,
     ):
         del fit_range
         ignore_empty = self._options.get("empty") == "ignore"

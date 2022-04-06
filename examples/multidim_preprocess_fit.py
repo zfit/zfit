@@ -5,16 +5,16 @@ import numpy as np
 import zfit
 
 # create space
-xobs = zfit.Space('xobs', (-4, 4))
-yobs = zfit.Space('yobs', (-3, 5))
-zobs = zfit.Space('z', (-2, 4))
+xobs = zfit.Space("xobs", (-4, 4))
+yobs = zfit.Space("yobs", (-3, 5))
+zobs = zfit.Space("z", (-2, 4))
 obs = xobs * yobs * zobs
 
 # parameters
-mu1 = zfit.Parameter("mu1", 1., -4, 6)
-mu23 = zfit.Parameter("mu_shared", 1., -4, 6)
-sigma12 = zfit.Parameter("sigma_shared", 1., 0.1, 10)
-sigma3 = zfit.Parameter("sigma3", 1., 0.1, 10)
+mu1 = zfit.Parameter("mu1", 1.0, -4, 6)
+mu23 = zfit.Parameter("mu_shared", 1.0, -4, 6)
+sigma12 = zfit.Parameter("sigma_shared", 1.0, 0.1, 10)
+sigma3 = zfit.Parameter("sigma3", 1.0, 0.1, 10)
 
 # model building, pdf creation
 gauss_x = zfit.pdf.Gauss(mu=mu1, sigma=sigma12, obs=xobs)
@@ -27,8 +27,10 @@ product_gauss = zfit.pdf.ProductPDF([gauss_x, gauss_y, gauss_z])
 # model = MyPDF(obs=obs, param1=..., param2,...)
 
 # data
-normal_np = np.random.normal(loc=[2., 2.5, 2.5], scale=[3., 3, 1.5], size=(10000, 3))
-data_raw = zfit.Data.from_numpy(obs=obs, array=normal_np)  # or from anywhere else, e.g. root
+normal_np = np.random.normal(loc=[2.0, 2.5, 2.5], scale=[3.0, 3, 1.5], size=(10000, 3))
+data_raw = zfit.Data.from_numpy(
+    obs=obs, array=normal_np
+)  # or from anywhere else, e.g. root
 
 df = data_raw.to_pandas()
 # preprocessing here, rename things. Match column names with the observable names "xobs", "yobs", "z" (they have to be

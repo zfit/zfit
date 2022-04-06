@@ -15,14 +15,19 @@ from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_norm_range
-from ..util.exception import (LimitsIncompatibleError,
-                              NormRangeNotSpecifiedError,
-                              ObsIncompatibleError, ModelIncompatibleError)
+from ..util.exception import (
+    LimitsIncompatibleError,
+    NormRangeNotSpecifiedError,
+    ObsIncompatibleError,
+    ModelIncompatibleError,
+)
 from ..util.warnings import warn_advanced_feature, warn_changed_feature
 from ..z import numpy as znp
 
 
-def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitSpace]) -> ZfitSpace:
+def extract_daughter_input_obs(
+    obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitSpace]
+) -> ZfitSpace:
     """Extract the common space from `spaces` by combining them, test against obs.
 
     The `obs` are assumed to be the obs given to a functor while the `spaces` are the spaces of the daughters.
@@ -60,23 +65,35 @@ def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitS
 
 
 class FunctorMixin(ZfitFunctorMixin):
-
     def __init__(self, models, obs, **kwargs):
         models = convert_to_container(models, container=list)
-        obs = extract_daughter_input_obs(obs=obs, spaces=[model.space for model in models])
+        obs = extract_daughter_input_obs(
+            obs=obs, spaces=[model.space for model in models]
+        )
 
         super().__init__(obs=obs, **kwargs)
         # TODO: needed? remove below
         self._model_obs = tuple(model.obs for model in models)
         self._models = models
 
-    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
-                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+    def _get_params(
+        self,
+        floating: Optional[bool] = True,
+        is_yield: Optional[bool] = None,
+        extract_independent: Optional[bool] = True,
+    ) -> Set["ZfitParameter"]:
         params = super()._get_params(floating, is_yield, extract_independent)
         if is_yield is not True:
-            params = params.union(*(model.get_params(floating=floating, is_yield=False,
-                                                     extract_independent=extract_independent)
-                                    for model in self.models))
+            params = params.union(
+                *(
+                    model.get_params(
+                        floating=floating,
+                        is_yield=False,
+                        extract_independent=extract_independent,
+                    )
+                    for model in self.models
+                )
+            )
         return params
 
     def _get_dependencies(self):
@@ -110,7 +127,9 @@ class FunctorMixin(ZfitFunctorMixin):
             try:
                 norm = self.norm_range
             except AttributeError:
-                raise NormRangeNotSpecifiedError("The normalization range is `None`, no default norm is set")
+                raise NormRangeNotSpecifiedError(
+                    "The normalization range is `None`, no default norm is set"
+                )
         return self._check_input_norm_range(norm=norm, none_is_error=none_is_error)
 
 
@@ -130,7 +149,9 @@ def _preprocess_init_sum(fracs, obs, pdfs):
     common_obs = obs if obs is not None else pdfs[0].obs
     common_obs = convert_to_obs_str(common_obs)
     if not all(frozenset(pdf.obs) == frozenset(common_obs) for pdf in pdfs):
-        raise ObsIncompatibleError("Currently, sums are only supported in the same observables")
+        raise ObsIncompatibleError(
+            "Currently, sums are only supported in the same observables"
+        )
     # check if all extended
     are_extended = [pdf.is_extended for pdf in pdfs]
     all_extended = all(are_extended)
@@ -139,36 +160,49 @@ def _preprocess_init_sum(fracs, obs, pdfs):
     if fracs:  # not None or empty list
         fracs = [convert_to_parameter(frac) for frac in fracs]
     elif not all_extended:
-        raise ModelIncompatibleError(f"Not all pdf {pdfs} are extended and no fracs {fracs} are provided.")
+        raise ModelIncompatibleError(
+            f"Not all pdf {pdfs} are extended and no fracs {fracs} are provided."
+        )
     if not no_extended and fracs:
-        warn_advanced_feature(f"This SumPDF is built with fracs {fracs} and {'all' if all_extended else 'some'} "
-                              f"pdf are extended: {pdfs}."
-                              f" This will ignore the yields of the already extended pdfs and the result will"
-                              f" be a not extended SumPDF.", identifier='sum_extended_frac')
+        warn_advanced_feature(
+            f"This SumPDF is built with fracs {fracs} and {'all' if all_extended else 'some'} "
+            f"pdf are extended: {pdfs}."
+            f" This will ignore the yields of the already extended pdfs and the result will"
+            f" be a not extended SumPDF.",
+            identifier="sum_extended_frac",
+        )
     # catch if args don't fit known case
     if fracs:
         # create fracs if one is missing
         if len(fracs) == len(pdfs) - 1:
-            remaining_frac_func = lambda: tf.constant(1., dtype=ztypes.float) - tf.add_n(fracs)
-            remaining_frac = convert_to_parameter(remaining_frac_func,
-                                                  params=fracs)
+            remaining_frac_func = lambda: tf.constant(
+                1.0, dtype=ztypes.float
+            ) - tf.add_n(fracs)
+            remaining_frac = convert_to_parameter(remaining_frac_func, params=fracs)
             if run.numeric_checks:
-                tf.debugging.assert_non_negative(remaining_frac,
-                                                 f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}")  # check fractions
+                tf.debugging.assert_non_negative(
+                    remaining_frac,
+                    f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}",
+                )  # check fractions
 
             # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
             fracs_cleaned = fracs + [remaining_frac]
 
         elif len(fracs) == len(pdfs):
-            warn_changed_feature("A SumPDF with the number of fractions equal to the number of pdf will no longer "
-                                 "be extended. To make it extended, either manually use 'create_exteneded' or set "
-                                 "the yield. OR provide all pdfs as extended pdfs and do not provide a fracs "
-                                 "argument.", identifier='new_sum')
+            warn_changed_feature(
+                "A SumPDF with the number of fractions equal to the number of pdf will no longer "
+                "be extended. To make it extended, either manually use 'create_exteneded' or set "
+                "the yield. OR provide all pdfs as extended pdfs and do not provide a fracs "
+                "argument.",
+                identifier="new_sum",
+            )
             fracs_cleaned = fracs
 
         else:
-            raise ModelIncompatibleError(f"If all PDFs are not extended {pdfs}, the fracs {fracs} have to be of"
-                                         f" the same length as pdf or one less.")
+            raise ModelIncompatibleError(
+                f"If all PDFs are not extended {pdfs}, the fracs {fracs} have to be of"
+                f" the same length as pdf or one less."
+            )
         param_fracs = fracs_cleaned
     # for the extended case, take the yields, normalize them, in case no fracs are given.
     sum_yields = None
@@ -178,14 +212,20 @@ def _preprocess_init_sum(fracs, obs, pdfs):
         def sum_yields_func(params):
             return znp.sum(list(params.values()))
 
-        sum_yields = convert_to_parameter(sum_yields_func, params={f'yield_{i}': y for i, y in enumerate(yields)})
-        yield_fracs = [convert_to_parameter(lambda params: params['yield_'] / params['sum_yields'],
-                                            params={'sum_yields': sum_yields, 'yield_': yield_})
-                       for yield_ in yields]
+        sum_yields = convert_to_parameter(
+            sum_yields_func, params={f"yield_{i}": y for i, y in enumerate(yields)}
+        )
+        yield_fracs = [
+            convert_to_parameter(
+                lambda params: params["yield_"] / params["sum_yields"],
+                params={"sum_yields": sum_yields, "yield_": yield_},
+            )
+            for yield_ in yields
+        ]
 
         fracs_cleaned = None
         param_fracs = yield_fracs
     params = OrderedDict()
     for i, frac in enumerate(param_fracs):
-        params[f'frac_{i}'] = frac
+        params[f"frac_{i}"] = frac
     return all_extended, fracs_cleaned, param_fracs, params, sum_yields

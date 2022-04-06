@@ -12,22 +12,23 @@ from zfit import z
 
 class CustomPDF(zfit.pdf.ZPDF):
     """3-dimensional PDF calculating doing something fancy, takes x, y, z as data."""
-    _PARAMS = ['alpha', 'beta']  # specify which parameters to take
+
+    _PARAMS = ["alpha", "beta"]  # specify which parameters to take
     _N_OBS = 3
 
     def _unnormalized_pdf(self, x):  # implement function
         x, y, z = x.unstack_x()
-        alpha = self.params['alpha']
-        beta = self.params['beta']
+        alpha = self.params["alpha"]
+        beta = self.params["beta"]
         x_new = tf.math.cos(alpha) * x
         y_new = tf.math.sinh(beta) * y
         z_new = z + 4.2
-        return x_new ** 2 + y_new ** 2 + z_new ** 2
+        return x_new**2 + y_new**2 + z_new**2
 
 
-xobs = zfit.Space('xobs', (-4, 4))
-yobs = zfit.Space('yobs', (-3, 3))
-zobs = zfit.Space('z', (-2, 2))
+xobs = zfit.Space("xobs", (-4, 4))
+yobs = zfit.Space("yobs", (-3, 3))
+zobs = zfit.Space("z", (-2, 2))
 obs = xobs * yobs * zobs
 
 alpha = zfit.Parameter("alpha", 0.2)  # floating

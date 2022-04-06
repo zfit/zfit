@@ -1,5 +1,6 @@
 #  Copyright (c) 2021 zfit
 
+
 class Singleton:
     __instance = None
 
@@ -13,7 +14,6 @@ class Singleton:
 
 
 class NotSpecified(Singleton):
-
     def __bool__(self):
         return False
 
@@ -26,7 +26,9 @@ NONE = NotSpecified()
 
 class ZfitNotImplemented:
     def __new__(cls, *args, **kwargs):
-        raise RuntimeError("Cannot create an instance of it, meant to be used as a single object reference.")
+        raise RuntimeError(
+            "Cannot create an instance of it, meant to be used as a single object reference."
+        )
 
 
 class RuntimeDependency:
@@ -39,8 +41,10 @@ class RuntimeDependency:
     def __getattr__(self, item):
         if item in self.__dict__:
             return self.__dict__[item]
-        raise ImportError(f"This requires {self.__name}"
-                          " to be installed. You can usually install it with"
-                          f"`pip install zfit[{self.__name}]` or"
-                          f"`pip install zfit[all]`."
-                          f"{self.__how}")
+        raise ImportError(
+            f"This requires {self.__name}"
+            " to be installed. You can usually install it with"
+            f"`pip install zfit[{self.__name}]` or"
+            f"`pip install zfit[all]`."
+            f"{self.__how}"
+        )

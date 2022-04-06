@@ -22,10 +22,10 @@ rbounds = (mu, bounds[1])
 
 
 def _cb_params_factory(name_add=""):
-    mu_ = zfit.Parameter('mu_cb' + name_add, mu)
-    sigma_ = zfit.Parameter('sigma_cb' + name_add, sigma)
-    alphal_ = zfit.Parameter('alphal_cb' + name_add, alphal)
-    nl_ = zfit.Parameter('nl_cb' + name_add, nl)
+    mu_ = zfit.Parameter("mu_cb" + name_add, mu)
+    sigma_ = zfit.Parameter("sigma_cb" + name_add, sigma)
+    alphal_ = zfit.Parameter("alphal_cb" + name_add, alphal)
+    nl_ = zfit.Parameter("nl_cb" + name_add, nl)
     return {"mu": mu_, "sigma": sigma_, "alpha": alphal_, "n": nl_}
 
 
@@ -48,12 +48,12 @@ def eval_testing(pdf, x):
 
 
 def test_cb_integral():
-    obs = zfit.Space('x', limits=bounds)
+    obs = zfit.Space("x", limits=bounds)
 
-    mu_ = zfit.Parameter('mu_cb5', mu)
-    sigma_ = zfit.Parameter('sigma_cb5', sigma)
-    alphal_ = zfit.Parameter('alphal_cb5', alphal)
-    nl_ = zfit.Parameter('nl_cb5', nl)
+    mu_ = zfit.Parameter("mu_cb5", mu)
+    sigma_ = zfit.Parameter("sigma_cb5", sigma)
+    alphal_ = zfit.Parameter("alphal_cb5", alphal)
+    nl_ = zfit.Parameter("nl_cb5", nl)
 
     cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
     int_limits = (-1, 3)
@@ -76,18 +76,20 @@ def test_cb_integral():
 
 
 def test_cb_dcb():
-    obs = zfit.Space('x', limits=bounds)
+    obs = zfit.Space("x", limits=bounds)
 
-    mu_ = zfit.Parameter('mu_cb5', mu)
-    sigma_ = zfit.Parameter('sigma_cb5', sigma)
-    alphal_ = zfit.Parameter('alphal_cb5', alphal)
-    nl_ = zfit.Parameter('nl_cb5', nl)
-    alphar_ = zfit.Parameter('alphar_cb5', alphar)
-    nr_ = zfit.Parameter('nr_cb5', nr)
+    mu_ = zfit.Parameter("mu_cb5", mu)
+    sigma_ = zfit.Parameter("sigma_cb5", sigma)
+    alphal_ = zfit.Parameter("alphal_cb5", alphal)
+    nl_ = zfit.Parameter("nl_cb5", nl)
+    alphar_ = zfit.Parameter("alphar_cb5", alphar)
+    nr_ = zfit.Parameter("nr_cb5", nr)
 
     cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
     cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=-alphar_, n=nr_)
-    dcb = DoubleCB(obs=obs, mu=mu_, sigma=sigma_, alphal=alphal_, nl=nl_, alphar=alphar_, nr=nr_)
+    dcb = DoubleCB(
+        obs=obs, mu=mu_, sigma=sigma_, alphal=alphal_, nl=nl_, alphar=alphar_, nr=nr_
+    )
 
     sample_testing(cbl)
     sample_testing(cbr)
@@ -113,7 +115,7 @@ def test_cb_dcb():
 
     kwargs = dict(limits=(-5.0, mu), norm_range=lbounds)
     intl = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intl.numpy(), abs=1e-3) == 0.
+    assert pytest.approx(intl.numpy(), abs=1e-3) == 0.0
     intl = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
     assert pytest.approx(intl.numpy(), abs=1e-3) != 0
 
@@ -121,9 +123,9 @@ def test_cb_dcb():
     kwargs = dict(limits=(mu, 2.0), norm_range=rbounds)
     dcb_integr1 = dcb.integrate(**kwargs)
     intr = cbr.integrate(**kwargs) - dcb_integr1
-    assert pytest.approx(intr.numpy(), abs=1e-3) == 0.
+    assert pytest.approx(intr.numpy(), abs=1e-3) == 0.0
     intr = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intr.numpy(), abs=1e-3) != 0.
+    assert pytest.approx(intr.numpy(), abs=1e-3) != 0.0
 
     xl = x[x <= mu]
     xr = x[x > mu]

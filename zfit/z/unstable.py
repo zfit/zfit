@@ -36,9 +36,12 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
         y = np.array(y)
         if any(ar.dtype == object for ar in (x, y)):
             from zfit.core.space import LimitRangeDefinition
+
             equal = []
             for x1, y1 in zip(x[0], y[0]):
-                if isinstance(x1, LimitRangeDefinition) or isinstance(y1, LimitRangeDefinition):
+                if isinstance(x1, LimitRangeDefinition) or isinstance(
+                    y1, LimitRangeDefinition
+                ):
                     equal.append(x1 < y1 or x1 > y1)
                 else:
                     equal.append(np.allclose(x1, y1, rtol=rtol, atol=atol))
@@ -137,14 +140,17 @@ def concat(values, axis, name=None):
 
 
 def _try_convert_numpy(tensorlike):
-    if hasattr(tensorlike, 'numpy'):
+    if hasattr(tensorlike, "numpy"):
         tensorlike = tensorlike.numpy()
 
     if not isinstance(tensorlike, np.ndarray):
         from zfit.util.exception import CannotConvertToNumpyError
-        raise CannotConvertToNumpyError(f"Cannot convert {tensorlike} to a Numpy array. This may be because the"
-                                        f" object is a Tensor and the function is called in Graph mode (e.g. in"
-                                        f"a `z.function` decorated function.\n"
-                                        f"If this error appears and is not understandable, it is most likely a bug."
-                                        f" Please open an issue on Github.")
+
+        raise CannotConvertToNumpyError(
+            f"Cannot convert {tensorlike} to a Numpy array. This may be because the"
+            f" object is a Tensor and the function is called in Graph mode (e.g. in"
+            f"a `z.function` decorated function.\n"
+            f"If this error appears and is not understandable, it is most likely a bug."
+            f" Please open an issue on Github."
+        )
     return tensorlike

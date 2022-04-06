@@ -18,38 +18,39 @@ class FailMinimizeNaN(Exception):
 
 class ZfitStrategy(abc.ABC):
     @abstractmethod
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput,
-                     values: Mapping = None) -> float:
+    def minimize_nan(
+        self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping = None
+    ) -> float:
         raise NotImplementedError
 
     @abstractmethod
-    def callback(self,
-                 value: Optional[float],
-                 gradient: Optional[np.ndarray],
-                 hessian: Optional[np.ndarray],
-                 params: List[ZfitParameter],
-                 loss: ZfitLoss,
-                 ) -> Tuple[float, np.ndarray, np.ndarray]:
+    def callback(
+        self,
+        value: Optional[float],
+        gradient: Optional[np.ndarray],
+        hessian: Optional[np.ndarray],
+        params: List[ZfitParameter],
+        loss: ZfitLoss,
+    ) -> Tuple[float, np.ndarray, np.ndarray]:
         raise NotImplementedError
 
 
 class BaseStrategy(ZfitStrategy):
-
     def __init__(self) -> None:
         self.fit_result = None
         self.error = None
         super().__init__()
 
-    def minimize_nan(self,
-                     loss: ZfitLoss,
-                     params: ztyping.ParamTypeInput,
-                     values: Mapping = None
-                     ) -> float:
-        print("The minimization failed due to too many NaNs being produced in the loss."
-              "This is most probably caused by negative"
-              " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
-              " problem. Also check your model (if custom) for problems. For more information,"
-              " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization")
+    def minimize_nan(
+        self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping = None
+    ) -> float:
+        print(
+            "The minimization failed due to too many NaNs being produced in the loss."
+            "This is most probably caused by negative"
+            " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
+            " problem. Also check your model (if custom) for problems. For more information,"
+            " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization"
+        )
         raise FailMinimizeNaN()
 
     def callback(self, value, gradient, hessian, params, loss):
@@ -61,29 +62,53 @@ class BaseStrategy(ZfitStrategy):
 
 
 class ToyStrategyFail(BaseStrategy):
-
     def __init__(self) -> None:
         super().__init__()
-        self.fit_result = FitResult(params={}, edm=-999, fmin=-999, status=-999, converged=False, info={},
-                                    valid=False, message="NaN produced, ToyStrategy fails", niter=None,
-                                    loss=None, minimizer=None, criterion=None)
+        self.fit_result = FitResult(
+            params={},
+            edm=-999,
+            fmin=-999,
+            status=-999,
+            converged=False,
+            info={},
+            valid=False,
+            message="NaN produced, ToyStrategy fails",
+            niter=None,
+            loss=None,
+            minimizer=None,
+            criterion=None,
+        )
 
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput,
-                     values: Mapping = None) -> float:
+    def minimize_nan(
+        self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping = None
+    ) -> float:
         param_vals = run(params)
-        param_vals = OrderedDict((param, value) for param, value in zip(params, param_vals))
-        self.fit_result = FitResult(params=param_vals, edm=-999, fmin=-999, status=9, converged=False, info={},
-                                    loss=loss, valid=False, message="Failed on too manf NaNs", niter=None,
-                                    criterion=None,
-                                    minimizer=None)
+        param_vals = OrderedDict(
+            (param, value) for param, value in zip(params, param_vals)
+        )
+        self.fit_result = FitResult(
+            params=param_vals,
+            edm=-999,
+            fmin=-999,
+            status=9,
+            converged=False,
+            info={},
+            loss=loss,
+            valid=False,
+            message="Failed on too manf NaNs",
+            niter=None,
+            criterion=None,
+            minimizer=None,
+        )
         raise FailMinimizeNaN()
 
 
-def make_pushback_strategy(nan_penalty: Union[float, int] = 100,
-                           nan_tol: int = 30,
-                           base: Union[object, ZfitStrategy] = BaseStrategy):
+def make_pushback_strategy(
+    nan_penalty: Union[float, int] = 100,
+    nan_tol: int = 30,
+    base: Union[object, ZfitStrategy] = BaseStrategy,
+):
     class PushbackStrategy(base):
-
         def __init__(self):
             """Pushback by adding `nan_penalty * counter` to the loss if NaNs are encountered.
 
@@ -98,20 +123,23 @@ def make_pushback_strategy(nan_penalty: Union[float, int] = 100,
             self.nan_penalty = nan_penalty
             self.nan_tol = nan_tol
 
-        def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput,
-                         values: Mapping = None) -> float:
-            assert 'nan_counter' in values, "'nan_counter' not in values, minimizer not correctly implemented"
-            nan_counter = values['nan_counter']
+        def minimize_nan(
+            self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping = None
+        ) -> float:
+            assert (
+                "nan_counter" in values
+            ), "'nan_counter' not in values, minimizer not correctly implemented"
+            nan_counter = values["nan_counter"]
             if nan_counter < self.nan_tol:
-                last_loss = values.get('old_loss')
-                last_grad = values.get('old_grad')
+                last_loss = values.get("old_loss")
+                last_grad = values.get("old_grad")
                 if last_grad is not None:
                     last_grad = -last_grad
                 if last_loss is not None:
 
                     loss_evaluated = last_loss + self.nan_penalty * nan_counter
                 else:
-                    loss_evaluated = values.get('loss')
+                    loss_evaluated = values.get("loss")
                 if isinstance(loss_evaluated, str):
                     raise RuntimeError("Loss starts already with NaN, cannot minimize.")
                 return loss_evaluated, last_grad
@@ -131,4 +159,5 @@ class DefaultToyStrategy(PushbackStrategy, ToyStrategyFail):
     This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a failure
     instead of rising an error.
     """
+
     pass

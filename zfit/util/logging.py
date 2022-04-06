@@ -44,16 +44,16 @@ def get_logger(name, stdout_level=None, file_level=None, file_name=None):
     Raise:
         ValueError if `file_level` has been specified without having configured the output file.
     """
-    if not name.startswith('zfit'):
-        name = 'zfit.{}'.format(name.rstrip('.'))
+    if not name.startswith("zfit"):
+        name = "zfit.{}".format(name.rstrip("."))
     if stdout_level is None:
         stdout_level = logging.WARNING
-    format_stream = ("%(asctime)s - %(name)s | "
-                     "%(log_color)s%(levelname)-8s%(reset)s | "
-                     "%(log_color)s%(message)s%(reset)s")
-    format_file = ("%(asctime)s - %(name)s | "
-                   "%(levelname)-8s | "
-                   "%(message)s")
+    format_stream = (
+        "%(asctime)s - %(name)s | "
+        "%(log_color)s%(levelname)-8s%(reset)s | "
+        "%(log_color)s%(message)s%(reset)s"
+    )
+    format_file = "%(asctime)s - %(name)s | " "%(levelname)-8s | " "%(message)s"
     logger = logging.getLogger(name)
     if not logger.handlers:
         # Add Stream handler
@@ -69,8 +69,7 @@ def get_logger(name, stdout_level=None, file_level=None, file_name=None):
     # Find the file handler
     for handler in logger.handlers:
         if isinstance(handler, logging.FileHandler):
-            if not file_name or \
-                    os.path.abspath(file_name) == handler.baseFilename:
+            if not file_name or os.path.abspath(file_name) == handler.baseFilename:
                 file_handler = handler
                 break
     # If requested, create one
@@ -81,7 +80,9 @@ def get_logger(name, stdout_level=None, file_level=None, file_name=None):
         logger.addHandler(file_handler)
     # Set its level
     if file_level is not None and file_handler is None:
-        raise ValueError("Requested change in file log level but no file logger has been  configured")
+        raise ValueError(
+            "Requested change in file log level but no file logger has been  configured"
+        )
     if file_level is None:
         file_level = logging.WARNING
     if file_handler is not None:

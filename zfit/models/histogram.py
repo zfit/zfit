@@ -13,13 +13,12 @@ from ..util.exception import SpecificFunctionNotImplemented
 
 
 class HistogramPDF(BaseBinnedPDFV1):
-
     def __init__(
-            self,
-            data: ztyping.BinnedDataInputType,
-            extended: Optional[ztyping.ExtendedInputType] = None,
-            norm: Optional[ztyping.NormInputType] = None,
-            name: str = "HistogramPDF"
+        self,
+        data: ztyping.BinnedDataInputType,
+        extended: Optional[ztyping.ExtendedInputType] = None,
+        norm: Optional[ztyping.NormInputType] = None,
+        name: str = "HistogramPDF",
     ) -> None:
         """Binned PDF resembling a histogram.
 
@@ -49,9 +48,12 @@ class HistogramPDF(BaseBinnedPDFV1):
         if not isinstance(data, ZfitBinnedData):
             if isinstance(data, PlottableHistogram):
                 from zfit._data.binneddatav1 import BinnedData
+
                 data = BinnedData.from_hist(data)
             else:
-                raise TypeError("data must be of type PlottableHistogram (UHI) or ZfitBinnedData")
+                raise TypeError(
+                    "data must be of type PlottableHistogram (UHI) or ZfitBinnedData"
+                )
 
         params = {}
         if extended is True:
@@ -59,10 +61,12 @@ class HistogramPDF(BaseBinnedPDFV1):
             extended = znp.sum(data.values())
         else:
             self._automatically_extended = False
-        super().__init__(obs=data.space, extended=extended, norm=norm, params=params, name=name)
+        super().__init__(
+            obs=data.space, extended=extended, norm=norm, params=params, name=name
+        )
         self._data = data
 
-    @supports(norm='space')
+    @supports(norm="space")
     def _ext_pdf(self, x, norm):
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
@@ -71,21 +75,21 @@ class HistogramPDF(BaseBinnedPDFV1):
         density = counts / areas
         return density
 
-    @supports(norm='space')
+    @supports(norm="space")
     def _pdf(self, x, norm):
         counts = self._rel_counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
         density = counts / areas
         return density
 
-    @supports(norm='space')
+    @supports(norm="space")
     def _counts(self, x, norm=None):
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
         values = self._data.values()
         return values
 
-    @supports(norm='space')
+    @supports(norm="space")
     def _rel_counts(self, x, norm=None):
         values = self._data.values()
         return values / znp.sum(values)

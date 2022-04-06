@@ -7,7 +7,7 @@ from ..settings import ztypes
 from . import binning as binning_util
 
 
-@z.function(wraps='tensor')
+@z.function(wraps="tensor")
 def calc_f(s, f, squared_integers, grid_data_dct2, N):
     # Step one: estimate t_s from |f^(s+1)|^2
     one_half = tf.constant(1.0 / 2.0, ztypes.float)
@@ -18,24 +18,24 @@ def calc_f(s, f, squared_integers, grid_data_dct2, N):
 
     odd_numbers_prod = tf.math.reduce_prod(tf.range(one, two * s + one, 2))
     K0 = odd_numbers_prod / tf.math.sqrt(two * pi)
-    const = (one + tf.math.pow(one_half,
-                               s + one_half)) / three
-    time = (tf.math.pow(two
-                        * const * K0 / (N * f), two
-                        / (three + two * s)))
+    const = (one + tf.math.pow(one_half, s + one_half)) / three
+    time = tf.math.pow(two * const * K0 / (N * f), two / (three + two * s))
 
     # Step two: estimate |f^s| from t_s
-    f = (one_half
-         * tf.math.pow(pi, (two * s))
-         * tf.math.reduce_sum(tf.math.pow(squared_integers, s)
-                              * grid_data_dct2 * tf.math.exp(-squared_integers
-                                                             * tf.math.pow(pi,
-                                                                           two) * time)))
+    f = (
+        one_half
+        * tf.math.pow(pi, (two * s))
+        * tf.math.reduce_sum(
+            tf.math.pow(squared_integers, s)
+            * grid_data_dct2
+            * tf.math.exp(-squared_integers * tf.math.pow(pi, two) * time)
+        )
+    )
 
     return f
 
 
-@z.function(wraps='tensor', autograph=True)
+@z.function(wraps="tensor", autograph=True)
 def _fixed_point(t, N, squared_integers, grid_data_dct2):
     r"""
     Compute the fixed point as described in the paper by Botev et al.
@@ -71,29 +71,43 @@ def _fixed_point(t, N, squared_integers, grid_data_dct2):
     ell = tf.constant(7, ztypes.float)
 
     # Fast evaluation of |f^l|^2 using the DCT, see Plancherel theorem
-    f = (tf.constant(0.5, ztypes.float)
-         * tf.math.pow(tf.constant(np.pi, ztypes.float), (tf.constant(2.0, ztypes.float) * ell))
-         * tf.math.reduce_sum(tf.math.pow(squared_integers, ell)
-                              * grid_data_dct2
-                              * tf.math.exp(-squared_integers
-                                            * tf.math.pow(tf.constant(np.pi, ztypes.float),
-                                                          tf.constant(2.0, ztypes.float)) * t)))
+    f = (
+        tf.constant(0.5, ztypes.float)
+        * tf.math.pow(
+            tf.constant(np.pi, ztypes.float), (tf.constant(2.0, ztypes.float) * ell)
+        )
+        * tf.math.reduce_sum(
+            tf.math.pow(squared_integers, ell)
+            * grid_data_dct2
+            * tf.math.exp(
+                -squared_integers
+                * tf.math.pow(
+                    tf.constant(np.pi, ztypes.float), tf.constant(2.0, ztypes.float)
+                )
+                * t
+            )
+        )
+    )
 
-    i = tf.constant(6., dtype=ztypes.float)
+    i = tf.constant(6.0, dtype=ztypes.float)
     while_condition = lambda i, f: i > 1
 
     def body(i, f):
         # do something here which you want to do in your loop
         # increment i
         f = calc_f(i, f, squared_integers, grid_data_dct2, N)
-        return i - 1., f
+        return i - 1.0, f
 
     # do the loop:
-    fnew = tf.while_loop(while_condition, body, (i, f), maximum_iterations=5, parallel_iterations=5)[1]
+    fnew = tf.while_loop(
+        while_condition, body, (i, f), maximum_iterations=5, parallel_iterations=5
+    )[1]
 
     # This is the minimizer of the AMISE
-    t_opt = tf.math.pow(tf.constant(2 * np.sqrt(np.pi), ztypes.float)
-                        * N * fnew, tf.constant(-2.0 / 5.0, ztypes.float))
+    t_opt = tf.math.pow(
+        tf.constant(2 * np.sqrt(np.pi), ztypes.float) * N * fnew,
+        tf.constant(-2.0 / 5.0, ztypes.float),
+    )
 
     # Return the difference between the original t and the optimal value
     return t - t_opt
@@ -110,11 +124,15 @@ def _find_root(function, N, squared_integers, grid_data_dct2):
     """
     # From the implementation by Botev, the original paper author
     # Rule of thumb of obtaining a feasible solution
-    N2 = tf.math.maximum(tf.math.minimum(tf.constant(1050, ztypes.float), N), tf.constant(50, ztypes.float))
+    N2 = tf.math.maximum(
+        tf.math.minimum(tf.constant(1050, ztypes.float), N),
+        tf.constant(50, ztypes.float),
+    )
     tol = 10e-12 + 0.01 * (N2 - 50) / 1000
     left_bracket = tf.constant(0.0, dtype=ztypes.float)
-    right_bracket = tf.constant(10e-12, ztypes.float) + tf.constant(0.01, ztypes.float) * \
-                    (N2 - tf.constant(50, ztypes.float)) / tf.constant(1000, ztypes.float)
+    right_bracket = tf.constant(10e-12, ztypes.float) + tf.constant(
+        0.01, ztypes.float
+    ) * (N2 - tf.constant(50, ztypes.float)) / tf.constant(1000, ztypes.float)
 
     converged = tf.constant(False)
     t_star = tf.constant(0.0, dtype=ztypes.float)
@@ -122,16 +140,12 @@ def _find_root(function, N, squared_integers, grid_data_dct2):
     def fixed_point_function(t):
         return _fixed_point(t, N, squared_integers, grid_data_dct2)
 
-    def condition(right_bracket, converged, t_star): return tf.math.logical_not(converged)
+    def condition(right_bracket, converged, t_star):
+        return tf.math.logical_not(converged)
 
     def body(right_bracket, converged, t_star):
         t_star, value_at_t_star, num_iterations, converged = root_search.brentq(
-            fixed_point_function,
-            left_bracket,
-            right_bracket,
-            None,
-            None,
-            2e-12
+            fixed_point_function, left_bracket, right_bracket, None, None, 2e-12
         )
 
         t_star = t_star - value_at_t_star
@@ -141,7 +155,9 @@ def _find_root(function, N, squared_integers, grid_data_dct2):
         return right_bracket, converged, t_star
 
     # While a solution is not found, increase the tolerance and try again
-    right_bracket, converged, t_star = tf.while_loop(condition, body, [right_bracket, converged, t_star])
+    right_bracket, converged, t_star = tf.while_loop(
+        condition, body, [right_bracket, converged, t_star]
+    )
 
     return t_star
 
@@ -166,7 +182,8 @@ def _calculate_t_star(data, num_grid_points, binning_method, weights):
 
     # Compute the bandwidth
     squared_integers = tf.math.pow(
-        tf.range(1, num_grid_points, dtype=ztypes.float), tf.constant(2, ztypes.float))
+        tf.range(1, num_grid_points, dtype=ztypes.float), tf.constant(2, ztypes.float)
+    )
     grid_data_dct2 = tf.math.pow(grid_data_dct[1:], 2) / 4
 
     # Solve for the optimal (in the AMISE sense) t
@@ -181,8 +198,12 @@ def _calculate_density(t_star, R, squared_integers, grid_data_dct):
 
     # Smooth the initial data using the computed optimal t
     # Multiplication in frequency domain is convolution
-    grid_data_dct_t = grid_data_dct * tf.math.exp(-squared_integers * tf.math.pow(tf.constant(
-        np.pi, ztypes.float), tf.constant(2.0, ztypes.float)) * t_star / tf.constant(2.0, ztypes.float))
+    grid_data_dct_t = grid_data_dct * tf.math.exp(
+        -squared_integers
+        * tf.math.pow(tf.constant(np.pi, ztypes.float), tf.constant(2.0, ztypes.float))
+        * t_star
+        / tf.constant(2.0, ztypes.float)
+    )
 
     # Diving by 2 done because of the implementation of tf.signal.idct
     density = tf.signal.idct(grid_data_dct_t, type=2) / (2 * R)
@@ -193,20 +214,26 @@ def _calculate_density(t_star, R, squared_integers, grid_data_dct):
     return density
 
 
-def calculate_bandwidth(data, num_grid_points=1024, binning_method='linear', weights=None):
+def calculate_bandwidth(
+    data, num_grid_points=1024, binning_method="linear", weights=None
+):
     data = tf.cast(data, ztypes.float)
 
     t_star, R, squared_integers, grid_data_dct, grid = _calculate_t_star(
-        data, num_grid_points, binning_method, weights)
+        data, num_grid_points, binning_method, weights
+    )
 
     return tf.math.sqrt(t_star) * R
 
 
-def calculate_bandwidth_and_density(data, num_grid_points=1024, binning_method='linear', weights=None):
+def calculate_bandwidth_and_density(
+    data, num_grid_points=1024, binning_method="linear", weights=None
+):
     data = tf.cast(data, ztypes.float)
 
     t_star, R, squared_integers, grid_data_dct, grid = _calculate_t_star(
-        data, num_grid_points, binning_method, weights)
+        data, num_grid_points, binning_method, weights
+    )
 
     bandwidth = tf.math.sqrt(t_star) * R
     density = _calculate_density(t_star, R, squared_integers, grid_data_dct)

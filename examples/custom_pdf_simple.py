@@ -6,11 +6,12 @@ from zfit import z
 
 class CustomPDF(zfit.pdf.ZPDF):
     """1-dimensional PDF implementing the exp(alpha * x) shape."""
-    _PARAMS = ['alpha']  # specify which parameters to take
+
+    _PARAMS = ["alpha"]  # specify which parameters to take
 
     def _unnormalized_pdf(self, x):  # implement function
         data = z.unstack_x(x)
-        alpha = self.params['alpha']
+        alpha = self.params["alpha"]
 
         return z.exp(alpha * data)
 

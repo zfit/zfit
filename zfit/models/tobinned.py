@@ -13,9 +13,13 @@ from ..util.warnings import warn_advanced_feature
 
 
 class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
-
-    def __init__(self, pdf: ZfitPDF, space: ZfitSpace, extended: ztyping.ExtendedInputType = None,
-                 norm: ztyping.NormInputType = None) -> None:
+    def __init__(
+        self,
+        pdf: ZfitPDF,
+        space: ZfitSpace,
+        extended: ztyping.ExtendedInputType = None,
+        norm: ztyping.NormInputType = None,
+    ) -> None:
         """Create a binned pdf from an unbinned pdf binning in *space*.
 
         Args:
@@ -31,11 +35,21 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         """
         if pdf.is_extended:
             if extended is not None:
-                warn_advanced_feature(f"PDF {pdf} is already extended, but extended also given {extended}. Will"
-                                      f" use the given yield.", identifier="extend_wrapped_extended")
+                warn_advanced_feature(
+                    f"PDF {pdf} is already extended, but extended also given {extended}. Will"
+                    f" use the given yield.",
+                    identifier="extend_wrapped_extended",
+                )
             else:
                 extended = pdf.get_yield()
-        super().__init__(obs=space, extended=extended, norm=norm, models=pdf, params={}, name="BinnedFromUnbinnedPDF")
+        super().__init__(
+            obs=space,
+            extended=extended,
+            norm=norm,
+            models=pdf,
+            params={},
+            name="BinnedFromUnbinnedPDF",
+        )
         self.pdfs = self.models
 
     # def _get_params(self, floating: bool | None = True, is_yield: bool | None = None,
@@ -52,14 +66,18 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         edges_flat = [znp.reshape(edge, [-1]) for edge in edges]
         lowers = [edge[:-1] for edge in edges_flat]
         uppers = [edge[1:] for edge in edges_flat]
-        lowers_meshed = znp.meshgrid(*lowers, indexing='ij')
-        uppers_meshed = znp.meshgrid(*uppers, indexing='ij')
+        lowers_meshed = znp.meshgrid(*lowers, indexing="ij")
+        uppers_meshed = znp.meshgrid(*uppers, indexing="ij")
         shape = tf.shape(lowers_meshed[0])
-        lowers_meshed_flat = [znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed]
-        uppers_meshed_flat = [znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed]
+        lowers_meshed_flat = [
+            znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed
+        ]
+        uppers_meshed_flat = [
+            znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed
+        ]
         lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
-        options = {'type': 'bins'}
+        options = {"type": "bins"}
 
         @z.function
         def integrate_one(limits):
@@ -81,16 +99,21 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         edges_flat = [znp.reshape(edge, [-1]) for edge in edges]
         lowers = [edge[:-1] for edge in edges_flat]
         uppers = [edge[1:] for edge in edges_flat]
-        lowers_meshed = znp.meshgrid(*lowers, indexing='ij')
-        uppers_meshed = znp.meshgrid(*uppers, indexing='ij')
+        lowers_meshed = znp.meshgrid(*lowers, indexing="ij")
+        uppers_meshed = znp.meshgrid(*uppers, indexing="ij")
         shape = tf.shape(lowers_meshed[0])
-        lowers_meshed_flat = [znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed]
-        uppers_meshed_flat = [znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed]
+        lowers_meshed_flat = [
+            znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed
+        ]
+        uppers_meshed_flat = [
+            znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed
+        ]
         lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
-        options = {'type': 'bins'}
+        options = {"type": "bins"}
 
         if pdf.is_extended:
+
             @z.function
             def integrate_one(limits):
                 l, u = tf.unstack(limits)
@@ -99,6 +122,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
             missing_yield = False
         else:
+
             @z.function
             def integrate_one(limits):
                 l, u = tf.unstack(limits)

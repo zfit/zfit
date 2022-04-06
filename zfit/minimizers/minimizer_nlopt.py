@@ -16,8 +16,12 @@ import numpy as np
 from ..core.parameter import assign_values
 from ..settings import run
 from ..util.exception import MaximumIterationReached
-from .baseminimizer import (NOT_SUPPORTED, BaseMinimizer, minimize_supports,
-                            print_minimization_status)
+from .baseminimizer import (
+    NOT_SUPPORTED,
+    BaseMinimizer,
+    minimize_supports,
+    print_minimization_status,
+)
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
@@ -26,23 +30,25 @@ from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
 class NLoptBaseMinimizerV1(BaseMinimizer):
     _ALL_NLOPT_TOL = (
         # 'fatol',
-        'ftol',
-        'xatol',
-        'xtol'
+        "ftol",
+        "xatol",
+        "xtol",
     )
 
-    def __init__(self,
-                 algorithm: int,
-                 tol: Optional[float] = None,
-                 gradient: Optional[Union[Callable, str, NOT_SUPPORTED]] = NOT_SUPPORTED,
-                 hessian: Optional[Union[Callable, str, NOT_SUPPORTED]] = NOT_SUPPORTED,
-                 maxiter: Optional[Union[int, str]] = None,
-                 minimizer_options: Optional[Mapping[str, object]] = None,
-                 internal_tols: Mapping[str, Optional[float]] = None,
-                 verbosity: Optional[int] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt Base Minimizer V1"):
+    def __init__(
+        self,
+        algorithm: int,
+        tol: Optional[float] = None,
+        gradient: Optional[Union[Callable, str, NOT_SUPPORTED]] = NOT_SUPPORTED,
+        hessian: Optional[Union[Callable, str, NOT_SUPPORTED]] = NOT_SUPPORTED,
+        maxiter: Optional[Union[int, str]] = None,
+        minimizer_options: Optional[Mapping[str, object]] = None,
+        internal_tols: Mapping[str, Optional[float]] = None,
+        verbosity: Optional[int] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt Base Minimizer V1",
+    ):
         """NLopt is a library that contains multiple different optimization algorithms.
 
          |@doc:minimizer.nlopt.info| More information on the algorithm can be found
@@ -129,8 +135,10 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         try:
             import nlopt
         except ImportError:
-            raise ImportError("nlopt is not installed. This is an optional dependency. To include it,you"
-                              " can install zfit with `pip install zfit[nlopt]` or `pip install zfit[all]`.")
+            raise ImportError(
+                "nlopt is not installed. This is an optional dependency. To include it,you"
+                " can install zfit with `pip install zfit[nlopt]` or `pip install zfit[all]`."
+            )
         self._algorithm = algorithm
         if minimizer_options is None:
             minimizer_options = {}
@@ -139,9 +147,9 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         if gradient is not NOT_SUPPORTED:
             if gradient is False:
                 raise ValueError("grad cannot be False for NLopt minimizer.")
-            minimizer_options['gradient'] = gradient
+            minimizer_options["gradient"] = gradient
         if hessian is not NOT_SUPPORTED:
-            minimizer_options['hessian'] = hessian
+            minimizer_options["hessian"] = hessian
 
         if internal_tols is None:
             internal_tols = {}
@@ -156,13 +164,15 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         self._internal_maxiter = 20
         self._nrandom_max = 5
 
-        super().__init__(name=name,
-                         tol=tol,
-                         verbosity=verbosity,
-                         minimizer_options=minimizer_options,
-                         strategy=strategy,
-                         criterion=criterion,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            tol=tol,
+            verbosity=verbosity,
+            minimizer_options=minimizer_options,
+            strategy=strategy,
+            criterion=criterion,
+            maxiter=maxiter,
+        )
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
@@ -207,28 +217,33 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             local_minimizer.set_lower_bounds(lower)
             local_minimizer.set_upper_bounds(upper)
 
-        maxcor = minimizer_options.pop('maxcor', None)
+        maxcor = minimizer_options.pop("maxcor", None)
         if maxcor is not None:
             minimizer.set_vector_storage(maxcor)
 
-        population = minimizer_options.pop('population', None)
+        population = minimizer_options.pop("population", None)
         if population is not None:
             minimizer.set_population(population)
 
         for name, value in minimizer_options.items():
             minimizer.set_param(name, value)
 
-        minimizer.set_param('verbosity', max(0, self.verbosity - 6))
+        minimizer.set_param("verbosity", max(0, self.verbosity - 6))
 
         criterion = self.criterion(tol=self.tol, loss=loss, params=params)
-        init_tol = min([math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e3])
+        init_tol = min(
+            [math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e3]
+        )
         # init_tol *= 10
         internal_tol = self._internal_tols
-        internal_tol = {tol: init_tol if init is None else init for tol, init in internal_tol.items()}
-        if 'xtol' in internal_tol:
-            internal_tol['xtol'] **= 0.5
-        if 'ftol' in internal_tol:
-            internal_tol['ftol'] **= 0.5
+        internal_tol = {
+            tol: init_tol if init is None else init
+            for tol, init in internal_tol.items()
+        }
+        if "xtol" in internal_tol:
+            internal_tol["xtol"] **= 0.5
+        if "ftol" in internal_tol:
+            internal_tol["ftol"] **= 0.5
 
         valid = None
         edm = None
@@ -241,25 +256,31 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             init_scale = []
             approx_step_sizes = {}
             if result_prelim:
-                approx_step_sizes = result_prelim.hesse(params=params, method='approx', name='approx')
+                approx_step_sizes = result_prelim.hesse(
+                    params=params, method="approx", name="approx"
+                )
             empty_dict = {}
             for param in params:
-                step_size = approx_step_sizes.get(param, empty_dict).get('error')
+                step_size = approx_step_sizes.get(param, empty_dict).get("error")
                 if step_size is None and param.has_step_size:
                     step_size = param.step_size
                 init_scale.append(step_size)
 
             minimizer.set_initial_step(init_scale)
 
-            self._set_tols_inplace(minimizer=minimizer,
-                                   internal_tol=internal_tol,
-                                   criterion_value=criterion_value)
+            self._set_tols_inplace(
+                minimizer=minimizer,
+                internal_tol=internal_tol,
+                criterion_value=criterion_value,
+            )
 
             # some (global) optimizers use a local minimizer, set that here
             if local_minimizer is not None:
-                self._set_tols_inplace(minimizer=local_minimizer,
-                                       internal_tol=internal_tol,
-                                       criterion_value=criterion_value)
+                self._set_tols_inplace(
+                    minimizer=local_minimizer,
+                    internal_tol=internal_tol,
+                    criterion_value=criterion_value,
+                )
 
                 minimizer.set_local_optimizer(local_minimizer)
 
@@ -272,28 +293,43 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 valid_message = "Maxiter reached, terminated without convergence"
             except RuntimeError:
                 if self.verbosity > 3:
-                    print("Minimization in NLopt failed, restarting with slightly varied parameters.")
+                    print(
+                        "Minimization in NLopt failed, restarting with slightly varied parameters."
+                    )
                 if nrandom < self._nrandom_max:  # in order not to start too close
-                    init_scale = np.where(init_scale != None, init_scale, np.ones_like(init_scale))
-                    init_scale_no_nan = np.nan_to_num(init_scale, nan=1.)
+                    init_scale = np.where(
+                        init_scale != None, init_scale, np.ones_like(init_scale)
+                    )
+                    init_scale_no_nan = np.nan_to_num(init_scale, nan=1.0)
 
-                    xvalues += np.random.uniform(low=-init_scale_no_nan, high=init_scale_no_nan) / 2
+                    xvalues += (
+                        np.random.uniform(
+                            low=-init_scale_no_nan, high=init_scale_no_nan
+                        )
+                        / 2
+                    )
                     nrandom += 1
             else:
                 maxiter_reached = evaluator.niter > evaluator.maxiter
 
             assign_values(params, xvalues)
-            fmin = minimizer.last_optimum_value()  # TODO: what happens if minimization terminated?
+            fmin = (
+                minimizer.last_optimum_value()
+            )  # TODO: what happens if minimization terminated?
             with evaluator.ignore_maxiter():
-                result_prelim = FitResult.from_nlopt(loss,
-                                                     minimizer=self,
-                                                     opt=minimizer,
-                                                     edm=CRITERION_NOT_AVAILABLE, niter=evaluator.nfunc_eval,
-                                                     params=params,
-                                                     evaluator=evaluator,
-                                                     criterion=None,
-                                                     values=xvalues,
-                                                     valid=valid, message=valid_message)
+                result_prelim = FitResult.from_nlopt(
+                    loss,
+                    minimizer=self,
+                    opt=minimizer,
+                    edm=CRITERION_NOT_AVAILABLE,
+                    niter=evaluator.nfunc_eval,
+                    params=params,
+                    evaluator=evaluator,
+                    criterion=None,
+                    values=xvalues,
+                    valid=valid,
+                    message=valid_message,
+                )
                 converged = criterion.converged(result_prelim)
                 valid = converged
             criterion_value = criterion.last_value
@@ -303,30 +339,47 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 edm = CRITERION_NOT_AVAILABLE
 
             if self.verbosity > 5:
-                print_minimization_status(converged=converged, criterion=criterion, evaluator=evaluator, i=i, fmin=fmin,
-                                          internal_tol=internal_tol)
+                print_minimization_status(
+                    converged=converged,
+                    criterion=criterion,
+                    evaluator=evaluator,
+                    i=i,
+                    fmin=fmin,
+                    internal_tol=internal_tol,
+                )
 
             if converged or maxiter_reached:
                 break
 
             # update the tols
-            self._update_tol_inplace(criterion_value=criterion_value, internal_tol=internal_tol)
+            self._update_tol_inplace(
+                criterion_value=criterion_value, internal_tol=internal_tol
+            )
 
         else:
             valid = False
             valid_message = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tol} not reached."
 
-        return FitResult.from_nlopt(loss, minimizer=self.copy(), opt=minimizer, edm=edm,
-                                    niter=evaluator.niter, params=params, evaluator=evaluator,
-                                    values=xvalues, valid=valid, criterion=criterion,
-                                    message=valid_message)
+        return FitResult.from_nlopt(
+            loss,
+            minimizer=self.copy(),
+            opt=minimizer,
+            edm=edm,
+            niter=evaluator.niter,
+            params=params,
+            evaluator=evaluator,
+            values=xvalues,
+            valid=valid,
+            criterion=criterion,
+            message=valid_message,
+        )
 
     def _set_tols_inplace(self, minimizer, internal_tol, criterion_value):
         # set all the tolerances
-        fatol = internal_tol.get('fatol')
+        fatol = internal_tol.get("fatol")
         if fatol is not None:
-            minimizer.set_ftol_abs(fatol ** 0.5)
-        xatol = internal_tol.get('xatol')
+            minimizer.set_ftol_abs(fatol**0.5)
+        xatol = internal_tol.get("xatol")
         if xatol is not None:
             # minimizer.set_xtol_abs([xatol] * len(params))
             minimizer.set_xtol_abs(xatol)
@@ -334,26 +387,27 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         if criterion_value is not None:
             tol_factor_full = self.tol / criterion_value
             if tol_factor_full < 1e-8:
-                ftol = internal_tol.get('ftol')
+                ftol = internal_tol.get("ftol")
                 if ftol is not None:
                     minimizer.set_ftol_rel(ftol)
 
-                xtol = internal_tol.get('xtol')
+                xtol = internal_tol.get("xtol")
                 if xtol is not None:
                     # minimizer.set_xtol_rel([xtol] * len(params))  # TODO: one value or vector?
                     minimizer.set_xtol_rel(xtol)  # TODO: one value or vector?
 
 
 class NLoptLBFGSV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 maxcor: Optional[int] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt L-BFGS V1"
-                 ) -> None:
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        maxcor: Optional[int] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt L-BFGS V1",
+    ) -> None:
         """Local, gradient-based quasi-Newton minimizer using the low storage BFGS Hessian approximation.
 
         This is most probably the most popular algorithm for gradient based local minimum searches and also
@@ -427,32 +481,36 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                    has been found. |@docend:minimizer.criterion|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        super().__init__(name=name,
-                         algorithm=nlopt.LD_LBFGS,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options={'maxcor': maxcor},
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=nlopt.LD_LBFGS,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options={"maxcor": maxcor},
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
         @property
         def maxcor(self):
-            return self.minimizer_options.get('maxcor')
+            return self.minimizer_options.get("maxcor")
 
 
 class NLoptShiftVarV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 maxcor: Optional[int] = None,
-                 rank: Optional[int] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt Shifted Variable Memory") -> None:
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        maxcor: Optional[int] = None,
+        rank: Optional[int] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name="NLopt Shifted Variable Memory",
+    ) -> None:
         """Local, gradient-based minimizer using a shifted limited-memory variable-metric.
 
         This algorithm is based on a Fortran implementation of a shifted limited-memory variable-metric
@@ -533,16 +591,18 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
         else:
             raise ValueError(f"rank has to be either 1 or 2, not {rank}")
         self._rank = rank
-        super().__init__(name=name,
-                         algorithm=algorithm,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options={'maxcor': maxcor},
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=algorithm,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options={"maxcor": maxcor},
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
         @property
         def rank(self):
@@ -550,18 +610,20 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
 
         @property
         def maxcor(self):
-            return self.minimizer_options.get('maxcor')
+            return self.minimizer_options.get("maxcor")
 
 
 class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 maxcor: Optional[int] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name="NLopt Truncated Newton") -> None:
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        maxcor: Optional[int] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name="NLopt Truncated Newton",
+    ) -> None:
         """Local, gradient-based truncated Newton minimizer using an inexact algorithm.
 
         This algorithm is based on a Fortran implementation of a
@@ -630,31 +692,34 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
                    has been found. |@docend:minimizer.criterion|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        super().__init__(name=name,
-                         algorithm=nlopt.LD_TNEWTON_PRECOND_RESTART,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options={'maxcor': maxcor},
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=nlopt.LD_TNEWTON_PRECOND_RESTART,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options={"maxcor": maxcor},
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
         @property
         def maxcor(self):
-            return self.minimizer_options.get('maxcor')
+            return self.minimizer_options.get("maxcor")
 
 
 class NLoptSLSQPV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt SLSQP"
-                 ) -> None:
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt SLSQP",
+    ) -> None:
         r"""Local gradient based minimizer using a sequential quadratic programming.
 
         This is a sequential quadratic programming (SQP) algorithm for
@@ -741,27 +806,30 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                    has been found. |@docend:minimizer.criterion|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        super().__init__(name=name,
-                         algorithm=nlopt.LD_SLSQP,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options={},
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=nlopt.LD_SLSQP,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options={},
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
 
 class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt BOBYQA"
-                 ) -> None:
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt BOBYQA",
+    ) -> None:
         """Derivative-free local minimizer that iteratively constructed quadratic approximation for the loss.
 
         This is an algorithm derived from the `BOBYQA subroutine`_ of M. J. D.
@@ -833,26 +901,30 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
                    has been found. |@docend:minimizer.criterion|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        super().__init__(name=name,
-                         algorithm=nlopt.LN_BOBYQA,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options={},
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=nlopt.LN_BOBYQA,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options={},
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
 
 class NLoptMMAV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt MMA"):
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt MMA",
+    ):
         """Method-of-moving-asymptotes for gradient-based local minimization.
 
         Globally-convergent method-of-moving-asymptotes (MMA) for gradient-based local minimization.
@@ -925,26 +997,30 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
                    has been found. |@docend:minimizer.criterion|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        super().__init__(name=name,
-                         algorithm=nlopt.LD_MMA,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options={},
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=nlopt.LD_MMA,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options={},
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
 
 class NLoptCCSAQV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt CCSAQ"):
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt CCSAQ",
+    ):
         """MMA-like minimizer with simpler, quadratic local approximations.
 
         CCSA is an algorithm from the same paper as MMA as described in:
@@ -1008,26 +1084,30 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
                    has been found. |@docend:minimizer.criterion|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        super().__init__(name=name,
-                         algorithm=nlopt.LD_CCSAQ,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options={},
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=nlopt.LD_CCSAQ,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options={},
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
 
 class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt COBYLA"):
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt COBYLA",
+    ):
         r"""Derivative free simplex minimizer using a linear approximation with trust region steps.
 
         COBYLA (Constrained Optimization BY Linear Approximations) constructs successive linear approximations of the
@@ -1120,26 +1200,30 @@ class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
                    has been found. |@docend:minimizer.criterion|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        super().__init__(name=name,
-                         algorithm=nlopt.LN_COBYLA,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options={},
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=nlopt.LN_COBYLA,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options={},
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
 
 class NLoptSubplexV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt Subplex"):
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt Subplex",
+    ):
         """Local derivative free minimizer which improves on the Nealder-Mead algorithm.
 
         This is a re-implementation of Tom Rowan’s “Subplex” algorithm.
@@ -1214,30 +1298,33 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
                    has been found. |@docend:minimizer.criterion|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        super().__init__(name=name,
-                         algorithm=nlopt.LN_SBPLX,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options={},
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=nlopt.LN_SBPLX,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options={},
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
 
 class NLoptMLSLV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 population: Optional[int] = None,
-                 randomized: Optional[bool] = None,
-                 local_minimizer: Optional[Union[int, Mapping[str, object]]] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt MLSL",
-                 ) -> None:
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        population: Optional[int] = None,
+        randomized: Optional[bool] = None,
+        local_minimizer: Optional[Union[int, Mapping[str, object]]] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt MLSL",
+    ) -> None:
         """Global minimizer using local optimization by randomly selecting points.
 
         “Multi-Level Single-Linkage” (MLSL) is an algorithm for global optimization by
@@ -1336,34 +1423,38 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
 
         local_minimizer = nlopt.LD_LBFGS if local_minimizer is None else local_minimizer
         if not isinstance(local_minimizer, collections.Mapping):
-            local_minimizer = {'algorithm': local_minimizer}
-        if 'algorithm' not in local_minimizer:
+            local_minimizer = {"algorithm": local_minimizer}
+        if "algorithm" not in local_minimizer:
             raise ValueError("algorithm needs to be specified in local_minimizer")
 
-        minimizer_options = {'local_minimizer_options': local_minimizer}
+        minimizer_options = {"local_minimizer_options": local_minimizer}
         if population is not None:
-            minimizer_options['population'] = population
-        super().__init__(name=name,
-                         algorithm=algorithm,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options=minimizer_options,
-                         strategy=strategy,
-                         maxiter=maxiter)
+            minimizer_options["population"] = population
+        super().__init__(
+            name=name,
+            algorithm=algorithm,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options=minimizer_options,
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
 
 class NLoptStoGOV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 randomized: Optional[bool] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt MLSL"):
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        randomized: Optional[bool] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt MLSL",
+    ):
         """Global minimizer which divides the space into smaller rectangles and uses a local BFGS variant inside.
 
         StoGO is a global optimization algorithm that works by systematically dividing
@@ -1443,26 +1534,30 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
             algorithm = nlopt.GD_STOGO_RAND
         else:
             algorithm = nlopt.GD_STOGO
-        super().__init__(name=name,
-                         algorithm=algorithm,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options=None,
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=algorithm,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options=None,
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
 
 class NLoptESCHV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt ESCH"):
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt ESCH",
+    ):
         """Global minimizer using an evolutionary algorithm.
 
         This is a modified Evolutionary Algorithm for global optimization,
@@ -1547,27 +1642,31 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
 
         algorithm = nlopt.GN_ESCH
 
-        super().__init__(name=name,
-                         algorithm=algorithm,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options=None,
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=algorithm,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options=None,
+            strategy=strategy,
+            maxiter=maxiter,
+        )
 
 
 class NLoptISRESV1(NLoptBaseMinimizerV1):
-    def __init__(self,
-                 tol: Optional[float] = None,
-                 population: Optional[int] = None,
-                 verbosity: Optional[int] = None,
-                 maxiter: Optional[Union[int, str]] = None,
-                 strategy: Optional[ZfitStrategy] = None,
-                 criterion: Optional[ConvergenceCriterion] = None,
-                 name: str = "NLopt ISRES"):
+    def __init__(
+        self,
+        tol: Optional[float] = None,
+        population: Optional[int] = None,
+        verbosity: Optional[int] = None,
+        maxiter: Optional[Union[int, str]] = None,
+        strategy: Optional[ZfitStrategy] = None,
+        criterion: Optional[ConvergenceCriterion] = None,
+        name: str = "NLopt ISRES",
+    ):
         """Improved Stochastic Ranking Evolution Strategy using a mutation rule and differential variation.
 
          The evolution strategy is based on a combination of a mutation rule (with a log-normal step-size update and
@@ -1644,17 +1743,19 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
 
         algorithm = nlopt.GN_ISRES
         if population is not None:
-            minimizer_options = {'population': population}
+            minimizer_options = {"population": population}
         else:
             minimizer_options = None
 
-        super().__init__(name=name,
-                         algorithm=algorithm,
-                         tol=tol,
-                         gradient=NOT_SUPPORTED,
-                         hessian=NOT_SUPPORTED,
-                         criterion=criterion,
-                         verbosity=verbosity,
-                         minimizer_options=minimizer_options,
-                         strategy=strategy,
-                         maxiter=maxiter)
+        super().__init__(
+            name=name,
+            algorithm=algorithm,
+            tol=tol,
+            gradient=NOT_SUPPORTED,
+            hessian=NOT_SUPPORTED,
+            criterion=criterion,
+            verbosity=verbosity,
+            minimizer_options=minimizer_options,
+            strategy=strategy,
+            maxiter=maxiter,
+        )

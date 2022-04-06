@@ -13,7 +13,6 @@ def convert_to_repr(repr):
 
 
 class Serializable:
-
     def obj_to_repr(self):
         repr_uncleaned = self._obj_to_repr()
         return convert_to_repr(repr_uncleaned)
@@ -40,6 +39,7 @@ def register(uid):
         return cls
 
     return func
+
 
 # class AtomicSerializable(Serializable):
 #

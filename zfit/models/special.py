@@ -29,13 +29,12 @@ class SimplePDF(BasePDF):
         except TypeError:
             return self._unnormalized_prob_func(self, x)
 
-    def copy(self, **override_parameters) -> 'BasePDF':
+    def copy(self, **override_parameters) -> "BasePDF":
         override_parameters.update(func=self._unnormalized_prob_func)
         return super().copy(**override_parameters)
 
 
 class SimpleFunctorPDF(BaseFunctor, SimplePDF):
-
     def __init__(self, obs, pdfs, func, name="SimpleFunctorPDF", **params):
         super().__init__(obs=obs, pdfs=pdfs, func=func, name=name, **params)
 
@@ -48,7 +47,9 @@ def raise_error_if_norm_range(func):
         try:
             return func(*args, **kwargs)
         except NormRangeNotImplemented:  # TODO: silently remove norm_range? Or loudly fail?
-            raise tf.errors.InvalidArgumentError("Norm_range given to Function: cannot be normalized.")
+            raise tf.errors.InvalidArgumentError(
+                "Norm_range given to Function: cannot be normalized."
+            )
 
     return wrapped
 

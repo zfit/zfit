@@ -6,8 +6,8 @@ import zfit
 obs = zfit.Space("x", limits=(-10, 10))
 
 # parameters
-mu = zfit.Parameter("mu", 1., -4, 6)
-sigma = zfit.Parameter("sigma", 1., 0.1, 10)
+mu = zfit.Parameter("mu", 1.0, -4, 6)
+sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
 lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
 frac = zfit.Parameter("fraction", 0.3, 0, 1)
 

@@ -18,16 +18,17 @@ from .functor import BaseFunctor
 
 
 class FFTConvPDFV1(BaseFunctor):
-
-    def __init__(self,
-                 func: ZfitPDF,
-                 kernel: ZfitPDF,
-                 n: Optional[int] = None,
-                 limits_func: Union[ztyping.LimitsType, float] = None,
-                 limits_kernel: ztyping.LimitsType = None,
-                 interpolation: Optional[str] = None,
-                 obs: Optional[ztyping.ObsTypeInput] = None,
-                 name: str = "FFTConvV1"):
+    def __init__(
+        self,
+        func: ZfitPDF,
+        kernel: ZfitPDF,
+        n: Optional[int] = None,
+        limits_func: Union[ztyping.LimitsType, float] = None,
+        limits_kernel: ztyping.LimitsType = None,
+        interpolation: Optional[str] = None,
+        obs: Optional[ztyping.ObsTypeInput] = None,
+        name: str = "FFTConvV1",
+    ):
         r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
 
         CURRENTLY ONLY 1 DIMENSIONAL!
@@ -109,29 +110,36 @@ class FFTConvPDFV1(BaseFunctor):
             name: Human readable name of the PDF
         """
         from zfit import run
+
         run.assert_executing_eagerly()
-        valid_interpolations = ('spline', 'linear')
+        valid_interpolations = ("spline", "linear")
 
         obs = func.space if obs is None else obs
         super().__init__(obs=obs, pdfs=[func, kernel], params={}, name=name)
 
         if self.n_obs > 1:
-            raise WorkInProgressError("More than 1 dimensional convolutions are currently not supported."
-                                      " If you need that, please open an issue on github.")
+            raise WorkInProgressError(
+                "More than 1 dimensional convolutions are currently not supported."
+                " If you need that, please open an issue on github."
+            )
 
         if self.n_obs > 3:  # due to tf.nn.convolution not supporting more
-            raise WorkInProgressError("More than 3 dimensional convolutions are currently not supported.")
+            raise WorkInProgressError(
+                "More than 3 dimensional convolutions are currently not supported."
+            )
 
         if interpolation is None:
-            interpolation = 'spline' if self.n_obs == 1 else 'linear'
+            interpolation = "spline" if self.n_obs == 1 else "linear"
 
         spline_order = 3  # default
-        if ':' in interpolation:
-            interpolation, spline_order = interpolation.split(':')
+        if ":" in interpolation:
+            interpolation, spline_order = interpolation.split(":")
             spline_order = int(spline_order)
         if interpolation not in valid_interpolations:
-            raise ValueError(f"`interpolation` {interpolation} not known. Has to be one "
-                             f"of the following: {valid_interpolations}")
+            raise ValueError(
+                f"`interpolation` {interpolation} not known. Has to be one "
+                f"of the following: {valid_interpolations}"
+            )
         self._conv_interpolation = interpolation
         self._conv_spline_order = spline_order
 
@@ -140,7 +148,9 @@ class FFTConvPDFV1(BaseFunctor):
             limits_func = func.space
         limits_func = self._check_input_limits(limits=limits_func)
         if limits_func.n_limits == 0:
-            raise exception.LimitsNotSpecifiedError("obs have to have limits to define where to integrate over.")
+            raise exception.LimitsNotSpecifiedError(
+                "obs have to have limits to define where to integrate over."
+            )
         if limits_func.n_limits > 1:
             raise WorkInProgressError("Multiple Limits not implemented")
 
@@ -150,25 +160,28 @@ class FFTConvPDFV1(BaseFunctor):
         limits_kernel = self._check_input_limits(limits=limits_kernel)
 
         if limits_kernel.n_limits == 0:
-            raise exception.LimitsNotSpecifiedError("obs have to have limits to define where to integrate over.")
+            raise exception.LimitsNotSpecifiedError(
+                "obs have to have limits to define where to integrate over."
+            )
         if limits_kernel.n_limits > 1:
             raise WorkInProgressError("Multiple Limits not implemented")
 
         if func.n_obs != kernel.n_obs:
-            raise ShapeIncompatibleError("Func and Kernel need to have (currently) the same number of obs,"
-                                         f" currently are func: {func.n_obs} and kernel: {kernel.n_obs}")
+            raise ShapeIncompatibleError(
+                "Func and Kernel need to have (currently) the same number of obs,"
+                f" currently are func: {func.n_obs} and kernel: {kernel.n_obs}"
+            )
         if not func.n_obs == limits_func.n_obs == limits_kernel.n_obs:
-            raise ShapeIncompatibleError("Func and Kernel limits need to have (currently) the same number of obs,"
-                                         f" are {limits_func.n_obs} and {limits_kernel.n_obs} with the func n_obs"
-                                         f" {func.n_obs}")
+            raise ShapeIncompatibleError(
+                "Func and Kernel limits need to have (currently) the same number of obs,"
+                f" are {limits_func.n_obs} and {limits_kernel.n_obs} with the func n_obs"
+                f" {func.n_obs}"
+            )
 
         limits_func = limits_func.with_obs(obs)
         limits_kernel = limits_kernel.with_obs(obs)
 
-        self._initargs = {
-            'limits_kernel': limits_kernel,
-            'limits_func': limits_func
-        }
+        self._initargs = {"limits_kernel": limits_kernel, "limits_func": limits_func}
 
         if n is None:
             n = 51  # default kernel points
@@ -182,28 +195,36 @@ class FFTConvPDFV1(BaseFunctor):
 
         # TODO: what if kernel area is larger?
         if limits_kernel.rect_area() > limits_func.rect_area():
-            raise WorkInProgressError("Currently, only kernels that are smaller than the func are supported."
-                                      "Simply switch the two should resolve the problem.")
+            raise WorkInProgressError(
+                "Currently, only kernels that are smaller than the func are supported."
+                "Simply switch the two should resolve the problem."
+            )
 
         # get finest resolution. Find the dimensions with the largest kernel-space to func-space ratio
         # We take the binwidth of the kernel as the overall binwidth and need to have the same binning in
         # the function as well
         area_ratios = (upper_sample - lower_sample) / (
-                limits_kernel.rect_upper - limits_kernel.rect_lower)
+            limits_kernel.rect_upper - limits_kernel.rect_lower
+        )
         nbins_func_exact_max = znp.max(area_ratios * n)
-        nbins_func = znp.ceil(nbins_func_exact_max)  # plus one and floor is like ceiling (we want more bins) with the
+        nbins_func = znp.ceil(
+            nbins_func_exact_max
+        )  # plus one and floor is like ceiling (we want more bins) with the
         # guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.
         nbins_kernel = n
         # n = max(n, npoints_scaling)
-        tf.assert_less(n - 1,  # so that for three dimension it's 999'999, not 10^6
-                       tf.cast(1e6, tf.int32),
-                       message="Number of points automatically calculated to be used for the FFT"
-                               " based convolution exceeds 1e6. If you want to use this number - "
-                               "or an even higher value - use explicitly the `n` argument.")
+        tf.assert_less(
+            n - 1,  # so that for three dimension it's 999'999, not 10^6
+            tf.cast(1e6, tf.int32),
+            message="Number of points automatically calculated to be used for the FFT"
+            " based convolution exceeds 1e6. If you want to use this number - "
+            "or an even higher value - use explicitly the `n` argument.",
+        )
 
         binwidth = (upper_kernel - lower_kernel) / nbins_kernel
-        to_extend = (binwidth * nbins_func - (
-                upper_sample - lower_sample)) / 2  # how much we need to extend the func_limits
+        to_extend = (
+            binwidth * nbins_func - (upper_sample - lower_sample)
+        ) / 2  # how much we need to extend the func_limits
         # on each side in order to match the binwidth of the kernel
         lower_sample -= to_extend
         upper_sample += to_extend
@@ -211,29 +232,33 @@ class FFTConvPDFV1(BaseFunctor):
         lower_valid = lower_sample + lower_kernel
         upper_valid = upper_sample + upper_kernel
 
-        self._conv_limits = {'kernel': (lower_kernel, upper_kernel),
-                             'valid': (lower_valid, upper_valid),
-                             'func': (lower_sample, upper_sample),
-                             'nbins_kernel': nbins_kernel,
-                             'nbins_func': nbins_func}
+        self._conv_limits = {
+            "kernel": (lower_kernel, upper_kernel),
+            "valid": (lower_valid, upper_valid),
+            "func": (lower_sample, upper_sample),
+            "nbins_kernel": nbins_kernel,
+            "nbins_func": nbins_func,
+        }
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _unnormalized_pdf(self, x):
 
-        lower_func, upper_func = self._conv_limits['func']
-        nbins_func = self._conv_limits['nbins_func']
+        lower_func, upper_func = self._conv_limits["func"]
+        nbins_func = self._conv_limits["nbins_func"]
         x_funcs = tf.linspace(lower_func, upper_func, tf.cast(nbins_func, tf.int32))
 
-        lower_kernel, upper_kernel = self._conv_limits['kernel']
+        lower_kernel, upper_kernel = self._conv_limits["kernel"]
         nbins_kernel = self._conv_limits["nbins_kernel"]
-        x_kernels = tf.linspace(lower_kernel, upper_kernel, tf.cast(nbins_kernel, tf.int32))
+        x_kernels = tf.linspace(
+            lower_kernel, upper_kernel, tf.cast(nbins_kernel, tf.int32)
+        )
 
-        x_func = tf.meshgrid(*tf.unstack(x_funcs, axis=-1), indexing='ij')
+        x_func = tf.meshgrid(*tf.unstack(x_funcs, axis=-1), indexing="ij")
         x_func = znp.transpose(x_func)
         x_func_flatish = znp.reshape(x_func, (-1, self.n_obs))
         data_func = Data.from_tensor(tensor=x_func_flatish, obs=self.obs)
 
-        x_kernel = tf.meshgrid(*tf.unstack(x_kernels, axis=-1), indexing='ij')
+        x_kernel = tf.meshgrid(*tf.unstack(x_kernels, axis=-1), indexing="ij")
         x_kernel = znp.transpose(x_kernel)
         x_kernel_flatish = znp.reshape(x_kernel, (-1, self.n_obs))
         data_kernel = Data.from_tensor(tensor=x_kernel_flatish, obs=self.obs)
@@ -274,7 +299,7 @@ class FFTConvPDFV1(BaseFunctor):
             input=y_func_rect_conv,
             filters=y_kernel_rect_conv,
             strides=1,
-            padding='SAME',
+            padding="SAME",
         )
 
         # needed for multidims?
@@ -287,20 +312,24 @@ class FFTConvPDFV1(BaseFunctor):
         # )[None, ..., None]
         train_points = znp.expand_dims(x_func, axis=0)
         query_points = znp.expand_dims(x.value(), axis=0)
-        if self.conv_interpolation == 'spline':
+        if self.conv_interpolation == "spline":
             conv_points = znp.reshape(conv, (1, -1, 1))
-            prob = tfa.image.interpolate_spline(train_points=train_points,
-                                                train_values=conv_points,
-                                                query_points=query_points,
-                                                order=self._conv_spline_order)
+            prob = tfa.image.interpolate_spline(
+                train_points=train_points,
+                train_values=conv_points,
+                query_points=query_points,
+                order=self._conv_spline_order,
+            )
             prob = prob[0, ..., 0]
-        elif self.conv_interpolation == 'linear':
-            prob = tfp.math.batch_interp_regular_nd_grid(x=query_points[0],
-                                                         x_ref_min=lower_func,
-                                                         x_ref_max=upper_func,
-                                                         y_ref=conv[0, ..., 0],
-                                                         # y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),
-                                                         axis=-self.n_obs)
+        elif self.conv_interpolation == "linear":
+            prob = tfp.math.batch_interp_regular_nd_grid(
+                x=query_points[0],
+                x_ref_min=lower_func,
+                x_ref_max=upper_func,
+                y_ref=conv[0, ..., 0],
+                # y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),
+                axis=-self.n_obs,
+            )
             prob = prob[0]
 
         return prob
@@ -326,11 +355,12 @@ class FFTConvPDFV1(BaseFunctor):
         func = self.pdfs[0]
         kernel = self.pdfs[1]
 
-        sample_and_weights = AddingSampleAndWeights(func=func,
-                                                    kernel=kernel,
-                                                    limits_func=self._initargs['limits_func'],
-                                                    limits_kernel=self._initargs['limits_kernel'],
-                                                    )
+        sample_and_weights = AddingSampleAndWeights(
+            func=func,
+            kernel=kernel,
+            limits_func=self._initargs["limits_func"],
+            limits_kernel=self._initargs["limits_kernel"],
+        )
 
         return accept_reject_sample(
             lambda x: tf.ones(shape=tf.shape(x)[0], dtype=self.dtype),  # use inside?
@@ -339,13 +369,12 @@ class FFTConvPDFV1(BaseFunctor):
             limits=limits,
             sample_and_weights_factory=lambda: sample_and_weights,
             dtype=self.dtype,
-            prob_max=1.,
+            prob_max=1.0,
             efficiency_estimation=0.9,
         )
 
 
 class AddingSampleAndWeights:
-
     def __init__(self, func, kernel, limits_func, limits_kernel) -> None:
         super().__init__()
         self.func = func
@@ -362,16 +391,20 @@ class AddingSampleAndWeights:
         sample_ext_space = limits.with_limits((sample_ext_lower, sample_ext_upper))
 
         sample_func = self.func.sample(n=n_to_produce, limits=sample_ext_space)
-        sample_kernel = self.kernel.sample(n=n_to_produce,
-                                           limits=self.limits_kernel)  # no limits! it's the kernel, around 0
+        sample_kernel = self.kernel.sample(
+            n=n_to_produce, limits=self.limits_kernel
+        )  # no limits! it's the kernel, around 0
         sample = sum_samples(sample_func, sample_kernel, obs=limits, shuffle=True)
         sample = limits.filter(sample)
         n_drawn = tf.shape(sample)[0]
         from zfit import run
+
         if run.numeric_checks:
-            tf.debugging.assert_positive(n_drawn,
-                                         "Could not draw any samples. Check the limits of the func and kernel.")
+            tf.debugging.assert_positive(
+                n_drawn,
+                "Could not draw any samples. Check the limits of the func and kernel.",
+            )
         thresholds_unscaled = tf.ones(shape=(n_drawn,), dtype=sample.dtype)
         weights = thresholds_unscaled  # also "ones_like"
-        weights_max = z.constant(1.)
+        weights_max = z.constant(1.0)
         return sample, thresholds_unscaled * 0.5, weights, weights_max, n_drawn

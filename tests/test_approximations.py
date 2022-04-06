@@ -5,7 +5,8 @@ import pytest
 @pytest.fixture
 def params():
     import zfit
-    return [zfit.Parameter(f'param_{i}', i) for i in range(3)]
+
+    return [zfit.Parameter(f"param_{i}", i) for i in range(3)]
 
 
 def test_approx(params):

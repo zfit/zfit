@@ -4,7 +4,6 @@ from typing import Any, Callable
 
 
 class TemporarilySet:
-
     def __init__(self, value: Any, setter: Callable, getter: Callable):
         """Temporarily set `value` with `setter` and reset to the old value after leaving the context.
 

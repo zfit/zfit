@@ -18,38 +18,43 @@ def _powerlaw(x, a, k):
     return a * znp.power(x, k)
 
 
-@z.function(wraps='zfit_tensor')
+@z.function(wraps="zfit_tensor")
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = znp.abs(alpha)
     a = znp.power((n / abs_alpha), n) * znp.exp(-0.5 * znp.square(alpha))
     b = (n / abs_alpha) - abs_alpha
     cond = tf.less(t, -abs_alpha)
-    func = z.safe_where(cond,
-                        lambda t: _powerlaw(b - t, a, -n),
-                        lambda t: znp.exp(-0.5 * tf.square(t)),
-                        values=t, value_safer=lambda t: tf.ones_like(t) * (b - 2))
+    func = z.safe_where(
+        cond,
+        lambda t: _powerlaw(b - t, a, -n),
+        lambda t: znp.exp(-0.5 * tf.square(t)),
+        values=t,
+        value_safer=lambda t: tf.ones_like(t) * (b - 2),
+    )
     func = znp.maximum(func, tf.zeros_like(func))
     return func
 
 
-@z.function(wraps='zfit_tensor')
+@z.function(wraps="zfit_tensor")
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
 
-    func = tf.where(cond,
-                    crystalball_func(x, mu, sigma, alphal, nl),
-                    crystalball_func(x, mu, sigma, -alphar, nr))
+    func = tf.where(
+        cond,
+        crystalball_func(x, mu, sigma, alphal, nl),
+        crystalball_func(x, mu, sigma, -alphar, nr),
+    )
 
     return func
 
 
 # created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
 def crystalball_integral(limits, params, model):
-    mu = params['mu']
-    sigma = params['sigma']
-    alpha = params['alpha']
-    n = params['n']
+    mu = params["mu"]
+    sigma = params["sigma"]
+    alpha = params["alpha"]
+    n = params["n"]
 
     lower, upper = limits._rect_limits_tf
 
@@ -70,9 +75,15 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     tmax = (upper - mu) / abs_sigma
 
     alpha_negative = tf.less(alpha, 0)
-    tmax, tmin = znp.where(alpha_negative, -tmin, tmax), znp.where(alpha_negative, -tmax, tmin)
+    tmax, tmin = znp.where(alpha_negative, -tmin, tmax), znp.where(
+        alpha_negative, -tmax, tmin
+    )
 
-    if_true_4 = abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
+    if_true_4 = (
+        abs_sigma
+        * sqrt_pi_over_two
+        * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
+    )
 
     result_6 = 0.0
 
@@ -80,31 +91,42 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
     b = n / abs_alpha - abs_alpha
 
-    result_1, = result_3,
+    (result_1,) = (result_3,)
     result_1 += a * abs_sigma * (znp.log(b - tmin) - znp.log(b - tmax))
     if_true_1 = result_1
 
-    result_2, = result_3,
-    result_2 += a * abs_sigma / (1.0 - n) * (
-            1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(b - tmax, n - 1.0))
+    (result_2,) = (result_3,)
+    result_2 += (
+        a
+        * abs_sigma
+        / (1.0 - n)
+        * (1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(b - tmax, n - 1.0))
+    )
     if_false_1 = result_2
 
     result_3 = tf.where(use_log, if_true_1, if_false_1)
     if_true_3 = result_3
 
-    result_4, = result_6,
+    (result_4,) = (result_6,)
     a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
     b = n / abs_alpha - abs_alpha
 
     if_true_2 = a * abs_sigma * (znp.log(b - tmin) - znp.log(n / abs_alpha))
 
-    term1 = a * abs_sigma / (1.0 - n) * (
-            1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(n / abs_alpha, n - 1.0))
+    term1 = (
+        a
+        * abs_sigma
+        / (1.0 - n)
+        * (1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(n / abs_alpha, n - 1.0))
+    )
     if_false_2 = term1
 
     term1 = tf.where(use_log, if_true_2, if_false_2)
-    term2 = abs_sigma * sqrt_pi_over_two * (
-            tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
+    term2 = (
+        abs_sigma
+        * sqrt_pi_over_two
+        * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
+    )
     result_4 += term1 + term2
     if_false_3 = result_4
 
@@ -119,8 +141,8 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
 
 def double_crystalball_mu_integral(limits, params, model):
-    mu = params['mu']
-    sigma = params['sigma']
+    mu = params["mu"]
+    sigma = params["sigma"]
     alphal = params["alphal"]
     nl = params["nl"]
     alphar = params["alphar"]
@@ -130,22 +152,36 @@ def double_crystalball_mu_integral(limits, params, model):
     lower = lower[:, 0]
     upper = upper[:, 0]
 
-    return double_crystalball_mu_integral_func(mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr,
-                                               lower=lower, upper=upper)
+    return double_crystalball_mu_integral_func(
+        mu=mu,
+        sigma=sigma,
+        alphal=alphal,
+        nl=nl,
+        alphar=alphar,
+        nr=nr,
+        lower=lower,
+        upper=upper,
+    )
 
 
-@z.function(wraps='zfit_tensor')
-def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower, upper):
+@z.function(wraps="zfit_tensor")
+def double_crystalball_mu_integral_func(
+    mu, sigma, alphal, nl, alphar, nr, lower, upper
+):
     # mu_broadcast =
     upper_of_lowerint = znp.minimum(mu, upper)
-    integral_left = crystalball_integral_func(mu=mu, sigma=sigma, alpha=alphal, n=nl, lower=lower,
-                                              upper=upper_of_lowerint)
+    integral_left = crystalball_integral_func(
+        mu=mu, sigma=sigma, alpha=alphal, n=nl, lower=lower, upper=upper_of_lowerint
+    )
     left = tf.where(tf.less(mu, lower), znp.zeros_like(integral_left), integral_left)
 
     lower_of_upperint = znp.maximum(mu, lower)
-    integral_right = crystalball_integral_func(mu=mu, sigma=sigma, alpha=-alphar, n=nr, lower=lower_of_upperint,
-                                               upper=upper)
-    right = tf.where(tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right)
+    integral_right = crystalball_integral_func(
+        mu=mu, sigma=sigma, alpha=-alphar, n=nr, lower=lower_of_upperint, upper=upper
+    )
+    right = tf.where(
+        tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right
+    )
 
     integral = left + right
     return integral
@@ -154,9 +190,16 @@ def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower
 class CrystalBall(BasePDF):
     _N_OBS = 1
 
-    def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
-                 alpha: ztyping.ParamTypeInput, n: ztyping.ParamTypeInput,
-                 obs: ztyping.ObsTypeInput, name: str = "CrystalBall", dtype: Type = ztypes.float):
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alpha: ztyping.ParamTypeInput,
+        n: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        name: str = "CrystalBall",
+        dtype: Type = ztypes.float,
+    ):
         """Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
 
         The function is defined as follows:
@@ -186,33 +229,42 @@ class CrystalBall(BasePDF):
 
         .. _CBShape: https://en.wikipedia.org/wiki/Crystal_Ball_function
         """
-        params = {'mu': mu,
-                  'sigma': sigma,
-                  'alpha': alpha,
-                  'n': n}
+        params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
         super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
     def _unnormalized_pdf(self, x):
-        mu = self.params['mu']
-        sigma = self.params['sigma']
-        alpha = self.params['alpha']
-        n = self.params['n']
+        mu = self.params["mu"]
+        sigma = self.params["sigma"]
+        alpha = self.params["alpha"]
+        n = self.params["n"]
         x = x.unstack_x()
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
 
-crystalball_integral_limits = Space(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+crystalball_integral_limits = Space(
+    axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),))
+)
 # TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond
-CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
+CrystalBall.register_analytic_integral(
+    func=crystalball_integral, limits=crystalball_integral_limits
+)
 
 
 class DoubleCB(BasePDF):
     _N_OBS = 1
 
-    def __init__(self, mu: ztyping.ParamTypeInput, sigma: ztyping.ParamTypeInput,
-                 alphal: ztyping.ParamTypeInput, nl: ztyping.ParamTypeInput,
-                 alphar: ztyping.ParamTypeInput, nr: ztyping.ParamTypeInput,
-                 obs: ztyping.ObsTypeInput, name: str = "DoubleCB", dtype: Type = ztypes.float):
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alphal: ztyping.ParamTypeInput,
+        nl: ztyping.ParamTypeInput,
+        alphar: ztyping.ParamTypeInput,
+        nr: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        name: str = "DoubleCB",
+        dtype: Type = ztypes.float,
+    ):
         """Double sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
 
         The function is defined as follows:
@@ -248,24 +300,29 @@ class DoubleCB(BasePDF):
             name:
             dtype:
         """
-        params = {'mu': mu,
-                  'sigma': sigma,
-                  'alphal': alphal,
-                  'nl': nl,
-                  'alphar': alphar,
-                  'nr': nr}
+        params = {
+            "mu": mu,
+            "sigma": sigma,
+            "alphal": alphal,
+            "nl": nl,
+            "alphar": alphar,
+            "nr": nr,
+        }
         super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
     def _unnormalized_pdf(self, x):
-        mu = self.params['mu']
-        sigma = self.params['sigma']
-        alphal = self.params['alphal']
-        nl = self.params['nl']
-        alphar = self.params['alphar']
-        nr = self.params['nr']
+        mu = self.params["mu"]
+        sigma = self.params["sigma"]
+        alphal = self.params["alphal"]
+        nl = self.params["nl"]
+        alphar = self.params["alphar"]
+        nr = self.params["nr"]
         x = x.unstack_x()
-        return double_crystalball_func(x=x, mu=mu, sigma=sigma, alphal=alphal, nl=nl,
-                                       alphar=alphar, nr=nr)
+        return double_crystalball_func(
+            x=x, mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr
+        )
 
 
-DoubleCB.register_analytic_integral(func=double_crystalball_mu_integral, limits=crystalball_integral_limits)
+DoubleCB.register_analytic_integral(
+    func=double_crystalball_mu_integral, limits=crystalball_integral_limits
+)
