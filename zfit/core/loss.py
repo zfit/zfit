@@ -15,7 +15,6 @@ from collections.abc import Iterable
 import abc
 import inspect
 import warnings
-from typing import Optional, Union
 
 import tensorflow as tf
 from ordered_set import OrderedSet
@@ -23,7 +22,7 @@ from ordered_set import OrderedSet
 import zfit.z.numpy as znp
 
 from .. import settings, z
-from .interfaces import ZfitPDF, ZfitBinnedData, ZfitConstraint, ZfitParameter
+from .interfaces import ZfitBinnedData, ZfitParameter
 
 znp = z.numpy
 from ..util import ztyping
