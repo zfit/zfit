@@ -5,11 +5,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 from collections.abc import Iterable
 
-from typing import Optional
 
 import numpy as np
 import tensorflow as tf
