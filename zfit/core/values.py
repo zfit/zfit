@@ -14,12 +14,12 @@ from zfit.util.container import convert_to_container
 @tfp.experimental.auto_composite_tensor()
 class ValueHolder(tfp.experimental.AutoCompositeTensor):
     def __init__(
-            self,
-            args,
-            variables: Mapping,
-            norm: ValueHolder = None,
-            target=None,
-            holders=None,
+        self,
+        args,
+        variables: Mapping,
+        norm: ValueHolder = None,
+        target=None,
+        holders=None,
     ):
         args = convert_to_container(args)
         variables = self._check_input_variables(variables)

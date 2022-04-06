@@ -59,7 +59,7 @@ class MetaBaseParameter(
 
 
 def register_tensor_conversion(
-        convertable, name=None, overload_operators=True, priority=10
+    convertable, name=None, overload_operators=True, priority=10
 ):  # higher than any tf conversion
     def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
         return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
@@ -80,7 +80,7 @@ class OverloadableMixin(ZfitParameter):
     # Conversion to tensor.
     @staticmethod
     def _TensorConversionFunction(
-            v, dtype=None, name=None, as_ref=False
+        v, dtype=None, name=None, as_ref=False
     ):  # pylint: disable=invalid-name
         """Utility function for converting a Variable to a Tensor."""
         _ = name
@@ -283,7 +283,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __del__(self):
         with suppress(
-                AttributeError, NotImplementedError
+            AttributeError, NotImplementedError
         ):  # if super does not have a __del__
             super().__del__(self)
 
@@ -350,17 +350,17 @@ class Parameter(
     @deprecated_args(None, "Use `lower` instead.", "lower_limit")
     @deprecated_args(None, "Use `upper` instead.", "upper_limit")
     def __init__(
-            self,
-            name: str,
-            value: ztyping.NumericalScalarType,
-            lower: Optional[ztyping.NumericalScalarType] = None,
-            upper: Optional[ztyping.NumericalScalarType] = None,
-            step_size: Optional[ztyping.NumericalScalarType] = None,
-            floating: bool = True,
-            dtype: tf.DType = ztypes.float,
-            # legacy
-            lower_limit: Optional[ztyping.NumericalScalarType] = None,
-            upper_limit: Optional[ztyping.NumericalScalarType] = None,
+        self,
+        name: str,
+        value: ztyping.NumericalScalarType,
+        lower: Optional[ztyping.NumericalScalarType] = None,
+        upper: Optional[ztyping.NumericalScalarType] = None,
+        step_size: Optional[ztyping.NumericalScalarType] = None,
+        floating: bool = True,
+        dtype: tf.DType = ztypes.float,
+        # legacy
+        lower_limit: Optional[ztyping.NumericalScalarType] = None,
+        upper_limit: Optional[ztyping.NumericalScalarType] = None,
     ):
         """
 
@@ -620,10 +620,10 @@ class Parameter(
         )
 
     def randomize(
-            self,
-            minval: Optional[ztyping.NumericalScalarType] = None,
-            maxval: Optional[ztyping.NumericalScalarType] = None,
-            sampler: Callable = np.random.uniform,
+        self,
+        minval: Optional[ztyping.NumericalScalarType] = None,
+        maxval: Optional[ztyping.NumericalScalarType] = None,
+        sampler: Callable = np.random.uniform,
     ) -> tf.Tensor:
         """Update the parameter with a randomised value between minval and maxval and return it.
 
@@ -658,17 +658,17 @@ class Parameter(
         return value
 
     def get_params(
-            self,
-            floating: Optional[bool] = True,
-            is_yield: Optional[bool] = None,
-            extract_independent: Optional[bool] = True,
-            only_floating=NotSpecified,
+        self,
+        floating: Optional[bool] = True,
+        is_yield: Optional[bool] = None,
+        extract_independent: Optional[bool] = True,
+        only_floating=NotSpecified,
     ) -> Set["ZfitParameter"]:
         return extract_filter_params(self, floating=floating, extract_independent=False)
 
     def __repr__(self):
         if (
-                tf.executing_eagerly()
+            tf.executing_eagerly()
         ):  # more explicit: we check for exactly this attribute, nothing inside numpy
             value = f"{self.numpy():.4g}"
         else:
@@ -761,7 +761,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
             #               " If you see this, the code may be broken and returns wrong values (it should not,"
             #               " but may does).", stacklevel=1)
             if (
-                    self._composed_param_original_order is None
+                self._composed_param_original_order is None
             ):  # TODO: this is a temp fix for legacy behavior
                 try:
                     value = self._value_fn(
@@ -866,17 +866,17 @@ register_tensor_conversion(
 class ComposedParameter(BaseComposedParameter):
     @deprecated_args(None, "Use `params` instead.", "dependents")
     def __init__(
-            self,
-            name: str,
-            value_fn: Callable,
-            params: Union[
-                Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter
-            ] = NotSpecified,
-            dtype: tf.dtypes.DType = ztypes.float,
-            *,
-            dependents: Union[
-                Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter
-            ] = NotSpecified,
+        self,
+        name: str,
+        value_fn: Callable,
+        params: Union[
+            Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter
+        ] = NotSpecified,
+        dtype: tf.dtypes.DType = ztypes.float,
+        *,
+        dependents: Union[
+            Dict[str, ZfitParameter], Iterable[ZfitParameter], ZfitParameter
+        ] = NotSpecified,
     ):
         """Arbitrary composition of parameters.
 
@@ -938,7 +938,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
 
     @classmethod
     def from_cartesian(
-            cls, name, real, imag, dtype=ztypes.complex, floating=True
+        cls, name, real, imag, dtype=ztypes.complex, floating=True
     ) -> "ComplexParameter":  # TODO: correct dtype handling, also below
         """Create a complex parameter from cartesian coordinates.
 
@@ -966,7 +966,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
 
     @classmethod
     def from_polar(
-            cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs
+        cls, name, mod, arg, dtype=ztypes.complex, floating=True, **kwargs
     ) -> "ComplexParameter":
         """Create a complex parameter from polar coordinates.
 
@@ -1039,12 +1039,12 @@ def get_auto_number():
 
 
 def convert_to_parameters(
-        value,
-        name: Optional[Union[str, List[str]]] = None,
-        prefer_constant: bool = None,
-        lower=None,
-        upper=None,
-        step_size=None,
+    value,
+    name: Optional[Union[str, List[str]]] = None,
+    prefer_constant: bool = None,
+    lower=None,
+    upper=None,
+    step_size=None,
 ):
     if prefer_constant is None:
         prefer_constant = True
@@ -1086,15 +1086,15 @@ def convert_to_parameters(
 
 @deprecated_args(None, "Use `params` instead.", "dependents")
 def convert_to_parameter(
-        value,
-        name: Optional[str] = None,
-        prefer_constant: bool = True,
-        params=None,
-        lower=None,
-        upper=None,
-        step_size=None,
-        # legacy
-        dependents=None,
+    value,
+    name: Optional[str] = None,
+    prefer_constant: bool = True,
+    params=None,
+    lower=None,
+    upper=None,
+    step_size=None,
+    # legacy
+    dependents=None,
 ) -> ZfitParameter:
     """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
@@ -1176,19 +1176,19 @@ def convert_to_parameter(
 
 @tf.function
 def assign_values_jit(
-        params: Union[Parameter, Iterable[Parameter]],
-        values: Union[ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType]],
-        use_locking=False,
+    params: Union[Parameter, Iterable[Parameter]],
+    values: Union[ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType]],
+    use_locking=False,
 ):
     for i, param in enumerate(params):
         param.assign(values[i], read_value=False, use_locking=use_locking)
 
 
 def assign_values(
-        params: Union[Parameter, Iterable[Parameter]],
-        values: Union[ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType]],
-        use_locking=False,
-        allow_partial: Optional[bool] = None,
+    params: Union[Parameter, Iterable[Parameter]],
+    values: Union[ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType]],
+    use_locking=False,
+    allow_partial: Optional[bool] = None,
 ):
     """Set the values of multiple parameters in a fast way.
 
@@ -1215,11 +1215,11 @@ def assign_values(
 
 
 def set_values(
-        params: Union[Parameter, Iterable[Parameter]],
-        values: Union[
-            ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType], ZfitResult
-        ],
-        allow_partial: Optional[bool] = None,
+    params: Union[Parameter, Iterable[Parameter]],
+    values: Union[
+        ztyping.NumericalScalarType, Iterable[ztyping.NumericalScalarType], ZfitResult
+    ],
+    allow_partial: Optional[bool] = None,
 ):
     """Set the values (using a context manager or not) of multiple parameters.
 

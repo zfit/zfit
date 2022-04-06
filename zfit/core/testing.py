@@ -30,11 +30,11 @@ class AutoTester:
         self.pdfs = []
 
     def register_pdf(
-            self,
-            pdf_class: ZfitPDF,
-            params_factories: Union[Callable, Iterable[Callable]],
-            scipy_dist: scipy.stats.rv_continuous = None,
-            analytic_int_axes: Union[None, int, List[Tuple[int, ...]]] = None,
+        self,
+        pdf_class: ZfitPDF,
+        params_factories: Union[Callable, Iterable[Callable]],
+        scipy_dist: scipy.stats.rv_continuous = None,
+        analytic_int_axes: Union[None, int, List[Tuple[int, ...]]] = None,
     ):
         # if not isinstance(pdf_class, ZfitPDF):
         #     raise TypeError(f"PDF {pdf_class} is not a ZfitPDF.")

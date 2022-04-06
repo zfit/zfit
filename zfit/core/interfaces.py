@@ -53,10 +53,10 @@ class ZfitDimensional(ZfitObject):
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
     @abstractmethod
     def with_obs(
-            self,
-            obs: ztyping.ObsTypeInput | None,
-            allow_superset: bool = True,
-            allow_subset: bool = True,
+        self,
+        obs: ztyping.ObsTypeInput | None,
+        allow_superset: bool = True,
+        allow_subset: bool = True,
     ) -> ZfitOrderableDimensional:
         """Create a new instance that has `obs`; sorted by or set or dropped.
 
@@ -95,10 +95,10 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
     @abstractmethod
     def with_axes(
-            self,
-            axes: ztyping.AxesTypeInput | None,
-            allow_superset: bool = True,
-            allow_subset: bool = True,
+        self,
+        axes: ztyping.AxesTypeInput | None,
+        allow_superset: bool = True,
+        allow_subset: bool = True,
     ) -> ZfitOrderableDimensional:
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
@@ -168,13 +168,13 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
     @abstractmethod
     def reorder_x(
-            self,
-            x: tf.Tensor | np.ndarray,
-            *,
-            x_obs: ztyping.ObsTypeInput = None,
-            x_axes: ztyping.AxesTypeInput = None,
-            func_obs: ztyping.ObsTypeInput = None,
-            func_axes: ztyping.AxesTypeInput = None,
+        self,
+        x: tf.Tensor | np.ndarray,
+        *,
+        x_obs: ztyping.ObsTypeInput = None,
+        x_axes: ztyping.AxesTypeInput = None,
+        func_obs: ztyping.ObsTypeInput = None,
+        func_axes: ztyping.AxesTypeInput = None,
     ) -> ztyping.XTypeReturnNoData:
         """Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.
 
@@ -205,7 +205,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
     @abstractmethod
     def get_reorder_indices(
-            self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
+        self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
     ) -> tuple[int]:
         """Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.
 
@@ -324,7 +324,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     @abstractmethod
     def inside(
-            self, x: ztyping.XTypeInput, guarantee_limits: bool = False
+        self, x: ztyping.XTypeInput, guarantee_limits: bool = False
     ) -> ztyping.XTypeReturn:
         """Test if `x` is inside the limits.
 
@@ -344,10 +344,10 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     @abstractmethod
     def filter(
-            self,
-            x: ztyping.XTypeInput,
-            guarantee_limits: bool = False,
-            axis: int | None = None,
+        self,
+        x: ztyping.XTypeInput,
+        guarantee_limits: bool = False,
+        axis: int | None = None,
     ) -> ztyping.XTypeReturnNoData:
         """Filter `x` by removing the elements along `axis` that are not inside the limits.
 
@@ -543,10 +543,10 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
 
     @abstractmethod
     def with_limits(
-            self,
-            limits: ztyping.LimitsTypeInput = None,
-            rect_limits: ztyping.RectLimitsInputType | None = None,
-            name: str | None = None,
+        self,
+        limits: ztyping.LimitsTypeInput = None,
+        rect_limits: ztyping.RectLimitsInputType | None = None,
+        name: str | None = None,
     ) -> ZfitSpace:
         """Return a copy of the space with the new `limits` (and the new `name`).
 
@@ -576,10 +576,10 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
 
     @abstractmethod
     def with_coords(
-            self,
-            coords: ZfitOrderableDimensional,
-            allow_superset: bool = True,
-            allow_subset: bool = True,
+        self,
+        coords: ZfitOrderableDimensional,
+        allow_superset: bool = True,
+        allow_subset: bool = True,
     ) -> object:
         """Create a new :py:class:`~zfit.Space` with reordered observables and/or axes.
 
@@ -622,8 +622,8 @@ class ZfitDependenciesMixin:
     @deprecated(
         date=None,
         instructions="Use `get_params` instead if you want to retrieve the "
-                     "independent parameters or `get_cache_deps` in case you need "
-                     "the numerical cache dependents (advanced).",
+        "independent parameters or `get_cache_deps` in case you need "
+        "the numerical cache dependents (advanced).",
     )
     def get_dependencies(self, only_floating: bool = True) -> ztyping.DependentsType:
         # raise BreakingAPIChangeError
@@ -633,10 +633,10 @@ class ZfitDependenciesMixin:
 class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
     @abstractmethod
     def get_params(
-            self,
-            floating: bool | None = True,
-            is_yield: bool | None = None,
-            extract_independent: bool | None = True,
+        self,
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
@@ -818,13 +818,13 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
     @abstractmethod
     def update_integration_options(
-            self, *args, **kwargs
+        self, *args, **kwargs
     ):  # TODO: handling integration properly
         raise NotImplementedError
 
     @abstractmethod
     def integrate(
-            self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options
+        self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options
     ) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
@@ -844,13 +844,13 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
     @classmethod
     @abstractmethod
     def register_analytic_integral(
-            cls,
-            func: Callable,
-            limits: ztyping.LimitsType = None,
-            priority: int = 50,
-            *,
-            supports_norm: bool = False,
-            supports_multiple_limits: bool = False,
+        cls,
+        func: Callable,
+        limits: ztyping.LimitsType = None,
+        priority: int = 50,
+        *,
+        supports_norm: bool = False,
+        supports_multiple_limits: bool = False,
     ):
         """Register an analytic integral with the class.
 
@@ -867,13 +867,13 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
 
     @abstractmethod
     def partial_integrate(
-            self,
-            x: ztyping.XType,
-            limits: ztyping.LimitsType,
-            *,
-            norm=None,
-            options=None,
-            norm_range: ztyping.LimitsType = None,
+        self,
+        x: ztyping.XType,
+        limits: ztyping.LimitsType,
+        *,
+        norm=None,
+        options=None,
+        norm_range: ztyping.LimitsType = None,
     ) -> ztyping.XType:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
@@ -931,7 +931,7 @@ class ZfitFunc(ZfitModel):
 class ZfitPDF(ZfitModel):
     @abstractmethod
     def pdf(
-            self, x: ztyping.XType, norm: ztyping.LimitsType = None, norm_range=None
+        self, x: ztyping.XType, norm: ztyping.LimitsType = None, norm_range=None
     ) -> ztyping.XType:
         raise NotImplementedError
 
@@ -954,7 +954,7 @@ class ZfitPDF(ZfitModel):
 
     @abstractmethod
     def normalization(
-            self, limits: ztyping.LimitsType, *, options
+        self, limits: ztyping.LimitsType, *, options
     ) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 

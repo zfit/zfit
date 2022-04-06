@@ -42,7 +42,7 @@ class BinnedHolder(
                 variances_shape,
                 value_shape,
                 message=f"Variances and values do not have the same shape:"
-                        f" {variances_shape} vs {value_shape}",
+                f" {variances_shape} vs {value_shape}",
             )
         binning_rank = len(space.binning.edges)
         if binning_rank != values_rank:
@@ -53,7 +53,7 @@ class BinnedHolder(
             edges_shape - 1,
             value_shape,
             message=f"Edges (minus one) and values do not have the same shape:"
-                    f" {edges_shape} vs {value_shape}",
+            f" {edges_shape} vs {value_shape}",
         )
 
     def with_obs(self, obs):
@@ -84,7 +84,7 @@ class BinnedData(
 
     @classmethod  # TODO: add overflow bins if needed
     def from_tensor(
-            cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None
+        cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None
     ) -> BinnedData:
         """Create a binned dataset defined in *space* where values are considered to be the counts.
 
@@ -265,5 +265,6 @@ class BinnedData(
             return self.to_hist()._repr_html_()
         else:
             return f"Binned data, {self.obs} (non-eager)"
+
 
 # tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)

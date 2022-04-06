@@ -17,7 +17,7 @@ from .parameter import convert_to_parameter
 
 
 def multiply(
-        object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType
+    object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType
 ) -> ztyping.BaseObjectType:
     """Multiply two objects and return a new object (may depending on the old).
 
@@ -70,7 +70,7 @@ def multiply(
 
 
 def multiply_pdf_pdf(
-        pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "multiply_pdf_pdf"
+    pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "multiply_pdf_pdf"
 ) -> "ProductPDF":
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError(
@@ -89,7 +89,7 @@ def multiply_pdf_pdf(
 
 
 def multiply_func_func(
-        func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_func_func"
+    func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_func_func"
 ) -> "ProdFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError(
@@ -147,7 +147,7 @@ def multiply_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitPa
 
 # Addition logic
 def add(
-        object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType
+    object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType
 ) -> ztyping.BaseObjectType:
     """Add two objects and return a new object (may depending on the old).
 
@@ -227,7 +227,7 @@ def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> "Sum
 
 
 def add_func_func(
-        func1: ZfitFunc, func2: ZfitFunc, name: str = "add_func_func"
+    func1: ZfitFunc, func2: ZfitFunc, name: str = "add_func_func"
 ) -> "SumFunc":
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError(
@@ -274,7 +274,7 @@ def convert_pdf_to_func(pdf: ZfitPDF, norm: ztyping.LimitsType) -> ZfitFunc:
 
 
 def convert_func_to_pdf(
-        func: Union[ZfitFunc, Callable], obs=None, name=None
+    func: Union[ZfitFunc, Callable], obs=None, name=None
 ) -> ZfitPDF:
     func_name = "autoconverted_func_to_pdf" if name is None else name
     if not isinstance(func, ZfitFunc) and callable(func):

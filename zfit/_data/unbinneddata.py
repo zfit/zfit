@@ -50,4 +50,5 @@ class UnbinnedData(tfp.experimental.AutoCompositeTensor, ZfitData):
     def has_weights(self):
         return self._weights is not None
 
+
 # tensorlike.register_tensor_conversion(UnbinnedData, name='UnbinnedData', overload_operators=True)

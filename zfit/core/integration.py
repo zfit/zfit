@@ -26,18 +26,18 @@ from .space import Space, convert_to_space, supports
 
 
 def auto_integrate(
-        func,
-        limits,
-        n_axes=None,
-        x=None,
-        method="AUTO",
-        dtype=ztypes.float,
-        mc_sampler=tfp.mcmc.sample_halton_sequence,
-        max_draws=None,
-        tol=None,
-        vectorizable=None,
-        mc_options=None,
-        simpsons_options=None,
+    func,
+    limits,
+    n_axes=None,
+    x=None,
+    method="AUTO",
+    dtype=ztypes.float,
+    mc_sampler=tfp.mcmc.sample_halton_sequence,
+    max_draws=None,
+    tol=None,
+    vectorizable=None,
+    mc_options=None,
+    simpsons_options=None,
 ):
     if vectorizable is None:
         vectorizable = False
@@ -114,19 +114,19 @@ def simpson_integrate(func, limits, num_points):  # currently not vectorized
 
 # @z.function
 def mc_integrate(
-        func: Callable,
-        limits: ztyping.LimitsType,
-        axes: Optional[ztyping.AxesTypeInput] = None,
-        x: Optional[ztyping.XType] = None,
-        n_axes: Optional[int] = None,
-        draws_per_dim: int = 40000,
-        max_draws=800_000,
-        tol: float = 1e-6,
-        method: str = None,
-        dtype: Type = ztypes.float,
-        mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
-        importance_sampling: Optional[Callable] = None,
-        vectorizable=None,
+    func: Callable,
+    limits: ztyping.LimitsType,
+    axes: Optional[ztyping.AxesTypeInput] = None,
+    x: Optional[ztyping.XType] = None,
+    n_axes: Optional[int] = None,
+    draws_per_dim: int = 40000,
+    max_draws=800_000,
+    tol: float = 1e-6,
+    method: str = None,
+    dtype: Type = ztypes.float,
+    mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
+    importance_sampling: Optional[Callable] = None,
+    vectorizable=None,
 ) -> tf.Tensor:
     """Monte Carlo integration of `func` over `limits`.
 
@@ -222,7 +222,7 @@ def mc_integrate(
                         randomized=False,
                     )
                 samples = (
-                        samples_normed * (upper - lower) + lower
+                    samples_normed * (upper - lower) + lower
                 )  # samples is [0, 1], stretch it
                 if partial:  # TODO(Mayou36): shape of partial integral?
                     data_obs = x.obs
@@ -272,7 +272,7 @@ def mc_integrate(
                 error_sobol = std * znp.log(ntot_float) ** n_axes / ntot_float
                 error_random = std / znp.sqrt(ntot_float)
                 error = (
-                        znp.minimum(error_sobol, error_random) * 0.1
+                    znp.minimum(error_sobol, error_random) * 0.1
                 )  # heuristic factor from using QMC
                 return avg, error, std, ntot, i + 1
 
@@ -332,7 +332,7 @@ def mc_integrate(
 # TODO(Mayou36): Make more flexible for sampling
 # @z.function
 def normalization_nograd(
-        func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()
+    func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()
 ):
     upper, lower = space.rect_limits
     lower = z.convert_to_tensor(lower, dtype=dtype)
@@ -386,7 +386,7 @@ def normalization_nograd(
 
 # @z.function
 def normalization_chunked(
-        func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()
+    func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()
 ):
     x_is_none = x is None
 
@@ -598,7 +598,7 @@ class AnalyticIntegral:
         self._integrals = collections.defaultdict(dict)
 
     def get_max_axes(
-            self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None
+        self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None
     ) -> Tuple[int]:
         """Return the maximal available axes to integrate over analytically for given limits.
 
@@ -618,7 +618,7 @@ class AnalyticIntegral:
         ]  # only axes
 
     def _get_max_axes_limits(
-            self, limits, out_of_axes
+        self, limits, out_of_axes
     ):  # TODO: automatic caching? but most probably not relevant
         if out_of_axes:
             out_of_axes = frozenset(out_of_axes)
@@ -642,7 +642,7 @@ class AnalyticIntegral:
         return (), ()  # no integral available for this axes
 
     def get_max_integral(
-            self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None
+        self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None
     ) -> Union[None, "Integral"]:
         """Return the integral over the `limits` with `axes` (or a subset of them).
 
@@ -661,13 +661,13 @@ class AnalyticIntegral:
         return max(integrals, key=lambda l: l.priority, default=None)
 
     def register(
-            self,
-            func: Callable,
-            limits: ztyping.LimitsType,
-            priority: int = 50,
-            *,
-            supports_norm: bool = False,
-            supports_multiple_limits: bool = False,
+        self,
+        func: Callable,
+        limits: ztyping.LimitsType,
+        priority: int = 50,
+        *,
+        supports_norm: bool = False,
+        supports_multiple_limits: bool = False,
     ) -> None:
         """Register an analytic integral.
 
@@ -705,13 +705,13 @@ class AnalyticIntegral:
         # database-like access
 
     def integrate(
-            self,
-            x: Optional[ztyping.XType],
-            limits: ztyping.LimitsType,
-            axes: ztyping.AxesTypeInput = None,
-            norm: ztyping.LimitsType = None,
-            model: ZfitModel = None,
-            params: dict = None,
+        self,
+        x: Optional[ztyping.XType],
+        limits: ztyping.LimitsType,
+        axes: ztyping.AxesTypeInput = None,
+        norm: ztyping.LimitsType = None,
+        model: ZfitModel = None,
+        params: dict = None,
     ) -> ztyping.XType:
         """Integrate analytically over the axes if available.
 
@@ -770,7 +770,7 @@ class AnalyticIntegral:
 
 class Integral:  # TODO analytic integral
     def __init__(
-            self, func: Callable, limits: "ZfitSpace", priority: Union[int, float]
+        self, func: Callable, limits: "ZfitSpace", priority: Union[int, float]
     ):
         """A lightweight holder for the integral function."""
         self.limits = limits

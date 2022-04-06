@@ -41,7 +41,7 @@ class BaseObject(ZfitObject):
         return self._name
 
     def copy(
-            self, deep: bool = False, name: str = None, **overwrite_params
+        self, deep: bool = False, name: str = None, **overwrite_params
     ) -> "ZfitObject":
 
         new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
@@ -81,11 +81,11 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         self._repr["params"] = self.params
 
     def get_params(
-            self,
-            floating: Optional[bool] = True,
-            is_yield: Optional[bool] = None,
-            extract_independent: Optional[bool] = True,
-            only_floating=NotSpecified,
+        self,
+        floating: Optional[bool] = True,
+        is_yield: Optional[bool] = None,
+        extract_independent: Optional[bool] = True,
+        only_floating=NotSpecified,
     ) -> Set["ZfitParameter"]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
@@ -119,14 +119,14 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         )
 
     def _get_params(
-            self,
-            floating: Optional[bool] = True,
-            is_yield: Optional[bool] = None,
-            extract_independent: Optional[bool] = True,
+        self,
+        floating: Optional[bool] = True,
+        is_yield: Optional[bool] = None,
+        extract_independent: Optional[bool] = True,
     ) -> Set["ZfitParameter"]:
 
         if (
-                is_yield is True
+            is_yield is True
         ):  # we want exclusively yields, we don't have them by default
             params = OrderedSet()
         else:
@@ -170,9 +170,9 @@ class BaseNumeric(
 
 
 def extract_filter_params(
-        params: Iterable[ZfitParametrized],
-        floating: Optional[bool] = True,
-        extract_independent: Optional[bool] = True,
+    params: Iterable[ZfitParametrized],
+    floating: Optional[bool] = True,
+    extract_independent: Optional[bool] = True,
 ) -> Set[ZfitParameter]:
     params = convert_to_container(params, container=OrderedSet)
 

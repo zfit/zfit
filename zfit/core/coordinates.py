@@ -81,10 +81,10 @@ class Coordinates(ZfitOrderableDimensional):
         return self._n_obs
 
     def with_obs(
-            self,
-            obs: Optional[ztyping.ObsTypeInput],
-            allow_superset: bool = True,
-            allow_subset: bool = True,
+        self,
+        obs: Optional[ztyping.ObsTypeInput],
+        allow_superset: bool = True,
+        allow_subset: bool = True,
     ) -> "Coordinates":
         """Create a new instance that has `obs`; sorted by or set or dropped.
 
@@ -157,10 +157,10 @@ class Coordinates(ZfitOrderableDimensional):
         return new_coords
 
     def with_axes(
-            self,
-            axes: Optional[ztyping.AxesTypeInput],
-            allow_superset: bool = True,
-            allow_subset: bool = True,
+        self,
+        axes: Optional[ztyping.AxesTypeInput],
+        allow_superset: bool = True,
+        allow_subset: bool = True,
     ) -> "Coordinates":
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
@@ -281,7 +281,7 @@ class Coordinates(ZfitOrderableDimensional):
         return axes
 
     def get_reorder_indices(
-            self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
+        self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
     ) -> Tuple[int]:
         """Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.
 
@@ -316,13 +316,13 @@ class Coordinates(ZfitOrderableDimensional):
         return new_indices
 
     def reorder_x(
-            self,
-            x: Union[tf.Tensor, np.ndarray],
-            *,
-            x_obs: ztyping.ObsTypeInput = None,
-            x_axes: ztyping.AxesTypeInput = None,
-            func_obs: ztyping.ObsTypeInput = None,
-            func_axes: ztyping.AxesTypeInput = None,
+        self,
+        x: Union[tf.Tensor, np.ndarray],
+        *,
+        x_obs: ztyping.ObsTypeInput = None,
+        x_axes: ztyping.AxesTypeInput = None,
+        func_obs: ztyping.ObsTypeInput = None,
+        func_axes: ztyping.AxesTypeInput = None,
     ) -> ztyping.XTypeReturnNoData:
         """Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.
 
@@ -384,7 +384,7 @@ class Coordinates(ZfitOrderableDimensional):
             )
 
         if isinstance(x, ZfitData) and not (
-                coord_old == x.obs if obs_defined else x.axes
+            coord_old == x.obs if obs_defined else x.axes
         ):
             raise IntentionAmbiguousError(
                 "`reorder_x` is supposed to assume that the obs/axes of the given `x` are"

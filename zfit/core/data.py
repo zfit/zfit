@@ -41,13 +41,13 @@ class Data(
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(
-            self,
-            dataset: Union[tf.data.Dataset, "LightDataset"],
-            obs: ztyping.ObsTypeInput = None,
-            name: str = None,
-            weights=None,
-            iterator_feed_dict: Dict = None,
-            dtype: tf.DType = None,
+        self,
+        dataset: Union[tf.data.Dataset, "LightDataset"],
+        obs: ztyping.ObsTypeInput = None,
+        name: str = None,
+        weights=None,
+        iterator_feed_dict: Dict = None,
+        dtype: tf.DType = None,
     ):
         """Create a data holder from a `dataset` used to feed into `models`.
 
@@ -173,22 +173,22 @@ class Data(
     # constructors
     @classmethod
     def from_root_iter(
-            cls, path, treepath, branches=None, entrysteps=None, name=None, **kwargs
+        cls, path, treepath, branches=None, entrysteps=None, name=None, **kwargs
     ):
         # branches = convert_to_container(branches)
         raise RuntimeWarning("Currently, this is not supported.")
 
     @classmethod
     def from_root(
-            cls,
-            path: str,
-            treepath: str,
-            branches: List[str] = None,
-            branches_alias: Dict = None,
-            weights: ztyping.WeightsStrInputType = None,
-            name: str = None,
-            dtype: tf.DType = None,
-            root_dir_options=None,
+        cls,
+        path: str,
+        treepath: str,
+        branches: List[str] = None,
+        branches_alias: Dict = None,
+        weights: ztyping.WeightsStrInputType = None,
+        name: str = None,
+        dtype: tf.DType = None,
+        root_dir_options=None,
     ) -> "Data":
         """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
 
@@ -257,12 +257,12 @@ class Data(
 
     @classmethod
     def from_pandas(
-            cls,
-            df: pd.DataFrame,
-            obs: ztyping.ObsTypeInput = None,
-            weights: ztyping.WeightsInputType = None,
-            name: str = None,
-            dtype: tf.DType = None,
+        cls,
+        df: pd.DataFrame,
+        obs: ztyping.ObsTypeInput = None,
+        weights: ztyping.WeightsInputType = None,
+        name: str = None,
+        dtype: tf.DType = None,
     ):
         """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
 
@@ -282,12 +282,12 @@ class Data(
 
     @classmethod
     def from_numpy(
-            cls,
-            obs: ztyping.ObsTypeInput,
-            array: np.ndarray,
-            weights: ztyping.WeightsInputType = None,
-            name: str = None,
-            dtype: tf.DType = None,
+        cls,
+        obs: ztyping.ObsTypeInput,
+        array: np.ndarray,
+        weights: ztyping.WeightsInputType = None,
+        name: str = None,
+        dtype: tf.DType = None,
     ):
         """Create `Data` from a `np.array`.
 
@@ -300,7 +300,7 @@ class Data(
         """
 
         if not isinstance(array, (np.ndarray)) and not (
-                tf.is_tensor(array) and hasattr(array, "numpy")
+            tf.is_tensor(array) and hasattr(array, "numpy")
         ):
             raise TypeError(
                 f"`array` has to be a `np.ndarray`. Is currently {type(array)}"
@@ -314,12 +314,12 @@ class Data(
 
     @classmethod
     def from_tensor(
-            cls,
-            obs: ztyping.ObsTypeInput,
-            tensor: tf.Tensor,
-            weights: ztyping.WeightsInputType = None,
-            name: str = None,
-            dtype: tf.DType = None,
+        cls,
+        obs: ztyping.ObsTypeInput,
+        tensor: tf.Tensor,
+        weights: ztyping.WeightsInputType = None,
+        name: str = None,
+        dtype: tf.DType = None,
     ) -> "Data":
         """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
 
@@ -555,10 +555,10 @@ class Data(
 
     # TODO(Mayou36): refactor with pdf or other range things?
     def _convert_sort_space(
-            self,
-            obs: ztyping.ObsTypeInput = None,
-            axes: ztyping.AxesTypeInput = None,
-            limits: ztyping.LimitsTypeInput = None,
+        self,
+        obs: ztyping.ObsTypeInput = None,
+        axes: ztyping.AxesTypeInput = None,
+        limits: ztyping.LimitsTypeInput = None,
     ) -> Union[Space, None]:
         """Convert the inputs (using eventually `obs`, `axes`) to
         :py:class:`~zfit.Space` and sort them according to own `obs`.
@@ -594,12 +594,12 @@ class SampleData(Data):
     _cache_counting = 0
 
     def __init__(
-            self,
-            dataset: Union[tf.data.Dataset, "LightDataset"],
-            obs: ztyping.ObsTypeInput = None,
-            weights=None,
-            name: str = None,
-            dtype: tf.DType = ztypes.float,
+        self,
+        dataset: Union[tf.data.Dataset, "LightDataset"],
+        obs: ztyping.ObsTypeInput = None,
+        weights=None,
+        name: str = None,
+        dtype: tf.DType = ztypes.float,
     ):
         super().__init__(
             dataset,
@@ -618,11 +618,11 @@ class SampleData(Data):
 
     @classmethod
     def from_sample(
-            cls,
-            sample: tf.Tensor,
-            obs: ztyping.ObsTypeInput,
-            name: str = None,
-            weights=None,
+        cls,
+        sample: tf.Tensor,
+        obs: ztyping.ObsTypeInput,
+        name: str = None,
+        weights=None,
     ):
         dataset = LightDataset.from_tensor(sample)
         return SampleData(dataset=dataset, obs=obs, name=name, weights=weights)
@@ -632,16 +632,16 @@ class Sampler(Data):
     _cache_counting = 0
 
     def __init__(
-            self,
-            dataset: "LightDataset",
-            sample_func: Callable,
-            sample_holder: tf.Variable,
-            n: Union[ztyping.NumericalScalarType, Callable],
-            weights=None,
-            fixed_params: Dict["zfit.Parameter", ztyping.NumericalScalarType] = None,
-            obs: ztyping.ObsTypeInput = None,
-            name: str = None,
-            dtype: tf.DType = ztypes.float,
+        self,
+        dataset: "LightDataset",
+        sample_func: Callable,
+        sample_holder: tf.Variable,
+        n: Union[ztyping.NumericalScalarType, Callable],
+        weights=None,
+        fixed_params: Dict["zfit.Parameter", ztyping.NumericalScalarType] = None,
+        obs: ztyping.ObsTypeInput = None,
+        name: str = None,
+        dtype: tf.DType = ztypes.float,
     ):
 
         super().__init__(
@@ -695,14 +695,14 @@ class Sampler(Data):
 
     @classmethod
     def from_sample(
-            cls,
-            sample_func: Callable,
-            n: ztyping.NumericalScalarType,
-            obs: ztyping.ObsTypeInput,
-            fixed_params=None,
-            name: str = None,
-            weights=None,
-            dtype=None,
+        cls,
+        sample_func: Callable,
+        n: ztyping.NumericalScalarType,
+        obs: ztyping.ObsTypeInput,
+        fixed_params=None,
+        name: str = None,
+        weights=None,
+        dtype=None,
     ):
         obs = convert_to_space(obs)
 
@@ -803,10 +803,10 @@ class LightDataset:
 
 
 def sum_samples(
-        sample1: ZfitUnbinnedData,
-        sample2: ZfitUnbinnedData,
-        obs: ZfitSpace,
-        shuffle: bool = False,
+    sample1: ZfitUnbinnedData,
+    sample2: ZfitUnbinnedData,
+    obs: ZfitSpace,
+    shuffle: bool = False,
 ):
     samples = [sample1, sample2]
     if obs is None:

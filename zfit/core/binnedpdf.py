@@ -190,10 +190,10 @@ class BaseBinnedPDFV1(
         return super()._get_dependencies()
 
     def _get_params(
-            self,
-            floating: bool | None = True,
-            is_yield: bool | None = None,
-            extract_independent: bool | None = True,
+        self,
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
 
         params = super()._get_params(
@@ -219,7 +219,7 @@ class BaseBinnedPDFV1(
         if x is None and none_is_space:
             return self.space
         if isinstance(x, uhi.typing.plottable.PlottableHistogram) and not isinstance(
-                x, ZfitBinnedData
+            x, ZfitBinnedData
         ):
             x = BinnedData.from_hist(x)
         if not isinstance(x, ZfitBinnedData):
@@ -263,7 +263,7 @@ class BaseBinnedPDFV1(
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def pdf(
-            self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
+        self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
     ) -> ztyping.XType:
         """Probability density function, evaluated at `x` or in the bins of `x`
 
@@ -299,7 +299,7 @@ class BaseBinnedPDFV1(
         values = self._call_pdf(x, norm=norm)
 
         if (
-                binindices is not None
+            binindices is not None
         ):  # because we have the flow, so we need to make it here with pads
             padded_values = znp.pad(
                 values,
@@ -348,7 +348,7 @@ class BaseBinnedPDFV1(
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
     def ext_pdf(
-            self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
+        self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
     ) -> ztyping.XType:
         if norm_range is not None:
             norm = norm_range
@@ -371,7 +371,7 @@ class BaseBinnedPDFV1(
         values = self._call_ext_pdf(x, norm=norm)
 
         if (
-                binindices is not None
+            binindices is not None
         ):  # because we have the flow, so we need to make it here with pads
             padded_values = znp.pad(
                 values,
@@ -430,11 +430,11 @@ class BaseBinnedPDFV1(
         raise SpecificFunctionNotImplemented
 
     def integrate(
-            self,
-            limits: ztyping.LimitsType,
-            norm: ztyping.LimitsType = None,
-            *,
-            options=None,
+        self,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        options=None,
     ) -> ztyping.XType:
         if options is None:
             options = {}
@@ -479,12 +479,12 @@ class BaseBinnedPDFV1(
 
     @deprecated_norm_range
     def ext_integrate(
-            self,
-            limits: ztyping.LimitsType,
-            norm: ztyping.LimitsType = None,
-            *,
-            norm_range=None,
-            options=None,
+        self,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        norm_range=None,
+        options=None,
     ) -> ztyping.XType:
         """Extended integral of the PDF, i.e. the expected counts.
 
@@ -516,7 +516,7 @@ class BaseBinnedPDFV1(
         return self._fallback_ext_integrate(limits, norm, options=options)
 
     def _fallback_ext_integrate(
-            self, limits, norm, *, options
+        self, limits, norm, *, options
     ):  # TODO: rather use pdf?
         bincounts = self._call_counts(
             limits, norm=norm
@@ -547,7 +547,7 @@ class BaseBinnedPDFV1(
         raise SpecificFunctionNotImplemented
 
     def sample(
-            self, n: int = None, limits: ztyping.LimitsType = None
+        self, n: int = None, limits: ztyping.LimitsType = None
     ) -> ZfitBinnedData:
         """Draw a random binned sample from the PDF.
 
@@ -638,25 +638,25 @@ class BaseBinnedPDFV1(
 
     @classmethod
     def register_analytic_integral(
-            cls,
-            func: Callable,
-            limits: ztyping.LimitsType = None,
-            priority: int = 50,
-            *,
-            supports_norm: bool = False,
-            supports_multiple_limits: bool = False,
-            supports_norm_range,
+        cls,
+        func: Callable,
+        limits: ztyping.LimitsType = None,
+        priority: int = 50,
+        *,
+        supports_norm: bool = False,
+        supports_multiple_limits: bool = False,
+        supports_norm_range,
     ):
         raise RuntimeError("analytic integral not available for BinnedPDF")
 
     def partial_integrate(
-            self,
-            x: ztyping.XType,
-            limits: ztyping.LimitsType,
-            *,
-            norm=None,
-            options=None,
-            norm_range: ztyping.LimitsType = None,
+        self,
+        x: ztyping.XType,
+        limits: ztyping.LimitsType,
+        *,
+        norm=None,
+        options=None,
+        norm_range: ztyping.LimitsType = None,
     ) -> ztyping.XType:
         raise WorkInProgressError("partial_integrate not yet available for BinnedPDF")
 
@@ -691,10 +691,10 @@ class BaseBinnedPDFV1(
     # TODO: factor out with unbinned pdf
 
     def _convert_sort_space(
-            self,
-            obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
-            axes: ztyping.AxesTypeInput = None,
-            limits: ztyping.LimitsTypeInput = None,
+        self,
+        obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
+        axes: ztyping.AxesTypeInput = None,
+        limits: ztyping.LimitsTypeInput = None,
     ) -> ZfitSpace | None:
         """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
         own `obs`.
@@ -723,7 +723,7 @@ class BaseBinnedPDFV1(
 
     @z.function(wraps="model")
     def counts(
-            self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
+        self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
     ) -> ZfitBinnedData:
         """Calculate the number of events in each bin.
 
@@ -791,7 +791,7 @@ class BaseBinnedPDFV1(
 
     @z.function(wraps="model")
     def rel_counts(
-            self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
+        self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
     ) -> ZfitBinnedData:
         """Calculate the relative number of events in each bin.
 
@@ -848,12 +848,12 @@ class BaseBinnedPDFV1(
 
 
 def binned_rect_integration(
-        *,
-        limits: ZfitSpace,
-        edges: Iterable[znp.array] | znp.array,
-        counts: znp.array | None = None,
-        density: znp.array | None = None,
-        axis: Iterable[int] | int | None = None,
+    *,
+    limits: ZfitSpace,
+    edges: Iterable[znp.array] | znp.array,
+    counts: znp.array | None = None,
+    density: znp.array | None = None,
+    axis: Iterable[int] | int | None = None,
 ) -> znp.array:
     """Integrate a histogram over *limits*.
 
@@ -960,7 +960,7 @@ def binned_rect_integration(
 
 @z.function(wraps="tensor")
 def cut_edges_and_bins(
-        edges: Iterable[znp.array], limits: ZfitSpace, axis=None, unscaled=None
+    edges: Iterable[znp.array], limits: ZfitSpace, axis=None, unscaled=None
 ) -> tuple[list[znp.array], tuple[znp.array, znp.array], list | None]:
     """Cut the *edges* according to *limits* and calculate the bins inside.
 
