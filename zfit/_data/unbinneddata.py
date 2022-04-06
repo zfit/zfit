@@ -2,9 +2,6 @@
 import tensorflow_probability as tfp
 from zfit_interface.data import ZfitData
 
-import zfit.core.tensorlike as tensorlike
-import zfit.serialization as serialization
-
 
 @tfp.experimental.auto_composite_tensor()
 class UnbinnedData(tfp.experimental.AutoCompositeTensor, ZfitData):
