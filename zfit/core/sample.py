@@ -436,7 +436,7 @@ def extract_extended_pdfs(pdfs: Union[Iterable[ZfitPDF], ZfitPDF]) -> List[ZfitP
 
 
 def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) -> tf.Tensor:
-    """Create a sample from extended pdfs by sampling poissonian using the yield.
+    """Create a sample from extended pdfs by sampling from a Poisson using the yield.
 
     Args:
         pdfs:
@@ -452,9 +452,9 @@ def extended_sampling(pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space) ->
     for pdf in pdfs:
         n = tf.random.poisson(lam=pdf.get_yield(), shape=(), dtype=ztypes.float)
         n = tf.cast(n, dtype=tf.int64)
-        sample = pdf._single_hook_sample(limits=limits, n=n)
+        sample = pdf.sample(limits=limits, n=n)
         # sample.set_shape((n, limits.n_obs))
-        samples.append(sample)
+        samples.append(sample.value())
 
     samples = znp.concatenate(samples, axis=0)
     return samples

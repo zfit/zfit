@@ -19,6 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- extended sampling errored for some cases of binned PDFs.
 
 - ``ConstantParameter`` errored when converted to numpy.
 
@@ -31,6 +32,7 @@ Requirement changes
 
 Thanks
 ------
+- @YaniBion for discovering the bug in the extended sampling and testing the alpha release
 
 0.9.0a2
 ========
