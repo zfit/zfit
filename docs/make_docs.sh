@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 zfit
+# Copyright (c) 2022 zfit
 #
 
 # script has to be executed inside folder `docs`

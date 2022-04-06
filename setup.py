@@ -1,6 +1,6 @@
 """The setup script."""
 
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import os
 
 from setuptools import setup

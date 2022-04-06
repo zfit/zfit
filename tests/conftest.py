@@ -1,9 +1,10 @@
 """Used to make pytest functions available globally."""
 
+#  Copyright (c) 2022 zfit
+
 import os
 import pathlib
 
-#  Copyright (c) 2021 zfit
 import sys
 
 import matplotlib.pyplot as plt

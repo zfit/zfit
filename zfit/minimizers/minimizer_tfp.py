@@ -1,6 +1,15 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
+
 from collections import OrderedDict
-from typing import Mapping
 
 import numpy as np
 import tensorflow as tf

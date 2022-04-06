@@ -1,11 +1,24 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+    from .evaluation import LossEval
+
+from collections.abc import Mapping
+from collections.abc import Callable
+from collections.abc import Iterable
+
 import collections
 import contextlib
 import itertools
 import math
 import warnings
 from collections import OrderedDict
-from typing import Callable, Dict, Iterable, List, Mapping, Optional, Tuple, Union
+from typing import Optional, Union
 
 import colored
 import iminuit
@@ -44,10 +57,10 @@ init(autoreset=True)
 class Approximations:
     def __init__(
         self,
-        params: List[ZfitParameter],
-        gradient: Optional[np.ndarray] = None,
-        hessian: Optional[np.ndarray] = None,
-        inv_hessian: Optional[np.ndarray] = None,
+        params: list[ZfitParameter],
+        gradient: np.ndarray | None = None,
+        hessian: np.ndarray | None = None,
+        inv_hessian: np.ndarray | None = None,
     ) -> None:
         """Holds different approximations after the minimisation and/or calculates them.
 
@@ -68,8 +81,8 @@ class Approximations:
         return self._params
 
     def gradient(
-        self, params: Optional[Union[ZfitParameter, Iterable[ZfitParameter]]] = None
-    ) -> Union[np.ndarray, None]:
+        self, params: ZfitParameter | Iterable[ZfitParameter] | None = None
+    ) -> np.ndarray | None:
         """Return an approximation of the gradient _if available_.
 
         Args:
@@ -93,7 +106,7 @@ class Approximations:
             grad = grad[indices]
         return grad
 
-    def hessian(self, invert: bool = True) -> Union[np.ndarray, None]:
+    def hessian(self, invert: bool = True) -> np.ndarray | None:
         """Return an approximation of the hessian _if available_.
 
         Args:
@@ -111,7 +124,7 @@ class Approximations:
                 self._hessian = hess
         return hess
 
-    def inv_hessian(self, invert: bool = True) -> Union[None, np.ndarray]:
+    def inv_hessian(self, invert: bool = True) -> None | np.ndarray:
         """Return an approximation of the inverse hessian _if available_.
 
         Args:
@@ -290,19 +303,19 @@ class FitResult(ZfitResult):
     def __init__(
         self,
         loss: ZfitLoss,
-        params: Dict[ZfitParameter, float],
-        minimizer: "ZfitMinimizer",
+        params: dict[ZfitParameter, float],
+        minimizer: ZfitMinimizer,
         valid: bool,
         edm: float,
         fmin: float,
-        criterion: Optional[ConvergenceCriterion],
-        status: Optional[int] = None,
-        converged: Optional[bool] = None,
-        message: Optional[str] = None,
-        info: Optional[Mapping] = None,
-        approx: Optional[Union[Mapping, Approximations]] = None,
-        niter: Optional[int] = None,
-        evaluator: "zfit.minimizer.evaluation.LossEval" = None,
+        criterion: ConvergenceCriterion | None,
+        status: int | None = None,
+        converged: bool | None = None,
+        message: str | None = None,
+        info: Mapping | None = None,
+        approx: Mapping | Approximations | None = None,
+        niter: int | None = None,
+        evaluator: LossEval = None,
     ) -> None:
         """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
 
@@ -515,19 +528,19 @@ class FitResult(ZfitResult):
         cls,
         loss: ZfitLoss,
         params: Iterable[ZfitParameter],
-        problem: "ipyopt.Problem",
-        minimizer: "zfit.minimize.IpyoptV1",
+        problem: ipyopt.Problem,
+        minimizer: zfit.minimize.IpyoptV1,
         valid: bool,
         values: np.ndarray,
-        message: Optional[str],
-        converged: Optional[bool],
-        edm: Union["zfit.minimizers.termination.CriterionNotAvailable", float],
-        niter: Optional[int],
-        fmin: Optional[float],
-        status: Optional[int],
-        criterion: "zfit.minimizers.termination.ConvergenceCriterion",
-        evaluator: Optional["zfit.minimizers.evaluation.LossEval"],
-    ) -> "FitResult":
+        message: str | None,
+        converged: bool | None,
+        edm: zfit.minimizers.termination.CriterionNotAvailable | float,
+        niter: int | None,
+        fmin: float | None,
+        status: int | None,
+        criterion: zfit.minimizers.termination.ConvergenceCriterion,
+        evaluator: zfit.minimizers.evaluation.LossEval | None,
+    ) -> FitResult:
         """Create a ``FitResult`` from an ipopt minimization.
 
         Args:
@@ -613,21 +626,19 @@ class FitResult(ZfitResult):
         cls,
         loss: ZfitLoss,
         params: Iterable[ZfitParameter],
-        minuit: "iminuit.Minuit",
-        minimizer: Union[ZfitMinimizer, "iminuit.Minuit"],
-        valid: Optional[bool],
-        values: Optional[np.ndarray] = None,
-        message: Optional[str] = None,
-        converged: Optional[bool] = None,
-        edm: Optional[
-            Union["zfit.minimizers.termination.CriterionNotAvailable", float]
-        ] = None,
-        niter: Optional[int] = None,
-        fmin: Optional[float] = None,
-        status: Optional[int] = None,
-        criterion: Optional["zfit.minimizers.termination.ConvergenceCriterion"] = None,
-        evaluator: Optional["zfit.minimizers.evaluation.LossEval"] = None,
-    ) -> "FitResult":
+        minuit: iminuit.Minuit,
+        minimizer: ZfitMinimizer | iminuit.Minuit,
+        valid: bool | None,
+        values: np.ndarray | None = None,
+        message: str | None = None,
+        converged: bool | None = None,
+        edm: None | (zfit.minimizers.termination.CriterionNotAvailable | float) = None,
+        niter: int | None = None,
+        fmin: float | None = None,
+        status: int | None = None,
+        criterion: zfit.minimizers.termination.ConvergenceCriterion | None = None,
+        evaluator: zfit.minimizers.evaluation.LossEval | None = None,
+    ) -> FitResult:
         """Create a `FitResult` from a :py:class:`~iminuit.util.MigradResult` returned by
         :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:`~iminuit.Minuit` instance with the corresponding
         zfit objects.
@@ -747,13 +758,13 @@ class FitResult(ZfitResult):
         params: Iterable[ZfitParameter],
         result: scipy.optimize.OptimizeResult,
         minimizer: ZfitMinimizer,
-        message: Optional[str],
+        message: str | None,
         valid: bool,
         criterion: ConvergenceCriterion,
-        edm: Optional[float] = None,
-        niter: Optional[int] = None,
-        evaluator: Optional["zfit.minimize.LossEval"] = None,
-    ) -> "FitResult":
+        edm: float | None = None,
+        niter: int | None = None,
+        evaluator: zfit.minimize.LossEval | None = None,
+    ) -> FitResult:
         """Create a ``FitResult from a SciPy `~scipy.optimize.OptimizeResult`.
 
         Args:
@@ -862,22 +873,20 @@ class FitResult(ZfitResult):
         loss: ZfitLoss,
         opt,
         params: Iterable[ZfitParameter],
-        minimizer: Union[ZfitMinimizer, iminuit.Minuit],
-        valid: Optional[bool],
-        values: Optional[np.ndarray] = None,
-        message: Optional[str] = None,
-        converged: Optional[bool] = None,
-        edm: Optional[
-            Union["zfit.minimizers.termination.CriterionNotAvailable", float]
-        ] = None,
-        niter: Optional[int] = None,
-        fmin: Optional[float] = None,
-        status: Optional[int] = None,
-        criterion: Optional["zfit.minimizers.termination.ConvergenceCriterion"] = None,
-        evaluator: Optional["zfit.minimizers.evaluation.LossEval"] = None,
-        inv_hessian: Optional[np.ndarray] = None,
-        hessian: Optional[np.ndarray] = None,
-    ) -> "FitResult":
+        minimizer: ZfitMinimizer | iminuit.Minuit,
+        valid: bool | None,
+        values: np.ndarray | None = None,
+        message: str | None = None,
+        converged: bool | None = None,
+        edm: None | (zfit.minimizers.termination.CriterionNotAvailable | float) = None,
+        niter: int | None = None,
+        fmin: float | None = None,
+        status: int | None = None,
+        criterion: zfit.minimizers.termination.ConvergenceCriterion | None = None,
+        evaluator: zfit.minimizers.evaluation.LossEval | None = None,
+        inv_hessian: np.ndarray | None = None,
+        hessian: np.ndarray | None = None,
+    ) -> FitResult:
         """Create a ``FitResult`` from an NLopt optimizer.
 
         Args:
@@ -1016,7 +1025,7 @@ class FitResult(ZfitResult):
         return self._params
 
     @property
-    def values(self) -> Mapping[Union[str, ZfitParameter], float]:
+    def values(self) -> Mapping[str | ZfitParameter, float]:
         return self._values
 
     @property
@@ -1102,12 +1111,12 @@ class FitResult(ZfitResult):
     def hesse(
         self,
         params: ParamsTypeOpt = None,
-        method: Union[str, Callable] = None,
-        cl: Optional[float] = None,
-        name: Optional[Union[str, bool]] = None,
+        method: str | Callable = None,
+        cl: float | None = None,
+        name: str | bool | None = None,
         # DEPRECATED
-        error_name: Optional[str] = None,
-    ) -> Dict[ZfitIndependentParameter, Dict]:
+        error_name: str | None = None,
+    ) -> dict[ZfitIndependentParameter, dict]:
         """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
         Args:
@@ -1207,7 +1216,7 @@ class FitResult(ZfitResult):
     def error(
         self,
         params: ParamsTypeOpt = None,
-        method: Union[str, Callable] = None,
+        method: str | Callable = None,
         error_name: str = None,
         sigma: float = 1.0,
     ) -> OrderedDict:
@@ -1252,12 +1261,12 @@ class FitResult(ZfitResult):
     def errors(
         self,
         params: ParamsTypeOpt = None,
-        method: Union[str, Callable] = None,
+        method: str | Callable = None,
         name: str = None,
         error_name: str = None,
-        cl: Optional[float] = None,
+        cl: float | None = None,
         sigma=None,
-    ) -> Tuple[OrderedDict, Union[None, "FitResult"]]:
+    ) -> tuple[OrderedDict, None | FitResult]:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
         Args:
@@ -1378,7 +1387,7 @@ class FitResult(ZfitResult):
     def covariance(
         self,
         params: ParamsTypeOpt = None,
-        method: Union[str, Callable] = None,
+        method: str | Callable = None,
         as_dict: bool = False,
     ):
         """Calculate the covariance matrix for `params`.
@@ -1440,7 +1449,7 @@ class FitResult(ZfitResult):
     def correlation(
         self,
         params: ParamsTypeOpt = None,
-        method: Union[str, Callable] = None,
+        method: str | Callable = None,
         as_dict: bool = False,
     ):
         """Calculate the correlation matrix for `params`.

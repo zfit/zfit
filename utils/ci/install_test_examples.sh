@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Copyright (c) 2021 zfit
+# Copyright (c) 2022 zfit
 #
 
 pip install matplotlib mplhep

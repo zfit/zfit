@@ -1,6 +1,6 @@
 """Top-level package for zfit."""
 
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import warnings
 
 from pkg_resources import get_distribution

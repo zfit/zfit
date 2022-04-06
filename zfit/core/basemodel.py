@@ -2,8 +2,17 @@
 
 Handle integration and sampling
 """
+#  Copyright (c) 2022 zfit
 
-#  Copyright (c) 2021 zfit
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Callable
+
 
 import abc
 import builtins
@@ -13,7 +22,7 @@ import math
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -105,7 +114,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def __init__(
         self,
         obs: ztyping.ObsTypeInput,
-        params: Union[Dict[str, ZfitParameter], None] = None,
+        params: dict[str, ZfitParameter] | None = None,
         name: str = "BaseModel",
         dtype=ztypes.float,
         **kwargs,
@@ -312,7 +321,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     ):
         raise NotImplementedError("Are the gradients needed?")
 
-    def _check_input_norm(self, norm, none_is_error=False) -> Optional[ZfitSpace]:
+    def _check_input_norm(self, norm, none_is_error=False) -> ZfitSpace | None:
         """Convert to :py:class:`~zfit.Space`.
 
         Args:
@@ -344,10 +353,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _convert_sort_space(
         self,
-        obs: Union[ztyping.ObsTypeInput, ztyping.LimitsTypeInput] = None,
+        obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
-    ) -> Union[ZfitSpace, None]:
+    ) -> ZfitSpace | None:
         """Convert the inputs (using eventually `obs`, `axes`) to
         :py:class:`~zfit.ZfitSpace` and sort them according to own `obs`.
 
@@ -481,7 +490,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         cls,
         func: Callable,
         limits: ztyping.LimitsType = None,
-        priority: Union[int, float] = 50,
+        priority: int | float = 50,
         *,
         supports_norm: bool = None,
         supports_norm_range: bool = None,
@@ -996,7 +1005,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 x=x, limits=limits, norm=False
             )
             integral = unnormalized_integral / self._hook_numeric_integrate(
-                limits=norm, norm=norm, options=options
+                limits=norm, norm=norm
             )
         return integral
 
@@ -1082,8 +1091,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self,
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
-        fixed_params: Union[bool, List[ZfitParameter], Tuple[ZfitParameter]] = True,
-    ) -> "Sampler":
+        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
+    ) -> Sampler:
         """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
 
             If `limits` is not specified, `space` is used (if the space contains limits).
@@ -1155,7 +1164,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self,
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
-        x: Optional[ztyping.DataInputType] = None,
+        x: ztyping.DataInputType | None = None,
     ) -> SampleData:  # TODO: change poissonian top-level with multinomial
         """Sample `n` points within `limits` from the model.
 

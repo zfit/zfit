@@ -1,6 +1,4 @@
-#  Copyright (c) 2021 zfit
-
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 
 def convert_to_repr(repr):

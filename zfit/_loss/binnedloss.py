@@ -1,12 +1,22 @@
-#  Copyright (c) 2021 zfit
-from typing import Iterable, Optional, Set
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+
+from typing import Optional
 
 import numpy as np
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
 from .. import z
-from ..core.interfaces import ZfitBinnedData, ZfitBinnedPDF
+from ..core.interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitParameter
 from ..core.loss import BaseLoss
 from ..util import ztyping
 from ..util.checks import NONE
@@ -283,10 +293,10 @@ class ExtendedBinnedNLL(BaseBinned):
 
     def _get_params(
         self,
-        floating: Optional[bool] = True,
-        is_yield: Optional[bool] = None,
-        extract_independent: Optional[bool] = True,
-    ) -> Set["ZfitParameter"]:
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+    ) -> set[ZfitParameter]:
 
         return super()._get_params(floating, is_yield, extract_independent)
 
@@ -424,10 +434,10 @@ class BinnedNLL(BaseBinned):
 
     def _get_params(
         self,
-        floating: Optional[bool] = True,
-        is_yield: Optional[bool] = None,
-        extract_independent: Optional[bool] = True,
-    ) -> Set["ZfitParameter"]:
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+    ) -> set[ZfitParameter]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
         return super()._get_params(floating, is_yield, extract_independent)
@@ -620,10 +630,10 @@ class BinnedChi2(BaseBinned):
 
     def _get_params(
         self,
-        floating: Optional[bool] = True,
-        is_yield: Optional[bool] = None,
-        extract_independent: Optional[bool] = True,
-    ) -> Set["ZfitParameter"]:
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+    ) -> set[ZfitParameter]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
         return super()._get_params(floating, is_yield, extract_independent)

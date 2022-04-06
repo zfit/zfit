@@ -1,14 +1,24 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+
 
 from collections import OrderedDict
-from typing import Iterable, List, Optional, Set, Tuple, Union
+from typing import Optional, Union
 
 import tensorflow as tf
 
 from ..core.coordinates import convert_to_obs_str
 from ..core.dependents import _extract_dependencies
 from ..core.dimension import get_same_obs
-from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace
+from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace, ZfitParameter
 from ..core.parameter import convert_to_parameter
 from ..core.space import Space, combine_spaces
 from ..settings import ztypes, run
@@ -78,10 +88,10 @@ class FunctorMixin(ZfitFunctorMixin):
 
     def _get_params(
         self,
-        floating: Optional[bool] = True,
-        is_yield: Optional[bool] = None,
-        extract_independent: Optional[bool] = True,
-    ) -> Set["ZfitParameter"]:
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+    ) -> set[ZfitParameter]:
         params = super()._get_params(floating, is_yield, extract_independent)
         if is_yield is not True:
             params = params.union(
@@ -102,7 +112,7 @@ class FunctorMixin(ZfitFunctorMixin):
         return dependents.union(model_dependents)
 
     @property
-    def models(self) -> List[ZfitModel]:
+    def models(self) -> list[ZfitModel]:
         """Return the models of this `Functor`.
 
         Can be `pdfs` or `funcs`.
@@ -113,7 +123,7 @@ class FunctorMixin(ZfitFunctorMixin):
     def _model_same_obs(self):
         return get_same_obs(self._model_obs)
 
-    def get_models(self, names=None) -> List[ZfitModel]:
+    def get_models(self, names=None) -> list[ZfitModel]:
         if names is None:
             models = list(self.models)
         else:
@@ -133,7 +143,7 @@ class FunctorMixin(ZfitFunctorMixin):
         return self._check_input_norm_range(norm=norm, none_is_error=none_is_error)
 
 
-def _extract_common_obs(obs: Tuple[Union[Tuple[str], Space]]) -> Tuple[str]:
+def _extract_common_obs(obs: tuple[tuple[str] | Space]) -> tuple[str]:
     obs_iter = [space.obs if isinstance(space, Space) else space for space in obs]
     unique_obs = []
     for obs in obs_iter:

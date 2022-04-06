@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 # TODO: improve errors of models. Generate more general error, inherit and use more specific?
 import warnings

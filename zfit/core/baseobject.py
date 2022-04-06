@@ -1,9 +1,19 @@
 """Baseclass for most objects appearing in zfit."""
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Iterable, Optional, Set
+from typing import Optional
 
 import tensorflow as tf
 from ordered_set import OrderedSet
@@ -41,8 +51,8 @@ class BaseObject(ZfitObject):
         return self._name
 
     def copy(
-            self, deep: bool = False, name: str = None, **overwrite_params
-    ) -> "ZfitObject":
+        self, deep: bool = False, name: str = None, **overwrite_params
+    ) -> ZfitObject:
 
         new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
         return new_object
@@ -81,12 +91,12 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         self._repr["params"] = self.params
 
     def get_params(
-            self,
-            floating: Optional[bool] = True,
-            is_yield: Optional[bool] = None,
-            extract_independent: Optional[bool] = True,
-            only_floating=NotSpecified,
-    ) -> Set["ZfitParameter"]:
+        self,
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+        only_floating=NotSpecified,
+    ) -> set[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
@@ -119,14 +129,14 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         )
 
     def _get_params(
-            self,
-            floating: Optional[bool] = True,
-            is_yield: Optional[bool] = None,
-            extract_independent: Optional[bool] = True,
-    ) -> Set["ZfitParameter"]:
+        self,
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+    ) -> set[ZfitParameter]:
 
         if (
-                is_yield is True
+            is_yield is True
         ):  # we want exclusively yields, we don't have them by default
             params = OrderedSet()
         else:
@@ -170,10 +180,10 @@ class BaseNumeric(
 
 
 def extract_filter_params(
-        params: Iterable[ZfitParametrized],
-        floating: Optional[bool] = True,
-        extract_independent: Optional[bool] = True,
-) -> Set[ZfitParameter]:
+    params: Iterable[ZfitParametrized],
+    floating: bool | None = True,
+    extract_independent: bool | None = True,
+) -> set[ZfitParameter]:
     params = convert_to_container(params, container=OrderedSet)
 
     if extract_independent:

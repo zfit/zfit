@@ -1,6 +1,17 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Any, Callable, Iterable, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Callable
+from collections.abc import Iterable
+
+
+from typing import Any, Union
 
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
@@ -10,7 +21,7 @@ import zfit.binned
 
 def convert_to_container(
     value: Any, container: Callable = list, non_containers=None, convert_none=False
-) -> Union[None, Iterable]:
+) -> None | Iterable:
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
     Args:

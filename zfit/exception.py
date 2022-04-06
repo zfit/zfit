@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 """.. todo:: Add module docstring."""
 from .util.checks import NONE
 from .util.deprecation import deprecated

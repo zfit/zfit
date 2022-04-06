@@ -2,9 +2,20 @@
 
 Contains a singleton instance to register new PDFs and let them be tested.
 """
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+from collections.abc import Callable
+
 from collections import OrderedDict
-from typing import Callable, Iterable, List, Tuple, Union
+from typing import Union
 
 import scipy.stats
 
@@ -30,11 +41,11 @@ class AutoTester:
         self.pdfs = []
 
     def register_pdf(
-            self,
-            pdf_class: ZfitPDF,
-            params_factories: Union[Callable, Iterable[Callable]],
-            scipy_dist: scipy.stats.rv_continuous = None,
-            analytic_int_axes: Union[None, int, List[Tuple[int, ...]]] = None,
+        self,
+        pdf_class: ZfitPDF,
+        params_factories: Callable | Iterable[Callable],
+        scipy_dist: scipy.stats.rv_continuous = None,
+        analytic_int_axes: None | int | list[tuple[int, ...]] = None,
     ):
         # if not isinstance(pdf_class, ZfitPDF):
         #     raise TypeError(f"PDF {pdf_class} is not a ZfitPDF.")

@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import tensorflow_probability as tfp
 from zfit_interface.data import ZfitData
 
@@ -49,5 +49,6 @@ class UnbinnedData(tfp.experimental.AutoCompositeTensor, ZfitData):
     @property
     def has_weights(self):
         return self._weights is not None
+
 
 # tensorlike.register_tensor_conversion(UnbinnedData, name='UnbinnedData', overload_operators=True)

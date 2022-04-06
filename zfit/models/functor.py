@@ -4,11 +4,21 @@ A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+
 import functools
 import operator
 from collections import Counter
-from typing import List, Optional, Iterable
+from typing import Optional
 
 import tensorflow as tf
 
@@ -58,7 +68,7 @@ class SumPDF(BaseFunctor):
     def __init__(
         self,
         pdfs: Iterable[ZfitPDF],
-        fracs: Optional[ztyping.ParamTypeInput] = None,
+        fracs: ztyping.ParamTypeInput | None = None,
         obs: ztyping.ObsTypeInput = None,
         name: str = "SumPDF",
     ):
@@ -228,7 +238,7 @@ class SumPDF(BaseFunctor):
 
 class ProductPDF(BaseFunctor):
     def __init__(
-        self, pdfs: List[ZfitPDF], obs: ztyping.ObsTypeInput = None, name="ProductPDF"
+        self, pdfs: list[ZfitPDF], obs: ztyping.ObsTypeInput = None, name="ProductPDF"
     ):
         super().__init__(pdfs=pdfs, obs=obs, name=name)
 

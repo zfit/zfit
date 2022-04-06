@@ -1,6 +1,12 @@
+#  Copyright (c) 2022 zfit
+
 from __future__ import annotations
 
-#  Copyright (c) 2021 zfit
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
 import typing
 from collections.abc import Callable
 from contextlib import suppress
@@ -40,7 +46,7 @@ class Integration:
         self.draws_per_dim = draws_per_dim
 
     def register_on_object(
-            self, var: ztyping.Variable, func: Callable, overwrite: bool = False
+        self, var: ztyping.Variable, func: Callable, overwrite: bool = False
     ):
         var = convert_to_container(var, frozenset)
         if var in self._analytic_integrals and not overwrite:
@@ -69,14 +75,14 @@ class Integration:
 
 class PDF(Func, ZfitPDF):
     def __init__(
-            self,
-            obs: typing.Mapping[str, ZfitSpace] = None,
-            params: typing.Mapping[str, ZfitParam] = None,
-            var: typing.Mapping[str, ZfitVar] = None,
-            supports: typing.Mapping[str, typing.Mapping[str, VarSupports]] = None,
-            extended: bool = None,
-            norm: typing.Mapping[str, ZfitSpace] = None,
-            label: str | None = None,
+        self,
+        obs: typing.Mapping[str, ZfitSpace] = None,
+        params: typing.Mapping[str, ZfitParam] = None,
+        var: typing.Mapping[str, ZfitVar] = None,
+        supports: typing.Mapping[str, typing.Mapping[str, VarSupports]] = None,
+        extended: bool = None,
+        norm: typing.Mapping[str, ZfitSpace] = None,
+        label: str | None = None,
     ):
 
         self.supports = supports
@@ -117,11 +123,11 @@ class PDF(Func, ZfitPDF):
         raise SpecificFunctionNotImplemented
 
     def pdf(
-            self,
-            var: ztyping.VarInputType,
-            norm: ztyping.NormInputType = None,
-            *,
-            options=None,
+        self,
+        var: ztyping.VarInputType,
+        norm: ztyping.NormInputType = None,
+        *,
+        options=None,
     ) -> ztyping.PDFReturnType:
         """Probability density function, normalized over `norm`.
 
@@ -152,11 +158,11 @@ class PDF(Func, ZfitPDF):
         raise SpecificFunctionNotImplemented
 
     def ext_pdf(
-            self,
-            var: ztyping.VarInputType,
-            norm: ztyping.NormInputType = None,
-            *,
-            options=None,
+        self,
+        var: ztyping.VarInputType,
+        norm: ztyping.NormInputType = None,
+        *,
+        options=None,
     ) -> ztyping.PDFReturnType:
         """Probability density function, normalized over `norm`.OneDim.
 
@@ -197,7 +203,7 @@ class PDF(Func, ZfitPDF):
             return self._auto_integrate(var, norm, options=options)
         if self.is_extended:
             return (
-                    self._auto_ext_integrate(var, norm, options=options) / self.get_yield()
+                self._auto_ext_integrate(var, norm, options=options) / self.get_yield()
             )
         return self._fallback_integrate(var, norm, options=options)
 
@@ -281,7 +287,7 @@ class PDF(Func, ZfitPDF):
 
 class UnbinnedPDF(PDF):
     def __init__(
-            self, obs, params=None, var=None, supports=None, extended=None, norm=None
+        self, obs, params=None, var=None, supports=None, extended=None, norm=None
     ):
         supports_default = "ext_pdf" if extended else "pdf"
         if supports is None:
@@ -323,14 +329,14 @@ class UnbinnedPDF(PDF):
 
 class HistPDF(PDF):
     def __init__(
-            self,
-            obs: typing.Mapping[str, ZfitSpace] = None,
-            params: typing.Mapping[str, ZfitParam] = None,
-            var: typing.Mapping[str, ZfitVar] = None,
-            supports: typing.Mapping[str, typing.Mapping[str, VarSupports]] = None,
-            extended: bool = None,
-            norm: typing.Mapping[str, ZfitSpace] = None,
-            label: str | None = None,
+        self,
+        obs: typing.Mapping[str, ZfitSpace] = None,
+        params: typing.Mapping[str, ZfitParam] = None,
+        var: typing.Mapping[str, ZfitVar] = None,
+        supports: typing.Mapping[str, typing.Mapping[str, VarSupports]] = None,
+        extended: bool = None,
+        norm: typing.Mapping[str, ZfitSpace] = None,
+        label: str | None = None,
     ):
         supports_default = "counts" if extended else "rel_counts"
         if supports is None:

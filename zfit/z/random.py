@@ -1,6 +1,16 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+
 from functools import wraps
-from typing import Any, Iterable, Tuple, Union
+from typing import Any, Union
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -14,7 +24,7 @@ from ..z import numpy as znp
 
 
 def sample_with_replacement(
-    a: tf.Tensor, axis: int, sample_shape: Tuple[int]
+    a: tf.Tensor, axis: int, sample_shape: tuple[int]
 ) -> tf.Tensor:
     """Sample from `a` with replacement to return a Tensor with `sample_shape`.
 
@@ -49,9 +59,9 @@ def sample_with_replacement(
 
 
 def counts_multinomial(
-    total_count: Union[int, tf.Tensor],
-    probs: Iterable[Union[float, tf.Tensor]] = None,
-    logits: Iterable[Union[float, tf.Tensor]] = None,
+    total_count: int | tf.Tensor,
+    probs: Iterable[float | tf.Tensor] = None,
+    logits: Iterable[float | tf.Tensor] = None,
     dtype=tf.int32,
 ) -> tf.Tensor:
     """Get the number of counts for different classes with given probs/logits.

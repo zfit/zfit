@@ -1,6 +1,17 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Callable, Iterable, List, Optional, Tuple, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+from collections.abc import Callable
+
+
+from typing import Optional, Union
 
 import tensorflow as tf
 from tensorflow_probability import distributions as tfd
@@ -18,7 +29,7 @@ from .space import Space
 
 
 class UniformSampleAndWeights:
-    def __call__(self, n_to_produce: Union[int, tf.Tensor], limits: Space, dtype):
+    def __call__(self, n_to_produce: int | tf.Tensor, limits: Space, dtype):
         rnd_samples = []
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(z.constant(1.0, shape=(1,)), shape=(n_to_produce,))
@@ -27,7 +38,7 @@ class UniformSampleAndWeights:
             lower, upper = space.rect_limits  # TODO: remove new space
             if i == len(limits) - 1:
                 n_partial_to_produce = (
-                        n_to_produce - n_produced
+                    n_to_produce - n_produced
                 )  # to prevent roundoff errors, shortcut for 1 space
             else:
                 if isinstance(space, EventSpace):
@@ -46,7 +57,7 @@ class UniformSampleAndWeights:
             )
 
             rnd_sample = (
-                    sample_drawn[:, :-1] * (upper - lower) + lower
+                sample_drawn[:, :-1] * (upper - lower) + lower
             )  # -1: all except func value
             thresholds_unscaled = sample_drawn[:, -1]
             # if not multiple_limits:
@@ -66,12 +77,12 @@ class EventSpace(Space):
     """EXPERIMENTAL SPACE CLASS!"""
 
     def __init__(
-            self,
-            obs: ztyping.ObsTypeInput,
-            limits: ztyping.LimitsTypeInput,
-            factory=None,
-            dtype=ztypes.float,
-            name: Optional[str] = "Space",
+        self,
+        obs: ztyping.ObsTypeInput,
+        limits: ztyping.LimitsTypeInput,
+        factory=None,
+        dtype=ztypes.float,
+        name: str | None = "Space",
     ):
         if limits is None:
             raise ValueError("Limits cannot be None for EventSpaces (currently)")
@@ -111,7 +122,7 @@ class EventSpace(Space):
         if self._factory is not None:
             self._limits_tensor = self._factory(n)
 
-    def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
+    def iter_areas(self, rel: bool = False) -> tuple[float, ...]:
         if not rel:
             raise RuntimeError(
                 "Currently, only rel with one limits is implemented in EventSpace"
@@ -125,7 +136,7 @@ class EventSpace(Space):
         raise RuntimeError("Cannot be called with an event space.")
 
     @staticmethod
-    def _calculate_areas(limits) -> Tuple[float]:
+    def _calculate_areas(limits) -> tuple[float]:
         # TODO: return the area as a tensor?
         return (1.0,)
 
@@ -136,13 +147,13 @@ class EventSpace(Space):
 # TODO: estimate maximum initially?
 @z.function(wraps="sample")
 def accept_reject_sample(
-        prob: Callable,
-        n: int,
-        limits: ZfitSpace,
-        sample_and_weights_factory: Callable = UniformSampleAndWeights,
-        dtype=ztypes.float,
-        prob_max: Union[None, int] = None,
-        efficiency_estimation: float = 0.5,
+    prob: Callable,
+    n: int,
+    limits: ZfitSpace,
+    sample_and_weights_factory: Callable = UniformSampleAndWeights,
+    dtype=ztypes.float,
+    prob_max: None | int = None,
+    efficiency_estimation: float = 0.5,
 ) -> tf.Tensor:
     """Accept reject sample from a probability distribution.
 
@@ -207,7 +218,7 @@ def accept_reject_sample(
     # can be None (if not needed) or a boolean tensor with the size `n`
     initial_is_sampled = tf.constant("EMPTY")
     if (
-            isinstance(limits, EventSpace) and not limits.is_generator
+        isinstance(limits, EventSpace) and not limits.is_generator
     ) or limits.n_events > 1:
         dynamic_array_shape = False
         if run.numeric_checks:
@@ -228,37 +239,37 @@ def accept_reject_sample(
 
     @z.function(wraps="tensor")
     def not_enough_produced(
-            n,
-            sample,
-            n_produced,
-            n_total_drawn,
-            eff,
-            is_sampled,
-            weights_scaling,
-            weights_maximum,
-            prob_maximum,
-            n_min_to_produce,
+        n,
+        sample,
+        n_produced,
+        n_total_drawn,
+        eff,
+        is_sampled,
+        weights_scaling,
+        weights_maximum,
+        prob_maximum,
+        n_min_to_produce,
     ):
         return tf.greater(n, n_produced)
 
     @z.function(wraps="tensor")
     def sample_body(
-            n,
-            sample,
-            n_produced=0,
-            n_total_drawn=0,
-            eff=1.0,
-            is_sampled=None,
-            weights_scaling=0.0,
-            weights_maximum=0.0,
-            prob_maximum=0.0,
-            n_min_to_produce=10000,
+        n,
+        sample,
+        n_produced=0,
+        n_total_drawn=0,
+        eff=1.0,
+        is_sampled=None,
+        weights_scaling=0.0,
+        weights_maximum=0.0,
+        prob_maximum=0.0,
+        n_min_to_produce=10000,
     ):
         eff = znp.max([eff, z.to_real(1e-6)])
         n_to_produce = n - n_produced
 
         if isinstance(
-                limits, EventSpace
+            limits, EventSpace
         ):  # EXPERIMENTAL(Mayou36): added to test EventSpace
             limits.create_limits(n=n)
 
@@ -335,7 +346,7 @@ def accept_reject_sample(
             tf.debugging.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)
 
         if (
-                prob_max_init is None or weights_max is None
+            prob_max_init is None or weights_max is None
         ):  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
 
             # safety margin, predicting future, improve for small samples?
@@ -387,8 +398,8 @@ def accept_reject_sample(
             weights_scaling = prob_max / weights_max
 
         weights_scaled = (
-                weights_scaling
-                * weights
+            weights_scaling
+            * weights
             # * (1 + 1e-8)
         )  # numerical epsilon
         random_thresholds = thresholds_unscaled * weights_scaled
@@ -412,10 +423,10 @@ def accept_reject_sample(
                     x=weights_scaled,
                     y=probabilities,
                     message="Not all weights are >= probs so the sampling "
-                            "will be biased. If a custom `sample_and_weights` "
-                            "was used, make sure that either the shape of the "
-                            "custom sampler (resp. it's weights) overlap better "
-                            "or decrease the `max_weight`",
+                    "will be biased. If a custom `sample_and_weights` "
+                    "was used, make sure that either the shape of the "
+                    "custom sampler (resp. it's weights) overlap better "
+                    "or decrease the `max_weight`",
                 )
             #
             # # check disabled (below not added to deps)
@@ -515,7 +526,7 @@ def accept_reject_sample(
     return new_sample
 
 
-def extract_extended_pdfs(pdfs: Union[Iterable[ZfitPDF], ZfitPDF]) -> List[ZfitPDF]:
+def extract_extended_pdfs(pdfs: Iterable[ZfitPDF] | ZfitPDF) -> list[ZfitPDF]:
     """Return all extended pdfs that are daughters.
 
     Args:
@@ -547,9 +558,7 @@ def extract_extended_pdfs(pdfs: Union[Iterable[ZfitPDF], ZfitPDF]) -> List[ZfitP
     return indep_pdfs
 
 
-def extended_sampling(
-        pdfs: Union[Iterable[ZfitPDF], ZfitPDF], limits: Space
-) -> tf.Tensor:
+def extended_sampling(pdfs: Iterable[ZfitPDF] | ZfitPDF, limits: Space) -> tf.Tensor:
     """Create a sample from extended pdfs by sampling from a Poisson using the yield.
 
     Args:

@@ -1,8 +1,18 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
+
 import abc
 from abc import abstractmethod
 from collections import OrderedDict
-from typing import List, Mapping, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 
@@ -26,12 +36,12 @@ class ZfitStrategy(abc.ABC):
     @abstractmethod
     def callback(
         self,
-        value: Optional[float],
-        gradient: Optional[np.ndarray],
-        hessian: Optional[np.ndarray],
-        params: List[ZfitParameter],
+        value: float | None,
+        gradient: np.ndarray | None,
+        hessian: np.ndarray | None,
+        params: list[ZfitParameter],
         loss: ZfitLoss,
-    ) -> Tuple[float, np.ndarray, np.ndarray]:
+    ) -> tuple[float, np.ndarray, np.ndarray]:
         raise NotImplementedError
 
 
@@ -104,9 +114,9 @@ class ToyStrategyFail(BaseStrategy):
 
 
 def make_pushback_strategy(
-    nan_penalty: Union[float, int] = 100,
+    nan_penalty: float | int = 100,
     nan_tol: int = 30,
-    base: Union[object, ZfitStrategy] = BaseStrategy,
+    base: object | ZfitStrategy = BaseStrategy,
 ):
     class PushbackStrategy(base):
         def __init__(self):

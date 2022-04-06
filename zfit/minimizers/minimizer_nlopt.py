@@ -1,8 +1,19 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
+from collections.abc import Callable
+
 import collections
 import copy
 import math
-from typing import Callable, Mapping, Optional, Union
+from typing import Optional, Union
 
 from ..util.checks import RuntimeDependency
 
@@ -38,15 +49,15 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
     def __init__(
         self,
         algorithm: int,
-        tol: Optional[float] = None,
-        gradient: Optional[Union[Callable, str, NOT_SUPPORTED]] = NOT_SUPPORTED,
-        hessian: Optional[Union[Callable, str, NOT_SUPPORTED]] = NOT_SUPPORTED,
-        maxiter: Optional[Union[int, str]] = None,
-        minimizer_options: Optional[Mapping[str, object]] = None,
-        internal_tols: Mapping[str, Optional[float]] = None,
-        verbosity: Optional[int] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        gradient: Callable | str | NOT_SUPPORTED | None = NOT_SUPPORTED,
+        hessian: Callable | str | NOT_SUPPORTED | None = NOT_SUPPORTED,
+        maxiter: int | str | None = None,
+        minimizer_options: Mapping[str, object] | None = None,
+        internal_tols: Mapping[str, float | None] = None,
+        verbosity: int | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt Base Minimizer V1",
     ):
         """NLopt is a library that contains multiple different optimization algorithms.
@@ -400,12 +411,12 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 class NLoptLBFGSV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        maxcor: Optional[int] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        maxcor: int | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt L-BFGS V1",
     ) -> None:
         """Local, gradient-based quasi-Newton minimizer using the low storage BFGS Hessian approximation.
@@ -502,13 +513,13 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
 class NLoptShiftVarV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        maxcor: Optional[int] = None,
-        rank: Optional[int] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        maxcor: int | None = None,
+        rank: int | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name="NLopt Shifted Variable Memory",
     ) -> None:
         """Local, gradient-based minimizer using a shifted limited-memory variable-metric.
@@ -616,12 +627,12 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
 class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        maxcor: Optional[int] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        maxcor: int | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name="NLopt Truncated Newton",
     ) -> None:
         """Local, gradient-based truncated Newton minimizer using an inexact algorithm.
@@ -713,11 +724,11 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
 class NLoptSLSQPV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt SLSQP",
     ) -> None:
         r"""Local gradient based minimizer using a sequential quadratic programming.
@@ -823,11 +834,11 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
 class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt BOBYQA",
     ) -> None:
         """Derivative-free local minimizer that iteratively constructed quadratic approximation for the loss.
@@ -918,11 +929,11 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
 class NLoptMMAV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt MMA",
     ):
         """Method-of-moving-asymptotes for gradient-based local minimization.
@@ -1014,11 +1025,11 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
 class NLoptCCSAQV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt CCSAQ",
     ):
         """MMA-like minimizer with simpler, quadratic local approximations.
@@ -1101,11 +1112,11 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
 class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt COBYLA",
     ):
         r"""Derivative free simplex minimizer using a linear approximation with trust region steps.
@@ -1217,11 +1228,11 @@ class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
 class NLoptSubplexV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt Subplex",
     ):
         """Local derivative free minimizer which improves on the Nealder-Mead algorithm.
@@ -1315,14 +1326,14 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
 class NLoptMLSLV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        population: Optional[int] = None,
-        randomized: Optional[bool] = None,
-        local_minimizer: Optional[Union[int, Mapping[str, object]]] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        population: int | None = None,
+        randomized: bool | None = None,
+        local_minimizer: int | Mapping[str, object] | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt MLSL",
     ) -> None:
         """Global minimizer using local optimization by randomly selecting points.
@@ -1447,12 +1458,12 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
 class NLoptStoGOV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        randomized: Optional[bool] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        randomized: bool | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt MLSL",
     ):
         """Global minimizer which divides the space into smaller rectangles and uses a local BFGS variant inside.
@@ -1551,11 +1562,11 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
 class NLoptESCHV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt ESCH",
     ):
         """Global minimizer using an evolutionary algorithm.
@@ -1659,12 +1670,12 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
 class NLoptISRESV1(NLoptBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        population: Optional[int] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
+        tol: float | None = None,
+        population: int | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt ISRES",
     ):
         """Improved Stochastic Ranking Evolution Strategy using a mutation rule and differential variation.

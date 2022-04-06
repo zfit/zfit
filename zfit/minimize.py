@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 
 from .minimizers.baseminimizer import (
@@ -43,29 +43,29 @@ from .util.deprecation import deprecated
 
 class AdamMinimizer(Adam):
     def __init__(
-            self,
-            tol=None,
-            learning_rate=0.2,
-            beta1=0.9,
-            beta2=0.999,
-            epsilon=1e-08,
-            name="Adam",
-            **kwargs
+        self,
+        tol=None,
+        learning_rate=0.2,
+        beta1=0.9,
+        beta2=0.999,
+        epsilon=1e-08,
+        name="Adam",
+        **kwargs
     ):
         raise RuntimeError("Use zfit.minimize.Adam instead.")
 
 
 class MinuitMinimizer(Minuit):
     def __init__(
-            self,
-            strategy: ZfitStrategy = None,
-            minimize_strategy: int = 1,
-            tol: float = None,
-            verbosity: int = 5,
-            name: str = None,
-            ncall: int = 10000,
-            use_minuit_grad: bool = None,
-            **options
+        self,
+        strategy: ZfitStrategy = None,
+        minimize_strategy: int = 1,
+        tol: float = None,
+        verbosity: int = 5,
+        name: str = None,
+        ncall: int = 10000,
+        use_minuit_grad: bool = None,
+        **options
     ):
         raise RuntimeError(None, "Use zfit.minimize.Minuit instead.")
 

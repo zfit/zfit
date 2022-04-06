@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 from typing import Optional, Union
 
 import tensorflow as tf

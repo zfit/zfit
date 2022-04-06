@@ -1,6 +1,12 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Type
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
 
 import numpy as np
 import tensorflow as tf
@@ -198,7 +204,7 @@ class CrystalBall(BasePDF):
         n: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         name: str = "CrystalBall",
-        dtype: Type = ztypes.float,
+        dtype: type = ztypes.float,
     ):
         """Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
 
@@ -263,7 +269,7 @@ class DoubleCB(BasePDF):
         nr: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         name: str = "DoubleCB",
-        dtype: Type = ztypes.float,
+        dtype: type = ztypes.float,
     ):
         """Double sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
 

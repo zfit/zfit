@@ -1,6 +1,14 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
 import math
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 
@@ -22,15 +30,15 @@ class IpyoptV1(BaseMinimizer):
 
     def __init__(
         self,
-        tol: Optional[float] = None,
-        maxcor: Optional[int] = None,
-        verbosity: Optional[int] = None,
-        hessian: Optional[str] = None,
-        options: Optional[Dict[str, object]] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        name: Optional[str] = "IpyoptV1",
+        tol: float | None = None,
+        maxcor: int | None = None,
+        verbosity: int | None = None,
+        hessian: str | None = None,
+        options: dict[str, object] | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
+        name: str | None = "IpyoptV1",
     ) -> None:
         """Ipopt is a gradient-based minimizer that performs large scale nonlinear optimization of continuous systems.
 

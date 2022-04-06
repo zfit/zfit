@@ -100,14 +100,12 @@ repos:
     hooks:
       - id: jupyter-notebook-cleanup
 
-  # TODO(py37): add the following once 3.6 is gone. Changes the Type hints.
-  #  - repo: https://github.com/sondrelg/pep585-upgrade
-  #    rev: '5f7033a0d0174c65105b041500060b993c1bc211'  # Use the sha / tag you want to point at
-  #    hooks:
-  #      - id: upgrade-type-hints
-  #        args: [ '--futures=true' ]
+  - repo: https://github.com/sondrelg/pep585-upgrade
+    rev: 'v1'  # Use the sha / tag you want to point at
+    hooks:
+      - id: upgrade-type-hints
+        args: [ '--futures=true' ]
 
-  # TODO: activate once the repo is in a full state (e.g. after merging the new binned
   - repo: https://github.com/ambv/black
     rev: 22.3.0
     hooks:

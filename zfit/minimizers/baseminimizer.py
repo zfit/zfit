@@ -1,5 +1,15 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 """Definition of minimizers, wrappers etc."""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Callable
+from collections.abc import Iterable
+from collections.abc import Mapping
 
 import collections
 import copy
@@ -9,7 +19,7 @@ import math
 import os
 import warnings
 from contextlib import contextmanager
-from typing import Callable, Dict, Iterable, Mapping, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 from ordered_set import OrderedSet
@@ -39,7 +49,7 @@ DefaultStrategy = PushbackStrategy
 status_messages = {"maxiter": "Maximum iteration reached."}
 
 
-def minimize_supports(*, init: Union[bool] = False) -> Callable:
+def minimize_supports(*, init: bool = False) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
 
     If any of the flags is set to False, it will check the arguments and, in case they match a flag
@@ -137,13 +147,13 @@ class BaseMinimizer(ZfitMinimizer):
 
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        minimizer_options: Optional[Dict] = None,
-        maxiter: Optional[Union[str, int]] = None,
-        name: Optional[str] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
+        minimizer_options: dict | None = None,
+        maxiter: str | int | None = None,
+        name: str | None = None,
     ) -> None:
         """Base Minimizer to minimize loss functions and return a result.
 
@@ -265,7 +275,7 @@ class BaseMinimizer(ZfitMinimizer):
 
     def _check_convert_input(
         self, loss: ZfitLoss, params, init=None, floating=True
-    ) -> Tuple[ZfitLoss, Iterable[ZfitParameter], Union[None, FitResult]]:
+    ) -> tuple[ZfitLoss, Iterable[ZfitParameter], None | FitResult]:
         """Sanitize the input values and return all of them.
 
         Args:
@@ -400,9 +410,9 @@ class BaseMinimizer(ZfitMinimizer):
 
     def minimize(
         self,
-        loss: Union[ZfitLoss, Callable],
-        params: Optional[ztyping.ParamsTypeOpt] = None,
-        init: Optional[ZfitResult] = None,
+        loss: ZfitLoss | Callable,
+        params: ztyping.ParamsTypeOpt | None = None,
+        init: ZfitResult | None = None,
     ) -> FitResult:
         """Fully minimize the `loss` with respect to `params`, optionally using information from `init`.
 
@@ -500,9 +510,9 @@ class BaseMinimizer(ZfitMinimizer):
 
     def _call_minimize(
         self,
-        loss: Union[ZfitLoss, Callable],
-        params: Optional[ztyping.ParamsTypeOpt] = None,
-        init: Optional[ZfitResult] = None,
+        loss: ZfitLoss | Callable,
+        params: ztyping.ParamsTypeOpt | None = None,
+        init: ZfitResult | None = None,
     ) -> FitResult:
         do_recovery = False
         prelim_result = None
@@ -547,9 +557,9 @@ class BaseMinimizer(ZfitMinimizer):
     @_Minimizer_register_check_support(True)
     def _minimize(
         self,
-        loss: Union[ZfitLoss, Callable],
-        params: Optional[ztyping.ParamsTypeOpt] = None,
-        init: Optional[ZfitResult] = None,
+        loss: ZfitLoss | Callable,
+        params: ztyping.ParamsTypeOpt | None = None,
+        init: ZfitResult | None = None,
     ) -> FitResult:
         raise MinimizeNotImplemented
 
@@ -560,9 +570,9 @@ class BaseMinimizer(ZfitMinimizer):
     @contextmanager
     def _make_stateful(
         self,
-        loss: Union[ZfitLoss, Callable],
-        params: Optional[ztyping.ParamsTypeOpt] = None,
-        init: Optional[ZfitResult] = None,
+        loss: ZfitLoss | Callable,
+        params: ztyping.ParamsTypeOpt | None = None,
+        init: ZfitResult | None = None,
     ) -> None:
         """Remember the loss, param and init that is currently used inside the minimization.
 
@@ -599,9 +609,9 @@ class BaseMinimizer(ZfitMinimizer):
 
     def create_evaluator(
         self,
-        loss: Optional[ZfitLoss] = None,
-        params: Optional[ztyping.ParametersType] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        loss: ZfitLoss | None = None,
+        params: ztyping.ParametersType | None = None,
+        strategy: ZfitStrategy | None = None,
     ) -> LossEval:
         """Make a loss evaluator using the strategy and more from the minimizer.
 
@@ -663,8 +673,8 @@ class BaseMinimizer(ZfitMinimizer):
 
     def create_criterion(
         self,
-        loss: Optional[ZfitLoss] = None,
-        params: Optional[ztyping.ParametersType] = None,
+        loss: ZfitLoss | None = None,
+        params: ztyping.ParametersType | None = None,
     ) -> ConvergenceCriterion:
         """Create a criterion instance for the given loss and parameters.
 
@@ -830,7 +840,7 @@ def print_minimization_status(
     evaluator,
     i,
     fmin,
-    internal_tol: Optional[Mapping[str, float]] = None,
+    internal_tol: Mapping[str, float] | None = None,
 ):
     internal_tol = {} if internal_tol is None else internal_tol
     tols_str = ", ".join(f"{tol}={val:.3g}" for tol, val in internal_tol.items())

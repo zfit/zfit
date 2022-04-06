@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 import tensorflow as tf
 
@@ -20,9 +20,9 @@ __all__ = [
 
 
 def nll_gaussian(
-        params: ztyping.ParamTypeInput,
-        observation: ztyping.NumericalScalarType,
-        uncertainty: ztyping.NumericalScalarType,
+    params: ztyping.ParamTypeInput,
+    observation: ztyping.NumericalScalarType,
+    uncertainty: ztyping.NumericalScalarType,
 ) -> tf.Tensor:
     """Return negative log likelihood graph for gaussian constraints on a list of parameters.
 

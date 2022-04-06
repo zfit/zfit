@@ -5,7 +5,7 @@ enough to be easily wrapped.
 
 Therefore a convenient wrapper as well as a lot of implementations are provided.
 """
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 from collections import OrderedDict
 

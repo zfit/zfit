@@ -1,5 +1,16 @@
-#  Copyright (c) 2021 zfit
-from typing import Iterable, Mapping, Union, List, Tuple
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
+from collections.abc import Iterable
+
+from typing import Union
 
 import tensorflow as tf
 import tensorflow_addons as tfa
@@ -37,11 +48,11 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
     def __init__(
         self,
         alpha: ztyping.ParamTypeInput,
-        hists: Union[
-            Mapping[Union[float, int], Iterable[ZfitBinnedPDF]],
-            List[ZfitBinnedPDF],
-            Tuple[ZfitBinnedPDF],
-        ],
+        hists: (
+            Mapping[float | int, Iterable[ZfitBinnedPDF]]
+            | list[ZfitBinnedPDF]
+            | tuple[ZfitBinnedPDF]
+        ),
         extended: ztyping.ExtendedInputType = None,
         norm: ztyping.NormInputType = None,
     ):

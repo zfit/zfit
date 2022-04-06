@@ -1,6 +1,12 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Type
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
 
 import pytest
 
@@ -55,9 +61,9 @@ def TmpGaussian():
             obs,
             mu,
             sigma,
-            dtype: Type = zfit.ztypes.float,
+            dtype: type = zfit.ztypes.float,
             name: str = "BasePDF",
-            **kwargs
+            **kwargs,
         ):
             params = {"mu": mu, "sigma": sigma}
             super().__init__(obs, params, dtype, name, **kwargs)

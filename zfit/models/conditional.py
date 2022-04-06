@@ -1,14 +1,31 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from ..core.basepdf import BasePDF
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
+
 import functools
 import warnings
-from typing import Mapping, Optional, Set
+from typing import Optional
 
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 
 from .. import z
-from ..core.interfaces import ZfitIndependentParameter, ZfitPDF, ZfitSpace
+from ..core.interfaces import (
+    ZfitIndependentParameter,
+    ZfitPDF,
+    ZfitSpace,
+    ZfitParameter,
+)
 from ..core.parameter import set_values
 from ..core.space import combine_spaces, convert_to_space, supports
 from ..util.exception import WorkInProgressError
@@ -95,10 +112,10 @@ class ConditionalPDFV1(BaseFunctor):
 
     def _get_params(
         self,
-        floating: Optional[bool] = True,
-        is_yield: Optional[bool] = None,
-        extract_independent: Optional[bool] = True,
-    ) -> Set["ZfitParameter"]:
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+    ) -> set[ZfitParameter]:
         params = super()._get_params(floating, is_yield, extract_independent)
         params -= set(self._cond)
         return params
@@ -171,7 +188,7 @@ class ConditionalPDFV1(BaseFunctor):
         sample = znp.concatenate([sample_rnd, x_values], axis=-1)
         return sample
 
-    def copy(self, **override_parameters) -> "BasePDF":
+    def copy(self, **override_parameters) -> BasePDF:
         raise WorkInProgressError(
             "Currently copying not possible. " "Use `set_yield` to set a yield inplace."
         )

@@ -1,5 +1,12 @@
-#  Copyright (c) 2021 zfit
-from typing import List
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
 
 import numpy as np
 import pytest
@@ -62,7 +69,7 @@ def create_params(name_add=""):
     return mu1, mu2, mu3, sigma1, sigma2, sigma3
 
 
-def create_gaussians() -> List[ZfitPDF]:
+def create_gaussians() -> list[ZfitPDF]:
     # Gauss for sum, same axes
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params()
     gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1asum")

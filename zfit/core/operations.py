@@ -1,6 +1,18 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Callable, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+    from ..models.functor import ProductPDF, SumPDF
+    from ..models.functions import ProdFunc, SumFunc
+
+from collections.abc import Callable
+
+
+from typing import Union
 
 import tensorflow as tf
 
@@ -17,7 +29,7 @@ from .parameter import convert_to_parameter
 
 
 def multiply(
-        object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType
+    object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType
 ) -> ztyping.BaseObjectType:
     """Multiply two objects and return a new object (may depending on the old).
 
@@ -70,8 +82,8 @@ def multiply(
 
 
 def multiply_pdf_pdf(
-        pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "multiply_pdf_pdf"
-) -> "ProductPDF":
+    pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "multiply_pdf_pdf"
+) -> ProductPDF:
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError(
             f"`pdf1` and `pdf2` need to be `ZfitPDF` and not {pdf1}, {pdf2}"
@@ -89,8 +101,8 @@ def multiply_pdf_pdf(
 
 
 def multiply_func_func(
-        func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_func_func"
-) -> "ProdFunc":
+    func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_func_func"
+) -> ProdFunc:
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError(
             f"`func1` and `func2` need to be `ZfitFunc` and not {func1}, {func2}"
@@ -147,7 +159,7 @@ def multiply_param_param(param1: ZfitParameter, param2: ZfitParameter) -> ZfitPa
 
 # Addition logic
 def add(
-        object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType
+    object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType
 ) -> ztyping.BaseObjectType:
     """Add two objects and return a new object (may depending on the old).
 
@@ -211,7 +223,7 @@ def _convert_to_known(object1, object2):
     return object1, object2
 
 
-def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> "SumPDF":
+def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> SumPDF:
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         raise TypeError(
             f"`pdf1` and `pdf2` need to be `ZfitPDF` and not {pdf1}, {pdf2}"
@@ -227,8 +239,8 @@ def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> "Sum
 
 
 def add_func_func(
-        func1: ZfitFunc, func2: ZfitFunc, name: str = "add_func_func"
-) -> "SumFunc":
+    func1: ZfitFunc, func2: ZfitFunc, name: str = "add_func_func"
+) -> SumFunc:
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         raise TypeError(
             f"`func1` and `func2` need to be `ZfitFunc` and not {func1}, {func2}"
@@ -273,9 +285,7 @@ def convert_pdf_to_func(pdf: ZfitPDF, norm: ztyping.LimitsType) -> ZfitFunc:
     return func
 
 
-def convert_func_to_pdf(
-        func: Union[ZfitFunc, Callable], obs=None, name=None
-) -> ZfitPDF:
+def convert_func_to_pdf(func: ZfitFunc | Callable, obs=None, name=None) -> ZfitPDF:
     func_name = "autoconverted_func_to_pdf" if name is None else name
     if not isinstance(func, ZfitFunc) and callable(func):
         if obs is None:

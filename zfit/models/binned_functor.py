@@ -1,5 +1,15 @@
-#  Copyright (c) 2021 zfit
-from typing import List, Iterable, Optional
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+
+from typing import List, Optional
 
 from .basefunctor import FunctorMixin, _preprocess_init_sum
 from .. import z
@@ -25,7 +35,7 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
     def __init__(
         self,
         pdfs: Iterable[ZfitPDF],
-        fracs: Optional[ztyping.ParamTypeInput] = None,
+        fracs: ztyping.ParamTypeInput | None = None,
         obs: ztyping.ObsTypeInput = None,
         name: str = "BinnedSumPDF",
     ):

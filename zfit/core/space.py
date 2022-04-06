@@ -1,4 +1,16 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+from collections.abc import Mapping
+from collections.abc import Callable
+
 
 # TODO(Mayou36): update docs above
 
@@ -9,7 +21,7 @@ import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from contextlib import suppress
-from typing import Callable, Iterable, Mapping, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 import tensorflow as tf
@@ -455,7 +467,7 @@ class Limit(
         """
         return self.rect_limits[1]
 
-    def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
+    def rect_area(self) -> float | np.ndarray | tf.Tensor:
         """Calculate the total rectangular area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -500,7 +512,7 @@ class Limit(
         self,
         x: ztyping.XTypeInput,
         guarantee_limits: bool = False,
-        axis: Optional[int] = None,
+        axis: int | None = None,
     ) -> ztyping.XTypeReturnNoData:
         """Filter `x` by removing the elements along `axis` that are not inside the limits.
 
@@ -588,7 +600,7 @@ class Limit(
         return self._n_obs
 
     @property
-    def n_events(self) -> Union[int, None]:
+    def n_events(self) -> int | None:
         """
 
         Returns:
@@ -599,7 +611,7 @@ class Limit(
             return 1
         return self.rect_lower.shape[0]
 
-    def equal(self, other: object, allow_graph: bool = True) -> Union[bool, tf.Tensor]:
+    def equal(self, other: object, allow_graph: bool = True) -> bool | tf.Tensor:
         """Compare the limits on equality. For ANY objects, this also returns true.
 
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
@@ -637,9 +649,7 @@ class Limit(
         #                   " identity tests. To prevent this, use numpy objects, not tensors, for limits if not needed.")
         #     return self is other
 
-    def less_equal(
-        self, other: object, allow_graph: bool = True
-    ) -> Union[bool, tf.Tensor]:
+    def less_equal(self, other: object, allow_graph: bool = True) -> bool | tf.Tensor:
         """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
 
         This can be used to determine whether a fitting range specification can handle another limit.
@@ -826,7 +836,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         self,
         x: ztyping.XTypeInput,
         guarantee_limits: bool = False,
-        axis: Optional[int] = None,
+        axis: int | None = None,
     ) -> ztyping.XTypeReturnNoData:
         """Filter `x` by removing the elements along `axis` that are not inside the limits.
 
@@ -887,7 +897,7 @@ class BaseSpace(ZfitSpace, BaseObject):
 
     def get_reorder_indices(
         self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
-    ) -> Tuple[int]:
+    ) -> tuple[int]:
         """Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.
 
         Args:
@@ -1044,7 +1054,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             return NotImplemented
         return equal_space(self, other)
 
-    def equal(self, other: object, allow_graph: bool) -> Union[bool, tf.Tensor]:
+    def equal(self, other: object, allow_graph: bool) -> bool | tf.Tensor:
         """Compare the limits on equality. For ANY objects, this also returns true.
 
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
@@ -1139,12 +1149,12 @@ class Space(
 
     def __init__(
         self,
-        obs: Optional[ztyping.ObsTypeInput] = None,
-        limits: Optional[ztyping.LimitsTypeInput] = None,
+        obs: ztyping.ObsTypeInput | None = None,
+        limits: ztyping.LimitsTypeInput | None = None,
         binning: ztyping.BinningInput = None,
         axes=None,
         rect_limits=None,
-        name: Optional[str] = "Space",
+        name: str | None = "Space",
     ):
         """Define a space with the name (`obs`) of the axes (and it's number) and possibly it's limits.
 
@@ -1242,12 +1252,12 @@ class Space(
 
     def _check_convert_input_limits(
         self,
-        limit: Union[ztyping.LowerTypeInput, ztyping.UpperTypeInput],
+        limit: ztyping.LowerTypeInput | ztyping.UpperTypeInput,
         rect_limits,
         obs,
         axes,
         n_obs,
-    ) -> Union[ztyping.LowerTypeReturn, ztyping.UpperTypeReturn]:
+    ) -> ztyping.LowerTypeReturn | ztyping.UpperTypeReturn:
         """Check and sanitize the input limits as well as the rectangular limits.
 
         Args:
@@ -1345,7 +1355,7 @@ class Space(
 
     def get_limits(
         self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
-    ) -> Union[ztyping.LimitsDictWithCoords, ztyping.LimitsDictNoCoords]:
+    ) -> ztyping.LimitsDictWithCoords | ztyping.LimitsDictNoCoords:
         return_dict = {}
         both_none_or_true = obs is None and axes is None or obs is True and axes is True
 
@@ -1497,7 +1507,7 @@ class Space(
         upper_ordered = self.reorder_x(upper_stacked, **reorder_kwargs)
         return lower_ordered, upper_ordered
 
-    def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
+    def rect_area(self) -> float | np.ndarray | tf.Tensor:
         """Calculate the total rectangular area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -1562,7 +1572,7 @@ class Space(
         )
 
     @property
-    def n_events(self) -> Union[int, None]:
+    def n_events(self) -> int | None:
         """Return the number of events, the dimension of the first shape.
 
         Returns:
@@ -1576,7 +1586,7 @@ class Space(
     @property
     @deprecated(date=None, instructions="Use `limits` instead.")
     @fail_not_rect
-    def limit2d(self) -> Tuple[float, float, float, float]:
+    def limit2d(self) -> tuple[float, float, float, float]:
         """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
 
         Returns:
@@ -1593,7 +1603,7 @@ class Space(
         # raise BreakingAPIChangeError("This function is gone, use .rect_limits or .inside instead")
 
     @property
-    def limits1d(self) -> Tuple[float]:
+    def limits1d(self) -> tuple[float]:
         """Simplified `.limits` for exactly 1 obs, n limits: return the tuple(low_1, ..., low_n, up_1, ..., up_n).
 
         Returns:
@@ -1664,8 +1674,8 @@ class Space(
     def with_limits(
         self,
         limits: ztyping.LimitsTypeInput = None,
-        rect_limits: Optional[ztyping.RectLimitsInputType] = None,
-        name: Optional[str] = None,
+        rect_limits: ztyping.RectLimitsInputType | None = None,
+        name: str | None = None,
     ) -> ZfitSpace:
         """Return a copy of the space with the new `limits` (and the new `name`).
 
@@ -1689,7 +1699,7 @@ class Space(
 
     def reorder_x(
         self,
-        x: Union[tf.Tensor, np.ndarray],
+        x: tf.Tensor | np.ndarray,
         *,
         x_obs: ztyping.ObsTypeInput = None,
         x_axes: ztyping.AxesTypeInput = None,
@@ -1727,7 +1737,7 @@ class Space(
 
     def with_obs(
         self,
-        obs: Optional[ztyping.ObsTypeInput],
+        obs: ztyping.ObsTypeInput | None,
         allow_superset: bool = True,
         allow_subset: bool = True,
     ) -> ZfitSpace:
@@ -1788,7 +1798,7 @@ class Space(
 
     def with_axes(
         self,
-        axes: Optional[ztyping.AxesTypeInput],
+        axes: ztyping.AxesTypeInput | None,
         allow_superset: bool = True,
         allow_subset: bool = True,
     ) -> ZfitSpace:
@@ -1859,7 +1869,7 @@ class Space(
         coords: ZfitOrderableDimensional,
         allow_superset: bool = True,
         allow_subset: bool = True,
-    ) -> "Space":
+    ) -> Space:
         """Create a new :py:class:`~zfit.Space` with reordered observables and/or axes.
 
         The behavior is that _at least one coordinate (obs or axes) has to be set in both instances
@@ -1922,7 +1932,7 @@ class Space(
 
         return new_space
 
-    def with_autofill_axes(self, overwrite: bool = False) -> "zfit.Space":
+    def with_autofill_axes(self, overwrite: bool = False) -> zfit.Space:
         """Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).
 
         This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or
@@ -1961,8 +1971,8 @@ class Space(
         self,
         obs: ztyping.ObsTypeInput = None,
         axes: ztyping.AxesTypeInput = None,
-        name: Optional[str] = None,
-    ) -> "Space":
+        name: str | None = None,
+    ) -> Space:
         """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
@@ -2022,7 +2032,7 @@ class Space(
 
     # Operators
 
-    def copy(self, **overwrite_kwargs) -> "zfit.Space":
+    def copy(self, **overwrite_kwargs) -> zfit.Space:
         """Create a new :py:class:`~zfit.Space` using the current attributes and overwriting with
         `overwrite_overwrite_kwargs`.
 
@@ -2068,7 +2078,7 @@ class Space(
     # @deprecated(date=None, instructions="depreceated, use `rect_limits` instead which has a similar functionality"
     #                                     " Use `inside` to check if an Tensor is inside the limits.")
     @fail_not_rect
-    def limit1d(self) -> Tuple[float, float]:
+    def limit1d(self) -> tuple[float, float]:
         """Simplified limits getter for 1 obs, 1 limit only: return the tuple(lower, upper).
 
         Returns:
@@ -2096,10 +2106,10 @@ class Space(
     def from_axes(
         cls,
         axes: ztyping.AxesTypeInput,
-        limits: Optional[ztyping.LimitsTypeInput] = None,
+        limits: ztyping.LimitsTypeInput | None = None,
         rect_limits=None,
         name: str = None,
-    ) -> "zfit.Space":
+    ) -> zfit.Space:
         """Create a space from `axes` instead of from `obs`.
 
         Args:
@@ -2170,7 +2180,7 @@ def extract_limits_from_dict(limits_dict, obs=None, axes=None):
     return limits_to_eval
 
 
-def add_spaces(*spaces: Iterable["ZfitSpace"], name=None):
+def add_spaces(*spaces: Iterable[ZfitSpace], name=None):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:
@@ -2581,7 +2591,7 @@ class MultiSpace(BaseSpace):
         binning: ztyping.BinningInput = None,
         axes: ztyping.AxesTypeInput = None,
         name: str = None,
-    ) -> Union["Space", "MultiSpace"]:
+    ) -> Space | MultiSpace:
         spaces, obs, axes = cls._check_convert_input_spaces_obs_axes(spaces, obs, axes)
         if len(spaces) == 1:
             return spaces[0]
@@ -2718,7 +2728,7 @@ class MultiSpace(BaseSpace):
     def rect_upper(self):
         self._raise_limits_not_implemented()
 
-    def rect_area(self) -> Union[float, np.ndarray, tf.Tensor]:
+    def rect_area(self) -> float | np.ndarray | tf.Tensor:
         """Calculate the total rectangular area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -2775,7 +2785,7 @@ class MultiSpace(BaseSpace):
         return all(space.limits_are_set for space in self.spaces)
 
     @property
-    def n_events(self) -> Union[int, None]:
+    def n_events(self) -> int | None:
         """Shape of the first dimension, usually reflects the number of events.
 
         Returns:
@@ -2792,8 +2802,8 @@ class MultiSpace(BaseSpace):
     def with_limits(
         self,
         limits: ztyping.LimitsTypeInput = None,
-        rect_limits: Optional[ztyping.RectLimitsInputType] = None,
-        name: Optional[str] = None,
+        rect_limits: ztyping.RectLimitsInputType | None = None,
+        name: str | None = None,
     ) -> ZfitSpace:
         """Return a copy of the space with the new `limits` (and the new `name`).
 
@@ -2821,10 +2831,10 @@ class MultiSpace(BaseSpace):
 
     def with_obs(
         self,
-        obs: Optional[ztyping.ObsTypeInput],
+        obs: ztyping.ObsTypeInput | None,
         allow_superset: bool = True,
         allow_subset: bool = True,
-    ) -> "MultiSpace":
+    ) -> MultiSpace:
         """Create a new Space that has `obs`; sorted by or set or dropped.
 
         The behavior is as follows:
@@ -2871,10 +2881,10 @@ class MultiSpace(BaseSpace):
 
     def with_axes(
         self,
-        axes: Optional[ztyping.AxesTypeInput],
+        axes: ztyping.AxesTypeInput | None,
         allow_superset: bool = True,
         allow_subset: bool = True,
-    ) -> "MultiSpace":
+    ) -> MultiSpace:
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
         The behavior is as follows:
@@ -2923,7 +2933,7 @@ class MultiSpace(BaseSpace):
         coords: ZfitOrderableDimensional,
         allow_superset: bool = True,
         allow_subset: bool = True,
-    ) -> "MultiSpace":
+    ) -> MultiSpace:
         """Create a new :py:class:`~zfit.Space` with reordered observables and/or axes.
 
         The behavior is that _at least one coordinate (obs or axes) has to be set in both instances
@@ -2954,7 +2964,7 @@ class MultiSpace(BaseSpace):
         ]
         return type(self)(spaces=new_spaces)
 
-    def with_autofill_axes(self, overwrite: bool = False) -> "MultiSpace":
+    def with_autofill_axes(self, overwrite: bool = False) -> MultiSpace:
         """Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).
 
         This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or
@@ -2987,15 +2997,15 @@ class MultiSpace(BaseSpace):
     def iter_limits(self, as_tuple=True):
         raise BreakingAPIChangeError("This should not be used anymore")
 
-    def iter_areas(self, rel: bool = False) -> Tuple[float, ...]:
+    def iter_areas(self, rel: bool = False) -> tuple[float, ...]:
         raise BreakingAPIChangeError("This should not be used anymore")
 
     def get_subspace(
         self,
         obs: ztyping.ObsTypeInput = None,
         axes: ztyping.AxesTypeInput = None,
-        name: Optional[str] = None,
-    ) -> "MultiSpace":
+        name: str | None = None,
+    ) -> MultiSpace:
         """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).
 
         Args:
@@ -3010,8 +3020,8 @@ class MultiSpace(BaseSpace):
         return self.copy(spaces=spaces)
 
     def copy(
-        self, *, deep: bool = False, name: Optional[str] = None, **overwrite_params
-    ) -> "MultiSpace":
+        self, *, deep: bool = False, name: str | None = None, **overwrite_params
+    ) -> MultiSpace:
         assert (
             not deep
         ), "deep not explicitly implemented, should not be needed for immutable objects"
@@ -3087,14 +3097,14 @@ class MultiSpace(BaseSpace):
 
 
 def convert_to_space(
-    obs: Optional[ztyping.ObsTypeInput] = None,
-    axes: Optional[ztyping.AxesTypeInput] = None,
-    limits: Optional[ztyping.LimitsTypeInput] = None,
+    obs: ztyping.ObsTypeInput | None = None,
+    axes: ztyping.AxesTypeInput | None = None,
+    limits: ztyping.LimitsTypeInput | None = None,
     *,
     overwrite_limits: bool = False,
     one_dim_limits_only: bool = True,
     simple_limits_only: bool = True,
-) -> Union[None, ZfitSpace, bool]:
+) -> None | ZfitSpace | bool:
     """Convert *limits* to a :py:class:`~zfit.Space` object if not already None or False.
 
     Args:
@@ -3294,7 +3304,7 @@ def no_multiple_limits(func):
 @deprecated_norm_range
 def supports(
     *,
-    norm: Union[bool, str, Iterable[str]] = None,
+    norm: bool | str | Iterable[str] = None,
     multiple_limits: bool = None,
     norm_range=None,
 ) -> Callable:
@@ -3352,7 +3362,7 @@ def shape_np_tf(objects):
     return shape
 
 
-def limits_consistent(spaces: Iterable["zfit.Space"]):
+def limits_consistent(spaces: Iterable[zfit.Space]):
     """Check if space limits are the *exact* same in each obs they are defined and therefore are compatible.
 
     In this case, if a space has several limits, e.g. from -1 to 1 and from 2 to 3 (all in the same observable),
@@ -3374,7 +3384,7 @@ def limits_consistent(spaces: Iterable["zfit.Space"]):
         return True
 
 
-def add_spaces_old(spaces: Iterable["zfit.Space"]):
+def add_spaces_old(spaces: Iterable[zfit.Space]):
     """Add two spaces and merge their limits if possible or return False.
 
     Args:

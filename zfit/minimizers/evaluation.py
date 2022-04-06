@@ -1,6 +1,16 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Callable
+
 import contextlib
-from typing import Callable, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -39,8 +49,8 @@ class LossEval:
         strategy: ZfitStrategy,
         do_print: bool,
         maxiter: int,
-        grad_fn: Optional[Callable] = None,
-        hesse_fn: Optional[Callable] = None,
+        grad_fn: Callable | None = None,
+        hesse_fn: Callable | None = None,
     ):
         r"""Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
@@ -139,7 +149,7 @@ class LossEval:
         self._nhess_eval = value
         self._check_maxiter_reached()
 
-    def value_gradient(self, values: np.ndarray) -> Tuple[np.float64, np.ndarray]:
+    def value_gradient(self, values: np.ndarray) -> tuple[np.float64, np.ndarray]:
         """Calculate the value and gradient like :py:meth:`~ZfitLoss.value_gradients`.
 
         Args:

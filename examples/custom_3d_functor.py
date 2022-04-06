@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 # Functors are PDfs and Functions that depend on other PDFs or Functions. They can be used to define
 # in a custom way combinations of PDFs or wrapping a single PDF.

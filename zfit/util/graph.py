@@ -1,6 +1,12 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
 
 import tensorflow as tf
 
@@ -16,8 +22,8 @@ def all_parents(op, current_obs=None):
 
 
 def get_dependents_auto(
-    tensor: tf.Tensor, candidates: List[tf.Tensor]
-) -> List[tf.Tensor]:
+    tensor: tf.Tensor, candidates: list[tf.Tensor]
+) -> list[tf.Tensor]:
     """Return the nodes in `candidates` that `tensor` depends on.
 
     Args:

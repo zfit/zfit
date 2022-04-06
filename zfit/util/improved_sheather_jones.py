@@ -1,3 +1,5 @@
+#  Copyright (c) 2022 zfit
+
 import numpy as np
 import tensorflow as tf
 from tf_quant_finance.math import root_search

@@ -1,3 +1,5 @@
+#  Copyright (c) 2022 zfit
+
 import numpy as np
 import pytest
 

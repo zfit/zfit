@@ -1,11 +1,19 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
 
 import contextlib
 import multiprocessing
 import os
 import sys
 import warnings
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -58,7 +66,7 @@ class RunManager:
     def n_cpu(self):
         return len(self._cpu)
 
-    def set_n_cpu(self, n_cpu: Union[str, int] = "auto", strict: bool = False) -> None:
+    def set_n_cpu(self, n_cpu: str | int = "auto", strict: bool = False) -> None:
         """Set the number of cpus to be used by zfit. For more control, use `set_cpus_explicit`.
 
         Args:
@@ -99,7 +107,7 @@ class RunManager:
             )
 
     @contextlib.contextmanager
-    def aquire_cpu(self, max_cpu: int = -1) -> List[str]:
+    def aquire_cpu(self, max_cpu: int = -1) -> list[str]:
         if isinstance(max_cpu, int):
             if max_cpu < 0:
                 max_cpu = max((self.n_cpu + 1 + max_cpu, 0))  # -1 means all
@@ -145,7 +153,7 @@ class RunManager:
 
         jit._set_all(not eager)
 
-    def set_graph_mode(self, graph: Optional[Union[bool, str, dict]] = None):
+    def set_graph_mode(self, graph: bool | str | dict | None = None):
         """Set the policy for graph building and the usage of automatic vs numerical gradients.
 
         zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
@@ -248,7 +256,7 @@ class RunManager:
             value=graph, setter=self._set_graph_mode, getter=self.get_graph_mode
         )
 
-    def set_autograd_mode(self, autograd: Optional[bool] = None):
+    def set_autograd_mode(self, autograd: bool | None = None):
         """Use automatic or numerical gradients.
 
         zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
@@ -287,8 +295,8 @@ class RunManager:
     @deprecated(None, "Use `set_graph_mode` or `set_autograd_mode`.")
     def set_mode(
         self,
-        graph: Optional[Union[bool, str, dict]] = None,
-        autograd: Optional[bool] = None,
+        graph: bool | str | dict | None = None,
+        autograd: bool | None = None,
     ):
         """DEPRECATED!
 
@@ -327,7 +335,7 @@ class RunManager:
         if graph is not None:
             self._mode["graph"] = graph
 
-    def get_graph_mode(self) -> Union[bool, str]:
+    def get_graph_mode(self) -> bool | str:
         """Return the current policy for graph building.
 
         Returns:
@@ -336,7 +344,7 @@ class RunManager:
         return self.mode["graph"]
 
     @deprecated(None, "Use `get_graph_mode` instead.")
-    def current_policy_graph(self) -> Union[bool, str]:
+    def current_policy_graph(self) -> bool | str:
         """DEPRECEATED!
 
         Use `get_graph_mode` instead.

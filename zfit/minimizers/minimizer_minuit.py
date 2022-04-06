@@ -1,6 +1,16 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
+
 import warnings
-from typing import List, Mapping, Optional
+from typing import Optional
 
 import iminuit
 import numpy as np
@@ -28,17 +38,17 @@ class Minuit(BaseMinimizer, GraphCachable):
     @deprecated_args(None, "Use `gradient` instead.", "use_minuit_grad")
     def __init__(
         self,
-        tol: Optional[float] = None,
-        mode: Optional[int] = None,
-        gradient: Optional[bool] = None,
-        verbosity: Optional[int] = None,
-        options: Optional[Mapping[str, object]] = None,
-        maxiter: Optional[int] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        name: Optional[str] = None,
+        tol: float | None = None,
+        mode: int | None = None,
+        gradient: bool | None = None,
+        verbosity: int | None = None,
+        options: Mapping[str, object] | None = None,
+        maxiter: int | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
+        name: str | None = None,
         # legacy arguments
-        use_minuit_grad: Optional[bool] = None,
+        use_minuit_grad: bool | None = None,
         minuit_grad=None,
         minimize_strategy=None,
         ncall=None,
@@ -175,7 +185,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         return self._use_tfgrad_internal
 
     @minimize_supports()
-    def _minimize(self, loss: ZfitLoss, params: List[Parameter], init):
+    def _minimize(self, loss: ZfitLoss, params: list[Parameter], init):
         if init:
             assign_values(params=params, values=init)
         criterion = self.create_criterion(loss, params)

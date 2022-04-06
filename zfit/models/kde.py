@@ -1,5 +1,15 @@
-#  Copyright (c) 2021 zfit
-from typing import Callable, Optional, Union
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Callable
+
+from typing import Optional, Union
 
 import numpy as np
 import tensorflow as tf
@@ -24,8 +34,8 @@ from .dist_tfp import WrapDistribution
 @z.function(wraps="tensor")
 def bandwidth_rule_of_thumb(
     data: znp.array,
-    weights: Optional[znp.array],
-    factor: Union[float, int, znp.array] = None,
+    weights: znp.array | None,
+    factor: float | int | znp.array = None,
 ) -> znp.array:
     r"""Calculate the bandwidth of *data* using a rule of thumb.
 
@@ -579,8 +589,8 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         self,
         obs: ztyping.ObsTypeInput,
         data: ztyping.ParamTypeInput,
-        bandwidth: Union[ztyping.ParamTypeInput, str] = None,
-        weights: Union[None, np.ndarray, tf.Tensor] = None,
+        bandwidth: ztyping.ParamTypeInput | str = None,
+        weights: None | np.ndarray | tf.Tensor = None,
         truncate: bool = False,
         name: str = "GaussianKDE1DimV1",
     ):
@@ -764,12 +774,12 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
         self,
         data: ztyping.XTypeInput,
         *,
-        obs: Optional[ztyping.ObsTypeInput] = None,
-        bandwidth: Optional[Union[ztyping.ParamTypeInput, str, Callable]] = None,
+        obs: ztyping.ObsTypeInput | None = None,
+        bandwidth: ztyping.ParamTypeInput | str | Callable | None = None,
         kernel: tfd.Distribution = None,
-        padding: Optional[Union[callable, str, bool]] = None,
-        weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
-        name: Optional[str] = "ExactKDE1DimV1",
+        padding: callable | str | bool | None = None,
+        weights: np.ndarray | tf.Tensor | None = None,
+        name: str | None = "ExactKDE1DimV1",
     ):
         r"""
         Kernel Density Estimation is a non-parametric method to approximate the density of given points.
@@ -968,13 +978,13 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
         self,
         data: ztyping.XTypeInput,
         *,
-        bandwidth: Optional[Union[ztyping.ParamTypeInput, str, Callable]] = None,
+        bandwidth: ztyping.ParamTypeInput | str | Callable | None = None,
         kernel: tfd.Distribution = None,
-        padding: Optional[Union[callable, str, bool]] = None,
-        num_grid_points: Optional[int] = None,
-        binning_method: Optional[str] = None,
-        obs: Optional[ztyping.ObsTypeInput] = None,
-        weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
+        padding: callable | str | bool | None = None,
+        num_grid_points: int | None = None,
+        binning_method: str | None = None,
+        obs: ztyping.ObsTypeInput | None = None,
+        weights: np.ndarray | tf.Tensor | None = None,
         name: str = "GridKDE1DimV1",
     ):
         r"""
@@ -1193,15 +1203,15 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         self,
         data: ztyping.XTypeInput,
         *,
-        obs: Optional[ztyping.ObsTypeInput] = None,
-        bandwidth: Optional[Union[ztyping.ParamTypeInput, str, Callable]] = None,
+        obs: ztyping.ObsTypeInput | None = None,
+        bandwidth: ztyping.ParamTypeInput | str | Callable | None = None,
         kernel: tfd.Distribution = None,
-        num_grid_points: Optional[int] = None,
-        binning_method: Optional[str] = None,
+        num_grid_points: int | None = None,
+        binning_method: str | None = None,
         support=None,
-        fft_method: Optional[str] = None,
-        padding: Optional[Union[callable, str, bool]] = None,
-        weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
+        fft_method: str | None = None,
+        padding: callable | str | bool | None = None,
+        weights: np.ndarray | tf.Tensor | None = None,
         name: str = "KDE1DimFFT",
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
@@ -1415,11 +1425,11 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         self,
         data: ztyping.XTypeInput,
         *,
-        obs: Optional[ztyping.ObsTypeInput] = None,
-        padding: Optional[Union[callable, str, bool]] = None,
-        num_grid_points: Optional[int] = None,
-        binning_method: Optional[str] = None,
-        weights: Optional[Union[np.ndarray, tf.Tensor]] = None,
+        obs: ztyping.ObsTypeInput | None = None,
+        padding: callable | str | bool | None = None,
+        num_grid_points: int | None = None,
+        binning_method: str | None = None,
+        weights: np.ndarray | tf.Tensor | None = None,
         name: str = "KDE1DimISJ",
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.

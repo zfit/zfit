@@ -1,6 +1,17 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Callable, Dict, Iterable, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+from collections.abc import Callable
+
+
+from typing import Dict, Union
 
 import tensorflow as tf
 
@@ -22,7 +33,7 @@ class SimpleFuncV1(BaseFuncV1):
         obs: ztyping.ObsTypeInput,
         func: Callable,
         name: str = "Function",
-        **params
+        **params,
     ):
         """Create a simple function out of of `func` with the observables `obs` depending on `parameters`.
 
@@ -66,7 +77,7 @@ class SumFunc(BaseFunctorFuncV1):
         funcs: Iterable[ZfitFunc],
         obs: ztyping.ObsTypeInput = None,
         name: str = "SumFunc",
-        **kwargs
+        **kwargs,
     ):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
@@ -91,7 +102,7 @@ class ProdFunc(BaseFunctorFuncV1):
         funcs: Iterable[ZfitFunc],
         obs: ztyping.ObsTypeInput = None,
         name: str = "SumFunc",
-        **kwargs
+        **kwargs,
     ):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 

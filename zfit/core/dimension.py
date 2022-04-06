@@ -1,6 +1,16 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Dict, Iterable, List, Set, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+
+
+from typing import Union
 
 import numpy as np
 
@@ -42,7 +52,7 @@ class BaseDimensional(ZfitDimensional):
 def get_same_obs(obs):
     deps = [set() for _ in range(len(obs))]
     for i, ob in enumerate(obs):
-        for j, other_ob in enumerate(obs[i + 1:]):
+        for j, other_ob in enumerate(obs[i + 1 :]):
             if not set(ob).isdisjoint(other_ob):
                 deps[i].add(i)
                 deps[i].add(j + i + 1)
@@ -54,7 +64,7 @@ def get_same_obs(obs):
 
 
 def limits_overlap(
-        spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bool = False
+    spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bool = False
 ) -> bool:
     """Check if _any_ of the limits of `spaces` overlaps with _any_ other of `spaces`.
 
@@ -91,9 +101,9 @@ def limits_overlap(
 
                 for other_lower, other_upper in zip(lowers, uppers):
                     if (
-                            allow_exact_match
-                            and np.allclose(other_lower, low)
-                            and np.allclose(other_upper, up)
+                        allow_exact_match
+                        and np.allclose(other_lower, low)
+                        and np.allclose(other_upper, up)
                     ):
                         continue
                     # TODO(Mayou36): tol? add global flags?
@@ -111,7 +121,7 @@ def limits_overlap(
     return False
 
 
-def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]:
+def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> list[str] | bool:
     """Extract the union of `obs` from `spaces` in the order of `spaces`.
 
     For example:
@@ -138,7 +148,7 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]
     return all_obs
 
 
-def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]:
+def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> list[str] | bool:
     """Extract the union of `axes` from `spaces` in the order of `spaces`.
 
     For example:
@@ -166,8 +176,8 @@ def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool
 
 
 def obs_subsets(
-        dimensionals: Iterable[ZfitDimensional],
-) -> Dict[Set[str], ZfitDimensional]:
+    dimensionals: Iterable[ZfitDimensional],
+) -> dict[set[str], ZfitDimensional]:
     """Split `dimensionals` into the smallest subgroup of obs and return a dict.
 
     Args:

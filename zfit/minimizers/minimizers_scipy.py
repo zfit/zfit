@@ -1,8 +1,19 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
+from collections.abc import Callable
+
 import copy
 import inspect
 import math
-from typing import Callable, Mapping, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 import scipy.optimize
@@ -31,20 +42,19 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
     def __init__(
         self,
         method: str,
-        tol: Optional[float],
-        internal_tol: Mapping[str, Optional[float]],
-        gradient: Optional[Union[Callable, str, NOT_SUPPORTED]],
-        hessian: Optional[
-            Union[Callable, str, scipy.optimize.HessianUpdateStrategy, NOT_SUPPORTED]
-        ],
-        maxiter: Optional[Union[int, str]] = None,
-        minimizer_options: Optional[Mapping[str, object]] = None,
-        verbosity: Optional[int] = None,
-        strategy: Optional[ZfitStrategy] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        minimize_func: Optional[callable] = None,
-        initializer: Optional[Callable] = None,
-        verbosity_setter: Optional[Callable] = None,
+        tol: float | None,
+        internal_tol: Mapping[str, float | None],
+        gradient: Callable | str | NOT_SUPPORTED | None,
+        hessian: None
+        | (Callable | str | scipy.optimize.HessianUpdateStrategy | NOT_SUPPORTED),
+        maxiter: int | str | None = None,
+        minimizer_options: Mapping[str, object] | None = None,
+        verbosity: int | None = None,
+        strategy: ZfitStrategy | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        minimize_func: callable | None = None,
+        initializer: Callable | None = None,
+        verbosity_setter: Callable | None = None,
         name: str = "ScipyMinimizer",
     ) -> None:
         """Base minimizer wrapping the SciPy librarys optimize module.
@@ -405,14 +415,14 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        maxcor: Optional[int] = None,
-        maxls: Optional[int] = None,
-        verbosity: Optional[int] = None,
-        gradient: Optional[Union[Callable, str]] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        maxcor: int | None = None,
+        maxls: int | None = None,
+        verbosity: int | None = None,
+        gradient: Callable | str | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy L-BFGS-B V1",
     ) -> None:
         """Local, gradient based quasi-Newton algorithm using the limited-memory BFGS approximation.
@@ -544,16 +554,14 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
     @warn_experimental_feature
     def __init__(
         self,
-        tol: Optional[float] = None,
-        inexact: Optional[bool] = None,
-        gradient: Optional[Union[Callable, str]] = None,
-        hessian: Optional[
-            Union[Callable, str, scipy.optimize.HessianUpdateStrategy]
-        ] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        inexact: bool | None = None,
+        gradient: Callable | str | None = None,
+        hessian: None | (Callable | str | scipy.optimize.HessianUpdateStrategy) = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy trust-krylov V1",
     ) -> None:
         """PERFORMS POORLY! Local, gradient based (nearly) exact trust-region algorithm using matrix vector products
@@ -696,18 +704,16 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
     @warn_experimental_feature
     def __init__(
         self,
-        tol: Optional[float] = None,
-        init_trust_radius: Optional[float] = None,
-        eta: Optional[float] = None,
-        max_trust_radius: Optional[int] = None,
-        gradient: Optional[Union[Callable, str]] = None,
-        hessian: Optional[
-            Union[Callable, str, scipy.optimize.HessianUpdateStrategy]
-        ] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        init_trust_radius: float | None = None,
+        eta: float | None = None,
+        max_trust_radius: int | None = None,
+        gradient: Callable | str | None = None,
+        hessian: None | (Callable | str | scipy.optimize.HessianUpdateStrategy) = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy trust-ncg V1",
     ) -> None:
         """PERFORMS POORLY! Local Newton conjugate gradient trust-region algorithm.
@@ -863,16 +869,14 @@ ScipyTrustNCGV1._add_derivative_methods(
 class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        init_trust_radius: Optional[int] = None,
-        gradient: Optional[Union[Callable, str]] = None,
-        hessian: Optional[
-            Union[Callable, str, scipy.optimize.HessianUpdateStrategy]
-        ] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        init_trust_radius: int | None = None,
+        gradient: Callable | str | None = None,
+        hessian: None | (Callable | str | scipy.optimize.HessianUpdateStrategy) = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy trust-constr V1",
     ) -> None:
         """Trust-region based local minimizer.
@@ -1059,15 +1063,13 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
     @warn_experimental_feature
     def __init__(
         self,
-        tol: Optional[float] = None,
-        gradient: Optional[Union[Callable, str]] = None,
-        hessian: Optional[
-            Union[Callable, str, scipy.optimize.HessianUpdateStrategy]
-        ] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        gradient: Callable | str | None = None,
+        hessian: None | (Callable | str | scipy.optimize.HessianUpdateStrategy) = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy Newton-CG V1",
     ) -> None:
         """WARNING! This algorithm seems unstable and may does not perform well!
@@ -1223,16 +1225,16 @@ ScipyNewtonCGV1._add_derivative_methods(
 class ScipyTruncNCV1(ScipyBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        maxcg: Optional[int] = None,  # maxCGit
-        maxls: Optional[int] = None,  # stepmx
-        eta: Optional[float] = None,
-        rescale: Optional[float] = None,
-        gradient: Optional[Union[Callable, str]] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        maxcg: int | None = None,  # maxCGit
+        maxls: int | None = None,  # stepmx
+        eta: float | None = None,
+        rescale: float | None = None,
+        gradient: Callable | str | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy Truncated Newton Conjugate V1",
     ) -> None:
         """Local, gradient based minimization algorithm using a truncated Newton method.
@@ -1364,14 +1366,14 @@ ScipyTruncNCV1._add_derivative_methods(
 class ScipyDoglegV1(ScipyBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        init_trust_radius: Optional[int] = None,
-        eta: Optional[float] = None,
-        max_trust_radius: Optional[int] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        init_trust_radius: int | None = None,
+        eta: float | None = None,
+        max_trust_radius: int | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy Dogleg V1",
     ) -> None:
         """This minimizer requires the hessian and gradient to be provided by the loss itself.
@@ -1451,11 +1453,11 @@ ScipyDoglegV1._add_derivative_methods(gradient=["zfit"], hessian=["zfit"])
 class ScipyPowellV1(ScipyBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy Powell V1",
     ) -> None:
         """Local minimizer using the modified Powell algorithm.
@@ -1533,12 +1535,12 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
 class ScipySLSQPV1(ScipyBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        gradient: Optional[Union[Callable, str]] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        gradient: Callable | str | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy SLSQP V1",
     ) -> None:
         """Local, gradient-based minimizer using tho  Sequential Least Squares Programming algorithm.name.
@@ -1646,11 +1648,11 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
     @warn_experimental_feature
     def __init__(
         self,
-        tol: Optional[float] = None,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy COBYLA V1",
     ) -> None:
         """UNSTABLE! Local gradient-free dowhhill simplex-like method with an implicit linear approximation.
@@ -1723,12 +1725,12 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
 class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
     def __init__(
         self,
-        tol: Optional[float] = None,
-        adaptive: Optional[bool] = True,
-        verbosity: Optional[int] = None,
-        maxiter: Optional[Union[int, str]] = None,
-        criterion: Optional[ConvergenceCriterion] = None,
-        strategy: Optional[ZfitStrategy] = None,
+        tol: float | None = None,
+        adaptive: bool | None = True,
+        verbosity: int | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
         name: str = "SciPy Nelder-Mead V1",
     ) -> None:
         """Local gradient-free dowhhill simplex method.py.

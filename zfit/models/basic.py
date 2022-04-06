@@ -3,7 +3,7 @@
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
 
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import contextlib
 
 import numpy as np

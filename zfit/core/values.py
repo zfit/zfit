@@ -1,8 +1,15 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from collections.abc import Mapping
+
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
 import collections
-from typing import Mapping
 
 import tensorflow_probability as tfp
 from zfit_interface.variables import ZfitVar
@@ -14,12 +21,12 @@ from zfit.util.container import convert_to_container
 @tfp.experimental.auto_composite_tensor()
 class ValueHolder(tfp.experimental.AutoCompositeTensor):
     def __init__(
-            self,
-            args,
-            variables: Mapping,
-            norm: ValueHolder = None,
-            target=None,
-            holders=None,
+        self,
+        args,
+        variables: Mapping,
+        norm: ValueHolder = None,
+        target=None,
+        holders=None,
     ):
         args = convert_to_container(args)
         variables = self._check_input_variables(variables)

@@ -16,7 +16,7 @@ Recommended way of importing:
 >>> Import zfit.z.numpy as znp
 """
 
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 # TODO: dymamic imports?
 # import tensorflow.experimental.numpy as _tnp  # this way we do get the autocompletion

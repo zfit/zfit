@@ -1,5 +1,13 @@
-#  Copyright (c) 2021 zfit
-from typing import List, Optional, Tuple, Union
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from typing import Optional, Union
 
 import numpy as np
 import tensorflow as tf
@@ -81,11 +89,11 @@ class Coordinates(ZfitOrderableDimensional):
         return self._n_obs
 
     def with_obs(
-            self,
-            obs: Optional[ztyping.ObsTypeInput],
-            allow_superset: bool = True,
-            allow_subset: bool = True,
-    ) -> "Coordinates":
+        self,
+        obs: ztyping.ObsTypeInput | None,
+        allow_superset: bool = True,
+        allow_subset: bool = True,
+    ) -> Coordinates:
         """Create a new instance that has `obs`; sorted by or set or dropped.
 
         The behavior is as follows:
@@ -157,11 +165,11 @@ class Coordinates(ZfitOrderableDimensional):
         return new_coords
 
     def with_axes(
-            self,
-            axes: Optional[ztyping.AxesTypeInput],
-            allow_superset: bool = True,
-            allow_subset: bool = True,
-    ) -> "Coordinates":
+        self,
+        axes: ztyping.AxesTypeInput | None,
+        allow_superset: bool = True,
+        allow_subset: bool = True,
+    ) -> Coordinates:
         """Create a new instance that has `axes`; sorted by or set or dropped.
 
         The behavior is as follows:
@@ -234,7 +242,7 @@ class Coordinates(ZfitOrderableDimensional):
                 new_coords = type(self)(obs=new_obs, axes=new_axes)
         return new_coords
 
-    def with_autofill_axes(self, overwrite: bool = False) -> "ZfitOrderableDimensional":
+    def with_autofill_axes(self, overwrite: bool = False) -> ZfitOrderableDimensional:
         """Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).
 
         This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or
@@ -268,21 +276,21 @@ class Coordinates(ZfitOrderableDimensional):
         new_coords = type(self)(obs=self.obs, axes=range(self.n_obs))
         return new_coords
 
-    def _reorder_obs(self, indices: Tuple[int]) -> ztyping.ObsTypeReturn:
+    def _reorder_obs(self, indices: tuple[int]) -> ztyping.ObsTypeReturn:
         obs = self.obs
         if obs is not None:
             obs = tuple(obs[i] for i in indices)
         return obs
 
-    def _reorder_axes(self, indices: Tuple[int]) -> ztyping.AxesTypeReturn:
+    def _reorder_axes(self, indices: tuple[int]) -> ztyping.AxesTypeReturn:
         axes = self.axes
         if axes is not None:
             axes = tuple(axes[i] for i in indices)
         return axes
 
     def get_reorder_indices(
-            self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
-    ) -> Tuple[int]:
+        self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
+    ) -> tuple[int]:
         """Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.
 
         Args:
@@ -316,13 +324,13 @@ class Coordinates(ZfitOrderableDimensional):
         return new_indices
 
     def reorder_x(
-            self,
-            x: Union[tf.Tensor, np.ndarray],
-            *,
-            x_obs: ztyping.ObsTypeInput = None,
-            x_axes: ztyping.AxesTypeInput = None,
-            func_obs: ztyping.ObsTypeInput = None,
-            func_axes: ztyping.AxesTypeInput = None,
+        self,
+        x: tf.Tensor | np.ndarray,
+        *,
+        x_obs: ztyping.ObsTypeInput = None,
+        x_axes: ztyping.AxesTypeInput = None,
+        func_obs: ztyping.ObsTypeInput = None,
+        func_axes: ztyping.AxesTypeInput = None,
     ) -> ztyping.XTypeReturnNoData:
         """Reorder x in the last dimension either according to its own obs or assuming a function ordered with func_obs.
 
@@ -384,7 +392,7 @@ class Coordinates(ZfitOrderableDimensional):
             )
 
         if isinstance(x, ZfitData) and not (
-                coord_old == x.obs if obs_defined else x.axes
+            coord_old == x.obs if obs_defined else x.axes
         ):
             raise IntentionAmbiguousError(
                 "`reorder_x` is supposed to assume that the obs/axes of the given `x` are"
@@ -435,7 +443,7 @@ def _convert_obs_to_str(obs):
     return obs
 
 
-def _reorder_indices(old: Union[List, Tuple], new: Union[List, Tuple]) -> Tuple[int]:
+def _reorder_indices(old: list | tuple, new: list | tuple) -> tuple[int]:
     new_indices = tuple(old.index(o) for o in new)
     return new_indices
 

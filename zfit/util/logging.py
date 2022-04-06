@@ -7,7 +7,7 @@ By default, time, name of the logger and message with the default
 colorlog color scheme are printed.
 """
 
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 import logging
 import os

@@ -45,13 +45,22 @@ Example with a pdf that caches the normalization:
                 result = self._cache['my_name']
             return result
 """
+#  Copyright (c) 2022 zfit
 
-#  Copyright (c) 2021 zfit
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+
 
 import functools
 import weakref
 from abc import abstractmethod
-from typing import Iterable, Mapping, Union
+from typing import Mapping, Union
 
 import numpy as np
 import tensorflow as tf
@@ -62,7 +71,7 @@ from .container import convert_to_container
 
 class ZfitGraphCachable:
     @abstractmethod
-    def register_cacher(self, cacher: "ZfitGraphCachable"):
+    def register_cacher(self, cacher: ZfitGraphCachable):
         raise NotImplementedError
 
     @abstractmethod
@@ -154,7 +163,7 @@ class GraphCachable(ZfitGraphCachable):
         self._clean_cache()
         self._inform_cachers()
 
-    def reset_cache(self, reseter: "ZfitGraphCachable"):
+    def reset_cache(self, reseter: ZfitGraphCachable):
         self.reset_cache_self()
 
     def _clean_cache(self):
@@ -190,9 +199,9 @@ class FunctionCacheHolder(GraphCachable):
         self,
         func,
         wrapped_func,
-        cachables: Union[
-            ZfitGraphCachable, object, Iterable[Union[ZfitGraphCachable, object]]
-        ] = None,
+        cachables: (
+            ZfitGraphCachable | object | Iterable[ZfitGraphCachable | object]
+        ) = None,
         cachables_mapping=None,
     ):
         """`tf.function` decorated function holder with caching dependencies on inputs.

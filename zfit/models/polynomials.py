@@ -1,7 +1,15 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 """Recurrent polynomials."""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
 import abc
-from typing import Dict, List, Mapping, Optional
+from typing import Optional
 
 import tensorflow as tf
 
@@ -16,7 +24,7 @@ from ..util.container import convert_to_container
 from ..util.exception import SpecificFunctionNotImplemented
 
 
-def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
+def rescale_minus_plus_one(x: tf.Tensor, limits: zfit.Space) -> tf.Tensor:
     """Rescale and shift *x* as *limits* were rescaled and shifted to be in (-1, 1). Useful for orthogonal polynomials.
 
     Args:
@@ -39,7 +47,7 @@ class RecursivePolynomial(BasePDF):
         obs,
         coeffs: list,
         apply_scaling: bool = True,
-        coeff0: Optional[tf.Tensor] = None,
+        coeff0: tf.Tensor | None = None,
         name: str = "Polynomial",
     ):  # noqa
         """Base class to create 1 dimensional recursive polynomials that can be rescaled. Overwrite _poly_func.
@@ -122,7 +130,7 @@ def legendre_shape(x, coeffs):
 def legendre_integral(
     limits: ztyping.SpaceType,
     norm: ztyping.SpaceType,
-    params: List["zfit.Parameter"],
+    params: list[zfit.Parameter],
     model: RecursivePolynomial,
 ):
     """Recursive integral of Legendre polynomials."""
@@ -171,9 +179,9 @@ class Legendre(RecursivePolynomial):
     def __init__(
         self,
         obs: ztyping.ObsTypeInput,
-        coeffs: List[ztyping.ParamTypeInput],
+        coeffs: list[ztyping.ParamTypeInput],
         apply_scaling: bool = True,
-        coeff0: Optional[ztyping.ParamTypeInput] = None,
+        coeff0: ztyping.ParamTypeInput | None = None,
         name: str = "Legendre",
     ):  # noqa
         """Linear combination of Legendre polynomials of order len(coeffs), the coeffs are overall scaling factors.
@@ -242,7 +250,7 @@ class Chebyshev(RecursivePolynomial):
         obs,
         coeffs: list,
         apply_scaling: bool = True,
-        coeff0: Optional[ztyping.ParamTypeInput] = None,
+        coeff0: ztyping.ParamTypeInput | None = None,
         name: str = "Chebyshev",
     ):  # noqa
         """Linear combination of Chebyshev (first kind) polynomials of order len(coeffs), coeffs are scaling factors.
@@ -347,7 +355,7 @@ class Chebyshev2(RecursivePolynomial):
         obs,
         coeffs: list,
         apply_scaling: bool = True,
-        coeff0: Optional[ztyping.ParamTypeInput] = None,
+        coeff0: ztyping.ParamTypeInput | None = None,
         name: str = "Chebyshev2",
     ):  # noqa
         """Linear combination of Chebyshev (second kind) polynomials of order len(coeffs), coeffs are scaling factors.
@@ -471,7 +479,7 @@ class Laguerre(RecursivePolynomial):
         obs,
         coeffs: list,
         apply_scaling: bool = True,
-        coeff0: Optional[ztyping.ParamTypeInput] = None,
+        coeff0: ztyping.ParamTypeInput | None = None,
         name: str = "Laguerre",
     ):  # noqa
         """Linear combination of Laguerre polynomials of order len(coeffs), the coeffs are overall scaling factors.
@@ -514,7 +522,7 @@ class Laguerre(RecursivePolynomial):
         return laguerre_shape(x=x, coeffs=coeffs)
 
 
-def func_integral_laguerre(limits, norm, params: Dict, model):
+def func_integral_laguerre(limits, norm, params: dict, model):
     """The integral of the simple laguerre polynomials.
 
     Defined as :math:`\\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
@@ -580,7 +588,7 @@ class Hermite(RecursivePolynomial):
         obs,
         coeffs: list,
         apply_scaling: bool = True,
-        coeff0: Optional[ztyping.ParamTypeInput] = None,
+        coeff0: ztyping.ParamTypeInput | None = None,
         name: str = "Hermite",
     ):  # noqa
         """Linear combination of Hermite polynomials (for physics) of order len(coeffs), with coeffs as scaling factors.
@@ -656,7 +664,7 @@ Hermite.register_analytic_integral(
 )
 
 
-def convert_coeffs_dict_to_list(coeffs: Mapping) -> List:
+def convert_coeffs_dict_to_list(coeffs: Mapping) -> list:
     # HACK(Mayou36): how to solve elegantly? yield not a param, only a dependent?
     coeffs_list = []
     for i in range(len(coeffs)):

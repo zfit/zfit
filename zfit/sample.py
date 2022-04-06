@@ -1,6 +1,14 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Iterable
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
+
 
 from zfit import z
 from zfit.core.interfaces import ZfitModel, ZfitPDF

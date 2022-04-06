@@ -1,7 +1,17 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Callable
+
 import logging
 from functools import lru_cache, wraps
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numdifftools
 import numpy as np
@@ -31,16 +41,16 @@ class FailEvalLossNaN(Exception):
 
 @deprecated_args(None, "Use cl for confidence level instead.", "sigma")
 def compute_errors(
-    result: "zfit.result.FitResult",
-    params: List[ZfitIndependentParameter],
-    cl: Optional[float] = None,
-    rtol: Optional[float] = 0.001,
-    method: Optional[str] = None,
-    covariance_method: Optional[Union[str, Callable]] = None,
+    result: zfit.result.FitResult,
+    params: list[ZfitIndependentParameter],
+    cl: float | None = None,
+    rtol: float | None = 0.001,
+    method: str | None = None,
+    covariance_method: str | Callable | None = None,
     sigma: float = 1,
-) -> Tuple[
-    Dict[ZfitIndependentParameter, Dict[str, float]],
-    Union["zfit.result.FitResult", None],
+) -> tuple[
+    dict[ZfitIndependentParameter, dict[str, float]],
+    zfit.result.FitResult | None,
 ]:
     """Compute asymmetric errors of parameters by profiling the loss function in the fit result.
 

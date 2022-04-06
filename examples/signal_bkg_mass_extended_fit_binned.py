@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 import matplotlib.pyplot as plt
 import mplhep

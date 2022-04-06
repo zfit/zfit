@@ -7,4 +7,6 @@ way of importing:
 
 >>> import zfit.z.numpy as znp
 """
+#  Copyright (c) 2022 zfit
+
 from tensorflow.experimental.numpy import *

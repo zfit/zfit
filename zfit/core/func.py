@@ -1,3 +1,5 @@
+#  Copyright (c) 2022 zfit
+
 from contextlib import suppress
 
 from zfit_interface.func import ZfitFunc
