@@ -101,7 +101,7 @@ repos:
       - id: jupyter-notebook-cleanup
 
   - repo: https://github.com/sondrelg/pep585-upgrade
-    rev: 'v1'  # Use the sha / tag you want to point at
+    rev: 'v1'
     hooks:
       - id: upgrade-type-hints
         args: [ '--futures=true' ]

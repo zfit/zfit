@@ -146,7 +146,8 @@ DependentsType = OrderedSet("zfit.Parameter")  #:
 
 # Caching
 CacherOrCachersType = Union[
-    "zfit.core.interfaces.ZfitCachable", Iterable["zfit.core.interfaces.ZfitCachable"]
+    "zfit.core.interfaces.ZfitGraphCachable",
+    Iterable["zfit.core.interfaces.ZfitGraphCachable"],
 ]  #:
 
 OrderedDict = Dict

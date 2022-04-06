@@ -1,7 +1,7 @@
 """Module for caching.
 
 The basic concept of caching in Zfit builds on a "cacher", that caches a certain value and that
-is dependent of "cache_dependents". By implementing `ZfitCachable`, an object will be able to play both
+is dependent of "cache_dependents". By implementing `ZfitGraphCachable`, an object will be able to play both
 roles. And most importantly, it has a `_cache` dict, that contains all the cache.
 
 Basic principle
@@ -52,7 +52,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 from collections.abc import Iterable
 
@@ -60,7 +60,6 @@ from collections.abc import Iterable
 import functools
 import weakref
 from abc import abstractmethod
-from typing import Mapping, Union
 
 import numpy as np
 import tensorflow as tf
@@ -81,10 +80,10 @@ class ZfitGraphCachable:
         Args:
             cache_dependents:
             allow_non_cachable: If `True`, allow `cache_dependents` to be non-cachables.
-                If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.
+                If `False`, any `cache_dependents` that is not a `ZfitGraphCachable` will raise an error.
 
         Raises:
-            TypeError: if one of the `cache_dependents` is not a `ZfitCachable` _and_ `allow_non_cachable`
+            TypeError: if one of the `cache_dependents` is not a `ZfitGraphCachable` _and_ `allow_non_cachable`
                 if `False`.
         """
         pass
@@ -129,7 +128,7 @@ class GraphCachable(ZfitGraphCachable):
             cacher:
         """
         if not isinstance(cacher, ZfitGraphCachable):
-            raise TypeError(f"`cacher` is not a `ZfitCachable` but {type(cacher)}")
+            raise TypeError(f"`cacher` is not a `ZfitGraphCachable` but {type(cacher)}")
         if not cacher in self._cachers:
             self._cachers[cacher] = None  # could we have a more useful value?
 
@@ -141,10 +140,10 @@ class GraphCachable(ZfitGraphCachable):
         Args:
             cache_deps:
             allow_non_cachable: If `True`, allow `cache_dependents` to be non-cachables.
-                If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.
+                If `False`, any `cache_dependents` that is not a `ZfitGraphCachable` will raise an error.
 
         Raises:
-            TypeError: if one of the `cache_dependents` is not a `ZfitCachable` _and_ `allow_non_cachable`
+            TypeError: if one of the `cache_dependents` is not a `ZfitGraphCachable` _and_ `allow_non_cachable`
                 if `False`.
         """
         cache_deps = convert_to_container(cache_deps)
@@ -153,7 +152,7 @@ class GraphCachable(ZfitGraphCachable):
                 cache_dep.register_cacher(self)
             elif not allow_non_cachable:
                 raise TypeError(
-                    "cache_dependent {} is not a `ZfitCachable` but {}".format(
+                    "cache_dependent {} is not a `ZfitGraphCachable` but {}".format(
                         cache_dep, type(cache_dep)
                     )
                 )
@@ -183,7 +182,7 @@ def invalidate_graph(func):
         self = args[0]
         if not isinstance(self, ZfitGraphCachable):
             raise TypeError(
-                "Decorator can only be used in a subclass of `ZfitCachable`"
+                "Decorator can only be used in a subclass of `ZfitGraphCachable`"
             )
         self.reset_cache(reseter=self)
 
