@@ -40,8 +40,6 @@ __all__ = [
 ]
 
 from .core.basepdf import BasePDF
-from .models.interpolation import SplinePDF
-from .models.tobinned import BinnedFromUnbinnedPDF
 from .models.basic import Exponential
 from .models.binned_functor import BinnedSumPDF
 from .models.conditional import ConditionalPDFV1
@@ -57,6 +55,7 @@ from .models.dist_tfp import (
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
 from .models.histmodifier import BinwiseScaleModifier
 from .models.histogram import HistogramPDF
+from .models.interpolation import SplinePDF
 from .models.kde import (
     GaussianKDE1DimV1,
     KDE1DimExact,
@@ -75,4 +74,5 @@ from .models.polynomials import (
     RecursivePolynomial,
 )
 from .models.special import ZPDF, SimpleFunctorPDF, SimplePDF
+from .models.tobinned import BinnedFromUnbinnedPDF
 from .models.unbinnedpdf import UnbinnedFromBinnedPDF

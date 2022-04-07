@@ -11,7 +11,6 @@ from collections.abc import Mapping
 from collections.abc import Callable
 from collections.abc import Iterable
 
-
 import abc
 import inspect
 import warnings

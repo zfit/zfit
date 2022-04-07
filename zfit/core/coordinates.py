@@ -2,18 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from typing import Optional, Union
-
 import numpy as np
 import tensorflow as tf
 
 from zfit import z
-
+from .interfaces import ZfitData, ZfitDimensional, ZfitOrderableDimensional, ZfitSpace
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (
@@ -23,9 +16,7 @@ from ..util.exception import (
     IntentionAmbiguousError,
     ObsIncompatibleError,
     OverdefinedError,
-    WorkInProgressError,
 )
-from .interfaces import ZfitData, ZfitDimensional, ZfitOrderableDimensional, ZfitSpace
 
 
 class Coordinates(ZfitOrderableDimensional):

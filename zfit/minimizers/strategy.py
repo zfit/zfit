@@ -2,24 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Mapping
-
 import abc
 from abc import abstractmethod
 from collections import OrderedDict
-from typing import Optional, Union
+from collections.abc import Mapping
 
 import numpy as np
 
+from .fitresult import FitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
-from .fitresult import FitResult
 
 
 class FailMinimizeNaN(Exception):

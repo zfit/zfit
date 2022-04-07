@@ -2,26 +2,19 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Callable
-
 import contextlib
-from typing import Optional
+from collections.abc import Callable
 
 import numpy as np
 import tensorflow as tf
 import texttable as tt
 
+from .strategy import ZfitStrategy
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import assign_values, set_values, assign_values_jit
+from ..core.parameter import assign_values
 from ..settings import run
 from ..util import ztyping
 from ..util.exception import DerivativeCalculationError, MaximumIterationReached
-from .strategy import ZfitStrategy
 
 
 def check_derivative_none_raise(values, params) -> None:

@@ -10,10 +10,9 @@ if TYPE_CHECKING:
 
 from collections.abc import Callable
 
-
 import collections
 from contextlib import suppress
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 import tensorflow as tf

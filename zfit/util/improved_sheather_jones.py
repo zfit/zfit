@@ -4,9 +4,9 @@ import numpy as np
 import tensorflow as tf
 from tf_quant_finance.math import root_search
 
+from . import binning as binning_util
 from .. import z
 from ..settings import ztypes
-from . import binning as binning_util
 
 
 @z.function(wraps="tensor")

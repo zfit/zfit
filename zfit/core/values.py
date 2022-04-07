@@ -1,15 +1,9 @@
 #  Copyright (c) 2022 zfit
 
-from collections.abc import Mapping
-
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 import collections
+from collections.abc import Mapping
 
 import tensorflow_probability as tfp
 from zfit_interface.variables import ZfitVar

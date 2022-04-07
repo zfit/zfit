@@ -11,7 +11,6 @@ from collections.abc import Iterable
 from collections.abc import Mapping
 from collections.abc import Callable
 
-
 # TODO(Mayou36): update docs above
 
 import functools
@@ -21,7 +20,7 @@ import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from contextlib import suppress
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 import tensorflow as tf
@@ -43,7 +42,7 @@ from .._variables.axis import Binnings, RegularBinning
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.deprecation import deprecated_args, deprecated_norm_range
+from ..util.deprecation import deprecated_norm_range
 from ..util.exception import (
     AxesIncompatibleError,
     AxesNotSpecifiedError,
@@ -58,7 +57,6 @@ from ..util.exception import (
     LimitsNotSpecifiedError,
     LimitsUnderdefinedError,
     MultipleLimitsNotImplemented,
-    NormRangeNotImplemented,
     NumberOfEventsIncompatibleError,
     ObsIncompatibleError,
     ObsNotSpecifiedError,

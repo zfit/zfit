@@ -10,16 +10,13 @@ if TYPE_CHECKING:
 from collections.abc import Mapping
 from collections.abc import Callable
 
-import warnings
 from collections import OrderedDict
 from contextlib import ExitStack
-from typing import Union
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import uproot
-from tensorflow.python.ops import array_ops
 
 # from ..settings import types as ztypes
 import zfit
@@ -31,7 +28,6 @@ from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
 from ..util.container import convert_to_container
 from ..util.exception import (
-    LogicalUndefinedOperationError,
     ObsIncompatibleError,
     ShapeIncompatibleError,
     WorkInProgressError,

@@ -38,7 +38,6 @@ from .minimizers.minimizers_scipy import (
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
 from .minimizers.strategy import DefaultToyStrategy, PushbackStrategy, ZfitStrategy
 from .minimizers.termination import EDM
-from .util.deprecation import deprecated
 
 
 class AdamMinimizer(Adam):

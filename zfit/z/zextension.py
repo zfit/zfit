@@ -2,23 +2,16 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Callable
-
 import functools
 import math as _mt
 from collections import defaultdict
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np
 import tensorflow as tf
 
 import zfit.z.numpy as znp
-
 from ..settings import ztypes
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature

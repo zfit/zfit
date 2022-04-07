@@ -2,15 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Mapping
-
 import warnings
-from typing import Optional
+from collections.abc import Mapping
 
 import iminuit
 import numpy as np
@@ -21,7 +14,7 @@ from .strategy import ZfitStrategy
 from .termination import EDM, ConvergenceCriterion
 from .. import z
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import Parameter, assign_values, assign_values_jit
+from ..core.parameter import Parameter, assign_values
 from ..settings import run
 from ..util.cache import GraphCachable
 from ..util.deprecation import deprecated_args

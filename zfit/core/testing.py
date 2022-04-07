@@ -6,21 +6,13 @@ Contains a singleton instance to register new PDFs and let them be tested.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable
-from collections.abc import Callable
-
 from collections import OrderedDict
-from typing import Union
+from collections.abc import Iterable, Callable
 
 import scipy.stats
 
-from ..util.container import convert_to_container
 from .interfaces import ZfitPDF
+from ..util.container import convert_to_container
 
 __all__ = ["tester"]
 

@@ -2,30 +2,21 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable
-from collections.abc import Callable
-
-
-from typing import Optional, Union
+from collections.abc import Iterable, Callable
+from typing import Union
 
 import tensorflow as tf
 from tensorflow_probability import distributions as tfd
 
 import zfit.z.numpy as znp
-
+from .data import Data
+from .interfaces import ZfitPDF, ZfitSpace
+from .space import Space
 from .. import settings, z
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WorkInProgressError
-from .data import Data
-from .interfaces import ZfitPDF, ZfitSpace
-from .space import Space
 
 
 class UniformSampleAndWeights:

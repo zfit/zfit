@@ -9,8 +9,6 @@ if TYPE_CHECKING:
 
 from collections.abc import Iterable
 
-from typing import Optional
-
 import tensorflow as tf
 
 from ..core.interfaces import ZfitIndependentParameter, ZfitLoss

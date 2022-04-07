@@ -10,13 +10,10 @@ if TYPE_CHECKING:
 from collections.abc import Callable
 from collections.abc import Iterable
 
-
-from typing import Any, Union
+from typing import Any
 
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
-
-import zfit.binned
 
 
 def convert_to_container(

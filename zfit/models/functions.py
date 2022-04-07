@@ -2,25 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable
-from collections.abc import Callable
-
-
-from typing import Dict, Union
+from collections.abc import Iterable, Callable
 
 import tensorflow as tf
 
 import zfit.z.numpy as znp
-
 from ..core.basefunc import BaseFuncV1
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.dependents import _extract_dependencies
-from ..core.interfaces import ZfitFunc, ZfitModel
+from ..core.interfaces import ZfitFunc
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping

@@ -6,16 +6,14 @@ Gauss, exponential... that can be used together with Functors to build larger mo
 #  Copyright (c) 2022 zfit
 import contextlib
 
-import numpy as np
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 from zfit import z
-
 from ..core.basepdf import BasePDF
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
 from ..util import ztyping
-from ..util.exception import AnalyticIntegralNotImplemented, BreakingAPIChangeError
+from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 
 

@@ -2,22 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-
 import contextlib
 import multiprocessing
 import os
 import sys
-import warnings
-from typing import Optional, Union
 
 import tensorflow as tf
 from dotmap import DotMap
-from ordered_set import OrderedSet
 
 from .deprecation import deprecated
 from .exception import IllegalInGraphModeError

@@ -7,14 +7,12 @@ TODO(Mayou36): subclassing?
 import abc
 import typing
 
-
 import zfit
 from zfit.util.exception import ShapeIncompatibleError, SpecificFunctionNotImplemented
-
-from ..settings import ztypes
-from ..util import ztyping
 from .basemodel import BaseModel
 from .interfaces import ZfitFunc
+from ..settings import ztypes
+from ..util import ztyping
 
 
 class BaseFuncV1(BaseModel, ZfitFunc):

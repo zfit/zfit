@@ -3,21 +3,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable
-from collections.abc import Callable
-
 import abc
 import collections
 import functools
 import warnings
+from collections.abc import Iterable, Callable
 from contextlib import suppress
 from inspect import signature
-from typing import Optional, Union
 from weakref import WeakValueDictionary
 
 import numpy as np

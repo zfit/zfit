@@ -6,7 +6,7 @@ import tensorflow_addons as tfa
 import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
-
+from .functor import BaseFunctor
 from .. import exception, z
 from ..core.data import Data, sum_samples
 from ..core.interfaces import ZfitPDF
@@ -14,7 +14,6 @@ from ..core.sample import accept_reject_sample
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError, WorkInProgressError
-from .functor import BaseFunctor
 
 
 class FFTConvPDFV1(BaseFunctor):

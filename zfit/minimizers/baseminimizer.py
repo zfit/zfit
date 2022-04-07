@@ -2,15 +2,6 @@
 """Definition of minimizers, wrappers etc."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Callable
-from collections.abc import Iterable
-from collections.abc import Mapping
-
 import collections
 import copy
 import functools
@@ -18,14 +9,19 @@ import inspect
 import math
 import os
 import warnings
+from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
-from typing import Optional, Union
 
 import numpy as np
 from ordered_set import OrderedSet
 
+from .evaluation import LossEval
+from .fitresult import FitResult
+from .interface import ZfitMinimizer, ZfitResult
+from .strategy import FailMinimizeNaN, PushbackStrategy, ZfitStrategy
+from .termination import EDM, ConvergenceCriterion
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..core.parameter import assign_values, convert_to_parameters, assign_values_jit
+from ..core.parameter import assign_values, convert_to_parameters
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -38,11 +34,6 @@ from ..util.exception import (
     ParameterNotIndependentError,
 )
 from ..util.warnings import warn_changed_feature
-from .evaluation import LossEval
-from .fitresult import FitResult
-from .interface import ZfitMinimizer, ZfitResult
-from .strategy import FailMinimizeNaN, PushbackStrategy, ZfitStrategy
-from .termination import EDM, ConvergenceCriterion
 
 DefaultStrategy = PushbackStrategy
 

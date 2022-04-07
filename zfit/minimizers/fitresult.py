@@ -18,7 +18,6 @@ import itertools
 import math
 import warnings
 from collections import OrderedDict
-from typing import Optional, Union
 
 import colored
 import iminuit

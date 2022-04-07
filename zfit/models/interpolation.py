@@ -4,9 +4,9 @@ from typing import Optional
 import tensorflow_addons as tfa
 
 import zfit.z.numpy as znp
-from ..core.space import supports
 from .functor import BaseFunctor
 from ..core.interfaces import ZfitBinnedPDF
+from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 

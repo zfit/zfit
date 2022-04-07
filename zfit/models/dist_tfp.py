@@ -15,10 +15,8 @@ import tensorflow_probability.python.distributions as tfd
 
 from zfit import z
 from zfit.util.exception import (
-    AnalyticIntegralNotImplemented,
     AnalyticSamplingNotImplemented,
 )
-
 from ..core.basepdf import BasePDF
 from ..core.parameter import convert_to_parameter
 from ..core.space import Space, supports

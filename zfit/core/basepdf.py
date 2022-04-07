@@ -59,10 +59,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import zfit
 
-
 import warnings
 from contextlib import suppress
-from typing import Optional, Union
 
 import tensorflow as tf
 

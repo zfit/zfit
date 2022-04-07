@@ -11,7 +11,6 @@ from collections.abc import Callable
 
 import logging
 from functools import lru_cache, wraps
-from typing import Optional, Union
 
 import numdifftools
 import numpy as np
@@ -24,7 +23,6 @@ import zfit.z.numpy as znp
 from .. import settings, z
 from ..core.interfaces import ZfitIndependentParameter
 from ..core.parameter import assign_values
-from ..param import set_values
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
 

@@ -2,24 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Iterable
-
-
-from typing import Union
 
 import numpy as np
 
-import zfit
 from zfit.util.exception import SpaceIncompatibleError
-
+from .interfaces import ZfitDimensional
 from ..util import ztyping
 from ..util.container import convert_to_container
-from .interfaces import ZfitDimensional
 
 
 class BaseDimensional(ZfitDimensional):

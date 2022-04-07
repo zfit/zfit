@@ -2,12 +2,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-
 import tensorflow as tf
 
 from zfit.util.temporary import TemporarilySet

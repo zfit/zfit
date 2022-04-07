@@ -12,7 +12,7 @@ import zfit
 import zfit.z.numpy as znp
 from zfit import z
 from .binned_functor import BaseBinnedFunctorPDF
-from ..core.interfaces import ZfitParameter, ZfitPDF, ZfitSpace
+from ..core.interfaces import ZfitPDF, ZfitSpace
 from ..util import ztyping
 from ..util.warnings import warn_advanced_feature
 

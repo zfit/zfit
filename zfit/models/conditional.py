@@ -7,13 +7,12 @@ from typing import TYPE_CHECKING
 from ..core.basepdf import BasePDF
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 from collections.abc import Mapping
 
 import functools
 import warnings
-from typing import Optional
 
 import tensorflow as tf
 

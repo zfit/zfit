@@ -2,18 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Mapping
-from collections.abc import Callable
-
 import collections
 import copy
 import math
-from typing import Optional, Union
+from collections.abc import Mapping, Callable
 
 from ..util.checks import RuntimeDependency
 

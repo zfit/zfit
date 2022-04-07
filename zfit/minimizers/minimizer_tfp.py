@@ -2,21 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Mapping
-
 from collections import OrderedDict
+from collections.abc import Mapping
 
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
-
 from .baseminimizer import BaseMinimizer, minimize_supports
 from .evaluation import print_gradient
 from .fitresult import FitResult

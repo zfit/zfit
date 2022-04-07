@@ -2,28 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Mapping
-from collections.abc import Callable
-
 import copy
 import inspect
 import math
-from typing import Optional, Union
+from collections.abc import Mapping, Callable
 
 import numpy as np
 import scipy.optimize
 from scipy.optimize import BFGS, HessianUpdateStrategy
 
-from ..core.parameter import assign_values, assign_values_jit
-from ..settings import run
-from ..util.container import convert_to_container
-from ..util.exception import MaximumIterationReached
-from ..util.warnings import warn_experimental_feature
 from .baseminimizer import (
     NOT_SUPPORTED,
     BaseMinimizer,
@@ -33,6 +20,11 @@ from .baseminimizer import (
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, ConvergenceCriterion
+from ..core.parameter import assign_values
+from ..settings import run
+from ..util.container import convert_to_container
+from ..util.exception import MaximumIterationReached
+from ..util.warnings import warn_experimental_feature
 
 
 class ScipyBaseMinimizerV1(BaseMinimizer):

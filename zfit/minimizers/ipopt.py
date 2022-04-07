@@ -2,23 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 import math
-from typing import Optional, Union
 
 import numpy as np
 
-from ..core.parameter import assign_values
-from ..settings import run
-from ..util.exception import MaximumIterationReached
 from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_status
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
+from ..core.parameter import assign_values
+from ..settings import run
+from ..util.exception import MaximumIterationReached
 
 
 class IpyoptV1(BaseMinimizer):

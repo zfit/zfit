@@ -8,17 +8,10 @@ Their implementation is often non-trivial.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable
-
 import functools
 import operator
 from collections import Counter
-from typing import Optional
+from collections.abc import Iterable
 
 import tensorflow as tf
 
@@ -37,6 +30,7 @@ from ..util.exception import (
     SpecificFunctionNotImplemented,
 )
 from ..z.random import counts_multinomial
+
 
 # TODO: order of spaces if the obs is different from the wrapped pdf
 class BaseFunctor(FunctorMixin, BasePDF):

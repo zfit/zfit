@@ -2,18 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-
 import numpy as np
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 from zfit import z
-
 from ..core.basepdf import BasePDF
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
 from ..settings import ztypes

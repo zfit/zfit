@@ -2,19 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Mapping
-from collections.abc import Iterable
-
-from typing import Union
+from collections.abc import Mapping, Iterable
 
 import tensorflow as tf
 import tensorflow_addons as tfa
-from uhi.typing.plottable import PlottableHistogram
 
 import zfit.z.numpy as znp
 from zfit import z

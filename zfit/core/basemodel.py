@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 from collections.abc import Callable
 
-
 import abc
 import builtins
 import contextlib
@@ -22,7 +21,7 @@ import math
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Optional, Union
+from typing import Union
 
 import tensorflow as tf
 from dotmap import DotMap

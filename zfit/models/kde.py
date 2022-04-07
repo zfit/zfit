@@ -2,14 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Callable
-
-from typing import Optional, Union
 
 import numpy as np
 import tensorflow as tf
@@ -17,18 +10,19 @@ import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd
 
 import zfit.z.numpy as znp
-
+from .dist_tfp import WrapDistribution
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 from ..settings import ztypes
-from ..util import binning as binning_util
-from ..util import convolution as convolution_util
-from ..util import improved_sheather_jones as isj_util
-from ..util import ztyping
+from ..util import (
+    binning as binning_util,
+    convolution as convolution_util,
+    improved_sheather_jones as isj_util,
+    ztyping,
+)
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
 from ..z.math import weighted_quantile
-from .dist_tfp import WrapDistribution
 
 
 @z.function(wraps="tensor")

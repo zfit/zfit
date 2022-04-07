@@ -10,14 +10,9 @@ if TYPE_CHECKING:
 from collections.abc import Iterable
 from collections.abc import Callable
 
-
-from typing import Optional
-
 import numdifftools
 import tensorflow as tf
 import tensorflow_probability as tfp
-
-import zfit.z.numpy as znp
 
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated
@@ -59,7 +54,7 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
     Returns:
         Gradients
     """
-    from ..core.parameter import assign_values, assign_values_jit
+    from ..core.parameter import assign_values
 
     params = convert_to_container(params)
 
@@ -121,7 +116,7 @@ def numerical_hessian(
     Returns:
         Hessian matrix
     """
-    from ..core.parameter import assign_values, assign_values_jit
+    from ..core.parameter import assign_values
 
     params = convert_to_container(params)
 

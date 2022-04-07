@@ -2,18 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Iterable
 
-
 from zfit import z
-from zfit.core.interfaces import ZfitModel, ZfitPDF
+from zfit.core.interfaces import ZfitPDF
 from zfit.util.exception import NotExtendedPDFError
-
 from .util.container import convert_to_container
 
 

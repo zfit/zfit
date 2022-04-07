@@ -3,17 +3,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable
-
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Optional
+from collections.abc import Iterable
 
 import tensorflow as tf
 from ordered_set import OrderedSet

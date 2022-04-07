@@ -5,16 +5,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import zfit
     from ..models.functor import ProductPDF, SumPDF
     from ..models.functions import ProdFunc, SumFunc
 
 from collections.abc import Callable
-
-
-from typing import Union
-
-import tensorflow as tf
 
 import zfit.z.numpy as znp
 

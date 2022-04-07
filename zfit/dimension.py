@@ -1,5 +1,4 @@
 #  Copyright (c) 2022 zfit
-from ._variables.axis import RegularBinning, VariableBinning
 from .core.coordinates import Coordinates
 from .core.space import Space, add_spaces, combine_spaces
 

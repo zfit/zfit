@@ -6,16 +6,15 @@ One example is a normal function `Function` that allows to simply define a non-n
 #  Copyright (c) 2022 zfit
 
 import functools
-from types import MethodType
 
 import tensorflow as tf
 
+from .functor import BaseFunctor
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF
 from ..core.space import no_norm_range
 from ..util import ztyping
 from ..util.exception import NormRangeNotImplemented
-from .functor import BaseFunctor
 
 
 class SimplePDF(BasePDF):

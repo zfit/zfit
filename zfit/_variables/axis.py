@@ -2,16 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Iterable
 
-
 import hist
-import tensorflow_probability as tfp
 import zfit_interface as zinterface
 from hist.axestuple import NamedAxesTuple
 

@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 
 from collections.abc import Mapping
 import abc
-from typing import Optional
 
 import tensorflow as tf
 

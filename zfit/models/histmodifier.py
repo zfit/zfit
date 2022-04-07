@@ -9,10 +9,6 @@ if TYPE_CHECKING:
 
 from collections.abc import Mapping
 
-from typing import Optional, Union
-
-import numpy as np
-
 from .binned_functor import BaseBinnedFunctorPDF
 from ..core.space import supports
 from ..core.interfaces import ZfitBinnedPDF

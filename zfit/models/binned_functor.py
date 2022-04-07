@@ -2,19 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Iterable
-
-from typing import List, Optional
 
 from .basefunctor import FunctorMixin, _preprocess_init_sum
 from .. import z
 from ..core.binnedpdf import BaseBinnedPDFV1
-from ..core.interfaces import ZfitModel, ZfitPDF
+from ..core.interfaces import ZfitPDF
 from ..core.space import supports
 from ..util import ztyping
 from ..util.container import convert_to_container

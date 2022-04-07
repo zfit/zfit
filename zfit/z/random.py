@@ -2,15 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Iterable
-
 from functools import wraps
-from typing import Any, Union
+from typing import Any
 
 import tensorflow as tf
 import tensorflow_probability as tfp

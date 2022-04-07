@@ -49,17 +49,10 @@ Example with a pdf that caches the normalization:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
-
-from collections.abc import Iterable
-
-
 import functools
 import weakref
 from abc import abstractmethod
+from collections.abc import Iterable
 
 import numpy as np
 import tensorflow as tf

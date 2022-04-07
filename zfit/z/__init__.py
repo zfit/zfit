@@ -26,6 +26,7 @@ Recommended way of importing:
 
 
 from . import math, random, unstable
+from .tools import _get_ndims
 from .wrapping_tf import (
     check_numerics,
     complex,
@@ -39,9 +40,10 @@ from .wrapping_tf import (
     sqrt,
     square,
 )
-from .zextension import abs_square, constant
-from .zextension import function as function
 from .zextension import (
+    abs_square,
+    constant,
+    function as function,
     function_sampling,
     function_tf_input,
     nth_pow,
@@ -54,6 +56,5 @@ from .zextension import (
     to_real,
     unstack_x,
 )
-from .tools import _get_ndims
 
 # numpy = _tnp
