@@ -33,12 +33,15 @@ tests_require = [
     "pytest-timeout>=1",
     "matplotlib",  # for plots in examples
 ]
-extras_require["all"] = allreq
-extras_require["tests"] = (
-    tests_require + extras_require["ipyopt"] + extras_require["nlopt"]
-)
-extras_require["dev"] = requirements_dev + extras_require["tests"]
-extras_require["alldev"] = list(set(extras_require["all"] + extras_require["dev"]))
+extras_require['all'] = allreq
+extras_require['tests-nonlinux'] = tests_require + extras_require['nlopt']
+extras_require['tests'] = extras_require['tests-nonlinux'] + extras_require['ipyopt']
+extras_require['dev'] = requirements_dev + extras_require['tests']
+extras_require['dev-nonlinux'] = requirements_dev + extras_require['tests-nonlinux']
+extras_require['alldev'] = list(set(extras_require['all'] + extras_require['dev']))
+alldev_nonlinux = list(set(extras_require['all'] + extras_require['dev-nonlinux']))
+alldev_nonlinux.pop(alldev_nonlinux.index(extras_require['ipyopt'][0]))  # ipyopt is not available on non linux systems
+extras_require['alldev-nonlinux'] = alldev_nonlinux
 
 setup(
     install_requires=requirements,
