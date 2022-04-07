@@ -209,47 +209,46 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
         data = datanp + pdf.config.auxdata
         benchmark(hypotest, pdf, data)
     elif hypotest == "zfit":
-        if eager:
-            zfit.run.set_graph_mode(False)
-        else:
-            zfit.run.set_graph_mode(True)
-        hypotest = hypotest_zfit
-        obs = zfit.Space(
-            "signal",
-            binning=zfit.binned.RegularBinning(
-                n_bins, -0.5, n_bins + 0.5, name="signal"
-            ),
-        )
-        zdata = zfit.data.BinnedData.from_tensor(obs, datanp)
-        zmcsig = zfit.data.BinnedData.from_tensor(obs, signp)
-        zmcbkg = zfit.data.BinnedData.from_tensor(obs, bkgnp)
 
-        shapesys = {
-            f"shapesys_{i}": zfit.Parameter(f"shapesys_{i}", 1, 0.1, 10)
-            for i in range(n_bins)
-        }
-        bkgmodel = BinnedTemplatePDFV1(zmcbkg, sysshape=shapesys)
-        # sigyield = zfit.Parameter('sigyield', znp.sum(zmcsig.values()))
-        mu = zfit.Parameter("mu", 1, 0.1, 10)
-        # sigmodeltmp = BinnedTemplatePDFV1(zmcsig)
-        sigyield = zfit.ComposedParameter(
-            "sigyield",
-            lambda params: params["mu"] * znp.sum(zmcsig.values()),
-            params={"mu": mu},
-        )
-        sigmodel = BinnedTemplatePDFV1(zmcsig, extended=sigyield)
-        zmodel = BinnedSumPDF([sigmodel, bkgmodel])
-        unc = np.array(uncnp) / np.array(bkgnp)
-        constraint = zfit.constraint.GaussianConstraint(
-            list(shapesys.values()), np.ones_like(unc).tolist(), unc
-        )
-        nll = zfit.loss.ExtendedBinnedNLL(zmodel, zdata, constraints=constraint)
+        with zfit.run.set_graph_mode(not eager):
 
-        minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=False)
+            hypotest = hypotest_zfit
+            obs = zfit.Space(
+                "signal",
+                binning=zfit.binned.RegularBinning(
+                    n_bins, -0.5, n_bins + 0.5, name="signal"
+                ),
+            )
+            zdata = zfit.data.BinnedData.from_tensor(obs, datanp)
+            zmcsig = zfit.data.BinnedData.from_tensor(obs, signp)
+            zmcbkg = zfit.data.BinnedData.from_tensor(obs, bkgnp)
 
-        nll.value()
-        nll.value()
-        nll.gradient()
-        nll.gradient()
-        benchmark(hypotest, minimizer, nll)
+            shapesys = {
+                f"shapesys_{i}": zfit.Parameter(f"shapesys_{i}", 1, 0.1, 10)
+                for i in range(n_bins)
+            }
+            bkgmodel = BinnedTemplatePDFV1(zmcbkg, sysshape=shapesys)
+            # sigyield = zfit.Parameter('sigyield', znp.sum(zmcsig.values()))
+            mu = zfit.Parameter("mu", 1, 0.1, 10)
+            # sigmodeltmp = BinnedTemplatePDFV1(zmcsig)
+            sigyield = zfit.ComposedParameter(
+                "sigyield",
+                lambda params: params["mu"] * znp.sum(zmcsig.values()),
+                params={"mu": mu},
+            )
+            sigmodel = BinnedTemplatePDFV1(zmcsig, extended=sigyield)
+            zmodel = BinnedSumPDF([sigmodel, bkgmodel])
+            unc = np.array(uncnp) / np.array(bkgnp)
+            constraint = zfit.constraint.GaussianConstraint(
+                list(shapesys.values()), np.ones_like(unc).tolist(), unc
+            )
+            nll = zfit.loss.ExtendedBinnedNLL(zmodel, zdata, constraints=constraint)
+
+            minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=False)
+
+            nll.value()
+            nll.value()
+            nll.gradient()
+            nll.gradient()
+            benchmark(hypotest, minimizer, nll)
     assert True
