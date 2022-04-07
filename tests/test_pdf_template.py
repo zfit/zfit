@@ -4,9 +4,10 @@ import mplhep
 import numpy as np
 import numpy.testing
 import pytest
+from matplotlib import pyplot as plt
+
 import zfit
 import zfit.z.numpy as znp
-from matplotlib import pyplot as plt
 from zfit._data.binneddatav1 import BinnedData
 from zfit._loss.binnedloss import ExtendedBinnedNLL
 from zfit.models.binned_functor import BinnedSumPDF

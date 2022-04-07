@@ -2,9 +2,8 @@
 import hist
 import numpy as np
 
-import zfit.z.numpy as znp
-
 import zfit
+import zfit.z.numpy as znp
 
 # TODO: what is needed in this file?
 from zfit import z

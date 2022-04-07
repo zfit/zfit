@@ -1,6 +1,5 @@
 #  Copyright (c) 2022 zfit
 import json
-import numpy as np
 
 # In[2]:
 import zfit
@@ -180,7 +179,7 @@ bin_ids = [f"{n_bins}_bins" for n_bins in bins]
         "zfit"
     ],
 )
-@pytest.mark.parametrize("eager", [False])
+@pytest.mark.parametrize("eager", [False, True])
 def test_hypotest(benchmark, n_bins, hypotest, eager):
     """Benchmark the performance of pyhf.utils.hypotest() for various numbers of bins and different backends.
 

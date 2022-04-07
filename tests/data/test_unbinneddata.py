@@ -1,5 +1,4 @@
 #  Copyright (c) 2022 zfit
-import io
 import pickle
 
 import numpy as np
@@ -12,8 +11,6 @@ import zfit.z.numpy as znp
 
 @pytest.mark.skip
 def test_basic():
-    import asdf
-
     n = 1000
     nobs = 3
     axes = axis.SpaceV2(

@@ -9,8 +9,8 @@ from matplotlib import pyplot as plt
 
 import zfit.pdf
 import zfit.z.numpy as znp
-from zfit.models.tobinned import BinnedFromUnbinnedPDF
 from zfit.models.interpolation import SplinePDF
+from zfit.models.tobinned import BinnedFromUnbinnedPDF
 
 
 @pytest.mark.plots

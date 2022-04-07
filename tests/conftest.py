@@ -4,7 +4,6 @@
 
 import os
 import pathlib
-
 import sys
 
 import matplotlib.pyplot as plt
