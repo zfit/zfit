@@ -20,7 +20,6 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - extended sampling errored for some cases of binned PDFs.
-
 - ``ConstantParameter`` errored when converted to numpy.
 
 Experimental
