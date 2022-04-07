@@ -12,6 +12,7 @@ from hist.axestuple import NamedAxesTuple
 # @tfp.experimental.auto_composite_tensor()
 # class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):
 #     pass
+from zfit.core.interfaces import ZfitBinning
 
 
 class Variable(zinterface.variables.ZfitVar):
@@ -75,12 +76,14 @@ class HashableAxisMixin:
         return hash(tuple(self.edges))
 
 
-class RegularBinning(HashableAxisMixin, hist.axis.Regular, family="zfit"):
+class RegularBinning(HashableAxisMixin, hist.axis.Regular, ZfitBinning, family="zfit"):
     def __init__(self, bins: int, start: float, stop: float, *, name: str) -> None:
         super().__init__(bins, start, stop, name=name, flow=False)
 
 
-class VariableBinning(HashableAxisMixin, hist.axis.Variable, family="zfit"):
+class VariableBinning(
+    HashableAxisMixin, hist.axis.Variable, ZfitBinning, family="zfit"
+):
     def __init__(self, edges: Iterable[float], *, name: str) -> None:
         super().__init__(edges=edges, name=name, flow=False)
 

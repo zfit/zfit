@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     import zfit
 
@@ -32,8 +33,13 @@ def convert_to_container(
     Returns:
     """
     from ..core.interfaces import ZfitData, ZfitBinnedData  # here due to dependency
-    from ..core.interfaces import ZfitLoss, ZfitModel, ZfitParameter, ZfitSpace
-    import zfit
+    from ..core.interfaces import (
+        ZfitLoss,
+        ZfitModel,
+        ZfitParameter,
+        ZfitSpace,
+        ZfitBinning,
+    )
 
     if non_containers is None:
         non_containers = []
@@ -52,13 +58,13 @@ def convert_to_container(
                 ZfitSpace,
                 ZfitParameter,
                 ZfitBinnedData,
-                zfit.binned.RegularBinning,
-                zfit.binned.VariableBinning,
+                ZfitBinning,
                 PlottableHistogram,
             ]
         )
+        non_containers = tuple(non_containers)
         try:
-            if isinstance(value, tuple(non_containers)):
+            if isinstance(value, non_containers):
                 raise TypeError  # we can't convert, it's a non-container
             value = container(value)
         except (TypeError, AttributeError):  # by tf, it can't convert

@@ -35,7 +35,7 @@ from .dependents import _extract_dependencies
 from .dimension import BaseDimensional
 from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
 from .sample import UniformSampleAndWeights
-from .space import Space, convert_to_space, no_norm_range, supports
+from .space import Space, convert_to_space, supports
 from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
@@ -1034,7 +1034,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             func=self._func_to_integrate, limits=limits, x=x, norm=norm
         )
 
-    @no_norm_range
+    @supports(multiple_limits=True)
     @z.function(wraps="model")
     def _auto_numeric_integrate(
         self, func, limits, x=None, options=None, **overwrite_options

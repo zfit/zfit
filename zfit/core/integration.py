@@ -19,13 +19,13 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import tf_quant_finance.math.integration as tf_integration
 
-import zfit
+
 import zfit.z.numpy as znp
 from zfit import z
-from zfit.core.dimension import BaseDimensional
-from zfit.core.interfaces import ZfitData, ZfitModel, ZfitSpace
-from zfit.util.container import convert_to_container
-from zfit.util.temporary import TemporarilySet
+from .dimension import BaseDimensional
+from .interfaces import ZfitData, ZfitModel, ZfitSpace
+from ..util.container import convert_to_container
+from ..util.temporary import TemporarilySet
 
 from ..settings import ztypes
 from ..util import ztyping
@@ -155,6 +155,8 @@ def mc_integrate(
     Returns:
         The integral
     """
+    import zfit
+
     if vectorizable is None:
         vectorizable = False
     tol = znp.array(tol, dtype=znp.float64)

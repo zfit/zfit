@@ -3271,9 +3271,6 @@ def check_norm(supports=None):
     return no_norm_range
 
 
-no_norm_range = check_norm(False)  # somewhat legacy, or for the simple case
-
-
 def no_multiple_limits(func):
     """Decorator: Catch the 'limits' kwargs. If it contains multiple limits, raise MultipleLimitsNotImplementedError."""
     parameters = inspect.signature(func).parameters

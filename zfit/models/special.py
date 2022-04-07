@@ -12,7 +12,7 @@ import tensorflow as tf
 from .functor import BaseFunctor
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF
-from ..core.space import no_norm_range
+from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import NormRangeNotImplemented
 
@@ -39,7 +39,7 @@ class SimpleFunctorPDF(BaseFunctor, SimplePDF):
 
 
 def raise_error_if_norm_range(func):
-    func = no_norm_range(func)
+    func = supports(norm=False)(func)
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):

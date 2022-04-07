@@ -1,14 +1,19 @@
+#  Copyright (c) 2022 zfit
 """Baseclass for `Function`. Inherits from Model.
 
 TODO(Mayou36): subclassing?
 """
-#  Copyright (c) 2022 zfit
+from typing import TYPE_CHECKING
+
+from zfit.core.interfaces import ZfitBinning
+
+if TYPE_CHECKING:
+    import zfit
 
 import abc
 import typing
 
-import zfit
-from zfit.util.exception import ShapeIncompatibleError, SpecificFunctionNotImplemented
+from ..util.exception import ShapeIncompatibleError, SpecificFunctionNotImplemented
 from .basemodel import BaseModel
 from .interfaces import ZfitFunc
 from ..settings import ztypes

@@ -3,6 +3,8 @@
 from ._loss.binnedloss import (
     ExtendedBinnedNLL,
     BinnedNLL,
+    ExtendedBinnedChi2,
+    BinnedChi2,
 )
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
@@ -14,6 +16,8 @@ __all__ = [
     "BaseLoss",
     "SimpleLoss",
     "ExtendedBinnedNLL",
+    "BinnedChi2",
+    "ExtendedBinnedChi2",
 ]
 
 from .util.warnings import warn_experimental_feature

@@ -1028,15 +1028,8 @@ class ZfitBinnedPDF(ZfitPDF, metaclass=ABCMeta):
         pass
 
 
-class ZfitBinning(abc.ABC):
-    @abstractmethod
-    def get_binnings(self) -> list[bh.axis.Axis]:
-        """Return the binning of the axes.
-
-        Returns:
-            binnings:
-        """
-        raise NotImplementedError
+class ZfitBinning:
+    pass
 
 
 class ZfitRectBinning(ZfitBinning):

@@ -6,8 +6,8 @@ from collections.abc import Iterable
 
 import numpy as np
 
-from zfit.util.exception import SpaceIncompatibleError
 from .interfaces import ZfitDimensional
+from ..util.exception import SpaceIncompatibleError
 from ..util import ztyping
 from ..util.container import convert_to_container
 
