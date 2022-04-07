@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import hist
 import numpy as np
 import pytest
@@ -14,13 +14,19 @@ def test_sum_histogram_pdf():
     bins2 = 7
     counts = znp.random.uniform(high=1, size=(bins1, bins2))  # generate counts
     counts2 = np.random.normal(loc=5, size=(bins1, bins2))
-    counts3 = znp.linspace(0, 10, num=bins1)[:, None] * znp.linspace(0, 5, num=bins2)[None, :]
-    binnings = [zfit.binned.RegularBinning(bins1, 0, 10, name='obs1'),
-                zfit.binned.RegularBinning(7, -10, bins2, name='obs2')]
+    counts3 = (
+        znp.linspace(0, 10, num=bins1)[:, None] * znp.linspace(0, 5, num=bins2)[None, :]
+    )
+    binnings = [
+        zfit.binned.RegularBinning(bins1, 0, 10, name="obs1"),
+        zfit.binned.RegularBinning(7, -10, bins2, name="obs2"),
+    ]
     binning = binnings
-    obs = zfit.Space(obs=['obs1', 'obs2'], binning=binning)
+    obs = zfit.Space(obs=["obs1", "obs2"], binning=binning)
 
-    data = BinnedData.from_tensor(space=obs, values=counts, variances=znp.ones_like(counts) * 1.3)
+    data = BinnedData.from_tensor(
+        space=obs, values=counts, variances=znp.ones_like(counts) * 1.3
+    )
     data2 = BinnedData.from_tensor(obs, counts2)
     data3 = BinnedData.from_tensor(obs, counts3)
 
@@ -35,7 +41,9 @@ def test_sum_histogram_pdf():
     np.testing.assert_allclose(true_sum_counts, probs)
     nsamples = 100_000_000
     sample = pdf_sum.sample(n=nsamples)
-    np.testing.assert_allclose(true_sum_counts, sample.values() / nsamples * pdf_sum.get_yield(), rtol=0.03)
+    np.testing.assert_allclose(
+        true_sum_counts, sample.values() / nsamples * pdf_sum.get_yield(), rtol=0.03
+    )
 
     # integrate
     true_integral = znp.sum(true_sum_counts)
@@ -47,7 +55,7 @@ def test_pdf_formhist():
     h = hist.Hist(
         hist.axis.Regular(3, -3, 3, name="x", flow=False),
         hist.axis.Regular(2, -5, 5, name="y", flow=False),
-        storage=hist.storage.Weight()
+        storage=hist.storage.Weight(),
     )
 
     x2 = np.random.randn(1_000)
@@ -88,5 +96,5 @@ def test_pdf_formhist():
     # test integral
     limits = ext_pdf.space
     assert pytest.approx(ntot, ext_pdf.ext_integrate(limits))
-    assert pytest.approx(1., ext_pdf.integrate(limits))
-    assert pytest.approx(1., pdf.integrate(limits))
+    assert pytest.approx(1.0, ext_pdf.integrate(limits))
+    assert pytest.approx(1.0, pdf.integrate(limits))

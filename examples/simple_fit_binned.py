@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 import numpy as np
 
@@ -17,7 +17,7 @@ obs_binned = obs.with_binning(30)
 gauss_binned = zfit.pdf.BinnedFromUnbinnedPDF(gauss, obs_binned)
 
 # data
-normal_np = np.random.normal(loc=2., scale=3., size=10000)
+normal_np = np.random.normal(loc=2.0, scale=3.0, size=10000)
 data = zfit.Data.from_numpy(obs=obs, array=normal_np)
 data_binned = data.to_binned(obs_binned)
 

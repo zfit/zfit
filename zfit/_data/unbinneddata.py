@@ -1,14 +1,10 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import tensorflow_probability as tfp
 from zfit_interface.data import ZfitData
-
-import zfit.core.tensorlike as tensorlike
-import zfit.serialization as serialization
 
 
 @tfp.experimental.auto_composite_tensor()
 class UnbinnedData(tfp.experimental.AutoCompositeTensor, ZfitData):
-
     def __init__(self, data, space=None, weights=None):
         self._data = data
         self._space = space
@@ -50,5 +46,6 @@ class UnbinnedData(tfp.experimental.AutoCompositeTensor, ZfitData):
     @property
     def has_weights(self):
         return self._weights is not None
+
 
 # tensorlike.register_tensor_conversion(UnbinnedData, name='UnbinnedData', overload_operators=True)

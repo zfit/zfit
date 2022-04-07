@@ -1,69 +1,86 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 """.. todo:: Add module docstring."""
 from .util.checks import NONE
 from .util.deprecation import deprecated
-from .util.exception import (AnalyticIntegralNotImplemented,
-                             AnalyticNotImplemented,
-                             AnalyticSamplingNotImplemented,
-                             FunctionNotImplemented, IllegalInGraphModeError,
-                             InitNotImplemented, MaximumIterationReached,
-                             MinimizerSubclassingError,
-                             MultipleLimitsNotImplemented,
-                             NameAlreadyTakenError, NormRangeNotImplemented,
-                             SpecificFunctionNotImplemented,
-                             VectorizedLimitsNotImplemented, ShapeIncompatibleError)
+from .util.exception import (
+    AnalyticIntegralNotImplemented,
+    AnalyticNotImplemented,
+    AnalyticSamplingNotImplemented,
+    FunctionNotImplemented,
+    IllegalInGraphModeError,
+    InitNotImplemented,
+    MaximumIterationReached,
+    MinimizerSubclassingError,
+    MultipleLimitsNotImplemented,
+    NameAlreadyTakenError,
+    NormRangeNotImplemented,
+    SpecificFunctionNotImplemented,
+    VectorizedLimitsNotImplemented,
+    ShapeIncompatibleError,
+)
 
-__all__ = ['NameAlreadyTakenError', 'IllegalInGraphModeError', 'NormRangeNotImplemented',
-           'MultipleLimitsNotImplemented', 'VectorizedLimitsNotImplemented',
-           'AnalyticNotImplemented', 'FunctionNotImplemented', 'AnalyticSamplingNotImplemented',
-           'AnalyticIntegralNotImplemented', 'SpecificFunctionNotImplemented', 'MinimizerSubclassingError',
-           "MaximumIterationReached", "ShapeIncompatibleError",
-           'InitNotImplemented', 'NONE']
+__all__ = [
+    "NameAlreadyTakenError",
+    "IllegalInGraphModeError",
+    "NormRangeNotImplemented",
+    "MultipleLimitsNotImplemented",
+    "VectorizedLimitsNotImplemented",
+    "AnalyticNotImplemented",
+    "FunctionNotImplemented",
+    "AnalyticSamplingNotImplemented",
+    "AnalyticIntegralNotImplemented",
+    "SpecificFunctionNotImplemented",
+    "MinimizerSubclassingError",
+    "MaximumIterationReached",
+    "ShapeIncompatibleError",
+    "InitNotImplemented",
+    "NONE",
+]
 
 
 class VectorizedLimitsNotImplementedError(VectorizedLimitsNotImplemented):
-    @deprecated(None, 'Use VectorizedLimitsNotImplemented instead.')
+    @deprecated(None, "Use VectorizedLimitsNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 
 class SpecificFunctionNotImplementedError(SpecificFunctionNotImplemented):
-    @deprecated(None, 'Use SpecificFunctionNotImplemented instead.')
+    @deprecated(None, "Use SpecificFunctionNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 
 class NormRangeNotImplementedError(NormRangeNotImplemented):
-    @deprecated(None, 'Use NormRangeNotImplemented instead.')
+    @deprecated(None, "Use NormRangeNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 
 class MultipleLimitsNotImplementedError(MultipleLimitsNotImplemented):
-    @deprecated(None, 'Use MultipleLimitsNotImplemented instead.')
+    @deprecated(None, "Use MultipleLimitsNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 
 class FunctionNotImplementedError(FunctionNotImplemented):
-    @deprecated(None, 'Use FunctionNotImplemented instead.')
+    @deprecated(None, "Use FunctionNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 
 class AnalyticSamplingNotImplementedError(AnalyticSamplingNotImplemented):
-    @deprecated(None, 'Use AnalyticSamplingNotImplemented instead.')
+    @deprecated(None, "Use AnalyticSamplingNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 
 class AnalyticIntegralNotImplementedError(AnalyticIntegralNotImplemented):
-    @deprecated(None, 'Use AnalyticIntegralNotImplemented instead.')
+    @deprecated(None, "Use AnalyticIntegralNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
 
 class AnalyticNotImplementedError(AnalyticNotImplemented):
-    @deprecated(None, 'Use AnalyticNotImplemented instead.')
+    @deprecated(None, "Use AnalyticNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)

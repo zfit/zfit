@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+#
+# Copyright (c) 2022 zfit
+#
+
 #    test build package
 echo "============================ Building package for test ============================"
 python setup.py sdist bdist_wheel  2>&1 | tail -n 15

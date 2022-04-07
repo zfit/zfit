@@ -1,10 +1,12 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Any, Callable
+from __future__ import annotations
+
+from collections.abc import Callable
+from typing import Any
 
 
 class TemporarilySet:
-
     def __init__(self, value: Any, setter: Callable, getter: Callable):
         """Temporarily set `value` with `setter` and reset to the old value after leaving the context.
 

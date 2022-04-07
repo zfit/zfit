@@ -1,7 +1,16 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Callable
+
 import logging
 from functools import lru_cache, wraps
-from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numdifftools
 import numpy as np
@@ -14,13 +23,13 @@ import zfit.z.numpy as znp
 from .. import settings, z
 from ..core.interfaces import ZfitIndependentParameter
 from ..core.parameter import assign_values
-from ..param import set_values
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
 
 
 class NewMinimum(Exception):
     """Exception class for cases where a new minimum is found."""
+
     pass
 
 
@@ -28,16 +37,19 @@ class FailEvalLossNaN(Exception):
     pass
 
 
-@deprecated_args(None, "Use cl for confidence level instead.", 'sigma')
-def compute_errors(result: "zfit.result.FitResult",
-                   params: List[ZfitIndependentParameter],
-                   cl: Optional[float] = None,
-                   rtol: Optional[float] = 0.001,
-                   method: Optional[str] = None,
-                   covariance_method: Optional[Union[str, Callable]] = None,
-                   sigma: float = 1,
-                   ) -> Tuple[Dict[ZfitIndependentParameter, Dict[str, float]],
-                              Union["zfit.result.FitResult", None]]:
+@deprecated_args(None, "Use cl for confidence level instead.", "sigma")
+def compute_errors(
+    result: zfit.result.FitResult,
+    params: list[ZfitIndependentParameter],
+    cl: float | None = None,
+    rtol: float | None = 0.001,
+    method: str | None = None,
+    covariance_method: str | Callable | None = None,
+    sigma: float = 1,
+) -> tuple[
+    dict[ZfitIndependentParameter, dict[str, float]],
+    zfit.result.FitResult | None,
+]:
     """Compute asymmetric errors of parameters by profiling the loss function in the fit result.
 
     This method finds the value for a given parameter where the loss function is `cl` away: for example
@@ -83,6 +95,7 @@ def compute_errors(result: "zfit.result.FitResult",
     rtol *= errordef
     minimizer = result.minimizer
     from zfit import run
+
     old_values = run(result)
 
     covariance = result.covariance(method=covariance_method, as_dict=True)
@@ -106,7 +119,9 @@ def compute_errors(result: "zfit.result.FitResult",
 
             for ap in all_params:
                 ap_value = result.params[ap]["value"]
-                error_factor = covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
+                error_factor = (
+                    covariance[(param, ap)] * (2 * errordef / param_error**2) ** 0.5
+                )
                 for d in ["lower", "upper"]:
                     ap_value_init = ap_value + direction[d] * error_factor
                     initial_values[d].append(ap_value_init)
@@ -122,24 +137,26 @@ def compute_errors(result: "zfit.result.FitResult",
                 try:
                     loss_value, gradient = loss.value_gradient(params=other_params)
                 except tf.errors.InvalidArgumentError:
-                    msg = (f"The evaluation of the errors of {param.name} failed due to too many NaNs"
-                           " being produced in the loss and/or its gradient. This is most probably"
-                           " caused by negative values returned from the PDF.")
+                    msg = (
+                        f"The evaluation of the errors of {param.name} failed due to too many NaNs"
+                        " being produced in the loss and/or its gradient. This is most probably"
+                        " caused by negative values returned from the PDF."
+                    )
                     raise FailEvalLossNaN(msg)
 
                 zeroed_loss = loss_value.numpy() - fmin
 
                 gradient = np.array(gradient)
                 if swap_sign(param):  # mirror at x-axis to remove second zero
-                    zeroed_loss = - zeroed_loss
-                    gradient = - gradient
+                    zeroed_loss = -zeroed_loss
+                    gradient = -gradient
                     logging.info("Swapping sign in error calculation 'zfit_error'")
 
-                elif zeroed_loss < - minimizer.tol:
+                elif zeroed_loss < -minimizer.tol:
                     assign_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new minimum is found.")
 
-                downward_shift = errordef * sigma ** 2
+                downward_shift = errordef * sigma**2
                 shifted_loss = zeroed_loss - downward_shift
 
                 return np.concatenate([[shifted_loss], gradient])
@@ -150,16 +167,18 @@ def compute_errors(result: "zfit.result.FitResult",
                 "upper": lambda p: p < param_value,
             }
             for d in ["lower", "upper"]:
-                roots = optimize.root(fun=func,
-                                      args=(swap_sign[d],),
-                                      x0=np.array(initial_values[d]),
-                                      tol=rtol,
-                                      options={
-                                          'factor': 0.1,
-                                          # 'diag': 1 / param_scale,  # scale factor for variables
-                                          # 'diag': param_scale,
-                                      },
-                                      method=method)
+                roots = optimize.root(
+                    fun=func,
+                    args=(swap_sign[d],),
+                    x0=np.array(initial_values[d]),
+                    tol=rtol,
+                    options={
+                        "factor": 0.1,
+                        # 'diag': 1 / param_scale,  # scale factor for variables
+                        # 'diag': param_scale,
+                    },
+                    method=method,
+                )
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value
                 # print(f"error {d}, time needed {time.time() - start2}")
         # print(f"errors found, time needed {time.time() - start}")
@@ -167,6 +186,7 @@ def compute_errors(result: "zfit.result.FitResult",
 
     except NewMinimum as e:
         from .. import settings
+
         if settings.get_verbosity() >= 5:
             print(e)
         minimizer = result.minimizer
@@ -174,10 +194,13 @@ def compute_errors(result: "zfit.result.FitResult",
         new_found_fmin = loss.value()
         new_result = minimizer.minimize(loss=loss)
         if new_result.fmin >= new_found_fmin:
-            raise RuntimeError("A new minimum was discovered but the minimizer was not able to find this on himself. "
-                               "This behavior is currently an exception but will most likely change in the future.")
-        to_return, new_result_ = compute_errors(result=new_result, params=params, sigma=sigma, rtol=rtol,
-                                                method=method)
+            raise RuntimeError(
+                "A new minimum was discovered but the minimizer was not able to find this on himself. "
+                "This behavior is currently an exception but will most likely change in the future."
+            )
+        to_return, new_result_ = compute_errors(
+            result=new_result, params=params, sigma=sigma, rtol=rtol, method=method
+        )
         if new_result_ is not None:
             new_result = new_result_
     return to_return, new_result
@@ -188,13 +211,13 @@ def numerical_pdf_jacobian(func, params):
     return jacobian_func([param.value() for param in params]).T
 
 
-@z.function(wraps='autodiff')
+@z.function(wraps="autodiff")
 def autodiff_pdf_jacobian(func, params):
     columns = []
 
     for p in params:
         vector = np.zeros(len(params))
-        vector[params.index(p)] = 1.
+        vector[params.index(p)] = 1.0
         with tf.autodiff.ForwardAccumulator(params, list(vector)) as acc:
             values = func()
         columns.append(acc.jvp(values))
@@ -208,6 +231,7 @@ def covariance_with_weights(method, result, params):
     model = result.loss.model
     data = result.loss.data
     from zfit import run
+
     old_vals = run(params)
 
     Hinv_dict = method(result=result, params=params)  # inverse of the hessian matrix
@@ -224,7 +248,8 @@ def covariance_with_weights(method, result, params):
             values.append(v)
         return znp.concatenate(values, axis=0)
 
-    if settings.options['numerical_grad']:
+    if settings.options["numerical_grad"]:
+
         def wrapped_func(values):
             assign_values(params, values)
             return func()

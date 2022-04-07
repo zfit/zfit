@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+#
+# Copyright (c) 2022 zfit
+#
+
 #    test build docs
 echo "============================ Building docs for test ============================"
 pip install sphinx sphinx_bootstrap_theme > tmp.txt && echo 'doc utils installed'

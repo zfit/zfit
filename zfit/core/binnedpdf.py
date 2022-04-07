@@ -1,8 +1,15 @@
+#  Copyright (c) 2022 zfit
+
 from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
 
 import operator
 from collections.abc import Iterable, Callable
-#  Copyright (c) 2021 zfit
+
 from contextlib import suppress
 from functools import reduce
 
@@ -19,8 +26,15 @@ from .baseobject import BaseNumeric, extract_filter_params
 from .binning import unbinned_to_binindex
 from .data import Data
 from .dimension import BaseDimensional
-from .interfaces import ZfitBinnedPDF, ZfitParameter, ZfitSpace, ZfitMinimalHist, ZfitPDF, ZfitBinnedData, \
-    ZfitUnbinnedData
+from .interfaces import (
+    ZfitBinnedPDF,
+    ZfitParameter,
+    ZfitSpace,
+    ZfitMinimalHist,
+    ZfitPDF,
+    ZfitBinnedData,
+    ZfitUnbinnedData,
+)
 from .parameter import convert_to_parameter
 from .space import supports, convert_to_space
 from .tensorlike import OverloadableMixinValues
@@ -28,11 +42,16 @@ from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args, deprecated, deprecated_norm_range
-from ..util.exception import (AlreadyExtendedPDFError, NotExtendedPDFError,
-                              SpaceIncompatibleError,
-                              SpecificFunctionNotImplemented,
-                              WorkInProgressError, NormNotImplemented, MultipleLimitsNotImplemented,
-                              BasePDFSubclassingError)
+from ..util.exception import (
+    AlreadyExtendedPDFError,
+    NotExtendedPDFError,
+    SpaceIncompatibleError,
+    SpecificFunctionNotImplemented,
+    WorkInProgressError,
+    NormNotImplemented,
+    MultipleLimitsNotImplemented,
+    BasePDFSubclassingError,
+)
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -69,8 +88,8 @@ class BaseBinnedPDFV1(
     BaseDimensional,
     OverloadableMixinValues,
     ZfitMinimalHist,
-    ZfitBinnedPDF):
-
+    ZfitBinnedPDF,
+):
     def __init__(self, obs, extended=None, norm=None, name=None, **kwargs):
         super().__init__(dtype=znp.float64, **kwargs)
         self._name = name  # TODO: why is this needed?
@@ -91,7 +110,9 @@ class BaseBinnedPDFV1(
     def _check_convert_norm_init(self, norm):
         if norm is not None:
             if not isinstance(norm, ZfitSpace) or not norm.has_limits:
-                raise ValueError(f"`norm` has to be None or a Space with limits, not {norm}.")
+                raise ValueError(
+                    f"`norm` has to be None or a Space with limits, not {norm}."
+                )
         return norm
 
     @classmethod
@@ -108,14 +129,18 @@ class BaseBinnedPDFV1(
                     if has_support:
                         continue  # needs support, has been wrapped
                     else:
-                        raise BasePDFSubclassingError("Method {} has been wrapped with supports "
-                                                      "but is not allowed to. Has to handle all "
-                                                      "arguments.".format(method_name))
+                        raise BasePDFSubclassingError(
+                            "Method {} has been wrapped with supports "
+                            "but is not allowed to. Has to handle all "
+                            "arguments.".format(method_name)
+                        )
                 elif has_support:
-                    raise BasePDFSubclassingError("Method {} has been overwritten and *has to* be "
-                                                  "wrapped by `supports` decorator (don't forget () )"
-                                                  "to call the decorator as it takes arguments"
-                                                  "".format(method_name))
+                    raise BasePDFSubclassingError(
+                        "Method {} has been overwritten and *has to* be "
+                        "wrapped by `supports` decorator (don't forget () )"
+                        "to call the decorator as it takes arguments"
+                        "".format(method_name)
+                    )
                 elif not has_support:
                     continue  # no support, has not been wrapped with
             else:
@@ -123,8 +148,10 @@ class BaseBinnedPDFV1(
                     continue  # not wrapped, no support, need no
 
             # if we reach this points, somethings was implemented wrongly
-            raise BasePDFSubclassingError("Method {} has not been correctly wrapped with @supports "
-                                          "OR has been wrapped but it should not be".format(method_name))
+            raise BasePDFSubclassingError(
+                "Method {} has not been correctly wrapped with @supports "
+                "OR has been wrapped but it should not be".format(method_name)
+            )
 
     @property
     def axes(self):
@@ -168,28 +195,38 @@ class BaseBinnedPDFV1(
     def _get_dependencies(self) -> ztyping.DependentsType:
         return super()._get_dependencies()
 
-    def _get_params(self,
-                    floating: bool | None = True,
-                    is_yield: bool | None = None,
-                    extract_independent: bool | None = True) -> set[ZfitParameter]:
+    def _get_params(
+        self,
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+    ) -> set[ZfitParameter]:
 
-        params = super()._get_params(floating, is_yield=is_yield,
-                                     extract_independent=extract_independent)
+        params = super()._get_params(
+            floating, is_yield=is_yield, extract_independent=extract_independent
+        )
 
         if is_yield is not False:
             if self.is_extended:
-                yield_params = extract_filter_params(self.get_yield(), floating=floating,
-                                                     extract_independent=extract_independent)
+                yield_params = extract_filter_params(
+                    self.get_yield(),
+                    floating=floating,
+                    extract_independent=extract_independent,
+                )
                 yield_params.update(params)  # putting the yields at the beginning
                 params = yield_params
             elif is_yield is True:
-                raise NotExtendedPDFError("PDF is not extended but only yield parameters were requested.")
+                raise NotExtendedPDFError(
+                    "PDF is not extended but only yield parameters were requested."
+                )
         return params
 
     def _convert_input_binned_x(self, x, none_is_space=None):
         if x is None and none_is_space:
             return self.space
-        if isinstance(x, uhi.typing.plottable.PlottableHistogram) and not isinstance(x, ZfitBinnedData):
+        if isinstance(x, uhi.typing.plottable.PlottableHistogram) and not isinstance(
+            x, ZfitBinnedData
+        ):
             x = BinnedData.from_hist(x)
         if not isinstance(x, ZfitBinnedData):
             if not isinstance(x, ZfitSpace):
@@ -199,9 +236,10 @@ class BaseBinnedPDFV1(
                     except Exception as error:
 
                         raise TypeError(
-                            f"Data to {self} has to be Binned Data, not {x}. (It can also be unbinned Data)" +
-                            f" but conversion to it failed (see also above) with the following error:" +
-                            f" {error})") from error
+                            f"Data to {self} has to be Binned Data, not {x}. (It can also be unbinned Data)"
+                            + f" but conversion to it failed (see also above) with the following error:"
+                            + f" {error})"
+                        ) from error
 
             # TODO: should we allow spaces? Or what?
         return x
@@ -225,10 +263,14 @@ class BaseBinnedPDFV1(
 
     @_BinnedPDF_register_check_support(True)
     def _pdf(self, x, norm):
-        return self._call_rel_counts(x, norm=norm) / np.prod(self.space.binning.widths, axis=0)
+        return self._call_rel_counts(x, norm=norm) / np.prod(
+            self.space.binning.widths, axis=0
+        )
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
-    def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
+    def pdf(
+        self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
+    ) -> ztyping.XType:
         """Probability density function, evaluated at `x` or in the bins of `x`
 
         Args:
@@ -262,20 +304,27 @@ class BaseBinnedPDFV1(
 
         values = self._call_pdf(x, norm=norm)
 
-        if binindices is not None:  # because we have the flow, so we need to make it here with pads
-            padded_values = znp.pad(values, znp.ones((z._get_ndims(values), 2), dtype=znp.float64),
-                                    mode="constant")  # for overflow
+        if (
+            binindices is not None
+        ):  # because we have the flow, so we need to make it here with pads
+            padded_values = znp.pad(
+                values,
+                znp.ones((z._get_ndims(values), 2), dtype=znp.float64),
+                mode="constant",
+            )  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
             ordered_values = move_axis_obs(self.space, original_space, values)
         return znp.asarray(ordered_values)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_pdf(x, norm)
         with suppress(SpecificFunctionNotImplemented):
-            return self._auto_rel_counts(x, norm=norm) / np.prod(self.space.binning.widths, axis=0)
+            return self._auto_rel_counts(x, norm=norm) / np.prod(
+                self.space.binning.widths, axis=0
+            )
         return self._fallback_pdf(x, norm=norm)
 
     def _auto_pdf(self, x, norm):
@@ -304,7 +353,9 @@ class BaseBinnedPDFV1(
         raise SpecificFunctionNotImplemented
 
     @deprecated_args(None, "Use `norm` instead.", "norm_range")
-    def ext_pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
+    def ext_pdf(
+        self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
+    ) -> ztyping.XType:
         if norm_range is not None:
             norm = norm_range
         if not self.is_extended:
@@ -325,20 +376,27 @@ class BaseBinnedPDFV1(
 
         values = self._call_ext_pdf(x, norm=norm)
 
-        if binindices is not None:  # because we have the flow, so we need to make it here with pads
-            padded_values = znp.pad(values, znp.ones((z._get_ndims(values), 2), dtype=znp.float64),
-                                    mode="constant")  # for overflow
+        if (
+            binindices is not None
+        ):  # because we have the flow, so we need to make it here with pads
+            padded_values = znp.pad(
+                values,
+                znp.ones((z._get_ndims(values), 2), dtype=znp.float64),
+                mode="constant",
+            )  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
             ordered_values = move_axis_obs(self.space, original_space, values)
         return znp.asarray(ordered_values)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_ext_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_pdf(x, norm)
         with suppress(SpecificFunctionNotImplemented):
-            return self._auto_counts(x, norm=norm) / np.prod(self.space.binning.widths, axis=0)
+            return self._auto_counts(x, norm=norm) / np.prod(
+                self.space.binning.widths, axis=0
+            )
         return self._fallback_ext_pdf(x, norm=norm)
 
     def _auto_ext_pdf(self, x, norm):
@@ -377,14 +435,20 @@ class BaseBinnedPDFV1(
     def _integrate(self, limits, norm, options):
         raise SpecificFunctionNotImplemented
 
-    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options=None) -> ztyping.XType:
+    def integrate(
+        self,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        options=None,
+    ) -> ztyping.XType:
         if options is None:
             options = {}
         norm = self._check_convert_norm(norm)
         limits = self._check_convert_limits(limits)
         return self._call_integrate(limits, norm, options)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_integrate(self, limits, norm, options=None):
         if options is None:
             options = {}
@@ -393,27 +457,41 @@ class BaseBinnedPDFV1(
         return self._fallback_integrate(limits, norm, options)
 
     def _fallback_integrate(self, limits, norm, options):
-        bincounts = self._call_rel_counts(limits, norm=norm)  # TODO: fake data? not to integrate limits?
+        bincounts = self._call_rel_counts(
+            limits, norm=norm
+        )  # TODO: fake data? not to integrate limits?
         edges = limits.binning.edges
-        return binned_rect_integration(counts=bincounts, edges=edges, limits=limits)  # TODO: check integral, correct?
+        return binned_rect_integration(
+            counts=bincounts, edges=edges, limits=limits
+        )  # TODO: check integral, correct?
 
     def _auto_integrate(self, limits, norm, options):
         try:
             integral = self._integrate(limits=limits, norm=norm, options=options)
         except NormNotImplemented:
-            unnormalized_integral = self._auto_integrate(limits=limits, norm=False, options=options)
+            unnormalized_integral = self._auto_integrate(
+                limits=limits, norm=False, options=options
+            )
             normalization = self.normalization(norm, options=options)
             integral = unnormalized_integral / normalization
         except MultipleLimitsNotImplemented:
             integrals = []  # TODO: map?
             for sub_limits in limits:
-                integrals.append(self._auto_integrate(limits=sub_limits, norm=norm, options=options))
+                integrals.append(
+                    self._auto_integrate(limits=sub_limits, norm=norm, options=options)
+                )
             integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
         return integral
 
     @deprecated_norm_range
-    def ext_integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *,
-                      norm_range=None, options=None) -> ztyping.XType:
+    def ext_integrate(
+        self,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        norm_range=None,
+        options=None,
+    ) -> ztyping.XType:
         """Extended integral of the PDF, i.e. the expected counts.
 
         Args:
@@ -437,14 +515,18 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         return self._call_ext_integrate(limits, norm, options=options)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_ext_integrate(self, limits, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_integrate(limits, norm, options=options)
         return self._fallback_ext_integrate(limits, norm, options=options)
 
-    def _fallback_ext_integrate(self, limits, norm, *, options):  # TODO: rather use pdf?
-        bincounts = self._call_counts(limits, norm=norm)  # TODO: fake data? not to integrate limits?
+    def _fallback_ext_integrate(
+        self, limits, norm, *, options
+    ):  # TODO: rather use pdf?
+        bincounts = self._call_counts(
+            limits, norm=norm
+        )  # TODO: fake data? not to integrate limits?
         edges = limits.binning.edges
         return binned_rect_integration(counts=bincounts, edges=edges, limits=limits)
 
@@ -452,13 +534,17 @@ class BaseBinnedPDFV1(
         try:
             integral = self._ext_integrate(limits=limits, norm=norm, options=options)
         except NormNotImplemented:
-            unnormalized_integral = self._auto_ext_integrate(limits=limits, norm=False, options=options)
+            unnormalized_integral = self._auto_ext_integrate(
+                limits=limits, norm=False, options=options
+            )
             normalization = self.ext_normalization(norm, options=options)
             integral = unnormalized_integral / normalization
         except MultipleLimitsNotImplemented:
             integrals = []  # TODO: map?
             for sub_limits in limits:
-                integrals.append(self._auto_integrate(limits=sub_limits, norm=norm, options=options))
+                integrals.append(
+                    self._auto_integrate(limits=sub_limits, norm=norm, options=options)
+                )
             integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
         return integral
 
@@ -466,7 +552,9 @@ class BaseBinnedPDFV1(
     def _ext_integrate(self, limits, norm, *, options):
         raise SpecificFunctionNotImplemented
 
-    def sample(self, n: int = None, limits: ztyping.LimitsType = None) -> ZfitBinnedData:
+    def sample(
+        self, n: int = None, limits: ztyping.LimitsType = None
+    ) -> ZfitBinnedData:
         """Draw a random binned sample from the PDF.
 
         Args:
@@ -483,7 +571,9 @@ class BaseBinnedPDFV1(
             if self.is_extended:
                 n = znp.random.poisson(self.get_yield(), size=1)
             else:
-                raise ValueError(f"n cannot be None for sampling of {self} or needs to be extended.")
+                raise ValueError(
+                    f"n cannot be None for sampling of {self} or needs to be extended."
+                )
         original_limits = limits
         limits = self._check_convert_limits(limits)
         values = self._call_sample(n, limits)
@@ -493,7 +583,7 @@ class BaseBinnedPDFV1(
             values = values.with_obs(original_limits)
         return values
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_sample(self, n, limits):
         with suppress(SpecificFunctionNotImplemented):
             self._sample(n, limits)
@@ -501,9 +591,11 @@ class BaseBinnedPDFV1(
 
     def _fallback_sample(self, n, limits):
         if limits != self.space:
-            raise WorkInProgressError("limits different from the default are not yet available."
-                                      " Please open an issue if you need this:"
-                                      " https://github.com/zfit/zfit/issues/new/choose")
+            raise WorkInProgressError(
+                "limits different from the default are not yet available."
+                " Please open an issue if you need this:"
+                " https://github.com/zfit/zfit/issues/new/choose"
+            )
         probs = self.rel_counts(limits)
         values = z.random.counts_multinomial(n, probs=probs, dtype=znp.float64)
         return values
@@ -535,11 +627,15 @@ class BaseBinnedPDFV1(
         return self._yield is not None
 
     def set_norm(self, norm):
-        raise RuntimeError("set_norm should not be used anymore. Create a new PDF with the desired normalization.")
+        raise RuntimeError(
+            "set_norm should not be used anymore. Create a new PDF with the desired normalization."
+        )
 
     def create_extended(self, yield_: ztyping.ParamTypeInput) -> ZfitPDF:
-        raise WorkInProgressError("create_extended not available for BinnedPDF. Use `extended` in the initialization"
-                                  " instead.")
+        raise WorkInProgressError(
+            "create_extended not available for BinnedPDF. Use `extended` in the initialization"
+            " instead."
+        )
 
     def get_yield(self) -> ZfitParameter | None:
         if not self.is_extended:
@@ -547,19 +643,35 @@ class BaseBinnedPDFV1(
         return self._yield
 
     @classmethod
-    def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None, priority: int = 50, *,
-                                   supports_norm: bool = False, supports_multiple_limits: bool = False,
-                                   supports_norm_range):
+    def register_analytic_integral(
+        cls,
+        func: Callable,
+        limits: ztyping.LimitsType = None,
+        priority: int = 50,
+        *,
+        supports_norm: bool = False,
+        supports_multiple_limits: bool = False,
+        supports_norm_range,
+    ):
         raise RuntimeError("analytic integral not available for BinnedPDF")
 
-    def partial_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType, *, norm=None, options=None,
-                          norm_range: ztyping.LimitsType = None) -> ztyping.XType:
+    def partial_integrate(
+        self,
+        x: ztyping.XType,
+        limits: ztyping.LimitsType,
+        *,
+        norm=None,
+        options=None,
+        norm_range: ztyping.LimitsType = None,
+    ) -> ztyping.XType:
         raise WorkInProgressError("partial_integrate not yet available for BinnedPDF")
 
     @classmethod
     def register_inverse_analytic_integral(cls, func: Callable):
-        raise RuntimeError("inverse analytic integral not available for BinnedPDF. It's a histogram, it's already "
-                           "'analytic'")
+        raise RuntimeError(
+            "inverse analytic integral not available for BinnedPDF. It's a histogram, it's already "
+            "'analytic'"
+        )
 
     @_BinnedPDF_register_check_support(True)
     def _sample(self, n, limits):
@@ -584,9 +696,12 @@ class BaseBinnedPDFV1(
 
     # TODO: factor out with unbinned pdf
 
-    def _convert_sort_space(self, obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
-                            axes: ztyping.AxesTypeInput = None,
-                            limits: ztyping.LimitsTypeInput = None) -> ZfitSpace | None:
+    def _convert_sort_space(
+        self,
+        obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
+        axes: ztyping.AxesTypeInput = None,
+        limits: ztyping.LimitsTypeInput = None,
+    ) -> ZfitSpace | None:
         """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
         own `obs`.
 
@@ -600,16 +715,22 @@ class BaseBinnedPDFV1(
         if obs is None:  # for simple limits to convert them
             obs = self.obs
         elif not set(obs).intersection(self.obs):
-            raise SpaceIncompatibleError("The given space {obs} is not compatible with the obs of the pdfs{self.obs};"
-                                         " they are disjoint.")
+            raise SpaceIncompatibleError(
+                "The given space {obs} is not compatible with the obs of the pdfs{self.obs};"
+                " they are disjoint."
+            )
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
         if self.space is not None:  # e.g. not the first call
-            space = space.with_coords(self.space, allow_superset=True, allow_subset=True)
+            space = space.with_coords(
+                self.space, allow_superset=True, allow_subset=True
+            )
         return space
 
-    @z.function(wraps='model')
-    def counts(self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None) -> ZfitBinnedData:
+    @z.function(wraps="model")
+    def counts(
+        self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
+    ) -> ZfitBinnedData:
         """Calculate the number of events in each bin.
 
         This is the integrals of the PDF in each bin.
@@ -627,13 +748,15 @@ class BaseBinnedPDFV1(
         if not self.is_extended:
             raise NotExtendedPDFError
         x = self._convert_input_binned_x(x, none_is_space=True)
-        space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
+        space = (
+            x if isinstance(x, ZfitSpace) else x.space
+        )  # TODO: split the convert and sort, make Sorter?
         x = x.with_obs(self.space)
         norm = self._check_convert_norm(norm)
         counts = self._call_counts(x, norm)
         return move_axis_obs(self.space, space, counts)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_counts(x, norm)
@@ -672,8 +795,10 @@ class BaseBinnedPDFV1(
     def _counts(self, x, norm):
         raise SpecificFunctionNotImplemented
 
-    @z.function(wraps='model')
-    def rel_counts(self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None) -> ZfitBinnedData:
+    @z.function(wraps="model")
+    def rel_counts(
+        self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
+    ) -> ZfitBinnedData:
         """Calculate the relative number of events in each bin.
 
         This is the integrals of the PDF in each bin divided by the integral of the PDF over the whole space.
@@ -690,13 +815,15 @@ class BaseBinnedPDFV1(
             ZfitBinnedData: A histogram with the relative number of events in each bin.
         """
         x = self._convert_input_binned_x(x, none_is_space=True)
-        space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
+        space = (
+            x if isinstance(x, ZfitSpace) else x.space
+        )  # TODO: split the convert and sort, make Sorter?
         x = x.with_obs(self.space)
         norm = self._check_convert_norm(norm)
         values = self._call_rel_counts(x, norm)
         return move_axis_obs(self.space, space, values)
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _call_rel_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_rel_counts(x, norm=norm)
@@ -726,13 +853,14 @@ class BaseBinnedPDFV1(
         raise RuntimeError("set_norm_range is removed and should not be used anymore.")
 
 
-def binned_rect_integration(*,
-                            limits: ZfitSpace,
-                            edges: Iterable[znp.array] | znp.array,
-                            counts: znp.array | None = None,
-                            density: znp.array | None = None,
-                            axis: Iterable[int] | int | None = None,
-                            ) -> znp.array:
+def binned_rect_integration(
+    *,
+    limits: ZfitSpace,
+    edges: Iterable[znp.array] | znp.array,
+    counts: znp.array | None = None,
+    density: znp.array | None = None,
+    axis: Iterable[int] | int | None = None,
+) -> znp.array:
     """Integrate a histogram over *limits*.
 
     This integrator does take into account that limits do not match the edges.
@@ -769,14 +897,19 @@ def binned_rect_integration(*,
     if axis is not None:
         axis = convert_to_container(axis)
         if len(axis) > ndims:
-            raise ValueError(f'axis {axis} is larger than values has ndims {values.shape}.')
+            raise ValueError(
+                f"axis {axis} is larger than values has ndims {values.shape}."
+            )
     else:
         axis = list(range(ndims))
 
-    scaled_edges, (lower_bins, upper_bins), unscaled_edges = cut_edges_and_bins(edges=edges, limits=limits, axis=axis,
-                                                                                unscaled=True)
+    scaled_edges, (lower_bins, upper_bins), unscaled_edges = cut_edges_and_bins(
+        edges=edges, limits=limits, axis=axis, unscaled=True
+    )
 
-    values_cut = tf.slice(values, lower_bins, (upper_bins - lower_bins))  # since limits are inclusive
+    values_cut = tf.slice(
+        values, lower_bins, (upper_bins - lower_bins)
+    )  # since limits are inclusive
 
     rank = values.shape.rank
     binwidths = []
@@ -798,17 +931,31 @@ def binned_rect_integration(*,
         edge_upper_index[i] = len_edge - 1  # len n -> index max is n - 1
 
         edge_upper_index = znp.asarray(edge_upper_index, dtype=znp.int32)
-        lower_edge = tf.slice(edge, edge_lowest_index, (edge_upper_index - edge_lowest_index))
-        upper_edge = tf.slice(edge, edge_lower_index, (edge_highest_index - edge_lower_index))
+        lower_edge = tf.slice(
+            edge, edge_lowest_index, (edge_upper_index - edge_lowest_index)
+        )
+        upper_edge = tf.slice(
+            edge, edge_lower_index, (edge_highest_index - edge_lower_index)
+        )
         binwidths.append(upper_edge - lower_edge)
 
         if not is_density:
             # unscaled edges to get the ratio
-            lower_edge_unscaled = tf.slice(unscaled_edges[i], edge_lowest_index, (edge_upper_index - edge_lowest_index))
-            upper_edge_unscaled = tf.slice(unscaled_edges[i], edge_lower_index, (edge_highest_index - edge_lower_index))
+            lower_edge_unscaled = tf.slice(
+                unscaled_edges[i],
+                edge_lowest_index,
+                (edge_upper_index - edge_lowest_index),
+            )
+            upper_edge_unscaled = tf.slice(
+                unscaled_edges[i],
+                edge_lower_index,
+                (edge_highest_index - edge_lower_index),
+            )
             binwidths_unscaled.append(upper_edge_unscaled - lower_edge_unscaled)
 
-    binareas = reduce(operator.mul, binwidths)  # needs to be np as znp or tf can't broadcast otherwise
+    binareas = reduce(
+        operator.mul, binwidths
+    )  # needs to be np as znp or tf can't broadcast otherwise
     if not is_density:  # scale the counts by the fraction. This is mostly one.
         binareas_uncut = np.prod(binwidths_unscaled, axis=0)
         binareas /= binareas_uncut
@@ -817,9 +964,10 @@ def binned_rect_integration(*,
     return integral
 
 
-@z.function(wraps='tensor')
-def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace, axis=None, unscaled=None) -> tuple[
-    list[znp.array], tuple[znp.array, znp.array], list | None]:
+@z.function(wraps="tensor")
+def cut_edges_and_bins(
+    edges: Iterable[znp.array], limits: ZfitSpace, axis=None, unscaled=None
+) -> tuple[list[znp.array], tuple[znp.array, znp.array], list | None]:
     """Cut the *edges* according to *limits* and calculate the bins inside.
 
     The edges within limits are calculated and returned together with the corresponding bin indices. The indices
@@ -888,23 +1036,29 @@ def cut_edges_and_bins(edges: Iterable[znp.array], limits: ZfitSpace, axis=None,
             upper_i = znp.minimum(upper_i, edge_maximum)
             # we get the bins that are just one too far. Then we update this whole bin tensor with the actual edge.
             # The bins index is the index below the value.
-            lower_bin_float = tfp.stats.find_bins(lower_i, edge,
-                                                  extend_lower_interval=True,
-                                                  extend_upper_interval=True)
+            lower_bin_float = tfp.stats.find_bins(
+                lower_i, edge, extend_lower_interval=True, extend_upper_interval=True
+            )
             lower_bin = tf.reshape(tf.cast(lower_bin_float, dtype=znp.int32), [-1])
             # lower_bins = tf.tensor_scatter_nd_update(zero_bins, [[i]], lower_bin)
             # +1 below because the outer bin is searched, meaning the one that is higher than the value
 
-            upper_bin_float = tfp.stats.find_bins(upper_i, edge,
-                                                  extend_lower_interval=True,
-                                                  extend_upper_interval=True)
+            upper_bin_float = tfp.stats.find_bins(
+                upper_i, edge, extend_lower_interval=True, extend_upper_interval=True
+            )
             upper_bin = tf.reshape(tf.cast(upper_bin_float, dtype=znp.int32), [-1]) + 1
             size = upper_bin - lower_bin
-            new_edge = tf.slice(edge, lower_bin, size + 1)  # +1 because stop is exclusive
-            new_edge = tf.tensor_scatter_nd_update(new_edge, [tf.constant([0]), size], [lower_i[0], upper_i[0]])
+            new_edge = tf.slice(
+                edge, lower_bin, size + 1
+            )  # +1 because stop is exclusive
+            new_edge = tf.tensor_scatter_nd_update(
+                new_edge, [tf.constant([0]), size], [lower_i[0], upper_i[0]]
+            )
 
             if unscaled:
-                new_edge_unscaled = tf.slice(edge, lower_bin, size + 1)  # +1 because stop is exclusive
+                new_edge_unscaled = tf.slice(
+                    edge, lower_bin, size + 1
+                )  # +1 because stop is exclusive
 
             current_axis += 1
         else:

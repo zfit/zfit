@@ -18,5 +18,6 @@ tensorflow-addons
 tensorflow_probability>=0.12,<0.14
 texttable
 tf_quant_finance>=v0.0.1-dev24
+uhi
 uproot>=4,<5
 zfit_interface

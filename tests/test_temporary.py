@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 
 from zfit.util.temporary import TemporarilySet
@@ -6,7 +6,6 @@ from zfit.util.temporary import TemporarilySet
 
 def test_simple_x():
     class SimpleX:
-
         def __init__(self):
             self.x = None
 

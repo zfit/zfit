@@ -1,13 +1,15 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
 from collections import OrderedDict
-from typing import Mapping
+from collections.abc import Mapping
 
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
-
 from .baseminimizer import BaseMinimizer, minimize_supports
 from .evaluation import print_gradient
 from .fitresult import FitResult
@@ -16,10 +18,15 @@ from ..core.parameter import assign_values
 
 
 class BFGS(BaseMinimizer):
-
-    def __init__(self, strategy: ZfitStrategy = None, tol: float = 1e-5, verbosity: int = 5,
-                 max_calls: int = 3000,
-                 name: str = "BFGS_TFP", options: Mapping = None) -> None:
+    def __init__(
+        self,
+        strategy: ZfitStrategy = None,
+        tol: float = 1e-5,
+        verbosity: int = 5,
+        max_calls: int = 3000,
+        name: str = "BFGS_TFP",
+        options: Mapping = None,
+    ) -> None:
         """# Todo write description for api.
 
         Args:
@@ -32,12 +39,20 @@ class BFGS(BaseMinimizer):
         """
         self.options = {} if options is None else options
         self.max_calls = max_calls
-        super().__init__(strategy=strategy, tol=tol, verbosity=verbosity, name=name,
-                         minimizer_options={}, criterion=None, maxiter=None)
+        super().__init__(
+            strategy=strategy,
+            tol=tol,
+            verbosity=verbosity,
+            name=name,
+            minimizer_options={},
+            criterion=None,
+            maxiter=None,
+        )
 
     @minimize_supports()
     def _minimize(self, loss, params):
         from .. import run
+
         minimizer_fn = tfp.optimizer.bfgs_minimize
         params = tuple(params)
         do_print = self.verbosity > 8
@@ -63,10 +78,10 @@ class BFGS(BaseMinimizer):
                 gradient, value = update_params_value_grad(loss, params, values)
 
             except tf.errors.InvalidArgumentError:
-                err = 'NaNs'
+                err = "NaNs"
                 is_nan = True
             except:
-                err = 'unknonw error'
+                err = "unknonw error"
                 raise
             finally:
                 if value is None:
@@ -74,17 +89,23 @@ class BFGS(BaseMinimizer):
                 if gradient is None:
                     gradient = [f"invalid, {err}"] * len(params)
                 if do_print:
-                    print_gradient(params, run(values), [float(run(g)) for g in gradient], loss=run(value))
+                    print_gradient(
+                        params,
+                        run(values),
+                        [float(run(g)) for g in gradient],
+                        loss=run(value),
+                    )
             loss_evaluated = run(value)
             is_nan = is_nan or np.isnan(loss_evaluated)
             if is_nan:
                 nan_counter += 1
                 info_values = {}
-                info_values['loss'] = run(value)
-                info_values['old_loss'] = current_loss
-                info_values['nan_counter'] = nan_counter
-                value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=self,
-                                                   values=info_values)
+                info_values["loss"] = run(value)
+                info_values["old_loss"] = current_loss
+                info_values["nan_counter"] = nan_counter
+                value = self.strategy.minimize_nan(
+                    loss=loss, params=params, minimizer=self, values=info_values
+                )
             else:
                 nan_counter = 0
                 current_loss = value
@@ -100,26 +121,34 @@ class BFGS(BaseMinimizer):
             # f_relative_tolerance=self.tolerance * 1e-5,  # TODO: use edm for stopping criteria
             initial_inverse_hessian_estimate=initial_inv_hessian_est,
             parallel_iterations=1,
-            max_iterations=self.max_calls
+            max_iterations=self.max_calls,
         )
         minimizer_kwargs.update(self.options)
-        result = minimizer_fn(to_minimize_func,
-                              **minimizer_kwargs)
+        result = minimizer_fn(to_minimize_func, **minimizer_kwargs)
 
         # save result
         params_result = run(result.position)
         assign_values(params, values=params_result)
 
-        info = {'n_eval'  : run(result.num_objective_evaluations),
-                'n_iter'  : run(result.num_iterations),
-                'grad'    : run(result.objective_gradient),
-                'original': result}
+        info = {
+            "n_eval": run(result.num_objective_evaluations),
+            "n_iter": run(result.num_iterations),
+            "grad": run(result.objective_gradient),
+            "original": result,
+        }
         edm = -999
         fmin = run(result.objective_value)
         status = -999
         converged = run(result.converged)
         params = OrderedDict((p, val) for p, val in zip(params, params_result))
-        result = FitResult(params=params, edm=edm, fmin=fmin, info=info, loss=loss,
-                           status=status, converged=converged,
-                           minimizer=self.copy())
+        result = FitResult(
+            params=params,
+            edm=edm,
+            fmin=fmin,
+            info=info,
+            loss=loss,
+            status=status,
+            converged=converged,
+            minimizer=self.copy(),
+        )
         return result

@@ -1,7 +1,7 @@
 """Module for caching.
 
 The basic concept of caching in Zfit builds on a "cacher", that caches a certain value and that
-is dependent of "cache_dependents". By implementing `ZfitCachable`, an object will be able to play both
+is dependent of "cache_dependents". By implementing `ZfitGraphCachable`, an object will be able to play both
 roles. And most importantly, it has a `_cache` dict, that contains all the cache.
 
 Basic principle
@@ -45,13 +45,14 @@ Example with a pdf that caches the normalization:
                 result = self._cache['my_name']
             return result
 """
+#  Copyright (c) 2022 zfit
 
-#  Copyright (c) 2021 zfit
+from __future__ import annotations
 
 import functools
 import weakref
 from abc import abstractmethod
-from typing import Iterable, Mapping, Union
+from collections.abc import Iterable
 
 import numpy as np
 import tensorflow as tf
@@ -61,9 +62,8 @@ from .container import convert_to_container
 
 
 class ZfitGraphCachable:
-
     @abstractmethod
-    def register_cacher(self, cacher: "ZfitGraphCachable"):
+    def register_cacher(self, cacher: ZfitGraphCachable):
         raise NotImplementedError
 
     @abstractmethod
@@ -73,10 +73,10 @@ class ZfitGraphCachable:
         Args:
             cache_dependents:
             allow_non_cachable: If `True`, allow `cache_dependents` to be non-cachables.
-                If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.
+                If `False`, any `cache_dependents` that is not a `ZfitGraphCachable` will raise an error.
 
         Raises:
-            TypeError: if one of the `cache_dependents` is not a `ZfitCachable` _and_ `allow_non_cachable`
+            TypeError: if one of the `cache_dependents` is not a `ZfitGraphCachable` _and_ `allow_non_cachable`
                 if `False`.
         """
         pass
@@ -108,7 +108,7 @@ class GraphCachable(ZfitGraphCachable):
         for func_name in dir(cls):
             if not func_name.startswith("__"):
                 func = getattr(cls, func_name)
-                if callable(func) and hasattr(func, 'zfit_graph_cache_registered'):
+                if callable(func) and hasattr(func, "zfit_graph_cache_registered"):
                     # assert hasattr(func, "_descriptor_cache"), "TensorFlow internals have changed. Need to update cache"
                     func.zfit_graph_cache_registered = True
                     graph_caching_methods.append(func)
@@ -121,20 +121,22 @@ class GraphCachable(ZfitGraphCachable):
             cacher:
         """
         if not isinstance(cacher, ZfitGraphCachable):
-            raise TypeError(f"`cacher` is not a `ZfitCachable` but {type(cacher)}")
+            raise TypeError(f"`cacher` is not a `ZfitGraphCachable` but {type(cacher)}")
         if not cacher in self._cachers:
             self._cachers[cacher] = None  # could we have a more useful value?
 
-    def add_cache_deps(self, cache_deps: ztyping.CacherOrCachersType, allow_non_cachable: bool = True):
+    def add_cache_deps(
+        self, cache_deps: ztyping.CacherOrCachersType, allow_non_cachable: bool = True
+    ):
         """Add dependencies that render the cache invalid if they change.
 
         Args:
             cache_deps:
             allow_non_cachable: If `True`, allow `cache_dependents` to be non-cachables.
-                If `False`, any `cache_dependents` that is not a `ZfitCachable` will raise an error.
+                If `False`, any `cache_dependents` that is not a `ZfitGraphCachable` will raise an error.
 
         Raises:
-            TypeError: if one of the `cache_dependents` is not a `ZfitCachable` _and_ `allow_non_cachable`
+            TypeError: if one of the `cache_dependents` is not a `ZfitGraphCachable` _and_ `allow_non_cachable`
                 if `False`.
         """
         cache_deps = convert_to_container(cache_deps)
@@ -142,15 +144,18 @@ class GraphCachable(ZfitGraphCachable):
             if isinstance(cache_dep, ZfitGraphCachable):
                 cache_dep.register_cacher(self)
             elif not allow_non_cachable:
-                raise TypeError("cache_dependent {} is not a `ZfitCachable` but {}".format(cache_dep,
-                                                                                           type(cache_dep)))
+                raise TypeError(
+                    "cache_dependent {} is not a `ZfitGraphCachable` but {}".format(
+                        cache_dep, type(cache_dep)
+                    )
+                )
 
     def reset_cache_self(self):
         """Clear the cache of self and all dependent cachers."""
         self._clean_cache()
         self._inform_cachers()
 
-    def reset_cache(self, reseter: 'ZfitGraphCachable'):
+    def reset_cache(self, reseter: ZfitGraphCachable):
         self.reset_cache_self()
 
     def _clean_cache(self):
@@ -169,7 +174,9 @@ def invalidate_graph(func):
     def wrapped_func(*args, **kwargs):
         self = args[0]
         if not isinstance(self, ZfitGraphCachable):
-            raise TypeError("Decorator can only be used in a subclass of `ZfitCachable`")
+            raise TypeError(
+                "Decorator can only be used in a subclass of `ZfitGraphCachable`"
+            )
         self.reset_cache(reseter=self)
 
         return func(*args, **kwargs)
@@ -180,9 +187,15 @@ def invalidate_graph(func):
 class FunctionCacheHolder(GraphCachable):
     IS_TENSOR = object()
 
-    def __init__(self, func, wrapped_func,
-                 cachables: Union[ZfitGraphCachable, object, Iterable[Union[ZfitGraphCachable, object]]] = None,
-                 cachables_mapping=None):
+    def __init__(
+        self,
+        func,
+        wrapped_func,
+        cachables: (
+            ZfitGraphCachable | object | Iterable[ZfitGraphCachable | object]
+        ) = None,
+        cachables_mapping=None,
+    ):
         """`tf.function` decorated function holder with caching dependencies on inputs.
 
         A `tf.function` creates a new graph for every signature that is encountered. It automatically caches them but
@@ -215,15 +228,21 @@ class FunctionCacheHolder(GraphCachable):
         self.python_func = func
         self._hash_value = hash(self.python_func)
         if cachables is None and cachables_mapping is None:
-            raise ValueError("Both `cachables and `cachables_mapping` are None. One needs to be different from None.")
+            raise ValueError(
+                "Both `cachables and `cachables_mapping` are None. One needs to be different from None."
+            )
         if cachables is None:
             cachables = []
         if cachables_mapping is None:
             cachables_mapping = {}
         cachables = convert_to_container(cachables, container=list)
-        cachables_values = convert_to_container(cachables_mapping.values(), container=list)
+        cachables_values = convert_to_container(
+            cachables_mapping.values(), container=list
+        )
         cachables_all = cachables + cachables_values
-        self.immutable_representation = self.create_immutable(cachables, cachables_mapping)
+        self.immutable_representation = self.create_immutable(
+            cachables, cachables_mapping
+        )
         # self._hash_value = hash(self.immutable_representation)
         super().__init__()  # resets the cache
         self.add_cache_deps(cachables_all)
@@ -306,6 +325,6 @@ def clear_graph_cache():
     for registry in FunctionWrapperRegistry.registries:
         registry.reset()
     for instance in GraphCachable.instances:
-        instance.reset_cache('global')
+        instance.reset_cache("global")
     # Cachable.graph_caching_methods.clear()
     tf.compat.v1.reset_default_graph()

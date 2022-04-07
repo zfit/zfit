@@ -1,8 +1,9 @@
 """Used to make pytest functions available globally."""
 
+#  Copyright (c) 2022 zfit
+
 import os
 import pathlib
-#  Copyright (c) 2021 zfit
 import sys
 
 import matplotlib.pyplot as plt
@@ -22,6 +23,7 @@ init_modules = sys.modules.keys()
 @pytest.fixture(autouse=True)
 def setup_teardown():
     import zfit
+
     old_chunksize = zfit.run.chunking.max_n_points
     old_active = zfit.run.chunking.active
     old_graph_mode = zfit.run.get_graph_mode()
@@ -29,23 +31,27 @@ def setup_teardown():
 
     for m in sys.modules.keys():
         if m not in init_modules:
-            del (sys.modules[m])
+            del sys.modules[m]
 
     yield
     from zfit.core.parameter import ZfitParameterMixin
+
     ZfitParameterMixin._existing_params.clear()
 
     from zfit.util.cache import clear_graph_cache
+
     clear_graph_cache()
     import zfit
+
     zfit.run.chunking.active = old_active
     zfit.run.chunking.max_n_points = old_chunksize
     zfit.run.set_graph_mode(old_graph_mode)
     zfit.run.set_autograd_mode(old_autograd_mode)
     for m in sys.modules.keys():
         if m not in init_modules:
-            del (sys.modules[m])
+            del sys.modules[m]
     import gc
+
     gc.collect()
 
 
@@ -56,13 +62,15 @@ def pytest_addoption(parser):
 
 def pytest_configure():
     here = os.path.dirname(os.path.abspath(__file__))
-    images_dir = pathlib.Path(here).joinpath('..', 'docs', 'images', '_generated_by_tests')
+    images_dir = pathlib.Path(here).joinpath(
+        "..", "docs", "images", "_generated_by_tests"
+    )
     images_dir.mkdir(exist_ok=True)
 
     def savefig(figure=None):
         if figure is None:
             figure = plt.gcf()
-        title_sanitized = figure.axes[0].get_title().replace(' ', '_')
+        title_sanitized = figure.axes[0].get_title().replace(" ", "_")
         if not title_sanitized:
             raise RuntimeError("Title has to be set for plot that should be saved.")
         savepath = images_dir.joinpath(title_sanitized)

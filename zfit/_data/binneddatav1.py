@@ -1,8 +1,11 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 from __future__ import annotations
 
-from typing import Union
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
 
 import boost_histogram as bh
 import hist
@@ -27,23 +30,34 @@ class BinnedHolder(
 
     def _check_init_values(self, space, values, variances):
         value_shape = tf.shape(values)
-        edges_shape = znp.array([tf.shape(znp.reshape(edge, (-1,)))[0] for edge in space.binning.edges])
+        edges_shape = znp.array(
+            [tf.shape(znp.reshape(edge, (-1,)))[0] for edge in space.binning.edges]
+        )
         values_rank = value_shape.shape[0]
         if variances is not None:
             variances_shape = tf.shape(variances)
             variances_rank = variances_shape.shape[0]
             if values_rank != variances_rank:
                 raise ShapeIncompatibleError(
-                    f"Values {values} and variances {variances} differ in rank: {values_rank} vs {variances_rank}")
-            tf.assert_equal(variances_shape, value_shape,
-                            message=f"Variances and values do not have the same shape:"
-                                    f" {variances_shape} vs {value_shape}")
+                    f"Values {values} and variances {variances} differ in rank: {values_rank} vs {variances_rank}"
+                )
+            tf.assert_equal(
+                variances_shape,
+                value_shape,
+                message=f"Variances and values do not have the same shape:"
+                f" {variances_shape} vs {value_shape}",
+            )
         binning_rank = len(space.binning.edges)
         if binning_rank != values_rank:
-            raise ShapeIncompatibleError(f"Values and binning  differ in rank: {values_rank} vs {binning_rank}")
-        tf.assert_equal(edges_shape - 1, value_shape,
-                        message=f"Edges (minus one) and values do not have the same shape:"
-                                f" {edges_shape} vs {value_shape}")
+            raise ShapeIncompatibleError(
+                f"Values and binning  differ in rank: {values_rank} vs {binning_rank}"
+            )
+        tf.assert_equal(
+            edges_shape - 1,
+            value_shape,
+            message=f"Edges (minus one) and values do not have the same shape:"
+            f" {edges_shape} vs {value_shape}",
+        )
 
     def with_obs(self, obs):
         space = self.space.with_obs(obs)
@@ -64,15 +78,17 @@ flow = False  # TODO: track the flow or not?
 
 
 # @tfp.experimental.auto_composite_tensor()
-class BinnedData(ZfitBinnedData,
-                 # tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, ZfitBinnedData
-                 ):
-
+class BinnedData(
+    ZfitBinnedData,
+    # tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, ZfitBinnedData
+):
     def __init__(self, *, holder):
         self.holder: BinnedHolder = holder
 
     @classmethod  # TODO: add overflow bins if needed
-    def from_tensor(cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None) -> BinnedData:
+    def from_tensor(
+        cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None
+    ) -> BinnedData:
         """Create a binned dataset defined in *space* where values are considered to be the counts.
 
         Args:
@@ -92,6 +108,7 @@ class BinnedData(ZfitBinnedData,
     @classmethod
     def from_unbinned(cls, space: ZfitSpace, data: ZfitData):
         from zfit.core.binning import unbinned_to_binned
+
         return unbinned_to_binned(data, space)
 
     @classmethod
@@ -102,6 +119,7 @@ class BinnedData(ZfitBinnedData,
             hist: A NamedHist. The axes will be used as the binning in zfit.
         """
         from zfit import Space
+
         space = Space(binning=histaxes_to_binning(hist.axes))
         values = znp.asarray(hist.values(flow=flow))
         variances = hist.variances(flow=flow)
@@ -226,16 +244,18 @@ class BinnedData(ZfitBinnedData,
         return hash(id(self))
 
     def to_unbinned(self):
-        meshed_center = znp.meshgrid(*self.axes.centers, indexing='ij')
+        meshed_center = znp.meshgrid(*self.axes.centers, indexing="ij")
         flat_centers = [znp.reshape(center, (-1,)) for center in meshed_center]
         centers = znp.stack(flat_centers, axis=-1)
         flat_weights = znp.reshape(self.values(), (-1,))  # TODO: flow?
         space = self.space.copy(binning=None)
         from zfit import Data
+
         return Data.from_tensor(obs=space, tensor=centers, weights=flat_weights)
 
     def __str__(self):
         import zfit
+
         if zfit.run.executing_eagerly():
             return self.to_hist().__str__()
         else:
@@ -243,9 +263,11 @@ class BinnedData(ZfitBinnedData,
 
     def _repr_html_(self):
         import zfit
+
         if zfit.run.executing_eagerly():
             return self.to_hist()._repr_html_()
         else:
             return f"Binned data, {self.obs} (non-eager)"
+
 
 # tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)

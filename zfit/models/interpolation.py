@@ -1,24 +1,23 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 from typing import Optional
 
 import tensorflow_addons as tfa
 
 import zfit.z.numpy as znp
-from ..core.space import supports
 from .functor import BaseFunctor
 from ..core.interfaces import ZfitBinnedPDF
+from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 
 
 class SplinePDF(BaseFunctor):
-
     def __init__(
-            self,
-            pdf: ZfitBinnedPDF,
-            order: Optional[int] = None,
-            obs: ztyping.ObsTypeInput = None,
-            extended: ztyping.ExtendedInputType = None
+        self,
+        pdf: ZfitBinnedPDF,
+        order: Optional[int] = None,
+        obs: ztyping.ObsTypeInput = None,
+        extended: ztyping.ExtendedInputType = None,
     ) -> None:
         """Spline interpolate a binned PDF in order to get a smooth, unbinned PDF.
 
@@ -58,7 +57,7 @@ class SplinePDF(BaseFunctor):
         pdf = self.pdfs[0]
         density = pdf.ext_pdf(x.space, norm=norm)
         density_flat = znp.reshape(density, (-1,))
-        centers_list = znp.meshgrid(*pdf.space.binning.centers, indexing='ij')
+        centers_list = znp.meshgrid(*pdf.space.binning.centers, indexing="ij")
         centers_list_flat = [znp.reshape(cent, (-1,)) for cent in centers_list]
         centers = znp.stack(centers_list_flat, axis=-1)
         # [None, :, None]  # TODO: only 1 dim now
@@ -67,20 +66,20 @@ class SplinePDF(BaseFunctor):
             train_values=density_flat[None, :, None],
             query_points=x.value()[None, ...],
             order=self.order,
-
         )
         return probs[0, ..., 0]
 
     @supports(norm=True)
     def _pdf(self, x, norm):
         pdf = self.pdfs[0]
-        density = pdf.pdf(x.space, norm=norm)  # TODO: order? Give obs, pdf makes order and binning herself?
+        density = pdf.pdf(
+            x.space, norm=norm
+        )  # TODO: order? Give obs, pdf makes order and binning herself?
         centers = pdf.space.binning.centers[0][None, :, None]  # TODO: only 1 dim now
         probs = tfa.image.interpolate_spline(
             train_points=centers,
             train_values=density[None, :, None],
             query_points=x.value()[None, ...],
-            order=3
-
+            order=3,
         )
         return probs[0, ..., 0]

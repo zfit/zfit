@@ -1,4 +1,6 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+
 import tensorflow_probability as tfp
 import zfit_interface.variables
 
@@ -7,9 +9,18 @@ import zfit.util.container
 
 @tfp.experimental.auto_composite_tensor()
 class VarSupports(tfp.experimental.AutoCompositeTensor):
-
-    def __init__(self, var, *, full=None, space=None, scalar=None, vectorspace=None, binned=None, data=None,
-                 types=None):
+    def __init__(
+        self,
+        var,
+        *,
+        full=None,
+        space=None,
+        scalar=None,
+        vectorspace=None,
+        binned=None,
+        data=None,
+        types=None,
+    ):
         types = zfit.util.container.convert_to_container(types)
         if types:
             if full or space or binned or data or scalar or vectorspace:

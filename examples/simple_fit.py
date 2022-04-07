@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 import numpy as np
 
@@ -15,7 +15,7 @@ sigma = zfit.Parameter("sigma", 1.3, 0.5, 10)
 gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 
 # data
-normal_np = np.random.normal(loc=2., scale=3., size=10000)
+normal_np = np.random.normal(loc=2.0, scale=3.0, size=10000)
 data = zfit.Data.from_numpy(obs=obs, array=normal_np)
 
 # create NLL

@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import warnings
 
 import hist
@@ -18,8 +18,7 @@ def rect_binning_histogramdd(data: XTypeInput, binning: ZfitRectBinning):
     return histogramdd(sample=data, bins=binning.get_edges())
 
 
-def histogramdd(sample, bins=10, range=None, weights=None,
-                density=None):
+def histogramdd(sample, bins=10, range=None, weights=None, density=None):
     out_dtype = [tf.float64, tf.float64]
     if isinstance(sample, ZfitData):
         sample = sample.value()
@@ -33,10 +32,7 @@ def histogramdd(sample, bins=10, range=None, weights=None,
     inputs_cleaned = [inp if inp is not None else none_tensor for inp in inputs]
 
     def histdd(sample, bins, range, weights):
-        kwargs = {"sample": sample,
-                  "bins": bins,
-                  "range": range,
-                  "weights": weights}
+        kwargs = {"sample": sample, "bins": bins, "range": range, "weights": weights}
         new_kwargs = {}
         for key, value in kwargs.items():
             value = value
@@ -46,7 +42,9 @@ def histogramdd(sample, bins=10, range=None, weights=None,
             new_kwargs[key] = value
         return np.histogramdd(**new_kwargs, density=density)
 
-    bincounts, *edges = tf.numpy_function(func=histdd, inp=inputs_cleaned, Tout=out_dtype)
+    bincounts, *edges = tf.numpy_function(
+        func=histdd, inp=inputs_cleaned, Tout=out_dtype
+    )
     bincounts.set_shape(shape=(None,) * n_obs)
     # edges = [edge.set_shape(shape=(None)) for edge in edges]
     return bincounts, edges
@@ -55,37 +53,44 @@ def histogramdd(sample, bins=10, range=None, weights=None,
 def unbinned_to_hist_eager(values, edges, weights=None):
     if weights is not None and weights.shape == () and None in weights:
         weights = None
-    binning = [hist.axis.Variable(np.reshape(edge, (-1,)), flow=False) for edge in edges]
-    h = hist.Hist(*binning,
-                  storage=hist.storage.Weight()
-                  )
+    binning = [
+        hist.axis.Variable(np.reshape(edge, (-1,)), flow=False) for edge in edges
+    ]
+    h = hist.Hist(*binning, storage=hist.storage.Weight())
     h.fill(*(values[:, i] for i in range(values.shape[1])), weight=weights)
 
-    return znp.array(h.values(flow=False), znp.float64), znp.array(h.variances(flow=False), znp.float64)
+    return znp.array(h.values(flow=False), znp.float64), znp.array(
+        h.variances(flow=False), znp.float64
+    )
 
 
 def unbinned_to_binned(data, space, binned_class=None):
     if binned_class is None:
         from zfit._data.binneddatav1 import BinnedData
+
         binned_class = BinnedData
     values = data.value()
     weights = data.weights
     if weights is not None:
         weights = znp.array(weights)
     edges = tuple(space.binning.edges)
-    values, variances = tf.numpy_function(unbinned_to_hist_eager, inp=[values, edges, weights],
-                                          Tout=[tf.float64, tf.float64])
+    values, variances = tf.numpy_function(
+        unbinned_to_hist_eager,
+        inp=[values, edges, weights],
+        Tout=[tf.float64, tf.float64],
+    )
     binned = binned_class.from_tensor(space=space, values=values, variances=variances)
     return binned
 
 
 def unbinned_to_binindex(data, space, flow=False):
     if flow:
-        warnings.warn("Flow currently not fully supported. Values outside the edges are all 0.")
+        warnings.warn(
+            "Flow currently not fully supported. Values outside the edges are all 0."
+        )
     values = [znp.reshape(data.value(ob), (-1,)) for ob in space.obs]
     edges = [znp.reshape(edge, (-1,)) for edge in space.binning.edges]
-    bins = [tfp.stats.find_bins(x=val, edges=edge)
-            for val, edge in zip(values, edges)]
+    bins = [tfp.stats.find_bins(x=val, edges=edge) for val, edge in zip(values, edges)]
     stacked_bins = znp.stack(bins, axis=-1)
     if flow:
         stacked_bins += 1
@@ -110,8 +115,10 @@ def midpoints_from_hist(bincounts, edges):  # TODO: implement correctly, old
     bincounts = z.convert_to_tensor(bincounts)
     edges = z.convert_to_tensor(edges)
 
-    midpoints = (edges[:, :-1] + edges[:, 1:]) / 2.
-    midpoints_grid = tf.stack(tf.meshgrid(*tf.unstack(midpoints), indexing='ij'), axis=-1)
+    midpoints = (edges[:, :-1] + edges[:, 1:]) / 2.0
+    midpoints_grid = tf.stack(
+        tf.meshgrid(*tf.unstack(midpoints), indexing="ij"), axis=-1
+    )
     bincounts_nonzero_index = tf.where(bincounts)
     bincounts_nonzero = tf.gather_nd(bincounts, indices=bincounts_nonzero_index)
     midpoints_nonzero = tf.gather_nd(midpoints_grid, indices=bincounts_nonzero_index)

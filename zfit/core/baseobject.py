@@ -1,16 +1,24 @@
 """Baseclass for most objects appearing in zfit."""
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
 import itertools
 import warnings
 from collections import OrderedDict
-from typing import Iterable, Optional, Set
+from collections.abc import Iterable
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
 from .dependents import BaseDependentsMixin
-from .interfaces import (ZfitIndependentParameter, ZfitNumericParametrized,
-                         ZfitObject, ZfitParameter, ZfitParametrized)
+from .interfaces import (
+    ZfitIndependentParameter,
+    ZfitNumericParametrized,
+    ZfitObject,
+    ZfitParameter,
+    ZfitParametrized,
+)
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
@@ -18,9 +26,10 @@ from ..util.container import convert_to_container
 
 
 class BaseObject(ZfitObject):
-
     def __init__(self, name, **kwargs):
-        assert not kwargs, f"kwargs not empty, the following arguments are not captured: {kwargs}"
+        assert (
+            not kwargs
+        ), f"kwargs not empty, the following arguments are not captured: {kwargs}"
         super().__init__()
 
         self._name = name  # TODO: uniquify name?
@@ -34,7 +43,9 @@ class BaseObject(ZfitObject):
         """The name of the object."""
         return self._name
 
-    def copy(self, deep: bool = False, name: str = None, **overwrite_params) -> "ZfitObject":
+    def copy(
+        self, deep: bool = False, name: str = None, **overwrite_params
+    ) -> ZfitObject:
 
         new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
         return new_object
@@ -58,7 +69,6 @@ class BaseObject(ZfitObject):
 
 
 class BaseParametrized(BaseObject, ZfitParametrized):
-
     def __init__(self, params, **kwargs) -> None:
         # print(f"DEBUG: {kwargs}")  # TODO REMOVE!
         # raise RuntimeError("DEBUG needs to be removed")
@@ -71,13 +81,15 @@ class BaseParametrized(BaseObject, ZfitParametrized):
 
         # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
         self._params = params
-        self._repr['params'] = self.params
+        self._repr["params"] = self.params
 
-    def get_params(self,
-                   floating: Optional[bool] = True,
-                   is_yield: Optional[bool] = None,
-                   extract_independent: Optional[bool] = True,
-                   only_floating=NotSpecified) -> Set["ZfitParameter"]:
+    def get_params(
+        self,
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+        only_floating=NotSpecified,
+    ) -> set[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
@@ -98,18 +110,33 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         """
         if only_floating is not NotSpecified:
             floating = only_floating
-            warnings.warn("`only_floating` is deprecated and will be removed in the future, use `floating` instead.",
-                          DeprecationWarning, stacklevel=2)
-        return self._get_params(floating=floating, is_yield=is_yield, extract_independent=extract_independent)
+            warnings.warn(
+                "`only_floating` is deprecated and will be removed in the future, use `floating` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return self._get_params(
+            floating=floating,
+            is_yield=is_yield,
+            extract_independent=extract_independent,
+        )
 
-    def _get_params(self, floating: Optional[bool] = True, is_yield: Optional[bool] = None,
-                    extract_independent: Optional[bool] = True) -> Set["ZfitParameter"]:
+    def _get_params(
+        self,
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+    ) -> set[ZfitParameter]:
 
-        if is_yield is True:  # we want exclusively yields, we don't have them by default
+        if (
+            is_yield is True
+        ):  # we want exclusively yields, we don't have them by default
             params = OrderedSet()
         else:
             params = self.params.values()
-            params = extract_filter_params(params, floating=floating, extract_independent=extract_independent)
+            params = extract_filter_params(
+                params, floating=floating, extract_independent=extract_independent
+            )
         return params
 
     @property
@@ -117,11 +144,16 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         return self._params
 
 
-class BaseNumeric(GraphCachable, BaseDependentsMixin, BaseParametrized, ZfitNumericParametrized, BaseObject):
-
+class BaseNumeric(
+    GraphCachable,
+    BaseDependentsMixin,
+    BaseParametrized,
+    ZfitNumericParametrized,
+    BaseObject,
+):
     def __init__(self, **kwargs):
-        if 'dtype' in kwargs:  # TODO(Mayou36): proper dtype handling?
-            self._dtype = kwargs.pop('dtype')
+        if "dtype" in kwargs:  # TODO(Mayou36): proper dtype handling?
+            self._dtype = kwargs.pop("dtype")
         super().__init__(**kwargs)
         self.add_cache_deps(self.params.values())
 
@@ -132,24 +164,36 @@ class BaseNumeric(GraphCachable, BaseDependentsMixin, BaseParametrized, ZfitNume
 
     @staticmethod
     def _filter_floating_params(params):
-        params = [param for param in params if isinstance(param, ZfitIndependentParameter) and param.floating]
+        params = [
+            param
+            for param in params
+            if isinstance(param, ZfitIndependentParameter) and param.floating
+        ]
         return params
 
 
-def extract_filter_params(params: Iterable[ZfitParametrized],
-                          floating: Optional[bool] = True,
-                          extract_independent: Optional[bool] = True) -> Set[ZfitParameter]:
+def extract_filter_params(
+    params: Iterable[ZfitParametrized],
+    floating: bool | None = True,
+    extract_independent: bool | None = True,
+) -> set[ZfitParameter]:
     params = convert_to_container(params, container=OrderedSet)
 
     if extract_independent:
-        params = OrderedSet(itertools.chain.from_iterable(param.get_params(floating=floating,
-                                                                           extract_independent=True,
-                                                                           is_yield=None)
-                                                          for param in params))
+        params = OrderedSet(
+            itertools.chain.from_iterable(
+                param.get_params(
+                    floating=floating, extract_independent=True, is_yield=None
+                )
+                for param in params
+            )
+        )
 
     if floating is not None:
         if not extract_independent and not all(param.independent for param in params):
-            raise ValueError("Since `extract_dependent` is not set to True, there are maybe dependent parameters for "
-                             "which `floating` is an ill-defined attribute.")
+            raise ValueError(
+                "Since `extract_dependent` is not set to True, there are maybe dependent parameters for "
+                "which `floating` is an ill-defined attribute."
+            )
         params = OrderedSet(p for p in params if p.floating == floating)
     return params

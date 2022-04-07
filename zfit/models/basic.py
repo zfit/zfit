@@ -3,27 +3,30 @@
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
 
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import contextlib
 
-import numpy as np
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 from zfit import z
-
 from ..core.basepdf import BasePDF
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
 from ..util import ztyping
-from ..util.exception import (AnalyticIntegralNotImplemented,
-                              BreakingAPIChangeError)
+from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 
 
 class Exponential(BasePDF):
     _N_OBS = 1
 
-    def __init__(self, lam=None, obs: ztyping.ObsTypeInput = None, name: str = "Exponential", lambda_=None):
+    def __init__(
+        self,
+        lam=None,
+        obs: ztyping.ObsTypeInput = None,
+        name: str = "Exponential",
+        lambda_=None,
+    ):
         """Exponential function exp(lambda * x).
 
         The function is normalized over a finite range and therefore a pdf. So the PDF is precisely
@@ -39,32 +42,39 @@ class Exponential(BasePDF):
             if lam is None:
                 lam = lambda_
             else:
-                raise BreakingAPIChangeError("The 'lambda' parameter has been renamed from 'lambda_' to 'lam'.")
-        params = {'lambda': lam}
+                raise BreakingAPIChangeError(
+                    "The 'lambda' parameter has been renamed from 'lambda_' to 'lam'."
+                )
+        params = {"lambda": lam}
         super().__init__(obs, name=name, params=params)
 
-        self._calc_numerics_data_shift = lambda: z.constant(0.)
+        self._calc_numerics_data_shift = lambda: z.constant(0.0)
 
         if not self.space.has_limits:
-            warn_advanced_feature("Exponential pdf relies on a shift of the input towards 0 to keep the numerical "
-                                  f"stability high. The space {self.space} does not have limits set and no shift"
-                                  f" will occure. To set it manually, set _numerics_data_shift to the expected"
-                                  f" average values given to this function _in case you want things to be set_."
-                                  f"If this sounds unfamiliar, regard this as an error and use a normalization range.",
-                                  identifier='exp_shift')
+            warn_advanced_feature(
+                "Exponential pdf relies on a shift of the input towards 0 to keep the numerical "
+                f"stability high. The space {self.space} does not have limits set and no shift"
+                f" will occure. To set it manually, set _numerics_data_shift to the expected"
+                f" average values given to this function _in case you want things to be set_."
+                f"If this sounds unfamiliar, regard this as an error and use a normalization range.",
+                identifier="exp_shift",
+            )
         self._set_numerics_data_shift(self.space)
 
     def _unnormalized_pdf(self, x):
-        lambda_ = self.params['lambda']
+        lambda_ = self.params["lambda"]
         x = x.unstack_x()
         probs = znp.exp(lambda_ * (self._shift_x(x)))
-        tf.debugging.assert_all_finite(probs, f"Exponential PDF {self} has non valid values. This is likely caused"
-                                              f" by numerical problems: if the exponential is too steep, this will"
-                                              f" yield NaNs or infs. Make sure that your lambda is small enough and/or"
-                                              f" the initial space is in the same"
-                                              f" region as your data (and norm, if explicitly set differently)."
-                                              f" If this issue still persists, please oben an issue on Github:"
-                                              f" https://github.com/zfit/zfit")
+        tf.debugging.assert_all_finite(
+            probs,
+            f"Exponential PDF {self} has non valid values. This is likely caused"
+            f" by numerical problems: if the exponential is too steep, this will"
+            f" yield NaNs or infs. Make sure that your lambda is small enough and/or"
+            f" the initial space is in the same"
+            f" region as your data (and norm, if explicitly set differently)."
+            f" If this issue still persists, please oben an issue on Github:"
+            f" https://github.com/zfit/zfit",
+        )
         return probs  # Don't use exp! will overflow.
 
     def _shift_x(self, x):
@@ -73,6 +83,7 @@ class Exponential(BasePDF):
     @contextlib.contextmanager
     def _set_numerics_data_shift(self, limits):
         if limits:
+
             def calc_numerics_data_shift():
                 lower, upper = [], []
                 for limit in limits:
@@ -111,7 +122,9 @@ class Exponential(BasePDF):
 
     def _single_hook_partial_integrate(self, x, limits, norm, *, options):
         with self._set_numerics_data_shift(limits=norm):
-            return super()._single_hook_partial_integrate(x, limits, norm, options=options)
+            return super()._single_hook_partial_integrate(
+                x, limits, norm, options=options
+            )
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm):
         with self._set_numerics_data_shift(limits=norm):
@@ -151,29 +164,33 @@ class Exponential(BasePDF):
 
 
 def _exp_integral_from_any_to_any(limits, params, model):
-    lambda_ = params['lambda']
+    lambda_ = params["lambda"]
     lower, upper = limits.rect_limits
     # if any(np.isinf([lower, upper])):
     #     raise AnalyticIntegralNotImplemented
 
-    integral = _exp_integral_func_shifting(lambd=lambda_, lower=lower, upper=upper, model=model)
+    integral = _exp_integral_func_shifting(
+        lambd=lambda_, lower=lower, upper=upper, model=model
+    )
     return integral[0]
 
 
 def _exp_integral_func_shifting(lambd, lower, upper, model):
     def raw_integral(x):
-        return z.exp(lambd * (model._shift_x(x))) / lambd  # needed due to overflow in exp otherwise
+        return (
+            z.exp(lambd * (model._shift_x(x))) / lambd
+        )  # needed due to overflow in exp otherwise
 
     lower = z.convert_to_tensor(lower)
     lower_int = raw_integral(x=lower)
     upper = z.convert_to_tensor(upper)
     upper_int = raw_integral(x=upper)
-    integral = (upper_int - lower_int)
+    integral = upper_int - lower_int
     return integral
 
 
 def exp_icdf(x, params, model):
-    lambd = params['lambda']
+    lambd = params["lambda"]
     x = z.unstack_x(x)
     x = model._shift_x(x)
     return znp.log(lambd * x) / lambd
@@ -183,4 +200,6 @@ def exp_icdf(x, params, model):
 # TODO: cleanup, make cdf registrable _and_ inverse integral, but real
 
 limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
-Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)
+Exponential.register_analytic_integral(
+    func=_exp_integral_from_any_to_any, limits=limits
+)

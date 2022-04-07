@@ -1,8 +1,10 @@
-#  Copyright (c) 2021 zfit
-from typing import Iterable
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from collections.abc import Iterable
 
 import hist
-import tensorflow_probability as tfp
 import zfit_interface as zinterface
 from hist.axestuple import NamedAxesTuple
 
@@ -10,10 +12,10 @@ from hist.axestuple import NamedAxesTuple
 # @tfp.experimental.auto_composite_tensor()
 # class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):
 #     pass
+from zfit.core.interfaces import ZfitBinning
 
 
 class Variable(zinterface.variables.ZfitVar):
-
     def __init__(self, name):
         self._name = name
 
@@ -23,7 +25,6 @@ class Variable(zinterface.variables.ZfitVar):
 
 
 class SpaceV2:
-
     def __init__(self, axes):
         self.axes = axes
 
@@ -51,13 +52,11 @@ def to_var_str(value):
 
 
 class Axis(Variable):
-
     def __init__(self, name):
         super().__init__(name=name)
 
 
 class UnbinnedAxis(Axis):
-
     def __init__(self, name, lower=None, upper=None):
         super().__init__(name)
         self.lower = lower
@@ -66,28 +65,26 @@ class UnbinnedAxis(Axis):
 
 # TODO: fill out below and don't just use the hist objects
 class HashableAxisMixin:
-
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         if self.name == "":
-            raise ValueError("Currently, a binning has to have a name coinciding with the obs.")
+            raise ValueError(
+                "Currently, a binning has to have a name coinciding with the obs."
+            )
 
     def __hash__(self):
         return hash(tuple(self.edges))
 
 
-class RegularBinning(HashableAxisMixin, hist.axis.Regular, family='zfit'):
-
+class RegularBinning(HashableAxisMixin, hist.axis.Regular, ZfitBinning, family="zfit"):
     def __init__(self, bins: int, start: float, stop: float, *, name: str) -> None:
         super().__init__(bins, start, stop, name=name, flow=False)
 
 
-class VariableBinning(HashableAxisMixin, hist.axis.Variable, family='zfit'):
-    def __init__(self,
-                 edges: Iterable[float],
-                 *,
-                 name: str
-                 ) -> None:
+class VariableBinning(
+    HashableAxisMixin, hist.axis.Variable, ZfitBinning, family="zfit"
+):
+    def __init__(self, edges: Iterable[float], *, name: str) -> None:
         super().__init__(edges=edges, name=name, flow=False)
 
 
