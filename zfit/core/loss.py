@@ -969,9 +969,11 @@ class SimpleLoss(BaseLoss):
                 "More information can be found in the upgrade guide on the website."
             )
 
-        if hasattr(func, 'errordef'):
+        if hasattr(func, "errordef"):
             if errordef is not None:
-                raise ValueError("errordef is not allowed if func has an errordef attribute or vice versa.")
+                raise ValueError(
+                    "errordef is not allowed if func has an errordef attribute or vice versa."
+                )
             errordef = func.errordef
 
         if errordef is None:
@@ -979,7 +981,6 @@ class SimpleLoss(BaseLoss):
                 f"{self} cannot minimize {func} as `errordef` is missing: "
                 f"it has to be set as an attribute. Typically 1 (chi2) or 0.5 (NLL)."
             )
-
 
         self._simple_func = func
         self._errordef = errordef
@@ -1020,7 +1021,7 @@ class SimpleLoss(BaseLoss):
             params = tuple(params)
             value = self._simple_func(params)
         except TypeError as error:
-            if 'takes 0 positional arguments but 1 was given' in str(error):
+            if "takes 0 positional arguments but 1 was given" in str(error):
                 value = self._simple_func()
             else:
                 raise error
