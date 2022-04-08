@@ -19,6 +19,8 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- SimpleLoss correctly supports both functions with implicit and explicit parameters, also if they
+  are decorated.
 - extended sampling errored for some cases of binned PDFs.
 - ``ConstantParameter`` errored when converted to numpy.
 
