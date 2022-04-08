@@ -205,7 +205,7 @@ class FunctionWrapperRegistry:
     def reset(self, **kwargs_user):
         kwargs = dict(
             autograph=False,
-            experimental_relax_shapes=True,
+            experimental_relax_shapes=False,
         )
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
