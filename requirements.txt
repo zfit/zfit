@@ -13,13 +13,13 @@ pandas
 pydantic
 scipy>=1.2
 tabulate
+tensorflow>=2.7  # `deprecated` won't work properly in <2.6
 tensorflow-addons
-# tensorflow_probability>=0.12,<0.15
+tensorflow_probability>=0.14
 texttable
-# tensorflow>=2.6,<2.7  # `deprecated` won't work properly in <2.6
-tf-nightly  # HACK, remove when tensorflow==2.9 is released
+# tf-nightly  # HACK, remove when tensorflow 2.9 is released
 tf_quant_finance>=v0.0.1-dev24
-tfp-nightly  # HACK, remove
+# tfp-nightly  # HACK, remove
 uhi
 uproot>=4,<5
 zfit_interface
