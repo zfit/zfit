@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
+
+from tensorflow.python.util.deprecation import deprecated_args, deprecated
 
 if TYPE_CHECKING:
     import zfit
@@ -152,6 +154,7 @@ class Data(
             weights = self._weights
         return weights
 
+    @deprecated(None, "Do not set the weights on a data set, create a new one instead.")
     @invalidate_graph
     def set_weights(self, weights: ztyping.WeightsInputType):
         """Set (temporarily) the weights of the dataset.
@@ -177,64 +180,114 @@ class Data(
     def space(self) -> ZfitSpace:
         return self._space
 
-    # constructors
     @classmethod
-    def from_root_iter(
-        cls, path, treepath, branches=None, entrysteps=None, name=None, **kwargs
+    def from_pandas(
+        cls,
+        df: pd.DataFrame,
+        obs: ztyping.ObsTypeInput = None,
+        weights: ztyping.WeightsInputType | str = None,
+        name: str = None,
+        dtype: tf.DType = None,
     ):
-        # branches = convert_to_container(branches)
-        raise RuntimeWarning("Currently, this is not supported.")
+        """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
+
+        Args:
+            df: pandas DataFrame that contains the data. If `obs` is `None`, columns are used as obs. Can be
+                a superset of obs.
+            obs: obs to use for the data. obs have to be the columns in the data frame.
+                If `None`, columns are used as obs.
+            weights: Weights of the data. Has to be 1-D and match the shape
+                of the data (nevents) or a string that is a column in the dataframe.
+            name:
+        """
+        if obs is None:
+            obs = list(df.columns)
+
+        obs = convert_to_space(obs)
+        not_in_df = set(obs.obs) - set(df.columns)
+        if not_in_df:
+            raise ValueError(
+                f"Observables {not_in_df} not in dataframe with columns {df.columns}"
+            )
+        if isinstance(weights, str):
+            if weights not in df.columns:
+                raise ValueError(
+                    f"Weights {weights} is a string and not in dataframe with columns {df.columns}"
+                )
+            weights = df[weights]
+        array = df[list(obs.obs)].values
+
+        return cls.from_numpy(
+            obs=obs, array=array, weights=weights, name=name, dtype=dtype
+        )
 
     @classmethod
+    @deprecated_args(None, "Use obs instead.", "branches")
+    @deprecated_args(
+        None,
+        "Use obs_alias instead and make sure to invert the logic! I.e. it's a mapping from"
+        " the observable name to the actual branch name.",
+        "branches_alias",
+    )
     def from_root(
         cls,
         path: str,
         treepath: str,
-        branches: list[str] = None,
-        branches_alias: dict = None,
+        obs: ZfitSpace = None,
+        *,
         weights: ztyping.WeightsStrInputType = None,
+        obs_alias: Mapping[str, str] = None,
         name: str = None,
         dtype: tf.DType = None,
         root_dir_options=None,
+        # deprecated
+        branches: list[str] = None,
+        branches_alias: dict = None,
     ) -> Data:
         """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
 
         The arguments are passed to uproot directly.
 
         Args:
-            path:
-            treepath:
-            branches:
-            branches_alias: A mapping from the `branches` (as keys) to the actual `observables` (as values).
-                This allows to have different `observable` names, independent of the branch name in the file.
+            path: Path to the root file.
+            treepath: Name of the tree in the root file.
+            obs: Observables of the data. This will also be the columns of the data if not *obs_alias* is given.
             weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents). Can be a column of the ROOT file by using a string corresponding to a
                 column.
+            obs_alias: A mapping from the `obs` (as keys) to the actual `branches` (as values) in the root file.
+                This allows to have different `observable` names, independent of the branch name in the file.
             name:
             root_dir_options:
 
         Returns:
-            `zfit.Data`:
+            `zfit.Data`: A `Data` object containing the unbinned data.
         """
-        # TODO 0.6: use obs here instead of branches
-        # if branches:
-        #     warnings.warn(FutureWarning("`branches` is deprecated, please use `obs` instead"), stacklevel=2)
-        #     obs = branches
-        # obs = convert_to_space(obs)
-        # branches = obs.obs
-        if branches_alias is None and branches is None:
-            raise ValueError("Either branches or branches_alias has to be specified.")
+        # begin deprecated legacy arguments
+        if branches:
+            obs = branches
+            del branches
+        if branches_alias is not None:
+            if obs_alias is not None:
+                raise ValueError("Cannot use both `branches_alias` and `obs_alias`.")
+            obs_alias = {obs: branch for branch, obs in branches_alias.items()}
+            del branches_alias
 
-        if branches_alias is None:
-            branches_alias = {}
-        if branches is None:
-            branches = list(branches_alias.values())
-
-        weights_are_branch = isinstance(weights, str)
-
-        branches = convert_to_container(branches)
+        # end legacy
         if root_dir_options is None:
             root_dir_options = {}
+        if obs_alias is None and obs is None:
+            raise ValueError("Either branches or branches_alias has to be specified.")
+        if obs_alias is None:
+            obs_alias = {}
+        if obs is None:
+            obs = list(obs_alias.values())
+
+        obs = convert_to_space(obs)
+
+        branches = [obs_alias.get(branch, branch) for branch in obs.obs]
+
+        weights_are_branch = isinstance(weights, str)
 
         def uproot_loader():
             with uproot.open(path, **root_dir_options)[treepath] as root_tree:
@@ -256,35 +309,8 @@ class Data(
             weights_np = weights
         dataset = LightDataset.from_tensor(data)
 
-        # dataset = dataset.repeat()
-        obs = [branches_alias.get(branch, branch) for branch in branches]
         return Data(
             dataset=dataset, obs=obs, weights=weights_np, name=name, dtype=dtype
-        )
-
-    @classmethod
-    def from_pandas(
-        cls,
-        df: pd.DataFrame,
-        obs: ztyping.ObsTypeInput = None,
-        weights: ztyping.WeightsInputType = None,
-        name: str = None,
-        dtype: tf.DType = None,
-    ):
-        """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
-
-        Args:
-            df:
-            weights: Weights of the data. Has to be 1-D and match the shape
-                of the data (nevents).
-            obs:
-            name:
-        """
-        if obs is None:
-            obs = list(df.columns)
-        array = df.values
-        return cls.from_numpy(
-            obs=obs, array=array, weights=weights, name=name, dtype=dtype
         )
 
     @classmethod
@@ -299,11 +325,13 @@ class Data(
         """Create `Data` from a `np.array`.
 
         Args:
-            obs:
-            array:
+            obs: Observables of the data. They will be matched to the data in the same order.
+            array: Numpy array containing the data.
+            weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
             name:
 
         Returns:
+            `zfit.Data`: A `Data` object containing the unbinned data.
         """
 
         if not isinstance(array, (np.ndarray)) and not (
@@ -331,11 +359,13 @@ class Data(
         """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
 
         Args:
-            obs:
-            tensor:
-            name:
+            obs: Observables of the data. They will be matched to the data in the same order.
+            tensor: Tensor containing the data.
+            weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
+            name: Name of the data.
 
         Returns:
+            `zfit.Data`: A `Data` object containing the unbinned data.
         """
         # dataset = LightDataset.from_tensor(tensor=tensor)
         if dtype is None:
@@ -502,54 +532,6 @@ class Data(
             return self.space
 
         return TemporarilySet(value=space, setter=setter, getter=getter)
-
-    # def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
-    #     del name
-    #     if dtype is not None:
-    #         if dtype != self.dtype:
-    #             return NotImplemented
-    #     if as_ref:
-    #         # return "NEVER READ THIS"
-    #         raise LogicalUndefinedOperationError("There is no ref for the `Data`")
-    #     else:
-    #         return self.value()
-    #
-    # def _AsTensor(self):
-    #     return self.value()
-    #
-    # @staticmethod
-    # def _OverloadAllOperators():  # pylint: disable=invalid-name
-    #     """Register overloads for all operators."""
-    #     for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
-    #         Data._OverloadOperator(operator)
-    #     # For slicing, bind getitem differently than a tensor (use SliceHelperVar
-    #     # instead)
-    #     # pylint: disable=protected-access
-    #     setattr(Data, "__getitem__", array_ops._SliceHelperVar)
-    #
-    # @staticmethod
-    # def _OverloadOperator(operator):  # pylint: disable=invalid-name
-    #    """Defer an operator overload to `ops.Tensor`.
-
-    #     We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
-    #     Args:
-    #       operator: string. The operator name.
-    #     """
-    #
-    #     tensor_oper = getattr(tf.Tensor, operator)
-    #
-    #     def _run_op(a, *args):
-    #         # pylint: disable=protected-access
-    #         value = a._AsTensor()
-    #         return tensor_oper(value, *args)
-    #
-    #     # Propagate __doc__ to wrapper
-    #     try:
-    #         _run_op.__doc__ = tensor_oper.__doc__
-    #     except AttributeError:
-    #         pass
-    #
-    #     setattr(Data, operator, _run_op)
 
     def _check_input_data_range(self, data_range):
         data_range = self._convert_sort_space(limits=data_range)
