@@ -1,5 +1,7 @@
 ---
-name: zfit usage question about: Questions about the usage and best ways in zfit title: "[QUESTION]"
+name: zfit usage question
+about: Questions about the usage and best ways in zfit
+title: "[QUESTION]"
 labels: ""
 assignees: ""
 ---

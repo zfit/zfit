@@ -1,5 +1,7 @@
 ---
-name: Physics specific question about: For specific, non-public questions on physics analysis title: ""
+name: Physics specific question
+about: For specific, non-public questions on physics analysis
+title: ""
 labels: ""
 assignees: ""
 ---
