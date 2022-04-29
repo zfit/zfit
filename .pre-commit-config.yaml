@@ -50,7 +50,7 @@ repos:
       - id: rst-directive-colons
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.1
+    rev: v2.32.0
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]
@@ -85,7 +85,7 @@ repos:
       - id: jupyter-notebook-cleanup
 
   - repo: https://github.com/sondrelg/pep585-upgrade
-    rev: 'v1'
+    rev: 'v1.0'
     hooks:
       - id: upgrade-type-hints
         args: [ '--futures=true' ]

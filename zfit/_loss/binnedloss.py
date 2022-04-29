@@ -21,6 +21,18 @@ from ..z import numpy as znp
 
 @z.function(wraps="tensor")
 def _spd_transform(values, probs, variances):
+    """Transform the data to the SPD form.
+
+    Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
+
+    Args:
+        values: Data values, the counts in each bin.
+        probs: Data probabilities, the expected counts in each bin.
+        variances: Data variances, the variances of the counts in each bin.
+
+    Returns:
+        The transformed probabilities and values.
+    """
     # Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
     scale = values * tf.math.reciprocal_no_nan(variances)
     return values * scale, probs * scale
@@ -28,6 +40,18 @@ def _spd_transform(values, probs, variances):
 
 @z.function(wraps="tensor")
 def poisson_loss_calc(probs, values, log_offset=None, variances=None):
+    """Calculate the Poisson log probability for a given set of data.
+
+    Args:
+        probs: Probabilities of the data, i.e. the expected number of events in each bin.
+        values: Values of the data, i.e. the number of events in each bin.
+        log_offset: Optional offset to be added to the loss. Useful for adding a constant to the loss to improve
+            numerical stability.
+        variances: Optional variances of the data. If not None, the Poisson loss is calculated using the
+            scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
+    Returns:
+        The Poisson log probability for the given data.
+    """
     if variances is not None:
         values, probs = _spd_transform(values, probs, variances=variances)
     values += znp.asarray(1e-307, dtype=znp.float64)
@@ -271,7 +295,8 @@ class ExtendedBinnedNLL(BaseBinned):
             variances = dat.variances()
             probs = mod.counts(dat)
             poisson_term = poisson_loss_calc(probs, values, log_offset, variances)
-            poisson_terms.append(poisson_term)  # TODO: change None
+            poisson_term_summed = znp.sum(poisson_term)
+            poisson_terms.append(poisson_term_summed)  # TODO: change None
         nll = znp.sum(poisson_terms)
 
         if constraints:
@@ -412,7 +437,8 @@ class BinnedNLL(BaseBinned):
             probs = mod.rel_counts(dat)
             probs *= znp.sum(values)
             poisson_term = poisson_loss_calc(probs, values, log_offset, variances)
-            poisson_terms.append(poisson_term)
+            poisson_term_summed = znp.sum(poisson_term)
+            poisson_terms.append(poisson_term_summed)
         nll = znp.sum(poisson_terms)
 
         if constraints:

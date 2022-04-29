@@ -26,6 +26,8 @@ Bug fixes and small changes
   are decorated.
 - extended sampling errored for some cases of binned PDFs.
 - ``ConstantParameter`` errored when converted to numpy.
+- Simultaneous binned fits could error with different binning due to a missing sum over
+  a dimension.
 
 Experimental
 ------------
@@ -37,6 +39,7 @@ Requirement changes
 Thanks
 ------
 - @YaniBion for discovering the bug in the extended sampling and testing the alpha release
+- @ResStump for reporting the bug with the simultaneous binned fit
 
 0.9.0a2
 ========
