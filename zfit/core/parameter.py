@@ -704,6 +704,8 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
                 "'value' cannot be provided any longer, `value_fn` is needed."
             )
         super().__init__(name=name, params=params, **kwargs)
+        if not hasattr(self, "_composed_param_original_order"):
+            self._composed_param_original_order = None
         if not callable(value_fn):
             raise TypeError("`value_fn` is not callable.")
         n_func_params = len(signature(value_fn).parameters)
@@ -754,32 +756,29 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
     def value(self):
         params = self.params
         parameters = signature(self._value_fn).parameters
-        if len(parameters) == 1 and (len(params) > 1 or "params" in parameters):
+        if (
+            len(parameters) == 1
+            and (len(params) > 1 or "params" in parameters)
+            and self._composed_param_original_order is None
+        ):
             value = self._value_fn(params)
+        elif (
+            self._composed_param_original_order is None
+        ):  # TODO: this is a temp fix for legacy behavior
+            try:
+                value = self._value_fn(
+                    **params
+                )  # since the order is None, it has to be a dict
+            except Exception as error:
+                raise RuntimeError(
+                    "This should not be reached. To fix this, make sure that the params to"
+                    " ComposedParameter are a dict and that the function takes one single argument."
+                ) from error
         else:
-            # TODO: should we advertise the below?
-            # warnings.warn("The function of composed parameters should take a single argument, a mapping."
-            #               "For example, one parameter called `params`, which is a dict that contains all other"
-            #               "parameters."
-            #               " If you see this, the code may be broken and returns wrong values (it should not,"
-            #               " but may does).", stacklevel=1)
-            if (
-                self._composed_param_original_order is None
-            ):  # TODO: this is a temp fix for legacy behavior
-                try:
-                    value = self._value_fn(
-                        **params
-                    )  # since the order is None, it has to be a dict
-                except Exception as error:
-                    raise RuntimeError(
-                        "This should not be reached. To fix this, make sure that the params to"
-                        " ComposedParameter are a dict and that the function takes ."
-                    )
-            else:
-                params = (
-                    self._composed_param_original_order
-                )  # to make sure we have the right order
-                value = self._value_fn(*params)
+            params = (
+                self._composed_param_original_order
+            )  # to make sure we have the right order
+            value = self._value_fn(*params)
         return tf.convert_to_tensor(value, dtype=self.dtype)
 
     def read_value(self):
@@ -883,13 +882,35 @@ class ComposedParameter(BaseComposedParameter):
     ):
         """Arbitrary composition of parameters.
 
-        A `ComposedParameter` allows for arbitrary combinations of parameters and correlations
+        A `ComposedParameter` allows for arbitrary combinations of parameters and correlations using an arbitrary
+        function.
+
+        Examples:
+            .. jupyter-execute::
+                import zfit
+
+                param1 = zfit.Parameter('param1', 1.0, 0.1, 1.8)
+                param2 = zfit.Parameter('param2', 42.0, 0, 100)
+
+                # using a dict for the params
+                def mult_dict(params):
+                    return params["a"] * params["b"]
+
+                mult_param_dict = zfit.ComposedParameter('mult_dict', mult_dict, params={"a": param1, "b": param2})
+
+                # using a list for the params
+                def mult_list(params):
+                    return params[0] * params[1]
+
+                mult_param_list = zfit.ComposedParameter('mult_list', mult_list, params=[param1, param2])
+
+
 
         Args:
-            name: Unique name of the Parameter
+            name: Unique name of the Parameter.
             value_fn: Function that returns the value of the composed parameter and takes as arguments `params` as
-                arguments.
-            params: If it is a `dict`, this will direclty be used as the `params` attribute, otherwise the
+                arguments. The function must be able to be called with the same arguments as `params`.
+            params: If it is a `dict`, this will directly be used as the `params` attribute, otherwise the
                 parameters will be automatically named with f"param_{i}". The values act as arguments to `value_fn`.
             dtype: Output of `value_fn` dtype
             dependents:
