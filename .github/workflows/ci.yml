@@ -66,7 +66,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --use-feature=in-tree-build .[${{ matrix.extras }}]
+          pip install .[${{ matrix.extras }}]
       - name: Test with pytest
 #        TODO: how to run below on windows?
 #          if [[ $GITHUB_REF == 'refs/heads/develop' ]]; then
@@ -109,7 +109,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --use-feature=in-tree-build --ignore-requires-python .[docs]
+          pip install --ignore-requires-python .[docs]
       - name: Build the docs, check for failure
         run: |
           bash utils/ci/testbuild_docs.sh
