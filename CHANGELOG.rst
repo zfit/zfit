@@ -7,6 +7,9 @@ Changelog
 Develop
 ========
 
+0.9.0a2
+========
+
 Major Features and Improvements
 -------------------------------
 - improved data handling in constructors `from_pandas` (which allows now to
