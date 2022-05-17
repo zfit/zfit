@@ -1,7 +1,13 @@
-#  Copyright (c) 2021 zfit
-from typing import Mapping, Optional, Union
+#  Copyright (c) 2022 zfit
 
-import numpy as np
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
 
 from .binned_functor import BaseBinnedFunctorPDF
 from ..core.space import supports
@@ -13,10 +19,14 @@ from ..util.exception import SpecificFunctionNotImplemented
 
 
 class BinwiseScaleModifier(BaseBinnedFunctorPDF):
-
-    def __init__(self, pdf: ZfitBinnedPDF, modifiers: Union[bool, Mapping[str, ztyping.ParamTypeInput]] = None,
-                 extended: ztyping.ExtendedInputType = None, norm: ztyping.NormInputType = None,
-                 name: Optional[str] = "BinnedTemplatePDF") -> None:
+    def __init__(
+        self,
+        pdf: ZfitBinnedPDF,
+        modifiers: bool | Mapping[str, ztyping.ParamTypeInput] = None,
+        extended: ztyping.ExtendedInputType = None,
+        norm: ztyping.NormInputType = None,
+        name: str | None = "BinnedTemplatePDF",
+    ) -> None:
         """Modifier that scales each bin separately of the *pdf*.
 
         Binwise modification can be used to account for uncorrelated or correlated uncertainties.
@@ -45,8 +55,11 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
             modifiers = True
         if modifiers is True:
             import zfit
-            modifiers = {f'sysshape_{i}': zfit.Parameter(f'auto_sysshape_{self}_{i}', 1.) for i in
-                         range(pdf.counts(obs).shape.num_elements())}
+
+            modifiers = {
+                f"sysshape_{i}": zfit.Parameter(f"auto_sysshape_{self}_{i}", 1.0)
+                for i in range(pdf.counts(obs).shape.num_elements())
+            }
         if not isinstance(modifiers, dict):
             raise TypeError("modifiers must be a dict-like object or True or None")
         params = modifiers.copy()
@@ -66,14 +79,20 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
                     return znp.sum(values)
 
                 from zfit.core.parameter import get_auto_number
-                extended = zfit.ComposedParameter(f'AUTO_binwise_modifier_{get_auto_number()}', sumfunc,
-                                                  params=modifiers)
+
+                extended = zfit.ComposedParameter(
+                    f"AUTO_binwise_modifier_{get_auto_number()}",
+                    sumfunc,
+                    params=modifiers,
+                )
 
             else:
                 extended = self.pdfs[0].get_yield()
         elif extended is not False:
             self._automatically_extended = False
-        super().__init__(obs=obs, name=name, params=params, models=pdf, extended=extended, norm=norm)
+        super().__init__(
+            obs=obs, name=name, params=params, models=pdf, extended=extended, norm=norm
+        )
 
     @supports(norm=True)
     def _counts(self, x, norm=None):
@@ -91,7 +110,7 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
             values = values * modifiers
         return values
 
-    @supports(norm='space')
+    @supports(norm="space")
     def _rel_counts(self, x, norm=None):
         values = self._counts_with_modifiers(x, norm)
         return values / znp.sum(values)

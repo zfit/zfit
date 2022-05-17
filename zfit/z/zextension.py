@@ -1,14 +1,17 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
 import functools
 import math as _mt
 from collections import defaultdict
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import tensorflow as tf
 
 import zfit.z.numpy as znp
-
 from ..settings import ztypes
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
@@ -17,7 +20,9 @@ from ..util.warnings import warn_advanced_feature
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
     # TODO(tf2): remove this legacy thing below
     if verify_shape is not None:
-        raise RuntimeError("'verify_shape' is not a valid argument anymore. It's always true. Please remove.")
+        raise RuntimeError(
+            "'verify_shape' is not a valid argument anymore. It's always true. Please remove."
+        )
     return tf.constant(value, dtype=dtype, shape=shape, name=name)
 
 
@@ -47,13 +52,19 @@ def nth_pow(x, n):
     if n < 0:
         raise ValueError(f"n (power) has to be >= 0. Currently, n={n}")
 
-    power = to_complex(1.)
+    power = to_complex(1.0)
     for _ in range(n):
         power *= x
     return power
 
 
-def unstack_x(value: Any, num: Any = None, axis: int = -1, always_list: bool = False, name: str = "unstack_x"):
+def unstack_x(
+    value: Any,
+    num: Any = None,
+    axis: int = -1,
+    always_list: bool = False,
+    name: str = "unstack_x",
+):
     """Unstack a Data object and return a list of (or a single) tensors in the right order.
 
     Args:
@@ -87,11 +98,18 @@ def stack_x(values, axis: int = -1, name: str = "stack_x"):
 
 
 def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):
-    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype)
+    return tf.convert_to_tensor(
+        value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype
+    )
 
 
-def safe_where(condition: tf.Tensor, func: Callable, safe_func: Callable, values: tf.Tensor,
-               value_safer: Callable = tf.ones_like) -> tf.Tensor:
+def safe_where(
+    condition: tf.Tensor,
+    func: Callable,
+    safe_func: Callable,
+    values: tf.Tensor,
+    value_safer: Callable = tf.ones_like,
+) -> tf.Tensor:
     """Like :py:func:`tf.where` but fixes gradient `NaN` if func produces `NaN` with certain `values`.
 
     Args:
@@ -119,14 +137,19 @@ def run_no_nan(func, x):
 
     value_with_nans = func(x=x)
     if value_with_nans.dtype in (tf.complex128, tf.complex64):
-        value_with_nans = znp.real(value_with_nans) + znp.imag(value_with_nans)  # we care only about NaN or not
+        value_with_nans = znp.real(value_with_nans) + znp.imag(
+            value_with_nans
+        )  # we care only about NaN or not
     finite_bools = znp.isfinite(tf.cast(value_with_nans, dtype=tf.float64))
     finite_indices = tf.where(finite_bools)
     new_x = tf.gather_nd(params=x, indices=finite_indices)
     new_x = Data.from_tensor(obs=x.obs, tensor=new_x)
     vals_no_nan = func(x=new_x)
-    result = tf.scatter_nd(indices=finite_indices, updates=vals_no_nan,
-                           shape=tf.shape(input=value_with_nans, out_type=finite_indices.dtype))
+    result = tf.scatter_nd(
+        indices=finite_indices,
+        updates=vals_no_nan,
+        shape=tf.shape(input=value_with_nans, out_type=finite_indices.dtype),
+    )
     return result
 
 
@@ -135,21 +158,25 @@ class FunctionWrapperRegistry:
     registries = []
     allow_jit = True
     _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
-    _DEFAULT_DO_JIT_TYPES.update({
-        None: True,
-        'model': False,
-        'loss': True,
-        'sample': True,
-        'model_sampling': True,
-        'zfit_tensor': True,
-        'tensor': True,
-    })
+    _DEFAULT_DO_JIT_TYPES.update(
+        {
+            None: True,
+            "model": False,
+            "loss": True,
+            "sample": True,
+            "model_sampling": True,
+            "zfit_tensor": True,
+            "tensor": True,
+        }
+    )
 
     do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
     @classmethod
     def all_wrapped_functions_registered(cls):
-        return all(func.zfit_graph_cache_registered for func in cls.all_wrapped_functions)
+        return all(
+            func.zfit_graph_cache_registered for func in cls.all_wrapped_functions
+        )
 
     def __init__(self, wraps=None, **kwargs_user) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
@@ -176,9 +203,10 @@ class FunctionWrapperRegistry:
         return self.do_jit_types[self.wraps] and self.allow_jit
 
     def reset(self, **kwargs_user):
-        kwargs = dict(autograph=False,
-                      experimental_relax_shapes=True,
-                      )
+        kwargs = dict(
+            autograph=False,
+            experimental_relax_shapes=True,
+        )
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
 
@@ -208,8 +236,12 @@ class FunctionWrapperRegistry:
                 if func_holder_cached.is_valid:
                     function_holder = func_holder_cached
                 else:
-                    wrapped_func = self.tf_function(func)  # update nonlocal wrapped function
-                    function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
+                    wrapped_func = self.tf_function(
+                        func
+                    )  # update nonlocal wrapped function
+                    function_holder = FunctionCacheHolder(
+                        func, wrapped_func, args, kwargs
+                    )
                     cache[func_holder_index] = function_holder
             else:
                 cache.append(function_holder)
@@ -230,30 +262,39 @@ def function(func=None, **kwargs):
         wrapper = FunctionWrapperRegistry()
         return wrapper(func)
     elif func:
-        raise ValueError("All argument have to be key-word only. `func` must not be used")
+        raise ValueError(
+            "All argument have to be key-word only. `func` must not be used"
+        )
     else:
         return FunctionWrapperRegistry(**kwargs)
 
 
 # legacy, remove 0.6
 def function_tf_input(*_, **__):
-    raise BreakingAPIChangeError("This function has been removed. Use `z.function(wraps='zfit_tensor') or your"
-                                 "own category")
+    raise BreakingAPIChangeError(
+        "This function has been removed. Use `z.function(wraps='zfit_tensor') or your"
+        "own category"
+    )
 
 
 # legacy, remove 0.6
 def function_sampling(*_, **__):
-    raise BreakingAPIChangeError("This function has been removed. Use `z.function(wraps='zfit_sampling') or your"
-                                 "own category")
+    raise BreakingAPIChangeError(
+        "This function has been removed. Use `z.function(wraps='zfit_sampling') or your"
+        "own category"
+    )
 
 
 @functools.wraps(tf.py_function)
 def py_function(func, inp, Tout, name=None):
     from .. import settings
-    if not settings.options['numerical_grad']:
-        warn_advanced_feature("Using py_function without numerical gradients. If the Python code does not contain any"
-                              " parametrization by `zfit.Parameter` or similar, this can work out. Otherwise, in case"
-                              " it depends on those, you may want to set `zfit.run.set_autograd_mode(=False)`.",
-                              identifier="py_func_autograd")
+
+    if not settings.options["numerical_grad"]:
+        warn_advanced_feature(
+            "Using py_function without numerical gradients. If the Python code does not contain any"
+            " parametrization by `zfit.Parameter` or similar, this can work out. Otherwise, in case"
+            " it depends on those, you may want to set `zfit.run.set_autograd_mode(=False)`.",
+            identifier="py_func_autograd",
+        )
 
     return tf.py_function(func=func, inp=inp, Tout=Tout, name=name)

@@ -1,15 +1,24 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from ._loss.binnedloss import ExtendedBinnedNLL, BinnedNLL, BinnedChi2, ExtendedBinnedChi2
+from ._loss.binnedloss import (
+    ExtendedBinnedNLL,
+    BinnedNLL,
+    ExtendedBinnedChi2,
+    BinnedChi2,
+)
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
-__all__ = ["ExtendedUnbinnedNLL",
-           "UnbinnedNLL",
-           "BinnedNLL",
-           "ExtendedBinnedNLL",
-           "BaseLoss",
-           "SimpleLoss",
-           "ExtendedBinnedNLL"]
+__all__ = [
+    "ExtendedUnbinnedNLL",
+    "UnbinnedNLL",
+    "BinnedNLL",
+    "ExtendedBinnedNLL",
+    "BaseLoss",
+    "SimpleLoss",
+    "ExtendedBinnedNLL",
+    "BinnedChi2",
+    "ExtendedBinnedChi2",
+]
 
 from .util.warnings import warn_experimental_feature
 
@@ -24,6 +33,9 @@ def experimental_enable_loss_penalty(enable=True):
         enable: If True, enable this feature.
     """
     from .util.exception import BreakingAPIChangeError
-    raise BreakingAPIChangeError("This has been removed and is now activated by default."
-                                 " Remove this function call."
-                                 "Many thanks for the feedbacks received.")
+
+    raise BreakingAPIChangeError(
+        "This has been removed and is now activated by default."
+        " Remove this function call."
+        "Many thanks for the feedbacks received."
+    )

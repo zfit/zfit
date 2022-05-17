@@ -1,7 +1,14 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 """Recurrent polynomials."""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Mapping
 import abc
-from typing import Dict, List, Mapping, Optional
 
 import tensorflow as tf
 
@@ -16,7 +23,7 @@ from ..util.container import convert_to_container
 from ..util.exception import SpecificFunctionNotImplemented
 
 
-def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
+def rescale_minus_plus_one(x: tf.Tensor, limits: zfit.Space) -> tf.Tensor:
     """Rescale and shift *x* as *limits* were rescaled and shifted to be in (-1, 1). Useful for orthogonal polynomials.
 
     Args:
@@ -34,9 +41,14 @@ def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
 class RecursivePolynomial(BasePDF):
     """1D polynomial generated via three-term recurrence."""
 
-    def __init__(self, obs, coeffs: list,
-                 apply_scaling: bool = True, coeff0: Optional[tf.Tensor] = None,
-                 name: str = "Polynomial"):  # noqa
+    def __init__(
+        self,
+        obs,
+        coeffs: list,
+        apply_scaling: bool = True,
+        coeff0: tf.Tensor | None = None,
+        name: str = "Polynomial",
+    ):  # noqa
         """Base class to create 1 dimensional recursive polynomials that can be rescaled. Overwrite _poly_func.
 
         Args:
@@ -47,14 +59,18 @@ class RecursivePolynomial(BasePDF):
                    x_{n+1} = recurrence(x_{n}, x_{n-1}, n)
         """
         # 0th coefficient set to 1 by default
-        coeff0 = z.constant(1.) if coeff0 is None else tf.cast(coeff0, dtype=ztypes.float)
+        coeff0 = (
+            z.constant(1.0) if coeff0 is None else tf.cast(coeff0, dtype=ztypes.float)
+        )
         coeffs = convert_to_container(coeffs).copy()
         coeffs.insert(0, coeff0)
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs) - 1  # 1 coeff -> 0th degree
         self._do_scale = apply_scaling
         if apply_scaling and not (isinstance(obs, Space) and obs.n_limits == 1):
-            raise ValueError("obs need to be a Space with exactly one limit if rescaling is requested.")
+            raise ValueError(
+                "obs need to be a Space with exactly one limit if rescaling is requested."
+            )
         super().__init__(obs=obs, name=name, params=params)
 
     def _polynomials_rescale(self, x):
@@ -94,7 +110,7 @@ def do_recurrence(x, polys, degree, recurrence):
 legendre_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
-@z.function(wraps='zfit_tensor')
+@z.function(wraps="zfit_tensor")
 def legendre_recurrence(p1, p2, n, x):
     """Recurrence relation for Legendre polynomials.
 
@@ -105,11 +121,17 @@ def legendre_recurrence(p1, p2, n, x):
 
 
 def legendre_shape(x, coeffs):
-    return create_poly(x=x, polys=legendre_polys, coeffs=coeffs, recurrence=legendre_recurrence)
+    return create_poly(
+        x=x, polys=legendre_polys, coeffs=coeffs, recurrence=legendre_recurrence
+    )
 
 
-def legendre_integral(limits: ztyping.SpaceType, norm: ztyping.SpaceType,
-                      params: List["zfit.Parameter"], model: RecursivePolynomial):
+def legendre_integral(
+    limits: ztyping.SpaceType,
+    norm: ztyping.SpaceType,
+    params: list[zfit.Parameter],
+    model: RecursivePolynomial,
+):
     """Recursive integral of Legendre polynomials."""
     lower, upper = limits.limit1d
     lower_rescaled = model._polynomials_rescale(lower)
@@ -126,14 +148,23 @@ def legendre_integral(limits: ztyping.SpaceType, norm: ztyping.SpaceType,
     else:
 
         def indefinite_integral(limits):
-            max_degree = model.degree + 1  # needed +1 for integral, max poly in term for n is n+1
-            polys = do_recurrence(x=limits, polys=legendre_polys, degree=max_degree,
-                                  recurrence=legendre_recurrence)
+            max_degree = (
+                model.degree + 1
+            )  # needed +1 for integral, max poly in term for n is n+1
+            polys = do_recurrence(
+                x=limits,
+                polys=legendre_polys,
+                degree=max_degree,
+                recurrence=legendre_recurrence,
+            )
             one_limit_integrals = []
             for degree in range(1, max_degree):
                 coeff = model.params[f"c_{degree}"]
-                one_limit_integrals.append(coeff * (polys[degree + 1] - polys[degree - 1]) /
-                                           (2. * (z.convert_to_tensor(degree)) + 1))
+                one_limit_integrals.append(
+                    coeff
+                    * (polys[degree + 1] - polys[degree - 1])
+                    / (2.0 * (z.convert_to_tensor(degree)) + 1)
+                )
             return z.reduce_sum(one_limit_integrals, axis=0)
 
         integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
@@ -144,10 +175,14 @@ def legendre_integral(limits: ztyping.SpaceType, norm: ztyping.SpaceType,
 
 
 class Legendre(RecursivePolynomial):
-
-    def __init__(self, obs: ztyping.ObsTypeInput, coeffs: List[ztyping.ParamTypeInput],
-                 apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
-                 name: str = "Legendre"):  # noqa
+    def __init__(
+        self,
+        obs: ztyping.ObsTypeInput,
+        coeffs: list[ztyping.ParamTypeInput],
+        apply_scaling: bool = True,
+        coeff0: ztyping.ParamTypeInput | None = None,
+        name: str = "Legendre",
+    ):  # noqa
         """Linear combination of Legendre polynomials of order len(coeffs), the coeffs are overall scaling factors.
 
         The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
@@ -174,8 +209,13 @@ class Legendre(RecursivePolynomial):
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
             name: Name of the polynomial
         """
-        super().__init__(obs=obs, name=name,
-                         coeffs=coeffs, apply_scaling=apply_scaling, coeff0=coeff0)
+        super().__init__(
+            obs=obs,
+            name=name,
+            coeffs=coeffs,
+            apply_scaling=apply_scaling,
+            coeff0=coeff0,
+        )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
@@ -188,7 +228,7 @@ Legendre.register_analytic_integral(func=legendre_integral, limits=legendre_limi
 chebyshev_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
-@z.function(wraps='zfit_tensor')
+@z.function(wraps="zfit_tensor")
 def chebyshev_recurrence(p1, p2, _, x):
     """Recurrence relation for Chebyshev polynomials.
 
@@ -198,13 +238,20 @@ def chebyshev_recurrence(p1, p2, _, x):
 
 
 def chebyshev_shape(x, coeffs):
-    return create_poly(x=x, polys=chebyshev_polys, coeffs=coeffs, recurrence=chebyshev_recurrence)
+    return create_poly(
+        x=x, polys=chebyshev_polys, coeffs=coeffs, recurrence=chebyshev_recurrence
+    )
 
 
 class Chebyshev(RecursivePolynomial):
-
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
-                 name: str = "Chebyshev"):  # noqa
+    def __init__(
+        self,
+        obs,
+        coeffs: list,
+        apply_scaling: bool = True,
+        coeff0: ztyping.ParamTypeInput | None = None,
+        name: str = "Chebyshev",
+    ):  # noqa
         """Linear combination of Chebyshev (first kind) polynomials of order len(coeffs), coeffs are scaling factors.
 
         The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
@@ -232,9 +279,13 @@ class Chebyshev(RecursivePolynomial):
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
             name: Name of the polynomial
         """
-        super().__init__(obs=obs, name=name,
-                         coeffs=coeffs, coeff0=coeff0,
-                         apply_scaling=apply_scaling)
+        super().__init__(
+            obs=obs,
+            name=name,
+            coeffs=coeffs,
+            coeff0=coeff0,
+            apply_scaling=apply_scaling,
+        )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
@@ -249,21 +300,30 @@ def func_integral_chebyshev1(limits, norm, params, model):
     lower = z.convert_to_tensor(lower_rescaled)
     upper = z.convert_to_tensor(upper_rescaled)
 
-    integral = model.params[f"c_0"] * (upper - lower)  # if polynomial 0 is defined as T_0 = 1
+    integral = model.params[f"c_0"] * (
+        upper - lower
+    )  # if polynomial 0 is defined as T_0 = 1
     if model.degree >= 1:
-        integral += model.params[f"c_1"] * 0.5 * (upper ** 2 - lower ** 2)  # if polynomial 0 is defined as T_0 = 1
+        integral += (
+            model.params[f"c_1"] * 0.5 * (upper**2 - lower**2)
+        )  # if polynomial 0 is defined as T_0 = 1
     if model.degree >= 2:
 
         def indefinite_integral(limits):
             max_degree = model.degree + 1
-            polys = do_recurrence(x=limits, polys=chebyshev_polys, degree=max_degree,
-                                  recurrence=chebyshev_recurrence)
+            polys = do_recurrence(
+                x=limits,
+                polys=chebyshev_polys,
+                degree=max_degree,
+                recurrence=chebyshev_recurrence,
+            )
             one_limit_integrals = []
             for degree in range(2, max_degree):
                 coeff = model.params[f"c_{degree}"]
                 n_float = z.convert_to_tensor(degree)
-                integral = (n_float * polys[degree + 1] / (z.square(n_float) - 1)
-                            - limits * polys[degree] / (n_float - 1))
+                integral = n_float * polys[degree + 1] / (
+                    z.square(n_float) - 1
+                ) - limits * polys[degree] / (n_float - 1)
                 one_limit_integrals.append(coeff * integral)
             return z.reduce_sum(one_limit_integrals, axis=0)
 
@@ -275,19 +335,28 @@ def func_integral_chebyshev1(limits, norm, params, model):
 
 
 chebyshev1_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
-Chebyshev.register_analytic_integral(func=func_integral_chebyshev1, limits=chebyshev1_limits_integral)
+Chebyshev.register_analytic_integral(
+    func=func_integral_chebyshev1, limits=chebyshev1_limits_integral
+)
 
 chebyshev2_polys = [lambda x: tf.ones_like(x), lambda x: x * 2]
 
 
 def chebyshev2_shape(x, coeffs):
-    return create_poly(x=x, polys=chebyshev2_polys, coeffs=coeffs, recurrence=chebyshev_recurrence)
+    return create_poly(
+        x=x, polys=chebyshev2_polys, coeffs=coeffs, recurrence=chebyshev_recurrence
+    )
 
 
 class Chebyshev2(RecursivePolynomial):
-
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
-                 name: str = "Chebyshev2"):  # noqa
+    def __init__(
+        self,
+        obs,
+        coeffs: list,
+        apply_scaling: bool = True,
+        coeff0: ztyping.ParamTypeInput | None = None,
+        name: str = "Chebyshev2",
+    ):  # noqa
         """Linear combination of Chebyshev (second kind) polynomials of order len(coeffs), coeffs are scaling factors.
 
         The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
@@ -317,8 +386,13 @@ class Chebyshev2(RecursivePolynomial):
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
             name: Name of the polynomial
         """
-        super().__init__(obs=obs, name=name,
-                         coeffs=coeffs, coeff0=coeff0, apply_scaling=apply_scaling)
+        super().__init__(
+            obs=obs,
+            name=name,
+            coeffs=coeffs,
+            coeff0=coeff0,
+            apply_scaling=apply_scaling,
+        )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
@@ -335,11 +409,13 @@ def func_integral_chebyshev2(limits, norm, params, model):
 
     # the integral of cheby2_ni is a cheby1_ni+1/(n+1). We add the (n+1) to the coeffs. The cheby1 shape makes
     # the sum for us.
-    coeffs_cheby1 = {'c_0': z.constant(0., dtype=model.dtype)}
+    coeffs_cheby1 = {"c_0": z.constant(0.0, dtype=model.dtype)}
 
     for name, coeff in params.items():
         n_plus1 = int(name.split("_", 1)[-1]) + 1
-        coeffs_cheby1[f'c_{n_plus1}'] = coeff / z.convert_to_tensor(n_plus1, dtype=model.dtype)
+        coeffs_cheby1[f"c_{n_plus1}"] = coeff / z.convert_to_tensor(
+            n_plus1, dtype=model.dtype
+        )
     coeffs_cheby1 = convert_coeffs_dict_to_list(coeffs_cheby1)
 
     def indefinite_integral(limits):
@@ -353,18 +429,20 @@ def func_integral_chebyshev2(limits, norm, params, model):
 
 
 chebyshev2_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
-Chebyshev2.register_analytic_integral(func=func_integral_chebyshev2, limits=chebyshev2_limits_integral)
+Chebyshev2.register_analytic_integral(
+    func=func_integral_chebyshev2, limits=chebyshev2_limits_integral
+)
 
 
-def generalized_laguerre_polys_factory(alpha=0.):
+def generalized_laguerre_polys_factory(alpha=0.0):
     return [lambda x: tf.ones_like(x), lambda x: 1 + alpha - x]
 
 
-laguerre_polys = generalized_laguerre_polys_factory(alpha=0.)
+laguerre_polys = generalized_laguerre_polys_factory(alpha=0.0)
 
 
-def generalized_laguerre_recurrence_factory(alpha=0.):
-    @z.function(wraps='zfit_tensor')
+def generalized_laguerre_recurrence_factory(alpha=0.0):
+    @z.function(wraps="zfit_tensor")
     def generalized_laguerre_recurrence(p1, p2, n, x):
         """Recurrence relation for Laguerre polynomials.
 
@@ -375,10 +453,10 @@ def generalized_laguerre_recurrence_factory(alpha=0.):
     return generalized_laguerre_recurrence
 
 
-laguerre_recurrence = generalized_laguerre_recurrence_factory(alpha=0.)
+laguerre_recurrence = generalized_laguerre_recurrence_factory(alpha=0.0)
 
 
-def generalized_laguerre_shape_factory(alpha=0.):
+def generalized_laguerre_shape_factory(alpha=0.0):
     recurrence = generalized_laguerre_recurrence_factory(alpha=alpha)
     polys = generalized_laguerre_polys_factory(alpha=alpha)
 
@@ -388,14 +466,21 @@ def generalized_laguerre_shape_factory(alpha=0.):
     return general_laguerre_shape
 
 
-laguerre_shape = generalized_laguerre_shape_factory(alpha=0.)
-laguerre_shape_alpha_minusone = generalized_laguerre_shape_factory(alpha=-1.)  # for integral
+laguerre_shape = generalized_laguerre_shape_factory(alpha=0.0)
+laguerre_shape_alpha_minusone = generalized_laguerre_shape_factory(
+    alpha=-1.0
+)  # for integral
 
 
 class Laguerre(RecursivePolynomial):
-
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
-                 name: str = "Laguerre"):  # noqa
+    def __init__(
+        self,
+        obs,
+        coeffs: list,
+        apply_scaling: bool = True,
+        coeff0: ztyping.ParamTypeInput | None = None,
+        name: str = "Laguerre",
+    ):  # noqa
         """Linear combination of Laguerre polynomials of order len(coeffs), the coeffs are overall scaling factors.
 
         The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
@@ -423,15 +508,20 @@ class Laguerre(RecursivePolynomial):
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
             name: Name of the polynomial
         """
-        super().__init__(obs=obs, name=name, coeffs=coeffs, coeff0=coeff0,
-                         apply_scaling=apply_scaling)
+        super().__init__(
+            obs=obs,
+            name=name,
+            coeffs=coeffs,
+            coeff0=coeff0,
+            apply_scaling=apply_scaling,
+        )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
         return laguerre_shape(x=x, coeffs=coeffs)
 
 
-def func_integral_laguerre(limits, norm, params: Dict, model):
+def func_integral_laguerre(limits, norm, params: dict, model):
     """The integral of the simple laguerre polynomials.
 
     Defined as :math:`\\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
@@ -452,9 +542,11 @@ def func_integral_laguerre(limits, norm, params: Dict, model):
     upper = z.convert_to_tensor(upper_rescaled)
 
     # The laguerre shape makes the sum for us. setting the 0th coeff to 0, since no -1 term exists.
-    coeffs_laguerre_nup = {f'c_{int(n.split("_", 1)[-1]) + 1}': c
-                           for i, (n, c) in enumerate(params.items())}  # increase n -> n+1 of naming
-    coeffs_laguerre_nup['c_0'] = tf.constant(0., dtype=model.dtype)
+    coeffs_laguerre_nup = {
+        f'c_{int(n.split("_", 1)[-1]) + 1}': c
+        for i, (n, c) in enumerate(params.items())
+    }  # increase n -> n+1 of naming
+    coeffs_laguerre_nup["c_0"] = tf.constant(0.0, dtype=model.dtype)
     coeffs_laguerre_nup = convert_coeffs_dict_to_list(coeffs_laguerre_nup)
 
     def indefinite_integral(limits):
@@ -467,12 +559,14 @@ def func_integral_laguerre(limits, norm, params: Dict, model):
 
 
 laguerre_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
-Laguerre.register_analytic_integral(func=func_integral_laguerre, limits=laguerre_limits_integral)
+Laguerre.register_analytic_integral(
+    func=func_integral_laguerre, limits=laguerre_limits_integral
+)
 
 hermite_polys = [lambda x: tf.ones_like(x), lambda x: 2 * x]
 
 
-@z.function(wraps='zfit_tensor')
+@z.function(wraps="zfit_tensor")
 def hermite_recurrence(p1, p2, n, x):
     """Recurrence relation for Hermite polynomials (physics).
 
@@ -482,13 +576,20 @@ def hermite_recurrence(p1, p2, n, x):
 
 
 def hermite_shape(x, coeffs):
-    return create_poly(x=x, polys=hermite_polys, coeffs=coeffs, recurrence=hermite_recurrence)
+    return create_poly(
+        x=x, polys=hermite_polys, coeffs=coeffs, recurrence=hermite_recurrence
+    )
 
 
 class Hermite(RecursivePolynomial):
-
-    def __init__(self, obs, coeffs: list, apply_scaling: bool = True, coeff0: Optional[ztyping.ParamTypeInput] = None,
-                 name: str = "Hermite"):  # noqa
+    def __init__(
+        self,
+        obs,
+        coeffs: list,
+        apply_scaling: bool = True,
+        coeff0: ztyping.ParamTypeInput | None = None,
+        name: str = "Hermite",
+    ):  # noqa
         """Linear combination of Hermite polynomials (for physics) of order len(coeffs), with coeffs as scaling factors.
 
         The 0th coefficient is set to 1 by default but can be explicitly set with *coeff0*. Since the PDF normalization
@@ -515,8 +616,13 @@ class Hermite(RecursivePolynomial):
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
             name: Name of the polynomial
         """
-        super().__init__(obs=obs, name=name, coeffs=coeffs, coeff0=coeff0,
-                         apply_scaling=apply_scaling)
+        super().__init__(
+            obs=obs,
+            name=name,
+            coeffs=coeffs,
+            coeff0=coeff0,
+            apply_scaling=apply_scaling,
+        )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
@@ -532,11 +638,13 @@ def func_integral_hermite(limits, norm, params, model):
     upper = z.convert_to_tensor(upper_rescaled)
 
     # the integral of hermite is a hermite_ni. We add the ni to the coeffs.
-    coeffs = {'c_0': z.constant(0., dtype=model.dtype)}
+    coeffs = {"c_0": z.constant(0.0, dtype=model.dtype)}
 
     for name, coeff in params.items():
         ip1_coeff = int(name.split("_", 1)[-1]) + 1
-        coeffs[f'c_{ip1_coeff}'] = coeff / z.convert_to_tensor(ip1_coeff * 2., dtype=model.dtype)
+        coeffs[f"c_{ip1_coeff}"] = coeff / z.convert_to_tensor(
+            ip1_coeff * 2.0, dtype=model.dtype
+        )
     coeffs = convert_coeffs_dict_to_list(coeffs)
 
     def indefinite_integral(limits):
@@ -550,10 +658,12 @@ def func_integral_hermite(limits, norm, params, model):
 
 
 hermite_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
-Hermite.register_analytic_integral(func=func_integral_hermite, limits=hermite_limits_integral)
+Hermite.register_analytic_integral(
+    func=func_integral_hermite, limits=hermite_limits_integral
+)
 
 
-def convert_coeffs_dict_to_list(coeffs: Mapping) -> List:
+def convert_coeffs_dict_to_list(coeffs: Mapping) -> list:
     # HACK(Mayou36): how to solve elegantly? yield not a param, only a dependent?
     coeffs_list = []
     for i in range(len(coeffs)):
@@ -562,5 +672,6 @@ def convert_coeffs_dict_to_list(coeffs: Mapping) -> List:
         except KeyError:  # happens, if there are other parameters in there, such as a yield
             break
     return coeffs_list
+
 
 # EOF

@@ -1,23 +1,24 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Dict, Iterable, List, Set, Union
+from __future__ import annotations
+
+from collections.abc import Iterable
 
 import numpy as np
 
-import zfit
-from zfit.util.exception import SpaceIncompatibleError
-
+from .interfaces import ZfitDimensional
+from ..util.exception import SpaceIncompatibleError
 from ..util import ztyping
 from ..util.container import convert_to_container
-from .interfaces import ZfitDimensional
 
 
 class BaseDimensional(ZfitDimensional):
-
     def _check_n_obs(self, space):
         if self._N_OBS is not None:
             if len(space.obs) != self._N_OBS:
-                raise SpaceIncompatibleError(f"Exactly {self._N_OBS} obs are allowed, {space.obs} are given.")
+                raise SpaceIncompatibleError(
+                    f"Exactly {self._N_OBS} obs are allowed, {space.obs} are given."
+                )
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -41,7 +42,7 @@ class BaseDimensional(ZfitDimensional):
 def get_same_obs(obs):
     deps = [set() for _ in range(len(obs))]
     for i, ob in enumerate(obs):
-        for j, other_ob in enumerate(obs[i + 1:]):
+        for j, other_ob in enumerate(obs[i + 1 :]):
             if not set(ob).isdisjoint(other_ob):
                 deps[i].add(i)
                 deps[i].add(j + i + 1)
@@ -52,7 +53,9 @@ def get_same_obs(obs):
     return deps
 
 
-def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bool = False) -> bool:
+def limits_overlap(
+    spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bool = False
+) -> bool:
     """Check if _any_ of the limits of `spaces` overlaps with _any_ other of `spaces`.
 
     This also checks multiple limits within one space. If `allow_exact_match` is set to true, then
@@ -87,11 +90,19 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
                 up = upper[:, index]
 
                 for other_lower, other_upper in zip(lowers, uppers):
-                    if allow_exact_match and np.allclose(other_lower, low) and np.allclose(other_upper, up):
+                    if (
+                        allow_exact_match
+                        and np.allclose(other_lower, low)
+                        and np.allclose(other_upper, up)
+                    ):
                         continue
                     # TODO(Mayou36): tol? add global flags?
-                    low_overlaps = np.all(other_lower - eps < low) and np.all(low < other_upper - eps)
-                    up_overlaps = np.all(other_lower + eps < up) and np.all(up < other_upper + eps)
+                    low_overlaps = np.all(other_lower - eps < low) and np.all(
+                        low < other_upper - eps
+                    )
+                    up_overlaps = np.all(other_lower + eps < up) and np.all(
+                        up < other_upper + eps
+                    )
                     overlap = low_overlaps or up_overlaps
                     if overlap:
                         return True
@@ -100,7 +111,7 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
     return False
 
 
-def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]:
+def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> list[str] | bool:
     """Extract the union of `obs` from `spaces` in the order of `spaces`.
 
     For example:
@@ -127,7 +138,7 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]
     return all_obs
 
 
-def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool]:
+def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> list[str] | bool:
     """Extract the union of `axes` from `spaces` in the order of `spaces`.
 
     For example:
@@ -154,7 +165,9 @@ def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> Union[List[str], bool
     return all_axes
 
 
-def obs_subsets(dimensionals: Iterable[ZfitDimensional]) -> Dict[Set[str], ZfitDimensional]:
+def obs_subsets(
+    dimensionals: Iterable[ZfitDimensional],
+) -> dict[set[str], ZfitDimensional]:
     """Split `dimensionals` into the smallest subgroup of obs and return a dict.
 
     Args:

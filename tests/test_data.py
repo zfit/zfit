@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 import copy
 
@@ -10,7 +10,7 @@ import uproot
 
 import zfit
 
-obs1 = ('obs1', 'obs2', 'obs3')
+obs1 = ("obs1", "obs2", "obs3")
 
 example_data1 = np.random.random(size=(7, len(obs1)))
 
@@ -19,10 +19,57 @@ def create_data1():
     return zfit.Data.from_numpy(obs=obs1, array=example_data1)
 
 
-@pytest.mark.parametrize("weights_factory", [lambda: None,
-                                             lambda: 2. * tf.ones(shape=(1000,), dtype=tf.float64),
-                                             lambda: np.random.normal(size=1000),
-                                             lambda: 'eta1'])
+@pytest.mark.parametrize("obs_alias", [None, {"pt1": "pt2", "pt2": "pt1"}])
+def test_from_root_limits(obs_alias):
+    from skhep_testdata import data_path
+
+    path_root = data_path("uproot-Zmumu.root")
+
+    branches = ["pt1", "pt2"]
+    weight_branch = "eta1"
+    with uproot.open(path_root) as f:
+        tree = f["events"]
+        true_data_uncut = tree.arrays(branches + [weight_branch], library="pd")
+    lower1 = 40.5
+    upper1 = 60.2
+    lower2 = 10.5
+    upper2 = 40.4
+    if obs_alias is not None:  # swap branches in true_data_uncut
+        true_data_uncut = true_data_uncut.rename(
+            {"pt1": "pt2", "pt2": "pt1"}, axis="columns"
+        )
+
+    true_data = true_data_uncut.query(
+        f"pt1 > {lower1} & pt1 < {upper1} & pt2 > {lower2} & pt2 < {upper2}"
+    )
+    true_weights = true_data.pop(weight_branch)
+    obs1 = zfit.Space("pt1", limits=(lower1, upper1))
+    obs2 = zfit.Space("pt2", limits=(lower2, upper2))
+    obs = obs1 * obs2
+
+    data = zfit.Data.from_root(
+        path=path_root,
+        treepath="events",
+        obs=obs,
+        weights=weight_branch,
+        obs_alias=obs_alias,
+    )
+    x_np = data.value().numpy()
+    np.testing.assert_allclose(x_np, true_data[branches].values)
+
+    weights_np = data.weights.numpy()
+    np.testing.assert_allclose(weights_np, true_weights)
+
+
+@pytest.mark.parametrize(
+    "weights_factory",
+    [
+        lambda: None,
+        lambda: 2.0 * tf.ones(shape=(1000,), dtype=tf.float64),
+        lambda: np.random.normal(size=1000),
+        lambda: "eta1",
+    ],
+)
 def test_from_root(weights_factory):
     weights = weights_factory()
 
@@ -30,13 +77,14 @@ def test_from_root(weights_factory):
 
     path_root = data_path("uproot-Zmumu.root")
 
-    branches = ['pt1', 'pt2', "phi2"]
-    f = uproot.open(path_root)
-    tree = f['events']
+    branches = ["pt1", "pt2", "phi2"]
+    with uproot.open(path_root) as f:
+        tree = f["events"]
+        true_data = tree.arrays(library="pd")
 
-    true_data = tree.arrays(library='pd')
-
-    data = zfit.Data.from_root(path=path_root, treepath='events', branches=branches, weights=weights)
+    data = zfit.Data.from_root(
+        path=path_root, treepath="events", obs=branches, weights=weights
+    )
     x = data.value()
     x_np = x.numpy()
     if weights is not None:
@@ -45,7 +93,9 @@ def test_from_root(weights_factory):
         weights_np = weights
     np.testing.assert_allclose(x_np, true_data[branches].values)
     if weights is not None:
-        true_weights = weights if not isinstance(weights, str) else true_data[weights].values
+        true_weights = (
+            weights if not isinstance(weights, str) else true_data[weights].values
+        )
         if isinstance(true_weights, tf.Tensor):
             true_weights = true_weights.numpy()
         np.testing.assert_allclose(weights_np, true_weights)
@@ -53,9 +103,14 @@ def test_from_root(weights_factory):
         assert weights_np is None
 
 
-@pytest.mark.parametrize("weights_factory", [lambda: None,
-                                             lambda: 2. * tf.ones(shape=(1000,), dtype=tf.float64),
-                                             lambda: np.random.normal(size=1000), ])
+@pytest.mark.parametrize(
+    "weights_factory",
+    [
+        lambda: None,
+        lambda: 2.0 * tf.ones(shape=(1000,), dtype=tf.float64),
+        lambda: np.random.normal(size=1000),
+    ],
+)
 def test_from_numpy(weights_factory):
     weights = weights_factory()
 
@@ -98,14 +153,56 @@ def test_from_to_pandas():
     assert all(df == example_data)
 
 
-@pytest.mark.parametrize("weights_factory", [lambda: None,
-                                             lambda: 2. * tf.ones(shape=(1000,), dtype=tf.float64),
-                                             lambda: np.random.normal(size=1000), ])
+@pytest.mark.parametrize("weights_as_branch", [True, False])
+def test_from_pandas_limits(weights_as_branch):
+    from skhep_testdata import data_path
+
+    path_root = data_path("uproot-Zmumu.root")
+
+    branches = ["pt1", "pt2"]
+    weight_branch = "eta1"
+    with uproot.open(path_root) as f:
+        tree = f["events"]
+        true_data_uncut = tree.arrays(branches + [weight_branch], library="pd")
+    lower1 = 23.5
+    upper1 = 49.2
+    lower2 = 21.5
+    upper2 = 44.4
+    true_data = true_data_uncut.query(
+        f"pt1 > {lower1} & pt1 < {upper1} & pt2 > {lower2} & pt2 < {upper2}"
+    )
+
+    true_weights = true_data.pop(weight_branch)
+    obs1 = zfit.Space("pt1", limits=(lower1, upper1))
+    obs2 = zfit.Space("pt2", limits=(lower2, upper2))
+    obs = obs1 * obs2
+
+    weights_for_pandas = (
+        true_data_uncut[weight_branch] if weights_as_branch else weight_branch
+    )
+    data = zfit.Data.from_pandas(
+        df=true_data_uncut, obs=obs, weights=weights_for_pandas
+    )
+    x = data.value()
+    x_np = x.numpy()
+    np.testing.assert_allclose(x_np, true_data[branches].values)
+
+    weights_np = data.weights.numpy()
+    np.testing.assert_allclose(weights_np, true_weights)
+
+
+@pytest.mark.parametrize(
+    "weights_factory",
+    [
+        lambda: None,
+        lambda: 2.0 * tf.ones(shape=(1000,), dtype=tf.float64),
+        lambda: np.random.normal(size=1000),
+    ],
+)
 def test_from_tensors(weights_factory):
     weights = weights_factory()
-    true_tensor = 42. * tf.ones(shape=(1000, 1), dtype=tf.float64)
-    data = zfit.Data.from_tensor(obs='obs1', tensor=true_tensor,
-                                 weights=weights)
+    true_tensor = 42.0 * tf.ones(shape=(1000, 1), dtype=tf.float64)
+    data = zfit.Data.from_tensor(obs="obs1", tensor=true_tensor, weights=weights)
 
     weights_data = data.weights
     x = data.value()
@@ -123,12 +220,14 @@ def test_from_tensors(weights_factory):
 
 def test_overloaded_operators():
     data1 = create_data1()
-    a = data1 * 5.
+    a = data1 * 5.0
     np.testing.assert_array_equal(5 * example_data1, a.numpy())
     np.testing.assert_array_equal(example_data1, data1.numpy())
     data_squared = data1 * data1
-    np.testing.assert_allclose(example_data1 ** 2, data_squared.numpy(), rtol=1e-8)
-    np.testing.assert_allclose(np.log(example_data1), tf.math.log(data1).numpy(), rtol=1e-8)
+    np.testing.assert_allclose(example_data1**2, data_squared.numpy(), rtol=1e-8)
+    np.testing.assert_allclose(
+        np.log(example_data1), tf.math.log(data1).numpy(), rtol=1e-8
+    )
 
 
 def test_sort_by_obs():
@@ -177,16 +276,17 @@ def test_subdata():
     np.testing.assert_array_equal(example_data1, data1.value())
 
 
-@pytest.mark.parametrize("weights_factory", [lambda: None,
-                                             lambda: np.random.normal(size=5), ])
+@pytest.mark.parametrize(
+    "weights_factory",
+    [
+        lambda: None,
+        lambda: np.random.normal(size=5),
+    ],
+)
 def test_data_range(weights_factory):
-    data1 = np.array([[1., 2],
-                      [0, 1],
-                      [-2, 1],
-                      [-1, -1],
-                      [-5, 10]])
+    data1 = np.array([[1.0, 2], [0, 1], [-2, 1], [-1, -1], [-5, 10]])
     # data1 = data1.transpose()
-    obs = ['obs1', 'obs2']
+    obs = ["obs1", "obs2"]
     lower1, lower2 = (0.5, 1), (-3, -2)
     upper1, upper2 = (1.5, 2.5), (-1.5, 1.5)
     space1 = zfit.Space(obs, limits=(lower1, upper1))
@@ -206,7 +306,9 @@ def test_data_range(weights_factory):
         np.testing.assert_equal(cut_data1, value_cut.numpy())
         if dataset.has_weights:
             np.testing.assert_equal(cut_weights, dataset.weights.numpy())
-        np.testing.assert_equal(data1, value_uncut.numpy())  # check  that the original did NOT change
+        np.testing.assert_equal(
+            data1, value_uncut.numpy()
+        )  # check  that the original did NOT change
 
     np.testing.assert_equal(cut_data1, value_cut.numpy())
     np.testing.assert_equal(data1, dataset.value().numpy())

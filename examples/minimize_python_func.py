@@ -5,7 +5,7 @@ This may has some overhead in the beginning and won't be instantly fast compared
 Copyright (c) 2021 zfit
 """
 
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 import numpy as np
 import tensorflow as tf

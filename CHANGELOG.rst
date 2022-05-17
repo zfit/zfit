@@ -4,6 +4,46 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========
+
+0.9.0a2
+========
+
+Major Features and Improvements
+-------------------------------
+- improved data handling in constructors `from_pandas` (which allows now to
+  have weights as columns, dataframes that are a superset of the obs) and
+  `from_root` (obs can now be spaces and therefore cuts can be direcly applied)
+
+Breaking changes
+------------------
+
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+- SimpleLoss correctly supports both functions with implicit and explicit parameters, also if they
+  are decorated.
+- extended sampling errored for some cases of binned PDFs.
+- ``ConstantParameter`` errored when converted to numpy.
+- Simultaneous binned fits could error with different binning due to a missing sum over
+  a dimension.
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+- nlopt and ipyopt are now optional dependencies.
+
+Thanks
+------
+- @YaniBion for discovering the bug in the extended sampling and testing the alpha release
+- @ResStump for reporting the bug with the simultaneous binned fit
+
 0.9.0a2
 ========
 
@@ -75,6 +115,11 @@ Requirement changes
 
 Thanks
 ------
+
+
+0.8.3 (5 Apr 2022)
+===================
+- fixate nlopt to < 2.7.1
 
 
 0.8.2 (20 Sep 2021)

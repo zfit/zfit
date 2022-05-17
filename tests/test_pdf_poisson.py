@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import numpy as np
 import pytest
 
@@ -28,7 +28,7 @@ def create_poisson_composed_rate():
     return poisson
 
 
-@pytest.mark.parametrize('composed_rate', [False, True])
+@pytest.mark.parametrize("composed_rate", [False, True])
 def test_poisson(composed_rate):
     if composed_rate:
         poisson = create_poisson_composed_rate()
@@ -40,4 +40,4 @@ def test_poisson(composed_rate):
 
     samples = poisson.sample(10000).numpy()
 
-    assert np.std(samples) == pytest.approx(50 ** 0.5, rel=0.05)
+    assert np.std(samples) == pytest.approx(50**0.5, rel=0.05)

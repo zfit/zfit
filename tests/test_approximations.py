@@ -1,11 +1,12 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import pytest
 
 
 @pytest.fixture
 def params():
     import zfit
-    return [zfit.Parameter(f'param_{i}', i) for i in range(3)]
+
+    return [zfit.Parameter(f"param_{i}", i) for i in range(3)]
 
 
 def test_approx(params):

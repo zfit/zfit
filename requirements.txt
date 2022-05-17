@@ -6,8 +6,6 @@ deprecated
 dotmap
 hist
 iminuit>=2.3
-ipyopt<0.12
-nlopt
 numdifftools
 numpy>=1.16
 ordered-set
@@ -20,5 +18,6 @@ tensorflow-addons
 tensorflow_probability>=0.12,<0.14
 texttable
 tf_quant_finance>=v0.0.1-dev24
+uhi
 uproot>=4,<5
 zfit_interface

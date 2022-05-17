@@ -1,6 +1,10 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from collections.abc import Iterable
 from functools import wraps
-from typing import Any, Iterable, Tuple, Union
+from typing import Any
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -13,7 +17,9 @@ from ..settings import ztypes
 from ..z import numpy as znp
 
 
-def sample_with_replacement(a: tf.Tensor, axis: int, sample_shape: Tuple[int]) -> tf.Tensor:
+def sample_with_replacement(
+    a: tf.Tensor, axis: int, sample_shape: tuple[int]
+) -> tf.Tensor:
     """Sample from `a` with replacement to return a Tensor with `sample_shape`.
 
     Args:
@@ -39,13 +45,19 @@ def sample_with_replacement(a: tf.Tensor, axis: int, sample_shape: Tuple[int]) -
     """
 
     dim = tf.shape(a)[axis]
-    choice_indices = tf.random.uniform(sample_shape, minval=0, maxval=dim, dtype=tf.int32)
+    choice_indices = tf.random.uniform(
+        sample_shape, minval=0, maxval=dim, dtype=tf.int32
+    )
     samples = tf.gather(a, choice_indices, axis=axis)
     return samples
 
 
-def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union[float, tf.Tensor]] = None,
-                       logits: Iterable[Union[float, tf.Tensor]] = None, dtype=tf.int32) -> tf.Tensor:
+def counts_multinomial(
+    total_count: int | tf.Tensor,
+    probs: Iterable[float | tf.Tensor] = None,
+    logits: Iterable[float | tf.Tensor] = None,
+    dtype=tf.int32,
+) -> tf.Tensor:
     """Get the number of counts for different classes with given probs/logits.
 
     Args:
@@ -81,7 +93,7 @@ def counts_multinomial(total_count: Union[int, tf.Tensor], probs: Iterable[Union
     return _wrapped_multinomial_func(dtype, logits, probs, total_count)
 
 
-@function(wraps='tensor')
+@function(wraps="tensor")
 def _wrapped_multinomial_func(dtype, logits, probs, total_count):
     if probs is not None:
         shape = tf.shape(probs)
@@ -89,7 +101,9 @@ def _wrapped_multinomial_func(dtype, logits, probs, total_count):
     else:
         shape = tf.shape(logits)
         logits = znp.reshape(logits, [-1])
-    dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
+    dist = tfp.distributions.Multinomial(
+        total_count=total_count, probs=probs, logits=logits
+    )
     counts_flat = dist.sample()
     counts_flat = tf.cast(counts_flat, dtype=dtype)
     counts = znp.reshape(counts_flat, shape)
@@ -98,14 +112,24 @@ def _wrapped_multinomial_func(dtype, logits, probs, total_count):
 
 @wraps(tf.random.normal)
 def normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, name=None):
-    return tf.random.normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name)
+    return tf.random.normal(
+        shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name
+    )
 
 
 @wraps(tf.random.uniform)
 def uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
-    return tf.random.uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
+    return tf.random.uniform(
+        shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name
+    )
 
 
 @wraps(tf.random.poisson)
-def poisson(lam: Any, shape: Any, dtype: tf.DType = ztypes.float, seed: Any = None, name: Any = None):
+def poisson(
+    lam: Any,
+    shape: Any,
+    dtype: tf.DType = ztypes.float,
+    seed: Any = None,
+    name: Any = None,
+):
     return tf.random.poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)

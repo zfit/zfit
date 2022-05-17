@@ -1,15 +1,14 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
 
 import contextlib
 import multiprocessing
 import os
 import sys
-import warnings
-from typing import List, Optional, Union
 
 import tensorflow as tf
 from dotmap import DotMap
-from ordered_set import OrderedSet
 
 from .deprecation import deprecated
 from .exception import IllegalInGraphModeError
@@ -17,10 +16,9 @@ from .temporary import TemporarilySet
 
 
 class RunManager:
-    DEFAULT_MODE = {'graph': 'auto',
-                    'autograd': True}
+    DEFAULT_MODE = {"graph": "auto", "autograd": True}
 
-    def __init__(self, n_cpu='auto'):
+    def __init__(self, n_cpu="auto"):
         """Handle the resources and runtime specific options.
 
         The `run` method is equivalent to `sess.run`
@@ -59,21 +57,21 @@ class RunManager:
     def n_cpu(self):
         return len(self._cpu)
 
-    def set_n_cpu(self, n_cpu: Union[str, int] = 'auto', strict: bool = False) -> None:
+    def set_n_cpu(self, n_cpu: str | int = "auto", strict: bool = False) -> None:
         """Set the number of cpus to be used by zfit. For more control, use `set_cpus_explicit`.
 
         Args:
             n_cpu: Number of cpus, will be the number for inter-op parallelism
             strict: If strict, sets intra parallelism to 1
         """
-        if n_cpu == 'auto':
+        if n_cpu == "auto":
             try:
                 cpu = sorted(os.sched_getaffinity(0))
             except AttributeError:
                 cpu = range(multiprocessing.cpu_count())
         elif isinstance(n_cpu, int):
             cpu = range(n_cpu)
-        self._cpu = [f'dummy_cpu{i}' for i in cpu]
+        self._cpu = [f"dummy_cpu{i}" for i in cpu]
         n_cpu = len(cpu)
         if strict ^ self._strict:
             intra = 1 if strict else 2
@@ -94,11 +92,13 @@ class RunManager:
             tf.config.threading.set_inter_op_parallelism_threads(inter)
             self._n_cpu = inter + intra
         except RuntimeError as err:
-            raise RuntimeError("Cannot set the number of cpus after initialization, has to be at the beginning."
-                               f" Original message: {err}")
+            raise RuntimeError(
+                "Cannot set the number of cpus after initialization, has to be at the beginning."
+                f" Original message: {err}"
+            )
 
     @contextlib.contextmanager
-    def aquire_cpu(self, max_cpu: int = -1) -> List[str]:
+    def aquire_cpu(self, max_cpu: int = -1) -> list[str]:
         if isinstance(max_cpu, int):
             if max_cpu < 0:
                 max_cpu = max((self.n_cpu + 1 + max_cpu, 0))  # -1 means all
@@ -141,9 +141,10 @@ class RunManager:
         """
 
         from .graph import jit
+
         jit._set_all(not eager)
 
-    def set_graph_mode(self, graph: Optional[Union[bool, str, dict]] = None):
+    def set_graph_mode(self, graph: bool | str | dict | None = None):
         """Set the policy for graph building and the usage of automatic vs numerical gradients.
 
         zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
@@ -236,13 +237,17 @@ class RunManager:
                 explicitly on/off the graph building for this type of decorated functions.
         """
         if not tf.executing_eagerly():
-            raise IllegalInGraphModeError("Cannot change the execution mode of graph inside a `z.function`"
-                                          " decorated function. Only possible in an eager context.")
+            raise IllegalInGraphModeError(
+                "Cannot change the execution mode of graph inside a `z.function`"
+                " decorated function. Only possible in an eager context."
+            )
         if graph is None:
-            graph = 'auto'
-        return TemporarilySet(value=graph, setter=self._set_graph_mode, getter=self.get_graph_mode)
+            graph = "auto"
+        return TemporarilySet(
+            value=graph, setter=self._set_graph_mode, getter=self.get_graph_mode
+        )
 
-    def set_autograd_mode(self, autograd: Optional[bool] = None):
+    def set_autograd_mode(self, autograd: bool | None = None):
         """Use automatic or numerical gradients.
 
         zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
@@ -272,10 +277,18 @@ class RunManager:
         """
         if autograd is None:
             autograd = True
-        return TemporarilySet(value=autograd, setter=self._set_autograd_mode, getter=self.get_autograd_mode)
+        return TemporarilySet(
+            value=autograd,
+            setter=self._set_autograd_mode,
+            getter=self.get_autograd_mode,
+        )
 
     @deprecated(None, "Use `set_graph_mode` or `set_autograd_mode`.")
-    def set_mode(self, graph: Optional[Union[bool, str, dict]] = None, autograd: Optional[bool] = None):
+    def set_mode(
+        self,
+        graph: bool | str | dict | None = None,
+        autograd: bool | None = None,
+    ):
         """DEPRECATED!
 
         Use `set_graph_mode` or `set_autograd_mode`.
@@ -288,8 +301,9 @@ class RunManager:
     def _set_autograd_mode(self, autograd):
         if autograd is not None:
             from zfit import settings
+
             settings.options.numerical_grad = not autograd
-            self._mode['autograd'] = autograd
+            self._mode["autograd"] = autograd
 
     def _set_graph_mode(self, graph):
         from .graph import jit as jit_obj
@@ -300,26 +314,28 @@ class RunManager:
             jit_obj._set_all(True)
         elif graph is False:
             jit_obj._set_all(False)
-        elif graph == 'auto':
+        elif graph == "auto":
             jit_obj._set_default()
         elif isinstance(graph, dict):
             jit_obj._update_allowed(graph)
         elif graph is not None:
-            raise ValueError(f"{graph} is not a valid keyword to the `jit` behavior. Use either "
-                             f"True, False, 'default' or a dict. You can read more about it in the docs.")
+            raise ValueError(
+                f"{graph} is not a valid keyword to the `jit` behavior. Use either "
+                f"True, False, 'default' or a dict. You can read more about it in the docs."
+            )
         if graph is not None:
-            self._mode['graph'] = graph
+            self._mode["graph"] = graph
 
-    def get_graph_mode(self) -> Union[bool, str]:
+    def get_graph_mode(self) -> bool | str:
         """Return the current policy for graph building.
 
         Returns:
             The current policy. For more information, check :py:meth:`~zfit.run.set_mode`.
         """
-        return self.mode['graph']
+        return self.mode["graph"]
 
-    @deprecated(None, 'Use `get_graph_mode` instead.')
-    def current_policy_graph(self) -> Union[bool, str]:
+    @deprecated(None, "Use `get_graph_mode` instead.")
+    def current_policy_graph(self) -> bool | str:
         """DEPRECEATED!
 
         Use `get_graph_mode` instead.
@@ -332,7 +348,7 @@ class RunManager:
         Returns:
             If autograd is being used.
         """
-        return self.mode['autograd']
+        return self.mode["autograd"]
 
     def current_policy_autograd(self) -> bool:
         """DEPRECATED!
@@ -344,9 +360,11 @@ class RunManager:
     def set_mode_default(self):
         """Reset the mode to the default of `graph` = 'auto' and `autograd` = True."""
 
-        return TemporarilySet(value=self.DEFAULT_MODE,
-                              setter=lambda v: self.set_mode(**v),
-                              getter=lambda: self._mode)
+        return TemporarilySet(
+            value=self.DEFAULT_MODE,
+            setter=lambda v: self.set_mode(**v),
+            getter=lambda: self._mode,
+        )
 
     def clear_graph_cache(self):
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
@@ -360,6 +378,7 @@ class RunManager:
         any side-effects other than that.
         """
         from zfit.util.cache import clear_graph_cache
+
         clear_graph_cache()
 
     def assert_executing_eagerly(self):
@@ -389,7 +408,10 @@ class RunManager:
 
 def eval_object(obj: object) -> object:
     from zfit.core.parameter import BaseComposedParameter
-    if isinstance(obj, BaseComposedParameter):  # currently no numpy attribute. Should we add this?
+
+    if isinstance(
+        obj, BaseComposedParameter
+    ):  # currently no numpy attribute. Should we add this?
         obj = obj.value()
     if tf.is_tensor(obj):
         return obj.numpy()

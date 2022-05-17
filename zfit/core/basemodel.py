@@ -2,8 +2,16 @@
 
 Handle integration and sampling
 """
+#  Copyright (c) 2022 zfit
 
-#  Copyright (c) 2021 zfit
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Callable
 
 import abc
 import builtins
@@ -13,7 +21,7 @@ import math
 import warnings
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Union
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -27,23 +35,27 @@ from .dependents import _extract_dependencies
 from .dimension import BaseDimensional
 from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
 from .sample import UniformSampleAndWeights
-from .space import Space, convert_to_space, no_norm_range, supports
+from .space import Space, convert_to_space, supports
 from .. import z
 from ..core.integration import Integration
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.deprecation import deprecated_args, deprecated_norm_range
-from ..util.exception import (AnalyticIntegralNotImplemented,
-                              AnalyticSamplingNotImplemented,
-                              BasePDFSubclassingError,
-                              CannotConvertToNumpyError,
-                              FunctionNotImplemented,
-                              MultipleLimitsNotImplemented,
-                              NormRangeNotImplemented, ShapeIncompatibleError,
-                              SpaceIncompatibleError,
-                              SpecificFunctionNotImplemented, SubclassingError,
-                              WorkInProgressError)
+from ..util.exception import (
+    AnalyticIntegralNotImplemented,
+    AnalyticSamplingNotImplemented,
+    BasePDFSubclassingError,
+    CannotConvertToNumpyError,
+    FunctionNotImplemented,
+    MultipleLimitsNotImplemented,
+    NormRangeNotImplemented,
+    ShapeIncompatibleError,
+    SpaceIncompatibleError,
+    SpecificFunctionNotImplemented,
+    SubclassingError,
+    WorkInProgressError,
+)
 
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -80,14 +92,16 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     # TODO instructions on how to use
     """
+
     DEFAULTS_integration = DotMap()
-    DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(*args, randomized=False,
-                                                                                        **kwargs)
+    DEFAULTS_integration.mc_sampler = lambda *args, **kwargs: mc.sample_halton_sequence(
+        *args, randomized=False, **kwargs
+    )
     # _DEFAULTS_integration.mc_sampler = lambda dim, num_results, dtype: tf.random_uniform(maxval=1.,
     #                                                                                      shape=(num_results, dim),
     #                                                                                      dtype=dtype)
-    DEFAULTS_integration.draws_per_dim = 'auto'
-    DEFAULTS_integration.draws_simpson = 'auto'
+    DEFAULTS_integration.draws_per_dim = "auto"
+    DEFAULTS_integration.draws_simpson = "auto"
     DEFAULTS_integration.max_draws = 1_200_000
     DEFAULTS_integration.tol = 3e-6
     DEFAULTS_integration.auto_numeric_integrator = zintegrate.auto_integrate
@@ -96,9 +110,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     _inverse_analytic_integral = None
     _additional_repr = None
 
-    def __init__(self, obs: ztyping.ObsTypeInput, params: Union[Dict[str, ZfitParameter], None] = None,
-                 name: str = "BaseModel", dtype=ztypes.float,
-                 **kwargs):
+    def __init__(
+        self,
+        obs: ztyping.ObsTypeInput,
+        params: dict[str, ZfitParameter] | None = None,
+        name: str = "BaseModel",
+        dtype=ztypes.float,
+        **kwargs,
+    ):
         """The base model to inherit from and overwrite `_unnormalized_pdf`.
 
         Args:
@@ -111,15 +130,20 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self._check_set_space(obs)
 
         self._integration = DotMap()
-        self._integration.auto_numeric_integrator = self.DEFAULTS_integration.auto_numeric_integrator
-        self.integration = Integration(mc_sampler=self.DEFAULTS_integration.mc_sampler,
-                                       draws_per_dim=self.DEFAULTS_integration.draws_per_dim,
-                                       max_draws=self.DEFAULTS_integration.max_draws,
-                                       tol=self.DEFAULTS_integration.tol,
-                                       draws_simpson=None
-                                       )
-        self.update_integration_options(draws_per_dim=self.DEFAULTS_integration.draws_per_dim,
-                                        draws_simpson=self.DEFAULTS_integration.draws_simpson)
+        self._integration.auto_numeric_integrator = (
+            self.DEFAULTS_integration.auto_numeric_integrator
+        )
+        self.integration = Integration(
+            mc_sampler=self.DEFAULTS_integration.mc_sampler,
+            draws_per_dim=self.DEFAULTS_integration.draws_per_dim,
+            max_draws=self.DEFAULTS_integration.max_draws,
+            tol=self.DEFAULTS_integration.tol,
+            draws_simpson=None,
+        )
+        self.update_integration_options(
+            draws_per_dim=self.DEFAULTS_integration.draws_per_dim,
+            draws_simpson=self.DEFAULTS_integration.draws_simpson,
+        )
 
         self._sample_and_weights = UniformSampleAndWeights
 
@@ -127,8 +151,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         # check if subclass has decorator if required
-        cls._subclass_check_support(methods_to_check=_BaseModel_USER_IMPL_METHODS_TO_CHECK,
-                                    wrapper_not_overwritten=_BaseModel_register_check_support)
+        cls._subclass_check_support(
+            methods_to_check=_BaseModel_USER_IMPL_METHODS_TO_CHECK,
+            wrapper_not_overwritten=_BaseModel_register_check_support,
+        )
         cls._analytic_integral = zintegrate.AnalyticIntegral()
         cls._inverse_analytic_integral = []
         cls._additional_repr = {}
@@ -149,12 +175,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     else:
                         raise BasePDFSubclassingError(
                             f"Method {method_name} has been wrapped with supports but"
-                            f" is not allowed to. Has to handle all arguments.")
+                            f" is not allowed to. Has to handle all arguments."
+                        )
                 elif has_support:
                     raise BasePDFSubclassingError(
                         f"Method {method_name} has been overwritten and *has to* be"
                         f" wrapped by `supports` decorator (don't forget () ) to call the decorator"
-                        f" as it takes arguments")
+                        f" as it takes arguments"
+                    )
                 elif not has_support:
                     continue  # no support, has not been wrapped with
             else:
@@ -162,8 +190,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     continue  # not wrapped, no support, need no
 
             # if we reach this points, somethings was implemented wrongly
-            raise BasePDFSubclassingError("Method {} has not been correctly wrapped with @supports "
-                                          "OR has been wrapped but it should not be".format(method_name))
+            raise BasePDFSubclassingError(
+                "Method {} has not been correctly wrapped with @supports "
+                "OR has been wrapped but it should not be".format(method_name)
+            )
 
     # since subclasses can be funcs of pdfs, we need to now what to sample/integrate from
     @abc.abstractmethod
@@ -185,10 +215,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
-    def _convert_sort_x(self,
-                        x: ztyping.XTypeInput,
-                        partial: bool = False,
-                        allow_none: bool = False) -> Data:
+    def _convert_sort_x(
+        self, x: ztyping.XTypeInput, partial: bool = False, allow_none: bool = False
+    ) -> Data:
         if x is None:
             if not allow_none:
                 raise ValueError(f"x {x} given to {self} must be non-empty (not None).")
@@ -209,17 +238,23 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 try:
                     x = z.convert_to_tensor(value=x)
                 except TypeError:
-                    raise TypeError(f"Wrong type of x ({type(x)}). Has to be a `Data` or convertible to a tf.Tensor")
+                    raise TypeError(
+                        f"Wrong type of x ({type(x)}). Has to be a `Data` or convertible to a tf.Tensor"
+                    )
             # check dimension
             x = self._add_dim_to_x(x=x)
             x_shape = x.shape.as_list()[-1]
             if not partial and x_shape != self.n_obs:
-                raise ShapeIncompatibleError("The shape of x (={}) (in the last dim) does not"
-                                             "match the shape (={})of the model".format(x_shape, self.n_obs))
+                raise ShapeIncompatibleError(
+                    "The shape of x (={}) (in the last dim) does not"
+                    "match the shape (={})of the model".format(x_shape, self.n_obs)
+                )
             x = Data.from_tensor(obs=self.obs, tensor=x)
             yield x
 
-    def _add_dim_to_x(self, x):  # TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?
+    def _add_dim_to_x(
+        self, x
+    ):  # TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?
         if self.n_obs == 1:
             if len(x.shape.as_list()) == 0:
                 x = znp.expand_dims(x, -1)
@@ -227,8 +262,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 x = znp.expand_dims(x, -1)
         return x
 
-    def update_integration_options(self, draws_per_dim=None, mc_sampler=None, tol=None, max_draws=None,
-                                   draws_simpson=None):
+    def update_integration_options(
+        self,
+        draws_per_dim=None,
+        mc_sampler=None,
+        tol=None,
+        max_draws=None,
+        draws_simpson=None,
+    ):
         """Set the integration options.
 
         Args:
@@ -246,31 +287,40 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             self.integration.max_draws = max_draws
         if tol is not None:
             if tol > 1 or tol < 0:
-                raise ValueError("tol has to be between 0 and 1 (larger does not make sense)")
+                raise ValueError(
+                    "tol has to be between 0 and 1 (larger does not make sense)"
+                )
             self.integration.tol = tol
 
-        if draws_per_dim == 'auto':
+        if draws_per_dim == "auto":
             logtolonly = max(int(abs(math.log10(self.integration.tol))), 0)
             logexp = max(int(abs(math.log(self.integration.tol))), 2)
             logtol = int((logexp) ** 0.6)
-            high_draws = 2 ** logtol * 10 ** logtol
-            draws = min({0: 10, 1: 15, 2: 150, 3: 300, 4: 600}.get(logtolonly, 1e30), high_draws)
+            high_draws = 2**logtol * 10**logtol
+            draws = min(
+                {0: 10, 1: 15, 2: 150, 3: 300, 4: 600}.get(logtolonly, 1e30), high_draws
+            )
             draws = int(min(draws, self.integration.max_draws))
         if draws_per_dim is not None:
             self.integration.draws_per_dim = draws
 
-        if draws_simpson == 'auto':
+        if draws_simpson == "auto":
             logtol = abs(math.log10(self.integration.tol * 0.005))
-            npoints = 10 + 100 * (logtol + 1) + 1.8 ** logtol
+            npoints = 10 + 100 * (logtol + 1) + 1.8**logtol
             draws_simpson = int(npoints)
         if draws_simpson is not None:
             self.integration.draws_simpson = draws_simpson
 
     # TODO: remove below? or add "analytic gradients"?
-    def gradient(self, x: ztyping.XType, norm: ztyping.LimitsType, params: ztyping.ParamsTypeOpt = None):
+    def gradient(
+        self,
+        x: ztyping.XType,
+        norm: ztyping.LimitsType,
+        params: ztyping.ParamsTypeOpt = None,
+    ):
         raise NotImplementedError("Are the gradients needed?")
 
-    def _check_input_norm(self, norm, none_is_error=False) -> Optional[ZfitSpace]:
+    def _check_input_norm(self, norm, none_is_error=False) -> ZfitSpace | None:
         """Convert to :py:class:`~zfit.Space`.
 
         Args:
@@ -284,8 +334,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """
         if norm is None or (isinstance(norm, ZfitSpace) and not norm.limits_are_set):
             if none_is_error:
-                raise ValueError("Normalization range `norm` has to be specified or"
-                                 "a default normalization range has to be set. Currently, both are None")
+                raise ValueError(
+                    "Normalization range `norm` has to be specified or"
+                    "a default normalization range has to be set. Currently, both are None"
+                )
 
         return self._convert_sort_space(limits=norm)
 
@@ -298,9 +350,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         return self._convert_sort_space(limits=limits)
 
-    def _convert_sort_space(self, obs: Union[ztyping.ObsTypeInput, ztyping.LimitsTypeInput] = None,
-                            axes: ztyping.AxesTypeInput = None,
-                            limits: ztyping.LimitsTypeInput = None) -> Union[ZfitSpace, None]:
+    def _convert_sort_space(
+        self,
+        obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
+        axes: ztyping.AxesTypeInput = None,
+        limits: ztyping.LimitsTypeInput = None,
+    ) -> ZfitSpace | None:
         """Convert the inputs (using eventually `obs`, `axes`) to
         :py:class:`~zfit.ZfitSpace` and sort them according to own `obs`.
 
@@ -314,12 +369,16 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if obs is None:  # for simple limits to convert them
             obs = self.obs
         elif not set(obs).intersection(self.obs):
-            raise SpaceIncompatibleError("The given space {obs} is not compatible with the obs of the pdfs{self.obs};"
-                                         " they are disjoint.")
+            raise SpaceIncompatibleError(
+                "The given space {obs} is not compatible with the obs of the pdfs{self.obs};"
+                " they are disjoint."
+            )
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
         if self.space is not None:  # e.g. not the first call
-            space = space.with_coords(self.space, allow_superset=True, allow_subset=True)
+            space = space.with_coords(
+                self.space, allow_superset=True, allow_subset=True
+            )
         return space
 
     # Integrals
@@ -330,9 +389,15 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
-    @z.function(wraps='model')
-    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options=None,
-                  var=None) -> ztyping.XType:
+    @z.function(wraps="model")
+    def integrate(
+        self,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        options=None,
+        var=None,
+    ) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
@@ -350,7 +415,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if options is None:
             options = {}
         with self._convert_sort_x(var, allow_none=True) as var:
-            integral = self._single_hook_integrate(limits=limits, norm=norm, x=var, options=options)
+            integral = self._single_hook_integrate(
+                limits=limits, norm=norm, x=var, options=options
+            )
         return integral
 
     def _single_hook_integrate(self, limits, norm, x, options):
@@ -364,8 +431,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         try:
             integral = self._limits_integrate(limits=limits, norm=norm, options=options)
         except NormRangeNotImplemented:
-            unnormalized_integral = self._limits_integrate(limits=limits, norm=False, options=options)
-            normalization = self._limits_integrate(limits=norm, norm=False, options=options)
+            unnormalized_integral = self._limits_integrate(
+                limits=limits, norm=False, options=options
+            )
+            normalization = self._limits_integrate(
+                limits=norm, norm=False, options=options
+            )
             integral = unnormalized_integral / normalization
         return integral
 
@@ -375,7 +446,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         except MultipleLimitsNotImplemented:
             integrals = []
             for sub_limits in limits:
-                integrals.append(self._call_integrate(limits=sub_limits, norm=norm, options=options))
+                integrals.append(
+                    self._call_integrate(limits=sub_limits, norm=norm, options=options)
+                )
             integral = z.reduce_sum(znp.stack(integrals), axis=0)  # TODO: remove stack?
         return integral
 
@@ -392,24 +465,36 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         max_axes = self._analytic_integral.get_max_axes(limits=limits, axes=axes)
 
         integral = None
-        if max_axes and integral is None:  # TODO improve handling of available analytic integrals
+        if (
+            max_axes and integral is None
+        ):  # TODO improve handling of available analytic integrals
             with suppress(AnalyticIntegralNotImplemented):
+
                 def part_int(x):
                     """Temporary partial integration function."""
-                    return self._hook_partial_analytic_integrate(x, limits=limits, norm=norm)
+                    return self._hook_partial_analytic_integrate(
+                        x, limits=limits, norm=norm
+                    )
 
                 integral = self._auto_numeric_integrate(func=part_int, limits=limits)
         if integral is None:
-            integral = self._hook_numeric_integrate(limits=limits, norm=norm, options=options)
+            integral = self._hook_numeric_integrate(
+                limits=limits, norm=norm, options=options
+            )
         return integral
 
     @classmethod
     @deprecated_args(None, "Use `supports_norm` instead.", "supports_norm_range")
-    def register_analytic_integral(cls, func: Callable, limits: ztyping.LimitsType = None,
-                                   priority: Union[int, float] = 50, *,
-                                   supports_norm: bool = None,
-                                   supports_norm_range: bool = None,
-                                   supports_multiple_limits: bool = None) -> None:
+    def register_analytic_integral(
+        cls,
+        func: Callable,
+        limits: ztyping.LimitsType = None,
+        priority: int | float = 50,
+        *,
+        supports_norm: bool = None,
+        supports_norm_range: bool = None,
+        supports_multiple_limits: bool = None,
+    ) -> None:
         """Register an analytic integral with the class.
 
         Args:
@@ -439,8 +524,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             supports_norm = False
         if supports_multiple_limits is None:
             supports_multiple_limits = False
-        cls._analytic_integral.register(func=func, limits=limits, supports_norm=supports_norm,
-                                        priority=priority, supports_multiple_limits=supports_multiple_limits)
+        cls._analytic_integral.register(
+            func=func,
+            limits=limits,
+            supports_norm=supports_norm,
+            priority=priority,
+            supports_multiple_limits=supports_multiple_limits,
+        )
 
     @classmethod
     def register_inverse_analytic_integral(cls, func: Callable) -> None:
@@ -461,8 +551,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
-    def analytic_integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *,
-                           norm_range=None) -> ztyping.XType:
+    def analytic_integrate(
+        self,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        norm_range=None,
+    ) -> ztyping.XType:
         """Analytical integration over function and raise Error if not possible.
 
         Args:
@@ -497,13 +592,15 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             try:
                 normalization = self._limits_analytic_integrate(limits=norm, norm=False)
             except (AnalyticIntegralNotImplemented):
-                raise NormRangeNotImplemented("Function does not support this (or even any)"
-                                              "normalization range 'norm'."
-                                              " This usually means,that no analytic integral "
-                                              "is available for this function. Due to rule "
-                                              "safety, an analytical normalization has to "
-                                              "be available and no attempt of numerical "
-                                              "normalization was made.")
+                raise NormRangeNotImplemented(
+                    "Function does not support this (or even any)"
+                    "normalization range 'norm'."
+                    " This usually means,that no analytic integral "
+                    "is available for this function. Due to rule "
+                    "safety, an analytical normalization has to "
+                    "be available and no attempt of numerical "
+                    "normalization was made."
+                )
             else:
                 integral = unnormalized_integral / normalization
         return integral
@@ -514,7 +611,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         except MultipleLimitsNotImplemented:
             integrals = []
             for sub_limits in limits:
-                integrals.append(self._call_analytic_integrate(limits=sub_limits, norm=norm))
+                integrals.append(
+                    self._call_analytic_integrate(limits=sub_limits, norm=norm)
+                )
             integral = z.reduce_sum(znp.stack(integrals), axis=0)
         return integral
 
@@ -525,8 +624,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _fallback_analytic_integrate(self, limits, norm):
         try:
-            return self._analytic_integral.integrate(x=None, limits=limits, axes=limits.axes,
-                                                     norm=norm, model=self, params=self.params)
+            return self._analytic_integral.integrate(
+                x=None,
+                limits=limits,
+                axes=limits.axes,
+                norm=norm,
+                model=self,
+                params=self.params,
+            )
         except (SpecificFunctionNotImplemented, AnalyticIntegralNotImplemented):
             raise AnalyticIntegralNotImplemented
 
@@ -536,9 +641,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
-    def numeric_integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *,
-                          options=None,
-                          norm_range=None) -> ztyping.XType:
+    def numeric_integrate(
+        self,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        options=None,
+        norm_range=None,
+    ) -> ztyping.XType:
         """Numerical integration over the model.
 
         Args:
@@ -552,7 +662,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits = self._check_input_limits(limits=limits)
         if options is None:
             options = {}
-        return self._single_hook_numeric_integrate(limits=limits, norm=norm, options=options)
+        return self._single_hook_numeric_integrate(
+            limits=limits, norm=norm, options=options
+        )
 
     def _single_hook_numeric_integrate(self, limits, norm, options):
         return self._hook_numeric_integrate(limits=limits, norm=norm, options=options)
@@ -562,21 +674,35 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _norm_numeric_integrate(self, limits, norm, options):
         try:
-            integral = self._limits_numeric_integrate(limits=limits, norm=norm, options=options)
+            integral = self._limits_numeric_integrate(
+                limits=limits, norm=norm, options=options
+            )
         except NormRangeNotImplemented:
-            assert not norm.limits_are_false, "Internal: the caught Error should not be raised."
-            unnormalized_integral = self._limits_numeric_integrate(limits=limits, norm=False, options=options)
-            normalization = self._limits_numeric_integrate(limits=norm, norm=False, options=options)
+            assert (
+                not norm.limits_are_false
+            ), "Internal: the caught Error should not be raised."
+            unnormalized_integral = self._limits_numeric_integrate(
+                limits=limits, norm=False, options=options
+            )
+            normalization = self._limits_numeric_integrate(
+                limits=norm, norm=False, options=options
+            )
             integral = unnormalized_integral / normalization
         return integral
 
     def _limits_numeric_integrate(self, limits, norm, options):
         try:
-            integral = self._call_numeric_integrate(limits=limits, norm=norm, options=options)
+            integral = self._call_numeric_integrate(
+                limits=limits, norm=norm, options=options
+            )
         except MultipleLimitsNotImplemented:
             integrals = []
             for sub_limits in limits:
-                integrals.append(self._call_numeric_integrate(limits=sub_limits, norm=norm, options=options))
+                integrals.append(
+                    self._call_numeric_integrate(
+                        limits=sub_limits, norm=norm, options=options
+                    )
+                )
             integral = z.reduce_sum(znp.stack(integrals), axis=0)
 
         return integral
@@ -584,19 +710,30 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _call_numeric_integrate(self, limits, norm, options):
         with suppress(FunctionNotImplemented):
             return self._numeric_integrate(limits, norm, options=options)
-        return self._fallback_numeric_integrate(limits=limits, norm=norm, options=options)
+        return self._fallback_numeric_integrate(
+            limits=limits, norm=norm, options=options
+        )
 
     def _fallback_numeric_integrate(self, limits, norm, options):
-        return self._auto_numeric_integrate(func=self._func_to_integrate, limits=limits, norm=norm, options=options)
+        return self._auto_numeric_integrate(
+            func=self._func_to_integrate, limits=limits, norm=norm, options=options
+        )
 
     @_BaseModel_register_check_support(True)
     def _partial_integrate(self, x, limits, norm, *, options):
         raise SpecificFunctionNotImplemented
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     @deprecated_norm_range
-    def partial_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType, *, norm=None, options=None,
-                          norm_range: ztyping.LimitsType = None) -> ztyping.XTypeReturn:
+    def partial_integrate(
+        self,
+        x: ztyping.XTypeInput,
+        limits: ztyping.LimitsType,
+        *,
+        norm=None,
+        options=None,
+        norm_range: ztyping.LimitsType = None,
+    ) -> ztyping.XTypeReturn:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
@@ -617,32 +754,50 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
         with self._convert_sort_x(x, partial=True) as x:
-            return self._single_hook_partial_integrate(x=x, limits=limits, norm=norm, options=options)
+            return self._single_hook_partial_integrate(
+                x=x, limits=limits, norm=norm, options=options
+            )
 
     def _single_hook_partial_integrate(self, x, limits, norm, *, options):
-        return self._hook_partial_integrate(x=x, limits=limits, norm=norm, options=options)
+        return self._hook_partial_integrate(
+            x=x, limits=limits, norm=norm, options=options
+        )
 
     def _hook_partial_integrate(self, x, limits, norm, *, options):
-        integral = self._norm_partial_integrate(x=x, limits=limits, norm=norm, options=options)
+        integral = self._norm_partial_integrate(
+            x=x, limits=limits, norm=norm, options=options
+        )
         return integral
 
     def _norm_partial_integrate(self, x, limits, norm, *, options):
         try:
-            integral = self._limits_partial_integrate(x=x, limits=limits, norm=norm, options=options)
+            integral = self._limits_partial_integrate(
+                x=x, limits=limits, norm=norm, options=options
+            )
         except NormRangeNotImplemented:
-            assert not norm.limits_are_false, "Internal: the caught Error should not be raised."
-            unnormalized_integral = self._limits_partial_integrate(x=x, limits=limits, norm=False, options=options)
+            assert (
+                not norm.limits_are_false
+            ), "Internal: the caught Error should not be raised."
+            unnormalized_integral = self._limits_partial_integrate(
+                x=x, limits=limits, norm=False, options=options
+            )
             normalization = self._hook_integrate(limits=norm, norm=False, options=None)
             integral = unnormalized_integral / normalization
         return integral
 
     def _limits_partial_integrate(self, x, limits, norm, *, options):
         try:
-            integral = self._call_partial_integrate(x=x, limits=limits, norm=norm, options=options)
+            integral = self._call_partial_integrate(
+                x=x, limits=limits, norm=norm, options=options
+            )
         except MultipleLimitsNotImplemented:
             integrals = []
             for sub_limit in limits:
-                integrals.append(self._call_partial_integrate(x=x, limits=sub_limit, norm=norm, options=options))
+                integrals.append(
+                    self._call_partial_integrate(
+                        x=x, limits=sub_limit, norm=norm, options=options
+                    )
+                )
             integral = z.reduce_sum(znp.stack(integrals), axis=0)
 
         return integral
@@ -650,22 +805,30 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _call_partial_integrate(self, x, limits, norm, *, options):
 
         with suppress(FunctionNotImplemented):
-            return self._partial_integrate(x=x, limits=limits, norm=norm, options=options)
+            return self._partial_integrate(
+                x=x, limits=limits, norm=norm, options=options
+            )
         with suppress(AnalyticIntegralNotImplemented):
             return self._hook_partial_analytic_integrate(x=x, limits=limits, norm=norm)
         try:
-            return self._fallback_partial_integrate(x=x, limits=limits, norm=norm, options=options)
+            return self._fallback_partial_integrate(
+                x=x, limits=limits, norm=norm, options=options
+            )
         except FunctionNotImplemented:
             raise AnalyticIntegralNotImplemented
 
-    def _fallback_partial_integrate(self, x, limits: ZfitSpace, norm: ZfitSpace, *, options):
+    def _fallback_partial_integrate(
+        self, x, limits: ZfitSpace, norm: ZfitSpace, *, options
+    ):
         max_axes = self._analytic_integral.get_max_axes(limits=limits, axes=limits.axes)
         if max_axes:
             sublimits = limits.get_subspace(axes=max_axes)
 
             def part_int(x):  # change to partial integrate max axes?
                 """Temporary partial integration function."""
-                return self._hook_partial_analytic_integrate(x=x, limits=sublimits, norm=norm)
+                return self._hook_partial_analytic_integrate(
+                    x=x, limits=sublimits, norm=norm
+                )
 
             axes = list(set(limits.axes) - set(max_axes))
             limits = limits.get_subspace(axes=axes)
@@ -673,7 +836,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             part_int = self._func_to_integrate
 
         assert limits.axes, "Internal Error! Axes should not be empty, maybe cleanup."
-        integral_vals = self._auto_numeric_integrate(func=part_int, limits=limits, x=x, norm=norm)
+        integral_vals = self._auto_numeric_integrate(
+            func=part_int, limits=limits, x=x, norm=norm
+        )
 
         return integral_vals
 
@@ -682,10 +847,16 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _partial_analytic_integrate(self, x, limits, norm, *, norm_range=None):
         raise SpecificFunctionNotImplemented
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     @deprecated_norm_range
-    def partial_analytic_integrate(self, x: ztyping.XTypeInput, limits: ztyping.LimitsType,
-                                   norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XTypeReturn:
+    def partial_analytic_integrate(
+        self,
+        x: ztyping.XTypeInput,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        norm_range=None,
+    ) -> ztyping.XTypeReturn:
         """Do analytical partial integration of the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
@@ -708,7 +879,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
         with self._convert_sort_x(x, partial=True) as x:
-            return self._single_hook_partial_analytic_integrate(x=x, limits=limits, norm=norm)
+            return self._single_hook_partial_analytic_integrate(
+                x=x, limits=limits, norm=norm
+            )
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm):
         return self._hook_partial_analytic_integrate(x=x, limits=limits, norm=norm)
@@ -718,28 +891,42 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _norm_partial_analytic_integrate(self, x, limits, norm):
         try:
-            integral = self._limits_partial_analytic_integrate(x=x, limits=limits, norm=norm)
+            integral = self._limits_partial_analytic_integrate(
+                x=x, limits=limits, norm=norm
+            )
         except NormRangeNotImplemented:
-            assert not norm.limits_are_false, "Internal: the caught Error should not be raised."
-            unnormalized_integral = self._limits_partial_analytic_integrate(x=x, limits=limits, norm=False)
+            assert (
+                not norm.limits_are_false
+            ), "Internal: the caught Error should not be raised."
+            unnormalized_integral = self._limits_partial_analytic_integrate(
+                x=x, limits=limits, norm=False
+            )
             try:
                 normalization = self._limits_analytic_integrate(limits=norm, norm=False)
             except AnalyticIntegralNotImplemented:
-                raise NormRangeNotImplemented("Function does not support this (or even any) normalization range"
-                                              " 'norm'. This usually means,that no analytic integral "
-                                              "is available for this function. An analytical normalization has to "
-                                              "be available and no attempt of numerical normalization was made.")
+                raise NormRangeNotImplemented(
+                    "Function does not support this (or even any) normalization range"
+                    " 'norm'. This usually means,that no analytic integral "
+                    "is available for this function. An analytical normalization has to "
+                    "be available and no attempt of numerical normalization was made."
+                )
             else:
                 integral = unnormalized_integral / normalization
         return integral
 
     def _limits_partial_analytic_integrate(self, x, limits, norm):
         try:
-            integral = self._call_partial_analytic_integrate(x=x, limits=limits, norm=norm)
+            integral = self._call_partial_analytic_integrate(
+                x=x, limits=limits, norm=norm
+            )
         except MultipleLimitsNotImplemented:
             integrals = []
             for sub_limits in limits:
-                integrals.append(self._call_partial_analytic_integrate(x=x, limits=sub_limits, norm=norm))
+                integrals.append(
+                    self._call_partial_analytic_integrate(
+                        x=x, limits=sub_limits, norm=norm
+                    )
+                )
             integral = z.reduce_sum(znp.stack(integrals), axis=0)
 
         return integral
@@ -751,8 +938,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _fallback_partial_analytic_integrate(self, x, limits, norm):
         try:
-            return self._analytic_integral.integrate(x=x, limits=limits, axes=limits.axes,
-                                                     norm=norm, model=self, params=self.params)
+            return self._analytic_integral.integrate(
+                x=x,
+                limits=limits,
+                axes=limits.axes,
+                norm=norm,
+                model=self,
+                params=self.params,
+            )
         except (SpecificFunctionNotImplemented, AnalyticIntegralNotImplemented):
             raise AnalyticIntegralNotImplemented
 
@@ -761,10 +954,16 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _partial_numeric_integrate(self, x, limits, norm, *, norm_range):
         raise SpecificFunctionNotImplemented
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     @deprecated_norm_range
-    def partial_numeric_integrate(self, x: ztyping.XType, limits: ztyping.LimitsType,
-                                  norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
+    def partial_numeric_integrate(
+        self,
+        x: ztyping.XType,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        norm_range=None,
+    ) -> ztyping.XType:
         """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
@@ -781,7 +980,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         with self._convert_sort_x(x, partial=True) as x:
-            return self._single_hook_partial_numeric_integrate(x=x, limits=limits, norm=norm)
+            return self._single_hook_partial_numeric_integrate(
+                x=x, limits=limits, norm=norm
+            )
 
     def _single_hook_partial_numeric_integrate(self, x, limits, norm):
         return self._hook_partial_numeric_integrate(x=x, limits=limits, norm=norm)
@@ -792,20 +993,34 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _norm_partial_numeric_integrate(self, x, limits, norm):
         try:
-            integral = self._limits_partial_numeric_integrate(x=x, limits=limits, norm=norm)
+            integral = self._limits_partial_numeric_integrate(
+                x=x, limits=limits, norm=norm
+            )
         except NormRangeNotImplemented:
-            assert not norm.limits_are_false, "Internal: the caught Error should not be raised."
-            unnormalized_integral = self._limits_partial_numeric_integrate(x=x, limits=limits, norm=False)
-            integral = unnormalized_integral / self._hook_numeric_integrate(limits=norm, norm=norm, options=options)
+            assert (
+                not norm.limits_are_false
+            ), "Internal: the caught Error should not be raised."
+            unnormalized_integral = self._limits_partial_numeric_integrate(
+                x=x, limits=limits, norm=False
+            )
+            integral = unnormalized_integral / self._hook_numeric_integrate(
+                limits=norm, norm=norm
+            )
         return integral
 
     def _limits_partial_numeric_integrate(self, x, limits, norm):
         try:
-            integral = self._call_partial_numeric_integrate(x=x, limits=limits, norm=norm)
+            integral = self._call_partial_numeric_integrate(
+                x=x, limits=limits, norm=norm
+            )
         except MultipleLimitsNotImplemented:
             integrals = []
             for sub_limits in limits:
-                integrals.append(self._call_partial_numeric_integrate(x=x, limits=sub_limits, norm=norm))
+                integrals.append(
+                    self._call_partial_numeric_integrate(
+                        x=x, limits=sub_limits, norm=norm
+                    )
+                )
             integral = z.reduce_sum(znp.stack(integrals), axis=0)
         return integral
 
@@ -815,14 +1030,18 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return self._fallback_partial_numeric_integrate(x=x, limits=limits, norm=norm)
 
     def _fallback_partial_numeric_integrate(self, x, limits, norm=False):
-        return self._auto_numeric_integrate(func=self._func_to_integrate, limits=limits, x=x, norm=norm)
+        return self._auto_numeric_integrate(
+            func=self._func_to_integrate, limits=limits, x=x, norm=norm
+        )
 
-    @no_norm_range
-    @z.function(wraps='model')
-    def _auto_numeric_integrate(self, func, limits, x=None, options=None, **overwrite_options):
+    @supports(multiple_limits=True)
+    @z.function(wraps="model")
+    def _auto_numeric_integrate(
+        self, func, limits, x=None, options=None, **overwrite_options
+    ):
         if options is None:
             options = {}
-        is_binned = options.get('type') == 'bins'
+        is_binned = options.get("type") == "bins"
         vectorizable = is_binned
         draws_per_dim = self.integration.draws_per_dim
         draws_simpson = self.integration.draws_simpson
@@ -832,18 +1051,23 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             draws_simpson = max(draws_simpson // 30, 10)
             # draws_simpson = 100
 
-        integration_options = dict(func=func, limits=limits, n_axes=limits.n_obs, x=x,
-                                   # auto from self
-                                   vectorizable=vectorizable,
-                                   dtype=self.dtype,
-                                   mc_sampler=self.integration.mc_sampler,
-                                   mc_options={
-                                       "draws_per_dim": draws_per_dim,
-                                       "max_draws": self.integration.max_draws,
-                                   },
-                                   tol=self.integration.tol,
-                                   simpsons_options={'draws_simpson': draws_simpson},
-                                   **overwrite_options)
+        integration_options = dict(
+            func=func,
+            limits=limits,
+            n_axes=limits.n_obs,
+            x=x,
+            # auto from self
+            vectorizable=vectorizable,
+            dtype=self.dtype,
+            mc_sampler=self.integration.mc_sampler,
+            mc_options={
+                "draws_per_dim": draws_per_dim,
+                "max_draws": self.integration.max_draws,
+            },
+            tol=self.integration.tol,
+            simpsons_options={"draws_simpson": draws_simpson},
+            **overwrite_options,
+        )
         return self._integration.auto_numeric_integrator(**integration_options)
 
     @supports()
@@ -858,10 +1082,16 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             elif len(params) == 3:
                 return icdf(x=x, params=self.params, model=self)
             else:
-                raise RuntimeError(f"icdf function does not have the right signature: {icdf}")
+                raise RuntimeError(
+                    f"icdf function does not have the right signature: {icdf}"
+                )
 
-    def create_sampler(self, n: ztyping.nSamplingTypeIn = None, limits: ztyping.LimitsType = None,
-                       fixed_params: Union[bool, List[ZfitParameter], Tuple[ZfitParameter]] = True) -> "Sampler":
+    def create_sampler(
+        self,
+        n: ztyping.nSamplingTypeIn = None,
+        limits: ztyping.LimitsType = None,
+        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
+    ) -> Sampler:
         """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
 
             If `limits` is not specified, `space` is used (if the space contains limits).
@@ -909,12 +1139,17 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         def sample_func(n=n):
             return self._create_sampler_tensor(limits=limits, n=n)
 
-        sample_data = Sampler.from_sample(sample_func=sample_func, n=n, obs=limits, fixed_params=fixed_params,
-                                          dtype=self.dtype)
+        sample_data = Sampler.from_sample(
+            sample_func=sample_func,
+            n=n,
+            obs=limits,
+            fixed_params=fixed_params,
+            dtype=self.dtype,
+        )
 
         return sample_data
 
-    @z.function(wraps='model')
+    @z.function(wraps="model")
     def _create_sampler_tensor(self, limits, n):
 
         sample = self._single_hook_sample(n=n, limits=limits, x=None)
@@ -924,10 +1159,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _sample(self, n, limits: ZfitSpace):
         raise SpecificFunctionNotImplemented
 
-    def sample(self, n: ztyping.nSamplingTypeIn = None,
-               limits: ztyping.LimitsType = None,
-               x: Optional[
-                   ztyping.DataInputType] = None) -> SampleData:  # TODO: change poissonian top-level with multinomial
+    def sample(
+        self,
+        n: ztyping.nSamplingTypeIn = None,
+        limits: ztyping.LimitsType = None,
+        x: ztyping.DataInputType | None = None,
+    ) -> SampleData:  # TODO: change poissonian top-level with multinomial
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
@@ -957,10 +1194,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if not limits.limits_are_set:
             limits = self.space
             if not limits.has_limits:
-                raise tf.errors.InvalidArgumentError("limits are False/None, have to be specified")
+                raise tf.errors.InvalidArgumentError(
+                    "limits are False/None, have to be specified"
+                )
         limits = self._check_input_limits(limits=limits, none_is_error=True)
 
-        @z.function(wraps='model_sampling')
+        @z.function(wraps="model_sampling")
         def run_tf(n, limits, x):
             sample = self._single_hook_sample(n=n, limits=limits, x=x)
             return sample
@@ -970,8 +1209,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 new_obs = limits * x.data_range
             else:
                 new_obs = limits
-            sample_data = SampleData.from_sample(sample=run_tf(n=n, limits=limits, x=x),
-                                                 obs=new_obs)  # TODO: which limits?
+            sample_data = SampleData.from_sample(
+                sample=run_tf(n=n, limits=limits, x=x), obs=new_obs
+            )  # TODO: which limits?
 
         return sample_data
 
@@ -992,11 +1232,15 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         except MultipleLimitsNotImplemented as error:
             try:
                 total_integral = self.analytic_integrate(limits, norm=False)
-                sub_integrals = znp.concatenate([self.analytic_integrate(limit, norm=False) for limit in limits],
-                                                axis=0)
+                sub_integrals = znp.concatenate(
+                    [self.analytic_integrate(limit, norm=False) for limit in limits],
+                    axis=0,
+                )
             except AnalyticIntegralNotImplemented:
-                raise MultipleLimitsNotImplemented("Cannot autohandle multiple limits as the analytic"
-                                                   " integral is not available.") from error
+                raise MultipleLimitsNotImplemented(
+                    "Cannot autohandle multiple limits as the analytic"
+                    " integral is not available."
+                ) from error
             fracs = sub_integrals / total_integral
             n_samples = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
 
@@ -1017,7 +1261,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             return self._analytic_sample(n=n, limits=limits)
         return self._fallback_sample(n=n, limits=limits)
 
-    def _analytic_sample(self, n, limits: ZfitSpace):  # TODO(Mayou36) implement multiple limits sampling
+    def _analytic_sample(
+        self, n, limits: ZfitSpace
+    ):  # TODO(Mayou36) implement multiple limits sampling
         if not self._inverse_analytic_integral:
             raise AnalyticSamplingNotImplemented  # TODO(Mayou36): create proper analytic sampling
         if limits.n_limits > 1:
@@ -1025,34 +1271,47 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         try:
             lower_bound, upper_bound = limits.rect_limits_np
         except CannotConvertToNumpyError as err:
-            raise WorkInProgressError("Currently, analytic sampling with Tensors not supported."
-                                      " Needs implementation of analytic integrals with Tensors.") from err
-        neg_infinities = (tuple((-float("inf"),) * limits.n_obs),)  # py34 change float("inf") to math.inf
+            raise WorkInProgressError(
+                "Currently, analytic sampling with Tensors not supported."
+                " Needs implementation of analytic integrals with Tensors."
+            ) from err
+        neg_infinities = (
+            tuple((-float("inf"),) * limits.n_obs),
+        )  # py34 change float("inf") to math.inf
         # to the cdf to get the limits for the inverse analytic integral
         try:
-            lower_prob_lim = self._norm_analytic_integrate(limits=Space(limits=(neg_infinities,
-                                                                                (lower_bound,)),
-                                                                        axes=limits.axes),
-                                                           norm=False)
+            lower_prob_lim = self._norm_analytic_integrate(
+                limits=Space(limits=(neg_infinities, (lower_bound,)), axes=limits.axes),
+                norm=False,
+            )
 
-            upper_prob_lim = self._norm_analytic_integrate(limits=Space(limits=(neg_infinities,
-                                                                                (upper_bound,)),
-                                                                        axes=limits.axes),
-                                                           norm=False)
+            upper_prob_lim = self._norm_analytic_integrate(
+                limits=Space(limits=(neg_infinities, (upper_bound,)), axes=limits.axes),
+                norm=False,
+            )
         except (SpecificFunctionNotImplemented, AnalyticIntegralNotImplemented):
-            raise AnalyticSamplingNotImplemented(f"analytic sampling not possible because the analytic integral"
-                                                 f" is not"" implemented for the boundaries: {limits}")
-        prob_sample = z.random.uniform(shape=(n, limits.n_obs), minval=lower_prob_lim,
-                                       maxval=upper_prob_lim)
+            raise AnalyticSamplingNotImplemented(
+                f"analytic sampling not possible because the analytic integral"
+                f" is not"
+                " implemented for the boundaries: {limits}"
+            )
+        prob_sample = z.random.uniform(
+            shape=(n, limits.n_obs), minval=lower_prob_lim, maxval=upper_prob_lim
+        )
         # with self._convert_sort_x(prob_sample) as x:
         x = prob_sample
         sample = self._inverse_analytic_integrate(x=x)
         return sample
 
     def _fallback_sample(self, n, limits):
-        sample = zsample.accept_reject_sample(prob=self._func_to_sample_from, n=n, limits=limits,
-                                              prob_max=None, dtype=self.dtype,
-                                              sample_and_weights_factory=self._sample_and_weights)
+        sample = zsample.accept_reject_sample(
+            prob=self._func_to_sample_from,
+            n=n,
+            limits=limits,
+            prob_max=None,
+            dtype=self.dtype,
+            sample_and_weights_factory=self._sample_and_weights,
+        )
         return sample
 
     @classmethod
@@ -1067,8 +1326,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             cls._additional_repr = {}
         overwritten_keys = set(kwargs).intersection(cls._additional_repr)
         if overwritten_keys:
-            warnings.warn("The following keys have been overwritten while registering additional repr:"
-                          "\n{}".format([str(k) for k in overwritten_keys]))
+            warnings.warn(
+                "The following keys have been overwritten while registering additional repr:"
+                "\n{}".format([str(k) for k in overwritten_keys])
+            )
         cls._additional_repr = dict(cls._additional_repr, **kwargs)
 
     def _get_additional_repr(self, sorted=True):
@@ -1083,9 +1344,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             try:
                 new_obj = getattr(self, val)
             except AttributeError:
-                raise AttributeError("The attribute {} is not a valid attribute of this class {}."
-                                     "Cannot use it in __repr__. It was added using the"
-                                     "`register_additional_repr` function".format(val, type(self)))
+                raise AttributeError(
+                    "The attribute {} is not a valid attribute of this class {}."
+                    "Cannot use it in __repr__. It was added using the"
+                    "`register_additional_repr` function".format(val, type(self))
+                )
             else:
                 if callable(new_obj):
                     new_obj = new_obj()
@@ -1096,10 +1359,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def __repr__(self):  # TODO(mayou36):repr to baseobject with _repr
 
-        return ("<zfit.{type_name} "
-                " params=[{params}]".format(type_name=type(self),
-                                            params=", ".join(sorted(str(p.name) for p in self.params.values())),
-                                            ))
+        return "<zfit.{type_name} " " params=[{params}]".format(
+            type_name=type(self),
+            params=", ".join(sorted(str(p.name) for p in self.params.values())),
+        )
 
     def _check_input_x_function(self, func):
         # TODO: signature etc?
@@ -1112,18 +1375,22 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def __add__(self, other):
         from . import operations
+
         return operations.add(self, other)
 
     def __radd__(self, other):
         from . import operations
+
         return operations.add(other, self)
 
     def __mul__(self, other):
         from . import operations
+
         return operations.multiply(self, other)
 
     def __rmul__(self, other):
         from . import operations
+
         return operations.multiply(other, self)
 
 
@@ -1152,8 +1419,10 @@ class SimpleModelSubclassMixin:
         try:
             params = OrderedDict((name, kwargs.pop(name)) for name in self._PARAMS)
         except KeyError:
-            raise ValueError("The following parameters are not given (as keyword arguments): {}"
-                             "".format([k for k in self._PARAMS if k not in kwargs]))
+            raise ValueError(
+                "The following parameters are not given (as keyword arguments): {}"
+                "".format([k for k in self._PARAMS if k not in kwargs])
+            )
         super().__init__(params=params, *args, **kwargs)
         # super().__init__(params=params, *args, **kwargs)  # use if upper fails
 
@@ -1162,10 +1431,12 @@ class SimpleModelSubclassMixin:
         try:
             params = cls._PARAMS
         except AttributeError:
-            raise SubclassingError("Need to define `_PARAMS` in the definition of the subclass."
-                                   "Example:"
-                                   "class MyModel(ZPDF):"
-                                   "    _PARAMS = ['mu', 'sigma']")
+            raise SubclassingError(
+                "Need to define `_PARAMS` in the definition of the subclass."
+                "Example:"
+                "class MyModel(ZPDF):"
+                "    _PARAMS = ['mu', 'sigma']"
+            )
         not_str = [param for param in params if not isinstance(param, str)]
         if not_str:
             raise TypeError(f"The following parameters are not strings in `_PARAMS`: ")

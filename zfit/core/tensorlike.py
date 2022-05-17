@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import functools
 
 import tensorflow as tf
@@ -8,13 +8,15 @@ from tensorflow.python.ops import array_ops
 from zfit.core import interfaces as zinterfaces
 
 
-def register_tensor_conversion(convertable, name=None, overload_operators=True,
-                               priority=10):  # higher than any tf conversion
-
+def register_tensor_conversion(
+    convertable, name=None, overload_operators=True, priority=10
+):  # higher than any tf conversion
     def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
         return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
 
-    ops.register_tensor_conversion_function(convertable, _dense_var_to_tensor, priority=priority)
+    ops.register_tensor_conversion_function(
+        convertable, _dense_var_to_tensor, priority=priority
+    )
     if name:
         pass
         # _pywrap_utils.RegisterType(name, convertable)
@@ -27,13 +29,16 @@ class OverloadableMixin:
 
     # Conversion to tensor.
     @staticmethod
-    def _TensorConversionFunction(v, dtype=None, name=None, as_ref=False):  # pylint: disable=invalid-name
+    def _TensorConversionFunction(
+        v, dtype=None, name=None, as_ref=False
+    ):  # pylint: disable=invalid-name
         """Utility function for converting a Variable to a Tensor."""
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
             raise ValueError(
                 "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, v.dtype.name))
+                "of type '%s'" % (dtype.name, v.dtype.name)
+            )
         if as_ref:
             return v._ref()  # pylint: disable=protected-access
         else:
@@ -44,9 +49,10 @@ class OverloadableMixin:
         if dtype and not dtype.is_compatible_with(self.dtype):
             raise ValueError(
                 "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, self.dtype.name))
+                "of type '%s'" % (dtype.name, self.dtype.name)
+            )
         if as_ref:
-            if hasattr(self, '_ref'):
+            if hasattr(self, "_ref"):
                 return self._ref()
             else:
                 raise RuntimeError("Why is this needed?")
@@ -90,17 +96,21 @@ class OverloadableMixin:
         functools.update_wrapper(_run_op, tensor_oper)
         setattr(cls, operator, _run_op)
 
+
 class OverloadableMixinValues:
 
     # Conversion to tensor.
     @staticmethod
-    def _TensorConversionFunction(v, dtype=None, name=None, as_ref=False):  # pylint: disable=invalid-name
+    def _TensorConversionFunction(
+        v, dtype=None, name=None, as_ref=False
+    ):  # pylint: disable=invalid-name
         """Utility function for converting a Variable to a Tensor."""
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
             raise ValueError(
                 "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, v.dtype.name))
+                "of type '%s'" % (dtype.name, v.dtype.name)
+            )
         if as_ref:
             return v._ref()  # pylint: disable=protected-access
         else:
@@ -111,9 +121,10 @@ class OverloadableMixinValues:
         if dtype and not dtype.is_compatible_with(self.dtype):
             raise ValueError(
                 "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, self.dtype.name))
+                "of type '%s'" % (dtype.name, self.dtype.name)
+            )
         if as_ref:
-            if hasattr(self, '_ref'):
+            if hasattr(self, "_ref"):
                 return self._ref()
             else:
                 raise RuntimeError("Why is this needed?")
@@ -157,5 +168,8 @@ class OverloadableMixinValues:
         functools.update_wrapper(_run_op, tensor_oper)
         setattr(cls, operator, _run_op)
 
-class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
+
+class MetaBaseParameter(
+    type(tf.Variable), type(zinterfaces.ZfitParameter)
+):  # resolve metaclasses
     pass

@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 import abc
 from typing import Optional
 
@@ -10,11 +10,9 @@ from ..util.checks import Singleton
 
 
 class ConvergenceCriterion(abc.ABC):
-
-    def __init__(self, tol: float,
-                 loss: ZfitLoss,
-                 params: ztyping.ParamTypeInput,
-                 name: str):
+    def __init__(
+        self, tol: float, loss: ZfitLoss, params: ztyping.ParamTypeInput, name: str
+    ):
         """A generic convergence criterion to be subclassed.
 
         Args:
@@ -66,12 +64,13 @@ def calculate_edm(grad, inv_hesse):
 
 
 class EDM(ConvergenceCriterion):
-
-    def __init__(self,
-                 tol: float,
-                 loss: ZfitLoss,
-                 params: ztyping.ParamTypeInput,
-                 name: Optional[str] = "edm"):
+    def __init__(
+        self,
+        tol: float,
+        loss: ZfitLoss,
+        params: ztyping.ParamTypeInput,
+        name: Optional[str] = "edm",
+    ):
         """Estimated distance to minimum.
 
         This criterion estimates the distance to the minimum by using
@@ -90,8 +89,7 @@ class EDM(ConvergenceCriterion):
             params: Parameters that will be minimized.
             name: Human readable name or description.
         """
-        super().__init__(tol=tol, loss=loss, params=params,
-                         name=name)
+        super().__init__(tol=tol, loss=loss, params=params, name=name)
 
     def _calculate(self, result) -> float:
         loss = result.loss
@@ -108,7 +106,6 @@ class EDM(ConvergenceCriterion):
 
 
 class CriterionNotAvailable(Singleton):
-
     def __bool__(self):
         return False
 

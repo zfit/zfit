@@ -16,7 +16,7 @@ Recommended way of importing:
 >>> Import zfit.z.numpy as znp
 """
 
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
 # TODO: dymamic imports?
 # import tensorflow.experimental.numpy as _tnp  # this way we do get the autocompletion
@@ -26,14 +26,35 @@ Recommended way of importing:
 
 
 from . import math, random, unstable
-from .wrapping_tf import (check_numerics, complex, convert_to_tensor, exp, pow,
-                          random_normal, random_uniform, reduce_prod,
-                          reduce_sum, sqrt, square)
-from .zextension import abs_square, constant
-from .zextension import function as function
-from .zextension import (function_sampling, function_tf_input, nth_pow, pi,
-                         py_function, run_no_nan, safe_where, stack_x,
-                         to_complex, to_real, unstack_x)
 from .tools import _get_ndims
+from .wrapping_tf import (
+    check_numerics,
+    complex,
+    convert_to_tensor,
+    exp,
+    pow,
+    random_normal,
+    random_uniform,
+    reduce_prod,
+    reduce_sum,
+    sqrt,
+    square,
+)
+from .zextension import (
+    abs_square,
+    constant,
+    function as function,
+    function_sampling,
+    function_tf_input,
+    nth_pow,
+    pi,
+    py_function,
+    run_no_nan,
+    safe_where,
+    stack_x,
+    to_complex,
+    to_real,
+    unstack_x,
+)
 
 # numpy = _tnp

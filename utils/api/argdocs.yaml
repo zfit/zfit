@@ -411,15 +411,15 @@ minimizer.nlopt.info: |1+
 
 loss.binned.init.model: |1+
    Binned PDF(s) that return the normalized probability
-        (`rel_counts` or `counts`) for
-        *data* under the given parameters.
-        If multiple model and data are given, they will be used
-        in the same order to do a simultaneous fit.
+                (`rel_counts` or `counts`) for
+                *data* under the given parameters.
+                If multiple model and data are given, they will be used
+                in the same order to do a simultaneous fit.
 
 loss.binned.init.data: |1+
     Binned dataset that will be given to the *model*.
-        If multiple model and data are given, they will be used
-        in the same order to do a simultaneous fit.
+                If multiple model and data are given, they will be used
+                in the same order to do a simultaneous fit.
 loss.init.model: |1+
     PDFs that return the normalized probability for
                 *data* under the given parameters.

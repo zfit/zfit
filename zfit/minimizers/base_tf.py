@@ -1,5 +1,13 @@
-#  Copyright (c) 2021 zfit
-from typing import Iterable, Optional
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
+
+from collections.abc import Iterable
 
 import tensorflow as tf
 
@@ -9,14 +17,16 @@ from .baseminimizer import BaseStepMinimizer, minimize_supports
 
 
 class WrapOptimizer(BaseStepMinimizer):
-    def __init__(self,
-                 optimizer,
-                 tol=None,
-                 criterion=None,
-                 strategy=None,
-                 verbosity=None,
-                 name=None,
-                 **kwargs):
+    def __init__(
+        self,
+        optimizer,
+        tol=None,
+        criterion=None,
+        strategy=None,
+        verbosity=None,
+        name=None,
+        **kwargs,
+    ):
         """Wrap TensorFlow optimizers to have the zfit interface and behavior.
 
         .. note:: Different behavior of minimize
@@ -32,9 +42,18 @@ class WrapOptimizer(BaseStepMinimizer):
             in :py:class:`~BaseStepMinimizer`
         """
         if not isinstance(optimizer, tf.keras.optimizers.Optimizer):
-            raise TypeError(f"optimizer {str(optimizer)} has to be from class Optimizer")
-        super().__init__(tol=tol, criterion=criterion, strategy=strategy, verbosity=verbosity, name=name,
-                         minimizer_options=None, **kwargs)
+            raise TypeError(
+                f"optimizer {str(optimizer)} has to be from class Optimizer"
+            )
+        super().__init__(
+            tol=tol,
+            criterion=criterion,
+            strategy=strategy,
+            verbosity=verbosity,
+            name=name,
+            minimizer_options=None,
+            **kwargs,
+        )
         self._optimizer_tf = optimizer
 
     @minimize_supports(init=True)
@@ -42,16 +61,19 @@ class WrapOptimizer(BaseStepMinimizer):
         try:
             return super()._minimize(loss, params, init)
         except ValueError as error:
-            if 'No gradients provided for any variable' in error.args[0]:
-                raise OperationNotAllowedError("Cannot use TF optimizer with"
-                                               " a numerical gradient (non-TF function)") from None
+            if "No gradients provided for any variable" in error.args[0]:
+                raise OperationNotAllowedError(
+                    "Cannot use TF optimizer with"
+                    " a numerical gradient (non-TF function)"
+                ) from None
             else:
                 raise
 
-    def _step(self,
-              loss: ZfitLoss,
-              params: Iterable[ZfitIndependentParameter],
-              init: Optional["zfit.result.FitResult"]
-              ) -> tf.Tensor:
+    def _step(
+        self,
+        loss: ZfitLoss,
+        params: Iterable[ZfitIndependentParameter],
+        init: zfit.result.FitResult | None,
+    ) -> tf.Tensor:
         self._optimizer_tf.minimize(loss=loss.value, var_list=params)
         return loss.value()

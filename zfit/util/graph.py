@@ -1,6 +1,6 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import List
+from __future__ import annotations
 
 import tensorflow as tf
 
@@ -15,7 +15,9 @@ def all_parents(op, current_obs=None):
     return ops.union(*(all_parents(op, current_obs=current_obs) for op in ops))
 
 
-def get_dependents_auto(tensor: tf.Tensor, candidates: List[tf.Tensor]) -> List[tf.Tensor]:
+def get_dependents_auto(
+    tensor: tf.Tensor, candidates: list[tf.Tensor]
+) -> list[tf.Tensor]:
     """Return the nodes in `candidates` that `tensor` depends on.
 
     Args:
@@ -25,16 +27,17 @@ def get_dependents_auto(tensor: tf.Tensor, candidates: List[tf.Tensor]) -> List[
     try:
         dependent_ops = all_parents(tensor.op)
     except RuntimeError as error:
-        raise ValueError("Tensor too deeply nested, recursion limit exceeded. In the future,"
-                         "implementation will be different and any dependents can be found."
-                         "Currently, specify dependents explicitly if needed."
-                         "Orignal Error: {}".format(error))
+        raise ValueError(
+            "Tensor too deeply nested, recursion limit exceeded. In the future,"
+            "implementation will be different and any dependents can be found."
+            "Currently, specify dependents explicitly if needed."
+            "Orignal Error: {}".format(error)
+        )
     dependent_candidates = [cand for cand in candidates if cand.op in dependent_ops]
     return dependent_candidates
 
 
 class JIT:
-
     def _set_all(self, enable: bool = True):
         new_values = {k: enable for k in self._get_allowed()}
 
@@ -48,11 +51,14 @@ class JIT:
 
     def _set_default(self):
         from zfit import z
+
         new_values = z.zextension.FunctionWrapperRegistry._DEFAULT_DO_JIT_TYPES.copy()
 
         for key in self._get_allowed():
             if key not in new_values:
-                new_values[key] = new_values[key]  # default dict will explicitly set the default value
+                new_values[key] = new_values[
+                    key
+                ]  # default dict will explicitly set the default value
 
         def getter():
             return self._get_allowed().copy()
@@ -75,7 +81,8 @@ class JIT:
     @property
     def experimental_is_eager(self):
         from ..settings import run
-        return run.mode['graph']
+
+        return run.mode["graph"]
 
 
 jit = JIT()  # singleton

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Copyright (c) 2021 zfit
+# Copyright (c) 2022 zfit
 #
 
 mkdir -p ~/test_zfit_tutorials && cd ~/test_zfit_tutorials || exit 1

@@ -1,15 +1,16 @@
-#  Copyright (c) 2021 zfit
+#  Copyright (c) 2022 zfit
 
-from typing import Callable, Dict, Iterable, Union
+from __future__ import annotations
+
+from collections.abc import Iterable, Callable
 
 import tensorflow as tf
 
 import zfit.z.numpy as znp
-
 from ..core.basefunc import BaseFuncV1
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.dependents import _extract_dependencies
-from ..core.interfaces import ZfitFunc, ZfitModel
+from ..core.interfaces import ZfitFunc
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping
@@ -17,8 +18,13 @@ from ..util.container import convert_to_container
 
 
 class SimpleFuncV1(BaseFuncV1):
-
-    def __init__(self, obs: ztyping.ObsTypeInput, func: Callable, name: str = "Function", **params):
+    def __init__(
+        self,
+        obs: ztyping.ObsTypeInput,
+        func: Callable,
+        name: str = "Function",
+        **params,
+    ):
         """Create a simple function out of of `func` with the observables `obs` depending on `parameters`.
 
         Args:
@@ -56,7 +62,13 @@ class BaseFunctorFuncV1(FunctorMixin, BaseFuncV1):
 
 
 class SumFunc(BaseFunctorFuncV1):
-    def __init__(self, funcs: Iterable[ZfitFunc], obs: ztyping.ObsTypeInput = None, name: str = "SumFunc", **kwargs):
+    def __init__(
+        self,
+        funcs: Iterable[ZfitFunc],
+        obs: ztyping.ObsTypeInput = None,
+        name: str = "SumFunc",
+        **kwargs,
+    ):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
     def _func(self, x):
@@ -68,12 +80,20 @@ class SumFunc(BaseFunctorFuncV1):
     @supports()
     def _analytic_integrate(self, limits, norm):
         # below may raises AnalyticIntegralNotImplementedError, that's fine. We don't wanna catch that.
-        integrals = [func.analytic_integrate(limits=limits, norm=norm) for func in self.funcs]
+        integrals = [
+            func.analytic_integrate(limits=limits, norm=norm) for func in self.funcs
+        ]
         return tf.math.accumulate_n(integrals)
 
 
 class ProdFunc(BaseFunctorFuncV1):
-    def __init__(self, funcs: Iterable[ZfitFunc], obs: ztyping.ObsTypeInput = None, name: str = "SumFunc", **kwargs):
+    def __init__(
+        self,
+        funcs: Iterable[ZfitFunc],
+        obs: ztyping.ObsTypeInput = None,
+        name: str = "SumFunc",
+        **kwargs,
+    ):
         super().__init__(funcs=funcs, obs=obs, name=name, **kwargs)
 
     def _func(self, x):
