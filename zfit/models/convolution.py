@@ -320,13 +320,15 @@ class FFTConvPDFV1(BaseFunctor):
                 order=self._conv_spline_order,
             )
             prob = prob[0, ..., 0]
-        elif self.conv_interpolation == 'linear':
-            prob = tfp.math.batch_interp_regular_1d_grid(x=query_points[0, ..., 0],
-                                                         x_ref_min=lower_func[..., 0],
-                                                         x_ref_max=upper_func[..., 0],
-                                                         y_ref=conv[0, ..., 0],
-                                                         # y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),
-                                                         axis=0)
+        elif self.conv_interpolation == "linear":
+            prob = tfp.math.batch_interp_regular_1d_grid(
+                x=query_points[0, ..., 0],
+                x_ref_min=lower_func[..., 0],
+                x_ref_max=upper_func[..., 0],
+                y_ref=conv[0, ..., 0],
+                # y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),
+                axis=0,
+            )
             prob = prob[0]
 
         return prob
