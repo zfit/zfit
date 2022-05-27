@@ -19,6 +19,48 @@ def create_data1():
     return zfit.Data.from_numpy(obs=obs1, array=example_data1)
 
 
+@pytest.mark.parametrize("obs_alias", [None, {"pt1": "pt2", "pt2": "pt1"}])
+def test_from_root_limits(obs_alias):
+    from skhep_testdata import data_path
+
+    path_root = data_path("uproot-Zmumu.root")
+
+    branches = ["pt1", "pt2"]
+    weight_branch = "eta1"
+    with uproot.open(path_root) as f:
+        tree = f["events"]
+        true_data_uncut = tree.arrays(branches + [weight_branch], library="pd")
+    lower1 = 40.5
+    upper1 = 60.2
+    lower2 = 10.5
+    upper2 = 40.4
+    if obs_alias is not None:  # swap branches in true_data_uncut
+        true_data_uncut = true_data_uncut.rename(
+            {"pt1": "pt2", "pt2": "pt1"}, axis="columns"
+        )
+
+    true_data = true_data_uncut.query(
+        f"pt1 > {lower1} & pt1 < {upper1} & pt2 > {lower2} & pt2 < {upper2}"
+    )
+    true_weights = true_data.pop(weight_branch)
+    obs1 = zfit.Space("pt1", limits=(lower1, upper1))
+    obs2 = zfit.Space("pt2", limits=(lower2, upper2))
+    obs = obs1 * obs2
+
+    data = zfit.Data.from_root(
+        path=path_root,
+        treepath="events",
+        obs=obs,
+        weights=weight_branch,
+        obs_alias=obs_alias,
+    )
+    x_np = data.value().numpy()
+    np.testing.assert_allclose(x_np, true_data[branches].values)
+
+    weights_np = data.weights.numpy()
+    np.testing.assert_allclose(weights_np, true_weights)
+
+
 @pytest.mark.parametrize(
     "weights_factory",
     [
@@ -36,13 +78,12 @@ def test_from_root(weights_factory):
     path_root = data_path("uproot-Zmumu.root")
 
     branches = ["pt1", "pt2", "phi2"]
-    f = uproot.open(path_root)
-    tree = f["events"]
-
-    true_data = tree.arrays(library="pd")
+    with uproot.open(path_root) as f:
+        tree = f["events"]
+        true_data = tree.arrays(library="pd")
 
     data = zfit.Data.from_root(
-        path=path_root, treepath="events", branches=branches, weights=weights
+        path=path_root, treepath="events", obs=branches, weights=weights
     )
     x = data.value()
     x_np = x.numpy()
@@ -110,6 +151,44 @@ def test_from_to_pandas():
 
     df = data2.to_pandas()
     assert all(df == example_data)
+
+
+@pytest.mark.parametrize("weights_as_branch", [True, False])
+def test_from_pandas_limits(weights_as_branch):
+    from skhep_testdata import data_path
+
+    path_root = data_path("uproot-Zmumu.root")
+
+    branches = ["pt1", "pt2"]
+    weight_branch = "eta1"
+    with uproot.open(path_root) as f:
+        tree = f["events"]
+        true_data_uncut = tree.arrays(branches + [weight_branch], library="pd")
+    lower1 = 23.5
+    upper1 = 49.2
+    lower2 = 21.5
+    upper2 = 44.4
+    true_data = true_data_uncut.query(
+        f"pt1 > {lower1} & pt1 < {upper1} & pt2 > {lower2} & pt2 < {upper2}"
+    )
+
+    true_weights = true_data.pop(weight_branch)
+    obs1 = zfit.Space("pt1", limits=(lower1, upper1))
+    obs2 = zfit.Space("pt2", limits=(lower2, upper2))
+    obs = obs1 * obs2
+
+    weights_for_pandas = (
+        true_data_uncut[weight_branch] if weights_as_branch else weight_branch
+    )
+    data = zfit.Data.from_pandas(
+        df=true_data_uncut, obs=obs, weights=weights_for_pandas
+    )
+    x = data.value()
+    x_np = x.numpy()
+    np.testing.assert_allclose(x_np, true_data[branches].values)
+
+    weights_np = data.weights.numpy()
+    np.testing.assert_allclose(weights_np, true_weights)
 
 
 @pytest.mark.parametrize(

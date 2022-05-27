@@ -140,7 +140,8 @@ def test_binned_extended_simple(Loss):
         zfit.loss.ExtendedBinnedChi2,
     ],
 )
-def test_binned_loss(weights, Loss):
+@pytest.mark.parametrize("simultaneous", [True, False])
+def test_binned_loss(weights, Loss, simultaneous):
     obs = zfit.Space("obs1", limits=(-15, 25))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
     gaussian2, mu2, sigma2 = create_gauss2(obs=obs)
@@ -153,11 +154,20 @@ def test_binned_loss(weights, Loss):
     binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
-    binned_gauss = zfit.models.tobinned.BinnedFromUnbinnedPDF(
-        gaussian1, obs_binned, extended=scale
-    )
+    binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
+    if simultaneous:
+        obs_binned2 = obs.with_binning(14)
+        test_values_binned2 = test_values.to_binned(obs_binned2)
+        binned_gauss2 = zfit.pdf.BinnedFromUnbinnedPDF(
+            gaussian1, obs_binned2, extended=scale
+        )
+        loss = Loss(
+            [binned_gauss, binned_gauss2],
+            data=[test_values_binned, test_values_binned2],
+        )
 
-    loss = Loss(model=binned_gauss, data=test_values_binned)
+    else:
+        loss = Loss(model=binned_gauss, data=test_values_binned)
 
     title = (
         f"Binned gaussian fit"
@@ -192,13 +202,13 @@ def test_binned_loss(weights, Loss):
     result.errors(name="asymerr")
     print(result)
     rel_tol_errors = 0.1
-    mu_error = 0.03
-    sigma_error = 0.022
+    mu_error = 0.03 if not simultaneous else 0.021
+    sigma_error = 0.0156 if simultaneous else 0.022
     params_list = [mu1, sigma1]
     errors = [mu_error, sigma_error]
     if loss.is_extended:
         params_list.append(scale)
-        errors.append(170)
+        errors.append(122 if simultaneous else 170)
     for param, errorval in zip(params_list, errors):
         assert (
             pytest.approx(result.params[param]["hesse"]["error"], rel=rel_tol_errors)
