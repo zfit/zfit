@@ -1,11 +1,15 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2022 zfit
+import sys
 import warnings
 
-from pkg_resources import get_distribution
+if sys.version_info < (3, 8):
+    from importlib_metadata import version
+else:
+    from importlib.metadata import version
 
-__version__ = get_distribution(__name__).version
+__version__ = version(__name__)
 
 __license__ = "BSD 3-Clause"
 __copyright__ = "Copyright 2018, zfit"
