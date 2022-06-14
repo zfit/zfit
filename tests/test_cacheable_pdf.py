@@ -120,6 +120,3 @@ def test_integrate_cache_is_revaluation_if_limits_is_different():
     integral = cached_gauss.integrate(obs)
     assert tf.equal(cached_gauss.integrate_cache_counter, tf.Variable(0.))
     assert tf.math.reduce_all(tf.equal(gauss.integrate(limits=obs), integral))
-
-
-

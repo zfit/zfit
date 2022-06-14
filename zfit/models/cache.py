@@ -42,7 +42,6 @@ class CacheablePDF(BaseFunctor):
         if self._pdf_cache is None:
             self._pdf_cache = tf.Variable(znp.zeros(shape=tf.shape(x)[0]), trainable=False, validate_shape=False,
                                           dtype=tf.float64)
-
         pdf_params = list(self.pdfs[0].get_params())
         stacked_pdf_params = tf.stack(pdf_params)
         params_same = tf.math.reduce_all(
@@ -60,7 +59,6 @@ class CacheablePDF(BaseFunctor):
         if self._integral_cache is None:
             self._integral_cache = tf.Variable(znp.zeros(shape=tf.shape([1])), trainable=False, validate_shape=False,
                                                dtype=tf.float64)
-
         pdf_params = list(self.pdfs[0].get_params())
         stacked_pdf_params = tf.stack(pdf_params)
         params_same = tf.math.reduce_all(
