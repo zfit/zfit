@@ -1606,7 +1606,7 @@ class ValuesHolder(NameToParamGetitem, ListWithKeys):
 
 class ParamHolder(NameToParamGetitem, collections.UserDict):
     def __str__(self) -> str:
-        order_keys = ["value (rounded)", "hesse"]
+        order_keys = ["value", "hesse"]
         keys = OrderedSet()
         for pdict in self.values():
             keys.update(OrderedSet(pdict))
@@ -1629,6 +1629,7 @@ class ParamHolder(NameToParamGetitem, collections.UserDict):
             rows.append(row)
 
         order_keys = ["name"] + list(order_keys) + ["at limit"]
+        order_keys[order_keys.index("value")] = "value  (rounded)"
         table = tabulate(
             rows, order_keys, numalign="right", stralign="right", colalign=("left",)
         )

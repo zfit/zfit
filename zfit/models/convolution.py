@@ -212,13 +212,14 @@ class FFTConvPDFV1(BaseFunctor):
         # guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.
         nbins_kernel = n
         # n = max(n, npoints_scaling)
-        tf.assert_less(
-            n - 1,  # so that for three dimension it's 999'999, not 10^6
-            tf.cast(1e6, tf.int32),
-            message="Number of points automatically calculated to be used for the FFT"
-            " based convolution exceeds 1e6. If you want to use this number - "
-            "or an even higher value - use explicitly the `n` argument.",
-        )
+        # TODO: below needed if we try to estimate the number of points
+        # tf.assert_less(
+        #     n - 1,  # so that for three dimension it's 999'999, not 10^6
+        #     tf.cast(1e6, tf.int32),
+        #     message="Number of points automatically calculated to be used for the FFT"
+        #     " based convolution exceeds 1e6. If you want to use this number - "
+        #     "or an even higher value - use explicitly the `n` argument.",
+        # )
 
         binwidth = (upper_kernel - lower_kernel) / nbins_kernel
         to_extend = (
