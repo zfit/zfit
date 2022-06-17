@@ -35,6 +35,9 @@ class CacheablePDF(BaseFunctor):
             dtype=tf.float64,
         )
         self._pdf_cache = None
+        self._cached_x = None
+        self._pdf_cache_valid = tf.Variable(initial_value=False, trainable=False)
+
         self._cached_integral_limits = None
         self._integral_cache = None
         self._integral_cache_valid = tf.Variable(initial_value=False, trainable=False)
@@ -56,16 +59,34 @@ class CacheablePDF(BaseFunctor):
                 validate_shape=False,
                 dtype=tf.float64,
             )
+
+        if self._cached_x is None:
+            self._cached_x = tf.Variable(
+                znp.zeros(shape=tf.shape(x)),
+                trainable=False,
+                validate_shape=False,
+                dtype=tf.float64,
+            )
         pdf_params = list(self.pdfs[0].get_params())
         stacked_pdf_params = tf.stack(pdf_params)
         params_same = tf.math.reduce_all(
             tf.math.abs(stacked_pdf_params - self._cached_pdf_params)
             < self._cache_tolerance
         )
+        x_same = tf.math.reduce_all(
+            tf.math.abs(x - self._cached_x)
+            < self._cache_tolerance
+        )
+
+        self._pdf_cache_valid.assign(
+            tf.math.logical_and(params_same, x_same), read_value=False
+        )
+
         self._cached_pdf_params.assign(stacked_pdf_params, read_value=False)
+        self._cached_x.assign(x, read_value=False)
         pdf = get_value(
             self._pdf_cache,
-            params_same,
+            self._pdf_cache_valid,
             lambda: self.pdfs[0].pdf(x, norm),
         )
         return pdf

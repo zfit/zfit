@@ -68,6 +68,20 @@ def test_pdf_cache_revaluation_if_parameter_was_changed():
     assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(2.0))
 
 
+def test_pdf_cache_revaluation_if_x_was_changed():
+    obs = zfit.Space("x", limits=[-5.0, 5.0])
+    alpha = zfit.Parameter("alpha", 1.0, -5, 5)
+    test_pdf = TestPDF(alpha=alpha, obs=obs)
+    cached_test_pdf = CacheablePDF(test_pdf)
+    x = znp.linspace(-5, 5, 500)
+    assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(0.0))
+    cached_test_pdf.pdf(x)
+    assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(1.0))
+    x = znp.linspace(-5, 0, 500)
+    cached_test_pdf.pdf(x)
+    assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(2.0))
+
+
 def test_cached_integrate_equals_integrate_without_cache():
     mu = zfit.Parameter("mu", 1.0, -5, 5)
     sigma = zfit.Parameter("sigma", 1, 0, 10)
@@ -92,7 +106,7 @@ def test_integrate_cache_is_used():
     assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(1.0))
 
 
-def test_integrate_cache_is_revaluation_if_mu_was_changed():
+def test_integrate_cache_is_revaluation_if_parameter_was_changed():
     obs = zfit.Space("x", limits=[-5.0, 5.0])
     alpha = zfit.Parameter("alpha", 1.0, -5, 5)
     test_pdf = TestPDF(alpha=alpha, obs=obs)
