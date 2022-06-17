@@ -5,14 +5,13 @@ import tensorflow as tf
 import zfit.z.numpy as znp
 
 
-def get_value(cache: tf.Variable, flag: tf.Variable, func, counter):
+def get_value(cache: tf.Variable, flag: tf.Variable, func):
     def autoset_func():
         val = func()
         cache.assign(val, read_value=False)
         return cache
 
     def use_cache():
-        counter.assign_add(1.0)
         return cache
 
     val = tf.cond(flag, use_cache, autoset_func)
@@ -23,8 +22,6 @@ class CacheablePDF(BaseFunctor):
     def __init__(self, pdf, cache_tolerance=None, **kwargs):
         super().__init__(pdfs=pdf, obs=pdf.space, **kwargs)
         params = list(pdf.get_params())
-        self.pdf_cache_counter = tf.Variable(0.0)
-        self.integrate_cache_counter = tf.Variable(0.0)
         self._cached_pdf_params = tf.Variable(
             znp.zeros(shape=tf.shape(tf.stack(params))),
             trainable=False,
@@ -70,7 +67,6 @@ class CacheablePDF(BaseFunctor):
             self._pdf_cache,
             params_same,
             lambda: self.pdfs[0].pdf(x, norm),
-            self.pdf_cache_counter,
         )
         return pdf
 
@@ -117,6 +113,5 @@ class CacheablePDF(BaseFunctor):
             self._integral_cache,
             self._integral_cache_valid,
             lambda: self.pdfs[0].integrate(limits, norm, options=None),
-            self.integrate_cache_counter,
         )
         return integral
