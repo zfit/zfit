@@ -8,7 +8,7 @@ from zfit.util import ztyping
 
 
 class TestPDF(zfit.pdf.ZPDF):
-    _PARAMS = ['alpha']
+    _PARAMS = ["alpha"]
 
     def __init__(self, obs: ztyping.ObsTypeInput, **params):
         super().__init__(obs, **params)
