@@ -74,8 +74,7 @@ class CacheablePDF(BaseFunctor):
             < self._cache_tolerance
         )
         x_same = tf.math.reduce_all(
-            tf.math.abs(x - self._cached_x)
-            < self._cache_tolerance
+            tf.math.abs(x - self._cached_x) < self._cache_tolerance
         )
 
         self._pdf_cache_valid.assign(
