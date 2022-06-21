@@ -7,8 +7,7 @@ from zfit.models.cache import CacheablePDF
 from zfit.util import ztyping
 
 
-class TestPDF(zfit.pdf.ZPDF):
-    _PARAMS = ["alpha"]
+class TestPDF(zfit.pdf.BaseFunctor):
 
     def __init__(self, obs: ztyping.ObsTypeInput, mu, sigma):
         gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
