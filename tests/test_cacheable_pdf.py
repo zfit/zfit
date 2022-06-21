@@ -19,7 +19,7 @@ class TestPDF(zfit.pdf.BaseFunctor):
     @supports(norm="space")
     def _pdf(self, x, norm, *, norm_range=None):
         self.pdf_call_counter.assign_add(1.0)
-        return self._gauss.pdf(x)
+        return self.pdfs[0].pdf(x)
 
     @supports(norm="space")
     def _integrate(self, limits, norm, options=None):
