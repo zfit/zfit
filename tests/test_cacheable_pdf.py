@@ -10,14 +10,12 @@ from zfit.util import ztyping
 class TestPDF(zfit.pdf.ZPDF):
     _PARAMS = ["alpha"]
 
-    def __init__(self, obs: ztyping.ObsTypeInput, **params):
-        super().__init__(obs, **params)
+    def __init__(self, obs: ztyping.ObsTypeInput, mu, sigma):
+        gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+        super().__init__(obs, pdfs=gauss)
         self.pdf_call_counter = tf.Variable(0.0)
         self.integrate_call_counter = tf.Variable(0.0)
-        _mu = zfit.Parameter("mu", 1.0, -5, 5)
-        _sigma = zfit.Parameter("sigma", 1, 0, 10)
-        _obs = zfit.Space("x", limits=[-5.0, 5.0])
-        self._gauss = zfit.pdf.Gauss(mu=_mu, sigma=_sigma, obs=_obs)
+
 
     @supports(norm="space")
     def _pdf(self, x, norm, *, norm_range=None):
