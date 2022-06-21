@@ -38,8 +38,9 @@ def test_cached_pdf_equals_pdf_without_cache():
 
 def test_pdf_cache_is_used():
     obs = zfit.Space("x", limits=[-5.0, 5.0])
-    alpha = zfit.Parameter("alpha", 1.0, -5, 5)
-    test_pdf = TestPDF(alpha=alpha, obs=obs)
+    mu = zfit.Parameter("mu", 1.0, -5, 5)
+    sigma = zfit.Parameter("sigma", 1, 0, 10)
+    test_pdf = TestPDF(obs=obs, mu=mu, sigma=sigma)
     cached_test_pdf = CacheablePDF(test_pdf)
     x = znp.linspace(-5, 5, 500)
     assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(0.0))
