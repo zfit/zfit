@@ -24,7 +24,7 @@ class TestPDF(zfit.pdf.BaseFunctor):
     @supports(norm="space")
     def _integrate(self, limits, norm, options=None):
         self.integrate_call_counter.assign_add(1.0)
-        return self._gauss.integrate(limits)
+        return self.pdfs[0].integrate(limits)
 
 
 def test_cached_pdf_equals_pdf_without_cache():
