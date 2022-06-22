@@ -63,6 +63,8 @@ def test_pdf_cache_revaluation_if_mu_was_changed():
     mu.set_value(2.0)
     cached_test_pdf.pdf(x)
     assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(2))
+    cached_test_pdf.pdf(x)
+    assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(2))
 
 
 def test_pdf_cache_revaluation_if_sigma_was_changed():
@@ -78,6 +80,8 @@ def test_pdf_cache_revaluation_if_sigma_was_changed():
     sigma.set_value(3.0)
     cached_test_pdf.pdf(x)
     assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(2))
+    cached_test_pdf.pdf(x)
+    assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(2))
 
 
 def test_pdf_cache_revaluation_if_x_was_changed():
@@ -91,6 +95,8 @@ def test_pdf_cache_revaluation_if_x_was_changed():
     cached_test_pdf.pdf(x)
     assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(1))
     x = znp.linspace(-5, 0, 500)
+    cached_test_pdf.pdf(x)
+    assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(2))
     cached_test_pdf.pdf(x)
     assert tf.equal(test_pdf.pdf_call_counter, tf.Variable(2))
 
@@ -132,6 +138,8 @@ def test_integrate_cache_is_revaluation_if_mu_was_changed():
     mu.set_value(2.0)
     cached_test_pdf.integrate(limits=obs)
     assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(2))
+    cached_test_pdf.integrate(limits=obs)
+    assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(2))
 
 
 def test_integrate_cache_is_revaluation_if_sigma_was_changed():
@@ -146,6 +154,8 @@ def test_integrate_cache_is_revaluation_if_sigma_was_changed():
     sigma.set_value(3.0)
     cached_test_pdf.integrate(limits=obs)
     assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(2))
+    cached_test_pdf.integrate(limits=obs)
+    assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(2))
 
 
 def test_integrate_cache_is_revaluation_if_limits_is_different():
@@ -158,5 +168,7 @@ def test_integrate_cache_is_revaluation_if_limits_is_different():
     cached_test_pdf.integrate(limits=obs)
     assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(1))
     obs = zfit.Space("x", limits=[-5.0, 0.0])
+    cached_test_pdf.integrate(obs)
+    assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(2))
     cached_test_pdf.integrate(obs)
     assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(2))
