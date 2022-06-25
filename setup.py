@@ -32,6 +32,7 @@ tests_require = [
     "scikit-hep-testdata",
     "pytest-timeout>=1",
     "matplotlib",  # for plots in examples
+    "vegasflow",
 ]
 extras_require["all"] = allreq
 extras_require["tests-nonlinux"] = tests_require + extras_require["nlopt"]
