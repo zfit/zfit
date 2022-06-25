@@ -290,7 +290,3 @@ Your PDF can be cacheable now.
     x = znp.linspace(-5, 5, 500)
     cached_gauss.pdf(x)
     cached_gauss.integral(obs)
-
-
-
-
