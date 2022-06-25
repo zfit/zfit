@@ -7,6 +7,14 @@ Changelog
 Develop
 ========
 
+0.9.0a3 (26 June 2022)
+===================
+
+Major Features and Improvements
+-------------------------------
+Added functor for PDF caching - CacheablePDF:
+_pdf, _integrate PDF methods can be cacheable now
+
 0.9.0a2
 ========
 

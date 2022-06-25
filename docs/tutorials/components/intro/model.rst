@@ -269,3 +269,28 @@ explained in :ref:`playing_with_toys`.
 
 Download this tutorial :jupyter-download:notebook:`notebook <zfit_model_introduction.ipynb>`,
 :jupyter-download:script:`script <zfit_model_introduction.ipynb>`
+
+Cacheable PDF
+----------
+Your PDF can be cacheable now.
+:py:class:`zfit.models.cache.CacheablePDF` class makes methods
+:meth:`~zfit.pdf.BasePDF.pdf` and :meth:`~zfit.pdf.BasePDF.integrate` cacheable.
+
+.. jupyter-execute::
+    # Define Gaussian or any other PDF
+    obs = zfit.Space('y', limits=(5, 10))
+    mu = zfit.Parameter("mu", 1.)
+    sigma = zfit.Parameter("sigma", 1.)
+    gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
+
+    # Define CacheablePDF
+    cached_gauss = CacheablePDF(gauss)
+
+    #Use as usual PDF but with cacheable methods
+    x = znp.linspace(-5, 5, 500)
+    cached_gauss.pdf(x)
+    cached_gauss.integral(obs)
+
+
+
+

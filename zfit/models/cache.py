@@ -20,6 +20,11 @@ def get_value(cache: tf.Variable, flag: tf.Variable, func):
 
 class CacheablePDF(BaseFunctor):
     def __init__(self, pdf, cache_tolerance=None, **kwargs):
+        """Makes pdf and integrate methods of ZfitPDF cacheable
+        Args:
+            pdf: pdf which methods to be cached
+            cache_tolerance: accuracy of comparing arguments with cached values
+        """
         super().__init__(pdfs=pdf, obs=pdf.space, **kwargs)
         params = list(pdf.get_params())
         self._cached_pdf_params = tf.Variable(
@@ -43,12 +48,6 @@ class CacheablePDF(BaseFunctor):
         self._integral_cache_valid = tf.Variable(initial_value=False, trainable=False)
 
         self._cache_tolerance = 1e-8 if cache_tolerance is None else cache_tolerance
-
-        """Makes pdf and integrate methods of ZfitPDF cacheable
-        Args:
-            pdf: pdf which methods to be cached
-            cache_tolerance: accuracy of comparing arguments with cached values
-        """
 
     @supports(norm="space")
     def _pdf(self, x, norm):
