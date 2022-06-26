@@ -85,6 +85,7 @@ def auto_integrate(
     elif method.lower() == "mc_vegasflow":
         vf_options = vf_options or {}
         n_iter = vf_options.get("n_iter", 20)
+        n_iter_pre = vf_options.get("n_iter_pre", 5)
         n_events = vf_options.get("n_events", int(6e6))
         events_limit = vf_options.get("events_limit", int(1e6))
         list_devices = vf_options.get("list_devices")
@@ -373,6 +374,7 @@ def mc_vf_integrate(
     limits: ztyping.LimitsType,
     dtype: type = ztypes.float,
     n_iter: int = 20,
+    n_iter_prec: int = 10,
     n_events: int = int(6e6),
     events_limit: int = int(1e6),
     list_devices: list = None,
@@ -388,6 +390,9 @@ def mc_vf_integrate(
         limits: The limits of the integral
         dtype: |dtype_arg_descr|
         n_iter: Number of iterations
+        n_iter_prec: Number of iterations to precompute
+            not adapted integrator tends to give bad estimates of the integral with low variance,
+            hence precomputation is used to drop the first `n_iter_prec` measurements
         n_events: Number of events (samples) to draw per iteration
         events_limit: Maximum number of events per step
             if `events_limit` is below `n_events` each iteration of the MC
@@ -400,7 +405,7 @@ def mc_vf_integrate(
     Returns:
         The integral
     """
-    os.environ["VEGASFLOW_LOG_LEVEL"] = kwargs.get("VEGASFLOW_LOG_LEVEL", "1")  # warn/err
+    os.environ["VEGASFLOW_LOG_LEVEL"] = kwargs.get("VEGASFLOW_LOG_LEVEL", "2" if verbose else "1")
     os.environ["VEGASFLOW_FLOAT"] = kwargs.get("VEGASFLOW_FLOAT", "64")
     os.environ["VEGASFLOW_INT"] = kwargs.get("VEGASFLOW_INT", "32")
     if list_devices is None:
@@ -454,6 +459,8 @@ def mc_vf_integrate(
         )
         vf_integ.compile(vf_integrand, compilable=compilable)
 
+        if n_iter_prec:
+            vf_integ.run_integration(n_iter_prec, verbose)
         integral, error = vf_integ.run_integration(n_iter, verbose)
 
         def print_none_return():
@@ -466,7 +473,7 @@ def mc_vf_integrate(
                     "), which is maybe not enough (but maybe it's also fine)."
                     " You can (best solution) implement an analytical integral (see examples in repo) or"
                     " manually set a higher `n_events`/`n_iter` (preferably, the former) or adjust `tol`. "
-                    "This is a new warning checking the integral accuracy. It may warns too often as it is"
+                    "This is a new warning checking the integral accuracy. It may warn too often as it is"
                     " Work In Progress. If you have any observation on it, please tell us about it:"
                     " https://github.com/zfit/zfit/issues/new/choose"
                     "To suppress this warning, use zfit.settings.set_verbosity(-1).",
