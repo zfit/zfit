@@ -95,7 +95,7 @@ def auto_integrate(
         vf_options = {
             "VEGASFLOW_LOG_LEVEL": "1",
             "VEGASFLOW_FLOAT": "64",
-            "VEGASFLOW_INT": "32"
+            "VEGASFLOW_INT": "32",
         }
         integral = mc_vf_integrate(
             func=func,
@@ -108,7 +108,7 @@ def auto_integrate(
             compilable=compilable,
             verbose=verbose,
             # tol=tol,
-            **vf_options
+            **vf_options,
         )
     else:
         raise ValueError(f"Method {method} not a legal choice for integration method.")
@@ -381,7 +381,7 @@ def mc_vf_integrate(
     compilable: bool = True,
     verbose: bool = False,
     tol: float = 1e-6,
-    **kwargs
+    **kwargs,
 ) -> tf.Tensor:
     """Monte Carlo integration of `func` over `limits` via VegasFlow package.
 
@@ -436,7 +436,9 @@ def mc_vf_integrate(
                 new_x = lower + (upper - lower) * x[:, 0]
                 jac = tf.reduce_prod(upper - lower)
                 return func(new_x) * jac
+
         else:
+
             def vf_integrand(x):
                 """Same vf_integrand, but n_dim > 1."""
                 new_x = lower + (upper - lower) * x
@@ -447,7 +449,7 @@ def mc_vf_integrate(
             spec_shape = (None,) if n_dim == 1 else (None, n_dim)
             vf_integrand = tf.function(
                 vf_integrand,
-                input_signature=[tf.TensorSpec(shape=spec_shape, dtype=dtype)]
+                input_signature=[tf.TensorSpec(shape=spec_shape, dtype=dtype)],
             )
 
         vf_integ = vflow.VegasFlow(
