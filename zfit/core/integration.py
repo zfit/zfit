@@ -405,7 +405,9 @@ def mc_vf_integrate(
     Returns:
         The integral
     """
-    os.environ["VEGASFLOW_LOG_LEVEL"] = kwargs.get("VEGASFLOW_LOG_LEVEL", "2" if verbose else "1")
+    os.environ["VEGASFLOW_LOG_LEVEL"] = kwargs.get(
+        "VEGASFLOW_LOG_LEVEL", "2" if verbose else "1"
+    )
     os.environ["VEGASFLOW_FLOAT"] = kwargs.get("VEGASFLOW_FLOAT", "64")
     os.environ["VEGASFLOW_INT"] = kwargs.get("VEGASFLOW_INT", "32")
     if list_devices is None:

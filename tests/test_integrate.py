@@ -271,7 +271,7 @@ def func5_8deps_fully_integrated(limits, params=None, model=None):
     norm_dist = spt.norm(loc=func5_mean, scale=func5_sigma)
     integral = 1
     for i in range(8):
-        integral *= (norm_dist.cdf(upper[i]) - norm_dist.cdf(lower[i]))
+        integral *= norm_dist.cdf(upper[i]) - norm_dist.cdf(lower[i])
     return z.convert_to_tensor(integral)
 
 
@@ -320,11 +320,17 @@ def test_mc_vf_integration():
         n_iter=30,
         n_events=int(2e7),
     )
-    spaces_fromlist = [Space(limits=limit, axes=tuple(range(1))) for limit in limits2_split]
+    spaces_fromlist = [
+        Space(limits=limit, axes=tuple(range(1))) for limit in limits2_split
+    ]
     space2_fromlist = spaces_fromlist[0] + spaces_fromlist[1]
-    num_integral2_fromlist = zintegrate.mc_vf_integrate(func=func2_1deps, limits=space2_fromlist)
+    num_integral2_fromlist = zintegrate.mc_vf_integrate(
+        func=func2_1deps, limits=space2_fromlist
+    )
     space2_fromtuple = Space(limits=limits2, axes=tuple(range(1)))
-    num_integral2_fromtuple = zintegrate.mc_vf_integrate(func=func2_1deps, limits=space2_fromtuple)
+    num_integral2_fromtuple = zintegrate.mc_vf_integrate(
+        func=func2_1deps, limits=space2_fromtuple
+    )
     num_integral3 = zintegrate.mc_vf_integrate(
         func=func3_2deps, limits=Space(limits=limits3, axes=(0, 1))
     )
@@ -358,7 +364,6 @@ def test_mc_vf_integration():
     assert func5_8deps_fully_integrated(
         Space(limits=limits5, axes=tuple(range(8)))
     ).numpy() == pytest.approx(integral5, rel=1e-4)
-
 
 
 @pytest.mark.flaky(2)
