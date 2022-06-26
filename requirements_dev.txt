@@ -5,6 +5,7 @@ coverage-lcov
 docformatter
 flake8>=3.5.0
 Jinja2
+joblib
 jupyter-sphinx
 matplotlib  # docs, tests
 mplhep  # docs
@@ -31,5 +32,6 @@ sphinxcontrib-images
 sphinxcontrib-youtube>=1.0.0
 tox>=2.9.1
 twine>=1.10.0
+vegasflow
 watchdog>=0.8.3
 wheel>=0.29.0
