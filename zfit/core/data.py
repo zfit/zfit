@@ -232,7 +232,7 @@ class Data(
             weights = df[weights]
         array = df[list(obs.obs)].values
 
-        return cls.from_numpy(
+        return Data.from_numpy(  # *not* class, if subclass, keep constructor
             obs=obs,
             array=array,
             weights=weights,
@@ -330,7 +330,7 @@ class Data(
             weights_np = weights
         dataset = LightDataset.from_tensor(data)
 
-        return cls(
+        return Data(  # *not* class, if subclass, keep constructor
             dataset=dataset,
             obs=obs,
             weights=weights_np,
@@ -372,7 +372,7 @@ class Data(
         if dtype is None:
             dtype = ztypes.float
         tensor = tf.cast(array, dtype=dtype)
-        return cls.from_tensor(
+        return Data.from_tensor(  # *not* class, if subclass, keep constructor
             obs=obs,
             tensor=tensor,
             weights=weights,
@@ -413,7 +413,7 @@ class Data(
         # dataset = tf.data.Dataset.from_tensor_slices(tensor)
         dataset = LightDataset.from_tensor(tensor)
 
-        return cls(
+        return Data(  # *not* class, if subclass, keep constructor
             dataset=dataset,
             obs=obs,
             name=name,
