@@ -7,14 +7,12 @@ Changelog
 Develop
 ========
 
-0.9.0a2
-========
-
 Major Features and Improvements
 -------------------------------
 - improved data handling in constructors `from_pandas` (which allows now to
   have weights as columns, dataframes that are a superset of the obs) and
   `from_root` (obs can now be spaces and therefore cuts can be direcly applied)
+- add hashing of unbinned datasets with a `hashint` attribute. None if no hash was possible.
 
 Breaking changes
 ------------------
