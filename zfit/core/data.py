@@ -724,6 +724,7 @@ class Sampler(Data):
             )
         return super()._value_internal(obs=obs, filter=filter)
 
+    @property
     def hashint(self) -> int | None:
         return None  # since the variable can be changed but this may stays static... and using 128 bits we can't have
         # a tf.Variable that keeps the int

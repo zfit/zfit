@@ -37,13 +37,9 @@ class TestHashPDF(zfit.pdf.BasePDF):
         return znp.abs(x.unstack_x()[0])
 
 
-def create_data1(obs=obs3d, array=np_data1):
-    return zfit.Data.from_numpy(obs=obs3d, array=np_data1)
-
-
 @pytest.fixture
-def data1(np_data1, obs3d):
-    return create_data1()
+def data1(obs3d, np_data1):
+    return zfit.Data.from_numpy(obs=obs3d, array=np_data1)
 
 
 @pytest.fixture
@@ -256,9 +252,9 @@ def test_from_tensors(weights_factory):
         assert weights is None
 
 
-def test_overloaded_operators():
-    data1 = create_data1()
+def test_overloaded_operators(data1):
     a = data1 * 5.0
+    example_data1 = data1.value().numpy()
     np.testing.assert_array_equal(5 * example_data1, a.numpy())
     np.testing.assert_array_equal(example_data1, data1.numpy())
     data_squared = data1 * data1
@@ -268,10 +264,9 @@ def test_overloaded_operators():
     )
 
 
-def test_sort_by_obs():
-    data1 = create_data1(obs3d)
-
+def test_sort_by_obs(data1, obs3d):
     new_obs = (obs3d[1], obs3d[2], obs3d[0])
+    example_data1 = data1.value().numpy()
     new_array = copy.deepcopy(example_data1)[:, np.array((1, 2, 0))]
     # new_array = np.array([new_array[:, 1], new_array[:, 2], new_array[:, 0]])
     assert data1.obs == obs3d, "If this is not True, then the test will be flawed."
@@ -291,10 +286,9 @@ def test_sort_by_obs():
     np.testing.assert_array_equal(example_data1, data1.value().numpy())
 
 
-def test_subdata(obs3d):
-    data1 = create_data1()
+def test_subdata(obs3d, data1):
     new_obs = (obs3d[0], obs3d[1])
-    new_array = copy.deepcopy(example_data1)[:, np.array((0, 1))]
+    new_array = copy.deepcopy(data1.value().numpy())[:, np.array((0, 1))]
     # new_array = np.array([new_array[:, 0], new_array])
     with data1.sort_by_obs(obs=new_obs):
         assert data1.obs == new_obs
@@ -311,7 +305,7 @@ def test_subdata(obs3d):
                     data1.value().numpy()
 
     assert data1.obs == obs3d
-    np.testing.assert_array_equal(example_data1, data1.value())
+    np.testing.assert_array_equal(data1.value().numpy(), data1.value())
 
 
 @pytest.mark.parametrize(
