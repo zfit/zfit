@@ -21,4 +21,5 @@ texttable
 tf_quant_finance>=v0.0.1-dev24
 uhi
 uproot>=4,<5
+xxhash
 zfit_interface

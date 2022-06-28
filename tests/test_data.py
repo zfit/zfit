@@ -15,8 +15,42 @@ obs1 = ("obs1", "obs2", "obs3")
 example_data1 = np.random.random(size=(7, len(obs1)))
 
 
-def create_data1():
-    return zfit.Data.from_numpy(obs=obs1, array=example_data1)
+@pytest.fixture
+def obs3d():
+    return obs1
+
+
+@pytest.fixture
+def np_data1(obs3d):
+    return np.random.random(size=(7, len(obs3d)))
+
+
+class TestHashPDF(zfit.pdf.BasePDF):
+    def __init__(self, obs, lasthash):
+        super().__init__(obs=obs)
+        self.lasthash = lasthash
+
+    def _unnormalized_pdf(self, x):
+        import zfit.z.numpy as znp
+
+        self.lasthash = x.hashint
+        return znp.abs(x.unstack_x()[0])
+
+
+@pytest.fixture
+def data1(obs3d, np_data1):
+    return zfit.Data.from_numpy(obs=obs3d, array=np_data1)
+
+
+@pytest.fixture
+def space2d():
+    obs = ["obs1", "obs2"]
+    lower1, lower2 = -1, -2
+    upper1, upper2 = 1.9, 3.6
+    space1 = zfit.Space(obs[0], limits=(lower1, upper1))
+    space2 = zfit.Space(obs[1], limits=(lower2, upper2))
+    space2d = space1 * space2
+    return space2d
 
 
 @pytest.mark.parametrize("obs_alias", [None, {"pt1": "pt2", "pt2": "pt1"}])
@@ -111,11 +145,11 @@ def test_from_root(weights_factory):
         lambda: np.random.normal(size=1000),
     ],
 )
-def test_from_numpy(weights_factory):
+def test_from_numpy(weights_factory, obs3d):
     weights = weights_factory()
 
     example_data = np.random.random(size=(1000, len(obs1)))
-    data = zfit.Data.from_numpy(obs=obs1, array=example_data, weights=weights)
+    data = zfit.Data.from_numpy(obs=obs3d, array=example_data, weights=weights)
     x = data.value()
     weights_from_data = data.weights
     if weights_from_data is not None:
@@ -130,11 +164,11 @@ def test_from_numpy(weights_factory):
         assert weights_from_data is None
 
 
-def test_from_to_pandas():
+def test_from_to_pandas(obs3d):
     dtype = np.float32
-    example_data_np = np.random.random(size=(1000, len(obs1)))
-    example_data = pd.DataFrame(data=example_data_np, columns=obs1)
-    data = zfit.Data.from_pandas(obs=obs1, df=example_data, dtype=dtype)
+    example_data_np = np.random.random(size=(1000, len(obs3d)))
+    example_data = pd.DataFrame(data=example_data_np, columns=obs3d)
+    data = zfit.Data.from_pandas(obs=obs3d, df=example_data, dtype=dtype)
     x = data.value()
     assert x.dtype == dtype
     x_np = x.numpy()
@@ -142,9 +176,9 @@ def test_from_to_pandas():
     np.testing.assert_array_equal(example_data_np.astype(dtype=dtype), x_np)
 
     # test auto obs retreavel
-    example_data2 = pd.DataFrame(data=example_data_np, columns=obs1)
+    example_data2 = pd.DataFrame(data=example_data_np, columns=obs3d)
     data2 = zfit.Data.from_pandas(df=example_data2)
-    assert data2.obs == obs1
+    assert data2.obs == obs3d
     x2 = data2.value()
     x_np2 = x2.numpy()
     np.testing.assert_array_equal(example_data_np, x_np2)
@@ -154,7 +188,7 @@ def test_from_to_pandas():
 
 
 @pytest.mark.parametrize("weights_as_branch", [True, False])
-def test_from_pandas_limits(weights_as_branch):
+def test_from_pandas_limits(weights_as_branch, obs3d):
     from skhep_testdata import data_path
 
     path_root = data_path("uproot-Zmumu.root")
@@ -173,9 +207,9 @@ def test_from_pandas_limits(weights_as_branch):
     )
 
     true_weights = true_data.pop(weight_branch)
-    obs1 = zfit.Space("pt1", limits=(lower1, upper1))
+    obs3d = zfit.Space("pt1", limits=(lower1, upper1))
     obs2 = zfit.Space("pt2", limits=(lower2, upper2))
-    obs = obs1 * obs2
+    obs = obs3d * obs2
 
     weights_for_pandas = (
         true_data_uncut[weight_branch] if weights_as_branch else weight_branch
@@ -218,9 +252,9 @@ def test_from_tensors(weights_factory):
         assert weights is None
 
 
-def test_overloaded_operators():
-    data1 = create_data1()
+def test_overloaded_operators(data1):
     a = data1 * 5.0
+    example_data1 = data1.value().numpy()
     np.testing.assert_array_equal(5 * example_data1, a.numpy())
     np.testing.assert_array_equal(example_data1, data1.numpy())
     data_squared = data1 * data1
@@ -230,13 +264,12 @@ def test_overloaded_operators():
     )
 
 
-def test_sort_by_obs():
-    data1 = create_data1()
-
-    new_obs = (obs1[1], obs1[2], obs1[0])
+def test_sort_by_obs(data1, obs3d):
+    new_obs = (obs3d[1], obs3d[2], obs3d[0])
+    example_data1 = data1.value().numpy()
     new_array = copy.deepcopy(example_data1)[:, np.array((1, 2, 0))]
     # new_array = np.array([new_array[:, 1], new_array[:, 2], new_array[:, 0]])
-    assert data1.obs == obs1, "If this is not True, then the test will be flawed."
+    assert data1.obs == obs3d, "If this is not True, then the test will be flawed."
     with data1.sort_by_obs(new_obs):
         assert data1.obs == new_obs
         np.testing.assert_array_equal(new_array, data1.value().numpy())
@@ -249,14 +282,13 @@ def test_sort_by_obs():
 
         assert data1.obs == new_obs
 
-    assert data1.obs == obs1
+    assert data1.obs == obs3d
     np.testing.assert_array_equal(example_data1, data1.value().numpy())
 
 
-def test_subdata():
-    data1 = create_data1()
-    new_obs = (obs1[0], obs1[1])
-    new_array = copy.deepcopy(example_data1)[:, np.array((0, 1))]
+def test_subdata(obs3d, data1):
+    new_obs = (obs3d[0], obs3d[1])
+    new_array = copy.deepcopy(data1.value().numpy())[:, np.array((0, 1))]
     # new_array = np.array([new_array[:, 0], new_array])
     with data1.sort_by_obs(obs=new_obs):
         assert data1.obs == new_obs
@@ -272,8 +304,8 @@ def test_subdata():
                 with data1.sort_by_obs(obs=new_obs):
                     data1.value().numpy()
 
-    assert data1.obs == obs1
-    np.testing.assert_array_equal(example_data1, data1.value())
+    assert data1.obs == obs3d
+    np.testing.assert_array_equal(data1.value().numpy(), data1.value())
 
 
 @pytest.mark.parametrize(
@@ -335,3 +367,40 @@ def test_multidim_data_range():
     data_range = zfit.Space([obs1], limits=(5, 15))
     dataset = zfit.Data.from_numpy(array=data2, obs=data_range)
     assert dataset.nevents.numpy() == 11
+
+
+def test_data_hashing(space2d):
+    import zfit.z.numpy as znp
+
+    npdata1 = np.random.uniform(size=(3352, 2))
+    # data1 = data1.transpose()
+    data1 = zfit.Data.from_numpy(obs=space2d, array=npdata1)
+    assert data1.hashint is not None
+    testhashpdf = TestHashPDF(obs=space2d, lasthash=data1.hashint)
+    assert testhashpdf.lasthash == data1.hashint
+    oldhashint = data1.hashint
+    data1.set_weights(np.random.uniform(size=data1.nevents))
+    assert oldhashint != data1.hashint
+    assert data1.hashint != testhashpdf.lasthash
+    assert oldhashint == testhashpdf.lasthash
+    testhashpdf.pdf(data1, norm=False)
+    assert oldhashint != testhashpdf.lasthash
+    assert data1.hashint == testhashpdf.lasthash
+
+    zfit.run.set_graph_mode(
+        True
+    )  # meaning integration is now done in graph and has "None"
+    oldhashint = data1.hashint
+    data1.set_weights(np.random.uniform(size=data1.nevents))
+    testhashpdf.pdf(data1)
+    assert oldhashint != testhashpdf.lasthash
+    assert None == testhashpdf.lasthash
+
+
+def test_hashing_resample(space2d):
+    n = 1534
+    pdf = zfit.pdf.Gauss(obs=space2d.with_obs(space2d.obs[0]), mu=0.4, sigma=0.8)
+    sample = pdf.create_sampler(n)
+    assert sample.hashint is None
+    sample.resample()
+    assert sample.hashint is None
