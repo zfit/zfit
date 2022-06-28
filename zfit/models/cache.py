@@ -23,7 +23,7 @@ class CacheablePDF(BaseFunctor):
         """Makes pdf and integrate methods of ZfitPDF cacheable
         Args:
             pdf: pdf which methods to be cached
-            cache_tolerance: accuracy of comparing arguments with cached values
+            cache_tol: accuracy of comparing arguments with cached values
         """
         super().__init__(pdfs=pdf, obs=pdf.space, **kwargs)
         params = list(pdf.get_params())
