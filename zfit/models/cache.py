@@ -21,6 +21,8 @@ def get_value(cache: tf.Variable, flag: tf.Variable, func):
 class CacheablePDF(BaseFunctor):
     def __init__(self, pdf, cache_tolerance=None, **kwargs):
         """Makes pdf and integrate methods of ZfitPDF cacheable
+        It stores the last calculated value of a function
+        and return it when input args are the same and pdf parameters have not been changed.
         Args:
             pdf: pdf which methods to be cached
             cache_tolerance: accuracy of comparing arguments with cached values

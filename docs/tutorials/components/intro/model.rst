@@ -272,24 +272,35 @@ Download this tutorial :jupyter-download:notebook:`notebook <zfit_model_introduc
 
 Cacheable PDF
 ----------
-Your PDF can be cacheable now.
+Your pdf can be cacheable now.
 :py:class:`zfit.models.cache.CacheablePDF` class makes methods
 :meth:`~zfit.pdf.BasePDF.pdf` and :meth:`~zfit.pdf.BasePDF.integrate` cacheable.
+CacheablePDF will be useful in the case of composite pdfs when you want to fit only one of them,
+you can make another one cacheable so it's methods won't be recalculated when input arguments
+and pdf parameters stay the same.
+
+For example you have sum of Gaussian and exponential pdfs:
 
 .. jupyter-execute::
-    # Define Gaussian or any other PDF
-    obs = zfit.Space('y', limits=(5, 10))
-    mu = zfit.Parameter("mu", 1.)
-    sigma = zfit.Parameter("sigma", 1.)
-    gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
 
-    # Define CacheablePDF
-    cached_gauss = CacheablePDF(gauss)
+    # pdf creation
+    obs = zfit.Space("x", limits=(-10, 10))
+    mu = zfit.Parameter("mu", 1.0, -4, 6)
+    sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
+    lambd = zfit.Parameter("lambda", -1.0, -5.0, 0)
+    frac = zfit.Parameter("fraction", 0.5, 0.0, 1.0)
 
-    #Use as usual PDF but with cacheable methods
-    x = znp.linspace(-5, 5, 500)
-    cached_gauss.pdf(x)
-    cached_gauss.integral(obs)
+    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+    exponential = zfit.pdf.Exponential(lambd, obs=obs)
+
+    # make exponential pdf cacheable
+    cached_exponential = CacheablePDF(exponential)
+
+    # create SumPDF with cacheable exponential pdf
+    sum_pdf = zfit.pdf.SumPDF([gauss, cached_exponential], fracs=frac)
+
+Done! Your optimized SumPDF is ready for fitting.
+
 
 
 
