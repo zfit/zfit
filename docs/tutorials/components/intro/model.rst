@@ -300,8 +300,3 @@ For example you have sum of Gaussian and exponential pdfs:
     sum_pdf = zfit.pdf.SumPDF([gauss, cached_exponential], fracs=frac)
 
 Done! Your optimized SumPDF is ready for fitting.
-
-
-
-
-

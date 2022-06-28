@@ -25,7 +25,7 @@ class CacheablePDF(BaseFunctor):
         and return it when input args are the same and pdf parameters have not been changed.
         Args:
             pdf: pdf which methods to be cached
-            cache_tolerance: accuracy of comparing arguments with cached values
+            cache_tol: accuracy of comparing arguments with cached values
         """
         super().__init__(pdfs=pdf, obs=pdf.space, **kwargs)
         params = list(pdf.get_params())
