@@ -89,8 +89,8 @@ def auto_integrate(
         n_events = vf_options.get("n_events", int(6e6))
         events_limit = vf_options.get("events_limit", int(1e6))
         list_devices = vf_options.get("list_devices")
-        compilable = vf_options.get("compilable", True)
-        verbose = vf_options.get("verbose", False)  # get_verbosity() >= 0 (?)
+        compilable = vf_options.get("compilable", False)
+        verbose = vf_options.get("verbose", 3)
         integral = mc_vf_integrate(
             func=func,
             limits=limits,
@@ -364,6 +364,7 @@ def mc_integrate(
     # return z.to_real(integral, dtype=dtype)
 
 
+# @z.function
 def mc_vf_integrate(
     func: Callable,
     limits: ztyping.LimitsType,
@@ -373,7 +374,7 @@ def mc_vf_integrate(
     n_events: int = int(6e6),
     events_limit: int = int(1e6),
     list_devices: list = None,
-    compilable: bool = True,
+    compilable: bool = False,
     verbose: int | str = 3,
     tol: float = 1e-6,
     **kwargs,
@@ -410,6 +411,7 @@ def mc_vf_integrate(
         verbose = str(verbose)
         assert verbose in ("1", "2", "3", "4")
         os.environ["VEGASFLOW_LOG_LEVEL"] = verbose
+        verbose = verbose in ("3", "4")  # to display iteration results
     except AssertionError as e:
         raise ValueError("`verbose` param must be one of (1, 2, 3, 4)") from e
     try:
@@ -449,7 +451,7 @@ def mc_vf_integrate(
 
         if compilable:
             spec_shape = (None,) if n_dim == 1 else (None, n_dim)
-            vf_integrand = tf.function(
+            vf_integrand = z.function(
                 vf_integrand,
                 input_signature=[tf.TensorSpec(shape=spec_shape, dtype=dtype)],
             )
