@@ -394,7 +394,7 @@ def mc_vf_integrate(
             will be broken down into several steps (in order to limit memory).
             Note: for a better performance, when n_events is greater than the event limit,
             `n_events` should be exactly divisible by `events_limit`
-        list_devices: List of devices to look for
+        list_devices: List of devices to look for (if available, "GPU" will be chosen)
         compilable: whether to pass `func` through tf.function or not
         verbose: set verbosity level for logging
             1 - error
@@ -412,8 +412,6 @@ def mc_vf_integrate(
         os.environ["VEGASFLOW_LOG_LEVEL"] = verbose
     except AssertionError as e:
         raise ValueError("`verbose` param must be one of (1, 2, 3, 4)") from e
-    if list_devices is None:
-        list_devices = ["GPU"] if tf.config.list_physical_devices("GPU") else ["CPU"]
     try:
         import vegasflow as vflow
     except ImportError as e:
