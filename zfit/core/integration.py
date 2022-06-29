@@ -85,23 +85,18 @@ def auto_integrate(
     elif method.lower() == "mc_vegasflow":
         vf_options = vf_options or {}
         n_iter = vf_options.get("n_iter", 20)
-        n_iter_pre = vf_options.get("n_iter_pre", 5)
+        n_iter_pre = vf_options.get("n_iter_pre", 10)
         n_events = vf_options.get("n_events", int(6e6))
         events_limit = vf_options.get("events_limit", int(1e6))
         list_devices = vf_options.get("list_devices")
         compilable = vf_options.get("compilable", True)
         verbose = vf_options.get("verbose", False)  # get_verbosity() >= 0 (?)
-        # details: https://github.com/N3PDF/vegasflow/blob/master/src/vegasflow/configflow.py
-        vf_options = {
-            "VEGASFLOW_LOG_LEVEL": "1",
-            "VEGASFLOW_FLOAT": "64",
-            "VEGASFLOW_INT": "32",
-        }
         integral = mc_vf_integrate(
             func=func,
             limits=limits,
             dtype=dtype,
             n_iter=n_iter,
+            n_iter_pre=n_iter_pre,
             n_events=n_events,
             events_limit=events_limit,
             list_devices=list_devices,
@@ -379,7 +374,7 @@ def mc_vf_integrate(
     events_limit: int = int(1e6),
     list_devices: list = None,
     compilable: bool = True,
-    verbose: bool = False,
+    verbose: int | str = 3,
     tol: float = 1e-6,
     **kwargs,
 ) -> tf.Tensor:
@@ -401,13 +396,22 @@ def mc_vf_integrate(
             `n_events` should be exactly divisible by `events_limit`
         list_devices: List of devices to look for
         compilable: whether to pass `func` through tf.function or not
+        verbose: set verbosity level for logging
+            1 - error
+            2 - warning
+            3 - info
+            4 - debug
+            details: https://github.com/N3PDF/vegasflow/blob/master/src/vegasflow/configflow.py
 
     Returns:
         The integral
     """
-    os.environ["VEGASFLOW_LOG_LEVEL"] = kwargs.get("VEGASFLOW_LOG_LEVEL", "2" if verbose else "1")
-    os.environ["VEGASFLOW_FLOAT"] = kwargs.get("VEGASFLOW_FLOAT", "64")
-    os.environ["VEGASFLOW_INT"] = kwargs.get("VEGASFLOW_INT", "32")
+    try:
+        verbose = str(verbose)
+        assert verbose in ("1", "2", "3", "4")
+        os.environ["VEGASFLOW_LOG_LEVEL"] = verbose
+    except AssertionError as e:
+        raise ValueError("`verbose` param must be one of (1, 2, 3, 4)") from e
     if list_devices is None:
         list_devices = ["GPU"] if tf.config.list_physical_devices("GPU") else ["CPU"]
     try:
