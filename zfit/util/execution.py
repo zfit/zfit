@@ -33,6 +33,7 @@ class RunManager:
         self.numeric_checks = True
         self._mode = self.DEFAULT_MODE.copy()
         self.set_n_cpu(n_cpu=n_cpu)
+        self._hashing_enabled = True
 
         # HACK
         self._enable_parameter_autoconversion = True
@@ -404,6 +405,18 @@ class RunManager:
         Use `clear_graph_caches` instead.
         """
         self.clear_graph_cache()
+
+    def hashing_data(self):
+        """If hashing of data (required for caching) is enabled."""
+        return self._hashing_enabled
+
+    def set_data_hashing(self, enabled: bool):
+        """Enable or disable hashing of data (required for caching).
+
+        Args:
+            enabled: Whether hashing of data is enabled.
+        """
+        self._hashing_enabled = enabled
 
 
 def eval_object(obj: object) -> object:
