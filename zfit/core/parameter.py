@@ -887,6 +887,7 @@ class ComposedParameter(BaseComposedParameter):
 
         Examples:
             .. jupyter-execute::
+
                 import zfit
 
                 param1 = zfit.Parameter('param1', 1.0, 0.1, 1.8)
