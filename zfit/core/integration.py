@@ -19,7 +19,6 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import tf_quant_finance.math.integration as tf_integration
 
-
 import zfit.z.numpy as znp
 from zfit import z
 from .dimension import BaseDimensional
