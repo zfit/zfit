@@ -52,10 +52,10 @@ def compute_errors(
 ]:
     """Compute asymmetric errors of parameters by profiling the loss function in the fit result.
 
-    This method finds the value for a given parameter where the loss function is `cl` away: for example
+    This method finds the value for a given parameter where the loss function is ``cl`` away: for example
     for a cl of 68.3%, this is one (multiplied by the errordef). The other parameters are also minimized and
-    not fixed. This method is comparably computationally intensive and, if possible, `hesse` should be used.
-    However, since `hesse` does not capture asymetric or non-parabolic shaped profiles well, this method is
+    not fixed. This method is comparably computationally intensive and, if possible, ``hesse`` should be used.
+    However, since ``hesse`` does not capture asymetric or non-parabolic shaped profiles well, this method is
     preferable.
 
     Args:
@@ -64,17 +64,17 @@ def compute_errors(
             errors error. If None, use all parameters.
         cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
         rtol: relative tol between the computed and the exact roots
-        method: type of solver, `method` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
+        method: type of solver, ``method`` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
         covariance_method: The method to use to calculate the correlation matrix, will be forwarded directly
             to :py:meth:`FitResult.covariance`. Valid choices are
             by default {'minuit_hesse', 'hesse_np'} (or any other method defined in the result)
             or a Callable.
-        sigma: Errors are calculated with respect to `sigma` std deviations.
+        sigma: Errors are calculated with respect to ``sigma`` std deviations.
 
 
     Returns:
         out:
-            A `dict` containing as keys the parameter and as value a `dict` which
+            A ``dict`` containing as keys the parameter and as value a ``dict`` which
             contains two keys 'lower' and 'upper', holding the calculated errors.
             Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
         out: a fit result is returned when a new minimum is found during the loss scan

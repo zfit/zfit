@@ -60,7 +60,7 @@ class SimpleConstraint(BaseConstraint):
 
         Args:
             func: Callable that constructs the constraint and returns a tensor.
-            params: The dependents (independent `zfit.Parameter`) of the loss. If not given, the
+            params: The dependents (independent ``zfit.Parameter``) of the loss. If not given, the
                 dependents are figured out automatically.
         """
         self._simple_func = func
@@ -132,7 +132,7 @@ class ProbabilityConstraint(BaseConstraint):
         return _extract_dependencies(self.get_params())
 
     def sample(self, n):
-        """Sample `n` points from the probability density function for the observed value of the parameters.
+        """Sample ``n`` points from the probability density function for the observed value of the parameters.
 
         Args:
             n: The number of samples to be generated.
@@ -162,7 +162,7 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         dtype=ztypes.float,
         **kwargs,
     ):
-        """Base class for constraints using a probability density function from `tensorflow_probability`.
+        """Base class for constraints using a probability density function from ``tensorflow_probability``.
 
         Args:
             distribution: The probability density function
@@ -203,7 +203,7 @@ class GaussianConstraint(TFProbabilityConstraint):
     ):
         r"""Gaussian constraints on a list of parameters to some observed values with uncertainties.
 
-        A Gaussian constraint is defined as the likelihood of `params` given the `observations` and `uncertainty` from
+        A Gaussian constraint is defined as the likelihood of ``params`` given the ``observations`` and ``uncertainty`` from
         a different measurement.
 
         .. math::

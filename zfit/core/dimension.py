@@ -56,9 +56,9 @@ def get_same_obs(obs):
 def limits_overlap(
     spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bool = False
 ) -> bool:
-    """Check if _any_ of the limits of `spaces` overlaps with _any_ other of `spaces`.
+    """Check if _any_ of the limits of ``spaces`` overlaps with _any_ other of ``spaces``.
 
-    This also checks multiple limits within one space. If `allow_exact_match` is set to true, then
+    This also checks multiple limits within one space. If ``allow_exact_match`` is set to true, then
     an *exact* overlap of limits is allowed.
 
 
@@ -66,7 +66,7 @@ def limits_overlap(
         spaces:
         allow_exact_match: An exact overlap of two limits is counted as "not overlapping".
             Example: limits from -1 to 3 and 4 to 5 to *NOT* overlap with the limits 4 to 5 *iff*
-            `allow_exact_match` is True.
+            ``allow_exact_match`` is True.
 
     Returns:
         If there are overlapping limits.
@@ -112,7 +112,7 @@ def limits_overlap(
 
 
 def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> list[str] | bool:
-    """Extract the union of `obs` from `spaces` in the order of `spaces`.
+    """Extract the union of ``obs`` from ``spaces`` in the order of ``spaces``.
 
     For example:
         | space1.obs: ['obs1', 'obs3']
@@ -125,7 +125,7 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> list[str] | bool:
         spaces: :py:class:`~zfit.Space`s to extract the obs from
 
     Returns:
-        The observables as `str` or False if not every space has observables
+        The observables as ``str`` or False if not every space has observables
     """
     spaces = convert_to_container(spaces, container=tuple)
     all_obs = []
@@ -139,7 +139,7 @@ def common_obs(spaces: ztyping.SpaceOrSpacesTypeInput) -> list[str] | bool:
 
 
 def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> list[str] | bool:
-    """Extract the union of `axes` from `spaces` in the order of `spaces`.
+    """Extract the union of ``axes`` from ``spaces`` in the order of ``spaces``.
 
     For example:
         | space1.axes: [1, 3]
@@ -168,7 +168,7 @@ def common_axes(spaces: ztyping.SpaceOrSpacesTypeInput) -> list[str] | bool:
 def obs_subsets(
     dimensionals: Iterable[ZfitDimensional],
 ) -> dict[set[str], ZfitDimensional]:
-    """Split `dimensionals` into the smallest subgroup of obs and return a dict.
+    """Split ``dimensionals`` into the smallest subgroup of obs and return a dict.
 
     Args:
         dimensionals: An Iterable containing two or more ZfitDimensional that should be split into the smallest subset.

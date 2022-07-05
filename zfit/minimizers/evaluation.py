@@ -18,7 +18,7 @@ from ..util.exception import DerivativeCalculationError, MaximumIterationReached
 
 
 def check_derivative_none_raise(values, params) -> None:
-    """Check if values contains `None` and raise a ``DerivativeCalculationError`` if so.
+    """Check if values contains ``None`` and raise a ``DerivativeCalculationError`` if so.
 
     Args:
         values: Values to check. Can be gradient or hessian
@@ -47,7 +47,7 @@ class LossEval:
     ):
         r"""Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
-        The methods `value`, `gradient` etc will raise a `MaximumIterationReached` error in case the maximum iterations
+        The methods ``value``, ``gradient`` etc will raise a ``MaximumIterationReached`` error in case the maximum iterations
         is reached.
 
         Args:
@@ -55,7 +55,7 @@ class LossEval:
             params: Parameters that the gradient and hessian will be derived to.
             strategy: A strategy to deal with NaNs and more.
             do_print: If the values should be printed nicely
-            maxiter: Maximum number of evaluations of the `value`, 'gradient` or `hessian`.
+            maxiter: Maximum number of evaluations of the ``value``, 'gradient`` or ``hessian``.
             grad_fn: Function that returns the gradient.
             hesse_fn: Function that returns the hessian matrix.
         """

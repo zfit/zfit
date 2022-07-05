@@ -59,12 +59,12 @@ class Data(
         dtype: tf.DType = None,
         use_hash: bool = None,
     ):
-        """Create a data holder from a `dataset` used to feed into `models`.
+        """Create a data holder from a ``dataset`` used to feed into ``models``.
 
         Args:
             dataset: A dataset storing the actual values
             obs: Observables where the data is defined in
-            name: Name of the `Data`
+            name: Name of the ``Data``
             weights: Weights of the data
             dtype: |dtype_arg_descr|
             use_hash: Whether to use a hash for caching
@@ -202,18 +202,18 @@ class Data(
         dtype: tf.DType = None,
         use_hash: bool = None,
     ):
-        """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
+        """Create a ``Data`` from a pandas DataFrame. If ``obs`` is ``None``, columns are used as obs.
 
         Args:
-            df: pandas DataFrame that contains the data. If `obs` is `None`, columns are used as obs. Can be
+            df: pandas DataFrame that contains the data. If ``obs`` is ``None``, columns are used as obs. Can be
                 a superset of obs.
             obs: obs to use for the data. obs have to be the columns in the data frame.
-                If `None`, columns are used as obs.
+                If ``None``, columns are used as obs.
             weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents) or a string that is a column in the dataframe.
             name:
             dtype: dtype of the data
-            use_hash: If `True`, a hash of the data is created and is used to identify it in caching.
+            use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
         """
         if obs is None:
             obs = list(df.columns)
@@ -265,7 +265,7 @@ class Data(
         branches: list[str] = None,
         branches_alias: dict = None,
     ) -> Data:
-        """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
+        """Create a ``Data`` from a ROOT file. Arguments are passed to ``uproot``.
 
         The arguments are passed to uproot directly.
 
@@ -276,13 +276,13 @@ class Data(
             weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents). Can be a column of the ROOT file by using a string corresponding to a
                 column.
-            obs_alias: A mapping from the `obs` (as keys) to the actual `branches` (as values) in the root file.
-                This allows to have different `observable` names, independent of the branch name in the file.
+            obs_alias: A mapping from the ``obs`` (as keys) to the actual ``branches`` (as values) in the root file.
+                This allows to have different ``observable`` names, independent of the branch name in the file.
             name:
             root_dir_options:
 
         Returns:
-            `zfit.Data`: A `Data` object containing the unbinned data.
+            ``zfit.Data``: A ``Data`` object containing the unbinned data.
         """
         # begin deprecated legacy arguments
         if branches:
@@ -349,7 +349,7 @@ class Data(
         dtype: tf.DType = None,
         use_hash=None,
     ):
-        """Create `Data` from a `np.array`.
+        """Create ``Data`` from a ``np.array``.
 
         Args:
             obs: Observables of the data. They will be matched to the data in the same order.
@@ -357,10 +357,10 @@ class Data(
             weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
             name: Name of the data.
             dtype: dtype of the data.
-            use_hash: If `True`, a hash of the data is created and is used to identify it in caching.
+            use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
 
         Returns:
-            `zfit.Data`: A `Data` object containing the unbinned data.
+            ``zfit.Data``: A ``Data`` object containing the unbinned data.
         """
 
         if not isinstance(array, (np.ndarray)) and not (
@@ -391,7 +391,7 @@ class Data(
         dtype: tf.DType = None,
         use_hash=None,
     ) -> Data:
-        """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
+        """Create a ``Data`` from a ``tf.Tensor``. ``Value`` simply returns the tensor (in the right order).
 
         Args:
             obs: Observables of the data. They will be matched to the data in the same order.
@@ -400,7 +400,7 @@ class Data(
             name: Name of the data.
 
         Returns:
-            `zfit.Data`: A `Data` object containing the unbinned data.
+            ``zfit.Data``: A ``Data`` object containing the unbinned data.
         """
         # dataset = LightDataset.from_tensor(tensor=tensor)
         if dtype is None:
@@ -441,10 +441,10 @@ class Data(
         )
 
     def to_pandas(self, obs: ztyping.ObsTypeInput = None):
-        """Create a `pd.DataFrame` from `obs` as columns and return it.
+        """Create a ``pd.DataFrame`` from ``obs`` as columns and return it.
 
         Args:
-            obs: The observables to use as columns. If `None`, all observables are used.
+            obs: The observables to use as columns. If ``None``, all observables are used.
 
         Returns:
         """
@@ -592,7 +592,7 @@ class Data(
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
     ) -> Space | None:
-        """Convert the inputs (using eventually `obs`, `axes`) to
+        """Convert the inputs (using eventually ``obs``, ``axes``) to
         :py:class:`~zfit.Space` and sort them according to own `obs`.
 
         Args:
@@ -779,9 +779,9 @@ class Sampler(Data):
     def resample(self, param_values: Mapping = None, n: int | tf.Tensor = None):
         """Update the sample by newly sampling. This affects any object that used this data already.
 
-        All params that are not in the attribute `fixed_params` will use their current value for
+        All params that are not in the attribute ``fixed_params`` will use their current value for
         the creation of the new sample. The value can also be overwritten for one sampling by providing
-        a mapping with `param_values` from `Parameter` to the temporary `value`.
+        a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
 
         Args:
             param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,

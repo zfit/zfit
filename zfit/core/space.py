@@ -223,12 +223,12 @@ class Limit(
         """Specify a limit with rectangular limits (and possiblty an arbitrary function).
 
         Args:
-            limit_fn: Function that works as `inside`: return true if a point is inside of the limits.
+            limit_fn: Function that works as ``inside``: return true if a point is inside of the limits.
                 The function should take one tensor-like argument with shape (..., n_obs) and should return
                 a shape without the last dimension.
             rect_limits: Rectangular limits, a tuple of tensor-like objects with shape (typically) (1, n_obs) or similar
                 such as only a tuple/list of values that will be interpreted as the last dimension. They should cover an
-                area that includes `limit_fn` fully.
+                area that includes ``limit_fn`` fully.
             n_obs: dimensionality of the Limits, the last dimension.
         """
         super().__init__()
@@ -394,14 +394,14 @@ class Limit(
 
     @property
     def rect_limits(self) -> ztyping.RectLimitsReturnType:
-        """Return the rectangular limits as `np.ndarray``tf.Tensor` if they are set and not false.
+        """Return the rectangular limits as ``np.ndarray``tf.Tensor`` if they are set and not false.
 
             The rectangular limits can be used for sampling. They do not in general represent the limits
             of the object as a functional limit can be set and to check if something is inside the limits,
             the method :py:meth:`~Limit.inside` should be used.
 
             In order to test if the limits are False or None, it is recommended to use the appropriate methods
-            `limits_are_false` and `limits_are_set`.
+            ``limits_are_false`` and ``limits_are_set``.
 
         Returns:
             The lower and upper limits.
@@ -426,16 +426,16 @@ class Limit(
 
     @property
     def rect_limits_np(self) -> ztyping.RectLimitsNPReturnType:
-        """Return the rectangular limits as `np.ndarray`. Raise error if not possible.
+        """Return the rectangular limits as ``np.ndarray``. Raise error if not possible.
 
         Rectangular limits are returned as numpy arrays which can be useful when doing checks that do not
         need to be involved in the computation later on as they allow direct interaction with Python as
-        compared to `tf.Tensor` inside a graph function.
+        compared to ``tf.Tensor`` inside a graph function.
 
 
         Returns:
-            A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
-                dimension is always `n_obs`, the first can be vectorized. This allows unstacking
+            A tuple of two ``np.ndarray`` with shape (1, n_obs) typically. The last
+                dimension is always ``n_obs``, the first can be vectorized. This allows unstacking
                 with `z.unstack_x()` as can be done with data.
 
         Raises:

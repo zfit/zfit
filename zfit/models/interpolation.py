@@ -29,7 +29,7 @@ class SplinePDF(BaseFunctor):
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
-               `ext_*` methods and the `counts` (for binned PDFs). |@docend:pdf.init.extended|
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
         if extended is None:
             extended = pdf.is_extended
