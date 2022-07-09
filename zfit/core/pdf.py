@@ -124,10 +124,10 @@ class PDF(Func, ZfitPDF):
         *,
         options=None,
     ) -> ztyping.PDFReturnType:
-        """Probability density function, normalized over `norm`.
+        """Probability density function, normalized over ``norm``.
 
         Args:
-          var: `float` or `double` `Tensor`.
+          var: ``float`` or ``double`` ``Tensor``.
           norm: :py:class:`~zfit.Space` to normalize over
 
         Returns:
@@ -159,10 +159,10 @@ class PDF(Func, ZfitPDF):
         *,
         options=None,
     ) -> ztyping.PDFReturnType:
-        """Probability density function, normalized over `norm`.OneDim.
+        """Probability density function, normalized over ``norm``.OneDim.
 
         Args:
-          var: `float` or `double` `Tensor`.
+          var: ``float`` or ``double`` ``Tensor``.
           norm: :py:class:`~zfit.Space` to normalize over
 
         Returns:

@@ -3,12 +3,12 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
+    rev: v4.3.0
     hooks:
       - id: check-added-large-files
         args: [ '--maxkb=1000' ]
       - id: check-case-conflict
-      #      - id: check-merge-conflict
+      - id: check-merge-conflict
       - id: check-symlinks
       - id: check-yaml
       - id: check-toml
@@ -18,7 +18,7 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
       - id: detect-private-key
-      #          - id: name-tests-test
+#      - id: name-tests-test  # TODO: rename tests correctly?
       - id: fix-byte-order-marker
       - id: check-ast
   - repo: local
@@ -46,11 +46,11 @@ repos:
       - id: python-use-type-annotations
       - id: python-check-mock-methods
       - id: python-no-eval
-      #          - id: rst-backticks
+      - id: rst-backticks
       - id: rst-directive-colons
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.32.0
+    rev: v2.34.0
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]
@@ -90,8 +90,15 @@ repos:
       - id: upgrade-type-hints
         args: [ '--futures=true' ]
 
+  - repo: https://github.com/shssoichiro/oxipng
+    rev: acdd66b4c5a5fda8b08281ad9b3216327b6847b4
+    hooks:
+      - id: oxipng
+
+
+
   - repo: https://github.com/ambv/black
-    rev: 22.3.0
+    rev: 22.6.0
     hooks:
       - id: black
         language_version: python3

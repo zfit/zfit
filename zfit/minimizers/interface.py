@@ -7,7 +7,7 @@ from abc import abstractmethod
 class ZfitResult:
     @abstractmethod
     def hesse(self, params, method):
-        """Calculate for `params` the symmetric error using the Hessian matrix.
+        """Calculate for ``params`` the symmetric error using the Hessian matrix.
 
         Args:
             params: The parameters  to calculate the
@@ -19,23 +19,23 @@ class ZfitResult:
                 the error dict {'hesse': sym_error}.
 
                 So given param_a (from zfit.Parameter(.))
-                `error_a = result.hesse(params=param_a)[param_a]['hesse']`
+                ``error_a = result.hesse(params=param_a)[param_a]['hesse']``
                 error_a is the hessian error.
         """
         raise NotImplementedError
 
     @abstractmethod
     def errors(self, params, method, cl):
-        """Calculate and set for `params` the asymmetric error using the set error method.
+        """Calculate and set for ``params`` the asymmetric error using the set error method.
 
         Args:
             params: The parameters or their names to calculate the
-                 errors. If `params` is `None`, use all *floating* parameters.
+                 errors. If ``params`` is ``None``, use all *floating* parameters.
             method: The method to use to calculate the errors. Valid choices are
                 {'minuit_minos'} or a Callable.
 
         Returns:
-            A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+            A ``OrderedDict`` containing as keys the parameter names and as value a ``dict`` which
                 contains (next to probably more things) two keys 'lower' and 'upper',
                 holding the calculated errors.
                 Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'

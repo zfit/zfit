@@ -88,7 +88,7 @@ class Approximations:
             params: Parameters to which the gradients should be returned
 
         Returns:
-            Array with gradients or `None`
+            Array with gradients or ``None``
         """
         grad = self._gradient
         if grad is None:
@@ -113,7 +113,7 @@ class Approximations:
                 obtain the hessian approximation.
 
         Returns:
-            Array with hessian matrix or `None`
+            Array with hessian matrix or ``None``
         """
         hess = self._hessian
         if hess is None and invert:
@@ -131,7 +131,7 @@ class Approximations:
                 obtain the inverse hessian approximation.
 
         Returns:
-            Array with the inverse of the hessian matrix or `None`
+            Array with the inverse of the hessian matrix or ``None``
         """
         inv_hess = self._inv_hessian
         if inv_hess is None and invert:
@@ -316,9 +316,9 @@ class FitResult(ZfitResult):
         niter: int | None = None,
         evaluator: LossEval = None,
     ) -> None:
-        """Create a `FitResult` from a minimization. Store parameter values, minimization infos and calculate errors.
+        """Create a ``FitResult`` from a minimization. Store parameter values, minimization infos and calculate errors.
 
-        Any errors calculated are saved under `self.params` dictionary with::
+        Any errors calculated are saved under ``self.params`` dictionary with::
 
             {parameter: {error_name1: {'low': value, 'high': value or similar}}
 
@@ -329,10 +329,10 @@ class FitResult(ZfitResult):
             params: |@doc:result.init.params| Result of the fit where each
                :py:class:`~zfit.Parameter` key has the
                value from the minimum found by the minimizer. |@docend:result.init.params|
-            minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this `FitResult` and will be used to
+            minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this ``FitResult`` and will be used to
                    calculate certain errors. If the minimizer
                    is state-based (like "iminuit"), then this is a copy
-                   and the state of other `FitResults` or of the *actual*
+                   and the state of other ``FitResults`` or of the *actual*
                    minimizer that performed the minimization
                    won't be altered. |@docend:result.init.minimizer|
             valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest
@@ -550,10 +550,10 @@ class FitResult(ZfitResult):
                :py:class:`~zfit.Parameter` key has the
                value from the minimum found by the minimizer. |@docend:result.init.params|
             problem: |@doc:result.init.problem||@docend:result.init.problem|
-            minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this `FitResult` and will be used to
+            minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this ``FitResult`` and will be used to
                    calculate certain errors. If the minimizer
                    is state-based (like "iminuit"), then this is a copy
-                   and the state of other `FitResults` or of the *actual*
+                   and the state of other ``FitResults`` or of the *actual*
                    minimizer that performed the minimization
                    won't be altered. |@docend:result.init.minimizer|
             valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest
@@ -774,10 +774,10 @@ class FitResult(ZfitResult):
                :py:class:`~zfit.Parameter` key has the
                value from the minimum found by the minimizer. |@docend:result.init.params|
             result: Result of the SciPy optimization.
-            minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this `FitResult` and will be used to
+            minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this ``FitResult`` and will be used to
                    calculate certain errors. If the minimizer
                    is state-based (like "iminuit"), then this is a copy
-                   and the state of other `FitResults` or of the *actual*
+                   and the state of other ``FitResults`` or of the *actual*
                    minimizer that performed the minimization
                    won't be altered. |@docend:result.init.minimizer|
             message: |@doc:result.init.message| Human-readable message to indicate the reason
@@ -896,10 +896,10 @@ class FitResult(ZfitResult):
             params: |@doc:result.init.params| Result of the fit where each
                :py:class:`~zfit.Parameter` key has the
                value from the minimum found by the minimizer. |@docend:result.init.params|
-            minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this `FitResult` and will be used to
+            minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this ``FitResult`` and will be used to
                    calculate certain errors. If the minimizer
                    is state-based (like "iminuit"), then this is a copy
-                   and the state of other `FitResults` or of the *actual*
+                   and the state of other ``FitResults`` or of the *actual*
                    minimizer that performed the minimization
                    won't be altered. |@docend:result.init.minimizer|
             valid: |@doc:result.init.valid| Indicating whether the result is valid or not. This is the strongest

@@ -95,7 +95,7 @@ class BinnedData(
             space: The space of the data. Variables need to match the values dimensions. The space has to be binned
                 and carry the information about the edges.
             values: Actual counts of the histogram.
-            variances: Uncertainties of the histogram values. If `True`, the uncertainties are taken to be poissonian
+            variances: Uncertainties of the histogram values. If ``True``, the uncertainties are taken to be poissonian
                 distributed.
         """
         values = znp.asarray(values, znp.float64)
@@ -113,7 +113,7 @@ class BinnedData(
 
     @classmethod
     def from_hist(cls, hist: hist.NamedHist) -> BinnedData:
-        """Create a binned dataset from a `hist` histogram.
+        """Create a binned dataset from a ``hist`` histogram.
 
         Args:
             hist: A NamedHist. The axes will be used as the binning in zfit.
@@ -152,7 +152,7 @@ class BinnedData(
     def obs(self):
         return self.space.obs
 
-    def to_hist(self) -> hist.NamedHist:
+    def to_hist(self) -> hist.Hist:
         """Convert the binned data to a :py:class:`~hist.NamedHist`.
 
         While a binned data object can be used inside zfit (PDFs,...), it lacks many convenience features that the `hist
@@ -186,7 +186,7 @@ class BinnedData(
     def values(self) -> znp.array:  # , flow=False
         """Values of the histogram as an ndim array.
 
-        Compared to `hist`, zfit does not make a difference between a view and a copy; tensors are immutable.
+        Compared to ``hist``, zfit does not make a difference between a view and a copy; tensors are immutable.
         This distinction is made in the traced function by the compilation backend.
 
         Returns:
@@ -201,7 +201,7 @@ class BinnedData(
     def variances(self) -> None | znp.array:  # , flow=False
         """Variances, if available, of the histogram as an ndim array.
 
-        Compared to `hist`, zfit does not make a difference between a view and a copy; tensors are immutable.
+        Compared to ``hist``, zfit does not make a difference between a view and a copy; tensors are immutable.
         This distinction is made in the traced function by the compilation backend.
 
         Returns:
@@ -216,7 +216,7 @@ class BinnedData(
     def counts(self):
         """Effective counts of the histogram as an ndim array.
 
-        Compared to `hist`, zfit does not make a difference between a view and a copy; tensors are immutable.
+        Compared to ``hist``, zfit does not make a difference between a view and a copy; tensors are immutable.
         This distinction is made in the traced function by the compilation backend.
 
         Returns:

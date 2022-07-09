@@ -123,7 +123,7 @@ class BaseBinned(BaseLoss):
 
         Args:
             model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -158,12 +158,12 @@ class BaseBinned(BaseLoss):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
                  between different losses
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
 
@@ -209,7 +209,7 @@ class ExtendedBinnedNLL(BaseBinned):
             where :math:`databin_i` is the :math:`i^{th}` bin in the data and
             :math:`modelbin_i` is the :math:`i^{th}` bin of the model, the expected counts.
 
-            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more ``model``, ``data``, to the loss. The
         length of each has to match the length of the others
 
         .. math::
@@ -229,7 +229,7 @@ class ExtendedBinnedNLL(BaseBinned):
 
             Args:
                 model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -264,12 +264,12 @@ class ExtendedBinnedNLL(BaseBinned):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
                  between different losses
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
@@ -341,7 +341,7 @@ class BinnedNLL(BaseBinned):
             where :math:`databin_i` is the :math:`i^{th}` bin in the data and
             :math:`modelbin_i` is the :math:`i^{th}` bin of the model multiplied by the total number of events in data.
 
-            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more ``model``, ``data``, to the loss. The
         length of each has to match the length of the others
 
         .. math::
@@ -361,7 +361,7 @@ class BinnedNLL(BaseBinned):
 
             Args:
                 model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -396,12 +396,12 @@ class BinnedNLL(BaseBinned):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
                  between different losses
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
@@ -529,7 +529,7 @@ class BinnedChi2(BaseBinned):
 
             Args:
                 model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -564,12 +564,12 @@ class BinnedChi2(BaseBinned):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
                  between different losses
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
@@ -690,7 +690,7 @@ class ExtendedBinnedChi2(BaseBinned):
 
         Args:
             model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -725,12 +725,12 @@ class ExtendedBinnedChi2(BaseBinned):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
                  between different losses
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
